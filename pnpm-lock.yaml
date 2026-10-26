@@ -111,6 +111,9 @@ importers:
       '@openspace/blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
+      '@openspace/email-render':
+        specifier: workspace:*
+        version: link:../../packages/email-render
       '@openspace/lint':
         specifier: workspace:*
         version: link:../../packages/lint
@@ -123,6 +126,9 @@ importers:
       '@openspace/schema':
         specifier: workspace:*
         version: link:../../packages/schema
+      '@openspace/site-kit':
+        specifier: workspace:*
+        version: link:../../packages/site-kit
       '@openspace/theme':
         specifier: workspace:*
         version: link:../../packages/theme

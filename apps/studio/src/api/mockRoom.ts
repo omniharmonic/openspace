@@ -71,6 +71,8 @@ export interface MockRoomOptions {
   onChange?: (doc: SiteDocument, seq: number) => void;
   /** How long an agent shows as editing after its last op (ms). */
   agentPresenceMs?: number;
+  /** Called for every accepted op (the mock Hub's bookkeeping, e.g. contributor approvals). */
+  onAccepted?: (op: Op, actor: string) => void;
 }
 
 export interface MockAgentSession {
@@ -109,6 +111,7 @@ export class MockRoom {
   private readonly latency: number;
   private readonly agentPresenceMs: number;
   private readonly onChange?: (doc: SiteDocument, seq: number) => void;
+  private readonly onAccepted?: (op: Op, actor: string) => void;
   private agentTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   constructor(options: MockRoomOptions) {
@@ -120,6 +123,7 @@ export class MockRoom {
     this.latency = options.latencyMs ?? 0;
     this.agentPresenceMs = options.agentPresenceMs ?? 30_000;
     this.onChange = options.onChange;
+    this.onAccepted = options.onAccepted;
   }
 
   private later(fn: () => void) {
@@ -397,6 +401,7 @@ export class MockRoom {
       after: v.doc,
     });
     this.onChange?.(this.doc, this.seq);
+    this.onAccepted?.(op, input.actor);
     return { status: "accepted", opId: op.id, seq: this.seq, op, conflicts };
   }
 
