@@ -390,18 +390,11 @@ function EditorChrome({ site }: { site: Site }) {
     if (narrow) useEditorUi.getState().setBreakpoint("mobile");
   }, [narrow]);
 
-  // Tablets and small laptops: one side panel at a time, so the canvas keeps a usable size.
-  // The editor opens with the canvas, and selecting something trades the left panel for the
-  // inspector (the rail brings it back).
+  // Tablets and small laptops: one side panel at a time (enforced by the UI store's actions).
   const compact = useIsNarrow("(min-width: 768px) and (max-width: 1099px)");
   useEffect(() => {
-    if (compact) useEditorUi.getState().setLeftPanel(null);
+    useEditorUi.getState().setOnePanel(compact);
   }, [compact]);
-  useEffect(() => {
-    if (!compact || !hasSelection) return;
-    const ui = useEditorUi.getState();
-    if (ui.inspectorOpen && ui.leftPanel) ui.setLeftPanel(null);
-  }, [compact, hasSelection]);
 
   // The first-run checklist ticks itself when the home page's opening words or photo change.
   const complete = checklist.complete;

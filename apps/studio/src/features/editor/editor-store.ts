@@ -42,6 +42,14 @@ export interface EditorUiState {
   panning: boolean;
   /** The `?` keyboard shortcuts sheet. */
   shortcutsOpen: boolean;
+  /**
+   * Tablets and small laptops (768–1099 px): one side panel at a time, so the canvas keeps a
+   * usable size. Opening the left panel closes the inspector and the reverse.
+   */
+  onePanel: boolean;
+  setOnePanel: (on: boolean) => void;
+  /** Something was picked on the canvas: in one-panel mode, show the inspector instead of the left panel. */
+  revealInspector: () => void;
   toggleLeftPanel: (panel: LeftPanel) => void;
   setLeftPanel: (panel: LeftPanel | null) => void;
   toggleInspector: () => void;
@@ -65,6 +73,7 @@ const initial = {
   fitScale: 1,
   panning: false,
   shortcutsOpen: false,
+  onePanel: false,
 };
 
 export function effectiveZoom(s: Pick<EditorUiState, "zoom" | "fitScale">): number {
@@ -74,12 +83,31 @@ export function effectiveZoom(s: Pick<EditorUiState, "zoom" | "fitScale">): numb
 export const useEditorUi = create<EditorUiState>((set, get) => ({
   ...initial,
   toggleLeftPanel: (panel) =>
-    set((s) => ({
-      leftPanel: s.leftPanel === panel && !s.chromeHidden ? null : panel,
-      chromeHidden: false,
-    })),
-  setLeftPanel: (leftPanel) => set({ leftPanel }),
-  toggleInspector: () => set((s) => ({ inspectorOpen: !s.inspectorOpen })),
+    set((s) => {
+      const leftPanel = s.leftPanel === panel && !s.chromeHidden ? null : panel;
+      return {
+        leftPanel,
+        chromeHidden: false,
+        ...(s.onePanel && leftPanel ? { inspectorOpen: false } : {}),
+      };
+    }),
+  setLeftPanel: (leftPanel) =>
+    set((s) => ({ leftPanel, ...(s.onePanel && leftPanel ? { inspectorOpen: false } : {}) })),
+  toggleInspector: () =>
+    set((s) => {
+      const inspectorOpen = !s.inspectorOpen;
+      return { inspectorOpen, ...(s.onePanel && inspectorOpen ? { leftPanel: null } : {}) };
+    }),
+  setOnePanel: (onePanel) =>
+    set((s) =>
+      // Entering one-panel mode with both open keeps the inspector.
+      onePanel && s.leftPanel && s.inspectorOpen ? { onePanel, leftPanel: null } : { onePanel },
+    ),
+  revealInspector: () =>
+    set((s) =>
+      // Desktop keeps the person's own choice (a closed inspector stays closed).
+      s.onePanel ? { inspectorOpen: true, leftPanel: null, chromeHidden: false } : {},
+    ),
   toggleChrome: () => set((s) => ({ chromeHidden: !s.chromeHidden })),
   setBreakpoint: (breakpoint) => set({ breakpoint, zoom: "fit" }),
   setZoom: (zoom) => set({ zoom }),
@@ -96,5 +124,6 @@ export const useEditorUi = create<EditorUiState>((set, get) => ({
     if (get().panning !== panning) set({ panning });
   },
   setShortcutsOpen: (shortcutsOpen) => set({ shortcutsOpen }),
-  reset: () => set(initial),
+  // The viewport rule survives a reset (it describes the window, not this editor session).
+  reset: () => set((s) => ({ ...initial, onePanel: s.onePanel })),
 }));

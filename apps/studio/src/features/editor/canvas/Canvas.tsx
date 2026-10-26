@@ -206,6 +206,8 @@ export function Canvas({
         s.selection.length === 1 && s.selection[0]?.id === item.id && item.kind === "block";
       if (already && !e.shiftKey && editAt(item.id, e)) return;
       s.select(item, { additive: e.shiftKey });
+      // Picked on the canvas: show what can be changed (Layers keeps its own panel open).
+      useEditorUi.getState().revealInspector();
     };
     const onDblClick = (e: MouseEvent) => {
       const item = itemAt(e.target);
