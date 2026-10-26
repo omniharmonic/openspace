@@ -295,6 +295,32 @@ describe("overlapping text in grid sections", () => {
   });
 });
 
+describe("text over photos", () => {
+  const layered = (themed: boolean) => {
+    const pic = img();
+    const t = p("A caption panel over the photo");
+    if (themed) t.style = { colorTheme: "light", padding: { d: "lg" } };
+    return onePage(
+      stackSection([h("Welcome to the studio", 1), btn()]),
+      gridSection([
+        [pic, { x: 1, y: 1, w: 16, h: 20 }, { x: 1, y: 1, w: 8, h: 12 }],
+        [t, { x: 12, y: 6, w: 12, h: 8, z: 2 }, { x: 1, y: 14, w: 8, h: 8, z: 2 }],
+      ]),
+    ).doc;
+  };
+
+  it("warns when text sits on a photo without its own panel, and puts it on one", () => {
+    const doc = layered(false);
+    const issue = only(designCheck(doc), "text-over-photo")[0];
+    expect(issue?.message).toContain("desktop");
+    expect(only(designCheck(fix(doc, issue)), "text-over-photo")).toEqual([]);
+  });
+
+  it("accepts text on a themed panel", () => {
+    expect(only(designCheck(layered(true)), "text-over-photo")).toEqual([]);
+  });
+});
+
 describe("calls to action", () => {
   it("flags a page with no action", () => {
     const { doc } = onePage(

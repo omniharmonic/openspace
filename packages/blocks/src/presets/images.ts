@@ -349,12 +349,6 @@ export const PHOTOS = {
     4000,
     "A laptop with code on screen beside a small plant",
   ),
-  volunteers: p(
-    "1559027615-cd4628902d4a",
-    4288,
-    2848,
-    "A volunteer in a bright shirt helping at a busy community event",
-  ),
   friendsSunset: p(
     "1511632765486-a01980e01a18",
     5472,

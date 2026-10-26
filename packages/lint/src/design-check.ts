@@ -63,6 +63,7 @@ export function designCheck(
 const LIGHT = new Set<ColorTheme>(["light", "light-accent"]);
 const themeOf = (s: Section): ColorTheme => s.style.colorTheme ?? "light";
 const visible = (sections: readonly Section[]) => sections.filter((s) => !s.hidden);
+const PHOTO_BLOCKS = new Set(["image", "gallery", "video", "before-after", "map"]);
 const RESPONSIVE_HOSTS = /^https:\/\/(?:images\.unsplash\.com|[^/]+\.imgix\.net)\//;
 
 class Ctx {
@@ -504,6 +505,39 @@ class Ctx {
             ...(autofix ? { autofix } : {}),
           });
         }
+      // Text drawn over a photo needs its own panel (a block color theme) to stay legible.
+      const media = section.blocks.filter((x) => PHOTO_BLOCKS.has(x.type));
+      for (const t of text) {
+        if (t.style?.colorTheme) continue;
+        const rt = rectAt(t.id, bp);
+        for (const m of media) {
+          const rm = rectAt(m.id, bp);
+          if (!rt || !rm || !overlaps(rt, rm) || (rt.z ?? 1) < (rm.z ?? 1)) continue;
+          this.add({
+            rule: "text-over-photo",
+            severity: "warning",
+            page,
+            section: section.id,
+            block: t.id,
+            key: `${bp}:${m.id}`,
+            message: `A ${t.type} block sits directly on a photo on ${names[bp]}, where busy areas make it hard to read.`,
+            fix: "Give the block its own color theme (a solid panel), or move it off the photo.",
+            autofix: {
+              label: "Put the text on a panel",
+              ops: [
+                {
+                  op: "block.update",
+                  ...this.meta(),
+                  page: page as never,
+                  block: t.id,
+                  style: { ...(t.style ?? {}), colorTheme: themeOf(section), padding: { d: "lg", m: "md" } },
+                } as Op,
+              ],
+            },
+          });
+          break;
+        }
+      }
     }
   }
 

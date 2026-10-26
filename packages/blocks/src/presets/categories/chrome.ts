@@ -9,14 +9,9 @@ import { defineHeaderPreset, definePreset, grid, heading, make, r, rt, stack, te
 
 type Node = RichTextDoc["content"][number];
 
-/** A plain list of links (rich-text bullet list whose items are links). */
-const links = (...items: [string, string][]): Node => ({
-  type: "bulletList",
-  content: items.map(([label, href]) => ({
-    type: "listItem",
-    content: [{ type: "paragraph", content: [rt.link(label, href) as InlineNode] }],
-  })),
-});
+/** A column of links, one per line (paragraphs, so no list bullets). */
+const links = (...items: [string, string][]): Node[] =>
+  items.map(([text, href]) => rt.p([rt.link(text, href) as InlineNode]));
 
 const label = (t: string) => rt.p(t, "eyebrow");
 const small = (t: string | (string | InlineNode)[]) => rt.p(t, "small");
@@ -65,14 +60,14 @@ export const footerPresets = [
         text(
           [
             label("Visit"),
-            links(["Menu", "/menu"], ["Hours & location", "/visit"], ["Catering", "/catering"]),
+            ...links(["Menu", "/menu"], ["Hours & location", "/visit"], ["Catering", "/catering"]),
           ],
           { col: 1 },
         ),
         text(
           [
             label("About"),
-            links(["Our story", "/about"], ["Journal", "/journal/"], ["Jobs", "/jobs"]),
+            ...links(["Our story", "/about"], ["Journal", "/journal/"], ["Jobs", "/jobs"]),
           ],
           { col: 2 },
         ),
@@ -166,7 +161,7 @@ export const footerPresets = [
         text(
           [
             label("Explore"),
-            links(
+            ...links(
               ["Garden design", "/services"],
               ["Workshops", "/workshops"],
               ["Journal", "/journal/"],
@@ -214,7 +209,7 @@ export const footerPresets = [
           r(1, 5, 8, 1),
         ],
         [
-          text([links(["Work", "/work"], ["Studio", "/about"], ["Contact", "/contact"])]),
+          text([...links(["Work", "/work"], ["Studio", "/about"], ["Contact", "/contact"])]),
           r(1, 7, 8, 5),
           r(1, 7, 4, 5),
         ],

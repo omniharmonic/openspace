@@ -282,7 +282,7 @@ export const heroPresets = [
         ...grid([
           [photoBlock, r(10, 1, 15, 24, { bleed: "right" }), r(1, 1, 8, 14, { bleed: "both" })],
           [panel, r(1, 5, 12, 14, { z: 2 }), r(1, 12, 8, 13, { z: 2 })],
-          [cta, r(2, 20, 10, 3), r(1, 26, 8, 3)],
+          [cta, r(2, 20, 8, 3), r(1, 26, 8, 3)],
         ]),
       };
     },

@@ -197,7 +197,7 @@ export const galleryPresets = [
       layout: stack({ gap: "lg" }),
       blocks: [
         heading("Harvest supper, September", { eyebrow: "Events" }),
-        gallery(shots(["sharedTable", "dinner", "chefPrep", "plates", "terrace"], 640), "strips"),
+        gallery(shots(["sharedTable", "dinner", "plates", "terrace", "coffeeCheers", "pizza"], 640), "strips"),
       ],
     }),
   }),

@@ -112,7 +112,7 @@ export const ctaPresets = [
         type: "image",
         src: photo("terrace", 1920).src,
         focal: [0.5, 0.5],
-        overlay: scrim(0.6),
+        overlay: scrim(0.68),
       },
       blocks: [
         heading("Long lunches on the terrace", {
@@ -139,7 +139,7 @@ export const ctaPresets = [
       avoid: CTA_AVOID,
     },
     make: (c) => {
-      const pic = image(photo("volunteers", 1100));
+      const pic = image(photo("friendsSunset", 1100));
       const card = text(
         [
           rt.h(2, "Give two hours a month", "h2"),
@@ -443,13 +443,13 @@ export const contactPresets = [
           directions: true,
           note: undefined,
         },
-        { variant: "list" },
+        { variant: "list", style: { colorTheme: c.theme, padding: { d: "lg", m: "md" } } },
       );
       return {
         ...grid([
-          [pic, r(1, 1, 17, 24, { bleed: "left" }), r(1, 1, 8, 12, { bleed: "both" })],
-          [card, r(14, 4, 10, 15, { z: 2 }), r(1, 10, 8, 15, { z: 2 })],
-          [info, r(14, 20, 10, 5), r(1, 26, 8, 6)],
+          [pic, r(1, 1, 15, 24, { bleed: "left" }), r(1, 1, 8, 12, { bleed: "both" })],
+          [card, r(13, 3, 11, 13, { z: 2 }), r(1, 10, 8, 13, { z: 2 })],
+          [info, r(13, 17, 11, 7, { z: 2 }), r(1, 24, 8, 7)],
         ]),
       };
     },
@@ -683,7 +683,6 @@ export const newsletterPresets = [
             note: "Unsubscribe any time with one click.",
           },
           "card",
-          { style: { align: { d: "center" } } },
         ),
       ],
     }),
