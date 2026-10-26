@@ -144,10 +144,15 @@ for (const theme of ["light", "dark"]) {
   await step("arrow keys select a layer and show the inspector", async () => {
     await page.getByRole("tab", { name: "Design" }).first().waitFor({ timeout: 5000 });
   });
+  let originalName = "";
   await step("rename a layer with Enter, finish with Enter, focus ring returns", async () => {
+    originalName =
+      (await page.evaluate(() => document.activeElement?.getAttribute("aria-label"))) ?? "";
     await page.keyboard.press("Enter");
     await page.getByRole("textbox", { name: /(Section|Block) name/ }).waitFor({ timeout: 5000 });
+    await page.keyboard.type("Opening words");
     await page.keyboard.press("Enter");
+    await page.getByRole("treeitem", { name: "Opening words" }).waitFor({ timeout: 3000 });
     const ring = await page.evaluate(() => {
       const el = document.activeElement;
       if (!el || el === document.body) return "nothing focused";
@@ -173,9 +178,14 @@ for (const theme of ["light", "dark"]) {
     await page.keyboard.press("Escape");
     await page.getByRole("dialog").first().waitFor({ state: "detached", timeout: 3000 });
   });
-  await step("undo with ⌘Z leaves the editor working", async () => {
+  await step("undo with ⌘Z restores the layer's name", async () => {
+    await page.getByRole("treeitem", { name: "Opening words" }).focus();
     await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyZ" : "Control+KeyZ");
-    await page.locator("iframe[title='Page canvas']").waitFor();
+    await page
+      .getByRole("treeitem", { name: "Opening words" })
+      .waitFor({ state: "detached", timeout: 3000 });
+    if (originalName)
+      await page.getByRole("treeitem", { name: originalName }).first().waitFor({ timeout: 3000 });
   });
   await step("publish dialog reachable by Tab and Enter", async () => {
     const publish = page.getByRole("button", { name: /^Publish/ }).first();

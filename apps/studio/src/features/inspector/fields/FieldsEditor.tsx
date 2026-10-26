@@ -4,6 +4,7 @@ import {
   type ListFieldMeta,
   plainText,
   type RichTextDoc,
+  type RichTextFieldMeta,
 } from "@openspace/schema";
 import { Plus } from "lucide-react";
 import { type ComponentType, lazy, type ReactNode, Suspense } from "react";
@@ -20,8 +21,7 @@ import { type ChangeOptions, type ControlProps, useFieldsContext } from "./types
 
 // Tiptap loads with the first rich-text field (the editor preloads it when idle).
 const RichTextLazy = lazy(() => import("./richtext").then((m) => ({ default: m.RichTextControl })));
-// biome-ignore lint/suspicious/noExplicitAny: same props as the control it wraps
-function RichTextControl(props: any) {
+function RichTextControl(props: ControlProps<RichTextFieldMeta, RichTextDoc>) {
   return (
     <Suspense
       fallback={
