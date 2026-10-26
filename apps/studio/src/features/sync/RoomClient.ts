@@ -281,6 +281,11 @@ export class RoomClient {
       window.addEventListener("online", this.onOnline);
       window.addEventListener("offline", this.onOffline);
     }
+    // Leaving the page (or hiding the tab) sends a typing burst's tail right away.
+    if (typeof window !== "undefined") {
+      window.addEventListener("pagehide", this.onLeave);
+      document.addEventListener("visibilitychange", this.onLeave);
+    }
     this.heartbeat = setInterval(() => this.beat(), this.timing.heartbeatMs);
     // Keep a device copy from the start, so the editor can open offline later.
     this.persistSoon();
@@ -289,18 +294,21 @@ export class RoomClient {
 
   stop(): void {
     if (this.stopped) return;
+    // A typing burst's tail goes out before the socket closes (not via the recovery path).
+    this.flushCoalesced();
     this.stopped = true;
     this.unsubscribeLocal?.();
     this.unsubscribeLocal = null;
     if (typeof window !== "undefined") {
       window.removeEventListener("online", this.onOnline);
       window.removeEventListener("offline", this.onOffline);
+      window.removeEventListener("pagehide", this.onLeave);
+      document.removeEventListener("visibilitychange", this.onLeave);
     }
     clearTimeout(this.reconnectTimer);
     clearTimeout(this.helloTimer);
     clearTimeout(this.hubDownTimer);
     clearTimeout(this.resyncTimer);
-    clearTimeout(this.coalesceTimer);
     this.resyncTimer = undefined;
     clearInterval(this.heartbeat);
     const sock = this.socket;
@@ -357,11 +365,7 @@ export class RoomClient {
   /** Resolves true once every local edit is confirmed (false after `timeoutMs`). */
   whenSynced(timeoutMs = 10_000): Promise<boolean> {
     // Don't make a waiter sit out a typing burst's coalescing pause.
-    if (this.coalesceTimer) {
-      clearTimeout(this.coalesceTimer);
-      this.coalesceTimer = undefined;
-      this.flush();
-    }
+    this.flushCoalesced();
     if (this.ready && this.pending.length === 0) return Promise.resolve(true);
     return new Promise((resolve) => {
       const timer = setTimeout(() => {
@@ -472,6 +476,19 @@ export class RoomClient {
     const delay = Math.round(cap / 2 + (this.random() * cap) / 2);
     this.attempt++;
     this.reconnectTimer = setTimeout(() => this.connect(), delay);
+  }
+
+  private onLeave = (e: Event) => {
+    if (e.type === "visibilitychange" && document.visibilityState !== "hidden") return;
+    this.flushCoalesced();
+  };
+
+  /** Send a typing burst's waiting tail now (instead of when its pause ends). */
+  private flushCoalesced(): void {
+    if (!this.coalesceTimer) return;
+    clearTimeout(this.coalesceTimer);
+    this.coalesceTimer = undefined;
+    this.flush();
   }
 
   private onOnline = () => {
@@ -627,7 +644,6 @@ export class RoomClient {
     this.awaitingReload = false;
     this.resyncFrom = null;
     clearTimeout(this.resyncTimer);
-    clearTimeout(this.coalesceTimer);
     this.resyncTimer = undefined;
     this.patch({
       status: "online",
@@ -801,7 +817,6 @@ export class RoomClient {
     // Already asked from here: frames still in flight will gap too; wait for the answer.
     if (this.resyncTimer && this.resyncFrom === this.seq) return;
     clearTimeout(this.resyncTimer);
-    clearTimeout(this.coalesceTimer);
     this.resyncFrom = this.seq;
     if (!this.send({ type: "sync", since: this.seq })) return;
     const from = this.seq;

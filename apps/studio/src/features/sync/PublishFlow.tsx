@@ -297,7 +297,7 @@ function PublishDialog({
               doc={draft}
               onReview={() => {
                 close();
-                useEditorUi.setState({ leftPanel: "check", chromeHidden: false });
+                useEditorUi.getState().showLeftPanel("check");
               }}
             />
           )}

@@ -136,6 +136,69 @@ describe("RoomClient", () => {
     expect(store.getState().undoStack).toHaveLength(1);
   });
 
+  it("keeps sending later bursts after a reconnect in the middle of one", async () => {
+    const { room, store } = setup();
+    await tick();
+    const type = (word: string, field = "label") => {
+      for (let i = 1; i <= word.length; i++)
+        store.getState().commit([setLabel(word.slice(0, i), field)], { mergeKey: `text:${field}` });
+    };
+    type("Mid-burst");
+    // The connection drops and comes back (a fresh hello) while the burst's tail waits.
+    room.setDown(true);
+    await tick();
+    room.setDown(false);
+    await tick(150);
+    await tick(COALESCE_MS + 100);
+    expect(label(room.doc).label).toBe("Mid-burst");
+    // Later bursts are sent in full too (the coalescing timer wasn't left stuck).
+    store.getState().sealHistory?.();
+    type("Second burst", "secondaryLabel");
+    await tick(COALESCE_MS + 100);
+    expect(label(room.doc).secondaryLabel).toBe("Second burst");
+    type("Third", "label");
+    await tick(COALESCE_MS + 100);
+    expect(label(room.doc).label).toBe("Third");
+    expect(store.getState().doc).toEqual(room.doc);
+  });
+
+  it("sends a burst's tail before stopping (closing the editor mid-typing)", async () => {
+    const { store, client } = setup();
+    await tick();
+    const word = "Closing time";
+    const sent: unknown[] = [];
+    const spy = vi.spyOn(client as unknown as { send: (m: unknown) => boolean }, "send");
+    spy.mockImplementation((m: unknown) => {
+      sent.push(m);
+      return true;
+    });
+    for (let i = 1; i <= word.length; i++)
+      store.getState().commit([setLabel(word.slice(0, i))], { mergeKey: "text:label" });
+    client.stop();
+    // The whole value went out before the socket closed.
+    const values = sent
+      .filter((m): m is { type: string; ops: Op[] } => (m as { type?: string }).type === "ops")
+      .flatMap((m) => m.ops)
+      .map((op) => (op as unknown as { set?: { label?: string } }).set?.label);
+    expect(values.at(-1)).toBe(word);
+  });
+
+  it("sends a burst's tail when the tab is hidden", async () => {
+    const { room, store } = setup();
+    await tick();
+    const word = "Switching tabs";
+    for (let i = 1; i <= word.length; i++)
+      store.getState().commit([setLabel(word.slice(0, i))], { mergeKey: "text:label" });
+    Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" });
+    try {
+      document.dispatchEvent(new Event("visibilitychange"));
+      await tick();
+      expect(label(room.doc).label).toBe(word);
+    } finally {
+      Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+    }
+  });
+
   it("sends separate edits right away (only typing bursts wait)", async () => {
     const { room, store } = setup();
     await tick();
