@@ -40,6 +40,7 @@ import { type DecodedImage, decodeImageDataUrl } from "../lib/image";
 import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
+import { gatedContext as gatedContextFor, loadOpenedDocument, sealFiles } from "./gated-content";
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
 import { draftReady } from "./publishing";
@@ -336,7 +337,11 @@ async function buildSiteFiles(
   const files: Record<string, string | FileContent> = {};
   for (const [path, content] of Object.entries(template.files))
     if (!isDocumentPath(path)) files[path] = content;
-  Object.assign(files, siteDocumentToFiles(doc));
+  // Templates may ship members-only / password pages: their content stays in the Hub.
+  Object.assign(
+    files,
+    await sealFiles(gatedContextFor(services, site.id), siteDocumentToFiles(doc)),
+  );
   if (setup.logo) {
     let b64 = logoBase64;
     if (b64 === undefined) {
@@ -842,7 +847,7 @@ export async function readSiteDocument(
   }
   if (!head) throw notFound("This site has no content yet.");
   const files = await gh.readFiles(repo, head, { textOnly: true });
-  return { doc: loadSiteDocument(files), head, branch };
+  return { doc: await loadOpenedDocument(gatedContextFor(services, site.id), files), head, branch };
 }
 
 /** Find the page for a URL path below the site root ("" = home). */

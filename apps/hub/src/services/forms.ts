@@ -18,8 +18,8 @@ import type { SiteRow } from "../db/sites";
 import { MAIN_BRANCH, parseRepo } from "../github/types";
 import { sha256Hex } from "../lib/crypto";
 import type { FieldValues } from "../lib/public";
+import { gatedContext, loadOpenedDocument } from "./gated-content";
 import type { Services } from "./index";
-import { loadSiteDocument } from "./site-files";
 
 export interface ManifestForm {
   form: Form;
@@ -154,8 +154,9 @@ async function manifestFromDocument(services: Services, site: SiteRow): Promise<
   const rows = await cachedForms(services.db, site.id);
   if (rows.length && rows.every((r) => r.source_ref === head))
     return rows.map(rowToManifest).filter((f): f is ManifestForm => f !== null);
+  // Forms on members-only pages count too (their content is opened from the Hub's storage).
   const files = await gh.readFiles(repo, head, { textOnly: true });
-  const forms = formsInDocument(loadSiteDocument(files));
+  const forms = formsInDocument(await loadOpenedDocument(gatedContext(services, site.id), files));
   await storeManifest(services, site.id, forms, head);
   return forms;
 }

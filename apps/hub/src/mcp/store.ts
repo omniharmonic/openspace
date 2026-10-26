@@ -33,9 +33,10 @@ import { HttpError } from "../lib/errors";
 import { requireHmacKey } from "../public-env";
 import { roomStub, unwrapRoom } from "../room";
 import type { Services } from "../services";
+import { gatedContext, readOpenedDocumentFiles } from "../services/gated-content";
 import { listVersions, ROLLBACK_ROLE } from "../services/publishing";
 import { consumeQuota, quotaExceeded, siteQuotaLimits } from "../services/quotas";
-import { isDocumentPath, loadSiteDocument } from "../services/site-files";
+import { loadSiteDocument } from "../services/site-files";
 import { type AgentSessionRef, type GrantSite, recordAgentSession } from "./db";
 import { guardedFetch } from "./ssrf";
 
@@ -218,9 +219,7 @@ export class HubSiteStore implements SiteStore {
     const repo = parseRepo(site.repo);
     const head = await gh.getRef(repo, MAIN_BRANCH);
     if (!head) throw new ToolError("This site isn't published yet.", "not_ready");
-    const all = await gh.readFiles(repo, head, { textOnly: true });
-    const files: Record<string, string> = {};
-    for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) files[p] = c;
+    const files = await readOpenedDocumentFiles(gatedContext(services, siteId), gh, repo, head);
     return loadSiteDocument(files);
   }
 

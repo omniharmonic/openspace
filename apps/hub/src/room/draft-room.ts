@@ -21,9 +21,10 @@ import { bytesToBase64, canonicalJson, randomId, sha1Hex, sha256Hex } from "../l
 import { HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
+import { gatedContext, readOpenedDocumentFiles, sealChanges } from "../services/gated-content";
 import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
-import { diffSiteFiles, isDocumentPath, loadSiteDocument } from "../services/site-files";
+import { diffSiteFiles, loadSiteDocument } from "../services/site-files";
 import { commitMessage, type TrailerActor, trailerEmail } from "./commit";
 import {
   type BuildNotice,
@@ -199,9 +200,13 @@ export class DraftRoom extends DurableObject<HubBindings> {
       });
       head = (await gh.getRef(repo, DRAFT_BRANCH)) ?? main;
     }
-    const all = await gh.readFiles(repo, head, { textOnly: true });
-    const files: Record<string, string> = {};
-    for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) files[p] = c;
+    // Gated pages are stubs in the repository; the room works on their full content.
+    const files = await readOpenedDocumentFiles(
+      gatedContext(this.services(), this.siteId()),
+      gh,
+      repo,
+      head,
+    );
     return { head, files, doc: loadSiteDocument(files) };
   }
 
@@ -786,9 +791,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
       const repo = parseRepo(site.repo);
       const main = await gh.getRef(repo, MAIN_BRANCH);
       if (!main) throw new HttpError(409, "not_ready", "This site isn't published yet.");
-      const all = await gh.readFiles(repo, main, { textOnly: true });
-      const files: Record<string, string> = {};
-      for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) files[p] = c;
+      const files = await readOpenedDocumentFiles(gatedContext(services, siteId), gh, repo, main);
       const target = loadSiteDocument(files);
       const ops = diff(this.state.doc as SiteDocument, target, {
         actor: "discard",
@@ -1075,9 +1078,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
     const repo = parseRepo(site.repo);
     const firstHuman = actors.find((a) => a.kind === "human");
     try {
+      // Members-only / password page content never goes into the repository (PRD §7.3).
+      const sealed = await sealChanges(gatedContext(services, siteId), changes);
       const commit = await gh.commitFiles(repo, {
         branch: DRAFT_BRANCH,
-        files: changes,
+        files: sealed,
         message,
         expectedHead: this.state.head,
         author: { name: firstHuman?.name ?? "OpenSpace" },

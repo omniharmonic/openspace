@@ -10,6 +10,7 @@ import { base64url, sha256Hex, timingSafeEqual } from "../lib/crypto";
 import { clientIp, parseFields, rateKeyIp, single } from "../lib/public";
 import { requireHmacKey } from "../public-env";
 import { roomStub, unwrapRoom } from "../room";
+import { gatedContext, readOpenedDocumentFiles } from "../services/gated-content";
 import { verifyJwt } from "../services/member-keys";
 import {
   checkPagePassword,
@@ -21,7 +22,7 @@ import {
   signPreviewValue,
 } from "../services/members";
 import { escapeHtml, type RenderMode } from "../services/renderer";
-import { isDocumentPath, loadSiteDocument } from "../services/site-files";
+import { loadSiteDocument } from "../services/site-files";
 import { readSiteDocument } from "../services/sites";
 import type { AppEnv } from "../types";
 
@@ -414,9 +415,12 @@ async function readPublishedVersion(
   const history = await gh.listCommits(repo, { ref: MAIN_BRANCH, limit: 200 });
   const matches = history.filter((h) => h.sha.startsWith(wanted));
   if (matches.length !== 1 || !matches[0]) return null;
-  const all = await gh.readFiles(repo, matches[0].sha, { textOnly: true });
-  const files: Record<string, string> = {};
-  for (const [p, content] of Object.entries(all)) if (isDocumentPath(p)) files[p] = content;
+  const files = await readOpenedDocumentFiles(
+    gatedContext(c.var.services, site.id),
+    gh,
+    repo,
+    matches[0].sha,
+  );
   return loadSiteDocument(files);
 }
 previewRoutes.get("/s/:siteId", published);

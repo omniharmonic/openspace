@@ -212,7 +212,7 @@ export async function readMemberSession(
   now = Date.now(),
 ): Promise<MemberSession | undefined> {
   const v = await readSigned(getCookie(cookieHeader, MEMBER_COOKIE), secret, now);
-  if (!v || v.kind !== "member" || typeof v.sub !== "string" || !v.sub) return undefined;
+  if (v?.kind !== "member" || typeof v.sub !== "string" || !v.sub) return undefined;
   return {
     sub: v.sub,
     ...(typeof v.tier === "string" ? { tier: v.tier } : {}),
@@ -227,7 +227,7 @@ export async function readPasswordPages(
   now = Date.now(),
 ): Promise<string[]> {
   const v = await readSigned(getCookie(cookieHeader, PASSWORD_COOKIE), secret, now);
-  if (!v || v.kind !== "pw" || !Array.isArray(v.pages)) return [];
+  if (v?.kind !== "pw" || !Array.isArray(v.pages)) return [];
   return v.pages.filter((p): p is string => typeof p === "string");
 }
 

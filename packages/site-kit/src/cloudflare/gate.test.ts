@@ -163,7 +163,12 @@ describe("Worker handlers", () => {
     access: { members: true, tiers: ["tier_patron"] },
     sections: [],
   };
-  const faqStub: Page = { id: "pg_membersfaq", title: "Members FAQ", slug: "members/faq", sections: [] };
+  const faqStub: Page = {
+    id: "pg_membersfaq",
+    title: "Members FAQ",
+    slug: "members/faq",
+    sections: [],
+  };
   beforeAll(async () => {
     doc = await loadSiteDocument(MEADOW);
     doc = {
@@ -431,19 +436,15 @@ describe("Worker handlers", () => {
   it("tier-limited pages: other tiers are refreshed through the Hub once, then refused", async () => {
     const env = { OS_SESSION_SECRET: SECRET, OS_GATED: r2({ tierPage }) };
     const open = (tier: string | undefined, query = "") =>
-      signValue(
-        { kind: "member", sub: "mem_1", ...(tier ? { tier } : {}) },
-        SECRET,
-        600,
-        NOW,
-      ).then((v) =>
-        handleGatedPage(
-          new Request(`https://meadowyoga.example/patrons/${query}`, {
-            headers: { cookie: `os_member=${v}` },
-          }),
-          env,
-          ctx,
-        ),
+      signValue({ kind: "member", sub: "mem_1", ...(tier ? { tier } : {}) }, SECRET, 600, NOW).then(
+        (v) =>
+          handleGatedPage(
+            new Request(`https://meadowyoga.example/patrons/${query}`, {
+              headers: { cookie: `os_member=${v}` },
+            }),
+            env,
+            ctx,
+          ),
       );
     const free = await open(undefined);
     expect(free.status).toBe(303);

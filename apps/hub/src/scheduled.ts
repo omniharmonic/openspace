@@ -5,6 +5,7 @@ import { sweepIdleMcpSessions } from "./mcp/sessions";
 import { roomStub } from "./room";
 import { runDueCampaigns } from "./services/campaigns";
 import { expireInvitations } from "./services/collaborators";
+import { purgeGatedContent } from "./services/gated-content";
 import { createServices, type Services } from "./services/index";
 import { runDueSchedules } from "./services/publishing";
 import { deleteSetupAssets, expireTransfers } from "./services/sites";
@@ -56,6 +57,8 @@ export async function purgeArchivedSites(
     } catch {
       /* the room may never have existed */
     }
+    // Members-only / password page content kept out of the repository.
+    await purgeGatedContent(services.uploads, id);
     // Task 18: digital product files.
     for (let cursor: string | undefined; ; ) {
       const list = await services.uploads.list({ prefix: `digital/${id}/`, cursor });
