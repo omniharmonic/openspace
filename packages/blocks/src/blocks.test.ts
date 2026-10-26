@@ -194,6 +194,22 @@ describe("BLOCKS_CSS", () => {
     expect(BLOCKS_CSS).not.toMatch(/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(|\boklch\(/);
   });
 
+  it("never sets small or body text in the accent color (accent is only guaranteed 3:1)", () => {
+    // The accent role is contrast-solved for large text and UI marks only (GC#10). Text in
+    // accent must be an icon, ornament, mark or display-size number; small text uses link,
+    // heading or text-muted instead.
+    const ALLOWED =
+      /os-icon|__icon\b|__mark\b|__sep\b|__num\b|__value\b|__pin\b|os-stars|::before|::after|::first-letter/;
+    const SMALL = /font-size:var\(--os-type-(?:small|eyebrow|body)-font-size\)|font-size:0\.\d+em/;
+    const offenders: string[] = [];
+    for (const m of BLOCKS_CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const [, selector = "", body = ""] = m;
+      if (!/(?:^|;)color:var\(--os-color-accent\)/.test(body)) continue;
+      if (SMALL.test(body) || !ALLOWED.test(selector)) offenders.push(selector.trim());
+    }
+    expect(offenders).toEqual([]);
+  });
+
   it("lives in the os.blocks layer and is balanced", () => {
     expect(BLOCKS_CSS).toContain("@layer os.blocks {");
     const opens = BLOCKS_CSS.split("{").length;

@@ -206,7 +206,7 @@ export const dividerBlock = defineBlock({
 export const headingCss = `
 .os-heading{display:grid;gap:var(--os-space-xs)}
 .os-heading__main{display:grid;gap:var(--os-space-2xs)}
-.os-heading__eyebrow{color:var(--os-color-accent);margin:0}
+.os-heading__eyebrow{color:var(--os-color-link);margin:0}
 .os-heading__text{margin:0;text-wrap:balance;color:var(--os-color-heading)}
 .os-heading__sub{margin:0;color:var(--os-color-text);max-inline-size:var(--os-measure);text-wrap:pretty}
 .os-heading--rule .os-heading__main::before{content:"";width:2.5rem;height:3px;border-radius:var(--os-radius-full);background:var(--os-color-accent);margin-bottom:var(--os-space-2xs)}

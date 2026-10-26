@@ -1,7 +1,7 @@
 import { cx } from "@openspace/renderer";
 import { defineBlock, f } from "@openspace/schema";
 import { Icon } from "../icons";
-import { typo, useLocale } from "../shared";
+import { headingLevelField, typo, useLocale } from "../shared";
 
 /** Opening hours and the contact / address card. */
 
@@ -79,6 +79,7 @@ export const hoursBlock = defineBlock({
   description: "Opening times by day, with consecutive days grouped.",
   fields: {
     heading: f.text({ optional: true, maxLength: 60, default: "Studio hours" }),
+    headingLevel: headingLevelField(),
     rows: f.list({
       min: 1,
       max: 7,
@@ -114,6 +115,7 @@ export const hoursBlock = defineBlock({
     avoid: "Hours the owner hasn't confirmed; using it for event times (use events).",
   },
   render: ({ id, fields, variant, style }) => {
+    const HTag = fields.headingLevel;
     const locale = useLocale();
     const width = variant === "compact" ? "short" : "long";
     const groups = groupHours(fields.rows as HoursRow[]);
@@ -129,9 +131,9 @@ export const hoursBlock = defineBlock({
     return (
       <div className={cx("os-hours", `os-hours--${variant}`)}>
         {fields.heading ? (
-          <h3 id={headingId} className={cx("os-hours__heading", typo(style, "heading", "h4"))}>
+          <HTag id={headingId} className={cx("os-hours__heading", typo(style, "heading", "h4"))}>
             {fields.heading}
-          </h3>
+          </HTag>
         ) : null}
         <table
           className="os-hours__table"
@@ -139,8 +141,8 @@ export const hoursBlock = defineBlock({
           aria-label={fields.heading ? undefined : "Opening hours"}
         >
           <tbody>
-            {groups.map((g) => (
-              <tr key={g.from} className={cx(g.row.closed && "is-closed")}>
+            {groups.map((g, i) => (
+              <tr key={`${g.from}-${i}`} className={cx(g.row.closed && "is-closed")}>
                 <th scope="row">{days(g)}</th>
                 <td>{hours(g.row)}</td>
               </tr>
@@ -164,6 +166,7 @@ export const contactInfoBlock = defineBlock({
   description: "Address, phone and email as a tidy card, with a link to directions.",
   fields: {
     heading: f.text({ optional: true, maxLength: 60, default: "Visit the studio" }),
+    headingLevel: headingLevelField(),
     name: f.text({ optional: true, maxLength: 80, default: "Juniper Yoga" }),
     address: f.text({
       optional: true,
@@ -189,6 +192,7 @@ export const contactInfoBlock = defineBlock({
     avoid: "Personal phone numbers or addresses the owner hasn't chosen to publish.",
   },
   render: ({ fields, variant, style }) => {
+    const HTag = fields.headingLevel;
     const tel = fields.phone?.replace(/[^\d+]/g, "");
     const mapsHref = fields.address
       ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(
@@ -200,9 +204,9 @@ export const contactInfoBlock = defineBlock({
     return (
       <div className={cx("os-contact", `os-contact--${variant}`)}>
         {fields.heading ? (
-          <h3 className={cx("os-contact__heading", typo(style, "heading", "h4"))}>
+          <HTag className={cx("os-contact__heading", typo(style, "heading", "h4"))}>
             {fields.heading}
-          </h3>
+          </HTag>
         ) : null}
         <address className="os-contact__items">
           {fields.address ? (

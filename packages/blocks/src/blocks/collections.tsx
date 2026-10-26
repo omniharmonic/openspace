@@ -21,10 +21,13 @@ import {
 import type { ReactNode } from "react";
 import { Icon } from "../icons";
 import {
+  CarouselControls,
+  childLevel,
   dateParts,
   EditorNotice,
   formatDate,
   formatMoney,
+  headingLevelField,
   isDateOnly,
   sub,
   typo,
@@ -65,6 +68,30 @@ export function productPrice(
   return fm.compareAtPrice && fm.compareAtPrice.amount > min
     ? { text, was: formatMoney(fm.compareAtPrice.amount, fm.compareAtPrice.currency, locale) }
     : { text };
+}
+
+/**
+ * A price with an optional compare-at price: visually "~~$80~~ · From $68", read as
+ * "Was $80, now From $68" (the dot is hidden from screen readers).
+ */
+export function PriceText({ price }: { price: { text: string; was?: string } }) {
+  return (
+    <>
+      {price.was ? (
+        <>
+          <s>
+            <span className="os-visually-hidden">Was </span>
+            {price.was}
+          </s>
+          <span className="os-price__sep" aria-hidden="true">
+            {" · "}
+          </span>
+          <span className="os-visually-hidden">now </span>
+        </>
+      ) : null}
+      <span>{price.text}</span>
+    </>
+  );
 }
 
 /** "Sat, Nov 14 · 9:00 AM – 12:00 PM" in the event's own time zone. */
@@ -133,6 +160,7 @@ export const summaryBlock = defineBlock({
   description: "The latest posts, events, projects, episodes or products from a collection.",
   fields: {
     heading: f.text({ optional: true, maxLength: 80, default: "From the journal" }),
+    headingLevel: headingLevelField(),
     source: f.reference({
       default: { collection: "journal", sort: "date-desc", limit: 3 },
       label: "Items",
@@ -162,14 +190,16 @@ export const summaryBlock = defineBlock({
       "Using it as the main collection page (the collection's own list page does that); mixing unrelated filters; more than ~12 items.",
   },
   render: ({ id, fields, variant, style }) => {
+    const HTag = fields.headingLevel;
+    const ITag = childLevel(fields.headingLevel);
     const { basePath } = useRenderContext();
     const locale = useLocale();
     const items = useCollectionQuery(fields.source);
     const columns = Number(fields.columns);
     const heading = fields.heading ? (
-      <h2 className="os-summary__heading os-type-h3" id={sub(id, "h")}>
+      <HTag className="os-summary__heading os-type-h3" id={sub(id, "h")}>
         {fields.heading}
-      </h2>
+      </HTag>
     ) : null;
     const footer =
       fields.linkLabel && fields.link ? (
@@ -209,20 +239,14 @@ export const summaryBlock = defineBlock({
             ) : null}
             <div className="os-summary__body">
               <ItemMeta item={item} show={{ date: fields.showDate, meta: fields.showMeta }} />
-              <h3 className={cx("os-summary__title", typo(style, "title", "h4"))}>
+              <ITag className={cx("os-summary__title", typo(style, "title", "h4"))}>
                 <a className="os-summary__link" href={href}>
                   {fm.title}
                 </a>
-              </h3>
+              </ITag>
               {price ? (
                 <p className="os-summary__price">
-                  {price.was ? (
-                    <s>
-                      <span className="os-visually-hidden">Was </span>
-                      {price.was}
-                    </s>
-                  ) : null}{" "}
-                  {price.text}
+                  <PriceText price={price} />
                 </p>
               ) : null}
               {fields.showExcerpt && fm.excerpt && variant !== "wall" ? (
@@ -244,34 +268,13 @@ export const summaryBlock = defineBlock({
             className="os-carousel"
             role="group"
             aria-roledescription="carousel"
-            aria-label={fields.heading ?? "Latest items"}
+            aria-label={fields.heading || "Latest items"}
             data-os-behavior={items.length > 1 ? "carousel" : undefined}
           >
             <ul className="os-carousel__track os-summary__items" id={track}>
               {cards}
             </ul>
-            {items.length > 1 ? (
-              <div className="os-carousel__controls">
-                <button
-                  type="button"
-                  className="os-carousel__btn"
-                  data-os-prev=""
-                  aria-controls={track}
-                  aria-label="Previous items"
-                >
-                  <Icon name="arrow-right" size={20} className="os-flip" />
-                </button>
-                <button
-                  type="button"
-                  className="os-carousel__btn"
-                  data-os-next=""
-                  aria-controls={track}
-                  aria-label="Next items"
-                >
-                  <Icon name="arrow-right" size={20} />
-                </button>
-              </div>
-            ) : null}
+            {items.length > 1 ? <CarouselControls trackId={track} noun="items" /> : null}
           </div>
           {footer}
         </div>
@@ -387,6 +390,7 @@ export const eventsBlock = defineBlock({
   description: "Upcoming (or past) events as a list, cards or a month calendar.",
   fields: {
     heading: f.text({ optional: true, maxLength: 80, default: "Coming up" }),
+    headingLevel: headingLevelField(),
     source: f.reference({
       collectionKinds: ["events"],
       default: { collection: "events", filter: { upcoming: true }, limit: 6 },
@@ -417,6 +421,8 @@ export const eventsBlock = defineBlock({
       "Typing events into text blocks (add them to the events collection so they stay in sync).",
   },
   render: ({ id, fields, variant, style }) => {
+    const HTag = fields.headingLevel;
+    const ITag = childLevel(fields.headingLevel);
     const { basePath, doc } = useRenderContext();
     const locale = useLocale();
     const events = useCollectionQuery(fields.source).filter(
@@ -424,9 +430,9 @@ export const eventsBlock = defineBlock({
     );
     const headingId = sub(id, "h");
     const heading = fields.heading ? (
-      <h2 className="os-events__heading os-type-h3" id={headingId}>
+      <HTag className="os-events__heading os-type-h3" id={headingId}>
         {fields.heading}
-      </h2>
+      </HTag>
     ) : null;
     if (!events.length)
       return (
@@ -461,11 +467,11 @@ export const eventsBlock = defineBlock({
                 />
               ) : null}
               <div className="os-events__body">
-                <h3 className={cx("os-events__title", typo(style, "title", "h4"))}>
+                <ITag className={cx("os-events__title", typo(style, "title", "h4"))}>
                   <a className="os-events__link" href={href(e)}>
                     {fm.title}
                   </a>
-                </h3>
+                </ITag>
                 <p className="os-events__when">
                   <Icon name="clock" size={16} />
                   <time dateTime={fm.start}>{eventWhen(fm, locale)}</time>
@@ -591,6 +597,7 @@ export const collectionsCss = `
 .os-summary__link:focus-visible{outline:none}
 .os-summary__card:has(.os-summary__link:focus-visible){outline:2px solid var(--os-color-focus);outline-offset:4px;border-radius:var(--os-radius-sm)}
 .os-summary__excerpt{margin:0.2em 0 0;color:var(--os-color-text)}
+.os-price__sep{color:var(--os-color-text-muted);font-weight:400}
 .os-summary__price{margin:0;font-weight:var(--os-font-weight-strong);color:var(--os-color-heading)}
 .os-summary__price s{font-weight:400;color:var(--os-color-text-muted)}
 .os-summary__image{transition:transform var(--os-motion-duration-slow) var(--os-motion-ease)}
@@ -610,7 +617,7 @@ export const collectionsCss = `
 .os-events__list{display:grid;gap:0;margin:0;padding:0;list-style:none}
 .os-events__item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--os-space-sm);padding-block:var(--os-space-sm);border-top:1px solid var(--os-color-border);align-items:start}
 .os-events__badge{display:grid;justify-items:center;min-width:3.75rem;margin:0;padding:0.5rem 0.4rem;border-radius:var(--os-radius-card);background:var(--os-color-surface);line-height:1}
-.os-events__month{font-size:var(--os-type-small-font-size);text-transform:uppercase;letter-spacing:0.08em;color:var(--os-color-accent);font-weight:var(--os-font-weight-strong)}
+.os-events__month{font-size:var(--os-type-small-font-size);text-transform:uppercase;letter-spacing:0.08em;color:var(--os-color-link);font-weight:var(--os-font-weight-strong)}
 .os-events__day{font-family:var(--os-font-heading);font-size:var(--os-type-h3-font-size);color:var(--os-color-heading);margin-top:0.2em}
 .os-events__image{grid-column:2}
 .os-events__body{grid-column:2;display:grid;gap:0.3em;min-width:0}

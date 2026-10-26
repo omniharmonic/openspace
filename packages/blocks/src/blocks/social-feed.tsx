@@ -11,7 +11,7 @@ import {
   useRenderContext,
 } from "@openspace/renderer";
 import { defineBlock, f } from "@openspace/schema";
-import { EditorNotice, typo } from "../shared";
+import { EditorNotice, headingLevelField, typo } from "../shared";
 
 /** Button role (a variable keeps the a11y role lint off the Button prop). */
 const SECONDARY: ButtonRole = "secondary";
@@ -52,6 +52,7 @@ export const socialFeedBlock = defineBlock({
   description: "Your latest Instagram (or other) posts, fetched when the site is published.",
   fields: {
     heading: f.text({ optional: true, maxLength: 80, default: "Life at the studio" }),
+    headingLevel: headingLevelField(),
     network: f.select({
       options: NETWORKS.map((n) => ({ value: n, label: networkLabel(n) })),
       default: "instagram",
@@ -85,6 +86,7 @@ export const socialFeedBlock = defineBlock({
     avoid: "Embedding other people's posts; feeds as the main content of a page.",
   },
   render: ({ fields, variant, style }) => {
+    const HTag = fields.headingLevel;
     const { doc } = useRenderContext();
     const { feeds } = useCollections();
     const count = Number(fields.count);
@@ -117,7 +119,9 @@ export const socialFeedBlock = defineBlock({
         style={{ "--f-cols": variant === "grid" && count > 4 ? count / 2 : Math.min(count, 6) }}
       >
         {fields.heading ? (
-          <h3 className={cx("os-feed__heading", typo(style, "heading", "h3"))}>{fields.heading}</h3>
+          <HTag className={cx("os-feed__heading", typo(style, "heading", "h3"))}>
+            {fields.heading}
+          </HTag>
         ) : null}
         {posts.length ? (
           <ul className="os-feed__grid" aria-label={`Recent posts by ${handle} on ${name}`}>

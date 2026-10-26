@@ -107,7 +107,7 @@ export const teamCss = `
 .os-team__name{margin:0;color:var(--os-color-heading)}
 .os-team__link{color:inherit;text-decoration:none}
 .os-team__link:hover{text-decoration:underline;text-underline-offset:0.2em}
-.os-team__role{margin:0;color:var(--os-color-accent);font-weight:var(--os-font-weight-strong);font-size:var(--os-type-small-font-size)}
+.os-team__role{margin:0;color:var(--os-color-link);font-weight:var(--os-font-weight-strong);font-size:var(--os-type-small-font-size)}
 .os-team__bio{margin:0.3em 0 0;color:var(--os-color-text)}
 .os-team--list{grid-template-columns:minmax(0,1fr);gap:var(--os-space-md)}
 @container block (min-width:36rem){.os-team--list .os-team__person{grid-template-columns:minmax(0,12rem) minmax(0,1fr);gap:var(--os-space-md);align-items:start}}

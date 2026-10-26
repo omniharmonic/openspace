@@ -11,12 +11,13 @@ import {
   currencyExponent,
   EditorNotice,
   formatMoney,
+  headingLevelField,
   sub,
   typo,
   useHub,
   useLocale,
 } from "../shared";
-import { itemImage, productPrice } from "./collections";
+import { itemImage, PriceText, productPrice } from "./collections";
 import { Honeypot, useSourcePath } from "./form";
 
 /** Product + add to cart, and donations. */
@@ -130,16 +131,7 @@ export const productBlock = defineBlock({
           </h3>
           {price ? (
             <p className="os-product__price">
-              {price.was ? (
-                <s>
-                  <span className="os-visually-hidden">Was </span>
-                  {price.was}
-                </s>
-              ) : null}
-              <span>
-                {price.was ? <span className="os-visually-hidden">Now </span> : null}
-                {price.text}
-              </span>
+              <PriceText price={price} />
             </p>
           ) : null}
           {fields.showDescription && fm.excerpt ? (
@@ -252,6 +244,7 @@ export const donationBlock = defineBlock({
     "Preset or custom amounts, one-time or monthly, paid through Stripe or your own link.",
   fields: {
     heading: f.text({ optional: true, maxLength: 80, default: "Keep community classes free" }),
+    headingLevel: headingLevelField(),
     description: f.text({
       optional: true,
       multiline: true,
@@ -312,6 +305,7 @@ export const donationBlock = defineBlock({
       "Amounts or causes the owner hasn't approved; promising tax deductibility without confirming it.",
   },
   render: ({ id, fields, variant, style }) => {
+    const HTag = fields.headingLevel;
     const { hub, siteId } = useHub();
     const source = useSourcePath();
     const locale = useLocale();
@@ -320,9 +314,9 @@ export const donationBlock = defineBlock({
       fields.heading || fields.description ? (
         <div className="os-donation__intro">
           {fields.heading ? (
-            <h3 className={cx("os-donation__heading", typo(style, "heading", "h3"))}>
+            <HTag className={cx("os-donation__heading", typo(style, "heading", "h3"))}>
               {fields.heading}
-            </h3>
+            </HTag>
           ) : null}
           {fields.description ? <p className="os-donation__text">{fields.description}</p> : null}
         </div>
@@ -352,7 +346,6 @@ export const donationBlock = defineBlock({
         : fields.frequency === "monthly"
           ? (["month"] as const)
           : (["once"] as const);
-    const firstAmount = fields.amounts[0]?.amount;
     return (
       <div className={cx("os-donation", `os-donation--${variant}`)}>
         {intro}
@@ -385,27 +378,16 @@ export const donationBlock = defineBlock({
               return (
                 // biome-ignore lint/suspicious/noArrayIndexKey: amounts are positional
                 <label key={i} className="os-donation__pill">
-                  <input
-                    type="radio"
-                    name={amountName}
-                    value={minor}
-                    defaultChecked={a.amount === firstAmount && i === 0}
-                  />
+                  <input type="radio" name={amountName} value={minor} defaultChecked={i === 0} />
                   <span>{formatMoney(minor, fields.currency, locale)}</span>
                 </label>
               );
             })}
-            {fields.allowCustom ? (
-              <label className="os-donation__pill os-donation__pill--custom">
-                <input type="radio" name={amountName} value="custom" />
-                <span>Other</span>
-              </label>
-            ) : null}
           </fieldset>
           {fields.allowCustom ? (
             <div className="os-field os-donation__custom">
               <label className="os-label" htmlFor={sub(id, "custom")}>
-                Other amount ({fields.currency})
+                Or give another amount ({fields.currency})
               </label>
               <input
                 className="os-input"
@@ -415,7 +397,11 @@ export const donationBlock = defineBlock({
                 inputMode="decimal"
                 min="1"
                 step={exp === 0 ? "1" : "0.01"}
+                aria-describedby={sub(id, "custom-help")}
               />
+              <p className="os-field__help" id={sub(id, "custom-help")}>
+                Replaces the amount chosen above. Leave empty to give that amount.
+              </p>
             </div>
           ) : null}
           <Honeypot />
@@ -436,7 +422,7 @@ export const commerceCss = `
 .os-product__title{margin:0;color:var(--os-color-heading)}
 .os-product__link{color:inherit;text-decoration:none}
 .os-product__link:hover{text-decoration:underline;text-underline-offset:0.2em}
-.os-product__price{display:flex;flex-wrap:wrap;gap:0.6em;align-items:baseline;margin:0;font-size:var(--os-type-lead-font-size);font-weight:var(--os-font-weight-strong);color:var(--os-color-heading);font-variant-numeric:lining-nums}
+.os-product__price{display:flex;flex-wrap:wrap;gap:0 0.3em;align-items:baseline;margin:0;font-size:var(--os-type-lead-font-size);font-weight:var(--os-font-weight-strong);color:var(--os-color-heading);font-variant-numeric:lining-nums}
 .os-product__price s{font-weight:400;color:var(--os-color-text-muted)}
 .os-product__desc{margin:0;color:var(--os-color-text);max-inline-size:var(--os-measure)}
 .os-product__buy{display:grid;gap:var(--os-space-xs);margin-top:var(--os-space-2xs)}
@@ -467,7 +453,6 @@ html:not(.os-js) .os-product__buy{display:none}
 .os-donation__freq{padding:0.25rem;background:var(--os-color-surface);border-radius:var(--os-radius-full);justify-self:start}
 .os-donation__freq .os-donation__pill>span{border:0;border-radius:var(--os-radius-full);min-height:2.25rem;min-width:6rem}
 .os-donation__custom{max-inline-size:14rem}
-.os-js .os-donation__form:not(:has(input[value=custom]:checked)) .os-donation__custom{display:none}
 .os-donation__submit{justify-self:start;min-width:10rem;justify-content:center}
 .os-donation__note{margin:0;font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}
 .os-donation--card{padding:var(--os-space-md);background:var(--os-color-surface);border-radius:var(--os-radius-card)}

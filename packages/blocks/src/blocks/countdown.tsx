@@ -1,6 +1,6 @@
 import { Button, cx } from "@openspace/renderer";
 import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
-import { EditorNotice, formatDate, sub, typo, useLocale } from "../shared";
+import { EditorNotice, formatDate, headingLevelField, sub, typo, useLocale } from "../shared";
 
 const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2})$/;
 
@@ -24,6 +24,7 @@ export const countdownBlock = defineBlock({
       maxLength: 80,
       default: "Spring retreat in Taos opens for booking",
     }),
+    headingLevel: headingLevelField(),
     target: f.text({
       maxLength: 32,
       default: "2027-03-01T09:00:00-07:00",
@@ -49,6 +50,7 @@ export const countdownBlock = defineBlock({
     avoid: "Fake urgency (timers that reset); countdowns to dates that have long passed.",
   },
   render: ({ id, fields, variant, style }) => {
+    const HTag = fields.headingLevel;
     const locale = useLocale();
     const valid = ISO_DATETIME.test(fields.target) && !Number.isNaN(Date.parse(fields.target));
     if (!valid)
@@ -74,14 +76,14 @@ export const countdownBlock = defineBlock({
         data-os-target={fields.target}
       >
         {fields.heading ? (
-          <h3
+          <HTag
             className={cx(
               "os-countdown__heading",
               typo(style, "heading", variant === "large" ? "h2" : "h3"),
             )}
           >
             {fields.heading}
-          </h3>
+          </HTag>
         ) : null}
         <p className="os-countdown__when">
           <time dateTime={fields.target}>{when}</time>
@@ -116,14 +118,14 @@ export const countdownCss = `
 .os-countdown{display:grid;gap:var(--os-space-xs);justify-items:start}
 .os-countdown__heading{margin:0;color:var(--os-color-heading);text-wrap:balance}
 .os-countdown__when{margin:0;color:var(--os-color-text-muted)}
-.os-countdown__units{display:flex;flex-wrap:wrap;gap:var(--os-space-2xs);margin-block:var(--os-space-2xs)}
+.os-countdown__units{flex-wrap:wrap;gap:var(--os-space-2xs);margin-block:var(--os-space-2xs)}
+.os-js .os-countdown__units{display:flex}
 .os-countdown__unit{display:grid;justify-items:center;gap:0.15em;min-width:4.5rem;padding:var(--os-space-xs) var(--os-space-2xs);border-radius:var(--os-radius-card);background:var(--os-color-surface)}
 .os-block.has-radius .os-countdown__unit{border-radius:var(--radius)}
 .os-countdown__num{font-family:var(--os-font-heading);font-weight:var(--os-font-weight-heading);font-size:var(--os-type-h2-font-size);line-height:1;color:var(--os-color-heading);font-variant-numeric:lining-nums tabular-nums}
 .os-countdown__label{font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}
 .os-countdown__done{margin:0;font-weight:var(--os-font-weight-strong);color:var(--os-color-heading)}
 .os-countdown__done[hidden],.os-countdown__units[hidden]{display:none}
-html:not(.os-js) .os-countdown__units{display:none}
 .os-countdown__action{margin-top:var(--os-space-2xs)}
 .os-countdown--inline .os-countdown__unit{background:none;padding:0;min-width:0;grid-auto-flow:column;align-items:baseline;gap:0.3em}
 .os-countdown--inline .os-countdown__unit+.os-countdown__unit::before{content:"·";color:var(--os-color-text-muted);margin-inline-end:0.4em}

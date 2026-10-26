@@ -165,9 +165,9 @@ describe("marquee", () => {
     const root = $(".os-ticker");
     expect(root.dataset.osBehavior).toBe("marquee");
     expect(root.dataset.osSpeed).toBe("40");
-    expect($(".os-marquee__track").getAttribute("aria-label")).toBe(
-      "Slow yoga, Sound baths, Breathwork, Saturday foundations, Pearl Street, Boulder",
-    );
+    // The list's own items are its content: no aria-label repeating them.
+    expect($(".os-marquee__track").hasAttribute("aria-label")).toBe(false);
+    expect($$(".os-ticker__sep[aria-hidden=true]")).toHaveLength(5);
     behavior("marquee")(root);
     expect(root.classList.contains("is-running")).toBe(true);
     expect($$("[data-os-clone]")).toHaveLength(5);
@@ -416,8 +416,13 @@ describe("booking", () => {
     behavior("video-lite")(frame);
     $<HTMLButtonElement>("[data-os-load]").click();
     const iframe = $<HTMLIFrameElement>("iframe");
-    expect(iframe.getAttribute("src")).toMatch(
-      /^https:\/\/cal\.com\/juniperyoga\/private-session\/embed\?embedType=inline&layout=month_view/,
+    // No autoplay parameter for calendars (only video embeds get one).
+    expect(iframe.getAttribute("src")).toBe(
+      "https://cal.com/juniperyoga/private-session/embed?embedType=inline&layout=month_view",
+    );
+    // The direct link stays available once the calendar has loaded.
+    expect($(".os-booking__fallback").getAttribute("href")).toBe(
+      "https://cal.com/juniperyoga/private-session",
     );
     expect(iframe.title).toBe("Book a private session (Cal.com)");
   });
@@ -536,7 +541,8 @@ describe("summary", () => {
 
   it("shows products with prices", () => {
     mount([withFields(summaryBlock, { source: { collection: "shop" } })]);
-    expect($(".os-summary__price").textContent).toBe("Was $80 From $68");
+    expect($(".os-summary__price").textContent).toBe("Was $80 · now From $68");
+    expect($(".os-summary__price .os-price__sep").getAttribute("aria-hidden")).toBe("true");
   });
 
   it("empty: a visitor message, plus an editing notice in Studio", () => {
@@ -609,6 +615,31 @@ describe("events", () => {
   });
 });
 
+describe("heading levels", () => {
+  it("block headings default to h3 with item titles one level below, and are configurable", () => {
+    mount([create(summaryBlock)]);
+    expect($(".os-summary__heading").tagName).toBe("H3");
+    expect($(".os-summary__title").tagName).toBe("H4");
+    mount([withFields(eventsBlock, { headingLevel: "h2" })]);
+    expect($(".os-events__heading").tagName).toBe("H2");
+    expect($(".os-events__title").tagName).toBe("H3");
+    for (const [def, cls] of [
+      [hoursBlock, ".os-hours__heading"],
+      [contactInfoBlock, ".os-contact__heading"],
+      [countdownBlock, ".os-countdown__heading"],
+      [bookingBlock, ".os-booking__heading"],
+      [donationBlock, ".os-donation__heading"],
+      [memberLoginBlock, ".os-members__heading"],
+      [socialFeedBlock, ".os-feed__heading"],
+    ] as const) {
+      mount([create(def)]);
+      expect($(cls).tagName).toBe("H3");
+      mount([withFields(def, { headingLevel: "h4" })]);
+      expect($(cls).tagName).toBe("H4");
+    }
+  });
+});
+
 describe("search", () => {
   it("opens site search, falling back to a site-scoped web search without JS", () => {
     const docOn = siteWith([page("Home", "home", [])]);
@@ -658,7 +689,7 @@ describe("product", () => {
   it("emits the cart contract (SKU + qty only) with a variant picker", () => {
     mount([create(productBlock)]);
     expect($(".os-product__title a").getAttribute("href")).toBe("/shop/cork-yoga-mat/");
-    expect($(".os-product__price").textContent).toBe("Was $80Now From $68");
+    expect($(".os-product__price").textContent).toBe("Was $80 · now From $68");
     const add = $<HTMLButtonElement>("button[data-os-add]");
     expect(add.dataset.osBehavior).toBe("cart");
     expect(add.dataset.osSku).toBe("MAT-CORK-STD");
@@ -707,14 +738,20 @@ describe("donation", () => {
       "3500",
       "7500",
       "15000",
-      "custom",
     ]);
+    expect($<HTMLInputElement>('input[name="amount"]').checked).toBe(true);
+    // Another amount is its own optional field (the Hub prefers it when filled), so there is
+    // no "Other" choice that could be submitted without an amount.
+    const custom = $<HTMLInputElement>('input[name="custom_amount"]');
+    expect(custom.type).toBe("number");
+    expect(
+      document.getElementById(custom.getAttribute("aria-describedby") ?? "")?.textContent,
+    ).toMatch(/Leave empty/);
     expect($$(".os-donation__amounts .os-donation__pill span").map((s) => s.textContent)).toEqual([
       "$15",
       "$35",
       "$75",
       "$150",
-      "Other",
     ]);
     expect($$<HTMLInputElement>('input[name="interval"]').map((i) => i.value)).toEqual([
       "once",

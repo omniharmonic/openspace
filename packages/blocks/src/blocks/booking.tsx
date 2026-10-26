@@ -1,7 +1,7 @@
 import { Button, cx } from "@openspace/renderer";
 import { defineBlock, f } from "@openspace/schema";
 import { Icon } from "../icons";
-import { EditorNotice, typo } from "../shared";
+import { EditorNotice, headingLevelField, typo } from "../shared";
 
 export interface BookingEmbed {
   provider: "cal" | "calendly";
@@ -76,6 +76,7 @@ export const bookingBlock = defineBlock({
       default: "auto",
     }),
     heading: f.text({ optional: true, maxLength: 80, default: "Book a private session" }),
+    headingLevel: headingLevelField(),
     description: f.text({
       optional: true,
       multiline: true,
@@ -110,7 +111,8 @@ export const bookingBlock = defineBlock({
       "Services, coaching, consultations and classes booked by time slot. The scheduler loads only after a click, so the page stays fast and private. `button` just links out.",
     avoid: "Scheduling links the owner hasn't set up; more than one booking block per page.",
   },
-  render: ({ id, fields, variant, style }) => {
+  render: ({ fields, variant, style }) => {
+    const HTag = fields.headingLevel;
     const booking = parseBookingUrl(fields.url, fields.provider);
     if (!booking)
       return (
@@ -123,9 +125,9 @@ export const bookingBlock = defineBlock({
       fields.heading || fields.description ? (
         <div className="os-booking__intro">
           {fields.heading ? (
-            <h3 className={cx("os-booking__heading", typo(style, "heading", "h3"))}>
+            <HTag className={cx("os-booking__heading", typo(style, "heading", "h3"))}>
               {fields.heading}
-            </h3>
+            </HTag>
           ) : null}
           {fields.description ? <p className="os-booking__text">{fields.description}</p> : null}
         </div>
@@ -148,11 +150,10 @@ export const bookingBlock = defineBlock({
         {intro}
         <div
           className="os-booking__frame"
-          id={`${id}-frame`}
           style={{ "--bk-h": `${fields.height}px` }}
           data-os-behavior="video-lite"
           data-os-embed={booking.embed}
-          data-os-title={`${fields.heading ?? "Booking calendar"} (${name})`}
+          data-os-title={`${fields.heading || "Booking calendar"} (${name})`}
         >
           <div className="os-booking__placeholder">
             <Icon name="calendar" size={36} />
@@ -162,11 +163,12 @@ export const bookingBlock = defineBlock({
             <Button className="os-booking__load" attrs={{ "data-os-load": "" }}>
               {fields.buttonLabel}
             </Button>
-            <a className="os-booking__fallback" href={booking.page} target="_blank" rel="noopener">
-              Open the booking page<span className="os-visually-hidden"> on {name}</span>
-            </a>
           </div>
         </div>
+        <a className="os-booking__fallback" href={booking.page} target="_blank" rel="noopener">
+          Open the booking page
+          <span className="os-visually-hidden"> on {name} (opens in a new tab)</span>
+        </a>
       </div>
     );
   },
@@ -184,8 +186,7 @@ export const bookingCss = `
 .os-booking__placeholder{display:grid;justify-items:center;align-content:center;gap:var(--os-space-xs);min-height:22rem;padding:var(--os-space-md);text-align:center;color:var(--os-color-text)}
 .os-booking__placeholder>.os-icon{color:var(--os-color-accent)}
 .os-booking__note{margin:0;max-inline-size:34ch;font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}
-.os-booking__fallback{font-size:var(--os-type-small-font-size);color:var(--os-color-link)}
-.os-js .os-booking__fallback{display:none}
+.os-booking__fallback{justify-self:start;font-size:var(--os-type-small-font-size);color:var(--os-color-link)}
 html:not(.os-js) .os-booking__load{display:none}
 .os-align-center .os-booking--button,.os-malign-center .os-booking--button{justify-items:center;text-align:center}
 `;

@@ -158,8 +158,8 @@ export const restaurantMenuBlock = defineBlock({
                       <span className="os-menu-card__name">{item.name}</span>
                       {item.dietary.length ? (
                         <span className="os-menu-card__diet">
-                          {item.dietary.map((d) => (
-                            <abbr key={d.tag} title={DIETARY[d.tag].name}>
+                          {item.dietary.map((d, k) => (
+                            <abbr key={`${d.tag}-${k}`} title={DIETARY[d.tag].name}>
                               {DIETARY[d.tag].code}
                             </abbr>
                           ))}
@@ -212,16 +212,16 @@ export const restaurantMenuCss = `
 .os-menu-card__line{display:flex;align-items:baseline;gap:0.5em;margin:0}
 .os-menu-card__name{font-weight:var(--os-font-weight-strong);color:var(--os-color-heading)}
 .os-menu-card__diet{display:inline-flex;gap:0.25em}
-.os-menu-card__diet abbr{font-size:0.7em;font-weight:var(--os-font-weight-strong);letter-spacing:0.04em;text-decoration:none;color:var(--os-color-accent);border:1px solid currentColor;border-radius:var(--os-radius-full);padding:0.05em 0.45em;cursor:help}
+.os-menu-card__diet abbr{font-size:0.7em;font-weight:var(--os-font-weight-strong);letter-spacing:0.04em;text-decoration:none;color:var(--os-color-link);border:1px solid currentColor;border-radius:var(--os-radius-full);padding:0.05em 0.45em;cursor:help}
 .os-menu-card__leader{flex:1;min-width:1rem;border-bottom:1.5px dotted var(--os-color-text-muted);translate:0 -0.3em}
 .os-menu-card__price{font-variant-numeric:lining-nums tabular-nums;color:var(--os-color-heading);white-space:nowrap}
 .os-menu-card__desc{margin:0;color:var(--os-color-text);max-inline-size:var(--os-measure);font-size:var(--os-type-small-font-size);line-height:var(--os-type-small-line-height)}
 .os-menu-card--minimal .os-menu-card__leader{border:0}
-.os-menu-card--minimal .os-menu-card__title{font-family:var(--os-type-eyebrow-font-family);font-size:var(--os-type-eyebrow-font-size);letter-spacing:var(--os-type-eyebrow-letter-spacing);text-transform:var(--os-type-eyebrow-text-transform);font-weight:var(--os-type-eyebrow-font-weight);color:var(--os-color-accent);padding-bottom:var(--os-space-2xs);border-bottom:1px solid var(--os-color-border)}
+.os-menu-card--minimal .os-menu-card__title{font-family:var(--os-type-eyebrow-font-family);font-size:var(--os-type-eyebrow-font-size);letter-spacing:var(--os-type-eyebrow-letter-spacing);text-transform:var(--os-type-eyebrow-text-transform);font-weight:var(--os-type-eyebrow-font-weight);color:var(--os-color-link);padding-bottom:var(--os-space-2xs);border-bottom:1px solid var(--os-color-border)}
 .os-menu-card--classic .os-menu-card__title{text-align:center}
 .os-menu-card--classic .os-menu-card__note{text-align:center}
 .os-menu-card__foot{display:grid;gap:var(--os-space-2xs);padding-top:var(--os-space-sm);border-top:1px solid var(--os-color-border);font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}
 .os-menu-card__legend{display:flex;flex-wrap:wrap;gap:0.4em 1.2em;margin:0;padding:0;list-style:none}
-.os-menu-card__legend b{color:var(--os-color-accent)}
+.os-menu-card__legend b{color:var(--os-color-heading)}
 .os-menu-card__footnote{margin:0}
 `;

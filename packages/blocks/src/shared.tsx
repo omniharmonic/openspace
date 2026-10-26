@@ -10,6 +10,7 @@ import {
   type TypePreset,
 } from "@openspace/schema";
 import type { ReactNode } from "react";
+import { Icon } from "./icons";
 
 /** Helpers shared by the block library. */
 
@@ -307,7 +308,7 @@ export function formatDate(
   return iso;
 }
 
-/** Calendar parts (`year`, `month` 1–12, `day`, weekday 0=Sun) of an ISO value in its zone. */
+/** Calendar parts (`year`, `month` 1–12, `day`) of an ISO value in its own zone (see formatDate). */
 export function dateParts(iso: string, timeZone?: string) {
   const zone = isDateOnly(iso) ? "UTC" : (timeZone ?? iso.match(OFFSET_RE)?.[1] ?? "UTC");
   const date = new Date(iso);
@@ -346,3 +347,57 @@ export function EditorNotice({ children }: { children: ReactNode }) {
     </p>
   );
 }
+
+// --- carousel controls -----------------------------------------------------------------------------
+
+/**
+ * Previous / next buttons for the renderer carousel contract (`[data-os-prev]`,
+ * `[data-os-next]`, `aria-controls` → the `.os-carousel__track` id). `noun` names what moves:
+ * "photos", "quote", "items".
+ */
+export function CarouselControls({ trackId, noun }: { trackId: string; noun: string }) {
+  return (
+    <div className="os-carousel__controls">
+      <button
+        type="button"
+        className="os-carousel__btn"
+        data-os-prev=""
+        aria-controls={trackId}
+        aria-label={`Previous ${noun}`}
+      >
+        <Icon name="arrow-right" size={20} className="os-flip" />
+      </button>
+      <button
+        type="button"
+        className="os-carousel__btn"
+        data-os-next=""
+        aria-controls={trackId}
+        aria-label={`Next ${noun}`}
+      >
+        <Icon name="arrow-right" size={20} />
+      </button>
+    </div>
+  );
+}
+
+// --- heading levels -------------------------------------------------------------------------------
+
+export const HEADING_LEVELS = ["h2", "h3", "h4"] as const;
+export type HeadingLevel = (typeof HEADING_LEVELS)[number];
+
+/** The block's own heading level (default h3, under the page's section headings). */
+export const headingLevelField = () =>
+  f.select({
+    options: [
+      { value: "h2", label: "Heading 2" },
+      { value: "h3", label: "Heading 3" },
+      { value: "h4", label: "Heading 4" },
+    ],
+    default: "h3",
+    label: "Heading level",
+    help: "Match the page outline: one level below the section's heading",
+  });
+
+/** One level below `level` (item titles under the block heading), capped at h5. */
+export const childLevel = (level: HeadingLevel) =>
+  (({ h2: "h3", h3: "h4", h4: "h5" }) as const)[level];

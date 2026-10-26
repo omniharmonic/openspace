@@ -154,7 +154,7 @@ export const pricingCss = `
 .os-pricing--columns .os-pricing__plans{gap:0}
 .os-pricing--columns .os-pricing__plan{border-radius:0;border-top:1px solid var(--os-color-border)}
 @container block (min-width:48rem){.os-pricing--columns .os-pricing__plan{border-top:0;border-inline-start:1px solid var(--os-color-border)}.os-pricing--columns .os-pricing__plan:first-child{border-inline-start:0}}
-.os-pricing--columns .os-pricing__plan.is-featured .os-pricing__name{color:var(--os-color-accent)}
+.os-pricing--columns .os-pricing__plan.is-featured .os-pricing__name{color:var(--os-color-link)}
 .os-pricing--compact .os-pricing__plans{grid-template-columns:minmax(0,1fr);gap:0}
 .os-pricing--compact .os-pricing__plan{padding:var(--os-space-sm) 0;border-radius:0;border-bottom:1px solid var(--os-color-border)}
 .os-pricing--compact .os-pricing__amount{font-size:var(--os-type-h3-font-size)}

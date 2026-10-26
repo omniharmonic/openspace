@@ -60,6 +60,7 @@ export {
   eventsBlock,
   eventWhen,
   itemImage,
+  PriceText,
   productPrice,
   summaryBlock,
 } from "./blocks/collections";

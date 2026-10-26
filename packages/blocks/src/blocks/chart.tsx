@@ -293,13 +293,13 @@ export const chartBlock = defineBlock({
 });
 
 export const chartCss = `
-.os-chart{display:grid;gap:var(--os-space-sm);margin:0;color:var(--os-color-accent)}
+.os-chart{display:grid;gap:var(--os-space-sm);margin:0}
 .os-chart__caption{display:grid;gap:0.25em}
 .os-chart__title{color:var(--os-color-heading)}
 .os-chart__desc{font-size:var(--os-type-small-font-size);line-height:var(--os-type-small-line-height);color:var(--os-color-text-muted)}
 .os-chart__label,.os-chart__xaxis,.os-chart__yaxis{font-size:var(--os-type-small-font-size);color:var(--os-color-text)}
 .os-chart__value,.os-chart__point{font-size:var(--os-type-small-font-size);font-weight:var(--os-font-weight-strong);color:var(--os-color-heading);font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}
-.os-chart__mark{fill:currentColor}
+.os-chart__mark{fill:var(--os-color-accent)}
 .os-chart__bars{display:grid;gap:var(--os-space-2xs)}
 .os-chart__row{display:grid;grid-template-columns:minmax(5rem,30%) minmax(0,1fr) auto;align-items:center;gap:var(--os-space-xs)}
 .os-chart__track{display:block;width:100%;height:1.6rem;border-radius:var(--os-radius-sm);overflow:hidden;background:var(--os-color-surface)}
@@ -310,9 +310,9 @@ export const chartCss = `
 .os-chart__area{position:relative}
 .os-chart__area>.os-chart__svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .os-chart__grid{stroke:var(--os-color-border);stroke-width:1;vector-effect:non-scaling-stroke}
-.os-chart__line{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
-.os-chart__fill{fill:currentColor;fill-opacity:0.12}
-.os-chart__dot{position:absolute;left:var(--x);bottom:var(--y);width:0.7rem;height:0.7rem;translate:-50% 50%;border-radius:var(--os-radius-full);background:currentColor;box-shadow:0 0 0 2px var(--os-color-background)}
+.os-chart__line{fill:none;stroke:var(--os-color-accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.os-chart__fill{fill:var(--os-color-accent);fill-opacity:0.12}
+.os-chart__dot{position:absolute;left:var(--x);bottom:var(--y);width:0.7rem;height:0.7rem;translate:-50% 50%;border-radius:var(--os-radius-full);background:var(--os-color-accent);box-shadow:0 0 0 2px var(--os-color-background)}
 .os-chart__point{position:absolute;left:var(--x);bottom:var(--y);translate:-50% -0.6rem;line-height:1}
 .os-chart__xaxis{grid-column:2;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));padding-top:var(--os-space-2xs);text-align:center}
 .os-chart__xaxis>span{hyphens:auto;overflow-wrap:break-word;padding-inline:0.15rem}

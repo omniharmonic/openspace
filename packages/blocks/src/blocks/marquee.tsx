@@ -75,10 +75,7 @@ export const marqueeBlock = defineBlock({
         data-os-behavior="marquee"
         data-os-speed={SPEEDS[fields.speed]}
       >
-        <ul
-          className={cx("os-marquee__track", "os-ticker__track", `os-type-${fields.size}`)}
-          aria-label={fields.items.map((i) => i.text).join(", ")}
-        >
+        <ul className={cx("os-marquee__track", "os-ticker__track", `os-type-${fields.size}`)}>
           {fields.items.map((item, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
             <li key={i} className="os-ticker__item">
@@ -101,7 +98,7 @@ export const marqueeCss = `
 .os-ticker .os-marquee__track{gap:0;justify-content:center;margin:0}
 .os-ticker.is-running .os-marquee__track{justify-content:flex-start}
 .os-ticker__item{display:flex;align-items:center;white-space:nowrap;color:var(--os-color-heading);line-height:1.15}
-.os-ticker__sep{display:inline-block;padding-inline:0.6em;color:var(--os-color-accent);font-size:0.6em}
+.os-ticker__sep{display:inline-block;padding-inline:0.6em;color:var(--os-color-link);font-size:0.6em}
 .os-ticker--outline .os-ticker__item>span:first-child{color:transparent;-webkit-text-stroke:1.5px var(--os-color-heading)}
 .os-ticker--band{background:var(--os-color-accent);padding-block:var(--os-space-xs);border-radius:var(--os-radius-sm)}
 .os-ticker--band .os-ticker__item,.os-ticker--band .os-ticker__sep{color:var(--os-color-accent-text)}

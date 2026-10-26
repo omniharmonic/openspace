@@ -1,7 +1,7 @@
 import { Button, type ButtonRole, cx } from "@openspace/renderer";
 import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
 import { Icon } from "../icons";
-import { EditorNotice, sub, typo, useHub } from "../shared";
+import { EditorNotice, headingLevelField, sub, typo, useHub } from "../shared";
 import { Honeypot, TurnstileSlot, useSourcePath } from "./form";
 
 /** Button role (a variable keeps the a11y role lint off the Button prop). */
@@ -21,6 +21,7 @@ export const memberLoginBlock = defineBlock({
   description: "A passwordless sign-in form for members, or a notice that content is members-only.",
   fields: {
     heading: f.text({ optional: true, maxLength: 80, default: "Members, welcome back" }),
+    headingLevel: headingLevelField(),
     description: f.text({
       optional: true,
       multiline: true,
@@ -59,17 +60,18 @@ export const memberLoginBlock = defineBlock({
     avoid: "Putting the members-only content itself on a public page; asking for passwords.",
   },
   render: ({ id, fields, variant, style }) => {
+    const HTag = fields.headingLevel;
     const { hub, siteId } = useHub();
     const source = useSourcePath();
     const heading = fields.heading ? (
-      <h3
+      <HTag
         className={cx(
           "os-members__heading",
           typo(style, "heading", variant === "banner" ? "h4" : "h3"),
         )}
       >
         {fields.heading}
-      </h3>
+      </HTag>
     ) : null;
     const join =
       fields.joinLabel && fields.joinLink ? (

@@ -1,7 +1,6 @@
 import { cx, Img } from "@openspace/renderer";
 import { defineBlock, f } from "@openspace/schema";
-import { Icon } from "../icons";
-import { DEMO, typo } from "../shared";
+import { CarouselControls, DEMO, sub, typo } from "../shared";
 
 export const quoteCarouselBlock = defineBlock({
   type: "quote-carousel",
@@ -61,7 +60,7 @@ export const quoteCarouselBlock = defineBlock({
       "Invented or edited quotes; fewer than three quotes (use testimonial); quotes over three sentences.",
   },
   render: ({ id, fields, variant, style }) => {
-    const track = `${id}-track`;
+    const track = sub(id, "track");
     return (
       // biome-ignore lint/a11y/useSemanticElements: ARIA carousel pattern (group + roledescription), not a form fieldset
       <div
@@ -106,28 +105,7 @@ export const quoteCarouselBlock = defineBlock({
             </li>
           ))}
         </ul>
-        {fields.quotes.length > 1 ? (
-          <div className="os-carousel__controls">
-            <button
-              type="button"
-              className="os-carousel__btn"
-              data-os-prev=""
-              aria-controls={track}
-              aria-label="Previous quote"
-            >
-              <Icon name="arrow-right" size={20} className="os-flip" />
-            </button>
-            <button
-              type="button"
-              className="os-carousel__btn"
-              data-os-next=""
-              aria-controls={track}
-              aria-label="Next quote"
-            >
-              <Icon name="arrow-right" size={20} />
-            </button>
-          </div>
-        ) : null}
+        {fields.quotes.length > 1 ? <CarouselControls trackId={track} noun="quote" /> : null}
       </div>
     );
   },
