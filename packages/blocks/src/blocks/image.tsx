@@ -85,7 +85,7 @@ function ImageView({ fields, variant }: { fields: ImageFields; variant: string }
 
 export const imageCss = `
 .os-image{position:relative;display:grid;gap:var(--os-space-2xs)}
-.os-image.is-fill{height:100%;grid-template-rows:minmax(0,1fr) auto}
+.os-image.is-fill{height:100%;grid-template-rows:minmax(0,1fr);grid-auto-rows:auto}
 .os-image.is-fill>.os-image__link{display:block;height:100%}
 .os-image__link{display:block;color:inherit;border-radius:var(--os-image-radius)}
 .os-image__caption{font-size:var(--os-type-small-font-size);line-height:var(--os-type-small-line-height);color:var(--os-color-text-muted)}
