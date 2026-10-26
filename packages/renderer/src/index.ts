@@ -65,17 +65,15 @@ export {
   type HeaderProps,
   resolveNav,
 } from "./header";
+export { behaviorsForPage, type RenderPageHtmlOptions, renderPageHtml } from "./html";
 export {
-  behaviorsForPage,
   compiledStylesFor,
   escapeHtml,
   jsonForScript,
   pageDescription,
   pageTitle,
-  type RenderPageHtmlOptions,
-  renderPageHtml,
   siteUrlFor,
-} from "./html";
+} from "./html-meta";
 export { Img, type ImgProps, REMOTE_WIDTHS, remoteSrcset, resolveImage } from "./image";
 export {
   collectImageSrcs,
