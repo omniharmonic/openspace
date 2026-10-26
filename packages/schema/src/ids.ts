@@ -38,10 +38,33 @@ const ID_BODY = `[${CROCKFORD_ALPHABET}]{${ID_LENGTH}}`;
 const ANY_ID_RE = new RegExp(`^(?:${Object.values(ID_PREFIXES).join("|")})_${ID_BODY}$`);
 const idPattern = (prefix: IdPrefix): RegExp => new RegExp(`^${prefix}_${ID_BODY}$`);
 
+/** Counter used instead of crypto while `withScratchIds` runs (null: random ids). */
+let scratchCounter: number | null = null;
+
+/**
+ * Run `fn` with `newId` drawing ids from a deterministic counter instead of `crypto`.
+ * For throwaway values built at module load (e.g. a preset's metadata sample): Cloudflare
+ * Workers forbid generating random values in global scope. Ids made here are NOT unique
+ * across calls — never store them.
+ */
+export function withScratchIds<T>(fn: () => T): T {
+  const outer = scratchCounter;
+  scratchCounter = outer ?? 0;
+  try {
+    return fn();
+  } finally {
+    scratchCounter = outer;
+  }
+}
+
 /** Generate a new random id with the given prefix, e.g. `newId("blk")` → `blk_7hq2k3f9mz`. */
 export function newId<P extends IdPrefix>(prefix: P): IdOf<P> {
   const bytes = new Uint8Array(ID_LENGTH);
-  globalThis.crypto.getRandomValues(bytes);
+  if (scratchCounter === null) globalThis.crypto.getRandomValues(bytes);
+  else {
+    let n = scratchCounter++;
+    for (let i = ID_LENGTH - 1; i >= 0; i--, n = Math.floor(n / 32)) bytes[i] = n % 32;
+  }
   let body = "";
   for (const byte of bytes) body += CROCKFORD_ALPHABET[byte & 31];
   return `${prefix}_${body}` as IdOf<P>;

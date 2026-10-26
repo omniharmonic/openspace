@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   BlockIdSchema,
   CROCKFORD_ALPHABET,
@@ -7,6 +7,7 @@ import {
   isId,
   newId,
   PageIdSchema,
+  withScratchIds,
 } from "./ids";
 
 describe("ids", () => {
@@ -47,5 +48,21 @@ describe("ids", () => {
     expect(PageIdSchema.safeParse(newId("pg")).success).toBe(true);
     expect(PageIdSchema.safeParse("pg_home").success).toBe(false);
     expect(BlockIdSchema.safeParse(newId("pg")).success).toBe(false);
+  });
+
+  it("withScratchIds builds valid ids without crypto (Workers global scope) and restores randomness", () => {
+    const spy = vi.spyOn(globalThis.crypto, "getRandomValues");
+    const ids = withScratchIds(() => [
+      newId("sec"),
+      newId("blk"),
+      withScratchIds(() => newId("blk")),
+    ]);
+    expect(spy).not.toHaveBeenCalled();
+    for (const id of ids) expect(isId(id)).toBe(true);
+    expect(new Set(ids).size).toBe(3);
+    expect(ids[0]).toBe("sec_0000000000");
+    newId("pg");
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
   });
 });

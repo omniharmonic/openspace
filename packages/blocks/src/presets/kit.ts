@@ -12,6 +12,7 @@ import {
   type SectionLayout,
   type SectionStyle,
   type SpaceToken,
+  withScratchIds,
 } from "@openspace/schema";
 import { buttonBlock } from "../blocks/button";
 import { headingBlock } from "../blocks/heading";
@@ -358,7 +359,8 @@ export function definePreset(spec: PresetSpec): SectionPreset {
     };
   };
 
-  const sample = build();
+  // Module-scope build: scratch ids (Workers forbid randomness at startup; ids are discarded).
+  const sample = withScratchIds(() => build());
   // Photo backgrounds are designed for dark themes: the scrim is the section background colour,
   // and light scrims wash photos out.
   if (!spec.themes && sample.style.background?.type === "image") {
