@@ -127,6 +127,8 @@ const toStored = (r: OpRow): StoredOp => ({
   published: r.published === 1,
 });
 
+const itemAuthorKey = (collection: string, slug: string) => `item-author:${collection}/${slug}`;
+
 export class RoomState {
   /** The current draft document (head + every op after it). */
   doc: SiteDocument | null = null;
@@ -465,7 +467,12 @@ export class RoomState {
       if (this.opById(parsed.op.id)) continue;
       let op = parsed.op;
       if (role !== "owner" && role !== "designer") {
-        const d = transformForRole(op, role, locked, { doc, registry: blockRegistry() });
+        const d = transformForRole(op, role, locked, {
+          doc,
+          registry: blockRegistry(),
+          userId,
+          itemAuthor: this.itemAuthor,
+        });
         if (!d.allowed) return { ok: false, index, code: "forbidden", message: d.reason };
         op = d.op;
       }
@@ -491,6 +498,10 @@ export class RoomState {
     }
     return { ok: true };
   }
+
+  /** Who started a collection item (user id), recorded when its first upsert was accepted. */
+  readonly itemAuthor = (collection: string, slug: string): string | undefined =>
+    this.getMeta(itemAuthorKey(collection, slug)) ?? undefined;
 
   /** Ops an agent session made that are still in the log. */
   agentSessionOpCount(sessionId: string): number {
@@ -603,6 +614,8 @@ export class RoomState {
         const decision = transformForRole(op, input.role, this.lockedFor(input.actor.userId), {
           doc,
           registry: blockRegistry(),
+          userId: input.actor.userId,
+          itemAuthor: this.itemAuthor,
         });
         if (!decision.allowed)
           return {
@@ -644,6 +657,8 @@ export class RoomState {
       input.actor.session ?? null,
       op.ts,
     );
+    if (op.op === "collection.upsert" && !doc.collections[op.collection]?.[op.item.slug])
+      this.setMeta(itemAuthorKey(op.collection, op.item.slug), input.actor.userId);
     this.doc = v.doc;
     return {
       status: "accepted",

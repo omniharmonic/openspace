@@ -222,6 +222,45 @@ describe("transformForRole", () => {
   });
 });
 
+describe("transformForRole — contributor authorship (M-4)", () => {
+  const draft = {
+    kind: "blog" as const,
+    slug: "retreat-notes",
+    frontmatter: { title: "Retreat notes", date: "2026-11-02", status: "draft" as const },
+    body: "",
+  };
+  const withDraft = () => {
+    const doc = lockedDoc();
+    const journal = { ...(doc.collections.journal ?? {}), [draft.slug]: draft };
+    return { ...doc, collections: { ...doc.collections, journal } } as SiteDocument;
+  };
+  const edit = (ctx: Parameters<typeof transformForRole>[3]) =>
+    transformForRole(
+      stampOp({
+        op: "collection.upsert",
+        collection: "journal",
+        item: { ...draft, body: "Rewritten" },
+      }),
+      "contributor",
+      [],
+      { doc: withDraft(), ...ctx },
+    );
+
+  it("lets a contributor revise a draft they started", () => {
+    expect(edit({ userId: "u_cora", itemAuthor: () => "u_cora" }).allowed).toBe(true);
+  });
+  it("refuses overwriting another person's draft", () => {
+    expect(edit({ userId: "u_cora", itemAuthor: () => "u_maya" })).toMatchObject({
+      allowed: false,
+      reason: expect.stringMatching(/Someone else started this draft/),
+    });
+  });
+  it("fails safe when the author or actor is unknown", () => {
+    expect(edit({ userId: "u_cora" }).allowed).toBe(false);
+    expect(edit({ itemAuthor: () => "u_cora" }).allowed).toBe(false);
+  });
+});
+
 describe("transformForRole — fix round 1", () => {
   it("editors can't place on the grid through block ops", () => {
     const place = { d: { x: 1, y: 1, w: 4, h: 2 } };

@@ -11,7 +11,8 @@ import { deepEqual, isPathPrefix, isPlainObject, patchPaths } from "./paths";
  * - **editor**: content, pages, navigation, media and collections — but no `styles.patch`, no
  *   `grid.place`, no section layout/style/lock changes, no code injection; and on locked
  *   sections only text/image field updates.
- * - **contributor**: only `collection.upsert` of a draft item (never over a non-draft item).
+ * - **contributor**: only `collection.upsert` of a draft item (never over a non-draft item, and
+ *   never over a draft someone else started).
  */
 export const ROLES = ["owner", "designer", "editor", "contributor"] as const;
 export type Role = (typeof ROLES)[number];
@@ -30,6 +31,14 @@ export interface RoleContext {
    * only same-shape changes to existing text/image fields are allowed (fail safe).
    */
   registry?: BlockRegistry;
+  /** The person submitting the op (user id). Needed for contributor edits to existing items. */
+  userId?: string;
+  /**
+   * Who started a collection item (user id), as recorded by the Hub when the item was created.
+   * Contributors may only change existing drafts they started; without this (or `userId`)
+   * edits to existing items are denied (fail safe).
+   */
+  itemAuthor?: (collection: string, slug: string) => string | undefined;
 }
 
 /** Ids of locked sections in a document (pages + footer). */
@@ -121,6 +130,11 @@ export function transformForRole(
     const existing = doc.collections[op.collection]?.[op.item.slug];
     if (existing && existing.frontmatter.status !== "draft")
       return deny("This item is already published or scheduled; only editors can change it");
+    if (existing) {
+      const author = context.itemAuthor?.(op.collection, op.item.slug);
+      if (!context.userId || !author || author !== context.userId)
+        return deny("Someone else started this draft; only they or an editor can change it");
+    }
     return allow;
   }
 
