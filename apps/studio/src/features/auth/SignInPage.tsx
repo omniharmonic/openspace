@@ -27,7 +27,10 @@ export function SignInPage() {
       <div className="st-signin-page__card">
         <Wordmark to="/templates" />
         <h1 className="st-signin-page__title">Sign in to OpenSpace</h1>
-        <SignInPanel github={{ returnTo: next }} onSignedIn={() => navigate(next, { replace: true })} />
+        <SignInPanel
+          github={{ returnTo: next }}
+          onSignedIn={() => navigate(next, { replace: true })}
+        />
       </div>
     </div>
   );

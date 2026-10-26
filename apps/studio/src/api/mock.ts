@@ -133,7 +133,12 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   const findSite = (id: string): Site => {
     settle();
     const site = state.sites.find((s) => s.id === id);
-    if (!site) throw new HubError(404, "not_found", "That site doesn't exist or you don't have access to it.");
+    if (!site)
+      throw new HubError(
+        404,
+        "not_found",
+        "That site doesn't exist or you don't have access to it.",
+      );
     return site;
   };
 
@@ -145,7 +150,10 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     async getSession(): Promise<Session> {
       calls.push({ method: "getSession", args: [] });
       await wait();
-      return { user: state.user ? clone(state.user) : null, auth: { github: true, dev: options.devAuth ?? true } };
+      return {
+        user: state.user ? clone(state.user) : null,
+        auth: { github: true, dev: options.devAuth ?? true },
+      };
     },
 
     async devLogin(name) {
@@ -197,7 +205,12 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       await wait();
       const user = requireUser();
       const template = templates.find((t) => t.id === input.template);
-      if (!template) throw new HubError(400, "unknown_template", `There's no template called "${input.template}".`);
+      if (!template)
+        throw new HubError(
+          400,
+          "unknown_template",
+          `There's no template called "${input.template}".`,
+        );
       if (!input.name.trim()) throw new HubError(400, "invalid_name", "Give your site a name.");
       const slug = slugify(input.name);
       const taken = state.sites.some((s) => s.repo === `${user.login}/${slug}`);
@@ -229,8 +242,14 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       const user = requireUser();
       const site = findSite(id);
       const target = to.trim().replace(/^@/, "");
-      if (!target) throw new HubError(400, "invalid_recipient", "Enter the GitHub username or email of the new owner.");
-      if (site.owner !== user.login) throw new HubError(403, "forbidden", "Only the owner can transfer this site.");
+      if (!target)
+        throw new HubError(
+          400,
+          "invalid_recipient",
+          "Enter the GitHub username or email of the new owner.",
+        );
+      if (site.owner !== user.login)
+        throw new HubError(403, "forbidden", "Only the owner can transfer this site.");
       site.owner = target;
       site.role = "designer";
       save();

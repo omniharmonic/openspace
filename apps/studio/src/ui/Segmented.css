@@ -32,7 +32,9 @@
   font-weight: 500;
   white-space: nowrap;
   cursor: default;
-  transition: background-color var(--st-fast) var(--st-ease), color var(--st-fast) var(--st-ease);
+  transition:
+    background-color var(--st-fast) var(--st-ease),
+    color var(--st-fast) var(--st-ease);
 }
 
 .st-seg--sm .st-seg__item {
@@ -49,13 +51,15 @@
   color: var(--st-text);
 }
 
-.st-seg__item[data-state="on"] {
+.st-seg__item[aria-checked="true"] {
   background: var(--st-panel);
   color: var(--st-text);
-  box-shadow: 0 0 0 1px var(--st-line), 0 1px 2px rgb(0 0 0 / 0.06);
+  box-shadow:
+    0 0 0 1px var(--st-line),
+    0 1px 2px rgb(0 0 0 / 0.06);
 }
 
-:root[data-theme="dark"] .st-seg__item[data-state="on"] {
+:root[data-theme="dark"] .st-seg__item[aria-checked="true"] {
   background: var(--st-line-strong);
   box-shadow: none;
 }

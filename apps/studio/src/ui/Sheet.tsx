@@ -15,13 +15,24 @@ export interface SheetProps {
 }
 
 /** Bottom sheet for narrow screens (or a side drawer). */
-export function Sheet({ open, onOpenChange, trigger, title, children, side = "bottom", className }: SheetProps) {
+export function Sheet({
+  open,
+  onOpenChange,
+  trigger,
+  title,
+  children,
+  side = "bottom",
+  className,
+}: SheetProps) {
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       {trigger && <RDialog.Trigger asChild>{trigger}</RDialog.Trigger>}
       <RDialog.Portal>
         <RDialog.Overlay className="st-sheet__overlay" />
-        <RDialog.Content className={cx("st-sheet", `st-sheet--${side}`, className)} aria-describedby={undefined}>
+        <RDialog.Content
+          className={cx("st-sheet", `st-sheet--${side}`, className)}
+          aria-describedby={undefined}
+        >
           {side === "bottom" && <div className="st-sheet__grip" aria-hidden="true" />}
           <RDialog.Title className="st-sheet__title">{title}</RDialog.Title>
           <div className="st-sheet__body">{children}</div>

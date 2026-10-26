@@ -29,7 +29,15 @@ export interface BuildingProgressProps {
  * Steps advance on a gentle clock, the page sketch assembles alongside, and
  * the last step waits for the Hub to report the site live.
  */
-export function BuildingProgress({ siteId, template, look, draft, onDone, onRetry, retrying }: BuildingProgressProps) {
+export function BuildingProgress({
+  siteId,
+  template,
+  look,
+  draft,
+  onDone,
+  onRetry,
+  retrying,
+}: BuildingProgressProps) {
   const { timing } = useConfig();
   const navigate = useNavigate();
   const site = useSite(siteId, { pollMs: timing.pollMs });
@@ -74,7 +82,8 @@ export function BuildingProgress({ siteId, template, look, draft, onDone, onRetr
           <>
             <h1 className="st-building__title">{draft.name} isn’t online yet</h1>
             <p className="st-building__lede">
-              Publishing the first version didn’t finish. Your details are saved, so trying again takes a minute.
+              Publishing the first version didn’t finish. Your details are saved, so trying again
+              takes a minute.
             </p>
             <div className="st-building__actions">
               <Button variant="primary" onClick={onRetry} loading={retrying}>
@@ -99,15 +108,34 @@ export function BuildingProgress({ siteId, template, look, draft, onDone, onRetr
         )}
         <ol className="st-building__steps" aria-label="Progress">
           {steps.map((label, i) => {
-            const state = failed && i >= step ? (i === step ? "failed" : "todo") : i < step ? "done" : i === step ? "active" : "todo";
+            const state =
+              failed && i >= step
+                ? i === step
+                  ? "failed"
+                  : "todo"
+                : i < step
+                  ? "done"
+                  : i === step
+                    ? "active"
+                    : "todo";
             return (
-              <li key={label} className={cx("st-building__step", `st-building__step--${state}`)} aria-current={state === "active" ? "step" : undefined}>
+              <li
+                key={label}
+                className={cx("st-building__step", `st-building__step--${state}`)}
+                aria-current={state === "active" ? "step" : undefined}
+              >
                 <span className="st-building__marker" aria-hidden="true">
                   {state === "done" ? <Check /> : state === "active" ? <Spinner size={12} /> : null}
                 </span>
                 <span>{label}</span>
                 <span className="st-visually-hidden">
-                  {state === "done" ? " (done)" : state === "active" ? " (in progress)" : state === "failed" ? " (didn’t finish)" : ""}
+                  {state === "done"
+                    ? " (done)"
+                    : state === "active"
+                      ? " (in progress)"
+                      : state === "failed"
+                        ? " (didn’t finish)"
+                        : ""}
                 </span>
               </li>
             );
@@ -123,7 +151,12 @@ export function BuildingProgress({ siteId, template, look, draft, onDone, onRetr
               <i />
               <i />
             </span>
-            <span className={cx("st-building__address", step >= 2 && url && "st-building__address--shown")}>
+            <span
+              className={cx(
+                "st-building__address",
+                step >= 2 && url && "st-building__address--shown",
+              )}
+            >
               <Lock />
               <span>{url ? displayUrl(url) : ""}</span>
             </span>

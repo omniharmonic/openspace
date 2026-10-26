@@ -4,7 +4,10 @@ import "./TemplatePreview.css";
 
 export function previewSrc(template: TemplateSummary, look: TemplateLook): string | null {
   if (!template.previewUrl) return null;
-  const url = new URL(template.previewUrl, typeof window !== "undefined" ? window.location.href : "http://localhost");
+  const url = new URL(
+    template.previewUrl,
+    typeof window !== "undefined" ? window.location.href : "http://localhost",
+  );
   url.searchParams.set("look", look.id);
   return url.toString();
 }
@@ -21,7 +24,12 @@ export interface TemplatePreviewProps {
  * Live preview when the Hub provides one (renderer output in an iframe),
  * a thumbnail when there's only that, otherwise a sketch of the look.
  */
-export function TemplatePreview({ template, look, frameWidth = 1440, interactive = false }: TemplatePreviewProps) {
+export function TemplatePreview({
+  template,
+  look,
+  frameWidth = 1440,
+  interactive = false,
+}: TemplatePreviewProps) {
   const src = previewSrc(template, look);
   const sample = template.sample ?? { name: template.name, tagline: template.description };
   if (src) {

@@ -22,7 +22,9 @@
   border-radius: var(--st-r);
   background: #1e1f23;
   color: #f1f1ef;
-  box-shadow: 0 10px 30px -6px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.06);
+  box-shadow:
+    0 10px 30px -6px rgb(0 0 0 / 0.35),
+    0 0 0 1px rgb(255 255 255 / 0.06);
   animation: st-toast-in 260ms var(--st-ease-out);
 }
 

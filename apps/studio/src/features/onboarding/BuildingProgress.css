@@ -102,12 +102,19 @@
   overflow: hidden;
   border-radius: 12px;
   background: var(--st-panel);
-  box-shadow: 0 0 0 1px var(--st-line), 0 30px 70px -30px rgb(18 20 26 / 0.45);
-  transition: box-shadow 600ms var(--st-ease-out), transform 600ms var(--st-ease-out);
+  box-shadow:
+    0 0 0 1px var(--st-line),
+    0 30px 70px -30px rgb(18 20 26 / 0.45);
+  transition:
+    box-shadow 600ms var(--st-ease-out),
+    transform 600ms var(--st-ease-out);
 }
 
 .st-building__browser--live {
-  box-shadow: 0 0 0 1px var(--st-line), 0 0 0 6px var(--st-live-soft), 0 30px 70px -30px rgb(18 20 26 / 0.45);
+  box-shadow:
+    0 0 0 1px var(--st-line),
+    0 0 0 6px var(--st-live-soft),
+    0 30px 70px -30px rgb(18 20 26 / 0.45);
 }
 
 .st-building__bar {

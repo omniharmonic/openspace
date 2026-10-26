@@ -12,7 +12,14 @@ export interface EmptyStateProps {
 }
 
 /** An empty screen is an invitation to act: say what goes here and how to add it. */
-export function EmptyState({ icon, title, description, action, className, size = "md" }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+  className,
+  size = "md",
+}: EmptyStateProps) {
   return (
     <div className={cx("st-empty", `st-empty--${size}`, className)}>
       {icon && <div className="st-empty__icon">{icon}</div>}
@@ -56,7 +63,9 @@ export interface BadgeProps {
 export function Badge({ tone = "neutral", dot, pulse, children, className, title }: BadgeProps) {
   return (
     <span className={cx("st-badge", `st-badge--${tone}`, className)} title={title}>
-      {dot && <span className={cx("st-badge__dot", pulse && "st-badge__dot--pulse")} aria-hidden="true" />}
+      {dot && (
+        <span className={cx("st-badge__dot", pulse && "st-badge__dot--pulse")} aria-hidden="true" />
+      )}
       {children}
     </span>
   );

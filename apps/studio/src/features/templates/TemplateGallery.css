@@ -55,11 +55,15 @@
 }
 
 .st-tcard__preview:hover {
-  box-shadow: 0 0 0 1px var(--st-line-strong), 0 14px 32px -16px rgb(18 20 26 / 0.35);
+  box-shadow:
+    0 0 0 1px var(--st-line-strong),
+    0 14px 32px -16px rgb(18 20 26 / 0.35);
 }
 
 .st-tcard__preview:focus-visible {
-  box-shadow: 0 0 0 1px var(--st-line), var(--st-focus);
+  box-shadow:
+    0 0 0 1px var(--st-line),
+    var(--st-focus);
 }
 
 .st-tcard__hint {
@@ -78,7 +82,9 @@
   font-weight: 500;
   opacity: 0;
   transform: translateY(3px);
-  transition: opacity var(--st-med) var(--st-ease), transform var(--st-med) var(--st-ease);
+  transition:
+    opacity var(--st-med) var(--st-ease),
+    transform var(--st-med) var(--st-ease);
   backdrop-filter: blur(8px);
 }
 
@@ -137,7 +143,7 @@
 
 .st-tcard__skeleton {
   aspect-ratio: 4 / 3;
-  border-radius: var(--st-r-lg) !important;
+  border-radius: var(--st-r-lg);
 }
 
 .st-tcard--loading .st-tcard__body {

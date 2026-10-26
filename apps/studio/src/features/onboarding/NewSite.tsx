@@ -43,7 +43,11 @@ function StepIndicator({ current, signedIn }: { current: Step; signedIn: boolean
         return (
           <li
             key={it.id}
-            className={cx("st-new__step", i === index && "st-new__step--current", done && "st-new__step--done")}
+            className={cx(
+              "st-new__step",
+              i === index && "st-new__step--current",
+              done && "st-new__step--done",
+            )}
             aria-current={i === index ? "step" : undefined}
           >
             <span className="st-new__step-num" aria-hidden="true">
@@ -72,7 +76,16 @@ function BrandColorField({
         title="Brand color"
         width={240}
         trigger={
-          <Button variant="secondary" icon={value ? <span className="st-new__chip" style={{ background: value }} /> : <Paintbrush />}>
+          <Button
+            variant="secondary"
+            icon={
+              value ? (
+                <span className="st-new__chip" style={{ background: value }} />
+              ) : (
+                <Paintbrush />
+              )
+            }
+          >
             {value ? value.toUpperCase() : "Add brand color"}
           </Button>
         }
@@ -86,20 +99,35 @@ function BrandColorField({
           }}
         />
       </Popover>
-      {value && <IconButton label="Remove brand color" icon={<X />} size="sm" onClick={() => onChange(undefined)} />}
+      {value && (
+        <IconButton
+          label="Remove brand color"
+          icon={<X />}
+          size="sm"
+          onClick={() => onChange(undefined)}
+        />
+      )}
     </div>
   );
 }
 
-function LogoField({ value, onChange }: { value: string | undefined; onChange: (v: string | undefined) => void }) {
+function LogoField({
+  value,
+  onChange,
+}: {
+  value: string | undefined;
+  onChange: (v: string | undefined) => void;
+}) {
   const input = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const onFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    if (!file.type.startsWith("image/")) return setError("Choose an image file (PNG, JPG, SVG or WebP).");
-    if (file.size > MAX_LOGO_BYTES) return setError("That image is over 1 MB. Try a smaller version of your logo.");
+    if (!file.type.startsWith("image/"))
+      return setError("Choose an image file (PNG, JPG, SVG or WebP).");
+    if (file.size > MAX_LOGO_BYTES)
+      return setError("That image is over 1 MB. Try a smaller version of your logo.");
     setError(null);
     const reader = new FileReader();
     reader.onload = () => onChange(String(reader.result));
@@ -122,7 +150,12 @@ function LogoField({ value, onChange }: { value: string | undefined; onChange: (
           <Button variant="ghost" size="sm" onClick={() => input.current?.click()}>
             Replace
           </Button>
-          <IconButton label="Remove logo" icon={<X />} size="sm" onClick={() => onChange(undefined)} />
+          <IconButton
+            label="Remove logo"
+            icon={<X />}
+            size="sm"
+            onClick={() => onChange(undefined)}
+          />
         </>
       ) : (
         <Button variant="secondary" icon={<ImagePlus />} onClick={() => input.current?.click()}>
@@ -141,7 +174,6 @@ function LogoField({ value, onChange }: { value: string | undefined; onChange: (
 function NewSiteFlow({ template }: { template: TemplateSummary }) {
   const session = useSession();
   const user = session.data?.user ?? null;
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const create = useCreateSite();
   const siteId = params.get("site");
@@ -155,7 +187,9 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
       name: "",
       tagline: "",
       ...saved,
-      look: template.looks.some((l) => l.id === look) ? (look as string) : (template.looks[0]?.id ?? ""),
+      look: template.looks.some((l) => l.id === look)
+        ? (look as string)
+        : (template.looks[0]?.id ?? ""),
     };
   });
   const [step, setStep] = useState<Step>("details");
@@ -177,7 +211,8 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
         },
         {
           onSuccess: (site) => setParams({ look: d.look, site: site.id }, { replace: true }),
-          onError: (err) => toast({ tone: "danger", title: "Your site wasn’t created", description: err.message }),
+          onError: (err) =>
+            toast({ tone: "danger", title: "Your site wasn’t created", description: err.message }),
         },
       );
     },
@@ -257,7 +292,8 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
               </Link>
               <h1 className="st-new__title">Make it yours</h1>
               <p className="st-new__lede">
-                Starting from <strong>{template.name}</strong>. Everything here can be changed later in the editor.
+                Starting from <strong>{template.name}</strong>. Everything here can be changed later
+                in the editor.
               </p>
               <Field label="Site name" error={nameError}>
                 <Input
@@ -281,7 +317,11 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
               <div className="st-new__pair">
                 <div className="st-new__mini-field">
                   <span className="st-new__mini-label">Brand color</span>
-                  <BrandColorField value={draft.brandColor} onChange={(brandColor) => update({ brandColor })} tokens={colorTokens} />
+                  <BrandColorField
+                    value={draft.brandColor}
+                    onChange={(brandColor) => update({ brandColor })}
+                    tokens={colorTokens}
+                  />
                 </div>
                 <div className="st-new__mini-field">
                   <span className="st-new__mini-label">Logo</span>
@@ -299,7 +339,11 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
               </button>
               <h1 className="st-new__title">Sign in to save {draft.name.trim() || "your site"}</h1>
               <SignInPanel
-                github={{ template: template.id, name: draft.name.trim(), returnTo: `/new/${template.id}?look=${draft.look}&resume=1` }}
+                github={{
+                  template: template.id,
+                  name: draft.name.trim(),
+                  returnTo: `/new/${template.id}?look=${draft.look}&resume=1`,
+                }}
                 beforeRedirect={() => saveDraft(draft)}
                 onSignedIn={() => startCreate(draft)}
               />

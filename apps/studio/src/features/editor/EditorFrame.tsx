@@ -6,8 +6,8 @@ import {
   Eye,
   FileText,
   Image,
-  LayoutGrid,
   Layers,
+  LayoutGrid,
   ListChecks,
   Monitor,
   MousePointer2,
@@ -67,10 +67,16 @@ const PANELS: Array<{ id: LeftPanel; label: string; icon: ReactNode; shortcut: s
   { id: "media", label: "Media", icon: <Image />, shortcut: "alt+5" },
 ];
 
-const DEVICE_LABEL: Record<Breakpoint, string> = { desktop: "Desktop", tablet: "Tablet", mobile: "Phone" };
+const DEVICE_LABEL: Record<Breakpoint, string> = {
+  desktop: "Desktop",
+  tablet: "Tablet",
+  mobile: "Phone",
+};
 
 function useIsNarrow(query = "(max-width: 767px)") {
-  const [narrow, setNarrow] = useState(() => typeof window !== "undefined" && Boolean(window.matchMedia?.(query).matches));
+  const [narrow, setNarrow] = useState(
+    () => typeof window !== "undefined" && Boolean(window.matchMedia?.(query).matches),
+  );
   useEffect(() => {
     const mq = window.matchMedia?.(query);
     if (!mq) return;
@@ -93,7 +99,7 @@ async function copyLink(url: string) {
 /** Placeholder list while the site's content loads (Task 20 wires the real document). */
 function PanelSkeleton({ rows = 5, label }: { rows?: number; label: string }) {
   return (
-    <div className="st-ed-panel__skeleton" aria-busy="true" aria-label={label}>
+    <div className="st-ed-panel__skeleton" role="status" aria-busy="true" aria-label={label}>
       {Array.from({ length: rows }, (_, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: static placeholder rows
         <div key={i} className="st-ed-panel__skeleton-row">
@@ -107,7 +113,12 @@ function PanelSkeleton({ rows = 5, label }: { rows?: number; label: string }) {
 
 function LeftPanelBody({ panel }: { panel: LeftPanel }) {
   const label = PANELS.find((p) => p.id === panel)?.label ?? "";
-  return <PanelSkeleton label={`Loading ${label.toLowerCase()}`} rows={panel === "add" || panel === "media" ? 6 : 4} />;
+  return (
+    <PanelSkeleton
+      label={`Loading ${label.toLowerCase()}`}
+      rows={panel === "add" || panel === "media" ? 6 : 4}
+    />
+  );
 }
 
 function Inspector() {
@@ -142,7 +153,7 @@ function Canvas({ site, template }: { site: Site; template: TemplateSummary | un
   const zoom = useEditorUi((s) => s.zoom);
   const fitScale = useEditorUi((s) => s.fitScale);
   const setFitScale = useEditorUi((s) => s.setFitScale);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const device = DEVICE_WIDTHS[breakpoint];
 
   useLayoutEffect(() => {
@@ -162,10 +173,13 @@ function Canvas({ site, template }: { site: Site; template: TemplateSummary | un
   const look = template?.looks.find((l) => l.id === site.look) ?? template?.looks[0];
 
   return (
-    <div ref={ref} className="st-ed-canvas" aria-label="Canvas">
+    <section ref={ref} className="st-ed-canvas" aria-label="Canvas">
       <div
         className={cx("st-ed-canvas__frame", `st-ed-canvas__frame--${breakpoint}`)}
-        style={{ width: Math.round(device * scale), height: Math.round(DEVICE_HEIGHTS[breakpoint] * scale) }}
+        style={{
+          width: Math.round(device * scale),
+          height: Math.round(DEVICE_HEIGHTS[breakpoint] * scale),
+        }}
       >
         <span className="st-ed-canvas__label">
           {site.name} <span className="st-num">{device}</span>
@@ -181,7 +195,7 @@ function Canvas({ site, template }: { site: Site; template: TemplateSummary | un
           <PanelSkeleton label="Loading page" rows={8} />
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -280,8 +294,22 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
       icon: bp === "desktop" ? <Monitor /> : bp === "tablet" ? <Tablet /> : <Smartphone />,
       run: () => ui.setBreakpoint(bp),
     })),
-    { id: "zoom-fit", label: "Zoom to fit", group: "View", icon: <ZoomIn />, shortcut: "shift+1", run: () => ui.setZoom("fit") },
-    { id: "zoom-100", label: "Zoom to 100%", group: "View", icon: <ZoomIn />, shortcut: "mod+0", run: () => ui.setZoom(1) },
+    {
+      id: "zoom-fit",
+      label: "Zoom to fit",
+      group: "View",
+      icon: <ZoomIn />,
+      shortcut: "shift+1",
+      run: () => ui.setZoom("fit"),
+    },
+    {
+      id: "zoom-100",
+      label: "Zoom to 100%",
+      group: "View",
+      icon: <ZoomIn />,
+      shortcut: "mod+0",
+      run: () => ui.setZoom(1),
+    },
     {
       id: "toggle-chrome",
       label: ui.chromeHidden ? "Show panels" : "Hide panels",
@@ -298,10 +326,34 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
       shortcut: p.shortcut,
       run: () => openPanel(p.id),
     })),
-    { id: "copy-link", label: "Copy live link", group: "Site", icon: <Copy />, run: () => void copyLink(site.url) },
-    { id: "view-live", label: "View live site", group: "Site", icon: <ArrowUpRight />, run: () => window.open(site.url, "_blank", "noopener") },
-    { id: "show-checklist", label: "Show setup checklist", group: "Site", icon: <ListChecks />, run: checklist.show },
-    { id: "back", label: "Back to your sites", group: "Site", icon: <LayoutGrid />, run: () => navigate("/sites") },
+    {
+      id: "copy-link",
+      label: "Copy live link",
+      group: "Site",
+      icon: <Copy />,
+      run: () => void copyLink(site.url),
+    },
+    {
+      id: "view-live",
+      label: "View live site",
+      group: "Site",
+      icon: <ArrowUpRight />,
+      run: () => window.open(site.url, "_blank", "noopener"),
+    },
+    {
+      id: "show-checklist",
+      label: "Show setup checklist",
+      group: "Site",
+      icon: <ListChecks />,
+      run: checklist.show,
+    },
+    {
+      id: "back",
+      label: "Back to your sites",
+      group: "Site",
+      icon: <LayoutGrid />,
+      run: () => navigate("/sites"),
+    },
   ]);
 
   const showLeft = !narrow && !ui.chromeHidden && ui.leftPanel;
@@ -318,7 +370,12 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
       <header className="st-ed-top">
         <div className="st-ed-top__left">
           <Tooltip content="Back to your sites">
-            <button type="button" className="st-ed-home" aria-label="Back to your sites" onClick={() => navigate("/sites")}>
+            <button
+              type="button"
+              className="st-ed-home"
+              aria-label="Back to your sites"
+              onClick={() => navigate("/sites")}
+            >
               <Mark size={16} />
               <ArrowLeft className="st-ed-home__back" aria-hidden="true" />
             </button>
@@ -332,7 +389,12 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
               </button>
             }
             items={[
-              { label: "View live site", icon: <ArrowUpRight />, disabled: !live, onSelect: () => window.open(site.url, "_blank", "noopener") },
+              {
+                label: "View live site",
+                icon: <ArrowUpRight />,
+                disabled: !live,
+                onSelect: () => window.open(site.url, "_blank", "noopener"),
+              },
               { label: "Copy live link", icon: <Copy />, onSelect: () => void copyLink(site.url) },
               { label: "Show setup checklist", icon: <ListChecks />, onSelect: checklist.show },
               { type: "separator" },
@@ -360,7 +422,11 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
 
         <div className="st-ed-top__right">
           {user && (
-            <AvatarStack people={[{ id: user.id, name: user.name, avatarUrl: user.avatarUrl }]} label="Editing now" size={22} />
+            <AvatarStack
+              people={[{ id: user.id, name: user.name, avatarUrl: user.avatarUrl }]}
+              label="Editing now"
+              size={22}
+            />
           )}
           {live ? (
             <Badge tone="live" dot title={site.url}>
@@ -376,8 +442,20 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
             </Badge>
           )}
           <span className="st-ed-top__sep" aria-hidden="true" />
-          <IconButton label="Undo" icon={<Undo2 />} shortcut="mod+z" disabled className="st-ed-hide-narrow" />
-          <IconButton label="Redo" icon={<Redo2 />} shortcut="shift+mod+z" disabled className="st-ed-hide-narrow" />
+          <IconButton
+            label="Undo"
+            icon={<Undo2 />}
+            shortcut="mod+z"
+            disabled
+            className="st-ed-hide-narrow"
+          />
+          <IconButton
+            label="Redo"
+            icon={<Redo2 />}
+            shortcut="shift+mod+z"
+            disabled
+            className="st-ed-hide-narrow"
+          />
           <IconButton
             label={ui.inspectorOpen ? "Hide inspector" : "Show inspector"}
             icon={<PanelRight />}
@@ -385,7 +463,13 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
             onClick={() => (narrow ? setSheet("inspector") : ui.toggleInspector())}
           />
           <Tooltip content="Open the live site in a new tab">
-            <Button variant="ghost" size="sm" icon={<Eye />} disabled={!live} onClick={() => window.open(site.url, "_blank", "noopener")}>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<Eye />}
+              disabled={!live}
+              onClick={() => window.open(site.url, "_blank", "noopener")}
+            >
               <span className="st-ed-hide-narrow">Preview</span>
             </Button>
           </Tooltip>
@@ -448,7 +532,9 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
       <Sheet
         open={narrow && sheet !== null}
         onOpenChange={(open) => !open && setSheet(null)}
-        title={sheet === "inspector" ? "Inspector" : (PANELS.find((p) => p.id === sheet)?.label ?? "")}
+        title={
+          sheet === "inspector" ? "Inspector" : (PANELS.find((p) => p.id === sheet)?.label ?? "")
+        }
       >
         {sheet === "inspector" ? <Inspector /> : sheet ? <LeftPanelBody panel={sheet} /> : null}
       </Sheet>
@@ -472,13 +558,16 @@ export function EditorFrame() {
       </div>
     );
   }
-  if (!session.data?.user) return <Navigate to={`/signin?next=${encodeURIComponent(`/sites/${id}`)}`} replace />;
+  if (!session.data?.user)
+    return <Navigate to={`/signin?next=${encodeURIComponent(`/sites/${id}`)}`} replace />;
   if (site.isError || !site.data) {
     return (
       <div className="st-center">
         <EmptyState
           title="This site can’t be opened"
-          description={site.error?.message ?? "It may have been deleted or moved to another account."}
+          description={
+            site.error?.message ?? "It may have been deleted or moved to another account."
+          }
           action={
             <Button variant="primary" onClick={() => navigate("/sites")}>
               Back to your sites
@@ -488,5 +577,10 @@ export function EditorFrame() {
       </div>
     );
   }
-  return <EditorChrome site={site.data} template={templates.data?.find((t) => t.id === site.data.template)} />;
+  return (
+    <EditorChrome
+      site={site.data}
+      template={templates.data?.find((t) => t.id === site.data.template)}
+    />
+  );
 }

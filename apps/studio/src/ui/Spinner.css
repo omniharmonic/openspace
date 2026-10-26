@@ -13,3 +13,7 @@
     transform: rotate(360deg);
   }
 }
+
+.st-spinner-status {
+  display: inline-flex;
+}

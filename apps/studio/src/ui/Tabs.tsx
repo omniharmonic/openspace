@@ -39,7 +39,12 @@ export function Tabs<V extends string = string>({
     >
       <RTabs.List className="st-tabs__list" aria-label={ariaLabel}>
         {items.map((t) => (
-          <RTabs.Trigger key={t.value} value={t.value} disabled={t.disabled} className="st-tabs__tab">
+          <RTabs.Trigger
+            key={t.value}
+            value={t.value}
+            disabled={t.disabled}
+            className="st-tabs__tab"
+          >
             {t.label}
           </RTabs.Trigger>
         ))}

@@ -12,13 +12,25 @@ export interface Person {
 }
 
 export function initials(name: string): string {
-  const parts = name.trim().split(/[\s._-]+/).filter(Boolean);
+  const parts = name
+    .trim()
+    .split(/[\s._-]+/)
+    .filter(Boolean);
   const first = parts[0]?.[0] ?? "?";
   const second = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
   return (first + second).toUpperCase();
 }
 
-const PRESENCE = ["#e5484d", "#f76b15", "#0d9488", "#3e63dd", "#8e4ec6", "#d6409f", "#2f7d32", "#b0710c"];
+const PRESENCE = [
+  "#e5484d",
+  "#f76b15",
+  "#0d9488",
+  "#3e63dd",
+  "#8e4ec6",
+  "#d6409f",
+  "#2f7d32",
+  "#b0710c",
+];
 
 /** Stable presence color for a person id. */
 export function presenceColor(id: string): string {
@@ -40,9 +52,16 @@ export function Avatar({ person, size = 24, ring, className }: AvatarProps) {
   return (
     <RAvatar.Root
       className={cx("st-avatar", ring && "st-avatar--ring", className)}
-      style={{ width: size, height: size, fontSize: Math.max(9, Math.round(size * 0.4)), ["--_c" as string]: color }}
+      style={{
+        width: size,
+        height: size,
+        fontSize: Math.max(9, Math.round(size * 0.4)),
+        ["--_c" as string]: color,
+      }}
     >
-      {person.avatarUrl && <RAvatar.Image className="st-avatar__img" src={person.avatarUrl} alt={person.name} />}
+      {person.avatarUrl && (
+        <RAvatar.Image className="st-avatar__img" src={person.avatarUrl} alt={person.name} />
+      )}
       <RAvatar.Fallback className="st-avatar__fallback" delayMs={person.avatarUrl ? 400 : 0}>
         <span aria-hidden="true">{initials(person.name)}</span>
         <span className="st-visually-hidden">{person.name}</span>
@@ -60,7 +79,12 @@ export interface AvatarStackProps {
 }
 
 /** Overlapping avatars for presence ("who else is here"). */
-export function AvatarStack({ people, max = 3, size = 24, label = "People here" }: AvatarStackProps) {
+export function AvatarStack({
+  people,
+  max = 3,
+  size = 24,
+  label = "People here",
+}: AvatarStackProps) {
   const shown = people.slice(0, max);
   const extra = people.length - shown.length;
   return (
@@ -79,7 +103,10 @@ export function AvatarStack({ people, max = 3, size = 24, label = "People here" 
           <span
             className="st-avatar st-avatar--more"
             style={{ width: size, height: size }}
-            title={people.slice(max).map((p) => p.name).join(", ")}
+            title={people
+              .slice(max)
+              .map((p) => p.name)
+              .join(", ")}
           >
             +{extra}
             <span className="st-visually-hidden"> more</span>

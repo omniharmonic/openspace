@@ -1,16 +1,43 @@
-import { LayoutGrid, LayoutTemplate, LogIn, LogOut, Monitor, Moon, Sun, SwatchBook } from "lucide-react";
-import { useEffect } from "react";
+import {
+  LayoutGrid,
+  LayoutTemplate,
+  LogIn,
+  LogOut,
+  Monitor,
+  Moon,
+  Sun,
+  SwatchBook,
+} from "lucide-react";
+import { lazy, type ReactNode, Suspense, useEffect } from "react";
 import { Navigate, Outlet, type RouteObject, useNavigate } from "react-router";
 import { useLogout, useSession } from "../api";
 import { SignInPage } from "../features/auth/SignInPage";
 import { Dashboard } from "../features/dashboard/Dashboard";
-import { EditorFrame } from "../features/editor/EditorFrame";
-import { KitPage } from "../features/kit/KitPage";
 import { NewSite } from "../features/onboarding/NewSite";
 import { TemplateGallery } from "../features/templates/TemplateGallery";
 import { Button, EmptyState, Spinner, useRegisterCommands } from "../ui";
 import { type StudioConfig, useConfig } from "./config";
 import { useThemeStore } from "./theme";
+
+// Heavier screens load on demand.
+const EditorFrame = lazy(() =>
+  import("../features/editor/EditorFrame").then((m) => ({ default: m.EditorFrame })),
+);
+const KitPage = lazy(() => import("../features/kit/KitPage").then((m) => ({ default: m.KitPage })));
+
+function Loading({ children }: { children: ReactNode }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="st-center">
+          <Spinner size={18} label="Loading" />
+        </div>
+      }
+    >
+      {children}
+    </Suspense>
+  );
+}
 
 /** App-wide commands available from ⌘K on every screen. */
 function GlobalCommands() {
@@ -21,12 +48,56 @@ function GlobalCommands() {
   const { showKit } = useConfig();
   const user = session.data?.user;
   useRegisterCommands("global", [
-    ...(user ? [{ id: "go-sites", label: "Go to your sites", group: "Go to", icon: <LayoutGrid />, run: () => navigate("/sites") }] : []),
-    { id: "go-templates", label: "Browse templates", group: "Go to", icon: <LayoutTemplate />, run: () => navigate("/templates") },
-    ...(showKit ? [{ id: "go-kit", label: "Open UI kit", group: "Go to", icon: <SwatchBook />, run: () => navigate("/kit") }] : []),
-    { id: "theme-light", label: "Use light theme", group: "Appearance", icon: <Sun />, run: () => setTheme("light") },
-    { id: "theme-dark", label: "Use dark theme", group: "Appearance", icon: <Moon />, run: () => setTheme("dark") },
-    { id: "theme-system", label: "Match system theme", group: "Appearance", icon: <Monitor />, run: () => setTheme("system") },
+    ...(user
+      ? [
+          {
+            id: "go-sites",
+            label: "Go to your sites",
+            group: "Go to",
+            icon: <LayoutGrid />,
+            run: () => navigate("/sites"),
+          },
+        ]
+      : []),
+    {
+      id: "go-templates",
+      label: "Browse templates",
+      group: "Go to",
+      icon: <LayoutTemplate />,
+      run: () => navigate("/templates"),
+    },
+    ...(showKit
+      ? [
+          {
+            id: "go-kit",
+            label: "Open UI kit",
+            group: "Go to",
+            icon: <SwatchBook />,
+            run: () => navigate("/kit"),
+          },
+        ]
+      : []),
+    {
+      id: "theme-light",
+      label: "Use light theme",
+      group: "Appearance",
+      icon: <Sun />,
+      run: () => setTheme("light"),
+    },
+    {
+      id: "theme-dark",
+      label: "Use dark theme",
+      group: "Appearance",
+      icon: <Moon />,
+      run: () => setTheme("dark"),
+    },
+    {
+      id: "theme-system",
+      label: "Match system theme",
+      group: "Appearance",
+      icon: <Monitor />,
+      run: () => setTheme("system"),
+    },
     user
       ? {
           id: "sign-out",
@@ -35,7 +106,13 @@ function GlobalCommands() {
           icon: <LogOut />,
           run: () => logout.mutate(undefined, { onSuccess: () => navigate("/templates") }),
         }
-      : { id: "sign-in", label: "Sign in", group: "Account", icon: <LogIn />, run: () => navigate("/signin") },
+      : {
+          id: "sign-in",
+          label: "Sign in",
+          group: "Account",
+          icon: <LogIn />,
+          run: () => navigate("/signin"),
+        },
   ]);
   return null;
 }
@@ -94,8 +171,26 @@ export function createRoutes(config: Pick<StudioConfig, "showKit">): RouteObject
         { path: "new/:template", element: <NewSite /> },
         { path: "signin", element: <SignInPage /> },
         { path: "sites", element: <Dashboard /> },
-        { path: "sites/:id/*", element: <EditorFrame /> },
-        ...(config.showKit ? [{ path: "kit", element: <KitPage /> }] : []),
+        {
+          path: "sites/:id/*",
+          element: (
+            <Loading>
+              <EditorFrame />
+            </Loading>
+          ),
+        },
+        ...(config.showKit
+          ? [
+              {
+                path: "kit",
+                element: (
+                  <Loading>
+                    <KitPage />
+                  </Loading>
+                ),
+              },
+            ]
+          : []),
         { path: "*", element: <NotFound /> },
       ],
     },

@@ -40,5 +40,8 @@
 }
 
 .st-looks__item[data-state="checked"] .st-looks__chip {
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.16), 0 0 0 1.5px var(--st-panel), 0 0 0 3px var(--st-text);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.16),
+    0 0 0 1.5px var(--st-panel),
+    0 0 0 3px var(--st-text);
 }

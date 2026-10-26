@@ -44,7 +44,10 @@ export function allCommands(sources: Record<string, PaletteCommand[]>): PaletteC
 export function useRegisterCommands(source: string, commands: PaletteCommand[]) {
   const latest = useRef(commands);
   latest.current = commands;
-  const signature = commands.map((c) => `${c.id}:${c.label}:${c.group}:${c.shortcut ?? ""}`).join("|");
+  const signature = commands
+    .map((c) => `${c.id}:${c.label}:${c.group}:${c.shortcut ?? ""}`)
+    .join("|");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `signature` captures command identity; `latest` holds the current run functions
   useEffect(() => {
     const wrapped = latest.current.map((c) => ({
       ...c,
@@ -52,6 +55,5 @@ export function useRegisterCommands(source: string, commands: PaletteCommand[]) 
     }));
     useCommandStore.getState().register(source, wrapped);
     return () => useCommandStore.getState().unregister(source);
-    // biome-ignore lint/correctness/useExhaustiveDependencies: signature captures command identity
   }, [source, signature]);
 }

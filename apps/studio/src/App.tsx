@@ -14,7 +14,9 @@ export interface AppProps {
 
 /** OpenSpace Studio. */
 export function App({ hub, config }: AppProps) {
-  const [router] = useState(() => createBrowserRouter(createRoutes({ showKit: config?.showKit ?? defaultConfig.showKit })));
+  const [router] = useState(() =>
+    createBrowserRouter(createRoutes({ showKit: config?.showKit ?? defaultConfig.showKit })),
+  );
   return (
     <Providers hub={hub} config={config}>
       <RouterProvider router={router} />

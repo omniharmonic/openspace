@@ -68,7 +68,12 @@ function PreviewDialog({
     >
       <div className={`st-gallery__stage st-gallery__stage--${device}`}>
         <div className="st-gallery__device">
-          <TemplatePreview template={template} look={look} frameWidth={DEVICE_WIDTH[device]} interactive />
+          <TemplatePreview
+            template={template}
+            look={look}
+            frameWidth={DEVICE_WIDTH[device]}
+            interactive
+          />
         </div>
       </div>
     </Dialog>
@@ -99,13 +104,22 @@ export function TemplateCard({ template }: { template: TemplateSummary }) {
           <h2 id={`tpl-${template.id}`} className="st-tcard__name">
             {template.name}
           </h2>
-          <LookPicker looks={template.looks} value={look.id} onValueChange={setLookId} label={`${template.name} looks`} />
+          <LookPicker
+            looks={template.looks}
+            value={look.id}
+            onValueChange={setLookId}
+            label={`${template.name} looks`}
+          />
         </div>
         <p className="st-tcard__persona">{template.persona}</p>
         <p className="st-tcard__desc">{template.description}</p>
         <div className="st-tcard__actions">
           <span className="st-tcard__look">{look.name} look</span>
-          <Button size="sm" variant="secondary" onClick={() => navigate(newSitePath(template, look.id))}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => navigate(newSitePath(template, look.id))}
+          >
             Use {template.name}
           </Button>
         </div>
@@ -143,15 +157,20 @@ export function TemplateGallery() {
         <div className="st-gallery__intro">
           <h1 className="st-gallery__title">Start from a finished site</h1>
           <p className="st-gallery__lede">
-            Every template is a complete site with real pages. Pick one, give it your name, and it’s online in a few
-            minutes. Browse as long as you like — no account needed.
+            Every template is a complete site with real pages. Pick one, give it your name, and it’s
+            online in a few minutes. Browse as long as you like — no account needed.
           </p>
         </div>
         {templates.isPending ? (
-          <div className="st-gallery__grid" aria-busy="true" aria-label="Loading templates">
+          <div
+            className="st-gallery__grid"
+            role="status"
+            aria-busy="true"
+            aria-label="Loading templates"
+          >
             {[0, 1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="st-tcard st-tcard--loading">
-                <Skeleton height="auto" className="st-tcard__skeleton" radius={0} />
+                <Skeleton height="auto" className="st-tcard__skeleton" />
                 <div className="st-tcard__body">
                   <Skeleton width="40%" height={14} />
                   <Skeleton width="70%" height={10} />

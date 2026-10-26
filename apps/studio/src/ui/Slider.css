@@ -33,7 +33,9 @@
   height: 12px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.18), 0 1px 3px rgb(0 0 0 / 0.25);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.18),
+    0 1px 3px rgb(0 0 0 / 0.25);
   transition: transform var(--st-fast) var(--st-ease);
 }
 
@@ -42,5 +44,7 @@
 }
 
 .st-slider__thumb:focus-visible {
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.18), var(--st-focus);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.18),
+    var(--st-focus);
 }

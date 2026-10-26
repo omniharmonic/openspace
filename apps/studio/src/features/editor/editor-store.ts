@@ -9,8 +9,16 @@ export type Breakpoint = "desktop" | "tablet" | "mobile";
 export type Zoom = "fit" | number;
 
 /** Device preview widths (Global Constraint 7). */
-export const DEVICE_WIDTHS: Record<Breakpoint, number> = { desktop: 1440, tablet: 834, mobile: 390 };
-export const DEVICE_HEIGHTS: Record<Breakpoint, number> = { desktop: 960, tablet: 1112, mobile: 844 };
+export const DEVICE_WIDTHS: Record<Breakpoint, number> = {
+  desktop: 1440,
+  tablet: 834,
+  mobile: 390,
+};
+export const DEVICE_HEIGHTS: Record<Breakpoint, number> = {
+  desktop: 960,
+  tablet: 1112,
+  mobile: 844,
+};
 export const ZOOM_STEPS = [0.25, 0.33, 0.5, 0.67, 0.75, 1, 1.25, 1.5, 2] as const;
 
 export interface EditorUiState {
@@ -50,7 +58,10 @@ export function effectiveZoom(s: Pick<EditorUiState, "zoom" | "fitScale">): numb
 export const useEditorUi = create<EditorUiState>((set, get) => ({
   ...initial,
   toggleLeftPanel: (panel) =>
-    set((s) => ({ leftPanel: s.leftPanel === panel && !s.chromeHidden ? null : panel, chromeHidden: false })),
+    set((s) => ({
+      leftPanel: s.leftPanel === panel && !s.chromeHidden ? null : panel,
+      chromeHidden: false,
+    })),
   setLeftPanel: (leftPanel) => set({ leftPanel }),
   toggleInspector: () => set((s) => ({ inspectorOpen: !s.inspectorOpen })),
   toggleChrome: () => set((s) => ({ chromeHidden: !s.chromeHidden })),

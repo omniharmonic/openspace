@@ -15,7 +15,15 @@ export interface FieldProps {
 }
 
 /** Label + control + hint/error, wired for screen readers. */
-export function Field({ label, hint, error, aside, children, className, layout = "stacked" }: FieldProps) {
+export function Field({
+  label,
+  hint,
+  error,
+  aside,
+  children,
+  className,
+  layout = "stacked",
+}: FieldProps) {
   const id = useId();
   const controlId = children.props.id ?? `${id}-control`;
   const hintId = hint ? `${id}-hint` : undefined;

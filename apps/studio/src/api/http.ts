@@ -56,7 +56,11 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
         body: body !== undefined ? JSON.stringify(body) : undefined,
       });
     } catch {
-      throw new HubError(0, "network", `Can't reach OpenSpace at ${baseUrl}. Check your connection.`);
+      throw new HubError(
+        0,
+        "network",
+        `Can't reach OpenSpace at ${baseUrl}. Check your connection.`,
+      );
     }
     if (!res.ok) throw await readError(res);
     if (res.status === 204) return undefined as T;
@@ -90,7 +94,10 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
     },
 
     async listTemplates() {
-      const res = await request<{ templates: TemplateSummary[] } | TemplateSummary[]>("GET", "/api/templates");
+      const res = await request<{ templates: TemplateSummary[] } | TemplateSummary[]>(
+        "GET",
+        "/api/templates",
+      );
       return Array.isArray(res) ? res : res.templates;
     },
 
@@ -100,7 +107,10 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
     },
 
     async getSite(id) {
-      const res = await request<{ site: Site } | Site>("GET", `/api/sites/${encodeURIComponent(id)}`);
+      const res = await request<{ site: Site } | Site>(
+        "GET",
+        `/api/sites/${encodeURIComponent(id)}`,
+      );
       return "site" in res ? res.site : res;
     },
 
@@ -110,7 +120,9 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
     },
 
     async transferSite(id, to) {
-      return request<TransferResult>("POST", `/api/sites/${encodeURIComponent(id)}/transfer`, { to });
+      return request<TransferResult>("POST", `/api/sites/${encodeURIComponent(id)}/transfer`, {
+        to,
+      });
     },
   };
 }
@@ -122,7 +134,9 @@ export function githubStartUrl(baseUrl: string, params: GitHubSignInParams): str
   if (params.name) url.searchParams.set("name", params.name);
   if (params.returnTo) {
     const back =
-      typeof window !== "undefined" ? new URL(params.returnTo, window.location.origin).toString() : params.returnTo;
+      typeof window !== "undefined"
+        ? new URL(params.returnTo, window.location.origin).toString()
+        : params.returnTo;
     url.searchParams.set("return_to", back);
   }
   return url.toString();

@@ -16,7 +16,9 @@ export const useThemeStore = create<ThemeState>()(
 );
 
 function systemDark() {
-  return typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  return (
+    typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches
+  );
 }
 
 export function resolveTheme(pref: ThemePreference): "light" | "dark" {

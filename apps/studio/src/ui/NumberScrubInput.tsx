@@ -103,7 +103,10 @@ export function NumberScrubInput({
   const nudge = (direction: 1 | -1, e: { shiftKey: boolean; altKey: boolean }) => {
     const mult = e.shiftKey ? 10 : e.altKey ? 0.1 : 1;
     const base = value ?? min ?? 0;
-    const next = roundTo(clamp(base + direction * step * mult, min, max), Math.max(decimals, e.altKey ? decimals + 1 : decimals));
+    const next = roundTo(
+      clamp(base + direction * step * mult, min, max),
+      Math.max(decimals, e.altKey ? decimals + 1 : decimals),
+    );
     onChange(next);
     onChangeEnd?.(next);
   };

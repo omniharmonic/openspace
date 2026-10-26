@@ -23,7 +23,10 @@ export interface SegmentedProps<V extends string = string> {
   className?: string;
 }
 
-/** Single-choice segmented control; never deselects. */
+/**
+ * Single-choice segmented control; never deselects.
+ * Styled via aria-checked because a wrapping Tooltip trigger overrides data-state.
+ */
 export function Segmented<V extends string = string>({
   value,
   onValueChange,

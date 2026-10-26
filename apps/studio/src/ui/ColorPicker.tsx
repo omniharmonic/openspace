@@ -1,6 +1,13 @@
 import { Check } from "lucide-react";
-import { type PointerEvent, forwardRef, useEffect, useRef, useState, type ButtonHTMLAttributes } from "react";
-import { hexToHsv, type Hsv, hsvToHex, luminance, normalizeHex } from "./color";
+import {
+  type ButtonHTMLAttributes,
+  forwardRef,
+  type PointerEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { type Hsv, hexToHsv, hsvToHex, luminance, normalizeHex } from "./color";
 import "./ColorPicker.css";
 import { cx } from "./cx";
 import { Input } from "./Input";
@@ -17,7 +24,10 @@ export interface ColorToken {
 /** Token-first color value: a palette reference, or an exact hex escape hatch. */
 export type ColorValue = { kind: "token"; token: string } | { kind: "exact"; hex: string };
 
-export function resolveColor(value: ColorValue | null, tokens: ReadonlyArray<ColorToken>): string | null {
+export function resolveColor(
+  value: ColorValue | null,
+  tokens: ReadonlyArray<ColorToken>,
+): string | null {
   if (!value) return null;
   if (value.kind === "exact") return value.hex;
   return tokens.find((t) => t.id === value.token)?.value ?? null;
@@ -73,7 +83,10 @@ function SaturationArea({ hsv, onChange }: { hsv: Hsv; onChange: (hsv: Hsv) => v
       onPointerMove={(e) => e.buttons === 1 && update(e)}
       aria-hidden="true"
     >
-      <span className="st-cp__sv-thumb" style={{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%` }} />
+      <span
+        className="st-cp__sv-thumb"
+        style={{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%` }}
+      />
     </div>
   );
 }
@@ -86,17 +99,17 @@ export interface ColorPickerPanelProps {
 
 /** Picker body: palette tokens first, "Exact" color as escape hatch. */
 export function ColorPickerPanel({ value, onChange, tokens }: ColorPickerPanelProps) {
-  const [mode, setMode] = useState<"palette" | "exact">(value?.kind === "exact" ? "exact" : "palette");
+  const [mode, setMode] = useState<"palette" | "exact">(
+    value?.kind === "exact" ? "exact" : "palette",
+  );
   const resolved = resolveColor(value, tokens) ?? "#000000";
   const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(resolved));
   const [hexDraft, setHexDraft] = useState(resolved.replace("#", "").toUpperCase());
 
+  // Resync when the value changes from outside (keeps hue stable while dragging).
   useEffect(() => {
-    if (hsvToHex(hsv) !== resolved) {
-      setHsv(hexToHsv(resolved));
-    }
+    setHsv((cur) => (hsvToHex(cur) === resolved ? cur : hexToHsv(resolved)));
     setHexDraft(resolved.replace("#", "").toUpperCase());
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- resync only when the external value changes
   }, [resolved]);
 
   const setExact = (next: Hsv) => {
@@ -118,7 +131,8 @@ export function ColorPickerPanel({ value, onChange, tokens }: ColorPickerPanelPr
         ]}
       />
       {mode === "palette" ? (
-        <div className="st-cp__tokens" role="group" aria-label="Site colors">
+        <fieldset className="st-cp__tokens">
+          <legend className="st-visually-hidden">Site colors</legend>
           {tokens.map((t) => (
             <div key={t.id} className="st-cp__token">
               <ColorSwatch
@@ -131,7 +145,7 @@ export function ColorPickerPanel({ value, onChange, tokens }: ColorPickerPanelPr
               <span className="st-cp__token-name">{t.name}</span>
             </div>
           ))}
-        </div>
+        </fieldset>
       ) : (
         <div className="st-cp__exact">
           <SaturationArea hsv={hsv} onChange={setExact} />
@@ -172,13 +186,18 @@ export interface ColorPickerProps extends ColorPickerPanelProps {
 /** Swatch trigger + popover picker. */
 export function ColorPicker({ label, value, onChange, tokens }: ColorPickerProps) {
   const color = resolveColor(value, tokens);
-  const tokenName = value?.kind === "token" ? tokens.find((t) => t.id === value.token)?.name : undefined;
+  const tokenName =
+    value?.kind === "token" ? tokens.find((t) => t.id === value.token)?.name : undefined;
   return (
     <Popover
       title={label}
       width={232}
       trigger={
-        <button type="button" className="st-cp-trigger" aria-label={`${label}: ${tokenName ?? color ?? "none"}`}>
+        <button
+          type="button"
+          className="st-cp-trigger"
+          aria-label={`${label}: ${tokenName ?? color ?? "none"}`}
+        >
           <span className="st-cp__chip" style={{ background: color ?? "transparent" }} />
           <span className="st-cp-trigger__text">{tokenName ?? color?.toUpperCase() ?? "None"}</span>
         </button>

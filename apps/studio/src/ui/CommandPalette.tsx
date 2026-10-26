@@ -55,7 +55,11 @@ export function CommandPalette() {
           <Command label="Commands" loop>
             <div className="st-palette__search">
               <Search aria-hidden="true" />
-              <Command.Input className="st-palette__input" placeholder="Search commands…" autoFocus />
+              <Command.Input
+                className="st-palette__input"
+                placeholder="Search commands…"
+                autoFocus
+              />
               <Kbd shortcut="esc" tone="key" />
             </div>
             <Command.List className="st-palette__list">

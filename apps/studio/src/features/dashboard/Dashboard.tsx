@@ -39,7 +39,12 @@ import "./Dashboard.css";
 type View = "cards" | "gardener";
 
 export function StatusBadge({ status }: { status: Site["status"] }) {
-  if (status === "live") return <Badge tone="live" dot>Live</Badge>;
+  if (status === "live")
+    return (
+      <Badge tone="live" dot>
+        Live
+      </Badge>
+    );
   if (status === "building")
     return (
       <Badge tone="pending" dot pulse>
@@ -66,14 +71,26 @@ async function copyLink(url: string) {
   }
 }
 
-function siteMenu(site: Site, actions: { open: () => void; transfer: () => void }, myLogin?: string): MenuEntry[] {
+function siteMenu(
+  site: Site,
+  actions: { open: () => void; transfer: () => void },
+  myLogin?: string,
+): MenuEntry[] {
   const items: MenuEntry[] = [
     { label: "Open editor", icon: <PenLine />, onSelect: actions.open },
-    { label: "View live site", icon: <ArrowUpRight />, disabled: site.status !== "live", onSelect: () => window.open(site.url, "_blank", "noopener") },
+    {
+      label: "View live site",
+      icon: <ArrowUpRight />,
+      disabled: site.status !== "live",
+      onSelect: () => window.open(site.url, "_blank", "noopener"),
+    },
     { label: "Copy link", icon: <Copy />, onSelect: () => void copyLink(site.url) },
   ];
   if (site.owner === myLogin) {
-    items.push({ type: "separator" }, { label: "Transfer ownership…", icon: <ArrowRightLeft />, onSelect: actions.transfer });
+    items.push(
+      { type: "separator" },
+      { label: "Transfer ownership…", icon: <ArrowRightLeft />, onSelect: actions.transfer },
+    );
   }
   return items;
 }
@@ -93,7 +110,10 @@ function TransferDialog({ site, onClose }: { site: Site | null; onClose: () => v
         onSuccess: (res) => {
           toast({
             tone: "success",
-            title: res.status === "complete" ? `${site.name} now belongs to ${res.site.owner}` : `Transfer sent to ${to.trim()}`,
+            title:
+              res.status === "complete"
+                ? `${site.name} now belongs to ${res.site.owner}`
+                : `Transfer sent to ${to.trim()}`,
             description:
               res.status === "complete"
                 ? "You’re still on the site as a designer."
@@ -122,7 +142,12 @@ function TransferDialog({ site, onClose }: { site: Site | null; onClose: () => v
     >
       <form className="st-transfer" onSubmit={submit}>
         <Field label="New owner" hint="Their GitHub username or email address.">
-          <Input value={to} onChange={(e) => setTo(e.target.value)} placeholder="client-username" data-autofocus />
+          <Input
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            placeholder="client-username"
+            data-autofocus
+          />
         </Field>
         <Field label={`Type “${site?.name ?? ""}” to confirm`}>
           <Input value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="off" />
@@ -157,7 +182,12 @@ function SiteCard({
   const look = template?.looks.find((l) => l.id === site.look) ?? template?.looks[0];
   return (
     <article className="st-sitecard" aria-labelledby={`site-${site.id}`}>
-      <Link to={`/sites/${site.id}`} className="st-sitecard__preview" tabIndex={-1} aria-hidden="true">
+      <Link
+        to={`/sites/${site.id}`}
+        className="st-sitecard__preview"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
         {look ? (
           <SiteSketch styles={look.styles} name={site.name} tagline={site.tagline} />
         ) : (
@@ -173,7 +203,14 @@ function SiteCard({
             align="end"
             label={`${site.name} actions`}
             items={menu}
-            trigger={<IconButton label={`More actions for ${site.name}`} icon={<Ellipsis />} size="sm" tooltip={false} />}
+            trigger={
+              <IconButton
+                label={`More actions for ${site.name}`}
+                icon={<Ellipsis />}
+                size="sm"
+                tooltip={false}
+              />
+            }
           />
         </div>
         <a className="st-sitecard__url" href={site.url} target="_blank" rel="noreferrer">
@@ -195,7 +232,9 @@ function SiteCard({
           )}
         </div>
         {site.status === "failed" && (
-          <p className="st-sitecard__note">Publishing didn’t finish. Open the editor to try again.</p>
+          <p className="st-sitecard__note">
+            Publishing didn’t finish. Open the editor to try again.
+          </p>
         )}
       </div>
     </article>
@@ -242,13 +281,25 @@ function GardenerTable({
                 <StatusBadge status={s.status} />
               </td>
               <td className="st-table__num">
-                {s.inboxCount > 0 ? <Badge tone="accent">{s.inboxCount}</Badge> : <span className="st-table__muted">0</span>}
+                {s.inboxCount > 0 ? (
+                  <Badge tone="accent">{s.inboxCount}</Badge>
+                ) : (
+                  <span className="st-table__muted">0</span>
+                )}
               </td>
-              <td>{s.updateAvailable ? <Badge>Update ready</Badge> : <span className="st-table__muted">Up to date</span>}</td>
+              <td>
+                {s.updateAvailable ? (
+                  <Badge>Update ready</Badge>
+                ) : (
+                  <span className="st-table__muted">Up to date</span>
+                )}
+              </td>
               <td>
                 <span className="st-table__owner">{s.owner === myLogin ? "You" : s.owner}</span>
                 {s.role && s.owner !== myLogin && (
-                  <span className="st-table__url">You’re {s.role === "editor" ? "an editor" : `a ${s.role}`}</span>
+                  <span className="st-table__url">
+                    You’re {s.role === "editor" ? "an editor" : `a ${s.role}`}
+                  </span>
                 )}
               </td>
               <td className="st-table__actions">
@@ -256,7 +307,14 @@ function GardenerTable({
                   align="end"
                   label={`${s.name} actions`}
                   items={menuFor(s)}
-                  trigger={<IconButton label={`More actions for ${s.name}`} icon={<Ellipsis />} size="sm" tooltip={false} />}
+                  trigger={
+                    <IconButton
+                      label={`More actions for ${s.name}`}
+                      icon={<Ellipsis />}
+                      size="sm"
+                      tooltip={false}
+                    />
+                  }
                 />
               </td>
             </tr>
@@ -295,14 +353,39 @@ export function Dashboard() {
     }
   };
 
-  const templateById = useMemo(() => new Map((templates.data ?? []).map((t) => [t.id, t])), [templates.data]);
+  const templateById = useMemo(
+    () => new Map((templates.data ?? []).map((t) => [t.id, t])),
+    [templates.data],
+  );
   const menuFor = (s: Site) =>
-    siteMenu(s, { open: () => navigate(`/sites/${s.id}`), transfer: () => setTransferring(s) }, user?.login);
+    siteMenu(
+      s,
+      { open: () => navigate(`/sites/${s.id}`), transfer: () => setTransferring(s) },
+      user?.login,
+    );
 
   useRegisterCommands("dashboard", [
-    { id: "new-site", label: "New site", group: "Sites", icon: <Plus />, run: () => navigate("/templates") },
-    { id: "view-cards", label: "Show sites as cards", group: "View", icon: <LayoutGrid />, run: () => setView("cards") },
-    { id: "view-gardener", label: "Show Site Gardener table", group: "View", icon: <Rows3 />, run: () => setView("gardener") },
+    {
+      id: "new-site",
+      label: "New site",
+      group: "Sites",
+      icon: <Plus />,
+      run: () => navigate("/templates"),
+    },
+    {
+      id: "view-cards",
+      label: "Show sites as cards",
+      group: "View",
+      icon: <LayoutGrid />,
+      run: () => setView("cards"),
+    },
+    {
+      id: "view-gardener",
+      label: "Show Site Gardener table",
+      group: "View",
+      icon: <Rows3 />,
+      run: () => setView("gardener"),
+    },
     ...(sites.data ?? []).map((s) => ({
       id: `open-${s.id}`,
       label: `Open ${s.name}`,
@@ -339,8 +422,18 @@ export function Dashboard() {
               <p className="st-dash__summary">
                 <span>{list.length === 1 ? "1 site" : `${list.length} sites`}</span>
                 {totals.inbox > 0 && <span>{inboxLabel(totals.inbox)}</span>}
-                {totals.updates > 0 && <span>{totals.updates === 1 ? "1 update ready" : `${totals.updates} updates ready`}</span>}
-                {totals.attention > 0 && <span className="st-dash__warn">{totals.attention === 1 ? "1 needs attention" : `${totals.attention} need attention`}</span>}
+                {totals.updates > 0 && (
+                  <span>
+                    {totals.updates === 1 ? "1 update ready" : `${totals.updates} updates ready`}
+                  </span>
+                )}
+                {totals.attention > 0 && (
+                  <span className="st-dash__warn">
+                    {totals.attention === 1
+                      ? "1 needs attention"
+                      : `${totals.attention} need attention`}
+                  </span>
+                )}
               </p>
             )}
           </div>
@@ -363,10 +456,10 @@ export function Dashboard() {
         </div>
 
         {sites.isPending ? (
-          <div className="st-dash__grid" aria-busy="true" aria-label="Loading sites">
+          <div className="st-dash__grid" role="status" aria-busy="true" aria-label="Loading sites">
             {[0, 1, 2].map((i) => (
               <div key={i} className="st-sitecard">
-                <Skeleton height="auto" className="st-sitecard__skeleton" radius={0} />
+                <Skeleton height="auto" className="st-sitecard__skeleton" />
                 <div className="st-sitecard__body">
                   <Skeleton width="50%" height={14} />
                   <Skeleton width="70%" height={10} />
@@ -394,7 +487,12 @@ export function Dashboard() {
         ) : view === "cards" ? (
           <div className="st-dash__grid">
             {list.map((s) => (
-              <SiteCard key={s.id} site={s} template={templateById.get(s.template)} menu={menuFor(s)} />
+              <SiteCard
+                key={s.id}
+                site={s}
+                template={templateById.get(s.template)}
+                menu={menuFor(s)}
+              />
             ))}
           </div>
         ) : (

@@ -14,7 +14,9 @@
   white-space: nowrap;
   cursor: default;
   user-select: none;
-  transition: background-color var(--st-fast) var(--st-ease), box-shadow var(--st-fast) var(--st-ease),
+  transition:
+    background-color var(--st-fast) var(--st-ease),
+    box-shadow var(--st-fast) var(--st-ease),
     color var(--st-fast) var(--st-ease);
 }
 

@@ -20,7 +20,9 @@
 }
 
 .st-sketch__part {
-  transition: opacity 420ms var(--st-ease-out), transform 520ms var(--st-ease-out);
+  transition:
+    opacity 420ms var(--st-ease-out),
+    transform 520ms var(--st-ease-out);
 }
 
 .st-sketch__part[data-shown="false"] {
@@ -128,8 +130,16 @@
 .st-sketch__image {
   aspect-ratio: 4 / 5;
   background:
-    radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--k-accent) 55%, transparent), transparent 70%),
-    linear-gradient(160deg, var(--k-surface), color-mix(in srgb, var(--k-surface), var(--k-text) 18%));
+    radial-gradient(
+      120% 90% at 30% 20%,
+      color-mix(in srgb, var(--k-accent) 55%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      160deg,
+      var(--k-surface),
+      color-mix(in srgb, var(--k-surface), var(--k-text) 18%)
+    );
   border-radius: min(var(--k-radius), 3cqw);
 }
 

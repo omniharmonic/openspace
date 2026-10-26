@@ -64,7 +64,21 @@ const SECTIONS = [
   ["studio", "Studio pieces"],
 ] as const;
 
-const SURFACE_TOKENS = ["bg", "canvas", "panel", "field", "line", "line-strong", "text", "text-2", "text-3", "accent", "live", "pending", "danger"];
+const SURFACE_TOKENS = [
+  "bg",
+  "canvas",
+  "panel",
+  "field",
+  "line",
+  "line-strong",
+  "text",
+  "text-2",
+  "text-3",
+  "accent",
+  "live",
+  "pending",
+  "danger",
+];
 
 const SITE_TOKENS: ColorToken[] = [
   { id: "accent", name: "Accent", value: "#6f8461" },
@@ -138,8 +152,9 @@ export function KitPage() {
         <main className="st-kit__main">
           <h1 className="st-kit__title">Studio UI kit</h1>
           <p className="st-kit__lede">
-            Every chrome component, in both themes. Tokens live in <code>src/styles/tokens.css</code> as{" "}
-            <code>--st-*</code>; site content uses <code>--os-*</code>.
+            Every chrome component, in both themes. Tokens live in{" "}
+            <code>src/styles/tokens.css</code> as <code>--st-*</code>; site content uses{" "}
+            <code>--os-*</code>.
           </p>
 
           <Section id="foundations" title="Foundations">
@@ -155,13 +170,29 @@ export function KitPage() {
             </Specimen>
             <Specimen label="Type scale (13px base)">
               <div className="st-kit__type">
-                <span style={{ fontSize: "var(--st-fs-display)", fontWeight: 650, letterSpacing: "-0.035em" }}>Display 40</span>
-                <span style={{ fontSize: "var(--st-fs-xl)", fontWeight: 650, letterSpacing: "-0.03em" }}>Title 28</span>
+                <span
+                  style={{
+                    fontSize: "var(--st-fs-display)",
+                    fontWeight: 650,
+                    letterSpacing: "-0.035em",
+                  }}
+                >
+                  Display 40
+                </span>
+                <span
+                  style={{ fontSize: "var(--st-fs-xl)", fontWeight: 650, letterSpacing: "-0.03em" }}
+                >
+                  Title 28
+                </span>
                 <span style={{ fontSize: "var(--st-fs-lg)", fontWeight: 600 }}>Heading 20</span>
                 <span style={{ fontSize: "var(--st-fs-md)", fontWeight: 600 }}>Subhead 15</span>
                 <span>Body 13 — the default for every control and label.</span>
-                <span style={{ fontSize: "var(--st-fs-sm)", color: "var(--st-text-2)" }}>Small 12 for hints and meta.</span>
-                <span style={{ fontSize: "var(--st-fs-xs)", color: "var(--st-text-3)" }}>Micro 11 for shortcuts and canvas labels.</span>
+                <span style={{ fontSize: "var(--st-fs-sm)", color: "var(--st-text-2)" }}>
+                  Small 12 for hints and meta.
+                </span>
+                <span style={{ fontSize: "var(--st-fs-xs)", color: "var(--st-text-3)" }}>
+                  Micro 11 for shortcuts and canvas labels.
+                </span>
               </div>
             </Specimen>
           </Section>
@@ -193,7 +224,12 @@ export function KitPage() {
             <Specimen label="Icon buttons with tooltips and shortcuts">
               <IconButton label="Copy" icon={<Copy />} shortcut="mod+c" />
               <IconButton label="Search" icon={<Search />} shortcut="mod+k" />
-              <IconButton label="Hide panels" icon={<PanelLeft />} shortcut="mod+backslash" active />
+              <IconButton
+                label="Hide panels"
+                icon={<PanelLeft />}
+                shortcut="mod+backslash"
+                active
+              />
               <IconButton label="Delete" icon={<Trash2 />} shortcut="backspace" size="sm" />
               <IconButton label="Add section" icon={<Plus />} size="lg" />
               <IconButton label="Can’t move" icon={<MoveHorizontal />} disabled />
@@ -224,9 +260,32 @@ export function KitPage() {
             </div>
             <Specimen label="Number scrub inputs (drag the letter, ⇧ ×10, ⌥ ×0.1; type math like 24*2)">
               <div className="st-kit__scrubs">
-                <NumberScrubInput label="Width" handle="W" value={width} onChange={setWidth} min={0} max={2400} unit="px" />
-                <NumberScrubInput label="Radius" handle="R" value={radius} onChange={setRadius} min={0} max={64} />
-                <NumberScrubInput label="Opacity" handle="O" value={null} onChange={() => undefined} min={0} max={100} unit="%" />
+                <NumberScrubInput
+                  label="Width"
+                  handle="W"
+                  value={width}
+                  onChange={setWidth}
+                  min={0}
+                  max={2400}
+                  unit="px"
+                />
+                <NumberScrubInput
+                  label="Radius"
+                  handle="R"
+                  value={radius}
+                  onChange={setRadius}
+                  min={0}
+                  max={64}
+                />
+                <NumberScrubInput
+                  label="Opacity"
+                  handle="O"
+                  value={null}
+                  onChange={() => undefined}
+                  min={0}
+                  max={100}
+                  unit="%"
+                />
               </div>
             </Specimen>
             <Specimen label="Select">
@@ -269,11 +328,16 @@ export function KitPage() {
               />
             </Specimen>
             <Specimen label="Toggle and slider">
-              <label className="st-kit__inline">
+              <span className="st-kit__inline">
                 <Toggle checked={on} onCheckedChange={setOn} aria-label="Show in navigation" />
                 Show in navigation
-              </label>
-              <Toggle checked={false} onCheckedChange={() => undefined} size="sm" aria-label="Small toggle" />
+              </span>
+              <Toggle
+                checked={false}
+                onCheckedChange={() => undefined}
+                size="sm"
+                aria-label="Small toggle"
+              />
               <div style={{ width: 200 }}>
                 <Slider value={slider} onValueChange={setSlider} aria-label="Overlay strength" />
               </div>
@@ -290,7 +354,12 @@ export function KitPage() {
             </Specimen>
             <Specimen label="Picker: site colors first, exact color as escape hatch">
               <div style={{ width: 200 }}>
-                <ColorPicker label="Background" tokens={SITE_TOKENS} value={color} onChange={setColor} />
+                <ColorPicker
+                  label="Background"
+                  tokens={SITE_TOKENS}
+                  value={color}
+                  onChange={setColor}
+                />
               </div>
             </Specimen>
           </Section>
@@ -310,7 +379,12 @@ export function KitPage() {
                 items={[
                   { label: "Duplicate", shortcut: "mod+d", icon: <Copy /> },
                   { label: "Move up", shortcut: "alt+arrowup" },
-                  { label: "Show on mobile", type: "checkbox", checked: on, onCheckedChange: setOn },
+                  {
+                    label: "Show on mobile",
+                    type: "checkbox",
+                    checked: on,
+                    onCheckedChange: setOn,
+                  },
                   { type: "separator" },
                   { label: "Delete", shortcut: "backspace", icon: <Trash2 />, danger: true },
                 ]}
@@ -325,7 +399,11 @@ export function KitPage() {
               >
                 <div className="st-kit__context">Right-click here</div>
               </ContextMenu>
-              <Button icon={<Search />} onClick={() => openPalette(true)} trailing={<Kbd shortcut="mod+k" />}>
+              <Button
+                icon={<Search />}
+                onClick={() => openPalette(true)}
+                trailing={<Kbd shortcut="mod+k" />}
+              >
                 Command palette
               </Button>
             </Specimen>
@@ -357,12 +435,25 @@ export function KitPage() {
           <Section id="feedback" title="Feedback">
             <Specimen label="Toasts">
               <Button onClick={() => toast({ title: "Saved to your draft" })}>Neutral</Button>
-              <Button onClick={() => toast({ tone: "success", title: "Published", description: "willow.github.io is up to date." })}>
+              <Button
+                onClick={() =>
+                  toast({
+                    tone: "success",
+                    title: "Published",
+                    description: "willow.github.io is up to date.",
+                  })
+                }
+              >
                 Success
               </Button>
               <Button
                 onClick={() =>
-                  toast({ tone: "danger", title: "Couldn’t publish", description: "The connection dropped. Your edits are safe.", action: { label: "Retry", onClick: () => undefined } })
+                  toast({
+                    tone: "danger",
+                    title: "Couldn’t publish",
+                    description: "The connection dropped. Your edits are safe.",
+                    action: { label: "Retry", onClick: () => undefined },
+                  })
                 }
               >
                 Error
@@ -419,9 +510,21 @@ export function KitPage() {
               <Tabs
                 aria-label="Inspector demo"
                 items={[
-                  { value: "design", label: "Design", content: <p className="st-kit__muted">Spacing, color, type.</p> },
-                  { value: "content", label: "Content", content: <p className="st-kit__muted">Words and images.</p> },
-                  { value: "motion", label: "Motion", content: <p className="st-kit__muted">Entrance and hover effects.</p> },
+                  {
+                    value: "design",
+                    label: "Design",
+                    content: <p className="st-kit__muted">Spacing, color, type.</p>,
+                  },
+                  {
+                    value: "content",
+                    label: "Content",
+                    content: <p className="st-kit__muted">Words and images.</p>,
+                  },
+                  {
+                    value: "motion",
+                    label: "Motion",
+                    content: <p className="st-kit__muted">Entrance and hover effects.</p>,
+                  },
                 ]}
               />
             </div>
@@ -440,17 +543,32 @@ export function KitPage() {
             {meadow && meadowLook && (
               <Specimen label="Site sketch + look picker">
                 <div className="st-kit__sketch">
-                  <SiteSketch styles={meadowLook.styles} name="Willow Street Yoga" tagline="Slow classes for busy people" />
-                  <LookPicker looks={meadow.looks} value={look} onValueChange={setLook} label="Meadow looks" showNames />
+                  <SiteSketch
+                    styles={meadowLook.styles}
+                    name="Willow Street Yoga"
+                    tagline="Slow classes for busy people"
+                  />
+                  <LookPicker
+                    looks={meadow.looks}
+                    value={look}
+                    onValueChange={setLook}
+                    label="Meadow looks"
+                    showNames
+                  />
                 </div>
               </Specimen>
             )}
             <Specimen label="First-run checklist">
               <FirstRunChecklist checklist={checklist} />
-              {checklist.state.dismissed && <Button onClick={checklist.show}>Show checklist</Button>}
+              {checklist.state.dismissed && (
+                <Button onClick={checklist.show}>Show checklist</Button>
+              )}
             </Specimen>
             <Specimen label="Tooltip on any element">
-              <Tooltip content="Publishing sends your draft to the live site" shortcut="shift+mod+p">
+              <Tooltip
+                content="Publishing sends your draft to the live site"
+                shortcut="shift+mod+p"
+              >
                 <Button variant="primary">Hover me</Button>
               </Tooltip>
             </Specimen>

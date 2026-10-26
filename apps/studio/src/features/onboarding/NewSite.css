@@ -174,7 +174,9 @@
 .st-new__preview {
   overflow: hidden;
   border-radius: 12px;
-  box-shadow: 0 0 0 1px var(--st-line), 0 24px 60px -30px rgb(18 20 26 / 0.4);
+  box-shadow:
+    0 0 0 1px var(--st-line),
+    0 24px 60px -30px rgb(18 20 26 / 0.4);
 }
 
 .st-new__look {

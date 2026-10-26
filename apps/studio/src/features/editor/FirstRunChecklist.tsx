@@ -1,4 +1,4 @@
-import { Check, ChevronDown, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { useState } from "react";
 import { cx, IconButton } from "../../ui";
 import "./FirstRunChecklist.css";
@@ -24,7 +24,13 @@ const storageKey = (siteId: string) => `openspace.checklist.${siteId}`;
 export function readChecklist(siteId: string): ChecklistState {
   try {
     const raw = localStorage.getItem(storageKey(siteId));
-    if (raw) return { done: [], dismissed: false, collapsed: false, ...(JSON.parse(raw) as Partial<ChecklistState>) };
+    if (raw)
+      return {
+        done: [],
+        dismissed: false,
+        collapsed: false,
+        ...(JSON.parse(raw) as Partial<ChecklistState>),
+      };
   } catch {
     // ignore
   }
@@ -51,7 +57,9 @@ export function useChecklist(siteId: string) {
   return {
     state,
     toggle: (id: ChecklistItemId) =>
-      update({ done: state.done.includes(id) ? state.done.filter((d) => d !== id) : [...state.done, id] }),
+      update({
+        done: state.done.includes(id) ? state.done.filter((d) => d !== id) : [...state.done, id],
+      }),
     dismiss: () => update({ dismissed: true }),
     show: () => update({ dismissed: false, collapsed: false }),
     setCollapsed: (collapsed: boolean) => update({ collapsed }),
@@ -60,19 +68,20 @@ export function useChecklist(siteId: string) {
 
 export interface FirstRunChecklistProps {
   checklist: ReturnType<typeof useChecklist>;
-  /** Optional per-item actions (e.g. open Settings → Domain). */
-  onItem?: (id: ChecklistItemId) => void;
 }
 
 /** Dismissible first-run checklist (PRD §4.1 step 7). */
-export function FirstRunChecklist({ checklist, onItem }: FirstRunChecklistProps) {
+export function FirstRunChecklist({ checklist }: FirstRunChecklistProps) {
   const { state, toggle, dismiss, setCollapsed } = checklist;
   if (state.dismissed) return null;
   const count = state.done.length;
   const total = CHECKLIST_ITEMS.length;
   const complete = count === total;
   return (
-    <section className={cx("st-checklist", state.collapsed && "st-checklist--collapsed")} aria-labelledby="st-checklist-title">
+    <section
+      className={cx("st-checklist", state.collapsed && "st-checklist--collapsed")}
+      aria-labelledby="st-checklist-title"
+    >
       <header className="st-checklist__head">
         <button
           type="button"
@@ -105,20 +114,19 @@ export function FirstRunChecklist({ checklist, onItem }: FirstRunChecklistProps)
           {CHECKLIST_ITEMS.map((item) => {
             const done = state.done.includes(item.id);
             return (
-              <li key={item.id} className={cx("st-checklist__item", done && "st-checklist__item--done")}>
-                <button
-                  type="button"
-                  role="checkbox"
-                  aria-checked={done}
-                  aria-label={`${item.label}${done ? " (done)" : ""}`}
-                  className="st-checklist__box"
-                  onClick={() => toggle(item.id)}
-                >
-                  {done && <Check aria-hidden="true" />}
-                </button>
-                <button type="button" className="st-checklist__label" onClick={() => (onItem ? onItem(item.id) : toggle(item.id))}>
-                  {item.label}
-                </button>
+              <li
+                key={item.id}
+                className={cx("st-checklist__item", done && "st-checklist__item--done")}
+              >
+                <label className="st-checklist__label">
+                  <input
+                    type="checkbox"
+                    className="st-checklist__box"
+                    checked={done}
+                    onChange={() => toggle(item.id)}
+                  />
+                  <span>{item.label}</span>
+                </label>
               </li>
             );
           })}

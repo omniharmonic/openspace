@@ -5,6 +5,8 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   server: { port: 5173 },
+  // main.tsx awaits the Hub client (the mock loads on demand).
+  build: { target: "es2022" },
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],

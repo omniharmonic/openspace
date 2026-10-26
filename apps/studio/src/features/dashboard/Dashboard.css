@@ -178,8 +178,9 @@
   font-size: var(--st-fs-sm);
 }
 
-.st-table__num {
-  text-align: right !important;
+.st-table th.st-table__num,
+.st-table td.st-table__num {
+  text-align: right;
 }
 
 .st-table__actions {

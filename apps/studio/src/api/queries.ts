@@ -11,12 +11,20 @@ export const queryKeys = {
 
 export function useSession() {
   const hub = useHub();
-  return useQuery({ queryKey: queryKeys.session, queryFn: () => hub.getSession(), staleTime: 60_000 });
+  return useQuery({
+    queryKey: queryKeys.session,
+    queryFn: () => hub.getSession(),
+    staleTime: 60_000,
+  });
 }
 
 export function useTemplates() {
   const hub = useHub();
-  return useQuery({ queryKey: queryKeys.templates, queryFn: () => hub.listTemplates(), staleTime: 5 * 60_000 });
+  return useQuery({
+    queryKey: queryKeys.templates,
+    queryFn: () => hub.listTemplates(),
+    staleTime: 5 * 60_000,
+  });
 }
 
 /** Polls while any site is still being set up. */
@@ -38,7 +46,8 @@ export function useSite(id: string | undefined, options: { pollMs?: number } = {
     queryKey: queryKeys.site(id ?? ""),
     queryFn: () => hub.getSite(id as string),
     enabled: Boolean(id),
-    refetchInterval: (q) => (q.state.data?.status === "building" ? (options.pollMs ?? 1500) : false),
+    refetchInterval: (q) =>
+      q.state.data?.status === "building" ? (options.pollMs ?? 1500) : false,
   });
 }
 
@@ -93,7 +102,9 @@ export function useTransferSite() {
     mutationFn: ({ id, to }: { id: string; to: string }) => hub.transferSite(id, to),
     onSuccess: ({ site }) => {
       qc.setQueryData(queryKeys.site(site.id), site);
-      qc.setQueryData<Site[]>(queryKeys.sites, (prev) => prev?.map((s) => (s.id === site.id ? site : s)));
+      qc.setQueryData<Site[]>(queryKeys.sites, (prev) =>
+        prev?.map((s) => (s.id === site.id ? site : s)),
+      );
     },
   });
 }

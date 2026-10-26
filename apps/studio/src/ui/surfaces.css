@@ -43,6 +43,14 @@
   color: var(--st-text-2);
 }
 
+.st-menu__item--danger {
+  color: var(--st-danger);
+}
+
+.st-menu__item--danger svg {
+  color: currentColor;
+}
+
 .st-menu__item[data-highlighted],
 .st-menu__item[aria-selected="true"] {
   background: var(--st-accent);
@@ -59,14 +67,6 @@
 
 .st-menu__item[data-disabled]:not([data-disabled="false"]) {
   opacity: 0.4;
-}
-
-.st-menu__item--danger {
-  color: var(--st-danger);
-}
-
-.st-menu__item--danger svg {
-  color: currentColor;
 }
 
 .st-menu__item--danger[data-highlighted] {

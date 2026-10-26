@@ -23,7 +23,13 @@ export const defaultConfig: StudioConfig = {
 
 const ConfigContext = createContext<StudioConfig>(defaultConfig);
 
-export function ConfigProvider({ config, children }: { config: StudioConfig; children: ReactNode }) {
+export function ConfigProvider({
+  config,
+  children,
+}: {
+  config: StudioConfig;
+  children: ReactNode;
+}) {
   return <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>;
 }
 

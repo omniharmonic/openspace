@@ -49,7 +49,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       aria-busy={loading || undefined}
       {...rest}
     >
-      {loading ? <Spinner size={12} /> : icon ? <span className="st-button__icon">{icon}</span> : null}
+      {loading ? (
+        <Spinner size={12} />
+      ) : icon ? (
+        <span className="st-button__icon">{icon}</span>
+      ) : null}
       {children != null && <span className="st-button__label">{children}</span>}
       {trailing && <span className="st-button__icon">{trailing}</span>}
     </button>

@@ -15,7 +15,13 @@ export type MenuEntry =
       danger?: boolean;
       disabled?: boolean;
     }
-  | { type: "checkbox"; label: string; checked: boolean; onCheckedChange: (v: boolean) => void; shortcut?: string }
+  | {
+      type: "checkbox";
+      label: string;
+      checked: boolean;
+      onCheckedChange: (v: boolean) => void;
+      shortcut?: string;
+    }
   | { type: "separator" }
   | { type: "label"; label: string };
 
