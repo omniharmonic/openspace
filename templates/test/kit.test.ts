@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildTemplate, remoteMedia } from "../lib/define";
 import { stabilizeIds } from "../lib/ids";
-import { definePages, fromPreset, heading, section } from "../lib/kit";
+import { definePages, fromPreset, gridRows, heading, r, section } from "../lib/kit";
 import { meadow } from "../meadow/src/build";
 
 describe("fromPreset", () => {
@@ -31,6 +31,18 @@ describe("fromPreset", () => {
     expect(Object.keys(s.layout.items)).toHaveLength(2);
     const maxD = Math.max(...Object.values(s.layout.items).map((i) => i.d.y + i.d.h - 1));
     expect(s.layout.rows).toMatchObject({ d: maxD });
+  });
+});
+
+describe("gridRows", () => {
+  it("keeps tablet rows when items place themselves on tablet", () => {
+    expect(
+      gridRows({
+        a: { d: r(1, 1, 12, 10), t: r(1, 1, 12, 14), m: r(1, 1, 8, 6) },
+        b: { d: r(13, 1, 12, 4), m: r(1, 7, 8, 5) },
+      }),
+    ).toEqual({ d: 10, t: 14, m: 11 });
+    expect(gridRows({ a: { d: r(1, 2, 24, 3) } })).toEqual({ d: 4 });
   });
 });
 

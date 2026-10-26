@@ -621,7 +621,11 @@ class Ctx {
     const hasText = section.blocks.some((b) => isTextBlock(b) && !b.style?.colorTheme);
     if (!hasText) return;
     if (bg.type === "image" || bg.type === "video") {
-      if (!bg.overlay || bg.overlay.opacity < 0.35) {
+      // A missing overlay is a 0% scrim; text must still pass over any photo.
+      const overlay = bg.overlay ?? { color: "background", opacity: 0 };
+      const minOpacity = this.photoText(page, section, overlay);
+      if (overlay.opacity < 0.35) {
+        const target = Math.max(0.35, minOpacity ?? 0.35);
         this.add({
           rule: "photo-without-scrim",
           severity: "warning",
@@ -629,23 +633,30 @@ class Ctx {
           section: section.id,
           message:
             "Text sits directly on a photo background, which is hard to read on busy or bright areas.",
-          fix: "Add an overlay of at least 35% (the section's background color works well).",
-          autofix: {
-            label: "Add a 55% overlay",
-            ops: [
-              {
-                op: "section.update",
-                ...this.meta(),
-                page: page as never,
-                section: section.id,
-                set: { "style.background.overlay": { color: "background", opacity: 0.55 } },
-              } as Op,
-            ],
-          },
+          fix:
+            minOpacity === null
+              ? "Put the text on a panel (a block color theme): no overlay keeps it readable over every photo."
+              : `Add an overlay of at least ${Math.round(target * 100)}% (the section's background color works well).`,
+          ...(minOpacity === null
+            ? {}
+            : {
+                autofix: {
+                  label: `Add a ${Math.round(target * 100)}% overlay`,
+                  ops: [
+                    {
+                      op: "section.update",
+                      ...this.meta(),
+                      page: page as never,
+                      section: section.id,
+                      set: {
+                        "style.background.overlay": { color: overlay.color, opacity: target },
+                      },
+                    } as Op,
+                  ],
+                },
+              }),
         });
-        return;
       }
-      this.photoText(page, section, bg.overlay);
       return;
     }
     const theme = themeOf(section);
@@ -673,11 +684,29 @@ class Ctx {
    * Text over a photo/video background must pass WCAG against the scrim blended over both the
    * darkest and the brightest possible photo (the photo itself can be anything).
    */
-  photoText(page: string, section: Section, overlay: { color: string; opacity: number }) {
+  /**
+   * Returns the smallest overlay opacity at which every text colour passes (`undefined` when
+   * nothing fails or the overlay colour is unknown, `null` when no opacity is enough).
+   */
+  photoText(
+    page: string,
+    section: Section,
+    overlay: { color: string; opacity: number },
+  ): number | null | undefined {
     const theme = themeOf(section);
     const roles = this.tokens.themes[theme] as unknown as Record<string, string>;
     const color = this.resolveColor(overlay.color, theme);
-    if (!color) return;
+    if (!color) {
+      this.add({
+        rule: "photo-overlay-color",
+        severity: "warning",
+        page,
+        section: section.id,
+        message: `The photo overlay color “${overlay.color}” isn't a color or theme role, so text contrast over the photo can't be checked.`,
+        fix: "Use a theme role such as background, or a CSS color.",
+      });
+      return undefined;
+    }
     const { failures, minOpacity } = photoContrast(
       section,
       roles,
@@ -685,6 +714,7 @@ class Ctx {
       overlay.opacity,
       this.doc.styles.choices.buttons,
     );
+    if (failures.length === 0) return overlay.opacity;
     const worst = new Map<string, (typeof failures)[number]>();
     for (const f of failures) {
       const key = `${f.blockId}:${f.label}`;
@@ -723,6 +753,7 @@ class Ctx {
           : {}),
       });
     }
+    return minOpacity ?? null;
   }
 
   resolveColor(value: string, theme: ColorTheme): string | undefined {
