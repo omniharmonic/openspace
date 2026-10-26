@@ -310,7 +310,12 @@ export const createPost = defineTool({
     title: z.string().min(1).max(200),
     slug: z.string().optional().describe("Default: <date>-<title>."),
     body: z.string().max(200_000),
-    date: z.string().optional().describe("YYYY-MM-DD (default today)."),
+    date: z
+      .string()
+      .optional()
+      .describe(
+        "YYYY-MM-DD. Used by kinds whose frontmatter has a date (blog and podcast require one and default to today; portfolio keeps it when given).",
+      ),
     excerpt: z.string().max(500).optional(),
     image: z.string().optional().describe("media/… path or https URL."),
     imageAlt: z.string().optional(),
@@ -322,7 +327,9 @@ export const createPost = defineTool({
     frontmatter: z
       .record(z.string(), z.unknown())
       .optional()
-      .describe("Extra frontmatter for non-blog kinds (events: start, end, location…)."),
+      .describe(
+        "Extra frontmatter for non-blog kinds — events: start, end (ISO date-times with a UTC offset, e.g. 2026-11-21T14:00:00-08:00, or YYYY-MM-DD with allDay), timezone, location; products: price {amount in minor units, currency}; podcast: audio.",
+      ),
   }),
   annotations: {},
   async handler(ctx, input) {
@@ -339,7 +346,9 @@ export const createPost = defineTool({
       title: input.title,
       status: input.status ?? "draft",
     };
-    if (kind === "blog") fm.date = date;
+    const dateField = frontmatterField(kind, "date");
+    if (dateField === "required") fm.date = input.date ?? fm.date ?? date;
+    else if (dateField === "optional" && input.date !== undefined) fm.date = input.date;
     for (const k of [
       "excerpt",
       "image",
@@ -361,6 +370,15 @@ export const createPost = defineTool({
     return { data: { collection, item: itemView(item, false), path: `/${collection}/${slug}/` } };
   },
 });
+
+/** Whether a collection kind's frontmatter has `key`, and whether it's required. */
+function frontmatterField(kind: keyof typeof FRONTMATTER_SCHEMAS, key: string) {
+  const shape = (FRONTMATTER_SCHEMAS[kind] as unknown as { shape?: Record<string, z.ZodType> })
+    .shape;
+  const field = shape?.[key];
+  if (!field) return "absent" as const;
+  return field.safeParse(undefined).success ? ("optional" as const) : ("required" as const);
+}
 
 export const updatePost = defineTool({
   name: "update_post",

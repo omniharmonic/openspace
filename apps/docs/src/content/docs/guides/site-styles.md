@@ -8,7 +8,7 @@ description: Change fonts, colors, buttons, spacing, corners, image treatments a
 ## Colors
 
 - **Brand color** — pick one, type a hex value, or take it **from your logo** or **from a photo** (Studio suggests five candidate colors).
-- **Curated palettes** — more than twenty tested combinations.
+- **Curated palettes** — twenty tested combinations.
 - **Neutrals** — warm, cool or pure grays, tinted toward your brand color.
 - **Contrast** — standard or high.
 

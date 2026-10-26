@@ -713,6 +713,9 @@ importers:
       '@openspace/mcp-tools':
         specifier: workspace:*
         version: link:../packages/mcp-tools
+      '@openspace/site-kit':
+        specifier: workspace:*
+        version: link:../packages/site-kit
       '@openspace/templates':
         specifier: workspace:*
         version: link:../templates

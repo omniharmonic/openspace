@@ -19,6 +19,7 @@
   "devDependencies": {
     "@openspace/blocks": "workspace:*",
     "@openspace/mcp-tools": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
     "@openspace/templates": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",

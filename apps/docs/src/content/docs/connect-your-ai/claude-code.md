@@ -14,7 +14,7 @@ In Claude Code:
 /plugin install openspace
 ```
 
-You need Node.js 22 or newer. For screenshots, install Playwright in your site (`npm i -D playwright && npx playwright install chromium`) or have Google Chrome installed. To resize large uploads, also `npm i -D sharp`.
+You need Node.js 22 or newer. Screenshots need the `playwright` package in your site (`npm i -D playwright`) **and** a browser — `npx playwright install chromium`, or an installed Google Chrome; without them Claude falls back to the rendered HTML. To resize large uploads, also `npm i -D sharp`.
 
 ## What's included
 

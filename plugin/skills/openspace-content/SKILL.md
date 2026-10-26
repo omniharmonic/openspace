@@ -49,8 +49,8 @@ Events use the same tool with extra `frontmatter`:
   "body": "Two slow hours of supported poses and breath work…",
   "status": "published",
   "frontmatter": {
-    "start": "2026-11-21T14:00:00",
-    "end": "2026-11-21T16:00:00",
+    "start": "2026-11-21T14:00:00-08:00",
+    "end": "2026-11-21T16:00:00-08:00",
     "timezone": "America/Los_Angeles",
     "location": { "name": "Fernwood Studio", "address": "2218 SE Division St, Portland, OR" },
     "registrationUrl": "https://cal.com/fernwood/equinox",
@@ -59,7 +59,7 @@ Events use the same tool with extra `frontmatter`:
 }
 ```
 
-`start`/`end` are ISO dates (all-day: `"2026-11-21"` with `"allDay": true`) or date-times; `end` can't be before `start`. Online events use `"location": {"online": true, "url": "https://…"}`. Past events drop out of "upcoming" lists automatically; an iCal feed is generated.
+`start`/`end` are ISO date-times **with a UTC offset** (`2026-11-21T14:00:00-08:00`, or `…Z`) — a bare `2026-11-21T14:00:00` is rejected — or, for all-day events, plain dates (`"2026-11-21"`) with `"allDay": true`. Add `timezone` (an IANA name such as `America/Los_Angeles`) so calendars show local time. `end` can't be before `start`. Online events use `"location": {"online": true, "url": "https://…"}`. Past events drop out of "upcoming" lists automatically; an iCal feed is generated.
 
 ## Add a product
 
@@ -91,7 +91,23 @@ Prices on the site are display copy; checkout always re-reads them from the publ
 ## Portfolio projects and podcast episodes
 
 - **Portfolio** (`portfolio` kind): `frontmatter` with `client`, `role`, `year`, `gallery` (image values), `projectUrl`.
-- **Podcast** (`podcast` kind): `frontmatter.audio` `{src, duration (seconds), mime}` plus optional `episode`, `season`, `episodeType`, `explicit`; `date` is required. The podcast feed includes Apple and Spotify tags.
+- **Podcast** (`podcast` kind): pass the episode `date` as the top-level `date` argument (required; defaults to today), and `frontmatter.audio` `{src, duration (seconds), mime}` plus optional `episode`, `season`, `episodeType`, `explicit`. The podcast feed includes Apple and Spotify tags.
+
+```json
+{
+  "collection": "podcast",
+  "title": "Slow mornings, episode two",
+  "body": "A ten-minute practice for the first light of the day.",
+  "date": "2026-11-02",
+  "status": "draft",
+  "frontmatter": {
+    "audio": { "src": "media/podcast/slow-mornings-02.mp3", "duration": 612, "mime": "audio/mpeg" },
+    "episode": 2
+  }
+}
+```
+
+The top-level `date` is used by every kind whose frontmatter has one: blog and podcast (required, default today) and portfolio (optional). Events and products have no `date`; events use `start`/`end`.
 
 ## Edit and publish content
 

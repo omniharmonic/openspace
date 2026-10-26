@@ -22,7 +22,7 @@ Never write inline CSS, never invent facts, and never publish unless the owner e
 
 1. Confirm the `openspace` MCP tools are available (tools named like `get_site`, `design_check`). If they are missing, explain how to connect: the plugin starts `npx -y @openspace/cli mcp` in the current folder, which must be an OpenSpace site (it has `openspace.json`). For a Hub-hosted site, use the remote connector instead (see the `openspace-site-setup` skill).
 2. Read the design rules once per session: the resource `openspace://guidance/design` (and `openspace://guidance/iteration`). They are the same rules Studio's Design check enforces.
-3. Call `get_site` to learn page ids, the navigation and the current look. Call `get_styles` before any restyle.
+3. Call `get_site` to learn page ids, the navigation and the current look. Call `get_styles` before any restyle (pass `options: false` when the option lists aren't needed).
 
 ## Preset-first composition
 

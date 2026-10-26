@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { getPreset } from "@openspace/blocks";
 import { ALL_TOOLS, createMcpServer, MemorySiteStore, PROMPTS } from "@openspace/mcp-tools";
+import { loadSiteDocument } from "@openspace/site-kit/content";
 import { loadTemplate, TEMPLATE_IDS } from "@openspace/templates";
 import { describe, expect, it } from "vitest";
 import {
@@ -272,4 +273,43 @@ describe("page recipes compose clean pages through the real tools", () => {
       expect(check.counts.error).toBe(0);
     },
   );
+});
+
+describe("every JSON example in the skills and commands is valid", () => {
+  const FIXTURE = join(REPO_ROOT, "tools", "fixtures", "meadow-site");
+  const examples = allMarkdown()
+    .filter((p) => !p.endsWith("README.md"))
+    .flatMap((p) =>
+      [...readFileSync(p, "utf8").matchAll(/```json\n([\s\S]*?)```/g)].map((m, i) => ({
+        where: `${p.slice(PLUGIN_ROOT.length + 1)} #${i + 1}`,
+        value: JSON.parse(m[1] as string) as Record<string, unknown>,
+      })),
+    );
+
+  it("finds the examples", () => {
+    expect(examples.length).toBeGreaterThanOrEqual(13);
+  });
+
+  it.each(examples.map((e) => [e.where, e.value] as const))("%s", async (_where, value) => {
+    if (Array.isArray(value.presets)) {
+      expect(recipes(`\`\`\`json\n${JSON.stringify(value)}\n\`\`\``)).toHaveLength(1);
+      return; // composed through the real tools in "page recipes" above
+    }
+    // Anything else must be a create_post call: run it through the real server.
+    expect(Object.keys(value)).toEqual(expect.arrayContaining(["collection", "title", "body"]));
+    const doc = await loadSiteDocument(FIXTURE);
+    const server = createMcpServer(
+      new MemorySiteStore({ sites: [doc] }),
+      { sites: "*", publish: false, role: "owner" },
+      { assumeInitialized: true },
+    );
+    const r = (await server.handle({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/call",
+      params: { name: "create_post", arguments: value },
+    })) as unknown as { result: { isError?: boolean; content: { text?: string }[] } };
+    expect(r.result.content[0]?.text, JSON.stringify(value)).not.toMatch(/Invalid|rejected/);
+    expect(r.result.isError ?? false).toBe(false);
+  });
 });

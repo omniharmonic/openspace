@@ -64,7 +64,7 @@ Useful commands inside the site:
 
 With this plugin installed, Claude Code starts `npx -y @openspace/cli mcp` in the folder Claude Code was opened in. Start Claude Code **inside the site folder** (`cd my-site && claude`) so the server finds `openspace.json`. Check with `/mcp` that `openspace` is connected; the tools then appear (`get_site`, `design_check`, `screenshot`…).
 
-- Screenshots need a browser: `npm i -D playwright && npx playwright install chromium` in the site (or an installed Google Chrome). Without it, `render_page` still works.
+- Screenshots need two things: the `playwright` package in the site (`npm i -D playwright`) and a browser — `npx playwright install chromium`, or an installed Google Chrome. Without them, `screenshot` explains what's missing and `render_page` still works.
 - Large uploads (> 2400 px) are resized when `sharp` is installed; otherwise they're refused with a hint.
 - For unattended runs, run the server with `--no-publish` so the connection can edit but never commit (the plugin README shows the setup).
 

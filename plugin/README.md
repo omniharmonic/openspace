@@ -32,7 +32,7 @@ Or in one step on recent Claude Code versions:
 /plugin install openspace --marketplace omniharmonic/openspace
 ```
 
-Requirements: Node.js 22 or newer. For screenshots, install Playwright in your site (`npm i -D playwright && npx playwright install chromium`) or have Google Chrome installed. For resizing large uploads, `npm i -D sharp`.
+Requirements: Node.js 22 or newer. For screenshots, install the `playwright` package in your site (`npm i -D playwright`) plus a browser: `npx playwright install chromium`, or an installed Google Chrome. For resizing large uploads, `npm i -D sharp`.
 
 ## Use it with a local site
 
@@ -80,6 +80,8 @@ Or just ask:
 - "Ask the openspace-designer agent to review the site before I publish."
 
 ## How Claude is kept safe
+
+- The `openspace-designer` agent is a reviewer: its prompt limits it to read-only tools (`get_*`, `list_*`, `design_check`, `screenshot`, `render_page`, `preview`). Its frontmatter has no `tools:` list on purpose — the MCP tool names differ between the plugin's server (`mcp__plugin_openspace_openspace__…`) and a Hub server added with `claude mcp add` (`mcp__openspace__…`), and an exact list would hide one or the other.
 
 - Every change is a validated operation; invalid edits are rejected with a precise reason and nothing changes.
 - Edits land in the draft. Publishing, rolling back, discarding and deleting pages need explicit confirmation from you.
