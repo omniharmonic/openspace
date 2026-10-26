@@ -93,6 +93,8 @@ describe("OAuth authorization server", () => {
     expect(signIn).toContain("Sign in to connect Claude");
     expect(signIn).toContain('action="/authorize/dev-login"');
     expect(signedOut.headers.get("x-frame-options")).toBe("DENY");
+    // "no-referrer" would make browsers post these forms with `Origin: null` (refused below).
+    expect(signedOut.headers.get("referrer-policy")).toBe("same-origin");
 
     // Dev sign-in on the flow sends the person back to the same authorize URL.
     const login = await call(app, `${HUB}/authorize/dev-login`, {

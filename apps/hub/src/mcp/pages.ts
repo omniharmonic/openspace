@@ -42,7 +42,10 @@ export function pageHeaders(formTargets: string[] = []): Record<string, string> 
     "Cache-Control": "no-store",
     "X-Frame-Options": "DENY",
     "Content-Security-Policy": `default-src 'none'; style-src 'unsafe-inline'; form-action ${formAction}; frame-ancestors 'none'; base-uri 'none'`,
-    "Referrer-Policy": "no-referrer",
+    // Not "no-referrer": with it browsers send `Origin: null` on these pages' own same-origin form
+    // POSTs (dev sign-in, consent), which checkFormOrigin rightly refuses. "same-origin" still
+    // sends no referrer to other sites.
+    "Referrer-Policy": "same-origin",
     "X-Content-Type-Options": "nosniff",
   };
 }
