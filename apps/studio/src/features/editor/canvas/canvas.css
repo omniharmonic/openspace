@@ -209,10 +209,18 @@
       local,
       linear-gradient(to left, var(--st-panel-raised) 40%, transparent) right / 32px 100% no-repeat
       local,
-      radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--st-text) 28%, transparent), transparent) left / 12px 100%
-      no-repeat scroll,
-      radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--st-text) 28%, transparent), transparent) right / 12px 100%
-      no-repeat scroll,
+      radial-gradient(
+        farthest-side at 0 50%,
+        color-mix(in srgb, var(--st-text) 28%, transparent),
+        transparent
+      )
+      left / 12px 100% no-repeat scroll,
+      radial-gradient(
+        farthest-side at 100% 50%,
+        color-mix(in srgb, var(--st-text) 28%, transparent),
+        transparent
+      )
+      right / 12px 100% no-repeat scroll,
       var(--st-panel-raised);
   }
 }
