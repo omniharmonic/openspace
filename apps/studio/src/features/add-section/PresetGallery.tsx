@@ -16,6 +16,8 @@ import "./add-section.css";
 
 /** Device width presets are rendered at (a desktop page). */
 const RENDER_WIDTH = 1280;
+/** Headers render narrower (still the desktop layout) so their navigation stays legible. */
+const HEADER_RENDER_WIDTH = 1024;
 
 const built = new Map<string, unknown>();
 /** One demo build per preset for thumbnails (inserting builds again, with fresh ids). */
@@ -43,7 +45,16 @@ export const PresetThumb = memo(function PresetThumb({
   let content: React.ReactNode;
   if (isHeaderPreset(preset)) {
     const site = { ...doc.site, header: demo as typeof doc.site.header };
-    content = <Header site={site} page={page} heroTheme="light" />;
+    // A header alone is a thin strip: show it above a faint page so the layout reads.
+    content = (
+      <>
+        <Header site={site} page={page} heroTheme="light" />
+        <div className="os-preview-ghost" aria-hidden="true">
+          <span />
+          <span />
+        </div>
+      </>
+    );
   } else if (preset.target === "footer") {
     content = <Footer site={{ ...doc.site, footer: demo as Section }} />;
   } else content = <SectionView section={demo as Section} />;
@@ -51,9 +62,9 @@ export const PresetThumb = memo(function PresetThumb({
     <PreviewFrame
       doc={doc}
       page={page}
-      width={RENDER_WIDTH}
+      width={isHeaderPreset(preset) ? HEADER_RENDER_WIDTH : RENDER_WIDTH}
       displayWidth={width}
-      maxHeight={isHeaderPreset(preset) ? 240 : 1000}
+      maxHeight={isHeaderPreset(preset) ? 300 : 1000}
       title={`${preset.label} preview`}
     >
       {content}

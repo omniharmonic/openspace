@@ -11,8 +11,11 @@ registerAll();
 const PREVIEW_CSS = `
 html,body{margin:0;overflow:hidden;scrollbar-width:none}
 *{animation:none!important;transition:none!important}
-.os-page{pointer-events:none}
+.os-page{pointer-events:none;min-height:0}
 .os-header.is-sticky{position:relative}
+.os-preview-ghost{display:grid;align-content:start;gap:18px;height:170px;padding:44px 64px 0}
+.os-preview-ghost span{display:block;height:28px;width:44%;border-radius:6px;background:currentColor;opacity:.07}
+.os-preview-ghost span+span{height:14px;width:62%}
 `;
 
 function initFrame(d: Document): HTMLElement {
