@@ -23,6 +23,20 @@ export {
   shortHash,
 } from "./chrome";
 export {
+  CollectionsContext,
+  type CollectionsValue,
+  feedKey,
+  isLive,
+  isUpcoming,
+  itemDate,
+  type QueryOptions,
+  queryCollection,
+  type ResolvedCollections,
+  type SocialFeedPost,
+  useCollectionQuery,
+  useCollections,
+} from "./collections";
+export {
   BlockRegistryContext,
   EditorContext,
   type EditorHooks,

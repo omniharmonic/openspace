@@ -237,6 +237,17 @@ describe("Site", () => {
       mutate(doc.site, (s) => s.redirects?.push({ from: "/classes", to: "/other", status: 302 })),
       "Duplicate redirect",
     );
+    for (const from of ["/../../etc/x", "/a/./b", "/a/..", "/a\\..\\b"]) {
+      expectInvalid(
+        SiteSchema,
+        mutate(doc.site, (s) => s.redirects?.push({ from, to: "/ok", status: 301 })),
+        "segments",
+      );
+    }
+    expectInvalid(
+      SiteSchema,
+      mutate(doc.site, (s) => s.redirects?.push({ from: "/fine", to: "/../up", status: 301 })),
+    );
     expectInvalid(
       SiteSchema,
       mutate(doc.site, (s) => {

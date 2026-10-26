@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site-config.json",
+  "siteId": "st_meadw00001",
+  "schemaVersion": 1,
+  "template": {
+    "id": "meadow",
+    "version": "1.0.0"
+  },
+  "hub": "https://hub.openspace.dev",
+  "deploy": {
+    "target": "github-pages",
+    "url": "https://meadow.github.io/meadow-yoga",
+    "customDomain": "meadowyoga.example"
+  },
+  "features": {
+    "forms": true,
+    "newsletter": true,
+    "analytics": false,
+    "search": true
+  }
+}

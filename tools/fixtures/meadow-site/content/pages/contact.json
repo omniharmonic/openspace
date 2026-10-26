@@ -1,0 +1,115 @@
+{
+  "id": "pg_av2p7shq0g",
+  "title": "Contact",
+  "slug": "contact",
+  "sections": [
+    {
+      "id": "sec_ajpjtt0c3s",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_bdx56sk34n",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Say hello"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Questions about classes, private sessions or the retreat? We reply within two working days."
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "blk_mmynbk5nz5",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_c0ntactmdw",
+              "name": "Contact",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Message",
+                  "required": true,
+                  "maxLength": 2000
+                }
+              ],
+              "submitLabel": "Send message",
+              "success": {
+                "type": "redirect",
+                "link": {
+                  "type": "page",
+                  "page": "pg_qgyp9mjgre"
+                }
+              },
+              "notifyOwner": true
+            }
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_4f2g4p62n2",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Meadow Yoga",
+            "address": "1420 Pearl Street, Boulder, CO 80302",
+            "latitude": 40.0186,
+            "longitude": -105.2797,
+            "zoom": 15,
+            "linkLabel": "Open in Maps",
+            "aspect": "16:9"
+          },
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

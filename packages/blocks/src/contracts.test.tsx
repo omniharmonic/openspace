@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { BlockView, RenderContext, type RenderMode } from "@openspace/renderer";
-import { type BehaviorFile, behaviorSourcePath } from "@openspace/renderer/node";
+import { type BehaviorFile, importBehavior } from "@openspace/renderer/node";
 import type { AnyBlockDefinition, Block, SiteDocument } from "@openspace/schema";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -32,8 +32,8 @@ import {
 
 /**
  * The renderer's real behavior modules, run against this library's markup. Loaded through the
- * renderer's public `./node` export (`behaviorSourcePath`) — the package has no browser-side
- * export for behavior *source* modules (`./behaviors/*` points at built `dist/` files).
+ * renderer's public `./node` export (`importBehavior`), which resolves the same modules as the
+ * `@openspace/renderer/behavior-source/<name>` entry.
  */
 type Behavior = (el: HTMLElement) => void;
 const behaviors: Partial<Record<BehaviorFile, Behavior>> = {};
@@ -54,7 +54,7 @@ beforeAll(async () => {
     "newsletter",
     "video-lite",
   ] as const)
-    behaviors[name] = ((await import(behaviorSourcePath(name))) as { default: Behavior }).default;
+    behaviors[name] = await importBehavior(name);
   // happy-dom reports every (deliberately disabled) iframe navigation; keep test output clean.
   console.error = (...args: unknown[]) => {
     if (String(args[0]).includes("Iframe page loading is disabled")) return;

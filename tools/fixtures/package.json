@@ -10,11 +10,25 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "fixtures:update": "UPDATE_FIXTURES=1 vitest run src/meadow-site.test.ts"
   },
   "devDependencies": {
+    "@astrojs/cloudflare": "^14.4.2",
     "@types/node": "catalog:",
+    "sharp": "^0.35.5",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "wrangler": "^4.152.0"
+  },
+  "dependencies": {
+    "@openspace/blocks": "workspace:*",
+    "@openspace/renderer": "workspace:*",
+    "@openspace/schema": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
+    "astro": "^7.4.2",
+    "cookie": "^2.0.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   }
 }

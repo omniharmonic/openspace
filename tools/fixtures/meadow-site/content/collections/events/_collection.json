@@ -1,0 +1,12 @@
+{
+  "kind": "events",
+  "label": "Events",
+  "list": {
+    "layout": "list",
+    "pageSize": 20,
+    "sort": "date-asc"
+  },
+  "itemPage": {
+    "layout": "split"
+  }
+}
