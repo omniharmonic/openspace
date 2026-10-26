@@ -8,7 +8,7 @@ import { createEditorStore, type EditorStore } from "../editor/model/store";
 import { loadDraft } from "./bootstrap";
 import { createMemoryDraftCache, type DraftCache, draftKey } from "./cache";
 import type { ConflictNotice, RoomSocket } from "./protocol";
-import { type RoomClient as Client, RoomClient, type RoomEvent } from "./RoomClient";
+import { type RoomClient as Client, COALESCE_MS, RoomClient, type RoomEvent } from "./RoomClient";
 import { asBody, storeTarget } from "./SyncContext";
 
 const SAM = { userId: "u_sam", name: "Sam Rivera" };
@@ -116,6 +116,33 @@ describe("RoomClient", () => {
     const saved = (await cache.list(SAM.userId, "st_test"))[0];
     expect(saved).toMatchObject({ seq: 1, pending: [] });
     expect(label(saved?.doc as SiteDocument).label).toBe("Book a class");
+  });
+
+  it("sends a typing burst as a few ops, not one per keystroke, and ends on the last value", async () => {
+    const { room, store, client } = setup();
+    await tick();
+    const word = "Book a free class today";
+    // One commit per keystroke, merged into one undo step (as the inspector and canvas do).
+    for (let i = 1; i <= word.length; i++)
+      store.getState().commit([setLabel(word.slice(0, i))], { mergeKey: "text:label" });
+    expect(label(store.getState().doc).label).toBe(word);
+    await tick(COALESCE_MS + 100);
+    expect(await client.whenSynced(2000)).toBe(true);
+    // Before coalescing the room received 23 ops; now the first keystroke goes out at once and
+    // the rest of the burst as one update of the whole value.
+    expect(room.seq).toBeLessThanOrEqual(3);
+    expect(label(room.doc).label).toBe(word);
+    expect(store.getState().doc).toEqual(room.doc);
+    expect(store.getState().undoStack).toHaveLength(1);
+  });
+
+  it("sends separate edits right away (only typing bursts wait)", async () => {
+    const { room, store } = setup();
+    await tick();
+    store.getState().commit([setLabel("One")]);
+    store.getState().commit([setLabel("Two", "secondaryLabel")]);
+    await tick();
+    expect(room.seq).toBe(2);
   });
 
   it("rebases pending edits over a collaborator's op and converges with the room", async () => {

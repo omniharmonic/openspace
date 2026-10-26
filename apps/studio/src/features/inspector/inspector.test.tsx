@@ -128,6 +128,20 @@ describe("field inspector generation", () => {
     t.s().undo();
     expect(t.block(I.heroButton)?.fields.label).not.toBe("Book a free class");
   });
+  it("typing past the limit key by key keeps the last valid text and explains the limit", async () => {
+    const t = setup(<Inspector />, { select: { kind: "block", id: I.heroButton } });
+    const input = within(panel()).getByRole("textbox", { name: "Label" });
+    await t.user.clear(input);
+    await t.user.type(input, "x".repeat(50));
+    await wait(FIELD_COMMIT_MS + 30);
+    // Commits land every few keystrokes (the canvas follows typing), but never an invalid one:
+    // the document keeps the longest text that fit, and the field says why it stopped.
+    const label = String(t.block(I.heroButton)?.fields.label ?? "");
+    expect(label.length).toBeLessThanOrEqual(40);
+    expect(label).not.toContain("x".repeat(41));
+    expect(within(panel()).getByRole("alert").textContent).toMatch(/characters or fewer/);
+    expect(input).toHaveValue("x".repeat(50));
+  });
 });
 
 describe("list editors", () => {

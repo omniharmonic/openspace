@@ -40,8 +40,11 @@ import {
 /** What the room client drives: the editor's document store (see `storeTarget`). */
 export interface SyncTarget {
   getDoc(): SiteDocument;
-  /** Every op this device applies, in order. */
-  onLocalOps(listener: (ops: Op[]) => void): () => void;
+  /**
+   * Every op this device applies, in order. `merged`: the edit continues a typing burst (the
+   * client may coalesce it with the burst's unsent op before sending).
+   */
+  onLocalOps(listener: (ops: Op[], info?: { merged?: boolean }) => void): () => void;
   /**
    * Called before a remote change is applied (`ops`) or the whole document is replaced (`null`):
    * an inline text session commits what was typed, or ends if the change touches its block.
@@ -226,6 +229,8 @@ export class RoomClient {
   private hubDownTimer: ReturnType<typeof setTimeout> | undefined;
   private heartbeat: ReturnType<typeof setInterval> | undefined;
   private unsubscribeLocal: (() => void) | null = null;
+  private coalesceTimer: ReturnType<typeof setTimeout> | undefined;
+  private lastFlushAt = 0;
   private readonly listeners = new Set<(e: RoomEvent) => void>();
   private syncWaiters: Array<() => void> = [];
 
@@ -269,7 +274,9 @@ export class RoomClient {
   start(): void {
     if (!this.stopped) return;
     this.stopped = false;
-    this.unsubscribeLocal = this.opts.target.onLocalOps((ops) => this.pushLocal(ops));
+    this.unsubscribeLocal = this.opts.target.onLocalOps((ops, info) =>
+      this.pushLocal(ops, info?.merged === true),
+    );
     if (this.opts.watchNetwork ?? typeof window !== "undefined") {
       window.addEventListener("online", this.onOnline);
       window.addEventListener("offline", this.onOffline);
@@ -293,6 +300,7 @@ export class RoomClient {
     clearTimeout(this.helloTimer);
     clearTimeout(this.hubDownTimer);
     clearTimeout(this.resyncTimer);
+    clearTimeout(this.coalesceTimer);
     this.resyncTimer = undefined;
     clearInterval(this.heartbeat);
     const sock = this.socket;
@@ -348,6 +356,12 @@ export class RoomClient {
 
   /** Resolves true once every local edit is confirmed (false after `timeoutMs`). */
   whenSynced(timeoutMs = 10_000): Promise<boolean> {
+    // Don't make a waiter sit out a typing burst's coalescing pause.
+    if (this.coalesceTimer) {
+      clearTimeout(this.coalesceTimer);
+      this.coalesceTimer = undefined;
+      this.flush();
+    }
     if (this.ready && this.pending.length === 0) return Promise.resolve(true);
     return new Promise((resolve) => {
       const timer = setTimeout(() => {
@@ -499,17 +513,39 @@ export class RoomClient {
 
   // --- local edits --------------------------------------------------------------------------------
 
-  private pushLocal(ops: Op[]): void {
+  private pushLocal(ops: Op[], merged = false): void {
     if (!ops.length) return;
-    for (const op of ops) this.pending.push({ op, sent: false });
+    // A typing burst: the first keystrokes go out at once; later ones replace the burst's
+    // unsent update of the same fields (each carries the whole field value) and go out at
+    // most every COALESCE_MS, so the room sees a few ops per burst, not one per keystroke.
+    const coalesce = merged && ops.every(isFieldUpdate);
+    for (const op of ops) {
+      if (coalesce) {
+        const older = this.pending.findIndex(
+          (p) => !p.sent && p.base === undefined && !p.stale && sameFields(p.op, op),
+        );
+        if (older >= 0) this.pending.splice(older, 1);
+      }
+      this.pending.push({ op, sent: false });
+    }
     this.patch({ pending: this.pending.length });
     this.persistSoon();
-    this.flush();
+    if (!coalesce) {
+      this.flush();
+      return;
+    }
+    if (this.coalesceTimer) return;
+    const wait = Math.max(0, this.lastFlushAt + COALESCE_MS - Date.now());
+    this.coalesceTimer = setTimeout(() => {
+      this.coalesceTimer = undefined;
+      this.flush();
+    }, wait);
   }
 
   /** Send every unsent pending op, based on the current seq. */
   private flush(): void {
     if (!this.socket || !this.ready || this.awaitingReload) return;
+    this.lastFlushAt = Date.now();
     const unsent = this.pending.filter((p) => !p.sent && !p.stale);
     // Consecutive ops with the same base go in one frame (recovered ops carry their own base).
     let i = 0;
@@ -591,6 +627,7 @@ export class RoomClient {
     this.awaitingReload = false;
     this.resyncFrom = null;
     clearTimeout(this.resyncTimer);
+    clearTimeout(this.coalesceTimer);
     this.resyncTimer = undefined;
     this.patch({
       status: "online",
@@ -764,6 +801,7 @@ export class RoomClient {
     // Already asked from here: frames still in flight will gap too; wait for the answer.
     if (this.resyncTimer && this.resyncFrom === this.seq) return;
     clearTimeout(this.resyncTimer);
+    clearTimeout(this.coalesceTimer);
     this.resyncFrom = this.seq;
     if (!this.send({ type: "sync", since: this.seq })) return;
     const from = this.seq;
@@ -984,4 +1022,32 @@ export class RoomClient {
   private emit(e: RoomEvent): void {
     for (const l of this.listeners) l(e);
   }
+}
+
+/** Typing bursts reach the room at most this often (each send carries the latest value). */
+export const COALESCE_MS = 400;
+
+/** Envelope keys plus `set`: anything else (style, variant, unset) isn't coalesced. */
+const FIELD_UPDATE_KEYS = new Set(["id", "actor", "ts", "op", "page", "block", "set"]);
+function isFieldUpdate(op: Op): boolean {
+  return (
+    op.op === "block.update" &&
+    Object.keys(op).every((k) => FIELD_UPDATE_KEYS.has(k)) &&
+    Object.keys((op as { set?: object }).set ?? {}).length > 0
+  );
+}
+
+/** Two block updates that set exactly the same fields of the same block (the later wins). */
+function sameFields(a: Op, b: Op): boolean {
+  if (!isFieldUpdate(a) || !isFieldUpdate(b)) return false;
+  const x = a as Op & { page?: string; block?: string; set?: Record<string, unknown> };
+  const y = b as Op & { page?: string; block?: string; set?: Record<string, unknown> };
+  if (x.page !== y.page || x.block !== y.block) return false;
+  const kx = Object.keys(x.set ?? {})
+    .sort()
+    .join("|");
+  const ky = Object.keys(y.set ?? {})
+    .sort()
+    .join("|");
+  return kx !== "" && kx === ky;
 }

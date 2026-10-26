@@ -58,7 +58,12 @@ export interface TextSessionHandle {
 
 export type LocalOpsListener = (
   ops: Op[],
-  info: { kind: "edit" | "undo" | "redo"; label: string },
+  info: {
+    kind: "edit" | "undo" | "redo";
+    label: string;
+    /** This edit merged into the previous one (the middle of a typing burst). */
+    merged?: boolean;
+  },
 ) => void;
 
 export interface EditorDocState {
@@ -168,9 +173,9 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
   const prune = (doc: SiteDocument, pageId: string, items: SelItem[]) =>
     items.filter((i) => locate(doc, pageId, i));
 
-  const emit = (ops: Op[], kind: "edit" | "undo" | "redo", label: string) => {
+  const emit = (ops: Op[], kind: "edit" | "undo" | "redo", label: string, merged = false) => {
     if (!ops.length) return;
-    for (const l of listeners) l(ops, { kind, label });
+    for (const l of listeners) l(ops, { kind, label, ...(merged ? { merged } : {}) });
   };
 
   let textSession: TextSessionHandle | null = null;
@@ -279,7 +284,7 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
         hover: s.hover && locate(r.doc, s.pageId, s.hover) ? s.hover : null,
         version: s.version + 1,
       });
-      emit(r.ops, "edit", label);
+      emit(r.ops, "edit", label, merge);
       return { ok: true, ops: r.ops };
     },
 

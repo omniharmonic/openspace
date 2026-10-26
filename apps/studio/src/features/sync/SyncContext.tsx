@@ -27,7 +27,8 @@ import {
 export function storeTarget(store: EditorStore): SyncTarget {
   return {
     getDoc: () => store.getState().doc,
-    onLocalOps: (listener) => store.getState().onLocalOps((ops) => listener(ops)),
+    onLocalOps: (listener) =>
+      store.getState().onLocalOps((ops, info) => listener(ops, { merged: info.merged === true })),
     beforeExternalChange: (ops) => store.getState().settleTextEditing(ops),
     setDocument: (doc, opts) => store.getState().syncDocument(doc, opts),
   };
