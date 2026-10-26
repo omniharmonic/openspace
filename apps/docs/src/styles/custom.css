@@ -1,0 +1,11 @@
+/* OpenSpace accent: the commons green used on openspace.dev. */
+:root {
+  --sl-color-accent-low: #13342a;
+  --sl-color-accent: #2f7a5f;
+  --sl-color-accent-high: #c9eadc;
+}
+:root[data-theme="light"] {
+  --sl-color-accent-low: #d4efe3;
+  --sl-color-accent: #24664f;
+  --sl-color-accent-high: #123327;
+}
