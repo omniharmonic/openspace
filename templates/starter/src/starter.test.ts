@@ -22,7 +22,16 @@ type Workflow = {
   on: Record<string, unknown>;
   permissions: Record<string, string>;
   concurrency: Record<string, unknown>;
-  jobs: Record<string, { "runs-on": string; needs?: string; environment?: unknown; steps: Step[] }>;
+  jobs: Record<
+    string,
+    {
+      "runs-on": string;
+      needs?: string;
+      environment?: unknown;
+      permissions?: Record<string, string>;
+      steps: Step[];
+    }
+  >;
 };
 
 describe("starter site shell", () => {
@@ -74,8 +83,17 @@ describe("starter site shell", () => {
     const wf = parse(
       await readFile(join(VARIANTS.cloudflare, ".github/workflows/publish.yml"), "utf8"),
     ) as Workflow;
-    // id-token: the run's OIDC identity authorizes downloading its gated pages from the Hub.
-    expect(wf.permissions).toEqual({ contents: "read", "id-token": "write" });
+    // Only the dependency-free `gated` job can mint the run's OIDC identity token.
+    expect(wf.permissions).toEqual({ contents: "read" });
+    const gatedJob = wf.jobs.gated;
+    expect(gatedJob?.permissions).toEqual({ contents: "read", "id-token": "write" });
+    expect(gatedJob?.steps.map((s) => s.uses ?? s.run)).toEqual([
+      "actions/checkout@v7",
+      "actions/setup-node@v7",
+      "node .github/openspace/gated-sync.mjs",
+    ]);
+    expect(wf.jobs.publish?.needs).toBe("gated");
+    expect(wf.jobs.publish?.permissions).toBeUndefined();
     const steps = wf.jobs.publish?.steps ?? [];
     expect(steps.map((s) => s.uses ?? s.run)).toContain("npx openspace check --ci");
     expect(steps.map((s) => s.uses ?? s.run)).toContain(
@@ -93,11 +111,9 @@ describe("starter site shell", () => {
       CLOUDFLARE_ACCOUNT_ID: expr("secrets.CLOUDFLARE_ACCOUNT_ID"),
     });
     const runs = steps.map((s) => s.run ?? "");
-    const gated = runs.indexOf("npx openspace gated-sync");
     const secrets = steps.findIndex((s) => s.name === "Worker secrets");
-    // Gated content and Worker secrets are in place before the deploy that uses them.
-    expect(gated).toBeGreaterThan(runs.indexOf("npm run build"));
-    expect(secrets).toBeGreaterThan(gated);
+    // Worker secrets are in place before the deploy that uses them.
+    expect(secrets).toBeGreaterThan(runs.indexOf("npm run build"));
     expect(secrets).toBeLessThan(steps.length - 1);
     const secretStep = steps[secrets];
     expect(secretStep?.run).toContain("npx wrangler secret bulk");
@@ -139,5 +155,88 @@ describe("starter site shell", () => {
     const generated = generateAgentsMd();
     if (process.env.UPDATE_AGENTS_MD) await writeFile(path, generated);
     expect(await readFile(path, "utf8")).toBe(generated);
+  });
+
+  describe("gated-sync.mjs (the Cloudflare workflow's gated job)", () => {
+    it("uploads exactly the versions the commit names through the Cloudflare API", async () => {
+      const { mkdtemp, mkdir, writeFile: wf, rm } = await import("node:fs/promises");
+      const { tmpdir } = await import("node:os");
+      const dir = await mkdtemp(join(tmpdir(), "os-gated-"));
+      try {
+        await wf(
+          join(dir, "openspace.json"),
+          JSON.stringify({ siteId: "st_meadw00001", hub: "https://hub.example/" }),
+        );
+        await wf(
+          join(dir, "wrangler.jsonc"),
+          '{\n  // c\n  "r2_buckets": [{ "binding": "OS_GATED", "bucket_name": "meadow-gated" }],\n}\n',
+        );
+        await mkdir(join(dir, "content/pages/members"), { recursive: true });
+        await wf(
+          join(dir, "content/pages/members/library.json"),
+          JSON.stringify({ id: "pg_gatedpage1", contentRef: "ref01", sections: [] }),
+        );
+        await wf(join(dir, "content/pages/about.json"), JSON.stringify({ id: "pg_about00001" }));
+        const calls: Array<{ url: string; method: string; body?: string; auth: string | null }> =
+          [];
+        const fetch = async (url: string, init: RequestInit = {}) => {
+          calls.push({
+            url,
+            method: init.method ?? "GET",
+            body: typeof init.body === "string" ? init.body : undefined,
+            auth: new Headers(init.headers).get("authorization"),
+          });
+          if (url.startsWith("https://actions.example/")) return Response.json({ value: "oidc" });
+          if (url === "https://hub.example/ci/sites/st_meadw00001/gated")
+            return Response.json({
+              pages: [{ id: "pg_gatedpage1", ref: "ref01", page: { id: "pg_gatedpage1", x: 1 } }],
+            });
+          if (url.endsWith("/r2/buckets")) return new Response("{}", { status: 409 });
+          return new Response("{}", { status: 200 });
+        };
+        const script = await import(join(VARIANTS.cloudflare, ".github/openspace/gated-sync.mjs"));
+        const n = await script.main({
+          cwd: dir,
+          fetch,
+          log: () => {},
+          env: {
+            CLOUDFLARE_API_TOKEN: "cf",
+            CLOUDFLARE_ACCOUNT_ID: "acct",
+            ACTIONS_ID_TOKEN_REQUEST_URL: "https://actions.example/t?v=2",
+            ACTIONS_ID_TOKEN_REQUEST_TOKEN: "runner",
+          },
+        });
+        expect(n).toBe(1);
+        expect(calls[0]?.url).toBe(
+          "https://actions.example/t?v=2&audience=https%3A%2F%2Fhub.example",
+        );
+        expect(calls[1]?.auth).toBe("Bearer oidc");
+        const put = calls.at(-1);
+        expect(put).toMatchObject({
+          method: "PUT",
+          url: "https://api.cloudflare.com/client/v4/accounts/acct/r2/buckets/meadow-gated/objects/pages/pg_gatedpage1/ref01.json",
+          auth: "Bearer cf",
+        });
+        expect(JSON.parse(put?.body ?? "{}")).toEqual({ id: "pg_gatedpage1", x: 1 });
+        // A version the Hub doesn't have fails the job (no deploy without it).
+        const empty = async (url: string, init?: RequestInit) =>
+          url.includes("/ci/sites/") ? Response.json({ pages: [] }) : fetch(url, init);
+        await expect(
+          script.main({
+            cwd: dir,
+            fetch: empty,
+            log: () => {},
+            env: {
+              CLOUDFLARE_API_TOKEN: "cf",
+              CLOUDFLARE_ACCOUNT_ID: "acct",
+              ACTIONS_ID_TOKEN_REQUEST_URL: "https://actions.example/t",
+              ACTIONS_ID_TOKEN_REQUEST_TOKEN: "runner",
+            },
+          }),
+        ).rejects.toThrow(/Missing private page content/);
+      } finally {
+        await rm(dir, { recursive: true, force: true });
+      }
+    });
   });
 });

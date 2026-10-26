@@ -61,8 +61,11 @@ export async function hostingChanges(
       );
   for (const [path, content] of Object.entries(files))
     if ((await read(path)) !== content) changes.push({ path, content });
-  if (target === "github-pages" && (await read("wrangler.jsonc")) !== null)
-    changes.push({ path: "wrangler.jsonc", content: null });
+  // Cloudflare-only files go when switching back to GitHub Pages.
+  if (target === "github-pages")
+    for (const path of Object.keys(STARTER_HOSTING_FILES.cloudflare))
+      if (!(path in STARTER_HOSTING_FILES["github-pages"]) && (await read(path)) !== null)
+        changes.push({ path, content: null });
   const pkgText = await read("package.json");
   if (pkgText) {
     const pkg = JSON.parse(pkgText) as Record<string, Record<string, string> | unknown>;

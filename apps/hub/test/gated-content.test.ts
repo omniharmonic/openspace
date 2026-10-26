@@ -255,7 +255,7 @@ describe("the Cloudflare publish workflow downloads gated content with its OIDC 
       );
       return `${h}.${p}.${b64u(new Uint8Array(sig))}`;
     };
-    const jwks = { fetches: 0, extra: [] as JsonWebKey[] };
+    const jwks = { fetches: 0, extra: [] as Array<JsonWebKey & { kid?: string }> };
     const fetch = async (input: string | Request | URL) => {
       const url = String(input instanceof Request ? input.url : input);
       if (url === "https://token.actions.githubusercontent.com/.well-known/jwks") {
