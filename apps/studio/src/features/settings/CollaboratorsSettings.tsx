@@ -24,19 +24,7 @@ import {
 } from "../../ui";
 import { useDocStore } from "../editor/model/context";
 import { can } from "../site-mgmt/manage-ui";
-
-export const ROLE_INFO: Record<SiteRole, { name: string; does: string }> = {
-  owner: { name: "Owner", does: "Everything, including hosting, transfer and deleting the site." },
-  designer: {
-    name: "Designer",
-    does: "Everything on the site: pages, layout, styles and settings.",
-  },
-  editor: { name: "Editor", does: "Words, images and pages — but not layout or styles." },
-  contributor: {
-    name: "Contributor",
-    does: "Writes blog posts and events as drafts for approval.",
-  },
-};
+import { ROLE_INFO } from "../site-mgmt/roles";
 
 const ROLE_OPTIONS = (["designer", "editor", "contributor"] as const).map((r) => ({
   value: r,

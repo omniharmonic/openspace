@@ -1,3 +1,4 @@
+import { allBlocks } from "@openspace/blocks";
 import {
   type AnyBlockDefinition,
   type BlockRegistry,
@@ -6,17 +7,16 @@ import {
 
 /**
  * The block registry the Hub validates ops with (field kinds for locked-section checks, block
- * field validation). `@openspace/blocks` is not wired in yet: once it is, call
- * `registerBlocks(registerAll())` (or pass its definitions) at Worker/DO startup — every caller
- * goes through `blockRegistry()`, so nothing else changes.
+ * field validation): the `@openspace/blocks` library, so ops from any client (Studio, MCP,
+ * direct API) get the same field validation. `registerBlocks` can add definitions.
  *
  * `registryForValidate()` returns the registry only when it has definitions: the schema's
  * registry rejects unknown block types, so an empty registry would refuse every block insert.
  * `transformForRole` always gets the registry (unknown types fall back to its fail-safe
  * same-shape check).
  */
-let definitions: AnyBlockDefinition[] = [];
-let registry: BlockRegistry = createBlockRegistry([]);
+let definitions: AnyBlockDefinition[] = [...allBlocks];
+let registry: BlockRegistry = createBlockRegistry(definitions);
 
 export function registerBlocks(defs: readonly AnyBlockDefinition[]): void {
   const byType = new Map(definitions.map((d) => [d.type, d]));

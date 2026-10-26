@@ -399,6 +399,10 @@ describe("DraftRoom", () => {
     );
     const rej = await a.waitFor((m) => m.type === "reject");
     expect(rej).toMatchObject({ code: "invalid" });
+    // Block fields are validated against the block library (not just the op's shape).
+    a.sendOp(op({ op: "block.update", page: T.home, block: T.heroTitle, set: { content: 42 } }));
+    await a.waitFor((m) => m.type === "reject" && a.of("reject").length === 2);
+    expect(a.of("reject")[1]).toMatchObject({ code: "invalid" });
     const o = setText(T.heroTitle, "Once");
     a.sendOp(o);
     a.sendOp(o);

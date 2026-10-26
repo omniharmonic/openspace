@@ -22,8 +22,30 @@ interface Line {
 
 const info = () => siteInfo();
 const key = () => `os-cart:${info().site}`;
-const read = (): Line[] => load<Line[]>(key(), []).filter((l) => l?.sku && l.qty > 0);
+/**
+ * This page's copy of the cart: used when storage is unavailable (private modes, or sandboxed
+ * previews such as the Hub's dev `/s/` pages, which have an opaque origin), so adding to the
+ * cart and checking out still work within the page.
+ */
+let memory: Line[] = [];
+let storable: boolean | undefined;
+/** Probed once per page: storage either works on this origin or it doesn't. */
+const canStore = (): boolean => {
+  if (storable === undefined) {
+    try {
+      localStorage.setItem("os-probe", "1");
+      localStorage.removeItem("os-probe");
+      storable = true;
+    } catch {
+      storable = false;
+    }
+  }
+  return storable;
+};
+const read = (): Line[] =>
+  (canStore() ? load<Line[]>(key(), []) : memory).filter((l) => l?.sku && l.qty > 0);
 const write = (lines: Line[]) => {
+  memory = lines;
   save(key(), lines);
   render();
 };

@@ -41,9 +41,8 @@
   --st-on-accent: #ffffff;
 
   /* Status */
-  /* Status text sits on its own soft tint: every pair is ≥4.5:1. */
-  --st-live: #146c43;
-  --st-live-soft: rgb(20 108 67 / 0.11);
+  --st-live: #136b41; /* 5.7:1 on --st-live-soft over the panel */
+  --st-live-soft: rgb(24 131 80 / 0.11);
   --st-pending: #a8650d;
   --st-pending-soft: rgb(196 125 20 / 0.13);
   --st-danger: #bd2f2f;

@@ -6,7 +6,7 @@
   overflow: hidden;
   border-radius: 50%;
   background: var(--_c, var(--st-field));
-  color: #fff;
+  color: var(--_fg, #fff);
   font-weight: 600;
   line-height: 1;
   user-select: none;

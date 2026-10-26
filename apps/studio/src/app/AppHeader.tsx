@@ -20,7 +20,7 @@ export function UserMenu() {
       label="Account"
       trigger={
         <button type="button" className="st-header__user">
-          {/* Named "Account: <name>" by its content (the avatar carries the name). */}
+          {/* Named by content (not aria-label), so the name contains the avatar's own text. */}
           <span className="st-visually-hidden">Account: </span>
           <Avatar person={{ id: user.id, name: user.name, avatarUrl: user.avatarUrl }} size={24} />
         </button>

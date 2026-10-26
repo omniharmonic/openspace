@@ -1,7 +1,11 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import type { createApp } from "../src/app";
-import { unsubscribeToken, verifyUnsubscribeToken } from "../src/services/newsletter";
+import {
+  listUnsubscribeHeaders,
+  unsubscribeToken,
+  verifyUnsubscribeToken,
+} from "../src/services/newsletter";
 import { call } from "./helpers";
 import { makePublicApp, outbox, setQuota, siteWithForm } from "./public-helpers";
 
@@ -288,5 +292,19 @@ describe("subscribers API", () => {
         })
       ).status,
     ).toBe(404);
+  });
+});
+
+describe("listUnsubscribeHeaders", () => {
+  it("adds one-click on https and the plain link header on an http (dev) Hub", () => {
+    expect(listUnsubscribeHeaders("https://hub.example/n/unsubscribe/x")).toEqual({
+      "List-Unsubscribe": "<https://hub.example/n/unsubscribe/x>",
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    });
+    expect(listUnsubscribeHeaders("http://localhost:8787/n/unsubscribe/x")).toEqual({
+      "List-Unsubscribe": "<http://localhost:8787/n/unsubscribe/x>",
+    });
+    expect(listUnsubscribeHeaders("http://localhost/a b")).toBeUndefined();
+    expect(listUnsubscribeHeaders("javascript:alert(1)")).toBeUndefined();
   });
 });
