@@ -244,6 +244,25 @@ describe("published page details", () => {
     } as never;
     // Placed blocks in reading order first; one without a layout item comes after them.
     expect([...leadImages(grid)]).toEqual(["media/left.jpg", "media/right.jpg"]);
+    // Phones may stack the grid differently: their first image leads (mobile LCP), then the
+    // desktop one.
+    const phoneFirst = {
+      ...(grid as object),
+      layout: {
+        mode: "grid",
+        items: {
+          b2: { d: { x: 0, y: 0, w: 12, h: 4 }, m: { x: 0, y: 5, w: 8, h: 4 } },
+          b3: { d: { x: 12, y: 0, w: 12, h: 4 }, m: { x: 0, y: 0, w: 8, h: 4 } },
+          b4: { d: { x: 0, y: 5, w: 12, h: 4 }, m: { x: 0, y: 9, w: 8, h: 4 } },
+        },
+      },
+      blocks: [
+        { id: "b4", type: "image", fields: { image: { src: "media/third.jpg", alt: "" } } },
+        { id: "b3", type: "image", fields: { image: { src: "media/right.jpg", alt: "" } } },
+        { id: "b2", type: "image", fields: { image: { src: "media/left.jpg", alt: "" } } },
+      ],
+    } as never;
+    expect([...leadImages(phoneFirst)]).toEqual(["media/right.jpg", "media/left.jpg"]);
   });
 
   it("gives sites without a tab icon an inline monogram (no /favicon.ico 404)", () => {

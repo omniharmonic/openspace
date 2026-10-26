@@ -14,20 +14,25 @@ CLS < 0.05, JavaScript < 30 KB gzipped.
 
 | Template | Perf | A11y | Best practices | SEO | FCP | LCP | TBT | CLS | JS (KB, transfer) |
 |---|---|---|---|---|---|---|---|---|---|
-| atelier | 98 | 100 | 100 | 100 | 1.36 s | 2.29 s | 0 ms | 0.000 | 4.5 |
-| commons | 98 | 100 | 100 | 100 | 1.36 s | 2.43 s | 0 ms | 0.000 | 2.5 |
-| encore | 99 | 100 | 100 | 100 | 1.20 s | 1.98 s | 0 ms | 0.000 | 3.6 |
+| atelier | 99 | 100 | 100 | 100 | 1.21 s | 2.15 s | 0 ms | 0.000 | 4.5 |
+| commons | 99 | 100 | 100 | 100 | 1.20 s | 2.13 s | 0 ms | 0.000 | 2.5 |
+| encore | 99 | 100 | 100 | 100 | 1.20 s | 1.97 s | 0 ms | 0.000 | 3.6 |
 | field-notes | 100 | 100 | 100 | 100 | 1.20 s | 1.66 s | 0 ms | 0.000 | 4.3 |
 | harbor | 99 | 100 | 100 | 100 | 1.21 s | 2.13 s | 0 ms | 0.000 | 3.1 |
-| hearth | 98 | 100 | 100 | 100 | 1.22 s | 2.45 s | 0 ms | 0.000 | 4.5 |
-| kiln | 99 | 100 | 100 | 100 | 1.21 s | 1.83 s | 0 ms | 0.000 | 6.5 |
-| ledger | 99 | 100 | 100 | 100 | 1.66 s | 1.96 s | 0 ms | 0.000 | 3.3 |
-| link | 100 | 100 | 100 | 100 | 1.21 s | 1.68 s | 0 ms | 0.000 | 2.4 |
-| meadow | 99 | 100 | 100 | 100 | 1.21 s | 2.13 s | 0 ms | 0.000 | 3.6 |
-| signal | 100 | 100 | 100 | 100 | 1.21 s | 1.67 s | 0 ms | 0.000 | 4.2 |
-| vow | 99 | 100 | 100 | 100 | 1.20 s | 1.99 s | 0 ms | 0.000 | 2.6 |
+| hearth | 98 | 100 | 100 | 100 | 1.20 s | 2.43 s | 0 ms | 0.000 | 4.5 |
+| kiln | 99 | 100 | 100 | 100 | 1.20 s | 1.83 s | 0 ms | 0.000 | 6.6 |
+| ledger | 99 | 100 | 100 | 100 | 1.65 s | 1.95 s | 0 ms | 0.001 | 3.3 |
+| link | 100 | 100 | 100 | 100 | 1.21 s | 1.36 s | 0 ms | 0.000 | 2.4 |
+| meadow | 99 | 100 | 100 | 100 | 1.21 s | 1.98 s | 0 ms | 0.000 | 3.6 |
+| signal | 100 | 100 | 100 | 100 | 1.20 s | 1.65 s | 0 ms | 0.000 | 4.2 |
+| vow | 99 | 100 | 100 | 100 | 1.20 s | 1.98 s | 0 ms | 0.000 | 2.6 |
 
-All twelve meet every target (Lighthouse run with `OPENSPACE_GOOGLE_FONTS=download`, as published).
+Measured after the LCP pass below (final wave B), median of 3 runs. Performance ≥ 98 and
+Accessibility 100 on all twelve. **LCP is under 2.0 s on eight templates; atelier (2.15 s),
+commons (2.13 s), harbor (2.13 s) and hearth (2.43 s) are still above the 2.0 s target** (see
+"LCP on remote demo photos" below).
+
+Lighthouse run with `OPENSPACE_GOOGLE_FONTS=download`, as published.
 
 ### Before this pass
 
@@ -50,6 +55,35 @@ The first run (same harness) had:
 | Image blocks' `sizes` follow their grid cell or stack column at each breakpoint; remote photos offer 640 and 960 px widths too | `packages/blocks/src/blocks/image.tsx`, renderer `REMOTE_WIDTHS` | Phones download a photo the width of its cell (hearth 94 → 98) |
 | Sites without a tab icon get an inline SVG monogram (the site's initial on its brand color) | `packages/renderer/src/html.ts` | No `/favicon.ico` 404; Best practices 100 |
 | Collection and event item titles never skip a heading level | `packages/blocks/src/blocks/collections.tsx` | Accessibility 100 on field-notes |
+
+### LCP pass (final wave B)
+
+Before: atelier 2.42 s, commons 2.12 s, harbor 2.13 s, hearth 2.43 s, meadow 2.44 s (encore,
+vow and ledger 1.95–1.99 s).
+
+| Fix | Where | Effect |
+|---|---|---|
+| `<link rel="preload" as="image" imagesrcset imagesizes fetchpriority="high">` for the likely LCP image, placed right after `<title>`: of the first section's high-priority images, the one covering most of a phone screen (from `sizes` and its aspect ratio); a `<picture>`'s first modern `<source>` with its `type` | `packages/renderer/src/html.ts` (`lcpImagePreload`) | The LCP candidate is requested with the document, ahead of stylesheets and fonts |
+| Phone `sizes` subtract the page gutters (`calc(100vw - 48px)`, grid cells `calc((100vw - 48px) * share)`; bleeding items keep `vw`) | `packages/blocks/src/blocks/image.tsx` | At Lighthouse's 412 px × 1.75 DPR, photos pick the 640 px file instead of 768 px (meadow 2.44 → 1.98 s) |
+| Lead images include the first image in the grid's **phone** order as well as the desktop one | `packages/renderer/src/section.tsx` (`leadImages`) | The image that is LCP on phones is eager + high priority (hearth's collage) |
+
+**LCP on remote demo photos.** The four templates still over 2.0 s show their LCP photo from
+`images.unsplash.com`. Lighthouse's simulation adds a new connection to that origin (DNS + TCP +
+TLS at 150 ms RTT) and its real, variable latency; experiments put the floor at about 2.1 s even
+with every lazy image removed from the page, and single runs vary by ±0.3 s (hearth: 2.31–2.77 s
+on identical HTML). Lower image quality (q=60), dropping font preloads and `content-visibility`
+on later sections did not move the median. Self-hosting the demo photos through the build
+pipeline was tried too; with the harness's HTTP/1.1 static server the extra same-origin
+requests made LCP worse (3.0 s), so a fair test needs an HTTP/2 server. Owners' own photos
+already go through Astro's image pipeline (same origin, AVIF/WebP) and don't pay this cost.
+
+### Lighthouse in CI
+
+`.github/workflows/lighthouse.yml` builds the twelve demos (with self-hosted fonts) and runs
+`node scripts/lighthouse.mjs --runs=3 --min-perf=95 --min-a11y=100`, which exits non-zero when any
+template's median is below the thresholds (`--max-lcp=<ms>` can gate LCP too, once the remote-photo
+floor is solved). It runs nightly and on demand, not as a required check, and uploads the JSON
+summaries.
 
 ### What's left
 

@@ -41,6 +41,10 @@ type ImageFields = Parameters<typeof imageBlock.render>[0]["fields"];
  * 8 on phones) or its stack column. Phones then download a photo the width of its cell, not of
  * the screen.
  */
+/** A share of the phone screen inside the page gutters: `calc(100vw - 48px)` for the full width. */
+const inGutters = (share: number) =>
+  share >= 1 ? "calc(100vw - 48px)" : `calc((100vw - 48px) * ${Math.round(share * 1000) / 1000})`;
+
 export function imageSizes(section: Section | null | undefined, blockId: string): string {
   const pct = (n: number) => `${Math.min(100, Math.max(20, Math.ceil(n * 100)))}vw`;
   const layout = section?.layout;
@@ -50,12 +54,15 @@ export function imageSizes(section: Section | null | undefined, blockId: string)
     const d = item.d.w / GRID_COLUMNS.d;
     const t = (item.t ?? item.d).w / GRID_COLUMNS.t;
     const m = item.m ? item.m.w / GRID_COLUMNS.m : 1;
-    return `(min-width: 1200px) ${pct(d)}, (min-width: 768px) ${pct(t)}, ${pct(m)}`;
+    // Phones: the 8 columns sit inside the page gutters (at least 20–24 px each side) unless the
+    // item bleeds to the screen edge.
+    const phone = (item.m ?? item.d).bleed ? pct(m) : inGutters(m);
+    return `(min-width: 1200px) ${pct(d)}, (min-width: 768px) ${pct(t)}, ${phone}`;
   }
   if (layout?.mode === "stack") {
     const block = section?.blocks.find((b) => b.id === blockId);
     const span = layout.columns.d[block?.column ?? 0] ?? 12;
-    return `(min-width: 1200px) ${pct(span / 12)}, 100vw`;
+    return `(min-width: 1200px) ${pct(span / 12)}, ${inGutters(1)}`;
   }
   return "(min-width: 1200px) 50vw, 100vw";
 }

@@ -1,7 +1,9 @@
 // Lighthouse (mobile, default throttling) on every template demo home page, built through
 // site-kit and served statically. Prints a Markdown table and writes JSON summaries.
 //   node scripts/build-templates.mjs && node scripts/lighthouse.mjs [--only=meadow] [--runs=3]
-// CHROME_PATH picks the browser (default: Playwright's Chromium, else Google Chrome).
+// CI gate: --min-perf=95 --min-a11y=100 [--max-lcp=2000] exits 1 when a template falls short
+// (medians), after printing the table.
+// CHROME_PATH picks the browser (default: Playwright's Chromium on macOS or Linux, else Chrome).
 import { existsSync, readdirSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -41,6 +43,18 @@ function chromePath() {
       if (existsSync(bin)) return bin;
       const linux = join(cache, d, "chrome-linux", "chrome");
       if (existsSync(linux)) return linux;
+    }
+  }
+  const linuxCache = join(homedir(), ".cache", "ms-playwright");
+  if (existsSync(linuxCache)) {
+    const dirs = readdirSync(linuxCache)
+      .filter((d) => /^chromium-\d+$/.test(d))
+      .sort();
+    for (const d of dirs.reverse()) {
+      for (const sub of ["chrome-linux64", "chrome-linux"]) {
+        const bin = join(linuxCache, d, sub, "chrome");
+        if (existsSync(bin)) return bin;
+      }
     }
   }
   return undefined;
@@ -126,3 +140,23 @@ for (const r of rows)
     `| ${r.id} | ${r.perf} | ${r.a11y} | ${r.bp} | ${r.seo} | ${ms(r.fcp)} | ${ms(r.lcp)} | ${Math.round(r.tbt)} ms | ${r.cls.toFixed(3)} | ${ms(r.si)} | ${r.js} |`,
   );
 for (const r of rows) if (r.failing.length) console.log(`\n${r.id}: ${r.failing.join(", ")}`);
+
+// CI gate (doc 04 §8.3 / PRD §7.1): fail when any template is below the thresholds.
+const minPerf = flags["min-perf"] ? Number(flags["min-perf"]) : null;
+const minA11y = flags["min-a11y"] ? Number(flags["min-a11y"]) : null;
+const maxLcp = flags["max-lcp"] ? Number(flags["max-lcp"]) : null;
+const failures = rows.flatMap((r) => [
+  ...(minPerf !== null && r.perf < minPerf ? [`${r.id}: performance ${r.perf} < ${minPerf}`] : []),
+  ...(minA11y !== null && r.a11y < minA11y
+    ? [`${r.id}: accessibility ${r.a11y} < ${minA11y}`]
+    : []),
+  ...(maxLcp !== null && r.lcp > maxLcp ? [`${r.id}: LCP ${ms(r.lcp)} > ${ms(maxLcp)}`] : []),
+]);
+if (ids.length === 0 && (minPerf !== null || minA11y !== null)) {
+  console.error("No built templates found: run scripts/build-templates.mjs first.");
+  process.exit(1);
+}
+if (failures.length) {
+  console.error(`\nLighthouse thresholds not met:\n${failures.map((f) => `- ${f}`).join("\n")}`);
+  process.exit(1);
+}

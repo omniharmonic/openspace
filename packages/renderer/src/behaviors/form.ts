@@ -140,7 +140,12 @@ async function uploadFiles(f: HTMLFormElement, data: FormData): Promise<boolean>
         const res = await fetch(`${f.action}/uploads`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ field: input.name, name: file.name, type: file.type, size: file.size }),
+          body: JSON.stringify({
+            field: input.name,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+          }),
         });
         const b = (await res.json().catch(() => ({}))) as {
           id?: string;
