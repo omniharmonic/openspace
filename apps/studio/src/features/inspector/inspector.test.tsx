@@ -120,8 +120,8 @@ describe("field inspector generation", () => {
     await t.user.type(input, "Book a free class");
     await wait(FIELD_COMMIT_MS + 30);
     expect(t.block(I.heroButton)?.fields.label).toBe("Book a free class");
-    await t.user.clear(input);
-    await t.user.type(input, "x".repeat(70));
+    // One change (a paste): typing key by key may commit valid prefixes along the way.
+    fireEvent.change(input, { target: { value: "x".repeat(70) } });
     await wait(FIELD_COMMIT_MS + 30);
     expect(within(panel()).getByRole("alert").textContent).toMatch(/characters or fewer/);
     expect(t.block(I.heroButton)?.fields.label).toBe("Book a free class");
