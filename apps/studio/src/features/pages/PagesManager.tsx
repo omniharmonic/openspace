@@ -456,7 +456,12 @@ export function PagesManager() {
       const cmd = duplicatePage(s.doc, row.item.page);
       if (cmd && commit(cmd.label, cmd.bodies)) {
         s.setPage(cmd.pageId);
-        toast({ title: "Page duplicated", description: "Undo with ⌘Z." });
+        toast({
+          title: "Page duplicated",
+          description: cmd.droppedPassword
+            ? "The copy is public. Set its own password in Page settings to protect it."
+            : "Undo with ⌘Z.",
+        });
       }
       return;
     }
@@ -620,7 +625,15 @@ export function PagesManager() {
                     icon: <Copy />,
                     onSelect: () => {
                       const cmd = duplicatePage(api.getState().doc, p.id);
-                      if (cmd && commit(cmd.label, cmd.bodies)) api.getState().setPage(cmd.pageId);
+                      if (cmd && commit(cmd.label, cmd.bodies)) {
+                        api.getState().setPage(cmd.pageId);
+                        if (cmd.droppedPassword)
+                          toast({
+                            title: "Page duplicated",
+                            description:
+                              "The copy is public. Set its own password in Page settings to protect it.",
+                          });
+                      }
                     },
                   },
                   ...(p.slug !== ""

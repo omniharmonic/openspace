@@ -85,14 +85,18 @@ export function createPage(
 export function duplicatePage(
   doc: SiteDocument,
   pageId: string,
-): (Command & { pageId: string }) | null {
+): (Command & { pageId: string; droppedPassword: boolean }) | null {
   const src = doc.pages[pageId as keyof SiteDocument["pages"]];
   if (!src) return null;
   const title = `${src.title} (copy)`.slice(0, 120);
   const slug = uniqueSlug(doc, `${src.slug || "home"}-copy`);
   const { id: _id, sections, slug: _s, title: _t, ...rest } = structuredClone(src);
+  // Passwords live in the Hub per page: a copy can't inherit one, so it starts public (members-
+  // only gating needs no secret and is kept).
+  const { access, ...restNoAccess } = rest;
   const page = {
-    ...rest,
+    ...restNoAccess,
+    ...(access?.members ? { access: { members: true } } : {}),
     id: newId("pg"),
     title,
     slug,
@@ -101,6 +105,7 @@ export function duplicatePage(
   const inNav = pagesInNav(doc.site.nav).has(pageId);
   return {
     pageId: page.id,
+    droppedPassword: Boolean(access?.password),
     label: `Duplicate “${src.title}”`,
     bodies: [
       {

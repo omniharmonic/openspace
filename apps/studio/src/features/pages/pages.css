@@ -400,7 +400,7 @@
 
 .st-seo-hints {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   margin: 0;
   padding-left: 16px;
   color: var(--st-text-2);
@@ -573,4 +573,13 @@
   .st-addpage__fields {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.st-seo-hints li.is-warning::marker,
+.st-seo-hints li.is-error::marker {
+  color: var(--st-pending);
+}
+
+.st-seo-hints__fix {
+  color: var(--st-text-3);
 }

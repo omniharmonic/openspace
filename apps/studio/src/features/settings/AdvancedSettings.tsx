@@ -1,7 +1,7 @@
 import { buttonBlock, rt, textBlock } from "@openspace/blocks";
 import type { Section } from "@openspace/schema";
 import { ArrowUpRight, FileWarning, GitBranch, TriangleAlert } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Site } from "../../api/types";
 import { Button, toast } from "../../ui";
@@ -63,8 +63,20 @@ function CodeSetting({
   warning?: string;
 }) {
   const [draft, setDraft] = useState(value);
-  // Undo, or a collaborator's change, replaces the draft.
-  useEffect(() => setDraft(value), [value]);
+  /** The saved value the draft is based on. */
+  const base = useRef(value);
+  /** A newer saved value (undo, a collaborator, Claude) that arrived while the draft had edits. */
+  const [incoming, setIncoming] = useState<string | null>(null);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reacts to the saved value only
+  useEffect(() => {
+    if (value === base.current) return;
+    if (draft === base.current || draft === value) {
+      // No unsaved edits (or they already match): follow the new value.
+      setDraft(value);
+      base.current = value;
+      setIncoming(null);
+    } else setIncoming(value);
+  }, [value]);
   const dirty = draft !== value;
   return (
     <section className="st-card" aria-label={title}>
@@ -78,6 +90,37 @@ function CodeSetting({
           <div>{warning}</div>
         </div>
       )}
+      {incoming !== null && (
+        <div className="st-callout st-callout--pending" role="alert">
+          <TriangleAlert aria-hidden="true" />
+          <div>
+            <strong>This code changed elsewhere</strong> (an undo, a collaborator or your AI) while
+            you had unsaved edits.{" "}
+            <button
+              type="button"
+              className="st-linklike"
+              onClick={() => {
+                setDraft(incoming);
+                base.current = incoming;
+                setIncoming(null);
+              }}
+            >
+              Load the latest
+            </button>{" "}
+            ·{" "}
+            <button
+              type="button"
+              className="st-linklike"
+              onClick={() => {
+                base.current = incoming;
+                setIncoming(null);
+              }}
+            >
+              Keep mine
+            </button>
+          </div>
+        </div>
+      )}
       <CodeEditor
         value={draft}
         onChange={setDraft}
@@ -87,14 +130,28 @@ function CodeSetting({
       />
       <div className="st-row-actions">
         <span className="st-muted-note">{draft.length.toLocaleString()} characters</span>
-        <Button size="sm" variant="ghost" disabled={!dirty} onClick={() => setDraft(value)}>
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={!dirty}
+          onClick={() => {
+            setDraft(value);
+            base.current = value;
+            setIncoming(null);
+          }}
+        >
           Revert
         </Button>
         <Button
           size="sm"
           variant="primary"
           disabled={!dirty}
-          onClick={() => onSave(draft) && toast({ tone: "success", title: `${title} saved` })}
+          onClick={() => {
+            if (!onSave(draft)) return;
+            base.current = draft;
+            setIncoming(null);
+            toast({ tone: "success", title: `${title} saved` });
+          }}
         >
           Save
         </Button>

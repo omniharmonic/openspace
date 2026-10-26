@@ -70,7 +70,8 @@ export function useRegistrars() {
 
 /**
  * The site's custom domain. While it isn't live yet, Studio re-checks DNS every `pollMs`
- * (the wizard's live checklist; the Hub suggests 15 s).
+ * (the wizard's live checklist; the Hub suggests 15 s). Polling stops when the domain is active or
+ * failed, and pauses while the tab is hidden.
  */
 export function useDomain(siteId: string, options: { pollMs?: number } = {}) {
   const hub = useHub();
@@ -80,7 +81,9 @@ export function useDomain(siteId: string, options: { pollMs?: number } = {}) {
     queryFn: () => hub.getDomain(siteId),
   });
   const pollMs = options.pollMs ?? 15_000;
-  const waiting = query.data != null && query.data.status !== "active";
+  // Keep checking only while DNS is still settling: not once it's live or has failed.
+  const waiting =
+    query.data != null && query.data.status !== "active" && query.data.status !== "failed";
   useQuery({
     queryKey: [...manageKeys.domain(siteId), "check"],
     queryFn: async () => {
@@ -91,7 +94,8 @@ export function useDomain(siteId: string, options: { pollMs?: number } = {}) {
     },
     enabled: waiting,
     refetchInterval: waiting ? pollMs : false,
-    refetchIntervalInBackground: true,
+    // Pauses while the tab is hidden.
+    refetchIntervalInBackground: false,
     retry: false,
     gcTime: 0,
   });

@@ -7,7 +7,8 @@ import {
 import { dominantColor, fitWithin, hasTransparency, suggestFocal } from "./analyze";
 import { browserCodec, type ImageCodec, type ImageEdit } from "./codec";
 import { stripMetadata } from "./metadata";
-import { findDuplicate, mediaPathFor, sha256Hex } from "./naming";
+import { duplicateCandidates, mediaPathFor, sha256Hex } from "./naming";
+import { solidPng } from "./png";
 
 /**
  * The in-browser media pipeline (arch §5.6): decode → downscale (long edge ≤ 2400) → re-encode
@@ -28,6 +29,8 @@ export interface ProcessOptions {
   now?: () => Date;
   /** The library, for dedupe. */
   existing?: SiteDocument["media"];
+  /** Bytes of a library file, to confirm a duplicate by its full hash (null when unavailable). */
+  existingBytes?: (path: string) => Promise<Uint8Array | null>;
   /** Crop/filter applied before encoding (image editor "save as new image"). */
   edit?: ImageEdit;
   /** Name to slug instead of the file's own name. */
@@ -63,7 +66,34 @@ export class MediaError extends Error {
   }
 }
 
-const IMAGE_RASTER = /^image\/(jpeg|png|webp|avif|bmp|heic|heif|tiff)$/;
+/** Raster images the browser decodes and the pipeline always re-encodes. */
+const IMAGE_RASTER = /^image\/(jpeg|png|webp|avif|heic)$/;
+
+/**
+ * Everything the media library accepts, by *sniffed* type (never the file name or the browser's
+ * guess). Anything else — HTML, scripts, archives… — is refused: files in media/ are served from
+ * the site's own origin, so an unknown type could carry script.
+ */
+export const ALLOWED_MIME = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/heic",
+  "image/gif",
+  "image/svg+xml",
+  "application/pdf",
+  "audio/mpeg",
+  "audio/mp4",
+  "audio/wav",
+  "audio/ogg",
+  "audio/flac",
+  "video/mp4",
+  "video/webm",
+]);
+
+export const UNSUPPORTED_MESSAGE =
+  "This kind of file can't be added. Upload photos (JPEG, PNG, WebP, GIF), SVG graphics, PDFs or audio.";
 
 async function bytesOf(blob: Blob): Promise<Uint8Array> {
   return new Uint8Array(await blob.arrayBuffer());
@@ -76,27 +106,39 @@ function base64(bytes: Uint8Array): string {
   return btoa(s);
 }
 
-/** Sniff the real type from the first bytes (file.type can be empty or wrong). */
-export function sniffMime(head: Uint8Array, fallback: string): string {
+/**
+ * The real type from the first bytes. File names and `file.type` are ignored: a renamed
+ * `promo.html` is still HTML. Returns null for anything that isn't on the allowlist.
+ */
+export function sniffMime(head: Uint8Array): string | null {
   const a = (i: number) => head[i] ?? -1;
   if (a(0) === 0xff && a(1) === 0xd8 && a(2) === 0xff) return "image/jpeg";
   if (a(0) === 0x89 && a(1) === 0x50 && a(2) === 0x4e && a(3) === 0x47) return "image/png";
-  if (a(0) === 0x47 && a(1) === 0x49 && a(2) === 0x46) return "image/gif";
+  if (a(0) === 0x47 && a(1) === 0x49 && a(2) === 0x46 && a(3) === 0x38) return "image/gif";
+  if (a(0) === 0x1a && a(1) === 0x45 && a(2) === 0xdf && a(3) === 0xa3) return "video/webm";
   const s = String.fromCharCode(...head.subarray(0, 12));
   if (s.startsWith("RIFF") && s.slice(8, 12) === "WEBP") return "image/webp";
+  if (s.startsWith("RIFF") && s.slice(8, 12) === "WAVE") return "audio/wav";
+  if (s.startsWith("OggS")) return "audio/ogg";
+  if (s.startsWith("fLaC")) return "audio/flac";
+  if (s.startsWith("ID3") || (a(0) === 0xff && (a(1) & 0xe0) === 0xe0)) return "audio/mpeg";
   if (s.slice(4, 8) === "ftyp") {
     const brand = s.slice(8, 12);
     if (brand === "avif" || brand === "avis") return "image/avif";
-    if (/^hei|^mif1|^msf1/.test(brand)) return "image/heic";
+    if (/^(heic|heix|hevc|mif1|msf1)$/.test(brand)) return "image/heic";
+    if (/^M4A /.test(brand)) return "audio/mp4";
+    if (/^(isom|iso2|iso5|iso6|mp41|mp42|avc1|M4V |dash)$/.test(brand)) return "video/mp4";
+    return null;
   }
-  if (s.startsWith("%PDF")) return "application/pdf";
-  const text = new TextDecoder().decode(head.subarray(0, 256)).trimStart();
-  if (
-    /^(<\?xml[^>]*>\s*)?(<!--[\s\S]*?-->\s*)*<svg[\s>]/i.test(text) ||
-    (fallback === "image/svg+xml" && text.startsWith("<"))
-  )
+  if (s.startsWith("%PDF-")) return "application/pdf";
+  // SVG: an XML prolog, comments or a doctype may come first, then the root <svg> element.
+  const text = new TextDecoder()
+    .decode(head.subarray(0, 1024))
+    .replace(/^\uFEFF/, "")
+    .trimStart();
+  if (/^(<\?xml[^>]*>\s*)?(<!--[\s\S]*?-->\s*|<!DOCTYPE svg[^>]*>\s*)*<svg[\s>]/i.test(text))
     return "image/svg+xml";
-  return fallback || "application/octet-stream";
+  return null;
 }
 
 function kindOf(mime: string): MediaMeta["kind"] {
@@ -112,21 +154,24 @@ async function placeholderFor(
   h: number,
   alpha: boolean,
   edit: ImageEdit | undefined,
+  dominant: string,
 ): Promise<string | undefined> {
   for (const edge of PLACEHOLDER_EDGES) {
     const size = fitWithin(w, h, edge);
     const surface = codec.draw(source, size.width, size.height, edit);
-    const blob = await codec.encode(surface, alpha ? "image/webp" : "image/jpeg", 0.5);
+    let blob: Blob;
+    try {
+      blob = await codec.encode(surface, alpha ? "image/webp" : "image/jpeg", 0.5);
+    } catch {
+      continue;
+    }
     const type = /^image\/(webp|png|jpeg|avif)$/.test(blob.type) ? blob.type : null;
     if (!type) continue;
     const uri = `data:${type};base64,${base64(stripMetadata(await bytesOf(blob)))}`;
     if (uri.length <= MAX_PLACEHOLDER_LENGTH) return uri;
   }
-  // A single pixel of the average color always fits.
-  const dot = codec.draw(source, 1, 1, edit);
-  const blob = await codec.encode(dot, "image/png");
-  const uri = `data:image/png;base64,${base64(await bytesOf(blob))}`;
-  return uri.length <= MAX_PLACEHOLDER_LENGTH && blob.type === "image/png" ? uri : undefined;
+  // A single pixel of the dominant color always fits.
+  return `data:image/png;base64,${base64(solidPng(dominant))}`;
 }
 
 /** Run one file through the pipeline. Throws {@link MediaError} for files it can't take. */
@@ -138,7 +183,10 @@ export async function processMedia(
   const now = options.now?.() ?? new Date();
   const name = options.name ?? file.name ?? "image";
   const original = await bytesOf(file);
-  const mime = sniffMime(original.subarray(0, 512), file.type);
+  const sniffed = sniffMime(original.subarray(0, 1024));
+  if (!sniffed || !ALLOWED_MIME.has(sniffed))
+    throw new MediaError(UNSUPPORTED_MESSAGE, "unsupported");
+  const mime = sniffed;
   const kind = kindOf(mime);
   const maxEdge = options.maxEdge ?? MAX_EDGE;
 
@@ -196,6 +244,8 @@ export async function processMedia(
           encoded = await codec.encode(surface, "image/jpeg", JPEG_QUALITY);
         }
         outMime = encoded.type || (alpha ? "image/png" : "image/jpeg");
+        if (!/^image\/(jpeg|png|webp)$/.test(outMime))
+          throw new MediaError("This image couldn't be saved. Try a JPEG or PNG.", "decode");
         const clean = stripMetadata(await bytesOf(encoded));
         blob = new Blob([clean as Uint8Array<ArrayBuffer>], { type: outMime });
       }
@@ -205,7 +255,15 @@ export async function processMedia(
         width = srcW;
         height = srcH;
       }
-      placeholder = await placeholderFor(codec, decoded.source, srcW, srcH, alpha, options.edit);
+      placeholder = await placeholderFor(
+        codec,
+        decoded.source,
+        srcW,
+        srcH,
+        alpha,
+        options.edit,
+        dominant,
+      );
     } finally {
       decoded.close();
     }
@@ -213,11 +271,6 @@ export async function processMedia(
     throw new MediaError(
       "Videos are hosted on Cloudflare. Paste a YouTube or Vimeo link into a video block instead, or switch hosting in Settings.",
       "video-needs-cloudflare",
-    );
-  } else if (kind === "image") {
-    throw new MediaError(
-      "This image format isn't supported. Try a JPEG, PNG, WebP or SVG.",
-      "unsupported",
     );
   } else {
     if (original.length > MAX_PASSTHROUGH_BYTES)
@@ -227,8 +280,25 @@ export async function processMedia(
 
   const finalBytes = await bytesOf(blob);
   const sha256 = await sha256Hex(finalBytes);
-  const path = mediaPathFor({ name, sha256, mime: outMime, date: now });
-  const duplicateOf = options.existing ? findDuplicate(options.existing, sha256) : null;
+  let path = mediaPathFor({ name, sha256, mime: outMime, date: now });
+  let duplicateOf: string | null = null;
+  if (options.existing) {
+    // Same short hash and size is only a candidate; the full SHA-256 decides.
+    for (const candidate of duplicateCandidates(options.existing, sha256, finalBytes.length)) {
+      if (!options.existingBytes) {
+        duplicateOf = candidate;
+        break;
+      }
+      const bytes = await options.existingBytes(candidate).catch(() => null);
+      if (bytes && (await sha256Hex(bytes)) === sha256) {
+        duplicateOf = candidate;
+        break;
+      }
+    }
+    // A different file whose name and short hash collide gets a longer hash.
+    if (!duplicateOf && options.existing[path as keyof SiteDocument["media"]])
+      path = mediaPathFor({ name, sha256, mime: outMime, date: now, hashLength: 16 });
+  }
   const meta: MediaMeta = {
     id: newId("med"),
     path,

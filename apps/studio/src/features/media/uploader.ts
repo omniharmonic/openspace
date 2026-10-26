@@ -61,6 +61,8 @@ export interface UploaderDeps {
   /** Emit the `media.add` op through the editor's document store. */
   addMedia: (path: string, meta: MediaMeta) => boolean;
   codec?: ImageCodec;
+  /** Bytes of a library file, to confirm duplicates by their full hash. */
+  existingBytes?: (path: string) => Promise<Uint8Array | null>;
   /** Site is hosted on Cloudflare (videos allowed). */
   allowVideo?: () => boolean;
   now?: () => Date;
@@ -203,11 +205,17 @@ export function createUploader(deps: UploaderDeps): Uploader {
     };
     store().upsert(base);
     const doc = deps.getDoc();
-    if (mediaBytes(doc) >= REPO_BLOCK_BYTES) {
-      store().patch(id, {
-        status: "failed",
-        message: `Your site is storing ${formatBytes(mediaBytes(doc))} of files. Remove unused files, or move videos and large files to Cloudflare hosting.`,
-      });
+    // Stored files + files still waiting to upload + this one must stay under the limit.
+    const pending = store()
+      .items.filter(
+        (i) => i.siteId === deps.siteId && (i.status === "queued" || i.status === "uploading"),
+      )
+      .reduce((n, i) => n + (i.bytes ?? 0), 0);
+    const tooBig = (incoming: number) => mediaBytes(doc) + pending + incoming >= REPO_BLOCK_BYTES;
+    const blockedMessage = () =>
+      `Your site is storing ${formatBytes(mediaBytes(doc) + pending)} of files, and this one would take it past 900 MB. Remove unused files, or move videos and large files to Cloudflare hosting.`;
+    if (tooBig(file.size)) {
+      store().patch(id, { status: "failed", message: blockedMessage() });
       return null;
     }
     let processed: ProcessedMedia;
@@ -216,6 +224,7 @@ export function createUploader(deps: UploaderDeps): Uploader {
         codec: deps.codec,
         now: deps.now,
         existing: doc.media,
+        existingBytes: deps.existingBytes,
         allowVideo: deps.allowVideo?.() ?? false,
         edit: options.edit,
         name: options.name ?? (file.name || "pasted-image"),
@@ -228,6 +237,10 @@ export function createUploader(deps: UploaderDeps): Uploader {
       store().patch(id, { status: "failed", message });
       const failed = store().items.find((i) => i.id === id);
       if (failed) deps.onEvent?.({ type: "failed", item: failed });
+      return null;
+    }
+    if (!processed.duplicateOf && tooBig(processed.blob.size)) {
+      store().patch(id, { status: "failed", message: blockedMessage() });
       return null;
     }
     if (processed.duplicateOf) {

@@ -77,6 +77,21 @@ describe("settings shell", () => {
     expect(within(nav).getByRole("button", { name: "Connect your AI" })).toBeInTheDocument();
   });
 
+  it("gives a site with no known role the least privilege", async () => {
+    await openSettings("general", { role: undefined });
+    const nav = screen.getByRole("navigation", { name: "Settings" });
+    for (const name of [
+      "Hosting",
+      "Delete site",
+      "Advanced",
+      "Domain",
+      "Connect your AI",
+      "Export",
+    ])
+      expect(within(nav).queryByRole("button", { name })).toBeNull();
+    expect(screen.getByLabelText("Site name")).toBeDisabled();
+  });
+
   it("keeps Git vocabulary out of every tab except Advanced", async () => {
     const { user } = await openSettings("general");
     const nav = screen.getByRole("navigation", { name: "Settings" });
@@ -163,6 +178,19 @@ describe("domains wizard", () => {
     expect(screen.getByText(/Secure and live/)).toBeInTheDocument();
     expect(screen.getByText(/www\.willowyoga\.test sends them there too/)).toBeInTheDocument();
     expect(hub.calls.filter((c) => c.method === "checkDomain").length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("stops checking DNS once the domain has failed", async () => {
+    const { user, hub } = await openSettings("general");
+    await hub.connectDomain(willow.id, "broken.test");
+    const d = hub.manage.domains[willow.id];
+    if (d) d.status = "failed";
+    const before = hub.calls.filter((c) => c.method === "checkDomain").length;
+    await user.click(screen.getByRole("button", { name: "Domain" }));
+    expect(await screen.findByText("Didn't connect")).toBeInTheDocument();
+    await act(() => new Promise((r) => setTimeout(r, 300)));
+    expect(hub.calls.filter((c) => c.method === "checkDomain").length).toBe(before);
+    expect(screen.getByRole("button", { name: "Check again" })).toBeInTheDocument();
   });
 
   it("tells Cloudflare-hosted sites where to connect a domain", async () => {
@@ -368,6 +396,25 @@ describe("advanced", () => {
       store().undo();
     });
     await waitFor(() => expect(view?.state.doc.toString()).toBe(store().doc.site.customCss ?? ""));
+  });
+
+  it("doesn't overwrite unsaved code when it changes elsewhere", async () => {
+    const { user } = await openSettings("advanced");
+    const content = await screen.findByLabelText("Custom CSS", { selector: ".cm-content" });
+    const view = EditorView.findFromDOM(content as HTMLElement);
+    act(() => {
+      view?.dispatch({ changes: { from: 0, insert: "/* mine */" } });
+    });
+    // A collaborator (or Claude) saves different CSS meanwhile.
+    act(() => {
+      store().commit([{ op: "site.update", set: { customCss: "/* theirs */" } }] as never);
+    });
+    const card = screen.getByRole("region", { name: "Custom CSS" });
+    expect(within(card).getByRole("alert")).toHaveTextContent("This code changed elsewhere");
+    expect(view?.state.doc.toString()).toBe("/* mine */");
+    await user.click(within(card).getByRole("button", { name: "Keep mine" }));
+    await user.click(within(card).getByRole("button", { name: "Save" }));
+    expect(store().doc.site.customCss).toBe("/* mine */");
   });
 
   it("manages redirects with validation", async () => {

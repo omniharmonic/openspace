@@ -223,6 +223,10 @@ export function DomainsSettings({ site }: { site: Site }) {
               <Badge tone="live" dot>
                 Connected
               </Badge>
+            ) : view.status === "failed" ? (
+              <Badge tone="danger" dot>
+                Didn't connect
+              </Badge>
             ) : (
               <Badge tone="pending" dot pulse>
                 {view.status === "verifying" ? "Securing" : "Waiting for records"}
@@ -248,8 +252,9 @@ export function DomainsSettings({ site }: { site: Site }) {
           ) : (
             <div className="st-row-actions st-row-actions--start">
               <span className="st-muted-note" aria-live="polite">
-                Checked {timeAgo(view.checkedAt)} · we check every 15 seconds. Changes can take up
-                to an hour.
+                {view.status === "failed"
+                  ? "We stopped checking. Fix the records below, then check again."
+                  : `Checked ${timeAgo(view.checkedAt)} · we check every 15 seconds. Changes can take up to an hour.`}
               </span>
               <Button
                 size="sm"
@@ -257,7 +262,7 @@ export function DomainsSettings({ site }: { site: Site }) {
                 loading={actions.check.isPending}
                 onClick={() => actions.check.mutate()}
               >
-                Check now
+                {view.status === "failed" ? "Check again" : "Check now"}
               </Button>
             </div>
           )}

@@ -138,6 +138,38 @@ describe("uploader", () => {
     expect(hub.calls.some((c) => c.method === "uploadMedia")).toBe(false);
   });
 
+  it("counts files still waiting to upload and the incoming file toward the 900 MB limit", async () => {
+    const { store, images, uploader, site } = await setup();
+    const doc = store.getState().doc;
+    store.getState().replaceDocument({
+      ...doc,
+      media: {
+        ...doc.media,
+        "media/2026/01/big-aaaaaaaa.mp4": {
+          id: "med_0000000001",
+          path: "media/2026/01/big-aaaaaaaa.mp4",
+          kind: "video",
+          mime: "video/mp4",
+          bytes: REPO_BLOCK_BYTES - 5_000_000,
+          createdAt: "2026-01-01T00:00:00Z",
+        },
+      } as SiteDocument["media"],
+    });
+    // 4 MB already waiting in the queue: a file that fits alone no longer fits.
+    useUploads.getState().upsert({
+      id: "up_waiting",
+      siteId: site.id,
+      name: "waiting.jpg",
+      status: "queued",
+      attempts: 1,
+      bytes: 4_000_000,
+    });
+    const big = fakePhoto(images, { width: 800, height: 600 }, "big.jpg", "x".repeat(1_500_000));
+    const [res] = await uploader.add([big]);
+    expect(res).toBeNull();
+    expect(useUploads.getState().items.at(-1)?.message).toMatch(/past 900 MB/);
+  });
+
   it("reports size levels and where a file is used", async () => {
     expect(sizeLevel(REPO_WARN_BYTES - 1)).toBe("ok");
     expect(sizeLevel(REPO_WARN_BYTES)).toBe("warn");

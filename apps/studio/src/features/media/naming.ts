@@ -36,16 +36,17 @@ const EXT: Record<string, string> = {
   "audio/mp4": "m4a",
   "audio/wav": "wav",
   "audio/ogg": "ogg",
+  "audio/flac": "flac",
+  "image/heic": "heic",
   "video/mp4": "mp4",
   "video/webm": "webm",
 };
 
-/** File extension for a MIME type (falls back to the original name's extension, then `bin`). */
-export function extFor(mime: string, originalName = ""): string {
+/** File extension for an allowlisted MIME type. The file's own name never decides it. */
+export function extFor(mime: string): string {
   const known = EXT[mime.toLowerCase()];
-  if (known) return known;
-  const fromName = /\.([A-Za-z0-9]{1,5})$/.exec(originalName)?.[1]?.toLowerCase();
-  return fromName ?? "bin";
+  if (!known) throw new Error(`No file extension for ${mime}`);
+  return known;
 }
 
 /**
@@ -57,23 +58,39 @@ export function mediaPathFor(input: {
   sha256: string;
   mime: string;
   date: Date;
+  /** Hash characters in the name (longer only to avoid a collision). */
+  hashLength?: number;
 }): string {
   const yyyy = String(input.date.getUTCFullYear());
   const mm = String(input.date.getUTCMonth() + 1).padStart(2, "0");
-  const ext = extFor(input.mime, input.name);
-  const path = `media/${yyyy}/${mm}/${slugifyName(input.name)}-${input.sha256.slice(0, NAME_HASH_LENGTH)}.${ext}`;
+  const ext = extFor(input.mime);
+  const path = `media/${yyyy}/${mm}/${slugifyName(input.name)}-${input.sha256.slice(0, input.hashLength ?? NAME_HASH_LENGTH)}.${ext}`;
   if (!MEDIA_PATH_RE.test(path)) throw new Error(`Couldn't name ${input.name}`);
   return path;
 }
 
 /** The content hash embedded in a media path, if it follows the naming scheme. */
 export function hashOfPath(path: string): string | null {
-  return new RegExp(`-([0-9a-f]{${NAME_HASH_LENGTH}})\\.[a-z0-9]+$`).exec(path)?.[1] ?? null;
+  return /-([0-9a-f]{8,64})\.[a-z0-9]+$/.exec(path)?.[1] ?? null;
 }
 
-/** An existing media file with the same content hash (dedupe), if any. */
+/** Library files that may be the same content: matching hash prefix in the name, same size. */
+export function duplicateCandidates(
+  media: SiteDocument["media"],
+  sha256: string,
+  bytes?: number,
+): string[] {
+  const out: string[] = [];
+  for (const [path, meta] of Object.entries(media)) {
+    const h = hashOfPath(path);
+    if (!h || !sha256.startsWith(h)) continue;
+    if (bytes !== undefined && meta.bytes !== bytes) continue;
+    out.push(path);
+  }
+  return out;
+}
+
+/** The first candidate (size-agnostic); kept for callers that only have a hash. */
 export function findDuplicate(media: SiteDocument["media"], sha256: string): string | null {
-  const short = sha256.slice(0, NAME_HASH_LENGTH);
-  for (const path of Object.keys(media)) if (hashOfPath(path) === short) return path;
-  return null;
+  return duplicateCandidates(media, sha256)[0] ?? null;
 }

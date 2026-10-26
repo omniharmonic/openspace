@@ -308,7 +308,7 @@ export function createManageMock(ctx: ManageMockContext): {
     return requireUser();
   };
 
-  const canManage = (site: Site) => site.role === "owner" || site.role === "designer" || !site.role;
+  const canManage = (site: Site) => site.role === "owner" || site.role === "designer";
   const isOwner = (site: Site, user: User) => site.role === "owner" || site.owner === user.login;
   const forbid = (message: string) => new HubError(403, "forbidden", message);
 

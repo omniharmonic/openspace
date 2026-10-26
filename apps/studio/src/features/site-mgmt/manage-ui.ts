@@ -45,9 +45,13 @@ export function useCurrentSite(): Site | undefined {
 
 export type Capability = "designer" | "owner" | "editor";
 
-/** What the signed-in person may do here (the Hub enforces the same rules). */
+/**
+ * What the signed-in person may do here (the Hub enforces the same rules). An unknown role gets
+ * the least privilege: nothing beyond viewing.
+ */
 export function can(site: Site | undefined, need: Capability): boolean {
-  const role = site?.role ?? "owner";
+  const role = site?.role;
+  if (!role) return false;
   if (need === "owner") return role === "owner";
   if (need === "designer") return role === "owner" || role === "designer";
   return role !== "contributor";

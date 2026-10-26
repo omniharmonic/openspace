@@ -15,19 +15,6 @@ function truncate(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
 }
 
-/** Plain-language SEO length hints (Google shows about 60 / 160 characters). */
-export function seoHints(title: string, description: string | undefined): string[] {
-  const hints: string[] = [];
-  if (title.length > 60)
-    hints.push("The title is long; search results cut it off after about 60 characters.");
-  if (!description) hints.push("Add a description so search results show your words, not a guess.");
-  else if (description.length < 50)
-    hints.push("The description is short; aim for one or two sentences.");
-  else if (description.length > 160)
-    hints.push("The description is long; search results show about 160 characters.");
-  return hints;
-}
-
 /**
  * Live previews of how a page appears in a Google result and as a social card, using the same
  * title/description fallbacks the published page uses (`@openspace/renderer`).

@@ -10,7 +10,7 @@ import {
   stripWebpMetadata,
 } from "./metadata";
 import { extFor, findDuplicate, hashOfPath, mediaPathFor, sha256Hex, slugifyName } from "./naming";
-import { MAX_EDGE, MediaError, processMedia, sniffMime } from "./pipeline";
+import { MAX_EDGE, MediaError, processMedia, sniffMime, UNSUPPORTED_MESSAGE } from "./pipeline";
 import { sanitizeSvg, svgSize } from "./svg";
 import {
   contains,
@@ -87,7 +87,7 @@ describe("naming and dedupe", () => {
     expect(path).toBe("media/2026/10/sunset-at-the-beach-2cf24dba.jpg");
     expect(hashOfPath(path)).toBe("2cf24dba");
     expect(extFor("image/webp")).toBe("webp");
-    expect(extFor("application/x-thing", "notes.TXT")).toBe("txt");
+    expect(() => extFor("text/html")).toThrow();
   });
 
   it("finds an identical file already in the library", () => {
@@ -259,12 +259,125 @@ describe("processMedia", () => {
   });
 
   it("sniffs the real type from the bytes", () => {
-    expect(sniffMime(jpegWithExif(), "")).toBe("image/jpeg");
-    expect(sniffMime(pngWithExif(), "application/octet-stream")).toBe("image/png");
-    expect(sniffMime(webpWithExif(), "")).toBe("image/webp");
-    expect(sniffMime(new TextEncoder().encode('<?xml version="1.0"?><svg>'), "")).toBe(
+    const t = (s: string) => new TextEncoder().encode(s);
+    expect(sniffMime(jpegWithExif())).toBe("image/jpeg");
+    expect(sniffMime(pngWithExif())).toBe("image/png");
+    expect(sniffMime(webpWithExif())).toBe("image/webp");
+    expect(sniffMime(t('<?xml version="1.0"?><svg>'))).toBe("image/svg+xml");
+    expect(sniffMime(t('<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"><svg>'))).toBe(
       "image/svg+xml",
     );
+    expect(sniffMime(t("<!doctype html><html><body><svg></svg>"))).toBeNull();
+    expect(sniffMime(t("alert(document.cookie)"))).toBeNull();
+    expect(sniffMime(t("ID3\u0004rest"))).toBe("audio/mpeg");
+  });
+});
+
+describe("allowlist (files are served from the site's own origin)", () => {
+  const refuse = async (file: File) => {
+    const err = await processMedia(file, { now: OCT_26 }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(MediaError);
+    expect((err as MediaError).code).toBe("unsupported");
+    expect((err as MediaError).message).toBe(UNSUPPORTED_MESSAGE);
+  };
+
+  it("refuses HTML, even when it claims to be an image", async () => {
+    await refuse(
+      new File(["<!doctype html><script>alert(1)</script>"], "promo.html", { type: "text/html" }),
+    );
+    await refuse(new File(["<html><body>hi</body></html>"], "photo.jpg", { type: "image/jpeg" }));
+    await refuse(
+      new File(["<html><svg onload=alert(1)></svg></html>"], "logo.svg", { type: "image/svg+xml" }),
+    );
+  });
+
+  it("refuses scripts and other unknown types", async () => {
+    await refuse(
+      new File(["alert(document.cookie)"], "app.js", { type: "application/javascript" }),
+    );
+    await refuse(new File(["PK\u0003\u0004zip"], "site.zip", { type: "application/zip" }));
+    await refuse(new File(["plain words"], "notes.txt", { type: "text/plain" }));
+  });
+
+  it("takes the extension from the sniffed type, never the file name", async () => {
+    const images = new WeakMap<Blob, FakeImage>();
+    const { codec } = fakeCodec(images);
+    const png = new File([pngWithExif() as Uint8Array<ArrayBuffer>], "holiday.html", {
+      type: "text/html",
+    });
+    images.set(png, { width: 40, height: 40, alpha: true });
+    const out = await processMedia(png, { codec, now: OCT_26 });
+    expect(out.path).toMatch(/^media\/2026\/10\/holiday-[0-9a-f]{8}\.png$/);
+    const pdf = await processMedia(
+      new File(["%PDF-1.7 menu"], "menu.exe", { type: "application/x-msdownload" }),
+      { now: OCT_26 },
+    );
+    expect(pdf.path).toMatch(/\.pdf$/);
+  });
+
+  it("still sanitizes SVGs that carry script", async () => {
+    const out = await processMedia(
+      new File(
+        ['<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script><circle r="4"/></svg>'],
+        "icon.svg",
+      ),
+      { now: OCT_26 },
+    );
+    const text = await out.blob.text();
+    expect(text).not.toContain("script");
+    expect(text).toContain("<circle");
+  });
+});
+
+describe("dedupe by full hash", () => {
+  it("only treats a short-hash match as a duplicate when the full SHA-256 matches", async () => {
+    const images = new WeakMap<Blob, FakeImage>();
+    const { codec } = fakeCodec(images);
+    const first = await processMedia(fakePhoto(images, { width: 800, height: 600 }, "a.jpg"), {
+      codec,
+      now: OCT_26,
+    });
+    const existing = { [first.path]: first.meta } as never;
+    // Same content: confirmed by its bytes.
+    const same = await processMedia(fakePhoto(images, { width: 800, height: 600 }, "a.jpg"), {
+      codec,
+      now: OCT_26,
+      existing,
+      existingBytes: async () => new Uint8Array(await first.blob.arrayBuffer()),
+    });
+    expect(same.duplicateOf).toBe(first.path);
+    // Same name and short hash, different bytes: not a duplicate, and it gets a longer name.
+    const other = await processMedia(fakePhoto(images, { width: 800, height: 600 }, "a.jpg"), {
+      codec,
+      now: OCT_26,
+      existing,
+      existingBytes: async () => new TextEncoder().encode("something else"),
+    });
+    expect(other.duplicateOf).toBeNull();
+    expect(other.path).not.toBe(first.path);
+    expect(other.path).toContain(other.sha256.slice(0, 16));
+  });
+
+  it("falls back to a solid placeholder in the dominant color", async () => {
+    const images = new WeakMap<Blob, FakeImage>();
+    const { codec } = fakeCodec(images);
+    const failing = {
+      ...codec,
+      encode: async (s: Parameters<typeof codec.encode>[0], mime: string, q?: number) => {
+        if (s.width <= 16) throw new Error("no");
+        return codec.encode(s, mime, q);
+      },
+    };
+    const out = await processMedia(
+      fakePhoto(images, { width: 300, height: 200, color: [200, 30, 40] }),
+      { codec: failing, now: OCT_26 },
+    );
+    expect(out.meta.placeholder).toMatch(/^data:image\/png;base64,/);
+    const bytes = Uint8Array.from(atob(out.meta.placeholder?.split(",")[1] ?? ""), (c) =>
+      c.charCodeAt(0),
+    );
+    expect(Array.from(bytes.subarray(0, 4))).toEqual([0x89, 0x50, 0x4e, 0x47]);
+    expect(MediaMetaSchema.safeParse(out.meta).success).toBe(true);
   });
 });
 

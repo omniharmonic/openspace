@@ -346,3 +346,12 @@
   width: 10px;
   height: 10px;
 }
+
+.st-chrome__problem {
+  margin: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--st-line);
+  background: var(--st-danger-soft);
+  color: var(--st-danger);
+  font-size: var(--st-fs-sm);
+}

@@ -1,6 +1,6 @@
 import type { SiteDocument } from "@openspace/schema";
-import type { ManageApi } from "./manage-types";
 import type { BuildState, PublishError, RoomSocket } from "../features/sync/protocol";
+import type { ManageApi } from "./manage-types";
 
 /**
  * Hub API contract as Studio consumes it (architecture §8.2).

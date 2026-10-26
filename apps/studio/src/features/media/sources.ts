@@ -18,12 +18,31 @@ interface MediaSourcesState {
   reset: () => void;
 }
 
+/** Bytes of files added in this session (for dedupe by full hash without a download). */
+const localBlobs = new Map<string, Blob>();
+
+/** Read a library file's bytes: this session's copy, else the site's draft files. */
+export async function readMediaBytes(path: string): Promise<Uint8Array | null> {
+  const blob = localBlobs.get(path);
+  if (blob) return new Uint8Array(await blob.arrayBuffer());
+  const state = useMediaSources.getState();
+  const url = previewUrl(path, state);
+  if (url === path || typeof fetch !== "function") return null;
+  try {
+    const res = await fetch(url);
+    return res.ok ? new Uint8Array(await res.arrayBuffer()) : null;
+  } catch {
+    return null;
+  }
+}
+
 export const useMediaSources = create<MediaSourcesState>((set, get) => ({
   repo: null,
   branch: "os/draft",
   local: {},
   setRepo: (repo, branch = "os/draft") => set({ repo, branch }),
   addLocal: (path, blob) => {
+    localBlobs.set(path, blob);
     const existing = get().local[path];
     if (existing) return existing;
     const url = typeof URL.createObjectURL === "function" ? URL.createObjectURL(blob) : path;

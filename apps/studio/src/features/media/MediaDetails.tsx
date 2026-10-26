@@ -369,6 +369,12 @@ function MediaDetailsBody({ meta, onClose }: { meta: MediaMeta; onClose: () => v
     if (res.ok) {
       toast({ title: "File deleted", description: "Undo with ⌘Z." });
       onClose();
+    } else {
+      toast({
+        tone: "danger",
+        title: "Couldn’t delete the file",
+        description: res.errors[0]?.message ?? "Try again in a moment.",
+      });
     }
   };
 

@@ -88,7 +88,7 @@ describe("pages & navigation manager", () => {
   });
 
   it("edits page settings with live search and social previews, gating and a redirect", async () => {
-    const { user } = await openEditor("pages");
+    const { user, hub } = await openEditor("pages");
     const doc = store().doc;
     const page = Object.values(doc.pages).find((p) => p.slug !== "");
     if (!page) throw new Error("no page");
@@ -102,6 +102,9 @@ describe("pages & navigation manager", () => {
     await user.click(within(row).getByRole("button", { name: "Page settings" }));
     const dialog = await screen.findByRole("dialog", { name: `${page.title} settings` });
 
+    // The shared SEO check (@openspace/lint) runs on the page as it's edited.
+    const check = within(dialog).getByRole("list", { name: "Search check" });
+    expect(check).toHaveTextContent("This page has no description for search results.");
     const seoTitle = within(dialog).getByLabelText(/Title in search results/);
     await user.type(seoTitle, "Yoga classes in Portland");
     const google = within(dialog).getByTestId("seo-google");
@@ -111,6 +114,9 @@ describe("pages & navigation manager", () => {
       "Small, friendly classes for every body.",
     );
     expect(google).toHaveTextContent("Small, friendly classes for every body.");
+    expect(
+      within(dialog).queryByText("This page has no description for search results."),
+    ).toBeNull();
     await user.click(within(dialog).getByRole("radio", { name: "Social" }));
     expect(within(dialog).getByTestId("seo-social")).toHaveTextContent("Yoga classes in Portland");
 
@@ -123,8 +129,25 @@ describe("pages & navigation manager", () => {
 
     await user.click(within(dialog).getByRole("radio", { name: "Password" }));
     expect(within(dialog).getByText(/Needs Cloudflare hosting/)).toBeInTheDocument();
-
+    // A password page can't be saved without a password the Hub knows.
+    expect(
+      await within(dialog).findByText("Set a password (at least 4 characters) before saving."),
+    ).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: "Save" })).toBeDisabled();
+    await user.type(within(dialog).getByLabelText("Password"), "namaste");
     await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(hub.calls.find((c) => c.method === "setPagePassword")?.args).toEqual([
+        willow.id,
+        page.id,
+        "•••",
+      ]),
+    );
+    await waitFor(() =>
+      expect(store().doc.pages[page.id as keyof SiteDocument["pages"]]?.access).toEqual({
+        password: true,
+      }),
+    );
     const saved = store().doc.pages[page.id as keyof SiteDocument["pages"]];
     expect(saved).toMatchObject({
       slug: "our-classes",
@@ -261,5 +284,61 @@ describe("media library", () => {
     });
     expect(paste.defaultPrevented).toBe(true);
     await waitFor(() => expect(hub.calls.some((c) => c.method === "uploadMedia")).toBe(true));
+  });
+});
+
+describe("page gating follow-ups", () => {
+  it("switching a password page to public removes its password from the Hub", async () => {
+    const { user, hub } = await openEditor("pages");
+    const page = Object.values(store().doc.pages).find((p) => p.slug !== "");
+    if (!page) throw new Error("no page");
+    await hub.setPagePassword(willow.id, page.id, "namaste");
+    act(() => {
+      store().commit([
+        { op: "page.update", page: page.id, set: { access: { password: true } } },
+      ] as never);
+    });
+    const panel = await screen.findByRole("complementary", { name: "Pages" });
+    const row = within(panel)
+      .getAllByRole("listitem")
+      .find((li) => li.querySelector(".st-pm__title")?.textContent === page.title) as HTMLElement;
+    await user.click(within(row).getByRole("button", { name: "Page settings" }));
+    const dialog = await screen.findByRole("dialog", { name: `${page.title} settings` });
+    await within(dialog).findByText("Change password");
+    await user.click(within(dialog).getByRole("radio", { name: "Everyone" }));
+    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(hub.calls.some((c) => c.method === "clearPagePassword")).toBe(true));
+    expect(store().doc.pages[page.id as keyof SiteDocument["pages"]]?.access).toBeUndefined();
+  });
+
+  it("duplicating a password page makes a public copy", async () => {
+    const { user } = await openEditor("pages");
+    const page = Object.values(store().doc.pages).find((p) => p.slug !== "");
+    if (!page) throw new Error("no page");
+    act(() => {
+      store().commit([
+        { op: "page.update", page: page.id, set: { access: { password: true } } },
+      ] as never);
+    });
+    const panel = await screen.findByRole("complementary", { name: "Pages" });
+    const row = within(panel)
+      .getAllByRole("listitem")
+      .find((li) => li.querySelector(".st-pm__title")?.textContent === page.title) as HTMLElement;
+    await user.click(within(row).getByRole("button", { name: "More options" }));
+    await user.click(await screen.findByRole("menuitem", { name: "Duplicate" }));
+    const copy = Object.values(store().doc.pages).find((p) => p.title === `${page.title} (copy)`);
+    expect(copy?.access).toBeUndefined();
+    expect(await screen.findByText(/The copy is public/)).toBeInTheDocument();
+  });
+});
+
+describe("pop-up validation messages", () => {
+  it("explains why an edit wasn't saved", async () => {
+    const { popupProblem } = await import("../site-chrome/BannerEditors");
+    expect(popupProblem({ path: ["heading"], message: "x" })).toBe("the heading can't be empty.");
+    expect(popupProblem({ path: ["frequencyDays"], message: "x" })).toBe(
+      "use between 0 and 365 days.",
+    );
+    expect(popupProblem({ path: ["image", "alt"], message: "x" })).toMatch(/image description/);
   });
 });

@@ -135,6 +135,19 @@ export function AnnouncementEditor() {
 
 // ---------------------------------------------------------------------------------------------
 
+/** A plain-language reason a pop-up edit couldn't be saved. */
+export function popupProblem(issue: { path: PropertyKey[]; message: string } | undefined): string {
+  const key = issue?.path.map(String).join(".") ?? "";
+  if (key === "heading") return "the heading can't be empty.";
+  if (key === "cta.label") return "the button needs some words.";
+  if (key === "delaySeconds") return "use a delay between 0 and 600 seconds.";
+  if (key === "scrollPercent") return "use a scroll depth between 5% and 100%.";
+  if (key === "frequencyDays") return "use between 0 and 365 days.";
+  if (key.startsWith("image")) return "the image description is too long.";
+  if (key.startsWith("cta.link")) return "check the button's link.";
+  return issue?.message ?? "that value isn't allowed.";
+}
+
 const DEFAULT_POPUP: Popup = {
   enabled: true,
   trigger: "time",
@@ -204,12 +217,19 @@ export function PopupEditor() {
   const [heading, setHeading] = useDraft(p?.heading ?? "");
   const [body, setBody] = useDraft(p?.body ?? "");
   const [ctaLabel, setCtaLabel] = useDraft(p?.cta?.label ?? "");
+  const [imageAlt, setImageAlt] = useDraft(p?.image?.alt ?? "");
   const freqPreset = (["0", "1", "7", "30"] as const).find((f) => Number(f) === p?.frequencyDays);
   const [freq, setFreq] = useState<Frequency>(freqPreset ?? "custom");
   useEffect(() => setFreq(freqPreset ?? "custom"), [freqPreset]);
 
+  const [problem, setProblem] = useState<string | null>(null);
   const write = (next: Popup, label: string, mergeKey?: string) => {
-    if (!PopupSchema.safeParse(next).success) return false;
+    const parsed = PopupSchema.safeParse(next);
+    if (!parsed.success) {
+      setProblem(popupProblem(parsed.error.issues[0]));
+      return false;
+    }
+    setProblem(null);
     return update(label, { set: { popup: next } }, mergeKey);
   };
 
@@ -230,6 +250,11 @@ export function PopupEditor() {
       {p && (
         <>
           <PopupPreview popup={p} doc={doc} />
+          {problem && (
+            <p className="st-chrome__problem" role="alert">
+              Not saved: {problem}
+            </p>
+          )}
           <section className="st-chrome__group" aria-labelledby="pop-when">
             <h3 id="pop-when" className="st-chrome__title">
               When it appears
@@ -376,6 +401,25 @@ export function PopupEditor() {
                 }}
               />
             </Field>
+            {p.image && (
+              <Field label="Image description" hint="Read aloud to people using screen readers.">
+                <Input
+                  size="sm"
+                  value={imageAlt}
+                  maxLength={500}
+                  placeholder="e.g. Students stretching in the morning light"
+                  onChange={(e) => {
+                    setImageAlt(e.target.value);
+                    if (p.image)
+                      write(
+                        { ...p, image: { ...p.image, alt: e.target.value } },
+                        "Pop-up image description",
+                        "popup-alt",
+                      );
+                  }}
+                />
+              </Field>
+            )}
             <SwitchRow
               label="Email signup"
               hint="Subscribers join your newsletter list."

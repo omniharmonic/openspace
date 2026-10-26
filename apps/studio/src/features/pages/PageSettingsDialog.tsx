@@ -1,3 +1,4 @@
+import { type Issue, seoCheck, sortIssues } from "@openspace/lint";
 import type { OpBody } from "@openspace/ops";
 import type { Page, SiteDocument } from "@openspace/schema";
 import { Cloud, ImagePlus, KeyRound, Lock, Users, X } from "lucide-react";
@@ -27,7 +28,7 @@ import {
   slugProblem,
   updatePageSettings,
 } from "./pageOps";
-import { pageUrl, SeoPreview, seoHints } from "./SeoPreview";
+import { pageUrl, SeoPreview } from "./SeoPreview";
 
 type Access = PageSettingsInput["access"];
 
@@ -101,7 +102,7 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
   const [password, setPassword] = useState("");
   const passwords = usePagePasswords(
     site?.id ?? "",
-    Boolean(site) && designer && form.access === "password",
+    Boolean(site) && designer && (form.access === "password" || Boolean(page.access?.password)),
   );
   const setPw = useSetPagePassword(site?.id ?? "");
   const hasPassword = passwords.data?.some((p) => p.pageId === page.id) ?? false;
@@ -139,13 +140,62 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
     }),
     [page, form, slug],
   );
-  const hints = seoHints(
-    form.seoTitle.trim() || draft.title,
-    form.seoDescription.trim() || undefined,
+  // The same SEO check the CLI and Claude use (@openspace/lint), run on the page as edited.
+  const seoIssues = useMemo(
+    () =>
+      sortIssues(
+        seoCheck(draft, { ...doc, pages: { ...doc.pages, [page.id]: draft } } as typeof doc),
+      ),
+    [draft, doc, page.id],
   );
 
-  const save = () => {
-    if (slugError || titleError) return;
+  // Search-check autofixes that set this page's SEO title or description fill the form instead.
+  const formFix = (i: Issue): Partial<Record<"seoTitle" | "seoDescription", string>> | null => {
+    const op = i.autofix?.ops[0];
+    if (i.autofix?.ops.length !== 1 || op?.op !== "page.update" || op.page !== page.id) return null;
+    const set = op.set ?? {};
+    const out: Partial<Record<"seoTitle" | "seoDescription", string>> = {};
+    for (const [k, v] of Object.entries(set)) {
+      if (typeof v !== "string") return null;
+      if (k === "seo.title") out.seoTitle = v;
+      else if (k === "seo.description") out.seoDescription = v;
+      else return null;
+    }
+    return Object.keys(out).length ? out : null;
+  };
+  const applyFix = (i: Issue) => {
+    const fix = formFix(i);
+    if (fix) setForm((f) => ({ ...f, ...fix }));
+  };
+
+  // Password pages need a password the Hub knows; switching away from one removes it there.
+  const wasPassword = Boolean(page.access?.password);
+  const passwordError =
+    form.access !== "password"
+      ? null
+      : !designer
+        ? wasPassword
+          ? null
+          : "An owner or designer has to set the password first."
+        : passwords.isSuccess && !hasPassword && password.trim().length < 4
+          ? "Set a password (at least 4 characters) before saving."
+          : null;
+
+  const save = async () => {
+    if (slugError || titleError || passwordError) return;
+    if (form.access === "password" && designer && password.trim().length >= 4) {
+      try {
+        await setPw.mutateAsync({ pageId: page.id, password });
+        setPassword("");
+      } catch (err) {
+        toast({
+          tone: "danger",
+          title: "Couldn’t set the password",
+          description: (err as Error).message,
+        });
+        return;
+      }
+    }
     const cmd = updatePageSettings(doc, page.id, form);
     const bodies: OpBody[] = [...(cmd?.bodies ?? [])];
     // Navigation visibility (after an unlisted change, which already removed the entry).
@@ -170,6 +220,18 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
       toast({ tone: "danger", title: "Couldn’t save", description: res.errors[0]?.message });
       return;
     }
+    if (wasPassword && form.access !== "password" && hasPassword)
+      setPw.mutate(
+        { pageId: page.id, password: null },
+        {
+          onError: (err) =>
+            toast({
+              tone: "danger",
+              title: "Couldn’t remove the old password",
+              description: err.message,
+            }),
+        },
+      );
     toast({ tone: "success", title: "Page settings saved" });
     onClose();
   };
@@ -185,7 +247,7 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
       className="st-page-form"
       onSubmit={(e) => {
         e.preventDefault();
-        save();
+        void save();
       }}
     >
       <div className="st-page-form__cols">
@@ -289,6 +351,7 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
                   <div className="st-pw">
                     <Field
                       label={hasPassword ? "Change password" : "Password"}
+                      error={passwordError}
                       hint={
                         hasPassword
                           ? "A password is set. Visitors type it once per visit."
@@ -333,7 +396,9 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
                     </p>
                   </div>
                 ) : (
-                  <p className="st-muted-note">An owner or designer sets the password.</p>
+                  <p className="st-muted-note" role={passwordError ? "alert" : undefined}>
+                    {passwordError ?? "An owner or designer sets the password."}
+                  </p>
                 ))}
               {form.access === "members" && (
                 <p className="st-muted-note">
@@ -405,12 +470,24 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
             />
           </fieldset>
           <SeoPreview doc={doc} page={draft} />
-          {hints.length > 0 && (
-            <ul className="st-seo-hints">
-              {hints.map((h) => (
-                <li key={h}>{h}</li>
+          {seoIssues.length > 0 ? (
+            <ul className="st-seo-hints" aria-label="Search check">
+              {seoIssues.map((i) => (
+                <li key={i.id} className={`is-${i.severity}`}>
+                  <span>{i.message}</span> <span className="st-seo-hints__fix">{i.fix}</span>
+                  {formFix(i) && (
+                    <>
+                      {" "}
+                      <button type="button" className="st-linklike" onClick={() => applyFix(i)}>
+                        {i.autofix?.label}
+                      </button>
+                    </>
+                  )}
+                </li>
               ))}
             </ul>
+          ) : (
+            <p className="st-muted-note">Search check: nothing to fix on this page.</p>
           )}
         </div>
       </div>
@@ -418,7 +495,12 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
         <Button variant="ghost" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit" variant="primary" disabled={Boolean(slugError || titleError)}>
+        <Button
+          type="submit"
+          variant="primary"
+          loading={setPw.isPending}
+          disabled={Boolean(slugError || titleError || passwordError)}
+        >
           Save
         </Button>
       </div>

@@ -1,10 +1,6 @@
+import { headerPresets } from "@openspace/blocks";
 import type { OpBody } from "@openspace/ops";
-import {
-  HEADER_VARIANTS,
-  type HeaderVariant,
-  type NavItem,
-  type SiteDocument,
-} from "@openspace/schema";
+import type { HeaderVariant, NavItem, SiteDocument } from "@openspace/schema";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cx, Field, Input, Segmented, Slider } from "../../ui";
@@ -155,29 +151,39 @@ export function HeaderBuilder() {
           Layout
         </h3>
         <div className="st-hgallery">
-          {HEADER_VARIANTS.map((v) => (
-            <button
-              key={v}
-              type="button"
-              className={cx("st-hgallery__item", header.variant === v && "is-selected")}
-              aria-pressed={header.variant === v}
-              title={HEADER_LABEL[v].hint}
-              onClick={() =>
-                update("Header layout", {
-                  set: {
-                    "header.variant": v,
-                    ...(v === "transparent-overlay" ? { "header.transparentOnHero": true } : {}),
-                  },
-                })
-              }
-            >
-              <HeaderThumb variant={v} />
-              <span>
-                {HEADER_LABEL[v].name}
-                {header.variant === v && <Check aria-hidden="true" />}
-              </span>
-            </button>
-          ))}
+          {headerPresets.map((preset) => {
+            const built = preset.build({ colorTheme: header.colorTheme ?? preset.defaultTheme });
+            const selected = header.variant === built.variant;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                className={cx("st-hgallery__item", selected && "is-selected")}
+                aria-pressed={selected}
+                title={preset.description}
+                onClick={() =>
+                  update(`Header: ${preset.label}`, {
+                    // The preset's layout and behavior; keep the owner's logo size and social icons.
+                    set: {
+                      header: {
+                        ...built,
+                        ...(header.logoHeight ? { logoHeight: header.logoHeight } : {}),
+                        ...(header.showSocial !== undefined
+                          ? { showSocial: header.showSocial }
+                          : {}),
+                      },
+                    },
+                  })
+                }
+              >
+                <HeaderThumb variant={built.variant} />
+                <span>
+                  {preset.label}
+                  {selected && <Check aria-hidden="true" />}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
