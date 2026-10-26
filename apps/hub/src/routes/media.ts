@@ -66,7 +66,7 @@ const EXT_MIME: Record<string, string> = {
 /** SVG elements Studio's sanitizer (DOMPurify SVG profile) keeps; anything else is refused. */
 const SVG_ELEMENTS = new Set(
   (
-    "svg g defs symbol use path rect circle ellipse line polyline polygon text tspan textPath " +
+    "svg a g defs symbol use path rect circle ellipse line polyline polygon text tspan textPath " +
     "title desc metadata clipPath mask pattern marker linearGradient radialGradient stop filter " +
     "feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting " +
     "feDisplacementMap feDistantLight feDropShadow feFlood feFuncA feFuncB feFuncG feFuncR " +
@@ -87,19 +87,73 @@ export function svgProblem(text: string): string | null {
   if (!/<svg[\s>]/i.test(body)) return "it isn't an SVG image";
   if (/<!ENTITY|<!DOCTYPE[^>]*\[/i.test(body)) return "it declares entities";
   if (/<\?xml-stylesheet/i.test(body)) return "it links a stylesheet";
-  for (const m of body.matchAll(/<([A-Za-z][\w:.-]*)([^>]*)>/g)) {
+  // Whole-text backstop on the entity-decoded text, whatever the tag parsing below concludes.
+  const decoded = decodeEntities(body);
+  const squashed = squash(decoded);
+  if (/\son[a-z]+\s*=/i.test(decoded)) return "it has event handlers";
+  if (/<script|<foreignobject/i.test(decoded)) return "it contains active content";
+  if (/javascript:|vbscript:/.test(squashed)) return "it contains a script URL";
+
+  // Every tag, attributes parsed with their quotes (a `>` inside a quoted value can't end it).
+  const TAG =
+    /<([A-Za-z][\w:.-]*)((?:\s+[^\s=>/"']+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*\/?>/y;
+  const ATTR = /\s+([^\s=>/"']+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g;
+  for (let at = body.search(/<[A-Za-z]/); at >= 0; ) {
+    TAG.lastIndex = at;
+    const m = TAG.exec(body);
+    if (!m) return "it contains a malformed tag";
     const name = (m[1] ?? "").toLowerCase();
     if (!SVG_ELEMENTS.has(name)) return `it contains <${m[1]}>`;
-    const attrs = m[2] ?? "";
-    if (/\son[a-z]+\s*=/i.test(attrs)) return "it has event handlers";
-    for (const a of attrs.matchAll(/\s((?:xlink:)?href|src)\s*=\s*("([^"]*)"|'([^']*)')/gi)) {
-      const value = (a[3] ?? a[4] ?? "").trim();
-      if (!value.startsWith("#")) return "it refers to outside content";
+    for (const a of (m[2] ?? "").matchAll(ATTR)) {
+      const attr = (a[1] ?? "").toLowerCase();
+      const value = decodeEntities(a[2] ?? a[3] ?? a[4] ?? "");
+      const compact = squash(value);
+      if (attr.startsWith("on")) return "it has event handlers";
+      if ((attr === "href" || attr === "xlink:href" || attr === "src") && !compact.startsWith("#"))
+        return "it refers to outside content";
+      if (/url\((?!['"]?#)/.test(compact)) return "it refers to outside content";
+      if (/javascript:|vbscript:|data:/.test(compact)) return "it contains a script URL";
     }
-    if (/url\(\s*['"]?(?!#)/i.test(attrs)) return "it refers to outside content";
-    if (/javascript:|data:/i.test(attrs)) return "it contains a script URL";
+    const next = body.slice(TAG.lastIndex).search(/<[A-Za-z]/);
+    at = next < 0 ? -1 : TAG.lastIndex + next;
   }
   return null;
+}
+
+/** Lowercase with whitespace and control characters removed (`java\tscript:` → `javascript:`). */
+const squash = (t: string) =>
+  [...t]
+    .filter((ch) => ch.charCodeAt(0) > 0x20)
+    .join("")
+    .toLowerCase();
+
+/** Numeric and the few named character references an attacker would use to hide `:`/`(`. */
+function decodeEntities(text: string): string {
+  const named: Record<string, string> = {
+    colon: ":",
+    lpar: "(",
+    rpar: ")",
+    tab: "\t",
+    newline: "\n",
+    sol: "/",
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'",
+  };
+  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);?/gi, (whole, ref: string) => {
+    if (ref[0] === "#") {
+      const code =
+        ref[1] === "x" || ref[1] === "X"
+          ? Number.parseInt(ref.slice(2), 16)
+          : Number.parseInt(ref.slice(1), 10);
+      return Number.isFinite(code) && code > 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : "";
+    }
+    return named[ref.toLowerCase()] ?? whole;
+  });
 }
 
 /** PDF and audio by their magic bytes. */

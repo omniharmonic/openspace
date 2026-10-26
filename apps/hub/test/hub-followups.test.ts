@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import type { FetchLike } from "../src/github/http";
 import { isPrivateAddress } from "../src/mcp/ssrf";
+import { svgProblem } from "../src/routes/media";
 import { MemoryRateLimiter } from "../src/services/rate-limit";
 import { call, devLogin, type TestApp } from "./helpers";
 import { HUB, McpTestClient, oauthConnect, PNG_1PX, STUDIO_ORIGIN, toolText } from "./mcp-helpers";
@@ -279,6 +280,16 @@ describe("Studio follow-ups", () => {
 });
 
 describe("media upload rules (fix round 1)", () => {
+  it("svgProblem parses quoted attributes and decodes entities", () => {
+    expect(svgProblem('<svg x=">" onload="alert(1)">')).toBe("it has event handlers");
+    expect(svgProblem('<svg><rect title=">" onclick=x()/></svg>')).toBe("it has event handlers");
+    expect(svgProblem('<svg><a href="javascript&#58;x"/></svg>')).toBe("it contains a script URL");
+    expect(
+      svgProblem('<svg><a href="&#x23;g"/><rect title="a > b" fill="url(#g)"/></svg>'),
+    ).toBeNull();
+    expect(svgProblem('<svg><rect title="unterminated></svg>')).toBe("it contains a malformed tag");
+  });
+
   async function sha(bytes: Uint8Array) {
     return [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))]
       .map((b) => b.toString(16).padStart(2, "0"))
@@ -326,6 +337,10 @@ describe("media upload rules (fix round 1)", () => {
       '<svg xmlns="http://www.w3.org/2000/svg"><style>rect{}</style></svg>',
       '<svg xmlns="http://www.w3.org/2000/svg"><rect style="fill:url(https://e.example/a)"/></svg>',
       '<!DOCTYPE svg [<!ENTITY x "y">]><svg xmlns="http://www.w3.org/2000/svg"/>',
+      '<svg xmlns="http://www.w3.org/2000/svg" x=">" onload="alert(1)"><rect/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg"><rect title=">" onclick="alert(1)"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg"><a href="javascript&#58;alert(1)"><rect/></a></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg"><a href="jav&#x09;ascript&colon;alert(1)"><rect/></a></svg>',
     ])
       expect(
         (await upload(app, owner, site.id, enc(bad), "svg", "image/svg+xml")).status,

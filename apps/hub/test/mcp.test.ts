@@ -589,6 +589,7 @@ describe("fix round 1", () => {
     const all = lines.join("\n");
     expect(all).toContain("/mcp/t/osmcp_…");
     expect(all).not.toContain(secret.slice(6, 20));
+    expect(redactSecrets("GET /mcp/t/abcdefghij123456 x")).toBe("GET /mcp/t/…3456 x");
     expect(redactSecrets(`GET /mcp/t/${secret}?x=1`)).toBe(
       `GET /mcp/t/osmcp_…${secret.slice(-4)}?x=1`,
     );
