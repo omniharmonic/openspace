@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { mediaFetchInit, previewUrl, useMediaSources } from "./sources";
+import { draftMediaRemote, mediaFetchInit, previewUrl, useMediaSources } from "./sources";
 
 describe("media sources", () => {
   afterEach(() => useMediaSources.getState().reset());
@@ -27,5 +27,13 @@ describe("media sources", () => {
     expect(mediaFetchInit("https://raw.githubusercontent.com/x/y/os/draft/media/a.jpg")).toEqual(
       {},
     );
+  });
+
+  it("uses the Hub proxy only for dev-emulated or private site files", () => {
+    const base = "http://hub.test/api/sites/st_0000000000/";
+    expect(draftMediaRemote({ emulated: false, isPrivate: false, base })).toBeNull();
+    expect(draftMediaRemote({ emulated: true, isPrivate: false, base })).toBe(base);
+    expect(draftMediaRemote({ emulated: false, isPrivate: true, base })).toBe(base);
+    expect(draftMediaRemote({ emulated: true, isPrivate: false, base: null })).toBeNull();
   });
 });

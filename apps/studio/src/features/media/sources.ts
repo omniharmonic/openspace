@@ -75,6 +75,19 @@ export function previewUrl(src: string, state: SourceState): string {
   return src;
 }
 
+/**
+ * Where Studio reads draft media from: the Hub's proxy only when the site's files aren't public
+ * on GitHub (a Hub on its dev GitHub emulation, or a private site); otherwise null, so previews
+ * come straight from raw.githubusercontent at no API cost.
+ */
+export function draftMediaRemote(o: {
+  emulated: boolean;
+  isPrivate: boolean;
+  base: string | null;
+}): string | null {
+  return o.emulated || o.isPrivate ? o.base : null;
+}
+
 /** `fetch` options for a media URL: the Hub proxy needs the session cookie. */
 export function mediaFetchInit(url: string): RequestInit {
   const remote = useMediaSources.getState().remote;

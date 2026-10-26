@@ -14,12 +14,13 @@ import {
 import { lazy, Suspense, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useHub } from "../../api/context";
+import { useSession } from "../../api/queries";
 import type { Site } from "../../api/types";
 import { Spinner, useRegisterCommands } from "../../ui";
 import { useEditorUi } from "../editor/editor-store";
 import { useDocStoreApi } from "../editor/model/context";
 import { MediaDetailsDialog, MediaPickerDialog } from "../media/MediaDetails";
-import { useMediaSources } from "../media/sources";
+import { draftMediaRemote, useMediaSources } from "../media/sources";
 import { useUploader } from "../media/useUploader";
 import { AddPageDialog } from "../pages/AddPageDialog";
 import { PageSettingsDialog } from "../pages/PageSettingsDialog";
@@ -51,12 +52,22 @@ export function SiteManagementHost({ site }: { site: Site }) {
   const tab = settingsTabFromPath(location.pathname);
   const settings = (t?: string) => navigate(`/sites/${site.id}/settings${t ? `/${t}` : ""}`);
 
-  // Library files show in Studio from the site's draft files (through the Hub when it can).
+  // Library files show in Studio from the site's public draft files (raw.githubusercontent, no
+  // Hub or GitHub API cost). The Hub's draft media proxy is used only where those don't exist:
+  // a Hub on its dev GitHub emulation, or a private site.
   const hub = useHub();
+  const session = useSession();
+  const emulated = session.data?.github?.emulated === true;
   useEffect(() => {
     useMediaSources.getState().setRepo(site.repo || null);
-    useMediaSources.getState().setRemote(hub.draftMediaBase?.(site.id) ?? null);
-  }, [site.repo, site.id, hub]);
+    useMediaSources.getState().setRemote(
+      draftMediaRemote({
+        emulated,
+        isPrivate: site.private === true,
+        base: hub.draftMediaBase?.(site.id) ?? null,
+      }),
+    );
+  }, [site.repo, site.id, site.private, hub, emulated]);
 
   // Finish uploads left in the queue by an earlier visit; pause them when the editor closes.
   useEffect(() => {

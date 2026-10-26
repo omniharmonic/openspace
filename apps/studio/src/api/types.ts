@@ -23,6 +23,8 @@ export interface Session {
   user: User | null;
   /** Which sign-in methods the Hub offers. `dev` is only true when DEV_MODE is on. */
   auth: { github: boolean; dev: boolean };
+  /** Whether the Hub talks to real GitHub or its dev emulation (site files then aren't on GitHub). */
+  github?: { configured: boolean; emulated: boolean };
 }
 
 /** Visual parameters of one template "look" — enough to sketch a preview before the renderer is wired. */
@@ -101,6 +103,8 @@ export interface Site {
   domain?: string | null;
   /** Plain-language detail for the status (e.g. why the last publish failed). */
   statusDetail?: string | null;
+  /** The site's files are private (not readable from raw.githubusercontent). */
+  private?: boolean;
 }
 
 /** `POST /api/sites` body. */
