@@ -13,7 +13,15 @@
  *   override `image.*` per block.
  * - everything else: `:root`.
  */
-import { COLOR_ROLES, COLOR_SCALE_STEPS, COLOR_THEMES, type ColorTheme } from "@openspace/schema";
+import {
+  COLOR_ROLES,
+  COLOR_SCALE_STEPS,
+  COLOR_THEMES,
+  type ColorTheme,
+  RADIUS_TOKENS,
+  SHADOW_TOKENS,
+  SPACE_TOKENS,
+} from "@openspace/schema";
 import {
   BUTTON_PROPS,
   BUTTON_ROLES,
@@ -54,31 +62,12 @@ export const themeClass = (theme: ColorTheme) => `os-theme-${theme}`;
 /** Per-block image treatment class. */
 export const imageTreatmentClass = (treatment: string) => `os-image-${treatment}`;
 
-export const SPACE_STEPS = [
-  "none",
-  "3xs",
-  "2xs",
-  "xs",
-  "sm",
-  "md",
-  "lg",
-  "xl",
-  "2xl",
-  "3xl",
-] as const;
-export const RADIUS_NAMES = [
-  "none",
-  "sm",
-  "md",
-  "lg",
-  "xl",
-  "full",
-  "button",
-  "card",
-  "input",
-  "image",
-] as const;
-export const SHADOW_NAMES = ["none", "sm", "md", "lg"] as const;
+/** Space steps (schema `SPACE_TOKENS`). */
+export const SPACE_STEPS = SPACE_TOKENS;
+/** Schema `RADIUS_TOKENS` plus component radii set by the shape choice. */
+export const RADIUS_NAMES = [...RADIUS_TOKENS, "button", "card", "input", "image"] as const;
+/** Schema `SHADOW_TOKENS`. */
+export const SHADOW_NAMES = SHADOW_TOKENS;
 export const TYPE_PROPS = [
   "font-family",
   "font-size",
