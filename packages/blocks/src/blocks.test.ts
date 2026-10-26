@@ -12,6 +12,43 @@ const pascal = (kebab: string) =>
   kebab.replace(/(^|-)([a-z0-9])/g, (_, __, c: string) => c.toUpperCase());
 
 describe("block library", () => {
+  it("has the parity set too: at least 40 blocks", () => {
+    const types = allBlocks.map((b) => b.type);
+    expect(types.length).toBeGreaterThanOrEqual(40);
+    for (const t of [
+      "restaurant-menu",
+      "marquee",
+      "pricing",
+      "team",
+      "stats",
+      "timeline",
+      "tabs",
+      "before-after",
+      "audio",
+      "booking",
+      "link-list",
+      "summary",
+      "events",
+      "chart",
+      "search",
+      "product",
+      "donation",
+      "member-login",
+      "social-feed",
+      "countdown",
+      "hours",
+      "contact-info",
+      "divider",
+      "heading",
+      "quote-carousel",
+    ])
+      expect(types).toContain(t);
+  });
+
+  it("summary offers grid, list, carousel and wall layouts", () => {
+    expect(blocksRegistry().get("summary")?.variants).toEqual(["grid", "list", "carousel", "wall"]);
+  });
+
   it("has the P1 set with unique types", () => {
     const types = allBlocks.map((b) => b.type);
     expect(new Set(types).size).toBe(types.length);
@@ -188,6 +225,32 @@ describe("BLOCKS_CSS", () => {
       "os-cardblock",
       "os-iconlist",
       "os-columns",
+      "os-heading",
+      "os-divider",
+      "os-ticker",
+      "os-tabsblock",
+      "os-quotes",
+      "os-stats",
+      "os-timeline",
+      "os-chart",
+      "os-countdown",
+      "os-pricing",
+      "os-team",
+      "os-menu-card",
+      "os-hours",
+      "os-contact",
+      "os-compare",
+      "os-audio",
+      "os-booking",
+      "os-linklist",
+      "os-feed",
+      "os-summary--wall",
+      "os-events--calendar",
+      "os-searchblock",
+      "os-product",
+      "os-donation",
+      "os-members",
+      "os-empty",
     ])
       expect(BLOCKS_CSS).toContain(`.${cls}`);
   });

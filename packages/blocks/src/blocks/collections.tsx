@@ -628,6 +628,7 @@ export const collectionsCss = `
 .os-events--cards .os-events__item{border:0;padding:var(--os-space-sm);background:var(--os-color-surface);border-radius:var(--os-radius-card)}
 .os-block.has-radius .os-events--cards .os-events__item{border-radius:var(--radius)}
 .os-events--cards .os-events__badge{background:var(--os-color-background)}
+.os-events--calendar{gap:var(--os-space-md)}
 .os-events__months{display:grid;gap:var(--os-space-md)}
 @container block (min-width:64rem){.os-events__months{grid-template-columns:repeat(auto-fit,minmax(24rem,1fr))}}
 .os-events__month-grid{width:100%;border-collapse:collapse;table-layout:fixed;font-size:var(--os-type-small-font-size)}

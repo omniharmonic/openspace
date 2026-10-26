@@ -7,6 +7,7 @@ import beforeAfter from "./behaviors/before-after";
 import cart from "./behaviors/cart";
 import countdown from "./behaviors/countdown";
 import form from "./behaviors/form";
+import videoLite from "./behaviors/video-lite";
 import {
   CollectionsContext,
   feedKey,
@@ -155,6 +156,21 @@ describe("cart: variant picker", () => {
     expect(saved).toEqual([
       { sku: "mat-l", name: "Mat — L", price: 7200, currency: "USD", qty: 1 },
     ]);
+  });
+});
+
+describe("video-lite: generic lazy embeds", () => {
+  it("loads any [data-os-embed] element from its [data-os-load] button", () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    document.body.innerHTML = `<div data-os-embed="https://cal.com/maya/30min/embed" data-os-title="Booking">
+      <button type="button" data-os-load>See times</button></div>`;
+    const el = document.body.firstElementChild as HTMLElement;
+    videoLite(el);
+    (el.querySelector("[data-os-load]") as HTMLButtonElement).click();
+    const iframe = el.querySelector("iframe");
+    expect(iframe?.getAttribute("src")).toBe("https://cal.com/maya/30min/embed?autoplay=1");
+    expect(iframe?.title).toBe("Booking");
+    err.mockRestore();
   });
 });
 
