@@ -158,6 +158,44 @@ describe("canvas", () => {
     expect(items[0]?.heading).toBe("Book");
   });
 
+  it("ends a plain text session safely when a collaborator changes that block", async () => {
+    const { q, store, hub } = await openCanvas();
+    await screen.findByText("Saved");
+    act(() => store().setEditing(I.heroButton, { path: "label", kind: "plain" }));
+    const el = await waitFor(() => {
+      const found = q(I.heroButton).querySelector<HTMLElement>("[data-os-plain-editing]");
+      expect(found).toBeTruthy();
+      return found as HTMLElement;
+    });
+    el.textContent = "Typed here";
+    // Ana changes another field of the same block while the label is being typed.
+    act(() => {
+      hub
+        .room(willow.id)
+        .collaborator({ userId: "u_ana", name: "Ana Ruiz" })
+        .edit([
+          {
+            op: "block.update",
+            page: I.home,
+            block: I.heroButton,
+            set: { secondaryLabel: "Bring a friend" },
+          } as never,
+        ]);
+    });
+    await waitFor(() => expect(q(I.heroButton).textContent).toContain("Bring a friend"));
+    // The session ended first (committing what was typed), then React re-rendered its own nodes.
+    expect(el.hasAttribute("contenteditable")).toBe(false);
+    expect(el.textContent).toBe("Typed here");
+    expect(store().editing).toBeNull();
+    const fields = store().doc.pages[I.home as never]?.sections[0]?.blocks[1]?.fields as {
+      label: string;
+      secondaryLabel: string;
+    };
+    expect(fields).toMatchObject({ label: "Typed here", secondaryLabel: "Bring a friend" });
+    await screen.findByText("Saved");
+    expect(hub.room(willow.id).doc).toEqual(store().doc);
+  });
+
   it("edits plain text fields (headings, labels) in place and commits on Enter", async () => {
     const { q, store } = await openCanvas();
     act(() => store().setEditing(I.offeringsColumns, { path: "items.0.heading", kind: "plain" }));

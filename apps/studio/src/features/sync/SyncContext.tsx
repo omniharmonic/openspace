@@ -10,6 +10,7 @@ import { toast } from "../../ui/toast-store";
 import type { EditorStore } from "../editor/model/store";
 import type { DraftBootstrap } from "./bootstrap";
 import { useDraftCache } from "./bootstrap";
+import { MockDemo } from "./MockDemo";
 import { pageOf } from "./ops-meta";
 import { RoomClient, type RoomSyncState, type SyncTarget } from "./RoomClient";
 import {
@@ -326,6 +327,7 @@ export function SyncProvider({
   return (
     <SyncContext.Provider value={{ client, session, store, site, hub }}>
       <SyncEffects />
+      {import.meta.env.DEV && <MockDemo />}
       {children}
     </SyncContext.Provider>
   );

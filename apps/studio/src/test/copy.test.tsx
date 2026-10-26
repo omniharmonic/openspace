@@ -1,8 +1,11 @@
-import { screen } from "@testing-library/react";
+import type { OpBody } from "@openspace/ops";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { demoSites } from "../api/fixtures";
 import type { Site } from "../api/types";
+import { DEV_IDS as I } from "../features/editor/model/dev-site";
+import type { EditorStore } from "../features/editor/model/store";
 import { renderStudio, SAM } from "./render";
 
 /**
@@ -70,6 +73,64 @@ describe("UI copy avoids Git vocabulary", () => {
     expectCleanCopy();
     await userEvent.keyboard("{Control>}k{/Control}");
     await screen.findByPlaceholderText("Search commands…");
+    expectCleanCopy();
+  });
+
+  it("publishing, progress, history, offline and agent banners", async () => {
+    const site = sites[0] as Site;
+    const { hub, user } = renderStudio(`/sites/${site.id}`, {
+      user: SAM,
+      sites,
+      agentPresenceMs: 50,
+    });
+    await screen.findByText("Saved");
+    const store = (window as unknown as { __osEditorStore: EditorStore }).__osEditorStore;
+    const setLabel = (label: string) =>
+      ({ op: "block.update", page: I.home, block: I.heroButton, set: { label } }) as OpBody;
+    act(() => {
+      store.getState().commit([setLabel("Book now")]);
+    });
+    await screen.findByText("Saved");
+
+    await user.click(screen.getByRole("button", { name: "Publish" }));
+    const dialog = await screen.findByRole("dialog", { name: "Publish changes" });
+    await within(dialog).findByText("1 page edited");
+    expectCleanCopy();
+    await user.click(within(dialog).getByRole("radio", { name: "Schedule" }));
+    expectCleanCopy();
+    await user.click(within(dialog).getByRole("button", { name: "Discard changes…" }));
+    await screen.findByRole("dialog", { name: "Discard unpublished changes?" });
+    expectCleanCopy();
+    await user.click(screen.getByRole("button", { name: "Keep editing" }));
+    // Back in the publish dialog; close it.
+    await screen.findByRole("dialog", { name: "Publish changes" });
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+
+    hub.failNextPublish(site.id);
+    await act(() => hub.publish(site.id));
+    await waitFor(() => expect(document.querySelector(".st-pill[data-phase=failed]")).toBeTruthy());
+    expectCleanCopy();
+
+    const agent = hub.room(site.id).startAgent({ userId: SAM.id, name: SAM.name });
+    act(() => {
+      agent.edit([setLabel("By Claude")]);
+    });
+    await screen.findByText("Claude is editing Home…");
+    expectCleanCopy();
+    await screen.findByRole("region", { name: "Changes by Claude" });
+    expectCleanCopy();
+
+    act(() => hub.room(site.id).setDown(true));
+    await screen.findByRole("status", { name: "Offline" });
+    expectCleanCopy();
+
+    await user.click(screen.getByRole("button", { name: "History" }));
+    const sheet = await screen.findByRole("dialog", { name: "History" });
+    await within(sheet).findByRole("list", { name: "Published versions" });
+    expectCleanCopy();
+    await user.click(within(sheet).getByRole("tab", { name: "Snapshots" }));
+    await within(sheet).findByText("No snapshots yet");
     expectCleanCopy();
   });
 
