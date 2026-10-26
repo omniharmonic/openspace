@@ -605,3 +605,240 @@ describe("last writer wins across offline edits", () => {
     expect(r.store.getState().doc).toEqual(room.doc);
   });
 });
+
+describe("round 4: recovered edits keep their own base", () => {
+  const ANA = { userId: "u_ana", name: "Ana Ruiz" };
+  const anaMember = {
+    client: "ca",
+    actor: "user:u_ana",
+    userId: "u_ana",
+    name: "Ana Ruiz",
+    kind: "human",
+    role: "editor",
+    page: null,
+    selection: [],
+  };
+  const conflicts = (events: RoomEvent[]) =>
+    events.flatMap((e) => (e.type === "conflict" ? [e.notice] : []));
+  const recOp = (body: OpBody, id: string, ts: number) =>
+    ({ ...body, id, actor: `user:${SAM.userId}`, ts }) as unknown as Op;
+
+  it("three sessions: an op made at seq 3 is still sent at seq 3 after a later session saved seq 9", async () => {
+    // A clock that always moves, so "newer" is strictly newer (the room clamps ts to its own).
+    let clock = Date.now();
+    const room = new MockRoom({ doc: devSiteDocument(), now: () => (clock += 10) });
+    const ana = room.collaborator(ANA);
+    for (let i = 1; i <= 3; i++) ana.edit([setLabel(`A${i}`, "secondaryLabel")]);
+    const docAt3 = room.doc;
+    // Session 1 (offline): Sam edits the label on seq 3, with an old timestamp.
+    const r = recOp(setLabel("Sam, session 1"), "R", 1);
+    // Meanwhile Ana changes the same label (newer) and more.
+    ana.edit([setLabel("Ana, newer")]);
+    for (let i = 5; i <= 9; i++) ana.edit([setLabel(`A${i}`, "secondaryLabel")]);
+    // Session 2 reloaded to seq 9 and saved R with its real base before it got sent.
+    const cache = createMemoryDraftCache();
+    await cache.put({
+      key: draftKey(SAM.userId, "st_3", "s2"),
+      userId: SAM.userId,
+      siteId: "st_3",
+      tabId: "s2",
+      doc: room.doc,
+      seq: 9,
+      head: null,
+      pending: [r],
+      pendingBase: { R: 3 },
+      savedAt: 2,
+    });
+    expect(docAt3).toBeDefined();
+    // Session 3.
+    const hub = {
+      getRoomDocument: async () => ({ document: room.doc, seq: room.seq, head: null }),
+    } as unknown as HubApi;
+    const boot = await loadDraft(hub, cache, "st_3", { userId: SAM.userId, tabId: "s3" });
+    expect(boot.pendingBase).toEqual({ R: 3 });
+    const sent: Array<Record<string, unknown>> = [];
+    const store = createEditorStore({ doc: boot.doc, actor: `user:${SAM.userId}` });
+    const client = new RoomClient({
+      siteId: "st_3",
+      target: storeTarget(store),
+      connect: (since) => {
+        const sock = room.connect(SAM, since);
+        const send = sock.send;
+        sock.send = (d) => {
+          if (d !== "ping") sent.push(JSON.parse(d));
+          send(d);
+        };
+        return sock;
+      },
+      fetchDocument: async () => ({ document: room.doc, seq: room.seq }),
+      initial: {
+        doc: boot.confirmed,
+        seq: boot.seq,
+        pending: boot.pending,
+        pendingBase: boot.pendingBase,
+      },
+      timing: FAST,
+      watchNetwork: false,
+    });
+    clients.push(client);
+    client.start();
+    await vi.waitFor(() => expect(client.state.getState().pending).toBe(0), { timeout: 1000 });
+    expect(sent).toContainEqual(expect.objectContaining({ type: "ops", baseSeq: 3 }));
+    // The room rebased it over Ana's newer value: Ana wins.
+    expect(label(room.doc).label).toBe("Ana, newer");
+    expect(store.getState().doc).toEqual(room.doc);
+  });
+
+  function recoveredScripted(op: Op, base = 0) {
+    const events: RoomEvent[] = [];
+    const t = scripted({
+      initial: { doc: devSiteDocument(), seq: base, pending: [op], pendingBase: { [op.id]: base } },
+    });
+    t.client.on((e) => events.push(e));
+    return { ...t, events };
+  }
+
+  it("a stale recovered edit is decided after an ops hello when the reload frame was lost", async () => {
+    const r = recOp(setLabel("Recovered"), "R", 1);
+    const t = recoveredScripted(r);
+    t.hello(0, { ops: [], members: [anaMember] });
+    expect(t.last().sent).toContainEqual(expect.objectContaining({ type: "ops", baseSeq: 0 }));
+    t.fetchDocument.mockRejectedValueOnce(new HubError(0, "network", "offline"));
+    t.serve({ type: "reject", opId: "R", code: "stale", message: "" });
+    await tick();
+    await vi.waitFor(() => expect(t.sockets).toHaveLength(2));
+    // Ana changed another field meanwhile; this client sees that op in the hello replay.
+    const anaOp = {
+      ...setLabel("Ana", "secondaryLabel"),
+      id: "a1",
+      actor: "user:u_ana",
+      ts: 5,
+    } as unknown as Op;
+    t.hello(1, {
+      ops: [{ seq: 1, op: anaOp, client: "ca", actor: "user:u_ana", kind: "human" }],
+      members: [anaMember],
+    });
+    // Covered (seq 1 seen): rebased here and sent at the current seq, not stuck.
+    expect(t.last().sent).toContainEqual(expect.objectContaining({ type: "ops", baseSeq: 1 }));
+    t.serve({ type: "ack", opId: "R", seq: 2, op: r });
+    expect(t.client.state.getState().pending).toBe(0);
+  });
+
+  it("a covered stale edit to a section someone deleted reads “X deleted this”", async () => {
+    const r = recOp(setLabel("Recovered"), "R", 1);
+    const t = recoveredScripted(r);
+    t.hello(0, { ops: [], members: [anaMember] });
+    t.fetchDocument.mockRejectedValueOnce(new HubError(0, "network", "offline"));
+    t.serve({ type: "reject", opId: "R", code: "stale", message: "" });
+    await tick();
+    await vi.waitFor(() => expect(t.sockets).toHaveLength(2));
+    const del = {
+      op: "section.delete",
+      page: I.home,
+      section: I.hero,
+      id: "d1",
+      actor: "user:u_ana",
+      ts: 5,
+    } as unknown as Op;
+    t.hello(1, {
+      ops: [{ seq: 1, op: del, client: "ca", actor: "user:u_ana", kind: "human" }],
+      members: [anaMember],
+    });
+    expect(conflicts(t.events)).toEqual([
+      expect.objectContaining({ message: "Ana Ruiz deleted this", reason: "deleted", opId: "R" }),
+    ]);
+    expect(t.client.state.getState().pending).toBe(0);
+  });
+
+  it("an unsent edit that partly loses keeps its other fields and offers “changed this too” with restore", async () => {
+    const room = new MockRoom({ doc: devSiteDocument() });
+    room.connect(ANA, null);
+    const store = createEditorStore({
+      doc: room.doc,
+      actor: `user:${SAM.userId}`,
+      now: () => 1000,
+    });
+    const events: RoomEvent[] = [];
+    const client = new RoomClient({
+      siteId: "st_p",
+      target: storeTarget(store),
+      connect: (since) => room.connect(SAM, since),
+      fetchDocument: async () => ({ document: room.doc, seq: room.seq }),
+      initial: { doc: room.doc, seq: room.seq },
+      timing: FAST,
+      watchNetwork: false,
+    });
+    client.on((e) => events.push(e));
+    clients.push(client);
+    client.start();
+    await tick();
+    room.setDown(true);
+    await tick();
+    store
+      .getState()
+      .commit([
+        {
+          op: "block.update",
+          page: I.home,
+          block: I.heroButton,
+          set: { label: "Sam", secondaryLabel: "Sam 2" },
+        } as OpBody,
+      ]);
+    room.setDown(false);
+    room.connect(ANA, null);
+    room.collaborator(ANA).edit([setLabel("Ana")]);
+    await vi.waitFor(() => expect(client.state.getState().pending).toBe(0), { timeout: 1000 });
+    expect(label(room.doc)).toMatchObject({ label: "Ana", secondaryLabel: "Sam 2" });
+    expect(conflicts(events)).toEqual([
+      expect.objectContaining({
+        message: "Ana Ruiz changed this too",
+        winner: "them",
+        restore: expect.anything(),
+      }),
+    ]);
+  });
+
+  it("a sent edit removed locally still gets its notice if the connection drops before the room's", async () => {
+    const t = scripted();
+    const events: RoomEvent[] = [];
+    t.client.on((e) => events.push(e));
+    t.hello(0, { ops: [], members: [anaMember] });
+    t.commit(setLabel("Mine"));
+    const anaOp = {
+      ...setLabel("Ana"),
+      id: "a1",
+      actor: "user:u_ana",
+      ts: Date.now() + 60_000,
+    } as unknown as Op;
+    t.serve({ type: "op", seq: 1, op: anaOp, client: "ca", actor: "user:u_ana", kind: "human" });
+    expect(t.client.state.getState().pending).toBe(0);
+    expect(conflicts(events)).toHaveLength(0); // the room's notice is expected…
+    t.last().sock.onclose?.(1006, "gone"); // …but the connection drops first
+    await vi.waitFor(() => expect(t.sockets).toHaveLength(2));
+    t.hello(1, { ops: [], members: [anaMember] });
+    expect(conflicts(events)).toEqual([
+      expect.objectContaining({ message: "Ana Ruiz changed this too", restore: expect.anything() }),
+    ]);
+  });
+
+  it("keeps the replay history only as far back as a recovered edit needs", () => {
+    const r = recOp(setLabel("Recovered", "secondaryLabel"), "R", Date.now() + 60_000);
+    const t = recoveredScripted(r);
+    t.hello(0, { ops: [], members: [] });
+    for (let i = 1; i <= 30; i++)
+      t.serve({
+        type: "op",
+        seq: i,
+        op: { ...setLabel(`x${i}`), id: `o${i}`, actor: "user:u_ana", ts: i },
+        client: "ca",
+        actor: "user:u_ana",
+        kind: "human",
+      });
+    const priv = t.client as unknown as { replayed: unknown[]; seen: Set<number> };
+    expect(priv.replayed.length).toBe(30);
+    t.serve({ type: "ack", opId: "R", seq: 31, op: r });
+    expect(t.client.state.getState().pending).toBe(0);
+    expect(priv.replayed.length).toBe(0);
+    expect(priv.seen.size).toBe(1);
+  });
+});

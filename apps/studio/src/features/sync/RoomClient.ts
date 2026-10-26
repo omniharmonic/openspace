@@ -205,7 +205,9 @@ export class RoomClient {
   private presence: { page: string | null; selection: string[] } | null = null;
   private lastFrameAt = 0;
   /** Room ops applied while recovered edits are waiting (for resolving them after `stale`). */
-  private replayed: LoggedOp[] = [];
+  private replayed: Array<LoggedOp & { before: SiteDocument }> = [];
+  /** Sent live ops removed locally; their notice is shown if the room's never arrives. */
+  private awaitingNotice = new Map<string, ReturnType<typeof rebase>["conflicts"][number]>();
   /** Seqs this client has seen in order since it started (remote and own). */
   private readonly seen = new Set<number>();
   /** Actor → display name, from everyone seen in the room. */
@@ -241,10 +243,10 @@ export class RoomClient {
     this.pending = (options.initial.pending ?? []).map((op) => ({
       op,
       sent: false,
-      base: Math.max(
-        options.initial.pendingBase?.[op.id] ?? options.initial.seq,
-        options.initial.seq,
-      ),
+      // Each recovered op keeps the seq it was really made on (it may be older than this
+      // record's seq after earlier sessions): never raise it, or the room would treat an old
+      // value as made on a newer base and let it win.
+      base: options.initial.pendingBase?.[op.id] ?? options.initial.seq,
     }));
     this.seen.add(options.initial.seq);
     this.site = options.site;
@@ -549,6 +551,7 @@ export class RoomClient {
         this.reject(msg.opId, msg.code, msg.message);
         return;
       case "conflict":
+        this.awaitingNotice.delete(msg.opId);
         this.emit({ type: "conflict", notice: msg });
         return;
       case "presence":
@@ -597,6 +600,9 @@ export class RoomClient {
       you: msg.you,
       members: msg.members,
     });
+    // Notices the room owed us for ops we removed locally, lost with the last connection.
+    for (const c of this.awaitingNotice.values()) this.emitConflict(c);
+    this.awaitingNotice.clear();
     if (msg.doc) this.reload(msg.doc, msg.seq, msg.head, "hello");
     else {
       this.head = msg.head;
@@ -607,6 +613,8 @@ export class RoomClient {
         }
         this.logged(o);
       }
+      // Recovered edits the room called stale, whose reload frame was lost: decide them now.
+      this.resolveStaleRecovered();
     }
     // Anything not confirmed by now goes again; the room dedupes by op id.
     for (const p of this.pending) p.sent = false;
@@ -628,6 +636,8 @@ export class RoomClient {
   }
 
   private ack(opId: string, seq: number, op: Op): void {
+    // The room accepted it after all: no notice owed.
+    this.awaitingNotice.delete(opId);
     const idx = this.pending.findIndex((p) => p.op.id === opId);
     if (seq <= this.seq) {
       // A resend acknowledged again: it's already part of the confirmed document.
@@ -661,6 +671,7 @@ export class RoomClient {
     this.seq = seq;
     this.seen.add(seq);
     if (at >= 0) this.pending.splice(at, 1);
+    this.prune();
     this.afterPendingChange(changed);
   }
 
@@ -676,8 +687,8 @@ export class RoomClient {
     this.confirmed = next;
     this.seq = o.seq;
     this.seen.add(o.seq);
-    if (this.pending.some((p) => p.base !== undefined)) this.replayed.push(o);
-    else this.replayed = [];
+    if (this.pending.some((p) => p.base !== undefined)) this.replayed.push({ ...o, before: base });
+    this.prune();
     // Live edits are rebased here with the room's rules: one that loses (last writer wins,
     // or its target was deleted) is removed, and the person gets "X changed this too" with a
     // one-click restore that re-applies their value as a new edit. Recovered edits are left
@@ -693,11 +704,16 @@ export class RoomClient {
       // Ops already sent get the room's own notice (it rejects them as `dropped`); the room
       // never sees unsent ones, so their notice comes from here.
       const unsent = new Set(live.filter((p) => !p.sent).map((p) => p.op.id));
-      const dropped = new Set(r.dropped.map((d) => d.id).filter((id) => unsent.has(id)));
       this.pending = this.pending
         .filter((p) => p.base !== undefined || byId.has(p.op.id))
         .map((p) => (p.base !== undefined ? p : { ...p, op: byId.get(p.op.id) as Op }));
-      for (const c of r.conflicts) if (dropped.has(c.local.id)) this.emitConflict(c);
+      for (const c of r.conflicts) {
+        if (c.winner !== "remote") continue;
+        // Unsent: dropped or partly stripped, the room will never know; tell the person now.
+        if (unsent.has(c.local.id)) this.emitConflict(c);
+        // Sent: the room's own notice is coming; keep ours in case the connection drops first.
+        else this.awaitingNotice.set(c.local.id, c);
+      }
     }
     this.afterPendingChange(true);
     this.emit({ type: "remote", logged: o });
@@ -799,9 +815,12 @@ export class RoomClient {
       const from = p.base as number;
       let covered = true;
       for (let q = from + 1; q <= this.seq; q++) if (!this.seen.has(q)) covered = false;
-      const remotes = this.replayed.filter((o) => o.seq > from).map((o) => o.op);
+      const after = this.replayed.filter((o) => o.seq > from);
+      const remotes = after.map((o) => o.op);
       if (covered) {
-        const r = rebase([p.op], remotes, { doc: this.confirmed });
+        // The document the edit was made on, so a section delete reads "X deleted this".
+        const baseDoc = after[0]?.before ?? this.confirmed;
+        const r = rebase([p.op], remotes, { base: baseDoc, doc: this.confirmed });
         const next = r.ops[0];
         if (next) {
           p.op = next;
@@ -815,6 +834,25 @@ export class RoomClient {
       } else this.setAside(p.op);
       this.pending = this.pending.filter((x) => x !== p);
     }
+    this.prune();
+    this.recompute(false);
+    this.patch({ pending: this.pending.length });
+    this.persistSoon();
+    this.settled();
+  }
+
+  /** Keep `seen`/`replayed` only as far back as the oldest recovered edit still needs. */
+  private prune(): void {
+    let min = Number.POSITIVE_INFINITY;
+    for (const p of this.pending) if (p.base !== undefined && p.base < min) min = p.base;
+    if (min === Number.POSITIVE_INFINITY) {
+      this.replayed = [];
+      this.seen.clear();
+      this.seen.add(this.seq);
+      return;
+    }
+    this.replayed = this.replayed.filter((o) => o.seq > min);
+    for (const q of this.seen) if (q <= min) this.seen.delete(q);
   }
 
   /** A recovered edit that can't be merged safely: offer it back instead of overwriting. */
