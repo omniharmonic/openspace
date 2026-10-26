@@ -1,0 +1,273 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_99fmsxfec8",
+  "title": "Subscribe",
+  "slug": "subscribe",
+  "seo": {
+    "description": "Subscribe to The Long Field for free, or become a supporter for $6 a month to keep the letter independent and ad-free."
+  },
+  "sections": [
+    {
+      "id": "sec_nx073274t5",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_wa876ffs3m",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Free to read, kept alive by readers",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Subscribe",
+            "subheading": "Every essay is free. Supporters pay what a coffee costs each month, which pays for the writing time, the printing of the yearly anthology and nothing else."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_1b3g6wdr9z",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Subscribe free",
+            "link": {
+              "type": "page",
+              "page": "pg_at43pg8ew2"
+            },
+            "role": "primary",
+            "secondaryLabel": "Become a supporter",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_99fmsxfec8",
+              "anchor": "support"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_gy4f8jdbd0",
+      "preset": "pricing/two-plans@1",
+      "label": "Two plans in columns",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_zfmqhzf2kv",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Choose how you read",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Two ways to read",
+            "subheading": "Both get every essay. Supporters get a little more, and my lasting gratitude."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_8wxc3a6kab",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Reader",
+                "price": "Free",
+                "period": "always",
+                "description": "Every essay by email, every other Sunday.",
+                "features": [
+                  {
+                    "text": "The fortnightly essay"
+                  },
+                  {
+                    "text": "The full archive online"
+                  },
+                  {
+                    "text": "Replies always welcome"
+                  }
+                ],
+                "buttonLabel": "Subscribe free",
+                "link": {
+                  "type": "page",
+                  "page": "pg_at43pg8ew2"
+                },
+                "featured": false
+              },
+              {
+                "name": "Supporter",
+                "price": "$6",
+                "period": "per month",
+                "description": "Keeps the letter independent and ad-free.",
+                "features": [
+                  {
+                    "text": "A printed anthology every December"
+                  },
+                  {
+                    "text": "Audio readings of each essay"
+                  },
+                  {
+                    "text": "A seasonal walk with readers"
+                  }
+                ],
+                "buttonLabel": "Become a supporter",
+                "link": {
+                  "type": "page",
+                  "page": "pg_qgdxacc2d3"
+                },
+                "featured": true,
+                "badge": "Thank you"
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "columns"
+        }
+      ],
+      "anchor": "support"
+    },
+    {
+      "id": "sec_9g6r1dzqh7",
+      "preset": "faq/centered@1",
+      "label": "Centred questions",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_k78x9tm3kz",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Before you subscribe",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Questions"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_gj7k192pq9",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "How often will I hear from you?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Every other Sunday morning, Eastern time. Never more, occasionally less in lambing season."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I read without subscribing?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Every essay goes up in the archive a day after it's sent."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I give a supporter subscription?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Of course. Write to me with their address and I'll send a card with the first anthology."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "minimal"
+        }
+      ]
+    }
+  ]
+}

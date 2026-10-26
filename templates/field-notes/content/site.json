@@ -1,0 +1,218 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "The Long Field",
+  "tagline": "Essays on walking, weather and paying attention.",
+  "nav": [
+    {
+      "type": "collection",
+      "collection": "essays",
+      "label": "Essays"
+    },
+    {
+      "type": "page",
+      "page": "pg_jb98pzwwr8",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_qgdxacc2d3",
+      "label": "Contact"
+    },
+    {
+      "type": "button",
+      "label": "Subscribe",
+      "link": {
+        "type": "page",
+        "page": "pg_99fmsxfec8"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "logo-center-nav-below",
+    "sticky": false,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_y8fgyw7y5j",
+    "preset": "footer/centered@1",
+    "label": "Centred footer",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          12
+        ]
+      },
+      "width": "narrow",
+      "gap": "md"
+    },
+    "style": {
+      "colorTheme": "light-accent",
+      "padding": {
+        "d": "lg",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_v3cbrenr6x",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "The Long Field"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "A letter every other Sunday from a hill farm in Peacham, Vermont, by Ruth Ellery."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "center"
+          }
+        }
+      },
+      {
+        "id": "blk_rkqk8n2hxc",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "variant": "icons",
+        "style": {
+          "align": {
+            "d": "center"
+          }
+        }
+      },
+      {
+        "id": "blk_gg2nc7ref7",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Ruth Ellery · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Essays",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/essays/"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Subscribe",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/subscribe/"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "RSS",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/essays/rss.xml"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "center"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "substack",
+      "url": "https://thelongfield.substack.example"
+    },
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/thelongfield.example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:ruth@thelongfield.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · The Long Field",
+    "description": "Essays on walking, weather and paying attention, by Ruth Ellery.",
+    "image": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

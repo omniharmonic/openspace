@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.9 0.17 100)",
+      "neutral": "warm",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "literata-manrope",
+    "density": "comfortable",
+    "shape": "soft",
+    "buttons": "solid",
+    "motion": "none",
+    "imageTreatment": "none"
+  }
+}

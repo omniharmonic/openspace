@@ -1,0 +1,116 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_qgdxacc2d3",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Write to Ruth Ellery about The Long Field, supporter subscriptions, speaking, reprints or press. Every reply is read."
+  },
+  "sections": [
+    {
+      "id": "sec_g454mr3qqy",
+      "preset": "contact/form-split@1",
+      "label": "Contact form with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_q2ss02pgxk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Write to me",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact",
+            "subheading": "Replying to any letter reaches me too. For press, reprints and speaking, the form below is quickest."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_dz0m1vca3w",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Ruth Ellery",
+            "address": "Peacham, Vermont",
+            "email": "ruth@thelongfield.example",
+            "directions": true
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_9mhj1es30s",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_c2r4bmby3v",
+              "name": "Contact",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "topic",
+                  "label": "About",
+                  "width": "full",
+                  "options": [
+                    "A letter",
+                    "Supporter subscription",
+                    "Speaking",
+                    "Reprints & press"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Message",
+                  "required": true,
+                  "maxLength": 4000
+                }
+              ],
+              "submitLabel": "Send",
+              "success": {
+                "type": "message",
+                "message": "Thank you for writing. I read everything, usually on Sunday evenings."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}
