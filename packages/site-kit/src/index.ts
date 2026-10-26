@@ -8,13 +8,13 @@
  */
 export const name = "@openspace/site-kit";
 
-export * from "./content/index";
 export { type AgentsMdOptions, generateAgentsMd } from "./agents-md";
+export * from "./content/index";
 export { type DeployLocation, deployLocation } from "./deploy";
 export * from "./feeds";
 export { type FeedFormat, type FeedPlan, feedsFor } from "./feeds-plan";
 export { contentHash, stableId } from "./ids";
-export { openspace, type OpenSpaceOptions } from "./integration";
+export { type OpenSpaceOptions, openspace, openspace as default } from "./integration";
 export * from "./manifests";
 export {
   blockFromTag,
@@ -25,6 +25,14 @@ export {
   markdocToBlocks,
   requiredDefaults,
 } from "./markdoc";
+export { resolveFonts } from "./node/fonts";
+export { renderOgPng, writeOgImages } from "./node/og";
+export {
+  type PostbuildOptions,
+  type PostbuildResult,
+  rawMediaSources,
+  writeSiteOutputs,
+} from "./node/postbuild";
 export {
   cardRows,
   formatDate,
@@ -41,11 +49,12 @@ export {
 } from "./pages";
 export * from "./render";
 export * from "./routes";
+export {
+  fallbackFormat,
+  IMAGE_WIDTHS,
+  imageWidths,
+  localImageSrcs,
+  resolvedImage,
+} from "./runtime/images";
 export type { RuntimeOptions } from "./runtime-options";
 export * from "./seo";
-export { fallbackFormat, IMAGE_WIDTHS, imageWidths, localImageSrcs, resolvedImage } from "./runtime/images";
-export { type PostbuildOptions, type PostbuildResult, rawMediaSources, writeSiteOutputs } from "./node/postbuild";
-export { resolveFonts } from "./node/fonts";
-export { renderOgPng, writeOgImages } from "./node/og";
-
-export { openspace as default } from "./integration";

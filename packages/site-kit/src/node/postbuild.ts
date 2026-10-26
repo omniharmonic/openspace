@@ -8,12 +8,17 @@ import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/pro
 import { dirname, join, relative, sep } from "node:path";
 import { BEHAVIOR_LOADER, behaviorsInHtml } from "@openspace/renderer";
 import { BEHAVIOR_ESBUILD, behaviorDistPath, behaviorSourcePath } from "@openspace/renderer/node";
+import type { SiteDocument } from "@openspace/schema";
 import { build as esbuild } from "esbuild";
 import * as pagefind from "pagefind";
-import type { SiteDocument } from "@openspace/schema";
 import type { DeployLocation } from "../deploy";
 import { buildFeeds, type PodcastOptions } from "../feeds";
-import { catalogManifest, CATALOG_MANIFEST_PATH, FORMS_MANIFEST_PATH, formsManifest } from "../manifests";
+import {
+  CATALOG_MANIFEST_PATH,
+  catalogManifest,
+  FORMS_MANIFEST_PATH,
+  formsManifest,
+} from "../manifests";
 import { routePage, siteStylesheets, TURNSTILE_LOADER } from "../render";
 import type { SitePlan } from "../routes";
 import { cloudflareRedirects, redirectFile, redirectHtml, robotsTxt, sitemapXml } from "../seo";
@@ -43,7 +48,11 @@ export interface PostbuildResult {
 
 const RASTER = /\.(?:jpe?g|png|webp|avif|gif)$/i;
 
-async function walkFiles(dir: string, skip: (rel: string) => boolean = () => false, base = dir): Promise<string[]> {
+async function walkFiles(
+  dir: string,
+  skip: (rel: string) => boolean = () => false,
+  base = dir,
+): Promise<string[]> {
   let entries: import("node:fs").Dirent[];
   try {
     entries = await readdir(dir, { withFileTypes: true });
@@ -120,9 +129,9 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
   for (const [rel, css] of Object.entries(sheets.files)) await put(rel, css);
 
   // Behaviors used by at least one page (+ the loader), Turnstile loader if any form has a slot.
-  const htmlFiles = (await walkFiles(outDir, (rel) => rel === "pagefind" || rel === "_astro")).filter((f) =>
-    f.endsWith(".html"),
-  );
+  const htmlFiles = (
+    await walkFiles(outDir, (rel) => rel === "pagefind" || rel === "_astro")
+  ).filter((f) => f.endsWith(".html"));
   const used = new Set<string>();
   let turnstile = false;
   for (const rel of htmlFiles) {
@@ -138,7 +147,11 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
     // Bundled here (static esbuild import): the config's module runner is closed by build:done.
     const bundled: Record<string, string> = {};
     for (const n of missing) {
-      const r = await esbuild({ ...BEHAVIOR_ESBUILD, entryPoints: [behaviorSourcePath(n)], minify: true });
+      const r = await esbuild({
+        ...BEHAVIOR_ESBUILD,
+        entryPoints: [behaviorSourcePath(n)],
+        minify: true,
+      });
       bundled[n] = r.outputFiles?.[0]?.text ?? "";
     }
     for (const n of names) {
@@ -156,7 +169,8 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
 
   // Sitemap, robots (the owner's public/robots.txt wins).
   await put("sitemap.xml", sitemapXml(plan, location.siteUrl));
-  if (!(await exists(join(rootDir, "public", "robots.txt")))) await put("robots.txt", robotsTxt(plan.doc, location.siteUrl));
+  if (!(await exists(join(rootDir, "public", "robots.txt"))))
+    await put("robots.txt", robotsTxt(plan.doc, location.siteUrl));
 
   // Redirects: static HTML pages (+ `_redirects` for real 301s on Cloudflare).
   const redirects = plan.doc.site.redirects ?? [];
@@ -170,7 +184,8 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
     }
     await put(file, redirectHtml(r, basePath, location.siteUrl));
   }
-  if (opts.cloudflare && redirects.length) await put("_redirects", cloudflareRedirects(redirects, basePath));
+  if (opts.cloudflare && redirects.length)
+    await put("_redirects", cloudflareRedirects(redirects, basePath));
 
   // Hub manifests.
   await put(FORMS_MANIFEST_PATH, `${JSON.stringify(formsManifest(plan), null, 2)}\n`);
@@ -181,7 +196,9 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
   const specs =
     opts.ogImages === false
       ? []
-      : plan.routes.map((r) => routePage(plan, r, true).og).filter((s): s is NonNullable<typeof s> => !!s);
+      : plan.routes
+          .map((r) => routePage(plan, r, true).og)
+          .filter((s): s is NonNullable<typeof s> => !!s);
   const og = await writeOgImages(specs, { outDir, cacheDir: join(cacheDir, "og"), rootDir });
   if (specs.length) log(`share images: ${og.generated} generated, ${og.cached} cached`);
 
@@ -213,7 +230,10 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
       if (r.kind === "notFound") continue;
       const file = join(outDir, r.path === "/" ? "index.html" : `${r.path.slice(1)}index.html`);
       if (!(await exists(file))) continue;
-      await index.addHTMLFile({ url: `${basePath}${r.path}`, content: await readFile(file, "utf8") });
+      await index.addHTMLFile({
+        url: `${basePath}${r.path}`,
+        content: await readFile(file, "utf8"),
+      });
     }
     await index.writeFiles({ outputPath: join(outDir, "pagefind") });
     await pagefind.close();

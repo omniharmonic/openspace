@@ -62,7 +62,11 @@ export function makeBlock(
 export function stackSection(
   seed: string,
   blocks: Block[],
-  opts: { colorTheme?: ColorTheme; width?: "narrow" | "content" | "wide" | "full"; columns?: number[] } = {},
+  opts: {
+    colorTheme?: ColorTheme;
+    width?: "narrow" | "content" | "wide" | "full";
+    columns?: number[];
+  } = {},
 ): Section {
   const columns = opts.columns ?? [12];
   return {
@@ -93,7 +97,10 @@ export function isLive(item: CollectionItem, now: Date): boolean {
   return false;
 }
 
-export function sortItems(items: CollectionItem[], sort: CollectionConfig["list"]["sort"] = "date-desc"): CollectionItem[] {
+export function sortItems(
+  items: CollectionItem[],
+  sort: CollectionConfig["list"]["sort"] = "date-desc",
+): CollectionItem[] {
   const t = (i: CollectionItem) => {
     const d = itemDate(i);
     return d ? Date.parse(d) : 0;
@@ -101,7 +108,8 @@ export function sortItems(items: CollectionItem[], sort: CollectionConfig["list"
   const out = [...items];
   if (sort === "date-desc") out.sort((a, b) => t(b) - t(a) || a.slug.localeCompare(b.slug));
   else if (sort === "date-asc") out.sort((a, b) => t(a) - t(b) || a.slug.localeCompare(b.slug));
-  else if (sort === "title") out.sort((a, b) => a.frontmatter.title.localeCompare(b.frontmatter.title));
+  else if (sort === "title")
+    out.sort((a, b) => a.frontmatter.title.localeCompare(b.frontmatter.title));
   return out;
 }
 
@@ -126,7 +134,15 @@ function formatTime(iso: string, locale: string, timeZone?: string): string {
 }
 
 /** `Saturday, November 14, 2026 · 9:00 AM – 12:00 PM MST` */
-export function formatEventWhen(fm: { start: string; end?: string | undefined; allDay?: boolean | undefined; timezone?: string | undefined }, locale: string): string {
+export function formatEventWhen(
+  fm: {
+    start: string;
+    end?: string | undefined;
+    allDay?: boolean | undefined;
+    timezone?: string | undefined;
+  },
+  locale: string,
+): string {
   const tz = fm.timezone;
   const dayFmt = (iso: string) =>
     new Intl.DateTimeFormat(locale, {
@@ -143,7 +159,8 @@ export function formatEventWhen(fm: { start: string; end?: string | undefined; a
   }
   const startTime = formatTime(fm.start, locale, tz);
   if (!fm.end) return `${startDay} · ${startTime}`;
-  if (dayFmt(fm.end) === startDay) return `${startDay} · ${startTime.replace(/\s\S+$/, "")} – ${formatTime(fm.end, locale, tz)}`;
+  if (dayFmt(fm.end) === startDay)
+    return `${startDay} · ${startTime.replace(/\s\S+$/, "")} – ${formatTime(fm.end, locale, tz)}`;
   return `${startDay} · ${startTime} – ${dayFmt(fm.end)} · ${formatTime(fm.end, locale, tz)}`;
 }
 
@@ -191,7 +208,11 @@ export function tagSlug(tag: string): string {
 }
 
 export function itemDescription(item: CollectionItem): string | undefined {
-  return item.frontmatter.seo?.description ?? item.frontmatter.excerpt ?? (markdocPlainText(item.body, 200) || undefined);
+  return (
+    item.frontmatter.seo?.description ??
+    item.frontmatter.excerpt ??
+    (markdocPlainText(item.body, 200) || undefined)
+  );
 }
 
 /** The item page: header, featured image, the Markdoc body, kind-specific extras, sharing. */
@@ -208,7 +229,12 @@ export function itemPage(
   const seed = `item:${collection}/${item.slug}`;
   const file = `content/collections/${collection}/${item.slug}.mdoc`;
   const layout = cfg?.itemPage?.layout ?? "article";
-  const width = layout === "article" || layout === "minimal" ? "narrow" : layout === "wide" ? "wide" : "content";
+  const width =
+    layout === "article" || layout === "minimal"
+      ? "narrow"
+      : layout === "wide"
+        ? "wide"
+        : "content";
 
   // Header text: eyebrow (date / first category), title, excerpt.
   const eyebrow: string[] = [];
@@ -220,14 +246,19 @@ export function itemPage(
   }
   const firstCat = fm.categories?.[0];
   if (firstCat) eyebrow.push(categoryLabel(cfg, firstCat));
-  const author = item.kind === "blog" && cfg?.itemPage?.showAuthor !== false ? item.frontmatter.author : undefined;
+  const author =
+    item.kind === "blog" && cfg?.itemPage?.showAuthor !== false
+      ? item.frontmatter.author
+      : undefined;
   const header: RichTextDoc["content"] = [];
   if (eyebrow.length) header.push(rt.p(eyebrow.join(" · "), "eyebrow"));
   header.push(rt.h(1, fm.title));
   if (fm.excerpt) header.push(rt.p(fm.excerpt, "lead"));
   if (author) header.push(rt.p(`By ${author}`, "small"));
 
-  const headerBlocks: Block[] = [makeBlock(ctx, `${seed}#title`, "text", { content: rt.doc(...header) })];
+  const headerBlocks: Block[] = [
+    makeBlock(ctx, `${seed}#title`, "text", { content: rt.doc(...header) }),
+  ];
 
   if (item.kind === "events") {
     const e = item.frontmatter;
@@ -236,7 +267,9 @@ export function itemPage(
     if (where) lines.push(rt.p([rt.bold("Where: "), where]));
     else if (e.location?.online) lines.push(rt.p([rt.bold("Where: "), "Online"]));
     if (e.price) lines.push(rt.p([rt.bold("Price: "), e.price]));
-    headerBlocks.push(makeBlock(ctx, `${seed}#when`, "text", { content: rt.doc(...lines) }, "callout"));
+    headerBlocks.push(
+      makeBlock(ctx, `${seed}#when`, "text", { content: rt.doc(...lines) }, "callout"),
+    );
     const reg = e.registrationUrl ?? e.location?.url;
     if (reg)
       headerBlocks.push(
@@ -278,13 +311,17 @@ export function itemPage(
 
   if (fm.image) {
     sections.push(
-      stackSection(`${seed}#hero`, [
-        makeBlock(ctx, `${seed}#image`, "image", {
-          image: imageValue(fm.image, doc.media, fm.imageAlt),
-          aspect: "original",
-          lightbox: false,
-        }),
-      ], { width: width === "narrow" ? "content" : width }),
+      stackSection(
+        `${seed}#hero`,
+        [
+          makeBlock(ctx, `${seed}#image`, "image", {
+            image: imageValue(fm.image, doc.media, fm.imageAlt),
+            aspect: "original",
+            lightbox: false,
+          }),
+        ],
+        { width: width === "narrow" ? "content" : width },
+      ),
     );
   }
 
@@ -299,41 +336,69 @@ export function itemPage(
       const field = Object.entries(def?.meta.fields ?? {}).find(([, m]) => m.kind === "media");
       if (field)
         sections.push(
-          stackSection(`${seed}#audio`, [
-            makeBlock(ctx, `${seed}#player`, "audio", { [field[0]]: { kind: "audio", src: href, title: fm.title } }),
-          ], { width }),
+          stackSection(
+            `${seed}#audio`,
+            [
+              makeBlock(ctx, `${seed}#player`, "audio", {
+                [field[0]]: { kind: "audio", src: href, title: fm.title },
+              }),
+            ],
+            { width },
+          ),
         );
     } else {
       sections.push(
-        stackSection(`${seed}#audio`, [
-          makeBlock(ctx, `${seed}#listen`, "button", {
-            label: `Listen (${minutes} min)`,
-            link: { type: "file", src: href },
-            role: "primary",
-            ...(media?.bytes ? { note: `${Math.round(media.bytes / 1e6)} MB audio file` } : {}),
-          }),
-        ], { width }),
+        stackSection(
+          `${seed}#audio`,
+          [
+            makeBlock(ctx, `${seed}#listen`, "button", {
+              label: `Listen (${minutes} min)`,
+              link: { type: "file", src: href },
+              role: "primary",
+              ...(media?.bytes ? { note: `${Math.round(media.bytes / 1e6)} MB audio file` } : {}),
+            }),
+          ],
+          { width },
+        ),
       );
     }
   }
 
-  const body = markdocToBlocks(item.body, { registry: ctx.registry, media: doc.media, idSeed: seed });
+  const body = markdocToBlocks(item.body, {
+    registry: ctx.registry,
+    media: doc.media,
+    idSeed: seed,
+  });
   if (body.issues.length) throw new ItemBodyError(file, body.issues);
   if (body.blocks.length) sections.push(stackSection(`${seed}#body`, body.blocks, { width }));
 
   const galleryImages =
-    item.kind === "portfolio" ? item.frontmatter.gallery : item.kind === "products" ? item.frontmatter.images : undefined;
+    item.kind === "portfolio"
+      ? item.frontmatter.gallery
+      : item.kind === "products"
+        ? item.frontmatter.images
+        : undefined;
   if (galleryImages?.length) {
     sections.push(
-      stackSection(`${seed}#gallery`, [
-        makeBlock(ctx, `${seed}#gallery-block`, "gallery", {
-          images: galleryImages.map((image) => ({ image })),
-          aspect: "auto",
-          columns: "3",
-          lightbox: true,
-          showCaptions: false,
-        }, "grid"),
-      ], { width: "wide" }),
+      stackSection(
+        `${seed}#gallery`,
+        [
+          makeBlock(
+            ctx,
+            `${seed}#gallery-block`,
+            "gallery",
+            {
+              images: galleryImages.map((image) => ({ image })),
+              aspect: "auto",
+              columns: "3",
+              lightbox: true,
+              showCaptions: false,
+            },
+            "grid",
+          ),
+        ],
+        { width: "wide" },
+      ),
     );
   }
 
@@ -345,7 +410,15 @@ export function itemPage(
     if (p.year) facts.push(rt.p([rt.bold("Year: "), String(p.year)]));
     if (p.projectUrl) facts.push(rt.p([rt.link("Visit the project", p.projectUrl)]));
     if (facts.length)
-      sections.splice(1, 0, stackSection(`${seed}#facts`, [makeBlock(ctx, `${seed}#facts-text`, "text", { content: rt.doc(...facts) })], { width }));
+      sections.splice(
+        1,
+        0,
+        stackSection(
+          `${seed}#facts`,
+          [makeBlock(ctx, `${seed}#facts-text`, "text", { content: rt.doc(...facts) })],
+          { width },
+        ),
+      );
   }
 
   // Footer of the article: taxonomy links and sharing.
@@ -354,32 +427,55 @@ export function itemPage(
   const base = `/${collection}`;
   if (fm.categories?.length)
     taxLinks.push(
-      rt.p([
-        "Filed under ",
-        ...fm.categories.flatMap((c, i) => [
-          ...(i ? [", "] : []),
-          rt.link(categoryLabel(cfg, c), `${base}/category/${c}/`),
-        ]),
-      ], "small"),
+      rt.p(
+        [
+          "Filed under ",
+          ...fm.categories.flatMap((c, i) => [
+            ...(i ? [", "] : []),
+            rt.link(categoryLabel(cfg, c), `${base}/category/${c}/`),
+          ]),
+        ],
+        "small",
+      ),
     );
   if (fm.tags?.length && cfg?.taxonomies?.tags !== false)
     taxLinks.push(
-      rt.p([
-        "Tags: ",
-        ...fm.tags.flatMap((t, i) => [...(i ? [", "] : []), rt.link(t, `${base}/tag/${tagSlug(t)}/`)]),
-      ], "small"),
+      rt.p(
+        [
+          "Tags: ",
+          ...fm.tags.flatMap((t, i) => [
+            ...(i ? [", "] : []),
+            rt.link(t, `${base}/tag/${tagSlug(t)}/`),
+          ]),
+        ],
+        "small",
+      ),
     );
-  if (taxLinks.length) tail.push(makeBlock(ctx, `${seed}#tax`, "text", { content: rt.doc(...taxLinks) }));
+  if (taxLinks.length)
+    tail.push(makeBlock(ctx, `${seed}#tax`, "text", { content: rt.doc(...taxLinks) }));
   tail.push(
-    makeBlock(ctx, `${seed}#share`, "share-buttons", {
-      label: "Share",
-      networks: [{ network: "facebook" }, { network: "x" }, { network: "linkedin" }, { network: "email" }],
-    }, "icons"),
+    makeBlock(
+      ctx,
+      `${seed}#share`,
+      "share-buttons",
+      {
+        label: "Share",
+        networks: [
+          { network: "facebook" },
+          { network: "x" },
+          { network: "linkedin" },
+          { network: "email" },
+        ],
+      },
+      "icons",
+    ),
   );
   sections.push(stackSection(`${seed}#tail`, tail, { width }));
 
   if (related.length && cfg?.itemPage?.showRelated !== false) {
-    sections.push(...cardRows(ctx, `${seed}#related`, related.slice(0, 3), collection, "Keep reading"));
+    sections.push(
+      ...cardRows(ctx, `${seed}#related`, related.slice(0, 3), collection, "Keep reading"),
+    );
   }
 
   const seo: NonNullable<Page["seo"]> = {};
@@ -412,7 +508,11 @@ export function cardRows(
   const { doc } = ctx;
   const sections: Section[] = [];
   if (heading)
-    sections.push(stackSection(`${seed}#heading`, [makeBlock(ctx, `${seed}#heading-text`, "text", { content: rt.doc(rt.h(2, heading)) })]));
+    sections.push(
+      stackSection(`${seed}#heading`, [
+        makeBlock(ctx, `${seed}#heading-text`, "text", { content: rt.doc(rt.h(2, heading)) }),
+      ]),
+    );
   for (let row = 0; row * 3 < items.length; row++) {
     const chunk = items.slice(row * 3, row * 3 + 3);
     const blocks = chunk.map((item, i) => {
@@ -472,12 +572,24 @@ export function listPage(ctx: ComposeContext, input: ListPageInput): Page {
       ),
     );
   const sections: Section[] = [
-    stackSection(`${seed}#header`, [makeBlock(ctx, `${seed}#title`, "text", { content: rt.doc(...head) })], { width: "wide" }),
+    stackSection(
+      `${seed}#header`,
+      [makeBlock(ctx, `${seed}#title`, "text", { content: rt.doc(...head) })],
+      { width: "wide" },
+    ),
   ];
   if (input.items.length) sections.push(...cardRows(ctx, seed, input.items, input.collection));
   else
     sections.push(
-      stackSection(`${seed}#empty`, [makeBlock(ctx, `${seed}#empty-text`, "text", { content: rt.doc(text("Nothing here yet — check back soon.")) })], { width: "wide" }),
+      stackSection(
+        `${seed}#empty`,
+        [
+          makeBlock(ctx, `${seed}#empty-text`, "text", {
+            content: rt.doc(text("Nothing here yet — check back soon.")),
+          }),
+        ],
+        { width: "wide" },
+      ),
     );
   if (input.prev || input.next) {
     const fields: Record<string, unknown> = input.next
@@ -487,7 +599,11 @@ export function listPage(ctx: ComposeContext, input: ListPageInput): Page {
       fields.secondaryLabel = "Newer";
       fields.secondaryLink = { type: "url", url: input.prev };
     }
-    sections.push(stackSection(`${seed}#pager`, [makeBlock(ctx, `${seed}#pager-buttons`, "button", fields)], { width: "wide" }));
+    sections.push(
+      stackSection(`${seed}#pager`, [makeBlock(ctx, `${seed}#pager-buttons`, "button", fields)], {
+        width: "wide",
+      }),
+    );
   }
   return {
     id: stableId("pg", seed),
@@ -511,16 +627,27 @@ export function notFoundPage(ctx: ComposeContext): Page {
     seo: { noindex: true },
     hidden: true,
     sections: [
-      stackSection(`${seed}#main`, [
-        makeBlock(ctx, `${seed}#text`, "text", {
-          content: rt.doc(
-            rt.p("Error 404", "eyebrow"),
-            rt.h(1, "We couldn't find that page"),
-            rt.p("It may have moved, or the link may be mistyped. Try the home page or the menu above.", "lead"),
-          ),
-        }),
-        makeBlock(ctx, `${seed}#home`, "button", { label: "Go to the home page", link, role: "primary" }),
-      ], { width: "narrow" }),
+      stackSection(
+        `${seed}#main`,
+        [
+          makeBlock(ctx, `${seed}#text`, "text", {
+            content: rt.doc(
+              rt.p("Error 404", "eyebrow"),
+              rt.h(1, "We couldn't find that page"),
+              rt.p(
+                "It may have moved, or the link may be mistyped. Try the home page or the menu above.",
+                "lead",
+              ),
+            ),
+          }),
+          makeBlock(ctx, `${seed}#home`, "button", {
+            label: "Go to the home page",
+            link,
+            role: "primary",
+          }),
+        ],
+        { width: "narrow" },
+      ),
     ],
   };
 }

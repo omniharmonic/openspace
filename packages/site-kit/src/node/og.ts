@@ -4,11 +4,12 @@
  * inputs and cached between builds (`node_modules/.astro/openspace/og`, inside the Actions
  * cache path), so unchanged pages cost nothing.
  */
+
+import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
-import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
 import type { OgSpec } from "../render";
 import { OG_HEIGHT, OG_WIDTH } from "../render";
 
@@ -45,11 +46,16 @@ async function readIfExists(path: string | undefined): Promise<Buffer | undefine
  * installed in the site, else Hanken Grotesk (bundled with site-kit). Satori needs WOFF/TTF.
  */
 export async function loadOgFonts(rootDir: string, headingFamily: string): Promise<OgFont[]> {
-  const id = headingFamily.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const id = headingFamily
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
   const fallbackDir = dirname(req.resolve("@fontsource/hanken-grotesk/package.json"));
-  const fallback = (w: number) => join(fallbackDir, "files", `hanken-grotesk-latin-${w}-normal.woff`);
+  const fallback = (w: number) =>
+    join(fallbackDir, "files", `hanken-grotesk-latin-${w}-normal.woff`);
   const heading =
-    (await readIfExists(fontsourceFile(rootDir, id, 700))) ?? (await readIfExists(fontsourceFile(rootDir, id, 600)));
+    (await readIfExists(fontsourceFile(rootDir, id, 700))) ??
+    (await readIfExists(fontsourceFile(rootDir, id, 600)));
   const body400 = await readIfExists(fallback(400));
   const body700 = await readIfExists(fallback(700));
   const fonts: OgFont[] = [];
@@ -89,7 +95,14 @@ export function ogElement(spec: OgSpec): El {
       ]),
       h(
         "div",
-        { display: "flex", fontFamily: "Heading", fontWeight: 700, fontSize: size, lineHeight: 1.08, letterSpacing: -1 },
+        {
+          display: "flex",
+          fontFamily: "Heading",
+          fontWeight: 700,
+          fontSize: size,
+          lineHeight: 1.08,
+          letterSpacing: -1,
+        },
         spec.title,
       ),
       h("div", { width: 120, height: 8, borderRadius: 4, backgroundColor: spec.colors.accent }),

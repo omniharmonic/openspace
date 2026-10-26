@@ -65,7 +65,8 @@ function soleInlineTag(n: Node): Node | undefined {
   const inline = n.children[0];
   if (!inline || n.children.length !== 1 || inline.type !== "inline") return undefined;
   const meaningful = inline.children.filter(
-    (c) => !(c.type === "text" && !String(c.attributes.content ?? "").trim()) && c.type !== "softbreak",
+    (c) =>
+      !(c.type === "text" && !String(c.attributes.content ?? "").trim()) && c.type !== "softbreak",
   );
   return meaningful.length === 1 && meaningful[0]?.type === "tag" ? meaningful[0] : undefined;
 }
@@ -73,7 +74,7 @@ function soleInlineTag(n: Node): Node | undefined {
 function soleImage(n: Node): Node | undefined {
   if (n.type !== "paragraph") return undefined;
   const inline = n.children[0];
-  if (!inline || inline.type !== "inline") return undefined;
+  if (inline?.type !== "inline") return undefined;
   const meaningful = inline.children.filter(
     (c) => !(c.type === "text" && !String(c.attributes.content ?? "").trim()),
   );
@@ -87,7 +88,11 @@ export function linkFromString(value: string): Json {
   return { type: "url", url: value };
 }
 
-function imageFromString(src: string, media: Record<string, MediaMeta> | undefined, alt?: string): Json {
+function imageFromString(
+  src: string,
+  media: Record<string, MediaMeta> | undefined,
+  alt?: string,
+): Json {
   const meta = media?.[src];
   const out: Record<string, Json> = { src, alt: alt ?? meta?.alt ?? "" };
   if (meta?.width && meta.height) {
@@ -158,7 +163,8 @@ export function blockFromTag(
   opts: MarkdocToBlocksOptions & { id: string },
 ): { block?: Block; errors: string[] } {
   const def = opts.registry.get(tag);
-  if (!def) return { errors: [`Unknown block "${tag}" (known: ${opts.registry.types().join(", ")})`] };
+  if (!def)
+    return { errors: [`Unknown block "${tag}" (known: ${opts.registry.types().join(", ")})`] };
   const meta = def.meta;
   const fields = requiredDefaults(meta.fields);
   const errors: string[] = [];
@@ -222,7 +228,8 @@ export function blockFromTag(
   if (variant) block.variant = variant;
   const result = def.validate(block);
   if (!result.success) {
-    for (const i of result.issues) errors.push(`${tag}: ${i.path.join(".") || "(block)"}: ${i.message}`);
+    for (const i of result.issues)
+      errors.push(`${tag}: ${i.path.join(".") || "(block)"}: ${i.message}`);
     return { errors };
   }
   return errors.length ? { errors } : { block, errors };
@@ -236,7 +243,8 @@ export function markdocToBlocks(body: string, opts: MarkdocToBlocksOptions): Mar
   const issues: MarkdocIssue[] = [];
   for (const node of [ast, ...ast.walk()]) {
     for (const e of node.errors) {
-      if (e.level === "error" || e.level === "critical") issues.push({ line: lineOf(node), message: e.message });
+      if (e.level === "error" || e.level === "critical")
+        issues.push({ line: lineOf(node), message: e.message });
     }
   }
   let prose: Node[] = [];
@@ -325,4 +333,3 @@ export function markdocPlainText(body: string, maxLength = 300): string {
   const text = parts.join(" ");
   return text.length > maxLength ? `${text.slice(0, maxLength - 1).replace(/\s+\S*$/, "")}…` : text;
 }
-

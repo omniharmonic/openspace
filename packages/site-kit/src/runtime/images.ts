@@ -49,6 +49,9 @@ export function resolvedImage(
 /** Local media images a page needs resolved (skips remote URLs, SVG and generated share images). */
 export function localImageSrcs(srcs: Iterable<string>): string[] {
   return [...srcs].filter(
-    (s) => s.startsWith("media/") && !s.startsWith("media/_os-og/") && /\.(?:jpe?g|png|webp|avif|gif)$/i.test(s),
+    (s) =>
+      s.startsWith("media/") &&
+      !s.startsWith("media/_os-og/") &&
+      /\.(?:jpe?g|png|webp|avif|gif)$/i.test(s),
   );
 }

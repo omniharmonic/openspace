@@ -34,7 +34,8 @@ const pagePath = (p: Pick<Page, "slug">) => (p.slug ? `/${p.slug}/` : "/");
 function blocksOf(doc: SiteDocument): { block: Block; page: string | undefined }[] {
   const out: { block: Block; page: string | undefined }[] = [];
   for (const page of Object.values(doc.pages))
-    for (const s of page.sections) for (const b of s.blocks) out.push({ block: b, page: pagePath(page) });
+    for (const s of page.sections)
+      for (const b of s.blocks) out.push({ block: b, page: pagePath(page) });
   for (const b of doc.site.footer.blocks) out.push({ block: b, page: undefined });
   return out;
 }
@@ -66,14 +67,18 @@ export function formsManifest(plan: SitePlan): FormsManifest {
     const form = block.fields.form as Form | undefined;
     if (!form?.id) continue;
     forms[form.id] ??= form;
-    const list = (pages[form.id] ??= []);
+    pages[form.id] ??= [];
+    const list = pages[form.id] as string[];
     if (page === undefined) footerForms.push(form.id);
     else if (!list.includes(page)) list.push(page);
   }
   for (const id of footerForms) pages[id] = [...allPaths];
   const ids = Object.keys(forms).sort();
   const sorted = Object.fromEntries(
-    ids.map((id) => [id, { ...(forms[id] as Form), redirectHref: redirectHref(forms[id] as Form, plan.doc) }]),
+    ids.map((id) => [
+      id,
+      { ...(forms[id] as Form), redirectHref: redirectHref(forms[id] as Form, plan.doc) },
+    ]),
   );
   return {
     version: 1,
@@ -151,7 +156,12 @@ export function catalogManifest(plan: SitePlan): CatalogManifest {
             price: v.price ?? fm.price,
             available: available && v.available !== false,
           };
-          skus[vsku] = { price: variant.price, collection, slug: item.slug, available: variant.available };
+          skus[vsku] = {
+            price: variant.price,
+            collection,
+            slug: item.slug,
+            available: variant.available,
+          };
           return variant;
         });
       } else {
@@ -161,7 +171,9 @@ export function catalogManifest(plan: SitePlan): CatalogManifest {
     }
   }
   products.sort((a, b) => a.path.localeCompare(b.path));
-  const sortedSkus = Object.fromEntries(Object.entries(skus).sort(([a], [b]) => a.localeCompare(b)));
+  const sortedSkus = Object.fromEntries(
+    Object.entries(skus).sort(([a], [b]) => a.localeCompare(b)),
+  );
   const body = { products, skus: sortedSkus };
   return {
     version: 1,

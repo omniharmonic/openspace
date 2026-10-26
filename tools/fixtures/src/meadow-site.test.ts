@@ -1,5 +1,5 @@
-import { loadSiteDocument } from "@openspace/site-kit/content";
 import { blocksRegistry } from "@openspace/blocks";
+import { loadSiteDocument } from "@openspace/site-kit/content";
 import { describe, expect, it } from "vitest";
 import { MEADOW_DIR, meadowSite, writeMeadowSite } from "./meadow-site";
 

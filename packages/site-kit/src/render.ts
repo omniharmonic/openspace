@@ -82,8 +82,15 @@ export function ogSpec(doc: SiteDocument, page: Page): OgSpec {
     accent: theme.accent,
     muted: theme["text-muted"],
   };
-  const title = page.seo?.title ?? (page.slug === "" ? (doc.site.tagline ?? doc.site.title) : page.title);
-  const spec = { title, siteTitle: doc.site.title, colors, heading: styles.tokens.pairing.heading.family, v: 1 };
+  const title =
+    page.seo?.title ?? (page.slug === "" ? (doc.site.tagline ?? doc.site.title) : page.title);
+  const spec = {
+    title,
+    siteTitle: doc.site.title,
+    colors,
+    heading: styles.tokens.pairing.heading.family,
+    v: 1,
+  };
   return { ...spec, hash: contentHash(JSON.stringify(spec), 12) };
 }
 
@@ -110,7 +117,11 @@ export interface RenderRouteOptions {
 }
 
 /** The page a route renders, with its generated share image applied (if any). */
-export function routePage(plan: SitePlan, route: SiteRoute, ogImages = true): { page: Page; og?: OgSpec } {
+export function routePage(
+  plan: SitePlan,
+  route: SiteRoute,
+  ogImages = true,
+): { page: Page; og?: OgSpec } {
   const page = plan.doc.pages[route.pageId as Page["id"]];
   if (!page) throw new Error(`Route ${route.path} has no page ${route.pageId}`);
   if (!ogImages || page.seo?.image || route.kind === "notFound") return { page };
@@ -132,7 +143,10 @@ export function addTurnstile(html: string, siteKey: string, loaderHref: string):
   if (!HONEYPOT_RE.test(html)) return html;
   HONEYPOT_RE.lastIndex = 0;
   const withSlots = html.replace(HONEYPOT_RE, `$1${TURNSTILE_SLOT(siteKey)}`);
-  return withSlots.replace("</head>", `<script type="module" src="${loaderHref}"></script>\n</head>`);
+  return withSlots.replace(
+    "</head>",
+    `<script type="module" src="${loaderHref}"></script>\n</head>`,
+  );
 }
 
 /** Render a planned route to a complete HTML document. */

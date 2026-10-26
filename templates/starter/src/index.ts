@@ -26,7 +26,9 @@ async function walk(dir: string, base = dir): Promise<string[]> {
 }
 
 /** The shell's files (repo path → contents) for a deploy target. */
-export async function starterFiles(variant: StarterVariant = "github-pages"): Promise<Record<string, string>> {
+export async function starterFiles(
+  variant: StarterVariant = "github-pages",
+): Promise<Record<string, string>> {
   const files: Record<string, string> = {};
   for (const rel of await walk(SITE_DIR)) files[rel] = await readFile(join(SITE_DIR, rel), "utf8");
   if (variant !== "github-pages") {

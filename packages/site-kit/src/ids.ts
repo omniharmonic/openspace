@@ -35,7 +35,10 @@ export function stableSuffix(seed: string): string {
   return out;
 }
 
-export function stableId<P extends "pg" | "sec" | "blk">(prefix: P, seed: string): `${P}_${string}` {
+export function stableId<P extends "pg" | "sec" | "blk">(
+  prefix: P,
+  seed: string,
+): `${P}_${string}` {
   return `${prefix}_${stableSuffix(`${prefix}:${seed}`)}`;
 }
 

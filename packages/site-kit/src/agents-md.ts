@@ -16,7 +16,10 @@ export interface AgentsMdOptions {
 function fieldSummary(name: string, m: FieldMeta): string {
   let type: string = m.kind;
   if (m.kind === "select") type = m.options.map((o) => `"${o.value}"`).join(" | ");
-  else if (m.kind === "list") type = `list of { ${Object.entries(m.fields).map(([k, f]) => fieldSummary(k, f)).join(", ")} }`;
+  else if (m.kind === "list")
+    type = `list of { ${Object.entries(m.fields)
+      .map(([k, f]) => fieldSummary(k, f))
+      .join(", ")} }`;
   else if (m.kind === "text" && m.maxLength) type = `text ≤ ${m.maxLength}`;
   else if (m.kind === "image") type = "image { src, alt }";
   else if (m.kind === "link") type = "link";

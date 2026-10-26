@@ -24,13 +24,20 @@ export interface FeedFile {
   contents: string;
 }
 
-const XML_ESC: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" };
+const XML_ESC: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&apos;",
+};
 export const xml = (s: string) => s.replace(/[&<>"']/g, (c) => XML_ESC[c] as string);
 
 export const absoluteUrl = (siteUrl: string, path: string) =>
   /^https?:\/\//.test(path) ? path : new URL(path.replace(/^\/+/, ""), siteUrl).toString();
 
-const toDate = (iso: string) => new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? `${iso}T00:00:00Z` : iso);
+const toDate = (iso: string) =>
+  new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? `${iso}T00:00:00Z` : iso);
 const itemDate = (item: CollectionItem): string | undefined =>
   item.kind === "events" ? item.frontmatter.start : (item.frontmatter as { date?: string }).date;
 
@@ -43,12 +50,18 @@ function channelInfo(ctx: FeedContext, collection: string) {
   const label = cfg?.label ?? collection;
   return {
     title: cfg?.feed?.title ?? `${ctx.doc.site.title} — ${label}`,
-    description: cfg?.feed?.description ?? ctx.doc.site.tagline ?? ctx.doc.site.seo?.description ?? label,
+    description:
+      cfg?.feed?.description ?? ctx.doc.site.tagline ?? ctx.doc.site.seo?.description ?? label,
     link: absoluteUrl(ctx.siteUrl, `/${collection}/`),
   };
 }
 
-export function rssFeed(ctx: FeedContext, collection: string, items: CollectionItem[], selfPath: string): string {
+export function rssFeed(
+  ctx: FeedContext,
+  collection: string,
+  items: CollectionItem[],
+  selfPath: string,
+): string {
   const ch = channelInfo(ctx, collection);
   const lang = ctx.doc.site.locale;
   const body = items
@@ -91,9 +104,17 @@ ${body}
 `;
 }
 
-export function atomFeed(ctx: FeedContext, collection: string, items: CollectionItem[], selfPath: string): string {
+export function atomFeed(
+  ctx: FeedContext,
+  collection: string,
+  items: CollectionItem[],
+  selfPath: string,
+): string {
   const ch = channelInfo(ctx, collection);
-  const dates = items.map(itemDate).filter((d): d is string => !!d).map((d) => toDate(d).toISOString());
+  const dates = items
+    .map(itemDate)
+    .filter((d): d is string => !!d)
+    .map((d) => toDate(d).toISOString());
   const updated = dates.sort().at(-1) ?? new Date(ctx.now).toISOString();
   const entries = items
     .map((item) => {
@@ -101,7 +122,8 @@ export function atomFeed(ctx: FeedContext, collection: string, items: Collection
       const date = itemDate(item);
       const iso = date ? toDate(date).toISOString() : updated;
       const desc = itemDescription(item);
-      const author = (item.kind === "blog" ? item.frontmatter.author : undefined) ?? ctx.doc.site.title;
+      const author =
+        (item.kind === "blog" ? item.frontmatter.author : undefined) ?? ctx.doc.site.title;
       return [
         "  <entry>",
         `    <title>${xml(item.frontmatter.title)}</title>`,
@@ -134,7 +156,11 @@ ${entries}
 
 // --- iCalendar (RFC 5545) ---------------------------------------------------------------------
 
-const icsText = (s: string) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
+const icsText = (s: string) =>
+  s
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/([,;])/g, "\\$1");
 
 /** Fold lines longer than 75 octets (RFC 5545 §3.1). */
 function fold(line: string): string {
@@ -157,7 +183,11 @@ function fold(line: string): string {
   return out.join("\r\n ");
 }
 
-const icsUtc = (iso: string) => new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const icsUtc = (iso: string) =>
+  new Date(iso)
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 const icsDate = (iso: string) => iso.replace(/-/g, "");
 function nextDay(iso: string): string {
   const d = new Date(`${iso}T00:00:00Z`);
@@ -192,7 +222,9 @@ export function icalFeed(ctx: FeedContext, collection: string, items: Collection
     lines.push(`SUMMARY:${icsText(e.title)}`);
     const desc = itemDescription(item);
     if (desc) lines.push(`DESCRIPTION:${icsText(desc)}`);
-    const where = [e.location?.name, e.location?.address].filter(Boolean).join(", ") || (e.location?.online ? "Online" : "");
+    const where =
+      [e.location?.name, e.location?.address].filter(Boolean).join(", ") ||
+      (e.location?.online ? "Online" : "");
     if (where) lines.push(`LOCATION:${icsText(where)}`);
     lines.push(`URL:${itemUrl(ctx, collection, item)}`);
     if (e.status === "published") lines.push("STATUS:CONFIRMED");
@@ -230,7 +262,8 @@ export function podcastFeed(
   const site = ctx.doc.site;
   const cover = opts.cover ?? site.seo?.image ?? site.logo?.src;
   const explicit = items.some((i) => i.kind === "podcast" && i.frontmatter.explicit);
-  const email = opts.ownerEmail ?? site.social?.find((s) => s.network === "email")?.url.replace(/^mailto:/, "");
+  const email =
+    opts.ownerEmail ?? site.social?.find((s) => s.network === "email")?.url.replace(/^mailto:/, "");
   const episodes = items
     .filter((i) => i.kind === "podcast")
     .map((item) => {
@@ -285,7 +318,11 @@ ${episodes}
 }
 
 /** Every feed file for the plan. */
-export function buildFeeds(plan: SitePlan, ctx: Omit<FeedContext, "doc" | "now">, podcast: PodcastOptions = {}): FeedFile[] {
+export function buildFeeds(
+  plan: SitePlan,
+  ctx: Omit<FeedContext, "doc" | "now">,
+  podcast: PodcastOptions = {},
+): FeedFile[] {
   const fctx: FeedContext = { ...ctx, doc: plan.doc, now: plan.now };
   const out: FeedFile[] = [];
   for (const [name, items] of Object.entries(plan.items)) {
@@ -310,6 +347,9 @@ export function feedLinks(plan: SitePlan, collection: string, basePath: string):
   const cfg = plan.doc.collectionConfigs?.[collection];
   return feedsFor(collection, cfg, plan.items[collection]?.[0]?.kind)
     .filter((f) => f.format !== "ical")
-    .map((f) => `<link rel="alternate" type="${f.mime}" title="${xml(f.label)}" href="${xml(basePath + f.path)}">`)
+    .map(
+      (f) =>
+        `<link rel="alternate" type="${f.mime}" title="${xml(f.label)}" href="${xml(basePath + f.path)}">`,
+    )
     .join("");
 }

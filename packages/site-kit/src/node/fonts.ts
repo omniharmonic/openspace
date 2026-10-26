@@ -4,8 +4,9 @@
  * `_os/fonts/` and linked. If any family is missing the renderer's Google Fonts link is used
  * instead (and a warning names the packages to add).
  */
-import { createRequire } from "node:module";
+
 import { copyFile, mkdir, readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { basename, dirname, join } from "node:path";
 import { compiledStylesFor } from "@openspace/renderer";
 import type { SiteDocument } from "@openspace/schema";
@@ -26,7 +27,11 @@ export interface FontResolution {
   missing: string[];
 }
 
-export async function resolveFonts(rootDir: string, doc: SiteDocument, basePath: string): Promise<FontResolution> {
+export async function resolveFonts(
+  rootDir: string,
+  doc: SiteDocument,
+  basePath: string,
+): Promise<FontResolution> {
   const pairing = compiledStylesFor(doc.styles).tokens.pairing;
   const require = createRequire(join(rootDir, "package.json"));
   const missing: string[] = [];

@@ -68,7 +68,11 @@ export function slugFromPath(pathname: string, basePath: string): string {
 }
 
 /** The gated page for a slug: R2 first (`pages/<slug>.json`), then the document. */
-export async function findGatedPage(slug: string, env: GateEnv, doc: SiteDocument): Promise<Page | undefined> {
+export async function findGatedPage(
+  slug: string,
+  env: GateEnv,
+  doc: SiteDocument,
+): Promise<Page | undefined> {
   const obj = await env.OS_GATED?.get(`pages/${slug || "home"}.json`);
   if (obj) {
     const parsed = PageSchema.safeParse(JSON.parse(await obj.text()));
@@ -99,23 +103,43 @@ function renderGated(ctx: GateContext, page: Page, extraMain?: string): string {
 }
 
 const htmlResponse = (html: string, status = 200) =>
-  new Response(html, { status, headers: { "content-type": "text/html; charset=utf-8", ...PRIVATE } });
+  new Response(html, {
+    status,
+    headers: { "content-type": "text/html; charset=utf-8", ...PRIVATE },
+  });
 
-async function passwordPages(cookieHeader: string | null, env: GateEnv, ctx: GateContext): Promise<string[]> {
-  const v = await readSigned(getCookie(cookieHeader, PASSWORD_COOKIE), env.OS_SESSION_SECRET ?? "", ctx.now);
+async function passwordPages(
+  cookieHeader: string | null,
+  env: GateEnv,
+  ctx: GateContext,
+): Promise<string[]> {
+  const v = await readSigned(
+    getCookie(cookieHeader, PASSWORD_COOKIE),
+    env.OS_SESSION_SECRET ?? "",
+    ctx.now,
+  );
   return Array.isArray(v?.pages) ? (v.pages as string[]) : [];
 }
 
 /** Serve a gated page: members need a valid session, password pages a remembered password. */
-export async function handleGatedPage(request: Request, env: GateEnv, ctx: GateContext): Promise<Response> {
+export async function handleGatedPage(
+  request: Request,
+  env: GateEnv,
+  ctx: GateContext,
+): Promise<Response> {
   const url = new URL(request.url);
   const slug = slugFromPath(url.pathname, ctx.location.basePath);
   const page = await findGatedPage(slug, env, ctx.doc);
-  const membersOnly = !page || page.access?.members || slug === "members" || slug.startsWith("members/");
+  const membersOnly =
+    !page || page.access?.members || slug === "members" || slug.startsWith("members/");
   if (!page) return htmlResponse("<!doctype html><title>Not found</title><p>Not found.</p>", 404);
   const cookies = request.headers.get("cookie");
   if (membersOnly) {
-    const session = await readSigned(getCookie(cookies, MEMBER_COOKIE), env.OS_SESSION_SECRET ?? "", ctx.now);
+    const session = await readSigned(
+      getCookie(cookies, MEMBER_COOKIE),
+      env.OS_SESSION_SECRET ?? "",
+      ctx.now,
+    );
     if (!session) {
       const login = new URL(`${hubOrigin(ctx.doc)}/m/${ctx.doc.config.siteId}/login`);
       login.searchParams.set("return", url.pathname);
@@ -149,7 +173,11 @@ ${error ? '<p class="os-field__error" id="os-pw-error">That password didn’t wo
 }
 
 /** POST `/_os/auth/password`: check the shared password and remember the unlocked page. */
-export async function handlePasswordSubmit(request: Request, env: GateEnv, ctx: GateContext): Promise<Response> {
+export async function handlePasswordSubmit(
+  request: Request,
+  env: GateEnv,
+  ctx: GateContext,
+): Promise<Response> {
   const form = await request.formData();
   const pageId = String(form.get("page") ?? "");
   const password = String(form.get("password") ?? "");
@@ -165,18 +193,36 @@ export async function handlePasswordSubmit(request: Request, env: GateEnv, ctx: 
   }
   const pages = new Set(await passwordPages(request.headers.get("cookie"), env, ctx));
   pages.add(pageId);
-  const token = await signValue({ pages: [...pages] }, env.OS_SESSION_SECRET ?? "", SESSION_TTL, ctx.now);
-  return redirect(back, [setCookie(PASSWORD_COOKIE, token, { maxAge: SESSION_TTL, path: `${ctx.location.basePath}/` })]);
+  const token = await signValue(
+    { pages: [...pages] },
+    env.OS_SESSION_SECRET ?? "",
+    SESSION_TTL,
+    ctx.now,
+  );
+  return redirect(back, [
+    setCookie(PASSWORD_COOKIE, token, { maxAge: SESSION_TTL, path: `${ctx.location.basePath}/` }),
+  ]);
 }
 
 /** GET `/_os/auth/callback?token=…&return=…`: verify the Hub's magic-link token, start a session. */
-export async function handleAuthCallback(request: Request, env: GateEnv, ctx: GateContext): Promise<Response> {
+export async function handleAuthCallback(
+  request: Request,
+  env: GateEnv,
+  ctx: GateContext,
+): Promise<Response> {
   const url = new URL(request.url);
   const token = url.searchParams.get("token");
   const back = safeReturnPath(url.searchParams.get("return"), ctx.location.basePath);
-  if (!token) return htmlResponse("<!doctype html><title>Sign-in link</title><p>This sign-in link is incomplete.</p>", 400);
+  if (!token)
+    return htmlResponse(
+      "<!doctype html><title>Sign-in link</title><p>This sign-in link is incomplete.</p>",
+      400,
+    );
   const hub = hubOrigin(ctx.doc);
-  const jwks = await (ctx.fetchJwks ?? (async () => (await fetch(`${hub}/.well-known/jwks.json`)).json() as Promise<{ keys: Jwk[] }>))();
+  const jwks = await (
+    ctx.fetchJwks ??
+    (async () => (await fetch(`${hub}/.well-known/jwks.json`)).json() as Promise<{ keys: Jwk[] }>)
+  )();
   try {
     const claims = await verifyHubToken(token, jwks, {
       issuer: new URL(hub).origin,
@@ -184,12 +230,18 @@ export async function handleAuthCallback(request: Request, env: GateEnv, ctx: Ga
       ...(ctx.now !== undefined ? { now: ctx.now } : {}),
     });
     const session = await signValue(
-      { sub: claims.sub, ...(claims.tier ? { tier: claims.tier } : {}), ...(claims.email ? { email: claims.email } : {}) },
+      {
+        sub: claims.sub,
+        ...(claims.tier ? { tier: claims.tier } : {}),
+        ...(claims.email ? { email: claims.email } : {}),
+      },
       env.OS_SESSION_SECRET ?? "",
       SESSION_TTL,
       ctx.now,
     );
-    return redirect(back, [setCookie(MEMBER_COOKIE, session, { maxAge: SESSION_TTL, path: `${ctx.location.basePath}/` })]);
+    return redirect(back, [
+      setCookie(MEMBER_COOKIE, session, { maxAge: SESSION_TTL, path: `${ctx.location.basePath}/` }),
+    ]);
   } catch (e) {
     if (e instanceof GateError)
       return htmlResponse(

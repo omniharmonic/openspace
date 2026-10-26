@@ -13,13 +13,20 @@
  * ```
  */
 /// <reference path="../virtual.d.ts" />
-import { collectImageSrcs, type ImageMap, type ResolvedImage } from "@openspace/renderer";
+
 import { getImage } from "astro:assets";
 import { mediaImports } from "virtual:openspace/media";
 import { doc, options } from "virtual:openspace/site";
+import { collectImageSrcs, type ImageMap, type ResolvedImage } from "@openspace/renderer";
 import { renderRoute } from "../render";
 import { planSite, type SitePlan, type SiteRoute } from "../routes";
-import { fallbackFormat, fallbackWidth, imageWidths, localImageSrcs, resolvedImage } from "./images";
+import {
+  fallbackFormat,
+  fallbackWidth,
+  imageWidths,
+  localImageSrcs,
+  resolvedImage,
+} from "./images";
 
 let plan: SitePlan | undefined;
 function sitePlan(): SitePlan {
@@ -33,7 +40,10 @@ export interface PageProps {
 
 /** `getStaticPaths` for `[...slug].astro`: one entry per planned route. */
 export function staticPaths() {
-  return sitePlan().routes.map((r) => ({ params: { slug: r.param }, props: { pageId: r.pageId } satisfies PageProps }));
+  return sitePlan().routes.map((r) => ({
+    params: { slug: r.param },
+    props: { pageId: r.pageId } satisfies PageProps,
+  }));
 }
 
 const cache = new Map<string, Promise<ResolvedImage | undefined>>();

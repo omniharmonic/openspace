@@ -148,7 +148,11 @@ export async function loadSite(rootDir: string, opts: LoadOptions = {}): Promise
       });
     }
     if (pages[page.id]) {
-      issues.push({ file: rel, path: ["id"], message: `Page id ${page.id} is also used by ${pageFiles[page.id]}` });
+      issues.push({
+        file: rel,
+        path: ["id"],
+        message: `Page id ${page.id} is also used by ${pageFiles[page.id]}`,
+      });
       continue;
     }
     pages[page.id] = page;
@@ -192,7 +196,11 @@ export async function loadSite(rootDir: string, opts: LoadOptions = {}): Promise
       try {
         parsed = parseItemFile(await readFile(join(rootDir, rel), "utf8"));
       } catch (e) {
-        issues.push({ file: rel, path: [], message: `Invalid frontmatter: ${(e as Error).message}` });
+        issues.push({
+          file: rel,
+          path: [],
+          message: `Invalid frontmatter: ${(e as Error).message}`,
+        });
         continue;
       }
       const slug = file.slice(0, -ITEM_EXT.length);
@@ -253,7 +261,9 @@ function fileForDocPath(path: (string | number)[], pageFiles: Record<string, str
     case "pages":
       return pageFiles[String(a)] ?? PAGES_DIR;
     case "collections":
-      return b === undefined ? `${COLLECTIONS_DIR}/${a}` : `${COLLECTIONS_DIR}/${a}/${b}${ITEM_EXT}`;
+      return b === undefined
+        ? `${COLLECTIONS_DIR}/${a}`
+        : `${COLLECTIONS_DIR}/${a}/${b}${ITEM_EXT}`;
     case "collectionConfigs":
       return `${COLLECTIONS_DIR}/${a}/${COLLECTION_CONFIG_FILE}`;
     default:
@@ -262,7 +272,10 @@ function fileForDocPath(path: (string | number)[], pageFiles: Record<string, str
 }
 
 /** Read `openspace.json` + `content/**` into a validated `SiteDocument`. */
-export async function loadSiteDocument(rootDir: string, opts: LoadOptions = {}): Promise<SiteDocument> {
+export async function loadSiteDocument(
+  rootDir: string,
+  opts: LoadOptions = {},
+): Promise<SiteDocument> {
   return (await loadSite(rootDir, opts)).doc;
 }
 
@@ -272,7 +285,11 @@ export async function loadSiteConfig(rootDir: string): Promise<SiteConfig> {
   const r = SiteConfigSchema.safeParse(JSON.parse(text));
   if (!r.success)
     throw new SiteContentError(
-      r.error.issues.map((i) => ({ file: CONFIG_FILE, path: i.path as (string | number)[], message: i.message })),
+      r.error.issues.map((i) => ({
+        file: CONFIG_FILE,
+        path: i.path as (string | number)[],
+        message: i.message,
+      })),
     );
   return r.data;
 }
@@ -298,7 +315,11 @@ export async function writeSiteDocument(
     const r = SiteDocumentSchema.safeParse(doc);
     if (!r.success)
       throw new SiteContentError(
-        r.error.issues.map((i) => ({ file: "document", path: i.path as (string | number)[], message: i.message })),
+        r.error.issues.map((i) => ({
+          file: "document",
+          path: i.path as (string | number)[],
+          message: i.message,
+        })),
       );
   }
   const result: WriteResult = { written: [], removed: [] };
@@ -352,20 +373,25 @@ export async function writeSiteDocument(
   const keep = new Set<string>();
   for (const page of Object.values(doc.pages)) {
     const current = existing.get(page.id);
-    const rel = current && pageFileMatchesSlug(current, page.slug) ? current : pageFileFor(page.slug);
+    const rel =
+      current && pageFileMatchesSlug(current, page.slug) ? current : pageFileFor(page.slug);
     keep.add(rel);
     await put(`${PAGES_DIR}/${rel}`, formatJson(page));
   }
   for (const rel of existing.values()) if (!keep.has(rel)) await remove(`${PAGES_DIR}/${rel}`);
 
   // Collections.
-  const names = new Set([...Object.keys(doc.collections), ...Object.keys(doc.collectionConfigs ?? {})]);
+  const names = new Set([
+    ...Object.keys(doc.collections),
+    ...Object.keys(doc.collectionConfigs ?? {}),
+  ]);
   for (const name of [...names].sort()) {
     const dir = `${COLLECTIONS_DIR}/${name}`;
     const cfg = doc.collectionConfigs?.[name];
     if (cfg) await put(`${dir}/${COLLECTION_CONFIG_FILE}`, formatJson(cfg));
     const items = doc.collections[name] ?? {};
-    for (const item of Object.values(items)) await put(`${dir}/${item.slug}${ITEM_EXT}`, serializeItemFile(item));
+    for (const item of Object.values(items))
+      await put(`${dir}/${item.slug}${ITEM_EXT}`, serializeItemFile(item));
     let onDisk: string[] = [];
     try {
       onDisk = (await readdir(join(rootDir, dir))).filter((f) => f.endsWith(ITEM_EXT));

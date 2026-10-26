@@ -15,7 +15,10 @@ export interface SeoContext {
 }
 
 function allBlocks(doc: SiteDocument): Block[] {
-  return [...Object.values(doc.pages).flatMap((p) => p.sections.flatMap((s) => s.blocks)), ...doc.site.footer.blocks];
+  return [
+    ...Object.values(doc.pages).flatMap((p) => p.sections.flatMap((s) => s.blocks)),
+    ...doc.site.footer.blocks,
+  ];
 }
 
 /** Organization, or LocalBusiness when the site shows a map with an address. */
@@ -34,7 +37,12 @@ export function organizationLd(doc: SiteDocument, ctx: SeoContext): Record<strin
   if (site.tagline) out.description = site.tagline;
   if (site.logo) out.logo = ctx.mediaUrl(site.logo.src);
   if (map) {
-    const f = map.fields as { address?: string; latitude?: number; longitude?: number; name?: string };
+    const f = map.fields as {
+      address?: string;
+      latitude?: number;
+      longitude?: number;
+      name?: string;
+    };
     out.address = { "@type": "PostalAddress", streetAddress: f.address };
     if (typeof f.latitude === "number" && typeof f.longitude === "number")
       out.geo = { "@type": "GeoCoordinates", latitude: f.latitude, longitude: f.longitude };
@@ -59,7 +67,12 @@ export function websiteLd(doc: SiteDocument, ctx: SeoContext): Record<string, un
 
 const toIso = (d: string) => (/^\d{4}-\d{2}-\d{2}$/.test(d) ? d : new Date(d).toISOString());
 
-export function itemLd(doc: SiteDocument, collection: string, item: CollectionItem, ctx: SeoContext): Record<string, unknown> {
+export function itemLd(
+  doc: SiteDocument,
+  collection: string,
+  item: CollectionItem,
+  ctx: SeoContext,
+): Record<string, unknown> {
   const url = absoluteUrl(ctx.siteUrl, `/${collection}/${item.slug}/`);
   const fm = item.frontmatter;
   const description = itemDescription(item);
@@ -76,7 +89,9 @@ export function itemLd(doc: SiteDocument, collection: string, item: CollectionIt
         headline: f.title,
         datePublished: toIso(f.date),
         mainEntityOfPage: url,
-        author: f.author ? { "@type": "Person", name: f.author } : { "@type": "Organization", name: doc.site.title },
+        author: f.author
+          ? { "@type": "Person", name: f.author }
+          : { "@type": "Organization", name: doc.site.title },
         publisher,
         ...(f.tags?.length ? { keywords: f.tags.join(", ") } : {}),
       };
@@ -104,13 +119,21 @@ export function itemLd(doc: SiteDocument, collection: string, item: CollectionIt
           name: e.location.name ?? e.location.address,
           ...(e.location.address ? { address: e.location.address } : {}),
         };
-      if (e.registrationUrl) out.offers = { "@type": "Offer", url: e.registrationUrl, ...(e.price ? { description: e.price } : {}) };
+      if (e.registrationUrl)
+        out.offers = {
+          "@type": "Offer",
+          url: e.registrationUrl,
+          ...(e.price ? { description: e.price } : {}),
+        };
       return out;
     }
     case "products": {
       const p = item.frontmatter;
-      const digits = new Intl.NumberFormat("en", { style: "currency", currency: p.price.currency }).resolvedOptions()
-        .maximumFractionDigits ?? 2;
+      const digits =
+        new Intl.NumberFormat("en", {
+          style: "currency",
+          currency: p.price.currency,
+        }).resolvedOptions().maximumFractionDigits ?? 2;
       return {
         ...base,
         "@type": "Product",
@@ -121,7 +144,8 @@ export function itemLd(doc: SiteDocument, collection: string, item: CollectionIt
           url,
           price: (p.price.amount / 10 ** digits).toFixed(digits),
           priceCurrency: p.price.currency,
-          availability: p.available === false ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+          availability:
+            p.available === false ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
           seller: publisher,
         },
       };
@@ -134,8 +158,16 @@ export function itemLd(doc: SiteDocument, collection: string, item: CollectionIt
         datePublished: toIso(f.date),
         ...(f.episode !== undefined ? { episodeNumber: f.episode } : {}),
         timeRequired: `PT${Math.round(f.audio.duration / 60)}M`,
-        associatedMedia: { "@type": "MediaObject", contentUrl: ctx.mediaUrl(f.audio.src), encodingFormat: f.audio.mime },
-        partOfSeries: { "@type": "PodcastSeries", name: doc.collectionConfigs?.[collection]?.label ?? doc.site.title, url: absoluteUrl(ctx.siteUrl, `/${collection}/`) },
+        associatedMedia: {
+          "@type": "MediaObject",
+          contentUrl: ctx.mediaUrl(f.audio.src),
+          encodingFormat: f.audio.mime,
+        },
+        partOfSeries: {
+          "@type": "PodcastSeries",
+          name: doc.collectionConfigs?.[collection]?.label ?? doc.site.title,
+          url: absoluteUrl(ctx.siteUrl, `/${collection}/`),
+        },
       };
     }
     case "portfolio": {
@@ -151,7 +183,11 @@ export function itemLd(doc: SiteDocument, collection: string, item: CollectionIt
 }
 
 /** Structured data for a route. */
-export function jsonLdFor(plan: SitePlan, route: SiteRoute, ctx: SeoContext): Record<string, unknown>[] {
+export function jsonLdFor(
+  plan: SitePlan,
+  route: SiteRoute,
+  ctx: SeoContext,
+): Record<string, unknown>[] {
   const doc = plan.doc;
   if (route.kind === "notFound") return [];
   if (route.kind === "page") {
@@ -190,7 +226,11 @@ export function robotsTxt(doc: SiteDocument, siteUrl: string): string {
 
 // --- redirects ----------------------------------------------------------------------------------
 
-const htmlEsc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
+const htmlEsc = (s: string) =>
+  s.replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string,
+  );
 
 function target(r: Redirect, basePath: string): string {
   return /^https?:\/\//.test(r.to) ? r.to : `${basePath}${r.to}`;

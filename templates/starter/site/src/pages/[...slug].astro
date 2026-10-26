@@ -4,6 +4,7 @@
 import { renderPage, staticPaths } from "@openspace/site-kit/route";
 
 export const getStaticPaths = staticPaths;
+// biome-ignore lint/correctness/noUnusedVariables: used by the template below
 const html = await renderPage(Astro.props);
 ---
 <Fragment set:html={html} />

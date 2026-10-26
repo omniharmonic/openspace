@@ -54,7 +54,14 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
   return {
     name: "@openspace/site-kit",
     hooks: {
-      "astro:config:setup": async ({ config, command, updateConfig, injectRoute, addWatchFile, logger }) => {
+      "astro:config:setup": async ({
+        config,
+        command,
+        updateConfig,
+        injectRoute,
+        addWatchFile,
+        logger,
+      }) => {
         rootDir = fileURLToPath(config.root);
         const fixedNow = options.now ?? process.env.OPENSPACE_BUILD_TIME;
         now = fixedNow ? new Date(fixedNow) : new Date();
@@ -64,8 +71,11 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
         search = options.search ?? doc.config.features.search;
         const fonts = await resolveFonts(rootDir, doc, location.basePath);
         if (!fonts.plan && command === "build")
-          logger.info(`fonts load from Google Fonts; install ${fonts.missing.join(", ")} to self-host them`);
-        const turnstileSiteKey = options.turnstileSiteKey ?? process.env.OPENSPACE_TURNSTILE_SITE_KEY;
+          logger.info(
+            `fonts load from Google Fonts; install ${fonts.missing.join(", ")} to self-host them`,
+          );
+        const turnstileSiteKey =
+          options.turnstileSiteKey ?? process.env.OPENSPACE_TURNSTILE_SITE_KEY;
         runtime = {
           now: now.toISOString(),
           location,
@@ -84,13 +94,35 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
               'openspace.json deploys to Cloudflare, but "@astrojs/cloudflare" is not installed. Run: npm install @astrojs/cloudflare wrangler',
             );
           })) as { default: (o?: Record<string, unknown>) => AstroIntegration };
-          integrations.push(mod.default({ prerenderEnvironment: "node", imageService: "compile", ...options.cloudflare }));
-          injectRoute({ pattern: "/members/[...path]", entrypoint: ENTRY("cloudflare/gated"), prerender: false });
-          injectRoute({ pattern: "/_os/auth/callback", entrypoint: ENTRY("cloudflare/auth-callback"), prerender: false });
-          injectRoute({ pattern: "/_os/auth/password", entrypoint: ENTRY("cloudflare/password"), prerender: false });
+          integrations.push(
+            mod.default({
+              prerenderEnvironment: "node",
+              imageService: "compile",
+              ...options.cloudflare,
+            }),
+          );
+          injectRoute({
+            pattern: "/members/[...path]",
+            entrypoint: ENTRY("cloudflare/gated"),
+            prerender: false,
+          });
+          injectRoute({
+            pattern: "/_os/auth/callback",
+            entrypoint: ENTRY("cloudflare/auth-callback"),
+            prerender: false,
+          });
+          injectRoute({
+            pattern: "/_os/auth/password",
+            entrypoint: ENTRY("cloudflare/password"),
+            prerender: false,
+          });
           for (const page of gatedPages(doc)) {
             if (page.slug === "members" || page.slug.startsWith("members/")) continue;
-            injectRoute({ pattern: `/${page.slug}`, entrypoint: ENTRY("cloudflare/gated"), prerender: false });
+            injectRoute({
+              pattern: `/${page.slug}`,
+              entrypoint: ENTRY("cloudflare/gated"),
+              prerender: false,
+            });
           }
         }
 
@@ -115,16 +147,22 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
                 },
                 configureServer(server: {
                   watcher: { add(p: string): void; on(e: string, f: (p: string) => void): void };
-                  moduleGraph: { getModuleById(id: string): unknown; invalidateModule(m: unknown): void };
+                  moduleGraph: {
+                    getModuleById(id: string): unknown;
+                    invalidateModule(m: unknown): void;
+                  };
                   ws: { send(p: { type: string }): void };
                 }) {
                   server.watcher.add(join(rootDir, "content"));
-                  server.watcher.on("all" as never, ((_event: string, file: string) => {
-                    if (!file.startsWith(join(rootDir, "content"))) return;
-                    const mod = server.moduleGraph.getModuleById(`\0${VIRTUAL_SITE}`);
-                    if (mod) server.moduleGraph.invalidateModule(mod);
-                    server.ws.send({ type: "full-reload" });
-                  }) as never);
+                  server.watcher.on(
+                    "all" as never,
+                    ((_event: string, file: string) => {
+                      if (!file.startsWith(join(rootDir, "content"))) return;
+                      const mod = server.moduleGraph.getModuleById(`\0${VIRTUAL_SITE}`);
+                      if (mod) server.moduleGraph.invalidateModule(mod);
+                      server.ws.send({ type: "full-reload" });
+                    }) as never,
+                  );
                 },
               },
             ],

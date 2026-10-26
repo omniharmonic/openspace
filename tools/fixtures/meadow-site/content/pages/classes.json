@@ -8,9 +8,7 @@
       "layout": {
         "mode": "stack",
         "columns": {
-          "d": [
-            12
-          ]
+          "d": [12]
         }
       },
       "style": {
@@ -57,9 +55,7 @@
       "layout": {
         "mode": "stack",
         "columns": {
-          "d": [
-            12
-          ]
+          "d": [12]
         }
       },
       "style": {

@@ -4,17 +4,23 @@
  * (sitemap, feeds, manifests, share images) and tests all use the same plan.
  */
 import { blocksRegistry } from "@openspace/blocks";
-import type { BlockRegistry, CollectionConfig, CollectionItem, Page, SiteDocument } from "@openspace/schema";
+import type {
+  BlockRegistry,
+  CollectionConfig,
+  CollectionItem,
+  Page,
+  SiteDocument,
+} from "@openspace/schema";
 import { feedsFor } from "./feeds-plan";
 import {
   type ComposeContext,
+  humanize,
   isLive,
   itemPage,
   listPage,
   notFoundPage,
   sortItems,
   tagSlug,
-  humanize,
 } from "./pages";
 
 export type RouteKind = "page" | "item" | "collection" | "category" | "tag" | "notFound";
@@ -62,7 +68,9 @@ export function collectionConfig(doc: SiteDocument, name: string): CollectionCon
 export function publishableDoc(doc: SiteDocument, now: Date): SiteDocument {
   const collections: SiteDocument["collections"] = {};
   for (const [name, items] of Object.entries(doc.collections)) {
-    collections[name] = Object.fromEntries(Object.entries(items).filter(([, item]) => isLive(item, now)));
+    collections[name] = Object.fromEntries(
+      Object.entries(items).filter(([, item]) => isLive(item, now)),
+    );
   }
   const pages = Object.fromEntries(
     Object.entries(doc.pages).filter(([, p]) => !p.access?.password && !p.access?.members),
@@ -113,7 +121,10 @@ export function planSite(source: SiteDocument, opts: PlanOptions = {}): SitePlan
   const items: Record<string, CollectionItem[]> = {};
   for (const name of Object.keys(doc.collections).sort()) {
     const cfg = collectionConfig(doc, name);
-    const live = sortItems(Object.values(doc.collections[name] ?? {}), cfg?.list.sort ?? "date-desc");
+    const live = sortItems(
+      Object.values(doc.collections[name] ?? {}),
+      cfg?.list.sort ?? "date-desc",
+    );
     items[name] = live;
     const label = cfg?.label ?? humanize(name);
     const feeds = feedsFor(name, cfg, live[0]?.kind).map((f) => ({ label: f.label, href: f.path }));
@@ -137,7 +148,13 @@ export function planSite(source: SiteDocument, opts: PlanOptions = {}): SitePlan
 
     // Index (unless the owner made a page at the collection's URL) with pagination.
     const pageSize = cfg?.list.pageSize ?? 12;
-    const paginate = (baseSlug: string, title: string, intro: string | undefined, list: CollectionItem[], kind: RouteKind) => {
+    const paginate = (
+      baseSlug: string,
+      title: string,
+      intro: string | undefined,
+      list: CollectionItem[],
+      kind: RouteKind,
+    ) => {
       const count = Math.max(1, Math.ceil(list.length / pageSize));
       for (let n = 1; n <= count; n++) {
         const slug = n === 1 ? baseSlug : `${baseSlug}/page/${n}`;
@@ -159,14 +176,29 @@ export function planSite(source: SiteDocument, opts: PlanOptions = {}): SitePlan
 
     const cats = new Set(live.flatMap((i) => i.frontmatter.categories ?? []));
     for (const cat of [...cats].sort()) {
-      const catLabel = cfg?.taxonomies?.categories?.find((c) => c.slug === cat)?.label ?? humanize(cat);
-      paginate(`${name}/category/${cat}`, catLabel, `${label} filed under ${catLabel}.`, live.filter((i) => i.frontmatter.categories?.includes(cat)), "category");
+      const catLabel =
+        cfg?.taxonomies?.categories?.find((c) => c.slug === cat)?.label ?? humanize(cat);
+      paginate(
+        `${name}/category/${cat}`,
+        catLabel,
+        `${label} filed under ${catLabel}.`,
+        live.filter((i) => i.frontmatter.categories?.includes(cat)),
+        "category",
+      );
     }
     if (cfg?.taxonomies?.tags !== false) {
       const tags = new Map<string, string>();
-      for (const i of live) for (const t of i.frontmatter.tags ?? []) if (!tags.has(tagSlug(t))) tags.set(tagSlug(t), t);
+      for (const i of live)
+        for (const t of i.frontmatter.tags ?? [])
+          if (!tags.has(tagSlug(t))) tags.set(tagSlug(t), t);
       for (const [slug, tag] of [...tags].sort()) {
-        paginate(`${name}/tag/${slug}`, `#${tag}`, `${label} tagged “${tag}”.`, live.filter((i) => (i.frontmatter.tags ?? []).some((t) => tagSlug(t) === slug)), "tag");
+        paginate(
+          `${name}/tag/${slug}`,
+          `#${tag}`,
+          `${label} tagged “${tag}”.`,
+          live.filter((i) => (i.frontmatter.tags ?? []).some((t) => tagSlug(t) === slug)),
+          "tag",
+        );
       }
     }
   }

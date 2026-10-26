@@ -18,8 +18,8 @@ jobs:
           key: os-assets-${{ hashFiles('media/**') }}
           restore-keys: os-assets-
       - run: npm ci
-      - run: npx openspace check --ci      # schema, links, budgets, secret scan
-      - run: npm run build                 # astro build (+ pagefind, og images)
+      - run: npx openspace check --ci # schema, links, budgets, secret scan
+      - run: npm run build # astro build (+ pagefind, og images)
       - uses: actions/upload-pages-artifact@v5
         with: { path: dist }
   deploy:
