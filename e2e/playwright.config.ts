@@ -49,6 +49,7 @@ const mobileDevice = {
 
 export default defineConfig({
   testDir: "./tests",
+  globalSetup: "./global-setup.ts",
   outputDir: "./test-results",
   timeout: 90_000,
   expect: { timeout: 15_000 },
