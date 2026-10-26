@@ -22,6 +22,8 @@ import { HttpError } from "../lib/errors";
 export const ACCESS_TOKEN_MARGIN_MS = 5 * 60 * 1000;
 /** A refresh claim older than this is considered abandoned (the holder crashed). */
 const CLAIM_TTL_MS = 30_000;
+/** The GitHub refresh call times out well inside the claim TTL. */
+const REFRESH_TIMEOUT_MS = 10_000;
 const WAIT_POLLS = 40;
 const WAIT_POLL_MS = 100;
 
@@ -168,7 +170,10 @@ export async function mintUserAccessToken(
 
   let tokens: UserTokens;
   try {
-    tokens = await refreshUserToken(config.github, refresh, deps.fetch, deps.now());
+    // Give up well before the claim would be considered abandoned by other requests.
+    const timed: FetchLike = (input, init) =>
+      deps.fetch(input, { ...init, signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS) });
+    tokens = await refreshUserToken(config.github, refresh, timed, deps.now());
   } catch (err) {
     if (err instanceof GitHubApiError && err.status < 500) {
       await clearTokens(deps, userId, sealedRefresh, claim);

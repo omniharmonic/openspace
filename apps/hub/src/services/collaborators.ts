@@ -10,6 +10,7 @@ import { forbidden, HttpError, notFound } from "../lib/errors";
 import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { Services } from "./index";
+import { cancelSchedulesBy } from "./publishing";
 import { ownerOf, requireRole, siteForUser } from "./sites";
 
 /**
@@ -376,6 +377,7 @@ export async function updateCollaborator(
       .prepare("UPDATE site_roles SET locked_sections = ? WHERE site_id = ? AND user_id = ?")
       .bind(JSON.stringify([...new Set(patch.lockedSections)]), id, targetId)
       .run();
+  if (patch.role && RANK[patch.role] < RANK.editor) await cancelSchedulesBy(services, id, targetId);
   await audit(services.db, {
     siteId: id,
     actor: user.id,
@@ -420,6 +422,7 @@ export async function removeCollaborator(
   } catch (err) {
     log?.warn("removing GitHub collaborator failed", { siteId: id, err });
   }
+  await cancelSchedulesBy(services, id, targetId);
   await audit(services.db, {
     siteId: id,
     actor: user.id,

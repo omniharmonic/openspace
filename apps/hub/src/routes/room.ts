@@ -109,7 +109,12 @@ roomRoutes.post("/:id/room/agent-sessions", async (c) => {
 roomRoutes.post("/:id/room/agent-sessions/:sid/end", async (c) => {
   const user = requireUser(c);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
-  await unwrapRoom(roomStub(c.env, site.id).endAgentSession(site.id, c.req.param("sid")));
+  await unwrapRoom(
+    roomStub(c.env, site.id).endAgentSession(site.id, {
+      userId: user.id,
+      sessionId: c.req.param("sid"),
+    }),
+  );
   return c.json({ ok: true });
 });
 

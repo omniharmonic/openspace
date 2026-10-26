@@ -297,6 +297,10 @@ describe("build status webhook", () => {
     await publish(app, site.id, owner);
     const bad = (await gh().getRef(repo, "main")) as string;
     const client = await RoomClient.connect(app, site.id, owner);
+    // Real GitHub reports the run later; the dev emulation already finished it.
+    await env.HUB_DB.prepare("UPDATE publishes SET status = 'queued' WHERE sha = ?")
+      .bind(bad)
+      .run();
 
     const run = (status: string, conclusion: string | null) => ({
       action: status === "completed" ? "completed" : "in_progress",
@@ -381,7 +385,10 @@ describe("build status webhook", () => {
       fix: "retry",
     });
     expect(
-      translateBuildError({ steps: ["deploy: Deploy to GitHub Pages (deploy-pages)"] }),
+      translateBuildError({
+        steps: ["deploy: Deploy to GitHub Pages"],
+        text: "Get Pages site failed. Please verify that the repository has Pages enabled",
+      }),
     ).toMatchObject({
       code: "pages_off",
       fix: "enable_pages",
@@ -389,6 +396,13 @@ describe("build status webhook", () => {
     expect(translateBuildError({ text: "media/2026/10/hero.jpg is too large" })).toMatchObject({
       code: "image_too_large",
     });
+    // A failing deploy step on its own is not "Pages is off".
+    expect(
+      translateBuildError({ steps: ["deploy: Deploy to GitHub Pages (deploy-pages)"] }).code,
+    ).toBe("publish_failed");
+    expect(translateBuildError({ steps: ["build: Check for secrets in content"] }).code).not.toBe(
+      "secret_found",
+    );
     expect(translateBuildError({ conclusion: "timed_out" })).toMatchObject({
       code: "timed_out",
       fix: "retry",

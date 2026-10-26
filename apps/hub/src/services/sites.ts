@@ -10,7 +10,7 @@ import {
 } from "@openspace/schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
-import { latestPublish } from "../db/publishes";
+import { insertPublish, latestPublish, publishBySha } from "../db/publishes";
 import {
   getSite,
   getSiteForUser,
@@ -419,6 +419,21 @@ async function runSetup(
     const run = await gh.workflowStatus(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
     const status: SiteStatus =
       run.state === "success" ? "live" : run.state === "failure" ? "failed" : "building";
+    // The first version is a publish too: "Fix it for me" and history can go back to it.
+    if (!(await publishBySha(services.db, site.id, head)))
+      await insertPublish(
+        services.db,
+        {
+          site_id: site.id,
+          kind: "setup",
+          sha: head,
+          prev_sha: null,
+          summary: `Create ${site.name}`,
+          actor: user.id,
+          status: run.state === "none" ? "queued" : run.state,
+        },
+        services.now(),
+      );
     return {
       status,
       detail:
@@ -586,7 +601,8 @@ export async function publishSite(
   const owner = await ownerOf(services, site);
   const published = await latestPublish(services.db, id);
   const needsSetup =
-    (site.status === "failed" && !published) || !(await draftReady(services, site, owner));
+    (site.status === "failed" && (!published || published.kind === "setup")) ||
+    !(await draftReady(services, site, owner));
   if (needsSetup) {
     const result = await runSetup(services, site, owner ?? user, log ? { log } : {});
     await updateSite(

@@ -53,7 +53,7 @@ export async function runScheduled(env: HubBindings, scheduledTime = Date.now())
   const log = createLogger(config.logLevel, { cron: true });
   const services = createServices(env, config);
   const jobs: Array<[string, () => Promise<unknown>]> = [
-    ["schedules", () => runDueSchedules(env, services, scheduledTime)],
+    ["schedules", () => runDueSchedules(env, services, scheduledTime, log)],
     ["transfers", () => expireTransfers(services, scheduledTime)],
     ["invitations", () => expireInvitations(services, scheduledTime)],
     ["purge", () => purgeArchivedSites(env, services, scheduledTime)],

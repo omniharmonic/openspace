@@ -17,7 +17,7 @@ import {
   type RepoRef,
   type WorkflowRun,
 } from "../github/types";
-import { randomId } from "../lib/crypto";
+import { canonicalJson, randomId, sha256Hex } from "../lib/crypto";
 import { HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
@@ -62,6 +62,8 @@ interface Attachment {
   userId: string;
   actor: string;
   name: string;
+  /** Commit-trailer email, cached so ops don't re-read the user row. */
+  email: string | null;
   role: Role;
   page: string | null;
   selection: string[];
@@ -198,7 +200,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
     if (this.state.doc) return;
     this.loading ??= (async () => {
       if (this.state.loaded) {
-        this.state.restore(loadSiteDocument(this.state.files()));
+        const failed = this.state.restore(loadSiteDocument(this.state.files()));
+        if (failed.length)
+          this.log.error("ops no longer apply after restart", { siteId, seqs: failed });
         return;
       }
       const services = this.services();
@@ -237,6 +241,37 @@ export class DraftRoom extends DurableObject<HubBindings> {
       email: trailerEmail(user),
       kind: "human",
     };
+  }
+
+  /** An agent session that `userId` started and that is still active (MCP impersonation guard). */
+  private requireOwnSession(sessionId: string | undefined, userId: string) {
+    const session = sessionId ? this.state.agentSession(sessionId) : null;
+    if (!session || session.userId !== userId || session.endedAt || session.undoneAt)
+      throw new HttpError(
+        403,
+        "invalid_session",
+        "That AI session isn't active. Start a new one and try again.",
+      );
+    return session;
+  }
+
+  /** Ending or undoing a session: its owner, or an owner/designer of the site. */
+  private async requireSessionControl(
+    services: Services,
+    siteId: string,
+    sessionUserId: string,
+    userId: string,
+  ): Promise<Role> {
+    const role = await this.roleOf(services, siteId, userId);
+    if (!role || role === "contributor")
+      throw new HttpError(403, "forbidden", "You don't have access to this.");
+    if (sessionUserId !== userId && ROLE_RANK[role] < ROLE_RANK.designer)
+      throw new HttpError(
+        403,
+        "forbidden",
+        "Only the person who connected that AI can undo its changes.",
+      );
+    return role;
   }
 
   /** Role + personal locks from D1 (`site_roles`), mirrored into the room. */
@@ -344,6 +379,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
     sender?: WebSocket,
   ): Promise<void> {
     let accepted = 0;
+    const saved: Op[] = [];
     for (const r of results) {
       const own: ConflictNotice[] = [];
       for (const n of r.conflicts) {
@@ -366,7 +402,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
             { type: "op", seq: r.seq, op: r.op, client, actor: actor.actor, kind: actor.kind },
             client,
           );
-          await this.trackApproval(services, siteId, actor, role, r.op);
+          saved.push(r.op);
         }
       } else if (sender)
         this.send(sender, {
@@ -399,6 +435,8 @@ export class DraftRoom extends DurableObject<HubBindings> {
       this.broadcastPresence();
     }
     if (accepted) await this.scheduleFlush();
+    // D1 bookkeeping only after every result has been delivered.
+    for (const op of saved) await this.trackApproval(services, siteId, actor, role, op);
   }
 
   /** Contributor approval queue: pending drafts by Contributors; resolved by editors' saves. */
@@ -415,10 +453,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
       if (op.op === "collection.upsert" && role === "contributor") {
         await services.db
           .prepare(
-            `INSERT INTO approvals (id, site_id, collection, slug, title, submitted_by, status, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+            `INSERT INTO approvals (id, site_id, collection, slug, title, content_hash, submitted_by, status, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
              ON CONFLICT (site_id, collection, slug) WHERE status = 'pending'
-             DO UPDATE SET title = excluded.title, submitted_by = excluded.submitted_by, updated_at = excluded.updated_at`,
+             DO UPDATE SET title = excluded.title, content_hash = excluded.content_hash,
+               submitted_by = excluded.submitted_by, updated_at = excluded.updated_at`,
           )
           .bind(
             randomId("apr"),
@@ -426,6 +465,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
             op.collection,
             op.item.slug,
             op.item.frontmatter.title,
+            await sha256Hex(canonicalJson(op.item)),
             actor.userId,
             now,
             now,
@@ -485,6 +525,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
       userId,
       actor: actor.actor,
       name: actor.name,
+      email: actor.email,
       role: access.role,
       page: null,
       selection: [],
@@ -558,7 +599,13 @@ export class DraftRoom extends DurableObject<HubBindings> {
       this.send(ws, { type: "removed", message: "You no longer have access to this site." });
       return ws.close(4003, "No access");
     }
-    const actor = await this.resolveActor(services, { userId: a.userId, kind: "human" });
+    const actor: ActorInfo = {
+      actor: a.actor,
+      userId: a.userId,
+      name: a.name,
+      email: a.email ?? null,
+      kind: "human",
+    };
     const ops = msg.type === "op" ? [msg.op] : msg.ops;
     const results = ops.map((op) =>
       this.state.submit({
@@ -618,7 +665,12 @@ export class DraftRoom extends DurableObject<HubBindings> {
       const services = this.services();
       const role = await this.roleOf(services, siteId, input.actor.userId);
       if (!role) throw new HttpError(403, "forbidden", "You don't have access to this site.");
-      const actor = await this.resolveActor(services, input.actor);
+      let actorInput = input.actor;
+      if (actorInput.kind === "agent") {
+        const session = this.requireOwnSession(actorInput.session, actorInput.userId);
+        actorInput = { ...actorInput, label: session.label };
+      }
+      const actor = await this.resolveActor(services, actorInput);
       const client = input.client ?? (actor.kind === "agent" ? actor.actor : `rpc:${actor.actor}`);
       const results = input.ops.map((op) =>
         this.state.submit({
@@ -650,7 +702,8 @@ export class DraftRoom extends DurableObject<HubBindings> {
   ): Promise<{ results: SubmitResult[]; seq: number }> {
     await this.ensureLoaded(siteId);
     const services = this.services();
-    const role = (await this.roleOf(services, siteId, userId)) ?? "owner";
+    const role = await this.roleOf(services, siteId, userId);
+    if (!role) throw new HttpError(403, "forbidden", "You don't have access to this site.");
     const actor = await this.resolveActor(services, { userId, kind: "human" });
     const client = `server:${actor.actor}`;
     const results = ops.map((op) => this.state.submit({ op, client, actor, role, trusted: true }));
@@ -805,6 +858,35 @@ export class DraftRoom extends DurableObject<HubBindings> {
     }
   }
 
+  /**
+   * Make sure the room is based on the actual `os/draft` head (commits can land there directly:
+   * offline-mode Studio, the CLI) and everything is flushed, before publish/rollback use it.
+   */
+  private async syncDraft(siteId: string, gh: GitHubAccess, repo: RepoRef): Promise<string> {
+    const actual = await gh.getRef(repo, DRAFT_BRANCH);
+    if (actual && actual !== this.state.head)
+      await this.reloadFromHead(
+        gh,
+        repo,
+        "The draft changed elsewhere; merged the latest version.",
+      );
+    await this.flushLocked(siteId);
+    return this.state.head;
+  }
+
+  /** Move `os/draft` to `sha` only if it is still at `expected`; otherwise reload from it. */
+  private async resetDraftIfAt(
+    gh: GitHubAccess,
+    repo: RepoRef,
+    expected: string,
+    sha: string,
+  ): Promise<boolean> {
+    const current = await gh.getRef(repo, DRAFT_BRANCH);
+    if (current !== expected) return false;
+    await gh.resetBranch(repo, DRAFT_BRANCH, sha);
+    return true;
+  }
+
   /** Re-read the draft head, replay unflushed ops on it, tell everyone to reload. */
   private async reloadFromHead(gh: GitHubAccess, repo: RepoRef, reason: string): Promise<void> {
     const { head, files, doc } = await this.readHead(gh, repo);
@@ -910,13 +992,12 @@ export class DraftRoom extends DurableObject<HubBindings> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       return this.exclusive(async () => {
-        await this.flushLocked(siteId);
         const services = this.services();
         const site = await this.site(services, siteId);
         const gh = await this.github(services, site);
         const repo = parseRepo(site.repo);
+        const draftHead = await this.syncDraft(siteId, gh, repo);
         const mainHead = await gh.getRef(repo, MAIN_BRANCH);
-        const draftHead = this.state.head;
         if (!mainHead) throw new HttpError(409, "not_ready", "This site isn't set up yet.");
         if (await this.sameTree(gh, repo, mainHead, draftHead)) {
           this.state.markPublished(this.state.flushedSeq);
@@ -951,9 +1032,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
           message,
           author: { name: publisher?.name ?? publisher?.login ?? "OpenSpace" },
         });
-        await gh.resetBranch(repo, DRAFT_BRANCH, commit.sha);
-        this.state.setMeta("head", commit.sha);
         this.state.markPublished(this.state.flushedSeq);
+        if (await this.resetDraftIfAt(gh, repo, draftHead, commit.sha))
+          this.state.setMeta("head", commit.sha);
+        // Someone committed to the draft while we published: keep their work.
+        else await this.reloadFromHead(gh, repo, "The draft changed while publishing.");
         const { publish, run } = await this.recordPublish(services, gh, site, {
           kind: "publish",
           sha: commit.sha,
@@ -990,21 +1073,29 @@ export class DraftRoom extends DurableObject<HubBindings> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       return this.exclusive(async () => {
-        await this.flushLocked(siteId);
         const services = this.services();
         const site = await this.site(services, siteId);
         const gh = await this.github(services, site);
         const repo = parseRepo(site.repo);
+        const draftHead = await this.syncDraft(siteId, gh, repo);
         const mainHead = await gh.getRef(repo, MAIN_BRANCH);
         if (!mainHead) throw new HttpError(409, "not_ready", "This site isn't set up yet.");
         const history = await gh.listCommits(repo, { ref: MAIN_BRANCH, limit: 100 });
-        const target = history.find((c) => c.sha === input.sha);
+        const wanted = input.sha.toLowerCase();
+        const matches = history.filter((c) => c.sha.startsWith(wanted));
+        if (matches.length > 1)
+          throw new HttpError(
+            400,
+            "ambiguous_version",
+            "That version id matches more than one version.",
+          );
+        const target = matches[0];
         if (!target)
           throw new HttpError(404, "version_not_found", "We couldn't find that version.");
         let snapshot: string | null = null;
-        if (!(await this.sameTree(gh, repo, mainHead, this.state.head))) {
+        if (!(await this.sameTree(gh, repo, mainHead, draftHead))) {
           snapshot = `os/snap/before-rollback-${Date.now()}`;
-          await gh.tag(repo, snapshot, this.state.head);
+          await gh.tag(repo, snapshot, draftHead);
         }
         const user = await this.userFor(services, input.userId);
         const when = target.date.slice(0, 10);
@@ -1019,7 +1110,12 @@ export class DraftRoom extends DurableObject<HubBindings> {
           }`,
           author: { name: user?.name ?? user?.login ?? "OpenSpace" },
         });
-        await gh.resetBranch(repo, DRAFT_BRANCH, commit.sha);
+        if (!(await this.resetDraftIfAt(gh, repo, draftHead, commit.sha))) {
+          // A commit landed on the draft meanwhile: keep it in a snapshot too, then follow main.
+          const moved = await gh.getRef(repo, DRAFT_BRANCH);
+          if (moved) await this.tagUnique(gh, repo, `os/snap/before-rollback-${Date.now()}`, moved);
+          await gh.resetBranch(repo, DRAFT_BRANCH, commit.sha);
+        }
         // Ops flushed before the rollback are superseded; any that arrived meanwhile are replayed
         // on the rolled-back draft.
         this.state.markPublished(this.state.flushedSeq);
@@ -1096,14 +1192,25 @@ export class DraftRoom extends DurableObject<HubBindings> {
           });
           return { fix, sha: last.sha };
         }
-        if (!last.prev_sha)
-          throw new HttpError(409, "nothing_to_fix", "There's no earlier version to go back to.");
+        // Go back to the newest version that actually went live (never to another failed one).
+        const good = await services.db
+          .prepare(
+            "SELECT sha FROM publishes WHERE site_id = ? AND status = 'success' AND sha != ? ORDER BY created_at DESC, rowid DESC LIMIT 1",
+          )
+          .bind(siteId, last.sha)
+          .first<{ sha: string }>();
+        if (!good)
+          throw new HttpError(
+            409,
+            "nothing_to_fix",
+            "There's no earlier version that worked to go back to.",
+          );
         const mainHead = await gh.getRef(repo, MAIN_BRANCH);
         const user = await this.userFor(services, input.userId);
         const summary = "Put back the last version that worked";
         const commit = await gh.commitTree(repo, {
           branch: MAIN_BRANCH,
-          treeOf: last.prev_sha,
+          treeOf: good.sha,
           ...(mainHead ? { expectedHead: mainHead } : {}),
           message: `${summary}\n\nReverts: ${last.sha}${
             user ? `\nCo-authored-by: ${user.name ?? user.login} <${trailerEmail(user)}>` : ""
@@ -1179,9 +1286,12 @@ export class DraftRoom extends DurableObject<HubBindings> {
       await this.ensureLoaded(siteId);
       const services = this.services();
       const role = await this.roleOf(services, siteId, input.userId);
-      if (!role) throw new HttpError(403, "forbidden", "You don't have access to this site.");
+      if (!role || role === "contributor")
+        throw new HttpError(403, "forbidden", "You can't connect an AI to this site.");
       const sessionId = input.sessionId ?? randomId("ags", 12);
       const existing = this.state.agentSession(sessionId);
+      if (existing && existing.userId !== input.userId)
+        throw new HttpError(409, "session_taken", "That session id is already in use.");
       if (existing)
         return {
           sessionId,
@@ -1224,9 +1334,16 @@ export class DraftRoom extends DurableObject<HubBindings> {
     });
   }
 
-  async endAgentSession(siteId: string, sessionId: string): Promise<RoomResult<void>> {
+  async endAgentSession(
+    siteId: string,
+    input: { userId: string; sessionId: string },
+  ): Promise<RoomResult<void>> {
     return this.rpc(async () => {
       this.siteId(siteId);
+      const sessionId = input.sessionId;
+      const session = this.state.agentSession(sessionId);
+      if (!session) throw new HttpError(404, "not_found", "We couldn't find that AI session.");
+      await this.requireSessionControl(this.services(), siteId, session.userId, input.userId);
       this.state.endAgentSession(sessionId);
       this.agents.delete(`agent:${sessionId}`);
       this.broadcastPresence();
@@ -1250,9 +1367,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
       if (!sessionId || !session)
         throw new HttpError(404, "not_found", "There are no AI changes to undo.");
       const services = this.services();
+      const role = await this.requireSessionControl(services, siteId, session.userId, input.userId);
       const actor = await this.resolveActor(services, { userId: input.userId, kind: "human" });
       const plan = this.state.agentRevertPlan(sessionId, actor);
-      const role = (await this.roleOf(services, siteId, input.userId)) ?? "owner";
       const client = `server:${actor.actor}`;
       const results = plan.ops.map((op) =>
         this.state.submit({ op, client, actor, role, trusted: true }),

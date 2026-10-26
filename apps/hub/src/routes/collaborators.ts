@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { requireUser } from "../auth/session";
 import { readJson } from "../lib/validate";
 import {
+  ApproveSchema,
   approveSubmission,
   listApprovals,
   RejectSchema,
@@ -79,8 +80,10 @@ collaboratorRoutes.get("/:id/approvals", async (c) => {
   });
 });
 
+/** POST /api/sites/:id/approvals/:approvalId/approve { contentHash? } */
 collaboratorRoutes.post("/:id/approvals/:approvalId/approve", async (c) => {
   const user = requireUser(c);
+  const { contentHash } = await readJson(c, ApproveSchema);
   return c.json(
     await approveSubmission(
       c.env,
@@ -88,6 +91,7 @@ collaboratorRoutes.post("/:id/approvals/:approvalId/approve", async (c) => {
       c.req.param("id"),
       user,
       c.req.param("approvalId"),
+      contentHash,
     ),
   );
 });

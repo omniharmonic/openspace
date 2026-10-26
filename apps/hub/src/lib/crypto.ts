@@ -103,3 +103,12 @@ export async function decryptSecret(keyB64: string, sealed: string, aad = ""): P
   );
   return new TextDecoder().decode(pt);
 }
+
+/** JSON with object keys sorted, so equal values always serialize the same way. */
+export function canonicalJson(value: unknown): string {
+  return JSON.stringify(value, (_k, v) =>
+    v && typeof v === "object" && !Array.isArray(v)
+      ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
+      : v,
+  );
+}

@@ -32,7 +32,7 @@ export interface GitHubAppConfig {
   slug: string;
 }
 
-export type LogLevel = "debug" | "info" | "warn" | "error";
+export type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
 
 export interface HubConfig {
   /** DEV_MODE=true: DevGitHubAccess, /auth/dev/login, relaxed cookies on http. */
@@ -89,7 +89,9 @@ export function readConfig(env: HubBindings): HubConfig {
     useDevGitHub: devMode || github === null,
     tokenEncKey: env.TOKEN_ENC_KEY || null,
     webhookSecret: env.GITHUB_WEBHOOK_SECRET || null,
-    logLevel: (["debug", "info", "warn", "error"].includes(level) ? level : "info") as LogLevel,
+    logLevel: (["debug", "info", "warn", "error", "silent"].includes(level)
+      ? level
+      : "info") as LogLevel,
     secureCookies: hubUrl.startsWith("https://"),
   };
 }

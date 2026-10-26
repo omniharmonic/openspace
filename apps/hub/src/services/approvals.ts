@@ -4,6 +4,7 @@ import { z } from "zod";
 import { audit } from "../db/audit";
 import type { User } from "../db/users";
 import type { HubBindings } from "../env";
+import { canonicalJson, sha256Hex } from "../lib/crypto";
 import { HttpError, notFound } from "../lib/errors";
 import { roomStub, type SubmitResult, unwrapRoom } from "../room";
 import type { Services } from "./index";
@@ -20,6 +21,8 @@ export interface ApprovalView {
   collection: string;
   slug: string;
   title: string | null;
+  /** Hash of the submitted version; send it back with `approve` to approve exactly that. */
+  contentHash: string | null;
   submittedBy: { userId: string; login: string; name: string | null };
   status: "pending" | "approved" | "rejected";
   note: string | null;
@@ -34,6 +37,7 @@ interface ApprovalRow {
   collection: string;
   slug: string;
   title: string | null;
+  content_hash: string | null;
   submitted_by: string;
   status: ApprovalView["status"];
   note: string | null;
@@ -49,12 +53,21 @@ const toView = (r: ApprovalRow): ApprovalView => ({
   collection: r.collection,
   slug: r.slug,
   title: r.title,
+  contentHash: r.content_hash,
   submittedBy: { userId: r.submitted_by, login: r.login, name: r.name },
   status: r.status,
   note: r.note,
   createdAt: new Date(r.created_at).toISOString(),
   updatedAt: new Date(r.updated_at).toISOString(),
   decidedAt: r.decided_at ? new Date(r.decided_at).toISOString() : null,
+});
+
+export const ApproveSchema = z.strictObject({
+  /** The `contentHash` of the version the reviewer looked at. */
+  contentHash: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/)
+    .optional(),
 });
 
 export const RejectSchema = z.strictObject({ note: z.string().trim().max(1000).optional() });
@@ -103,14 +116,28 @@ export async function approveSubmission(
   id: string,
   user: User,
   approvalId: string,
+  reviewedHash?: string,
 ): Promise<ApprovalView> {
   const site = await siteForUser(services, id, user);
   requireRole(site, "editor");
   const row = await pending(services, id, approvalId);
+  if (reviewedHash && row.content_hash && reviewedHash !== row.content_hash)
+    throw new HttpError(
+      409,
+      "changed_since_review",
+      "This item changed after you looked at it. Review the latest version first.",
+    );
   const room = roomStub(env, id);
   const { doc, seq } = await unwrapRoom(room.getDocument(id));
   const item = (doc as SiteDocument).collections[row.collection]?.[row.slug];
   if (!item) throw new HttpError(409, "item_missing", "That item was deleted from the draft.");
+  // Only the submitted version is approved: someone may have edited it since.
+  if (row.content_hash && (await sha256Hex(canonicalJson(item))) !== row.content_hash)
+    throw new HttpError(
+      409,
+      "changed_since_review",
+      "This item changed after it was submitted. Review the latest version first.",
+    );
   const op = {
     op: "collection.upsert",
     collection: row.collection,

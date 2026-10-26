@@ -214,6 +214,11 @@ export class RoomState {
    * returns the ops dropped.
    */
   rebaseOnHead(head: string, files: Record<string, string>, docAtHead: SiteDocument): StoredOp[] {
+    // Seqs are never reused, even if the newest ops are dropped below.
+    this.setMeta("seq_floor", String(this.seq));
+    // Ops at or below the flushed seq were made against the old base: their inverses can't
+    // rewind the new one. Nothing may rebase onto, rewind past or revert them any more.
+    this.setMeta("fence_seq", String(this.flushedSeq));
     this.replaceFiles(files);
     this.setMeta("head", head);
     let doc = docAtHead;
@@ -238,16 +243,24 @@ export class RoomState {
   }
 
   /** Rebuild the in-memory document after a restart: document at head + unflushed ops. */
-  restore(docAtHead: SiteDocument): void {
+  restore(docAtHead: SiteDocument): number[] {
     let doc = docAtHead;
+    const failed: number[] = [];
     for (const o of this.opsAfter(this.flushedSeq)) {
       try {
         doc = apply(doc, o.op);
       } catch {
-        // Ops were validated on accept; a failure here means the files cache moved underneath.
+        // Ops were validated on accept; a failure means the files cache moved underneath.
+        failed.push(o.seq);
       }
     }
     this.doc = doc;
+    return failed;
+  }
+
+  /** Ops at or below this seq predate the last rebase onto a new head (see `rebaseOnHead`). */
+  get fenceSeq(): number {
+    return Number(this.getMeta("fence_seq") ?? 0);
   }
 
   // --- log ----------------------------------------------------------------------------------
@@ -315,7 +328,7 @@ export class RoomState {
   docAt(seq: number): SiteDocument | null {
     if (!this.doc) return null;
     if (seq >= this.seq) return this.doc;
-    if (seq < this.oldestSeq - 1) return null;
+    if (seq < this.oldestSeq - 1 || seq < this.fenceSeq) return null;
     let doc = this.doc;
     const later = this.opsAfter(seq).reverse();
     for (const o of later) {
@@ -461,7 +474,7 @@ export class RoomState {
 
     const current = this.seq;
     const baseSeq = Math.min(input.baseSeq ?? current, current);
-    if (baseSeq < this.oldestSeq - 1)
+    if (baseSeq < this.oldestSeq - 1 || baseSeq < this.fenceSeq)
       return {
         status: "rejected",
         opId: parsed.op.id,
@@ -575,8 +588,9 @@ export class RoomState {
   private isOwnUndo(op: Op, actor: string): boolean {
     const own = this.sql
       .exec<OpRow>(
-        "SELECT * FROM ops WHERE actor = ? ORDER BY seq DESC LIMIT ?",
+        "SELECT * FROM ops WHERE actor = ? AND client NOT LIKE 'server:%' AND seq > ? ORDER BY seq DESC LIMIT ?",
         actor,
+        this.fenceSeq,
         UNDO_LOOKBACK,
       )
       .toArray()
@@ -732,19 +746,29 @@ export class RoomState {
   agentRevertPlan(sessionId: string, actor: ActorInfo): { ops: Op[]; skipped: number } {
     const session = this.agentSession(sessionId);
     if (!session || !this.doc) return { ops: [], skipped: 0 };
-    const log = this.opsAfter(session.startSeq);
-    const target = log.filter((o) => o.session === sessionId && o.kind === "agent");
-    if (!target.length) return { ops: [], skipped: 0 };
+    const all = this.opsAfter(session.startSeq);
+    const own = (o: StoredOp) => o.session === sessionId && o.kind === "agent";
+    // Ops before the fence (the draft was rebased onto a new head since, e.g. a rollback) can't
+    // be reverted: they count as skipped.
+    const fenced = all.filter((o) => own(o) && o.seq <= this.fenceSeq).length;
+    const log = all.filter((o) => o.seq > this.fenceSeq);
+    const target = log.filter(own);
+    if (!target.length) return { ops: [], skipped: fenced };
     // Documents right after each target op, rewinding from the current document.
     const after = new Map<number, SiteDocument>();
-    let doc = this.doc;
+    let doc: SiteDocument | null = this.doc;
     const wanted = new Set(target.map((t) => t.seq));
     for (const o of [...log].reverse()) {
+      if (!doc) break;
       if (wanted.has(o.seq)) after.set(o.seq, doc);
-      doc = apply(doc, o.inverse);
+      try {
+        doc = apply(doc, o.inverse);
+      } catch {
+        doc = null; // can't rewind further; earlier targets rebase without a base
+      }
     }
     const ops: Op[] = [];
-    let skipped = 0;
+    let skipped = fenced;
     let n = 0;
     for (const t of [...target].reverse()) {
       const others = log.filter((o) => o.seq > t.seq && o.session !== sessionId);
@@ -755,14 +779,18 @@ export class RoomState {
         ts: t.op.ts,
       };
       const base = after.get(t.seq);
-      const r = others.length
-        ? rebase(
-            [inv],
-            others.map((o) => o.op),
-            base ? { base } : {},
-          )
-        : { ops: [inv], conflicts: [] };
-      const kept = r.ops[0];
+      let kept: Op | undefined;
+      try {
+        kept = others.length
+          ? rebase(
+              [inv],
+              others.map((o) => o.op),
+              base ? { base } : {},
+            ).ops[0]
+          : inv;
+      } catch {
+        kept = undefined;
+      }
       if (kept) ops.push(kept);
       else skipped++;
     }

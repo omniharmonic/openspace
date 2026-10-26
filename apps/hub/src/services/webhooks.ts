@@ -105,6 +105,9 @@ async function onWorkflowRun(
   }
   const now = services.now();
   const publish = await publishBySha(services.db, site.id, run.head_sha);
+  // Webhooks arrive out of order: a finished publish never goes back to queued/in progress.
+  const terminal = (s: string | undefined) => s === "success" || s === "failure";
+  if (publish && terminal(publish.status) && !terminal(state)) return "stale";
   if (publish)
     await updatePublish(
       services.db,

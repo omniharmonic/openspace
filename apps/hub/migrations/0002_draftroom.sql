@@ -26,6 +26,7 @@ CREATE TABLE approvals (
   collection   TEXT NOT NULL,
   slug         TEXT NOT NULL,
   title        TEXT,
+  content_hash TEXT,                                     -- SHA-256 of the submitted item (canonical JSON)
   submitted_by TEXT NOT NULL REFERENCES users(id),
   status       TEXT NOT NULL DEFAULT 'pending',          -- pending | approved | rejected
   note         TEXT,

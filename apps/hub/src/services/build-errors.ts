@@ -42,7 +42,7 @@ const RULES: Rule[] = [
   },
   {
     code: "secret_found",
-    test: /secret|api key|password/i,
+    test: /secret (detected|found)|found (a |an )?(secret|api key|password)|looks like a (password|key|secret)/i,
     title: "Something that looks like a password was found",
     message:
       "Your site is public, so we stopped before anything that looks like a password or key went live. Remove it and publish again.",
@@ -58,7 +58,7 @@ const RULES: Rule[] = [
   },
   {
     code: "pages_off",
-    test: /deploy-pages|get pages site|pages (is not|isn't) enabled|github-pages|configure-pages/i,
+    test: /get pages site failed|pages (site )?(is not|isn't) enabled|not found.*pages site|configure-pages/i,
     title: "Publishing isn't switched on yet",
     message: "Web hosting for this site isn't switched on. We can switch it on and try again.",
     fix: "enable_pages",

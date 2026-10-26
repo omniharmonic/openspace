@@ -1,3 +1,4 @@
+import type { Role } from "@openspace/ops";
 import { z } from "zod";
 import { audit } from "../db/audit";
 import { listPublishes } from "../db/publishes";
@@ -7,11 +8,36 @@ import type { HubBindings } from "../env";
 import { DRAFT_BRANCH, MAIN_BRANCH, parseRepo } from "../github/types";
 import { randomId } from "../lib/crypto";
 import { HttpError, notFound } from "../lib/errors";
+import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
 import { buildErrorByCode } from "./build-errors";
 import type { Services } from "./index";
 import { loadSiteDocument } from "./site-files";
+
+const RANK: Record<Role, number> = { contributor: 1, editor: 2, designer: 3, owner: 4 };
+/** A schedule still `running` after this long was interrupted. */
+export const STALE_RUN_MS = 10 * 60 * 1000;
+
+/** Cancel someone's pending scheduled publishes (they were removed or can't publish any more). */
+export async function cancelSchedulesBy(
+  services: Services,
+  siteId: string,
+  userId: string,
+): Promise<number> {
+  const r = await services.db
+    .prepare(
+      "UPDATE schedules SET status = 'cancelled', finished_at = ?, error = ? WHERE site_id = ? AND created_by = ? AND status = 'pending'",
+    )
+    .bind(
+      services.now(),
+      "Cancelled: the person who scheduled it can no longer publish this site.",
+      siteId,
+      userId,
+    )
+    .run();
+  return r.meta.changes ?? 0;
+}
 
 /** Who may do what with publishing (PRD §4.5). */
 export const PUBLISH_ROLE = "editor" as const;
@@ -52,7 +78,7 @@ export async function listVersions(
       summary: c.message.split("\n")[0] ?? "",
       author: c.author.name,
       date: c.date,
-      kind: p?.kind ?? (i === commits.length - 1 ? "setup" : "publish"),
+      kind: p?.kind ?? (c.parents.length === 0 ? "setup" : "publish"),
       status: p?.status ?? null,
       error: p?.status === "failure" ? buildErrorByCode(p.error_code) : null,
       current: i === 0,
@@ -247,6 +273,7 @@ export async function runDueSchedules(
   env: HubBindings,
   services: Services,
   now: number,
+  log?: Logger,
 ): Promise<{ ran: number; failed: number }> {
   const due = await services.db
     .prepare(
@@ -256,6 +283,13 @@ export async function runDueSchedules(
     .all<ScheduleRow>();
   let ran = 0;
   let failed = 0;
+  // Reap runs that never finished (the Worker was killed mid-publish).
+  await services.db
+    .prepare(
+      "UPDATE schedules SET status = 'failed', finished_at = ?, error = ? WHERE status = 'running' AND started_at < ?",
+    )
+    .bind(now, "This publish didn't finish. Schedule it again.", now - STALE_RUN_MS)
+    .run();
   for (const s of due.results) {
     const claim = await services.db
       .prepare(
@@ -269,7 +303,21 @@ export async function runDueSchedules(
         .prepare("SELECT archived_at FROM sites WHERE id = ?")
         .bind(s.site_id)
         .first<{ archived_at: number | null }>();
-      if (!site || site.archived_at) throw new Error("Site no longer exists");
+      if (!site || site.archived_at)
+        throw new HttpError(404, "not_found", "This site no longer exists.");
+      // The person who scheduled it must still be allowed to publish.
+      const creator = s.created_by
+        ? await services.db
+            .prepare("SELECT role FROM site_roles WHERE site_id = ? AND user_id = ?")
+            .bind(s.site_id, s.created_by)
+            .first<{ role: Role }>()
+        : null;
+      if (!creator || RANK[creator.role] < RANK[PUBLISH_ROLE])
+        throw new HttpError(
+          403,
+          "forbidden",
+          "The person who scheduled this can no longer publish this site.",
+        );
       const result: PublishResult = await unwrapRoom(
         roomStub(env, s.site_id).publish(s.site_id, {
           userId: s.created_by,
@@ -283,9 +331,15 @@ export async function runDueSchedules(
       ran++;
     } catch (err) {
       failed++;
+      // Only plain-language messages are shown to people; anything else is logged.
+      const message =
+        err instanceof HttpError
+          ? err.message
+          : "We couldn't publish at the scheduled time. Try publishing now.";
+      if (!(err instanceof HttpError)) log?.error("scheduled publish failed", { id: s.id, err });
       await services.db
         .prepare("UPDATE schedules SET status = 'failed', finished_at = ?, error = ? WHERE id = ?")
-        .bind(services.now(), (err as Error).message.slice(0, 500), s.id)
+        .bind(services.now(), message.slice(0, 500), s.id)
         .run();
     }
   }
