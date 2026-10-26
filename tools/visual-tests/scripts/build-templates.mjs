@@ -3,6 +3,9 @@
 //   node scripts/build-templates.mjs [outRoot] [--only=meadow,harbor]
 // Writes <outRoot>/<id>/dist (default outRoot: tools/visual-tests/.build). The demo is built for
 // a custom domain at the root (base "/") so it can be served from any static server.
+// Dependencies: `astro` runs the build; `cookie@2` is here because Astro's prerender chunk
+// imports it by name from the project (without it Node resolves an older hoisted copy).
+// Template photos are remote, so no image codec (sharp) is needed.
 import { execFile } from "node:child_process";
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
