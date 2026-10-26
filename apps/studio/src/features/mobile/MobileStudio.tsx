@@ -573,6 +573,12 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
     setSeenRequest(requested);
     if (requested === "check") setSheet({ kind: "panel", panel: "check" });
   }
+  // Trying a look takes over the screen: close the gallery sheet behind it.
+  const [wasTrying, setWasTrying] = useState(trying);
+  if (trying !== wasTrying) {
+    setWasTrying(trying);
+    if (trying) setSheet(null);
+  }
   const building = site.status === "building";
   const s = () => api.getState();
 

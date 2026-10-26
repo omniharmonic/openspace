@@ -190,7 +190,12 @@
     --_h: 44px;
   }
 
-  .st-lk-stage__switch .st-seg__item {
-    min-height: 44px;
+  .st-lk-stage__switch.st-seg {
+    flex: none;
+    height: 48px;
+  }
+
+  .st-lk-stage__panes.is-single .st-lk-stage__cap {
+    display: none;
   }
 }

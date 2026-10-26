@@ -222,10 +222,13 @@ export function LookStage({ narrow = false }: { narrow?: boolean }) {
         )}
         {result && !narrow && (
           <span className="st-lk-stage__meta">
-            {changes} {changes === 1 ? "section follows" : "sections follow"} the template
-            {result.plan.unmatched.length
-              ? ` · ${result.plan.unmatched.length} keep their own style`
-              : ""}
+            {changes > 0
+              ? `${changes} ${changes === 1 ? "section follows" : "sections follow"} the template${
+                  result.plan.unmatched.length
+                    ? ` · ${result.plan.unmatched.length} keep their own style`
+                    : ""
+                }`
+              : "Colors, fonts and buttons change; your sections keep their layouts"}
           </span>
         )}
         <span className="st-lk-stage__spacer" />
