@@ -20,6 +20,7 @@
     "@openspace/mcp-tools": "workspace:*",
     "@openspace/ops": "workspace:*",
     "@openspace/schema": "workspace:*",
+    "@openspace/templates": "workspace:*",
     "@openspace/theme": "workspace:*",
     "blakejs": "^1.2.1",
     "fflate": "^0.8.3",

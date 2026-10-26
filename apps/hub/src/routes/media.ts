@@ -74,7 +74,8 @@ function sniffDocument(b: Uint8Array): string | null {
   if (ascii(0, 4) === "RIFF" && ascii(8, 4) === "WAVE") return "audio/wav";
   if (ascii(0, 4) === "fLaC") return "audio/flac";
   if (ascii(4, 4) === "ftyp" && ascii(8, 3) === "M4A") return "audio/mp4";
-  if (ascii(4, 4) === "ftyp" && /^(heic|heix|hevc|mif1|msf1)$/.test(ascii(8, 4))) return "image/heic";
+  if (ascii(4, 4) === "ftyp" && /^(heic|heix|hevc|mif1|msf1)$/.test(ascii(8, 4)))
+    return "image/heic";
   return null;
 }
 

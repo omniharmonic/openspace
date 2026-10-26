@@ -53,6 +53,9 @@ importers:
       '@openspace/schema':
         specifier: workspace:*
         version: link:../../packages/schema
+      '@openspace/templates':
+        specifier: workspace:*
+        version: link:../../templates
       '@openspace/theme':
         specifier: workspace:*
         version: link:../../packages/theme

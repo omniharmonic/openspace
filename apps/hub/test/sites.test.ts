@@ -42,51 +42,67 @@ async function create(
 }
 
 describe("templates API", () => {
-  it("lists gallery data without an account and serves a template document", async () => {
+  it("lists the launch templates without an account and serves a template document", async () => {
     const app = createApp();
     const res = await call(app, "/api/templates");
     expect(res.status).toBe(200);
     const { templates: items } = (await res.json()) as {
       templates: Array<Record<string, unknown>>;
     };
+    expect(items).toHaveLength(12);
+    expect(items.map((t) => t.id)).not.toContain("basic");
     expect(items[0]).toMatchObject({
-      id: "basic",
-      name: "Basic",
+      id: "meadow",
+      name: "Meadow",
       persona: expect.any(String),
-      mood: "Calm",
-      thumbnailUrl: null,
-      previewUrl: "http://localhost:8787/t/basic/",
+      mood: expect.any(String),
+      version: "1.0.0",
+      thumbnailUrl: expect.stringMatching(/^https:\/\//),
+      previewUrl: "http://localhost:8787/t/meadow/",
       sample: { name: expect.any(String), tagline: expect.any(String) },
     });
+    for (const item of items) expect((item.looks as unknown[]).length).toBe(3);
     // Studio's compact look preview (solved colors, font stacks, radius, image shape).
-    const calm = ((items[0] as Record<string, unknown>).looks as LookJson[])[0];
-    expect(calm?.styles).toMatchObject({
+    const look = ((items[0] as Record<string, unknown>).looks as LookJson[])[0];
+    expect(look?.styles).toMatchObject({
       colors: {
         background: expect.stringMatching(/^#[0-9a-f]{6}$/),
         accent: expect.stringMatching(/^#[0-9a-f]{6}$/),
         onAccent: expect.stringMatching(/^#[0-9a-f]{6}$/),
       },
-      fonts: {
-        heading: expect.stringContaining('"Fraunces"'),
-        body: expect.stringContaining('"Hanken Grotesk"'),
-      },
-      radius: 999,
-      imageShape: "rect",
+      fonts: { heading: expect.any(String), body: expect.any(String) },
     });
-    expect(calm?.siteStyles.choices.pairing).toBe("fraunces-hanken");
-    expect(
-      ((items[0] as Record<string, unknown>).looks as Array<{ id: string }>).map((l) => l.id),
-    ).toEqual(["calm", "bold", "warm"]);
-    const one = await call(app, "/api/templates/basic");
-    const body = (await one.json()) as { document: SiteDocument };
-    expect(Object.values(body.document.pages)[0]?.slug).toBe("");
-    expect((await call(app, "/api/templates/nope")).status).toBe(404);
+    expect(look?.siteStyles.choices.pairing).toEqual(expect.any(String));
 
-    const preview = await call(app, "/t/basic/?look=bold");
+    const one = await call(app, "/api/templates/meadow");
+    const body = (await one.json()) as { document: SiteDocument };
+    expect(Object.values(body.document.pages).some((p) => p.slug === "")).toBe(true);
+    expect((await call(app, "/api/templates/nope")).status).toBe(404);
+    // The small "basic" fixture is still loadable (tests), just not listed.
+    expect((await call(app, "/api/templates/basic")).status).toBe(200);
+
+    const preview = await call(app, "/t/meadow/");
     expect(preview.status).toBe(200);
-    const html = await preview.text();
-    expect(html).toContain("Template preview");
-    expect(html).toContain("oklch(0.55 0.2 265)");
+    expect(await preview.text()).toContain("Template preview");
+  });
+
+  it("creates a site from a launch template with the starter shell", async () => {
+    const app = createApp();
+    const cookie = await devLogin(app, "Kai Moreno");
+    const { res, site } = await create(app, cookie, {
+      template: "meadow",
+      look: "oat-sage",
+      name: "Fernwood Studio",
+    });
+    expect(res.status, JSON.stringify(site)).toBe(201);
+    const doc = (await (await call(app, `/api/sites/${site.id}/document`, { cookie })).json()) as {
+      document: SiteDocument;
+    };
+    expect(doc.document.site.title).toBe("Fernwood Studio");
+    const files = await env.HUB_DB.prepare(
+      "SELECT COUNT(*) AS n FROM dev_files f WHERE f.content LIKE '%name: Publish%'",
+    ).first<{ n: number }>();
+    expect(files?.n).toBeGreaterThan(0);
   });
 });
 

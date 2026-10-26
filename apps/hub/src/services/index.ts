@@ -3,10 +3,11 @@ import type { HubBindings, HubConfig } from "../env";
 import { type GitHubContext, selectGitHubAccess } from "../github";
 import type { FetchLike } from "../github/http";
 import type { GitHubAccess } from "../github/types";
+import { basicTemplate } from "../templates/basic";
 import { createGrowthServices, type GrowthOverrides, type GrowthServices } from "./growth";
 import { createPublicServices, type PublicOverrides, type PublicServices } from "./public";
 import { type PageRenderer, PlaceholderRenderer } from "./renderer";
-import { BuiltinTemplateSource, type TemplateSource } from "./templates";
+import { RegistryTemplateSource, type TemplateSource } from "./templates";
 
 /** Per-request service container (no module-level request state). */
 export interface Services {
@@ -47,7 +48,8 @@ export function createServices(
     db: env.HUB_DB,
     uploads: env.UPLOADS,
     config,
-    templates: overrides.templates ?? new BuiltinTemplateSource(),
+    // The 12 launch templates; the small "basic" fixture stays loadable (never listed) for tests.
+    templates: overrides.templates ?? new RegistryTemplateSource([basicTemplate]),
     // TODO(renderer): swap for an adapter over @openspace/renderer's renderPageHtml (ADR-3).
     renderer: overrides.renderer ?? new PlaceholderRenderer(),
     fetch: fetchFn,

@@ -1,5 +1,7 @@
 import type { BlockId, PageId, Styles } from "@openspace/schema";
+import { templateSource as registry } from "@openspace/templates";
 import { basicTemplate } from "../templates/basic";
+import { STARTER_SITE_FILES } from "../templates/starter-files";
 
 /**
  * Template registry seam. The Hub copies a template's files into a new site repo, so a
@@ -62,5 +64,64 @@ export class BuiltinTemplateSource implements TemplateSource {
   async load(id: string): Promise<LoadedTemplate | null> {
     const t = this.byId.get(id);
     return t ? { meta: t.meta, files: { ...t.files } } : null;
+  }
+}
+
+/** First https image in a template's files (its home page first): the gallery thumbnail. */
+function firstImage(files: Record<string, string>): string | null {
+  const ordered = [
+    files["content/pages/home.json"] ?? "",
+    ...Object.entries(files)
+      .filter(([p]) => p.startsWith("content/pages/"))
+      .map(([, c]) => c),
+  ];
+  for (const text of ordered) {
+    const m = /"src":\s*"(https:\/\/[^"]+)"/.exec(text);
+    if (m?.[1]) return m[1];
+  }
+  return null;
+}
+
+/**
+ * The launch templates (`@openspace/templates`, Task 9) as the Hub's source: gallery metadata
+ * with three looks and the demo owner, and the template's content plus the starter shell
+ * (publish workflow, Astro config, AGENTS.md…) as the new site's files. `fixtures` (the "basic"
+ * test template) can be loaded but aren't listed in the gallery.
+ */
+export class RegistryTemplateSource implements TemplateSource {
+  private readonly fixtures: Map<string, LoadedTemplate>;
+  private thumbs = new Map<string, string | null>();
+
+  constructor(fixtures: LoadedTemplate[] = []) {
+    this.fixtures = new Map(fixtures.map((t) => [t.meta.id, t]));
+  }
+
+  private withThumb(meta: TemplateMeta, files: Record<string, string>): TemplateMeta {
+    if (!this.thumbs.has(meta.id)) this.thumbs.set(meta.id, firstImage(files));
+    return { ...meta, thumbnailUrl: meta.thumbnailUrl ?? this.thumbs.get(meta.id) ?? null };
+  }
+
+  async list(): Promise<TemplateMeta[]> {
+    const metas = (await registry.list()) as TemplateMeta[];
+    const out: TemplateMeta[] = [];
+    for (const meta of metas) {
+      if (!this.thumbs.has(meta.id)) {
+        const t = await registry.load(meta.id);
+        this.thumbs.set(meta.id, t ? firstImage(t.files) : null);
+      }
+      out.push({ ...meta, thumbnailUrl: meta.thumbnailUrl ?? this.thumbs.get(meta.id) ?? null });
+    }
+    return out;
+  }
+
+  async load(id: string): Promise<LoadedTemplate | null> {
+    const fixture = this.fixtures.get(id);
+    if (fixture) return { meta: fixture.meta, files: { ...fixture.files } };
+    const t = await registry.load(id);
+    if (!t) return null;
+    return {
+      meta: this.withThumb(t.meta as TemplateMeta, t.files),
+      files: { ...STARTER_SITE_FILES, ...t.files },
+    };
   }
 }
