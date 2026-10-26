@@ -1,0 +1,227 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_n3zn43m479",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "How the Hudson Valley Food Commons began in 2019, how members govern it together and who serves on the steering committee."
+  },
+  "sections": [
+    {
+      "id": "sec_3mm0wg122g",
+      "preset": "about/story-editorial@1",
+      "label": "Editorial story",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_r1r0271ygm",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Owned together, run in the open",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_ma13s6qs49",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "In the spring of 2019, eleven farmers met in the back room of the Kingston library to talk about a problem none of them could solve alone. Each had lost a wholesale buyer because they couldn't keep produce cold long enough to deliver it. Together, they could afford a cooler. Within a year they had a cooler, a truck and twenty more members."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The Food Commons is a cooperative: every member owns one share and has one vote. A steering committee of seven, elected each January, runs the day-to-day; big decisions go to the general assembly, which meets four times a year in a different member's barn. Our budget, minutes and bylaws are published for every member to read."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "drop-cap"
+        }
+      ]
+    },
+    {
+      "id": "sec_jmypzt56jb",
+      "preset": "about/milestones@1",
+      "label": "Milestones timeline",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_8b3xxej04q",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Six years of sharing",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "History",
+            "subheading": "From a borrowed back room to the valley's largest food cooperative."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_rs847nhx29",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "2019",
+                "title": "Eleven farmers, one cooler",
+                "text": "The founding members buy a used walk-in cooler and park it behind a church in Kingston."
+              },
+              {
+                "date": "2021",
+                "title": "The first truck",
+                "text": "A state grant buys a refrigerated truck; food banks join as members."
+              },
+              {
+                "date": "2023",
+                "title": "The Prince Street hub",
+                "text": "Members buy a former bakery warehouse together and build a shared cold store."
+              },
+              {
+                "date": "2025",
+                "title": "1.2 million pounds",
+                "text": "Forty-two members move more food together than any of them could alone."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "vertical"
+        }
+      ]
+    },
+    {
+      "id": "sec_bq9wdfzc8f",
+      "preset": "team/circles@1",
+      "label": "Team in circles",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_8f1j3ykrzb",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Elected by members",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Steering committee"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_x5d7dytn03",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Lena Morales",
+                "role": "Chair · Rondout Valley Growers",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=560&q=80",
+                  "alt": "Portrait of Lena Morales",
+                  "width": 560,
+                  "height": 705
+                }
+              },
+              {
+                "name": "Andre Wallace",
+                "role": "Treasurer · Newburgh Food Pantry",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=560&q=80",
+                  "alt": "Portrait of Andre Wallace",
+                  "width": 560,
+                  "height": 840
+                }
+              },
+              {
+                "name": "Ruth Okonkwo",
+                "role": "Secretary · Catskill Grain Co.",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1780387477222-730504564368?w=560&q=80",
+                  "alt": "Portrait of Ruth Okonkwo",
+                  "width": 560,
+                  "height": 840
+                }
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "circles"
+        }
+      ]
+    }
+  ]
+}

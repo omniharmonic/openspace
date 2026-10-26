@@ -1,0 +1,304 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_767k25afbn",
+  "title": "Join",
+  "slug": "join",
+  "seo": {
+    "description": "Apply to join the Hudson Valley Food Commons. One member share, one vote and a sliding-scale yearly fee for farms, kitchens and pantries."
+  },
+  "sections": [
+    {
+      "id": "sec_fq6yyvzr8c",
+      "preset": "hero/split-image@1",
+      "label": "Split with portrait image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_827stq40kq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Own a share of the valley's food system",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Membership",
+            "subheading": "Any farm, kitchen, food bank or grocer in our nine counties can join. Members buy one share, get one vote at the general assembly and use everything the commons owns."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_5x1shw0vg3",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Apply now",
+            "link": {
+              "type": "page",
+              "page": "pg_767k25afbn",
+              "anchor": "apply"
+            },
+            "role": "primary",
+            "secondaryLabel": "Read the bylaws",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_n3zn43m479"
+            },
+            "note": "Applications are reviewed at the next monthly members' meeting."
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_b60wapfn8e",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1782386963665-b83ce1d6752e?w=2240&q=80",
+              "alt": "Gloved hands planting seedlings at a member farm",
+              "width": 2240,
+              "height": 1494
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_17bnp671x0",
+      "preset": "pricing/compact-list@1",
+      "label": "Compact price list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_2crfcyhb3s",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Sliding-scale membership",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Dues"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_tjnt29ghsg",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Member share",
+                "price": "$250",
+                "period": "one time",
+                "description": "Refundable if you leave. Payable over twelve months.",
+                "features": [],
+                "buttonLabel": "Apply",
+                "link": {
+                  "type": "page",
+                  "page": "pg_767k25afbn",
+                  "anchor": "apply"
+                },
+                "featured": false
+              },
+              {
+                "name": "Yearly dues, small",
+                "price": "$120",
+                "period": "per year",
+                "description": "Revenue under $250,000, or any food bank or pantry.",
+                "features": [],
+                "buttonLabel": "Apply",
+                "link": {
+                  "type": "page",
+                  "page": "pg_767k25afbn",
+                  "anchor": "apply"
+                },
+                "featured": false
+              },
+              {
+                "name": "Yearly dues, larger",
+                "price": "$480",
+                "period": "per year",
+                "description": "Revenue over $250,000. Helps keep dues low for everyone else.",
+                "features": [],
+                "buttonLabel": "Apply",
+                "link": {
+                  "type": "page",
+                  "page": "pg_767k25afbn",
+                  "anchor": "apply"
+                },
+                "featured": false
+              }
+            ],
+            "note": "Storage and trucking are billed at cost, by the pallet and by the mile."
+          },
+          "variant": "compact"
+        }
+      ]
+    },
+    {
+      "id": "sec_16ebs4aqd3",
+      "preset": "contact/form-split@1",
+      "label": "Contact form with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_jhj20keyda",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Tell us about your organization",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Apply",
+            "subheading": "A member of the steering committee will call you within two weeks to talk it through."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_2k8n1015as",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Hudson Valley Food Commons",
+            "address": "61 Prince Street\nKingston, NY 12401",
+            "phone": "+1 (845) 555-0119",
+            "email": "hello@hvfoodcommons.example",
+            "directions": true
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_0yw7t46870",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_1801rnetcm",
+              "name": "Membership application",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "text",
+                  "name": "organization",
+                  "label": "Organization",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "type",
+                  "label": "Type",
+                  "required": true,
+                  "width": "half",
+                  "options": [
+                    "Farm",
+                    "Kitchen or food business",
+                    "Food bank or pantry",
+                    "Grocer",
+                    "Other"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "name": "county",
+                  "label": "County",
+                  "width": "half"
+                },
+                {
+                  "type": "textarea",
+                  "name": "needs",
+                  "label": "What would you use the commons for?",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send application",
+              "success": {
+                "type": "message",
+                "message": "Thank you! The steering committee will call you within two weeks."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ],
+      "anchor": "apply"
+    }
+  ]
+}

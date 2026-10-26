@@ -17,6 +17,7 @@ import {
 } from "./lib/define";
 import { documentFiles, formatJson } from "./lib/files";
 import { atelier } from "./atelier/src/build";
+import { commons } from "./commons/src/build";
 import { encore } from "./encore/src/build";
 import { fieldNotes } from "./field-notes/src/build";
 import { harbor } from "./harbor/src/build";
@@ -49,6 +50,7 @@ export const templateSpecs: readonly TemplateSpec[] = [
   fieldNotes,
   encore,
   kiln,
+  commons,
 ];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);
