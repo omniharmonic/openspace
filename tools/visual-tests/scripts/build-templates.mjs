@@ -76,6 +76,7 @@ export async function astroBuild(root) {
       ASTRO_TELEMETRY_DISABLED: "1",
       // As published: the starter's publish workflow self-hosts the font pairing.
       OPENSPACE_GOOGLE_FONTS: process.env.OPENSPACE_GOOGLE_FONTS ?? "download",
+      OPENSPACE_REMOTE_IMAGES: process.env.OPENSPACE_REMOTE_IMAGES ?? "download",
     },
     maxBuffer: 64 * 1024 * 1024,
   });

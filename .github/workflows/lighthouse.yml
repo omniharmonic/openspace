@@ -1,9 +1,12 @@
 name: Lighthouse
 
+permissions:
+  contents: read
+
 # Lighthouse (mobile, simulated 4G) on every template's demo home page, built through site-kit the
 # way owners publish (self-hosted fonts) and served statically. Fails below Performance 95 or
-# Accessibility 100 (doc 04 §8.3, PRD §5.4 / §7.1). Manual and nightly; not a required check,
-# because demo photos load from a remote host whose timing varies.
+# Accessibility 100, or LCP over 2.0 s (doc 04 §8.3, PRD §5.4 / §7.1), served over HTTP/2 like
+# the hosts sites publish to. Manual and nightly; not a required check.
 on:
   workflow_dispatch:
   schedule:
@@ -27,9 +30,10 @@ jobs:
         run: node scripts/build-templates.mjs
         env:
           OPENSPACE_GOOGLE_FONTS: download
-      - name: Lighthouse (median of 3, fails below 95 performance / 100 accessibility)
+          OPENSPACE_REMOTE_IMAGES: download
+      - name: Lighthouse (median of 3, fails below 95 performance / 100 accessibility or over 2.0 s LCP)
         working-directory: tools/visual-tests
-        run: node scripts/lighthouse.mjs --runs=3 --min-perf=95 --min-a11y=100 | tee "$GITHUB_STEP_SUMMARY"
+        run: node scripts/lighthouse.mjs --runs=3 --min-perf=95 --min-a11y=100 --max-lcp=2000 | tee "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

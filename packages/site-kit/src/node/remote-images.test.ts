@@ -1,0 +1,63 @@
+import { mkdtemp } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import type { SiteDocument } from "@openspace/schema";
+import { describe, expect, it } from "vitest";
+import { jpegSize, remoteImages, selfHostRemoteImages } from "./remote-images";
+
+/** A minimal JPEG header with an SOF0 marker for 800×600. */
+const jpeg = () =>
+  new Uint8Array([
+    0xff, 0xd8, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x02, 0x58, 0x03, 0x20, 0, 0, 0, 0, 0, 0,
+  ]);
+
+const PHOTO = "https://images.unsplash.com/photo-1?w=960&q=80";
+const doc = {
+  site: { logo: null },
+  pages: {
+    pg_a: {
+      sections: [
+        { blocks: [{ fields: { image: { src: PHOTO, alt: "Pier", width: 960, height: 640 } } }] },
+        { blocks: [{ fields: { image: { src: "media/own.jpg", alt: "" } } }] },
+      ],
+    },
+  },
+  collections: {},
+} as unknown as SiteDocument;
+
+describe("self-hosted demo photos", () => {
+  it("finds remote CDN photos with their content dimensions", () => {
+    expect([...remoteImages(doc)]).toEqual([[PHOTO, { width: 960, height: 640 }]]);
+    expect(jpegSize(jpeg())).toEqual({ width: 800, height: 600 });
+  });
+
+  it("downloads AVIF and JPEG per width once and maps them under _os/img", async () => {
+    const urls: string[] = [];
+    const fakeFetch = (async (url: string) => {
+      urls.push(url);
+      return new Response(url.includes("fm=jpg") ? jpeg() : new Uint8Array([1, 2, 3]));
+    }) as unknown as typeof fetch;
+    const cacheDir = await mkdtemp(join(tmpdir(), "os-remote-"));
+    const plan = await selfHostRemoteImages(doc, { cacheDir, basePath: "/site", fetch: fakeFetch });
+    const hit = plan.map[PHOTO];
+    expect(hit?.width).toBe(960);
+    expect(hit?.sources?.[0]?.type).toBe("image/avif");
+    expect(hit?.sources?.[0]?.srcset).toMatch(/^\/site\/_os\/img\/[0-9a-f]{12}-480\.avif 480w, /);
+    expect(hit?.srcset).toMatch(/-960\.jpg 960w$/);
+    // 480, 640, 768, 960 × AVIF + JPEG; nothing for the site's own media.
+    expect(urls).toHaveLength(8);
+    expect(urls.every((u) => u.startsWith("https://images.unsplash.com/photo-1?"))).toBe(true);
+    expect(plan.files).toHaveLength(8);
+  });
+
+  it("keeps a photo remote when a download fails", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "os-remote-"));
+    const plan = await selfHostRemoteImages(doc, {
+      cacheDir,
+      basePath: "",
+      fetch: (async () => new Response("no", { status: 503 })) as unknown as typeof fetch,
+    });
+    expect(plan.map).toEqual({});
+    expect(plan.files).toEqual([]);
+  });
+});

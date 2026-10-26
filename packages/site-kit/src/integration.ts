@@ -7,6 +7,7 @@
  * the Worker routes for members, magic-link sign-in and password pages.
  */
 
+import { copyFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compiledStylesFor, type SocialFeedPost } from "@openspace/renderer";
@@ -17,6 +18,7 @@ import { ENTRYPOINTS, type EntrypointName } from "./entrypoints";
 import type { PodcastOptions } from "./feeds";
 import { fontPreloads, resolveFonts } from "./node/fonts";
 import { writeSiteOutputs } from "./node/postbuild";
+import { selfHostRemoteImages } from "./node/remote-images";
 import { siteStylesheets } from "./render";
 import { gatedPages, planSite, withoutGatedContent } from "./routes";
 import type { RuntimeOptions } from "./runtime-options";
@@ -55,6 +57,9 @@ export const CLOUDFLARE_ADAPTER_OPTIONS = {
   prerenderEnvironment: "node",
   imageService: "compile",
 } as const;
+
+const remoteImageCache = (root: string) =>
+  join(root, "node_modules", ".astro", "openspace", "remote-images");
 
 const VIRTUAL_SITE = "virtual:openspace/site";
 const VIRTUAL_MEDIA = "virtual:openspace/media";
@@ -107,6 +112,18 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
               : `fonts load from Google Fonts; install ${fonts.missing.join(", ")} or set OPENSPACE_GOOGLE_FONTS=download to self-host them`,
           );
         const pairing = compiledStylesFor(doc.styles).tokens.pairing;
+        // Publish builds self-host the remote demo photos too (same origin: faster LCP).
+        const remoteImages =
+          command === "build" && process.env.OPENSPACE_REMOTE_IMAGES === "download"
+            ? (
+                await selfHostRemoteImages(doc, {
+                  cacheDir: remoteImageCache(rootDir),
+                  basePath: location.basePath,
+                })
+              ).map
+            : undefined;
+        if (remoteImages)
+          logger.info(`demo photos: ${Object.keys(remoteImages).length} self-hosted`);
         // Option, then the repository variable the Hub sets, then the key in openspace.json.
         const turnstileSiteKey =
           options.turnstileSiteKey ||
@@ -127,6 +144,7 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
           turnstileSiteKey: turnstileSiteKey || undefined,
           ogImages: options.ogImages ?? true,
           dev: command === "dev",
+          ...(remoteImages ? { remoteImages } : {}),
           socialFeeds:
             typeof options.socialFeeds === "function"
               ? await options.socialFeeds()
@@ -225,6 +243,16 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
         const outDir = fileURLToPath(dir);
         const doc = await loadSiteDocument(rootDir);
         const plan = planSite(doc, { now });
+        if (process.env.OPENSPACE_REMOTE_IMAGES === "download") {
+          const remote = await selfHostRemoteImages(doc, {
+            cacheDir: remoteImageCache(rootDir),
+            basePath: location.basePath,
+          });
+          await mkdir(join(outDir, "_os", "img"), { recursive: true });
+          await Promise.all(
+            remote.files.map((f) => copyFile(f.from, join(outDir, "_os", "img", f.name))),
+          );
+        }
         const result = await writeSiteOutputs({
           outDir,
           rootDir,

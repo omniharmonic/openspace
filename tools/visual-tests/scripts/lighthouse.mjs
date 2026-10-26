@@ -29,6 +29,8 @@ const BUILD = flags.build ?? join(PKG, ".build");
 const OUT = flags.out ?? join(PKG, "out", "lighthouse");
 const RUNS = Number(flags.runs ?? 1);
 const PAGE = flags.page ?? "/";
+// HTTP/2 over TLS like the hosts sites publish to (default); --http1 for the old harness.
+const HTTP2 = !flags.http1;
 
 function chromePath() {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
@@ -72,13 +74,18 @@ const ids = (await templateIds()).filter(
 await mkdir(OUT, { recursive: true });
 const chrome = await chromeLauncher.launch({
   chromePath: chromePath(),
-  chromeFlags: ["--headless=new", "--no-sandbox", "--disable-gpu"],
+  chromeFlags: [
+    "--headless=new",
+    "--no-sandbox",
+    "--disable-gpu",
+    ...(HTTP2 ? ["--ignore-certificate-errors"] : []),
+  ],
 });
 const rows = [];
 try {
   for (const id of ids) {
-    const server = await serve(join(BUILD, id, "dist"));
-    const url = `http://localhost:${server.address().port}${PAGE}`;
+    const server = await serve(join(BUILD, id, "dist"), 0, { http2: HTTP2 });
+    const url = `${HTTP2 ? "https" : "http"}://localhost:${server.address().port}${PAGE}`;
     const runs = [];
     for (let i = 0; i < RUNS; i++) {
       const r = await lighthouse(url, {

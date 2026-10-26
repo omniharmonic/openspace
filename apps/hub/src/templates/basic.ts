@@ -278,6 +278,7 @@ jobs:
       - run: npm run build
         env:
           OPENSPACE_GOOGLE_FONTS: download
+          OPENSPACE_REMOTE_IMAGES: download
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

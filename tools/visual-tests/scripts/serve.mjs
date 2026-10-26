@@ -2,9 +2,13 @@
 // Pages, Cloudflare): gzip for text, long caching for hashed `_os/` and `_astro/` files,
 // `/path/` → `/path/index.html`, and the site's 404 page.
 //   node scripts/serve.mjs <dir> [port]
-import { createReadStream } from "node:fs";
+
+import { execFileSync } from "node:child_process";
+import { createReadStream, mkdtempSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { createServer } from "node:http";
+import { createSecureServer } from "node:http2";
+import { tmpdir } from "node:os";
 import { extname, join, normalize } from "node:path";
 import { createGzip } from "node:zlib";
 
@@ -31,8 +35,38 @@ const TYPES = {
 };
 const COMPRESS = /^(text\/|application\/(json|xml|manifest)|image\/svg)/;
 
-export function serve(dir, port = 0) {
-  const server = createServer(async (req, res) => {
+/** A throwaway self-signed certificate for localhost (HTTP/2 needs TLS in browsers). */
+function localhostCert() {
+  const d = mkdtempSync(join(tmpdir(), "os-serve-"));
+  execFileSync(
+    "openssl",
+    [
+      "req",
+      "-x509",
+      "-newkey",
+      "rsa:2048",
+      "-nodes",
+      "-days",
+      "2",
+      "-subj",
+      "/CN=localhost",
+      "-keyout",
+      join(d, "key.pem"),
+      "-out",
+      join(d, "cert.pem"),
+    ],
+    { stdio: "ignore" },
+  );
+  return d;
+}
+
+/**
+ * Serve `dir`. With `{ http2: true }` it speaks HTTP/2 over TLS (self-signed; browsers need
+ * `--ignore-certificate-errors`), like GitHub Pages and Cloudflare, so a page's many small
+ * same-origin files share one connection as they do in production.
+ */
+export async function serve(dir, port = 0, opts = {}) {
+  const handler = async (req, res) => {
     const url = new URL(req.url ?? "/", "http://x");
     let rel = normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, "");
     if (rel.endsWith("/")) rel += "index.html";
@@ -67,7 +101,19 @@ export function serve(dir, port = 0) {
       res.writeHead(status, { ...headers, "content-length": body.length });
       res.end(body);
     }
-  });
+  };
+  let server;
+  if (opts.http2) {
+    const d = localhostCert();
+    server = createSecureServer(
+      {
+        key: await readFile(join(d, "key.pem")),
+        cert: await readFile(join(d, "cert.pem")),
+        allowHTTP1: true,
+      },
+      handler,
+    );
+  } else server = createServer(handler);
   return new Promise((resolve) => server.listen(port, () => resolve(server)));
 }
 

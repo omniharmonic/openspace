@@ -46,6 +46,7 @@ jobs:
           OPENSPACE_TURNSTILE_SITE_KEY: ${{ vars.OPENSPACE_TURNSTILE_SITE_KEY }}
           # Self-host the font pairing (downloaded once from Google Fonts during the build).
           OPENSPACE_GOOGLE_FONTS: download
+          OPENSPACE_REMOTE_IMAGES: download
       # Worker secrets from this repository's Actions secrets (the Hub sets them): the member
       # session key, page password hashes and, in sovereign mode, the owner's own Stripe keys.
       # Before the deploy, so the new version starts with them: on the very first run
