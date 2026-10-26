@@ -6,6 +6,7 @@ import { blocksRegistry, PHOTOS, sectionPresets } from "@openspace/blocks";
 import { run, runCheck } from "@openspace/cli";
 import { designCheck, seoCheck } from "@openspace/lint";
 import { SiteDocumentSchema } from "@openspace/schema";
+import { planSite } from "@openspace/site-kit";
 import { loadSiteDocument } from "@openspace/site-kit/content";
 import { compileStyles } from "@openspace/theme";
 import { describe, expect, it } from "vitest";
@@ -112,6 +113,42 @@ describe.each(TEMPLATE_IDS)("template %s", (id) => {
         .map((i) => `${p.slug || "home"} ${i.rule}: ${i.message}`);
       expect(bad.join("\n")).toBe("");
     }
+  });
+
+  it("passes the SEO check on every collection item page too", () => {
+    const plan = planSite(doc, { now: new Date(NOW) });
+    const bad: string[] = [];
+    for (const route of plan.routes.filter((r) => r.kind === "item")) {
+      const p = plan.doc.pages[route.pageId as keyof typeof plan.doc.pages];
+      if (!p) continue;
+      for (const i of seoCheck(p, plan.doc, { now: NOW }))
+        if (
+          i.severity === "warning" ||
+          ["seo-description-length", "seo-description-missing"].includes(i.rule)
+        )
+          bad.push(`${route.path} ${i.rule}: ${i.message}`);
+    }
+    expect(bad.join("\n")).toBe("");
+  });
+
+  it("never uses one portrait for two different named people", () => {
+    const byPhoto = new Map<string, Set<string>>();
+    const walk = (v: unknown) => {
+      if (Array.isArray(v)) for (const x of v) walk(x);
+      else if (v && typeof v === "object") {
+        const o = v as { name?: unknown; photo?: { src?: string } };
+        if (typeof o.name === "string" && o.photo?.src) {
+          const key = o.photo.src.split("?")[0] as string;
+          byPhoto.set(key, (byPhoto.get(key) ?? new Set()).add(o.name.replace(/,.*$/, "")));
+        }
+        for (const x of Object.values(v)) walk(x);
+      }
+    };
+    walk(doc.pages);
+    const clashes = [...byPhoto]
+      .filter(([, names]) => names.size > 1)
+      .map(([src, n]) => `${src}: ${[...n].join(" / ")}`);
+    expect(clashes.join("\n")).toBe("");
   });
 
   it("compiles every look with zero contrast failures", () => {

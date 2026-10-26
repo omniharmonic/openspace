@@ -109,47 +109,56 @@ export interface Licenses {
 export const TEMPLATE_VERSION = "1.0.0";
 export const DEMO_HUB = "https://hub.openspace.dev";
 
-const UNSPLASH_RE = /https:\/\/images\.unsplash\.com\/photo-([0-9]+-[0-9a-f]+)/g;
+const UNSPLASH_RE = /^https:\/\/images\.unsplash\.com\/photo-([0-9]+-[0-9a-f]+)$/;
 
-/** Every remote media URL (without query) a document references. */
+/** Keys whose string value is a media file (image/video/audio source), on any host. */
+const MEDIA_KEYS = new Set(["src", "image", "poster", "captions", "favicon"]);
+
+/**
+ * Every remote media file (https URL without its query) a document uses, on any host: block
+ * images and media, section backgrounds, SEO images, collection frontmatter images and audio.
+ * Links (`url`, `href`) are not media.
+ */
 export function remoteMedia(doc: unknown): string[] {
-  const json = JSON.stringify(doc);
   const out = new Set<string>();
-  for (const m of json.matchAll(/https:\/\/[^"\s)]+/g)) {
-    const u = m[0].split("?")[0] as string;
-    if (
-      /\.(?:jpe?g|png|webp|avif|gif|mp3|ogg|oga|wav|m4a|mp4|webm)$/i.test(u) ||
-      u.startsWith("https://images.unsplash.com/")
-    )
-      out.add(u);
-  }
+  const walk = (v: unknown, key?: string) => {
+    if (typeof v === "string") {
+      if (key && MEDIA_KEYS.has(key) && v.startsWith("https://"))
+        out.add(v.split("?")[0] as string);
+    } else if (Array.isArray(v)) for (const x of v) walk(x);
+    else if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) walk(x, k);
+  };
+  walk(doc);
   return [...out].sort();
 }
 
 function licensesFor(doc: SiteDocument, spec: TemplateSpec): Licenses {
-  const json = JSON.stringify(doc);
-  const ids = new Set<string>();
-  for (const m of json.matchAll(UNSPLASH_RE)) ids.add(m[1] as string);
   const media: LicenseEntry[] = [];
-  for (const id of [...ids].sort()) {
-    const c = PRESET_IMAGE_CREDITS.find((x) => x.id === id);
-    if (!c) throw new Error(`${spec.id}: no credit for Unsplash photo ${id}`);
-    media.push({
-      kind: "image",
-      src: c.url,
-      title: c.alt,
-      author: c.author,
-      authorUrl: c.authorUrl,
-      source: c.source,
-      sourceUrl: c.pageUrl,
-      license: c.license,
-      licenseUrl: c.licenseUrl,
-    });
+  const other = new Map((spec.media ?? []).map((m) => [m.src, m]));
+  for (const src of remoteMedia(doc)) {
+    const unsplash = UNSPLASH_RE.exec(src);
+    const c = unsplash ? PRESET_IMAGE_CREDITS.find((x) => x.id === unsplash[1]) : undefined;
+    if (c) {
+      media.push({
+        kind: "image",
+        src: c.url,
+        title: c.alt,
+        author: c.author,
+        authorUrl: c.authorUrl,
+        source: c.source,
+        sourceUrl: c.pageUrl,
+        license: c.license,
+        licenseUrl: c.licenseUrl,
+      });
+      continue;
+    }
+    const m = other.get(src);
+    if (!m) throw new Error(`${spec.id}: no license recorded for ${src}`);
+    media.push({ ...m });
+    other.delete(src);
   }
-  for (const m of spec.media ?? []) {
-    if (!json.includes(m.src)) throw new Error(`${spec.id}: credited media ${m.src} is unused`);
-    media.push({ ...m, kind: m.kind });
-  }
+  if (other.size)
+    throw new Error(`${spec.id}: credited media ${[...other.keys()].join(", ")} is unused`);
   return {
     $comment: `Licenses for the demo media in the ${spec.name} template. Replace the demo photos with your own; this file can be deleted once none of them are used.`,
     design: {

@@ -662,7 +662,7 @@ export const encore: TemplateSpec = {
             "First Avenue",
             "701 N 1st Ave, Minneapolis, MN",
             "America/Chicago",
-            "With special guests The Lantern Kids.",
+            "With special guests The Lantern Kids, plus a late acoustic set on the balcony.",
           ),
           show(
             "toronto-danforth",
@@ -671,7 +671,7 @@ export const encore: TemplateSpec = {
             "The Danforth Music Hall",
             "147 Danforth Ave, Toronto, ON",
             "America/Toronto",
-            "First Canadian headline show.",
+            "The first Canadian headline show, with the full four-piece band and visuals.",
           ),
           show(
             "brooklyn-elsewhere",
@@ -680,7 +680,7 @@ export const encore: TemplateSpec = {
             "Elsewhere",
             "599 Johnson Ave, Brooklyn, NY",
             "America/New_York",
-            "Late show: doors at 10pm, Juno on at 11:30.",
+            "A late show in the loft: doors at 10pm, Juno on stage at 11:30pm sharp.",
           ),
           show(
             "london-electric-ballroom",
@@ -689,7 +689,7 @@ export const encore: TemplateSpec = {
             "Electric Ballroom",
             "184 Camden High St, London",
             "Europe/London",
-            "First UK headline date.",
+            "The first UK headline date, with a support slot from London duo Glass Harbour.",
           ),
         ],
         sessions: [

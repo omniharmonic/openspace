@@ -211,10 +211,10 @@
                 "name": "Iris Nakamura",
                 "role": "CEO",
                 "photo": {
-                  "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80",
+                  "src": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",
                   "alt": "Portrait of Iris Nakamura",
                   "width": 600,
-                  "height": 750
+                  "height": 899
                 }
               },
               {
@@ -231,10 +231,10 @@
                 "name": "Clara Weiss",
                 "role": "Head of design",
                 "photo": {
-                  "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80",
+                  "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80",
                   "alt": "Portrait of Clara Weiss",
                   "width": 600,
-                  "height": 899
+                  "height": 900
                 }
               },
               {

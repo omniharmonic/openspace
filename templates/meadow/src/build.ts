@@ -896,7 +896,7 @@ export const meadow: TemplateSpec = {
           { network: "email", url: `mailto:${EMAIL}` },
         ],
         seo: {
-          titleTemplate: "%s · Fernwood Yoga & Bodywork",
+          titleTemplate: "%s · Fernwood Yoga",
           description: "Unhurried yoga classes and therapeutic massage in SE Portland.",
           image: photoUrl("yogaDeck", 1200),
         },

@@ -1,6 +1,7 @@
 import type { TemplateSpec } from "../../lib/define";
 import {
   block,
+  definePages,
   fromPreset,
   headerFrom,
   heading,
@@ -11,7 +12,6 @@ import {
   rt,
   section,
   url,
-  definePages,
 } from "../../lib/kit";
 
 /**

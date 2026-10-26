@@ -495,7 +495,7 @@ function about() {
               {
                 name: "Iris Nakamura",
                 role: "CEO",
-                photo: photo("portraitIris", 300, "4:5", "Portrait of Iris Nakamura"),
+                photo: photo("portraitNina", 300, "4:5", "Portrait of Iris Nakamura"),
               },
               {
                 name: "Daniel Okafor",
@@ -505,7 +505,7 @@ function about() {
               {
                 name: "Clara Weiss",
                 role: "Head of design",
-                photo: photo("portraitClara", 300, "4:5", "Portrait of Clara Weiss"),
+                photo: photo("portraitAna", 300, "4:5", "Portrait of Clara Weiss"),
               },
               {
                 name: "Sam Ortega",
