@@ -904,3 +904,8 @@
 .st-ws .st-seg:not(.st-seg--block) .st-seg__item {
   flex: none;
 }
+
+.st-ws-cols,
+.st-ws-cols--3 {
+  align-items: start;
+}

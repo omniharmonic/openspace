@@ -744,3 +744,10 @@
   justify-content: flex-start;
   padding-top: 8px;
 }
+
+fieldset.st-repeat__days {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
