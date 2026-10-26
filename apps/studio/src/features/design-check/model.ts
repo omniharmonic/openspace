@@ -41,13 +41,10 @@ export function runChecks(doc: SiteDocument, now = Date.now()): CheckedIssue[] {
       // As above.
     }
   }
-  // Missing alt text is reported by both checks; show it once (the design check's, with a fix).
-  const altBlocks = new Set(
-    out.filter((i) => i.rule === "missing-alt" && i.block).map((i) => `${i.page}:${i.block}`),
-  );
-  const deduped = out.filter(
-    (i) => !(i.rule === "seo-image-alt" && i.block && altBlocks.has(`${i.page}:${i.block}`)),
-  );
+  // Missing alt text is reported by both checks; show it once (the design check's, which
+  // points at each image).
+  const altPages = new Set(out.filter((i) => i.rule === "missing-alt").map((i) => i.page));
+  const deduped = out.filter((i) => !(i.rule === "seo-image-alt" && altPages.has(i.page)));
   return sortIssues(deduped).map((i) => ({ ...i, kind: kindOf(i) }));
 }
 

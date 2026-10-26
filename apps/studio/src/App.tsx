@@ -4,6 +4,7 @@ import type { HubApi } from "./api/types";
 import { defaultConfig, type StudioConfig } from "./app/config";
 import { Providers } from "./app/Providers";
 import { createRoutes } from "./app/routes";
+import { PwaNotices } from "./pwa/PwaUi";
 import "./styles/tokens.css";
 import "./styles/base.css";
 
@@ -20,6 +21,7 @@ export function App({ hub, config }: AppProps) {
   return (
     <Providers hub={hub} config={config}>
       <RouterProvider router={router} />
+      <PwaNotices />
     </Providers>
   );
 }

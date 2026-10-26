@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useTemplateDetail } from "../../api/catalog-queries";
 import type { TemplateLook, TemplateSummary } from "../../api/types";
-import { SiteRender } from "./LiveRender";
 import { lookStyles, type Personalization, personalizeTemplate } from "./personalize";
 import { SiteSketch } from "./SiteSketch";
+
+// The renderer and block library load with the first live render, not with the gallery page.
+const SiteRender = lazy(() => import("./LiveRender").then((m) => ({ default: m.SiteRender })));
 
 export interface TemplateRenderProps {
   template: TemplateSummary;
@@ -55,27 +57,38 @@ export function TemplateRender({
   }, [detail.data, look.id, template.looks, template.sample, name, tagline, brandColor, logo]);
   const label = title ?? `${template.name} template, ${look.name} look`;
   return (
-    <SiteRender
-      doc={doc}
-      frameWidth={frameWidth}
-      aspect={aspect}
-      sections={sections}
-      interactive={interactive}
-      title={label}
-      className={className}
-      onVisibleChange={(v) => v && setWanted(true)}
+    <Suspense
       fallback={
-        detail.isError ? (
-          // The Hub couldn't send the template: a sketch of the look stands in.
-          <SiteSketch
-            styles={look.styles}
-            name={name || template.sample?.name || template.name}
-            tagline={tagline || template.sample?.tagline}
-            accent={brandColor}
-            logo={logo}
-          />
-        ) : undefined
+        <div
+          className="st-render"
+          style={aspect === "fill" ? undefined : { aspectRatio: `${1 / aspect}` }}
+          role="img"
+          aria-label={label}
+        />
       }
-    />
+    >
+      <SiteRender
+        doc={doc}
+        frameWidth={frameWidth}
+        aspect={aspect}
+        sections={sections}
+        interactive={interactive}
+        title={label}
+        className={className}
+        onVisibleChange={(v) => v && setWanted(true)}
+        fallback={
+          detail.isError ? (
+            // The Hub couldn't send the template: a sketch of the look stands in.
+            <SiteSketch
+              styles={look.styles}
+              name={name || template.sample?.name || template.name}
+              tagline={tagline || template.sample?.tagline}
+              accent={brandColor}
+              logo={logo}
+            />
+          ) : undefined
+        }
+      />
+    </Suspense>
   );
 }

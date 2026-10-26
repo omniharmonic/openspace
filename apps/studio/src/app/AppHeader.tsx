@@ -2,6 +2,7 @@ import { LayoutGrid, LogOut, Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { useLogout, useSession } from "../api";
+import { InstallButton } from "../pwa/PwaUi";
 import { Avatar, Button, Kbd, Menu, useCommandStore } from "../ui";
 import "./AppHeader.css";
 import { ThemeButton } from "./ThemeButton";
@@ -63,6 +64,7 @@ export function AppHeader({ children }: { children?: ReactNode }) {
           <span>Search</span>
           <Kbd shortcut="mod+k" />
         </button>
+        <InstallButton />
         <ThemeButton />
         {user ? (
           <UserMenu />
