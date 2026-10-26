@@ -316,8 +316,9 @@ export function EmbedControl({
     if (value) setMode(value.type);
     setDraft(value?.type === "url" ? value.url : value?.type === "code" ? value.code : "");
   }, [value]);
-  const apply = () => {
-    focused.current = false;
+  /** Enter applies but keeps editing; leaving the field (blur) hands it back to outside changes. */
+  const apply = (leaving = false) => {
+    if (leaving) focused.current = false;
     const candidate: EmbedValue =
       mode === "url" ? { type: "url", url: draft } : { type: "code", code: draft };
     const r = checkEmbed(candidate, meta.allow);
@@ -362,7 +363,7 @@ export function EmbedControl({
           onFocus={() => {
             focused.current = true;
           }}
-          onBlur={apply}
+          onBlur={() => apply(true)}
           onKeyDown={(e) => e.key === "Enter" && apply()}
         />
       ) : (
@@ -380,7 +381,7 @@ export function EmbedControl({
           onFocus={() => {
             focused.current = true;
           }}
-          onBlur={apply}
+          onBlur={() => apply(true)}
         />
       )}
       <p className="st-ip-row__hint">

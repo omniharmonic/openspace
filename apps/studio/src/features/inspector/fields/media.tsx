@@ -234,6 +234,16 @@ export function ImageControl({
   );
 }
 
+const AUDIO_EXT = /\.(mp3|m4a|aac|ogg|oga|opus|wav|flac)$/i;
+const VIDEO_EXT = /\.(mp4|m4v|webm|mov|ogv)$/i;
+/** What a picked file is, from its name (null when the name doesn't say). */
+export function mediaKindOf(src: string): "audio" | "video" | null {
+  const path = src.split(/[?#]/)[0] ?? "";
+  if (AUDIO_EXT.test(path)) return "audio";
+  if (VIDEO_EXT.test(path)) return "video";
+  return null;
+}
+
 export function MediaControl({
   id,
   meta,
@@ -260,6 +270,15 @@ export function MediaControl({
       current: value?.src,
     });
     if (!pick) return;
+    const picked = mediaKindOf(pick.src);
+    if (picked && picked !== k) {
+      setError(
+        picked === "audio"
+          ? "That file is audio. Choose a video file (MP4, WebM or MOV)."
+          : "That file is a video. Choose an audio file (MP3, M4A, OGG or WAV).",
+      );
+      return;
+    }
     const next: MediaValue = {
       ...(value ?? {}),
       kind: k,

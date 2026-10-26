@@ -115,10 +115,15 @@ export function PresetGallery({
   const [category, setCategory] = useState<PresetCategory | "all">(
     layout === "dialog" ? "hero" : "all",
   );
-  // Thumbnails depend on Site Styles and site chrome only: keep their doc stable across content
-  // edits so a hundred previews don't re-render on every keystroke.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deliberately keyed on styles and site
-  const thumbDoc = useMemo(() => doc, [doc.styles, doc.site, doc.config]);
+  // Thumbnails depend on Site Styles, site chrome, the page list (header navigation) and the
+  // media library (logos): keep their doc stable across content edits so a hundred previews
+  // don't re-render on every keystroke.
+  const navKey = Object.values(doc.pages)
+    .map((p) => `${p.id}|${p.title}|${p.slug}`)
+    .join("\n");
+  const mediaKey = Object.keys(doc.media).join("|");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed on what thumbnails show
+  const thumbDoc = useMemo(() => doc, [doc.styles, doc.site, doc.config, navKey, mediaKey]);
   const page = thumbDoc.pages[pageId as keyof SiteDocument["pages"]];
   const effective = query.trim() ? "all" : category;
   const presets = useMemo(() => filterPresets(query, effective), [query, effective]);

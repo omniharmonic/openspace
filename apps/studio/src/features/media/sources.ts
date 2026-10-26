@@ -67,12 +67,17 @@ export function previewUrl(
   return src;
 }
 
+/** Whether a preview URL can be shown in Studio (a bare `media/…` path would 404 here). */
+export const isViewable = (url: string) => /^(https?:|data:|blob:|\/)/.test(url);
+
 export function useMediaPreviewUrl(src: string | null | undefined): string | null {
   const repo = useMediaSources((s) => s.repo);
   const branch = useMediaSources((s) => s.branch);
   const local = useMediaSources((s) => (src ? s.local[src] : undefined));
   if (!src) return null;
-  return previewUrl(src, { repo, branch, local: local ? { [src]: local } : {} });
+  const url = previewUrl(src, { repo, branch, local: local ? { [src]: local } : {} });
+  // Without the site's file location yet, show the placeholder rather than a broken image.
+  return isViewable(url) ? url : null;
 }
 
 /** Image map for the canvas so library files (and fresh uploads) show while editing. */

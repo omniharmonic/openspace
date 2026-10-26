@@ -3,7 +3,7 @@ import { ImageIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { Button, Dialog, Field, Input } from "../../ui";
-import { previewUrl, useMediaPreviewUrl, useMediaSources } from "../media/sources";
+import { isViewable, previewUrl, useMediaPreviewUrl, useMediaSources } from "../media/sources";
 import { type MediaPickRequest as ManageMediaPick, useManageUi } from "../site-mgmt/manage-ui";
 
 /**
@@ -66,7 +66,8 @@ export function useOpenMediaPicker(): OpenMediaPicker {
 /** Display URL for a media src in Studio: this session's uploads, else the site's draft files. */
 export function previewSrc(src: string | undefined): string | undefined {
   if (!src) return undefined;
-  return previewUrl(src, useMediaSources.getState());
+  const url = previewUrl(src, useMediaSources.getState());
+  return isViewable(url) ? url : undefined;
 }
 
 /** {@link previewSrc} that follows uploads and the site's file location as they change. */

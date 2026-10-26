@@ -21,11 +21,11 @@ import {
   type CheckFailure,
   type CheckKind,
   canFix,
+  checkSite,
   failureWhere,
   fixAllSafe,
   groupIssues,
   issueTarget,
-  runChecks,
 } from "./model";
 import { checkNow, useDesignCheck } from "./store";
 import "./design-check.css";
@@ -66,7 +66,18 @@ export function jumpToIssue(store: EditorStore, issue: CheckedIssue) {
  */
 export function applyIssueFix(store: EditorStore, issue: CheckedIssue): boolean {
   const doc = store.getState().doc;
-  const fresh = runChecks(doc).find((i) => i.id === issue.id);
+  const result = checkSite(doc);
+  const fresh = result.issues.find((i) => i.id === issue.id);
+  if (!fresh && result.failures.length > 0) {
+    // The check itself failed: the issue may still be there, so don't claim it's fixed.
+    toast({
+      tone: "danger",
+      title: "Couldn’t check again",
+      description: "Look this over yourself, then try the fix again.",
+    });
+    checkNow(doc);
+    return false;
+  }
   if (!fresh) {
     // Someone (or another fix) already took care of it.
     toast({ title: "Already fixed", description: "This issue is gone after checking again." });
