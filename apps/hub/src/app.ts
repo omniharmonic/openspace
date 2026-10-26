@@ -8,7 +8,9 @@ import { createLogger } from "./lib/log";
 import { authRoutes } from "./routes/auth";
 import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
 import { growthRoutes } from "./routes/growth";
+import { mcpGrantRoutes, mcpRoutes, mcpTokenRoutes } from "./routes/mcp";
 import { meRoutes } from "./routes/me";
+import { mediaRoutes } from "./routes/media";
 import { previewRoutes } from "./routes/preview";
 import { publicAnalyticsRoutes } from "./routes/public/analytics";
 import { campaignTrackingRoutes } from "./routes/public/campaign-tracking";
@@ -99,6 +101,11 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api/sites", collaboratorRoutes);
   app.route("/api/invitations", invitationRoutes);
   app.route("/webhooks", webhookRoutes);
+  // Task 17: remote MCP server, its OAuth authorization server, and Studio's connection APIs.
+  app.route("/api/mcp", mcpGrantRoutes);
+  app.route("/api/sites", mcpTokenRoutes);
+  app.route("/api/sites", mediaRoutes);
+  app.route("/", mcpRoutes);
   app.route("/", previewRoutes);
 
   app.notFound((c) => c.json(errorBody("not_found", "Not found."), 404));

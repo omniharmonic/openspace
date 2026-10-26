@@ -2,7 +2,9 @@ import { esc } from "@openspace/email-render";
 import type { Page, SiteDocument } from "@openspace/schema";
 import { type Context, Hono } from "hono";
 import { getCookie } from "hono/cookie";
-import { getSite, getSiteForUser } from "../db/sites";
+import { getSite, getSiteForUser, type SiteRow } from "../db/sites";
+import { getUserRow, toUser } from "../db/users";
+import { MAIN_BRANCH, parseRepo } from "../github/types";
 import { sha256Hex } from "../lib/crypto";
 import { clientIp, parseFields, rateKeyIp, single } from "../lib/public";
 import { requireHmacKey } from "../public-env";
@@ -17,7 +19,7 @@ import {
   signPreviewValue,
 } from "../services/members";
 import { escapeHtml, type RenderMode } from "../services/renderer";
-import { loadSiteDocument } from "../services/site-files";
+import { isDocumentPath, loadSiteDocument } from "../services/site-files";
 import { findPageBySlug, readSiteDocument } from "../services/sites";
 import type { AppEnv } from "../types";
 
@@ -241,9 +243,41 @@ const published = async (c: Context<AppEnv>) => {
   const site = await getSite(c.var.services.db, siteId);
   if (!site || site.archived_at !== null)
     return htmlPage(c, 404, "Site not found", "This site doesn't exist or was deleted.");
+  const version = c.req.query("version");
+  if (version !== undefined) {
+    // Studio history preview (`/s/:id/?version=<sha>`): a version that was published (a commit on
+    // main), rendered like the live site. Never cached, never indexed.
+    const doc = await readPublishedVersion(c, site, version);
+    if (!doc)
+      return htmlPage(c, 404, "Version not found", "That version of the site doesn't exist.");
+    const res = await render(c, doc, restPath(c, `/s/${siteId}`), "published", `/s/${siteId}`);
+    res.headers.set("Cache-Control", "private, no-store");
+    res.headers.set("X-Robots-Tag", "noindex");
+    return res;
+  }
   const snap = await readSiteDocument(c.var.services, site, "published");
   return render(c, snap.doc, restPath(c, `/s/${siteId}`), "published", `/s/${siteId}`);
 };
+
+/** The document of a published version (a sha or unique prefix on main's history), or null. */
+async function readPublishedVersion(
+  c: Context<AppEnv>,
+  site: SiteRow,
+  version: string,
+): Promise<SiteDocument | null> {
+  const wanted = version.toLowerCase();
+  if (!/^[0-9a-f]{7,40}$/.test(wanted)) return null;
+  const owner = await getUserRow(c.var.services.db, site.owner_id);
+  const gh = c.var.services.github({ site, user: owner ? toUser(owner) : null });
+  const repo = parseRepo(site.repo);
+  const history = await gh.listCommits(repo, { ref: MAIN_BRANCH, limit: 200 });
+  const matches = history.filter((h) => h.sha.startsWith(wanted));
+  if (matches.length !== 1 || !matches[0]) return null;
+  const all = await gh.readFiles(repo, matches[0].sha, { textOnly: true });
+  const files: Record<string, string> = {};
+  for (const [p, content] of Object.entries(all)) if (isDocumentPath(p)) files[p] = content;
+  return loadSiteDocument(files);
+}
 previewRoutes.get("/s/:siteId", published);
 previewRoutes.get("/s/:siteId/*", published);
 

@@ -1,6 +1,7 @@
 import type { HubBindings } from "./env";
 import { readConfig } from "./env";
 import { createLogger } from "./lib/log";
+import { sweepIdleMcpSessions } from "./mcp/sessions";
 import { roomStub } from "./room";
 import { runDueCampaigns } from "./services/campaigns";
 import { expireInvitations } from "./services/collaborators";
@@ -87,6 +88,16 @@ export async function runScheduled(env: HubBindings, scheduledTime = Date.now())
     ["purge", () => purgeArchivedSites(env, services, scheduledTime)],
     // Task 18: start due scheduled campaigns; continue sends when there is no Queue.
     ["campaigns", () => runDueCampaigns(services, scheduledTime, log)],
+    // Task 17: end idle MCP sessions (their agent sessions → Studio's Accept/Undo banner).
+    ["mcp-sessions", () => sweepIdleMcpSessions(env, scheduledTime, log)],
+    [
+      "mcp-consents",
+      () =>
+        services.db
+          .prepare("DELETE FROM mcp_consents WHERE expires_at < ?")
+          .bind(scheduledTime)
+          .run(),
+    ],
   ];
   for (const [name, job] of jobs) {
     try {
