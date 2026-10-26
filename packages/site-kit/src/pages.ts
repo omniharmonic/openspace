@@ -21,7 +21,7 @@ import type {
   SiteDocument,
 } from "@openspace/schema";
 import { stableId } from "./ids";
-import { markdocPlainText, markdocToBlocks } from "./markdoc";
+import { markdocPlainText, markdocToBlocks, requiredDefaults } from "./markdoc";
 
 export interface ComposeContext {
   doc: SiteDocument;
@@ -292,18 +292,21 @@ export function itemPage(
     if (p.available === false) extra.push(text("Currently sold out."));
     if (p.options?.length)
       extra.push(text(p.options.map((o) => `${o.name}: ${o.values.join(", ")}`).join(" · ")));
-    headerBlocks.push(makeBlock(ctx, `${seed}#price`, "text", { content: rt.doc(...extra) }));
-    // ADAPTER POINT: add-to-cart. When the block library ships a product/buy block (blocks B),
-    // place it here; the cart behavior contract is data-os-add/-sku/-price (renderer).
-    if (ctx.registry.has("product")) {
-      const def = ctx.registry.get("product");
-      const field = Object.entries(def?.meta.fields ?? {}).find(([, m]) => m.kind === "reference");
-      if (field)
-        headerBlocks.push(
-          makeBlock(ctx, `${seed}#buy`, "product", {
-            [field[0]]: { collection, items: [item.slug] },
-          }),
-        );
+    // Add to cart: the library's product block (blocks B) when registered — it shows price,
+    // options and the cart button (data-os-add contract); otherwise a price line.
+    const productDef = ctx.registry.get("product");
+    const ref = Object.entries(productDef?.meta.fields ?? {}).find(
+      ([, m]) => m.kind === "reference",
+    );
+    if (productDef && ref) {
+      headerBlocks.push(
+        makeBlock(ctx, `${seed}#buy`, "product", {
+          ...requiredDefaults(productDef.meta.fields),
+          [ref[0]]: { collection, items: [item.slug] },
+        }),
+      );
+    } else {
+      headerBlocks.push(makeBlock(ctx, `${seed}#price`, "text", { content: rt.doc(...extra) }));
     }
   }
 
@@ -340,7 +343,13 @@ export function itemPage(
             `${seed}#audio`,
             [
               makeBlock(ctx, `${seed}#player`, "audio", {
+                ...requiredDefaults(def?.meta.fields ?? {}),
                 [field[0]]: { kind: "audio", src: href, title: fm.title },
+                ...("title" in (def?.meta.fields ?? {}) ? { title: fm.title } : {}),
+                ...("episode" in (def?.meta.fields ?? {}) && item.frontmatter.episode !== undefined
+                  ? { episode: item.frontmatter.episode }
+                  : {}),
+                ...("show" in (def?.meta.fields ?? {}) && cfg?.label ? { show: cfg.label } : {}),
               }),
             ],
             { width },
