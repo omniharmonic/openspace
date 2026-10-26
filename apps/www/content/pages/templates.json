@@ -1,0 +1,562 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_8gvvjp3ezj",
+  "title": "Templates",
+  "slug": "templates",
+  "seo": {
+    "description": "Twelve OpenSpace templates for practices, nonprofits, artists, restaurants, shops and more, each with three looks. Free to use and change."
+  },
+  "sections": [
+    {
+      "id": "sec_pp00gw8yq5",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_4d6hmmgxam",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Twelve templates, three looks each",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Template gallery",
+            "subheading": "Every template arrives finished: real-feeling pages, photography and a type pairing chosen for its purpose. Switch looks any time without touching your content."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_mmyh0xqymc",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Make your site — free",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.dev/templates"
+            },
+            "role": "primary",
+            "secondaryLabel": "How looks work",
+            "secondaryLink": {
+              "type": "url",
+              "url": "https://docs.openspace.dev/templates/"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_btjk2pgw1t",
+      "preset": "gallery/project-cards@1",
+      "label": "Project index",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_s2t9vfxwnc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Start here",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Practices, causes and businesses"
+          },
+          "variant": "underline"
+        },
+        {
+          "id": "blk_pt3zmeaej8",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "media/templates/meadow-looks.png",
+                  "alt": "The Meadow template's home page in its three looks: Oat & Sage, Clay & Linen, Dusk",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Meadow",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For yoga, therapy, bodywork, wellness. Calm, airy, organic. Looks: Oat & Sage · Clay & Linen · Dusk."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/meadow"
+                },
+                "linkLabel": "Start with Meadow"
+              },
+              {
+                "image": {
+                  "src": "media/templates/harbor-looks.png",
+                  "alt": "The Harbor template's home page in its three looks: Harbor Blue, Signal, Riverside",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Harbor",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For nonprofits, community organisations. Trustworthy, warm, civic. Looks: Harbor Blue · Signal · Riverside."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/harbor"
+                },
+                "linkLabel": "Start with Harbor"
+              },
+              {
+                "image": {
+                  "src": "media/templates/atelier-looks.png",
+                  "alt": "The Atelier template's home page in its three looks: Monochrome, Gallery Blue, Darkroom",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Atelier",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For photographers, visual artists. Gallery-first, minimal chrome. Looks: Monochrome · Gallery Blue · Darkroom."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/atelier"
+                },
+                "linkLabel": "Start with Atelier"
+              },
+              {
+                "image": {
+                  "src": "media/templates/ledger-looks.png",
+                  "alt": "The Ledger template's home page in its three looks: Ledger Green, Ink Blue, Modern",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Ledger",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For consultants, coaches, freelancers. Crisp, editorial, confident. Looks: Ledger Green · Ink Blue · Modern."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/ledger"
+                },
+                "linkLabel": "Start with Ledger"
+              },
+              {
+                "image": {
+                  "src": "media/templates/hearth-looks.png",
+                  "alt": "The Hearth template's home page in its three looks: Tomato, Olive Grove, Bistro Noir",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Hearth",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For restaurants, cafés, bakeries. Warm, appetizing. Looks: Tomato · Olive Grove · Bistro Noir."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/hearth"
+                },
+                "linkLabel": "Start with Hearth"
+              },
+              {
+                "image": {
+                  "src": "media/templates/signal-looks.png",
+                  "alt": "The Signal template's home page in its three looks: Electric, Terminal, Volt",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Signal",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For products, startups, launches. Bold, modern, technical. Looks: Electric · Terminal · Volt."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/signal"
+                },
+                "linkLabel": "Start with Signal"
+              }
+            ],
+            "columns": "2",
+            "aspect": "original"
+          },
+          "variant": "plain"
+        }
+      ],
+      "anchor": "first"
+    },
+    {
+      "id": "sec_c6jfk2x2j8",
+      "preset": "gallery/project-cards@1",
+      "label": "Project index",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_n2nx7zve8n",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "And six more",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Writers, artists, shops and occasions"
+          },
+          "variant": "underline"
+        },
+        {
+          "id": "blk_ht1k3k8zgx",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "media/templates/field-notes-looks.png",
+                  "alt": "The Field Notes template's home page in its three looks: Highlighter, Ink, Almanac",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Field Notes",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For writers, newsletters, blogs. Reading-first, literary. Looks: Highlighter · Ink · Almanac."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/field-notes"
+                },
+                "linkLabel": "Start with Field Notes"
+              },
+              {
+                "image": {
+                  "src": "media/templates/encore-looks.png",
+                  "alt": "The Encore template's home page in its three looks: Night Plum, Afterglow, Chrome",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Encore",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For musicians, performers, podcasters. Expressive, nocturnal. Looks: Night Plum · Afterglow · Chrome."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/encore"
+                },
+                "linkLabel": "Start with Encore"
+              },
+              {
+                "image": {
+                  "src": "media/templates/kiln-looks.png",
+                  "alt": "The Kiln template's home page in its three looks: Charcoal & Clay, Celadon, Workshop",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Kiln",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For makers, small shops. Tactile, crafted. Looks: Charcoal & Clay · Celadon · Workshop."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/kiln"
+                },
+                "linkLabel": "Start with Kiln"
+              },
+              {
+                "image": {
+                  "src": "media/templates/commons-looks.png",
+                  "alt": "The Commons template's home page in its three looks: Earth & Sky, Forest, Assembly",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Commons",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For coalitions, cooperatives, movements. Grounded, collective. Looks: Earth & Sky · Forest · Assembly."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/commons"
+                },
+                "linkLabel": "Start with Commons"
+              },
+              {
+                "image": {
+                  "src": "media/templates/vow-looks.png",
+                  "alt": "The Vow template's home page in its three looks: Dusty Rose, Garden Party, Black Tie",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Vow",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For weddings, celebrations. Romantic, refined. Looks: Dusty Rose · Garden Party · Black Tie."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/vow"
+                },
+                "linkLabel": "Start with Vow"
+              },
+              {
+                "image": {
+                  "src": "media/templates/link-looks.png",
+                  "alt": "The Link template's home page in its three looks: Saffron, Coral, Lagoon",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Link",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For link-in-bio, single page. Mobile-first, punchy. Looks: Saffron · Coral · Lagoon."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/link"
+                },
+                "linkLabel": "Start with Link"
+              }
+            ],
+            "columns": "2",
+            "aspect": "original"
+          },
+          "variant": "plain"
+        }
+      ],
+      "anchor": "more"
+    },
+    {
+      "id": "sec_5xdg1rfa89",
+      "preset": "cta/split@1",
+      "label": "Headline with action on the right",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            8,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_qkw8xztmc9",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Make a template for everyone",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Designers welcome"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_c6djapsdnf",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Contributing templates",
+            "link": {
+              "type": "url",
+              "url": "https://docs.openspace.dev/contributing/templates/"
+            },
+            "role": "primary",
+            "note": "Templates are data, not code."
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

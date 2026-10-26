@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "openspace",
+  "description": "Claude Code plugins for OpenSpace, the open-source website builder.",
+  "owner": {
+    "name": "Benjamin Life",
+    "url": "https://github.com/omniharmonic"
+  },
+  "plugins": [
+    {
+      "name": "openspace",
+      "description": "Design and edit OpenSpace websites with Claude: local MCP server, web-design skill, rapid screenshot iteration, and commands to create, restyle, review and publish sites.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Benjamin Life",
+        "url": "https://github.com/omniharmonic"
+      },
+      "source": "./plugin",
+      "category": "design",
+      "homepage": "https://docs.openspace.dev/connect-your-ai/claude-code/",
+      "license": "MIT",
+      "keywords": ["website", "web-design", "mcp"]
+    }
+  ]
+}

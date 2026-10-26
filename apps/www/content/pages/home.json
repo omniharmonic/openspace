@@ -1,0 +1,868 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_p5dpv5xxt4",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "OpenSpace is a free, open-source website builder: Squarespace-quality templates, a visual editor, and your own AI — on a site you own.",
+    "title": "Beautiful websites you own, free forever"
+  },
+  "sections": [
+    {
+      "id": "sec_3jv99zwr5s",
+      "preset": "hero/image-below@1",
+      "label": "Headline over wide image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_sfemtkwt7j",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Beautiful websites you actually own",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Open source · Free forever",
+            "subheading": "Pick a template, sign in with GitHub and your site is live in about three minutes. Edit it on any device, or ask your own AI to. No subscription, ever."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_gq1bxzkff3",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Make your site — free",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.dev/templates"
+            },
+            "role": "primary",
+            "secondaryLabel": "See the templates",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_8gvvjp3ezj"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_4rx2vrmgpb",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "media/hero/meadow-looks.png",
+              "alt": "The Meadow template in three looks, showing how one site can change its whole style",
+              "width": 1400,
+              "height": 701
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_evnk9b6742",
+      "preset": "features/icon-row@1",
+      "label": "Four benefits with icons",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_spj54ey3cb",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Everything a website builder does, minus the rent",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Why OpenSpace",
+            "subheading": "The parts that used to justify a monthly fee are free today. OpenSpace puts them together with the design care they deserve."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_jydn4md1tv",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "home",
+                "title": "You own it",
+                "text": "Your site lives in your own GitHub account, in open formats. Leave any time with everything."
+              },
+              {
+                "icon": "heart",
+                "title": "Free by design",
+                "text": "Hosting, builds and storage run on free accounts you control. Nothing to renew."
+              },
+              {
+                "icon": "sparkles",
+                "title": "Beautiful by default",
+                "text": "Curated type, generated accessible palettes and designed sections make every page look intentional."
+              },
+              {
+                "icon": "message-circle",
+                "title": "Your AI, if you want it",
+                "text": "Ask Claude to add a page or restyle the site. It edits safely, and you approve before anything goes live."
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_pqm5tqzhpt",
+      "preset": "services/steps@1",
+      "label": "How it works in three steps",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_e4rsjw3nsq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "From template to live site",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Live in three minutes"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_axfw1txp3k",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "Pick a template",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Twelve designs for practices, restaurants, nonprofits, artists, shops and more, each in three looks."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Sign in with GitHub",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "A free account is where your site's files live. No account yet? Studio walks you through making one."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "You're live",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Your name and tagline go in, and the site is online at a free address you can swap for your own domain."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "3",
+            "aspect": "original"
+          },
+          "variant": "steps"
+        },
+        {
+          "id": "blk_46d2b980dk",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Make your site — free",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.dev/templates"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_dez92jjbam",
+      "preset": "features/checklist-image@1",
+      "label": "Checklist beside photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_1swvc4atfd",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Your site, your files, your audience",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Ownership",
+            "subheading": "OpenSpace never holds your site hostage. If the project disappeared tomorrow, your site would keep working."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_017vb34fk7",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "check",
+                "title": "Files in your own GitHub account, under your name"
+              },
+              {
+                "icon": "check",
+                "title": "Published free by GitHub Pages, or your own Cloudflare"
+              },
+              {
+                "icon": "check",
+                "title": "Form entries and subscribers exportable any time"
+              },
+              {
+                "icon": "check",
+                "title": "Standard tools build it, with or without OpenSpace"
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "checklist"
+        },
+        {
+          "id": "blk_vm2cexmczs",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Where everything lives",
+            "link": {
+              "type": "url",
+              "url": "https://docs.openspace.dev/getting-started/"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_x6w95xcvq3",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=1920&q=80",
+              "alt": "A tidy desk with a notebook, coffee and laptop, ready to work",
+              "width": 1920,
+              "height": 1280
+            },
+            "aspect": "1:1",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_2ddv02440r",
+      "preset": "features/three-cards@1",
+      "label": "Feature cards beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            4,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "md"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_hz019r97bn",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Ask Claude to edit your site",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Connect your AI"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_pqafc0apcw",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Claude connector",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Paste one link into Claude. It can add pages, write posts and restyle, through safe, typed edits."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "message-circle"
+          },
+          "column": 1,
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_qwe4q65baa",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Claude Code plugin",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Design checks and screenshots after every change, for fast design work on a local copy."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "wrench"
+          },
+          "column": 2,
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_nd4pmrn2vs",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Drafts, never surprises",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "AI edits land in a draft you can watch live. Undo all of them in one click, or publish."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "shield-check"
+          },
+          "column": 1,
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_rxrfn5f3hs",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Free to run",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Bring your own AI. OpenSpace never pays for, or meters, the model you use."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "zap"
+          },
+          "column": 2,
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_bqrzzqmq3v",
+      "preset": "services/image-cards@1",
+      "label": "Three services with photos",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_mqczxbeqva",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Designed to look finished on day one",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Templates",
+            "subheading": "Real-feeling copy and photography, three looks each, and an accessible color system that keeps every combination readable."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_zv1r5xnxek",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "media/templates/meadow-looks.png",
+                  "alt": "The Meadow template's home page in its three looks: Oat & Sage, Clay & Linen, Dusk",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Meadow",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For yoga, therapy, bodywork, wellness. Calm, airy, organic. Looks: Oat & Sage · Clay & Linen · Dusk."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/meadow"
+                },
+                "linkLabel": "Start with Meadow"
+              },
+              {
+                "image": {
+                  "src": "media/templates/atelier-looks.png",
+                  "alt": "The Atelier template's home page in its three looks: Monochrome, Gallery Blue, Darkroom",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Atelier",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For photographers, visual artists. Gallery-first, minimal chrome. Looks: Monochrome · Gallery Blue · Darkroom."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/atelier"
+                },
+                "linkLabel": "Start with Atelier"
+              },
+              {
+                "image": {
+                  "src": "media/templates/signal-looks.png",
+                  "alt": "The Signal template's home page in its three looks: Electric, Terminal, Volt",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Signal",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For products, startups, launches. Bold, modern, technical. Looks: Electric · Terminal · Volt."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/new/signal"
+                },
+                "linkLabel": "Start with Signal"
+              }
+            ],
+            "columns": "3",
+            "aspect": "original"
+          },
+          "variant": "plain"
+        }
+      ]
+    },
+    {
+      "id": "sec_arcck4c8r8",
+      "preset": "faq/split@1",
+      "label": "Questions beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_e1c7x7wpnw",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Good to know",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Questions"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_0akyx5fzm7",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The documentation covers everything in plain language."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_58900yh3s0",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Read the docs",
+            "link": {
+              "type": "url",
+              "url": "https://docs.openspace.dev"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_sgnxqwykwd",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Is it really free?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Your site is served by GitHub Pages or your own Cloudflare account, both free. The shared service for forms and newsletters is built to cost cents per thousand sites."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do I need to know how to code?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "No. You edit everything visually in Studio, on a computer or a phone. Words like repository and build stay out of sight unless you go looking."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What would I pay for?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Only optional extras: a custom domain from any registrar, and the usual card fees if you sell through Stripe. OpenSpace takes no cut."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I leave?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Any time. Your site is a normal project in your account that standard tools can build, and your form entries and subscribers export as spreadsheets."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_7gpcqpax9m",
+      "preset": "cta/banner@1",
+      "label": "Centred banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_j6z2g5bwme",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Make your site today",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Pick a template and be live in about three minutes. It's free, and it's yours."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_m3yv6nyaq0",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Make your site — free",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.dev/templates"
+            },
+            "role": "primary",
+            "secondaryLabel": "Browse templates",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_8gvvjp3ezj"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

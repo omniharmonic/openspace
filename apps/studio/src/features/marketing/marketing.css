@@ -1,0 +1,196 @@
+/* biome-ignore-all lint/style/noDescendingSpecificity: component-scoped selectors; later rules target different elements, so order is intentional. */
+
+.st-campaign {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.st-ws__content:has(.st-campaign) {
+  max-width: 1280px;
+}
+
+.st-campaign__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.st-campaign__compose {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.st-campaign__segment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-campaign__segment > .st-tags {
+  flex: 1 1 200px;
+}
+
+.st-campaign__saved {
+  color: var(--st-text-3);
+}
+
+@media (max-width: 1023px) {
+  .st-campaign__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Email preview ---------- */
+
+.st-email-preview {
+  position: sticky;
+  top: 60px;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.st-email-preview__bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.st-email-preview__inbox {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: var(--st-r);
+  background: var(--st-panel);
+  box-shadow: var(--st-shadow-card);
+  font-size: var(--st-fs-sm);
+}
+
+.st-email-preview__inbox span {
+  overflow: hidden;
+  color: var(--st-text-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-email-preview__inbox em {
+  color: var(--st-text-3);
+  font-style: normal;
+}
+
+.st-email-preview__stage {
+  display: grid;
+  justify-items: center;
+  overflow: hidden;
+  padding: 16px;
+  border-radius: var(--st-r-lg);
+  background: var(--st-canvas);
+}
+
+.st-email-preview__frame {
+  width: 100%;
+  max-width: 660px;
+  height: 640px;
+  border: 0;
+  border-radius: var(--st-r);
+  background: #fff;
+  box-shadow: var(--st-shadow-card);
+}
+
+.st-email-preview__stage.is-mobile .st-email-preview__frame {
+  max-width: 375px;
+}
+
+.st-email-preview__stage.is-dark {
+  background: #0f1012;
+}
+
+.st-email-preview__stage.is-dark .st-email-preview__frame {
+  background: #121212;
+}
+
+.st-email-preview__warnings {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+}
+
+.st-email-preview__warnings svg {
+  width: 13px;
+  height: 13px;
+  color: var(--st-pending);
+  vertical-align: -2px;
+}
+
+@media (max-width: 1023px) {
+  .st-email-preview {
+    position: static;
+  }
+}
+
+.st-report__url {
+  max-width: 420px;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Sending setup ---------- */
+
+.st-provider-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.st-dns-checks {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-dns-checks li {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--st-r);
+  background: var(--st-field);
+}
+
+.st-dns-checks li > svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: var(--st-pending);
+}
+
+.st-dns-checks li.is-ok > svg {
+  color: var(--st-live);
+}
+
+.st-dns-checks li > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.st-dns-checks__rec {
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  overflow-wrap: anywhere;
+}
+
+.st-dns-checks code {
+  font-family: var(--st-font-mono);
+  font-size: var(--st-fs-xs);
+}
+
+.st-campaign__notsaved {
+  color: var(--st-danger);
+}

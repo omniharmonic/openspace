@@ -307,6 +307,10 @@ growthRoutes.get("/:id/orders", async (c) => {
         .enum(["1", "true"])
         .transform(() => true)
         .optional(),
+      toSend: z
+        .enum(["1", "true"])
+        .transform(() => true)
+        .optional(),
       q: z.string().max(100).optional(),
       from: z.iso.date().optional(),
       to: z.iso.date().optional(),

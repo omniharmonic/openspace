@@ -5,6 +5,8 @@ export default defineConfig({
     "src/index.ts",
     "src/content/index.ts",
     "src/agents-md.ts",
+    "src/markdoc.ts",
+    "src/pages.ts",
     "src/ids.ts",
     "src/render-entry.ts",
     "src/runtime/route.ts",

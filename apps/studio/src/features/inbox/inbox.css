@@ -1,0 +1,74 @@
+.st-inbox__selectall {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--st-line);
+}
+
+.st-inbox__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  padding-left: 16px;
+}
+
+.st-inbox__item > input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--st-accent);
+}
+
+.st-inbox__item .st-ws-row {
+  padding-left: 12px;
+}
+
+.st-inbox__dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--st-accent);
+  vertical-align: 1px;
+}
+
+.st-inbox__hint {
+  margin: 0;
+  padding: 48px 16px;
+  color: var(--st-text-3);
+  text-align: center;
+}
+
+.st-inbox__back {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .st-inbox:has([aria-current="true"]) > .st-ws-panel:first-child {
+    display: none;
+  }
+
+  .st-inbox:not(:has([aria-current="true"])) > .st-ws-panel:last-child {
+    display: none;
+  }
+
+  .st-inbox__back {
+    display: inline-flex;
+  }
+}
+
+.st-sub__email {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.st-import__skipped {
+  max-height: 180px;
+  margin: 0;
+  padding-left: 18px;
+  overflow: auto;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+}

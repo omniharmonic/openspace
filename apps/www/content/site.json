@@ -1,0 +1,353 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "OpenSpace",
+  "tagline": "Beautiful websites you actually own.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_8gvvjp3ezj",
+      "label": "Templates"
+    },
+    {
+      "type": "page",
+      "page": "pg_22tsa0d98d",
+      "label": "Pricing"
+    },
+    {
+      "type": "page",
+      "page": "pg_b4zcc63qw7",
+      "label": "About"
+    },
+    {
+      "type": "link",
+      "label": "Docs",
+      "href": "https://docs.openspace.dev"
+    },
+    {
+      "type": "link",
+      "label": "GitHub",
+      "href": "https://github.com/omniharmonic/openspace"
+    },
+    {
+      "type": "button",
+      "label": "Make your site — free",
+      "link": {
+        "type": "url",
+        "url": "https://studio.openspace.dev/templates"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-left",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_5r7sfn1zcw",
+    "preset": "footer/columns@1",
+    "label": "Footer with link columns",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          4,
+          2,
+          2,
+          4
+        ],
+        "m": [
+          6,
+          6
+        ]
+      },
+      "gap": "lg"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_m4f1s71gcb",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "OpenSpace"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Beautiful websites you own, free forever. Built in the open."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_v9c751tr93",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "column": 0,
+        "variant": "icons"
+      },
+      {
+        "id": "blk_9rhz8mx97g",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Product"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Templates",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/templates/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Pricing",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/pricing/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Studio",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://studio.openspace.dev/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default"
+      },
+      {
+        "id": "blk_vj7smg07p7",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Learn"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Documentation",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://docs.openspace.dev/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Connect your AI",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://docs.openspace.dev/connect-your-ai/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Self-hosting",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://docs.openspace.dev/self-hosting/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 2,
+        "variant": "default"
+      },
+      {
+        "id": "blk_w6423c42bp",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Open source"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Code under MIT and AGPL-3.0; docs and designs under CC BY 4.0. "
+                  },
+                  {
+                    "type": "text",
+                    "text": "About the project",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/about/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 OpenSpace contributors"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 3,
+        "variant": "default"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "github",
+      "url": "https://github.com/omniharmonic/openspace"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · OpenSpace",
+    "description": "Beautiful websites you own, free forever."
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

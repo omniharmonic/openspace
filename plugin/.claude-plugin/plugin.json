@@ -1,5 +1,13 @@
 {
   "name": "openspace",
   "version": "0.1.0",
-  "description": "OpenSpace plugin for Claude Code: build and edit OpenSpace sites with structured operations."
+  "description": "Design and edit OpenSpace websites with Claude: a local MCP server for your site folder, a web-design skill with a fast inspect → design check → edit → screenshot loop, and commands to create, restyle, review and publish sites.",
+  "author": {
+    "name": "Benjamin Life",
+    "url": "https://github.com/omniharmonic"
+  },
+  "homepage": "https://docs.openspace.dev/connect-your-ai/claude-code/",
+  "repository": "https://github.com/omniharmonic/openspace",
+  "license": "MIT",
+  "keywords": ["openspace", "website", "web-design", "mcp", "astro", "site-builder"]
 }
