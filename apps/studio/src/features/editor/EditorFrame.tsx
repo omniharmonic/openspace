@@ -737,9 +737,7 @@ function EditorChrome({ site }: { site: Site }) {
           )}
           {site.status !== "building" && <SyncStatus />}
           {site.status !== "building" && (
-            <DesignCheckBadge
-              onOpen={() => useEditorUi.getState().showLeftPanel("check")}
-            />
+            <DesignCheckBadge onOpen={() => useEditorUi.getState().showLeftPanel("check")} />
           )}
           <span className="st-ed-top__sep" aria-hidden="true" />
           <IconButton
