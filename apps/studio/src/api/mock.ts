@@ -1,6 +1,7 @@
 import { newId, type SiteDocument } from "@openspace/schema";
 import { devSiteDocument } from "../features/editor/model/dev-site";
 import { demoSites, TEMPLATE_FIXTURES } from "./fixtures";
+import { createManageMock, type ManageMockState } from "./manage-mock";
 import {
   type CreateSiteInput,
   type HubApi,
@@ -51,6 +52,8 @@ export interface MockHub extends HubApi {
   readonly state: MockState;
   /** Calls received, newest last (tests). */
   readonly calls: Array<{ method: keyof HubApi; args: unknown[] }>;
+  /** Site-management state (domains, collaborators, uploads, hosting…; Task 24). */
+  readonly manage: ManageMockState;
 }
 
 function slugify(name: string) {
@@ -151,10 +154,14 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     return site;
   };
 
+  const manage = createManageMock({ calls, wait, requireUser, findSite, now });
+
   const hub: MockHub = {
+    ...manage.api,
     kind: "mock",
     state,
     calls,
+    manage: manage.state,
 
     async getSession(): Promise<Session> {
       calls.push({ method: "getSession", args: [] });
