@@ -291,7 +291,11 @@ function Floating({
     <div
       ref={ref}
       className="st-ov__floating"
-      style={{ transform: `translate(${Math.round(left)}px, ${Math.round(top)}px)` }}
+      style={{
+        transform: `translate(${Math.round(left)}px, ${Math.round(top)}px)`,
+        // On a phone the toolbar can be wider than the page: it scrolls sideways instead.
+        maxWidth: Math.max(0, width - 8),
+      }}
     >
       {children}
     </div>

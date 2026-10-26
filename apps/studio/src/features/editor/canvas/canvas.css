@@ -190,6 +190,14 @@
   box-shadow: var(--st-shadow-pop);
   color: var(--st-text);
   white-space: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.st-ov__bar > :where(*) {
+  flex: none;
 }
 
 .st-ov__bar .st-icon-button {
