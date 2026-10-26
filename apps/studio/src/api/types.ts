@@ -1,5 +1,6 @@
 import type { SiteDocument } from "@openspace/schema";
 import type { BuildState, PublishError, RoomSocket } from "../features/sync/protocol";
+import type { ManageApi } from "./manage-types";
 
 /**
  * Hub API contract as Studio consumes it (architecture §8.2).
@@ -88,6 +89,10 @@ export interface Site {
   owner?: string;
   /** The signed-in person's role on this site. */
   role?: SiteRole;
+  /** Where the site is hosted (Hub `SiteView.deployTarget`). */
+  deployTarget?: "github-pages" | "cloudflare" | string;
+  /** Connected custom domain, if any. */
+  domain?: string | null;
   /** Plain-language detail for the status (e.g. why the last publish failed). */
   statusDetail?: string | null;
 }
@@ -117,7 +122,8 @@ export interface GitHubSignInParams {
   returnTo?: string;
 }
 
-export interface HubApi {
+/** `ManageApi`: site-management routes (Task 24, ./manage-types.ts). */
+export interface HubApi extends ManageApi {
   readonly kind: "http" | "mock";
   getSession(): Promise<Session>;
   devLogin(name: string): Promise<User>;

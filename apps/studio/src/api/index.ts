@@ -1,5 +1,7 @@
 export { HubProvider, useHub } from "./context";
 export { createHttpHub, DEFAULT_HUB_URL, githubStartUrl } from "./http";
+export * from "./manage-queries";
+export * from "./manage-types";
 export * from "./queries";
 export * from "./types";
 

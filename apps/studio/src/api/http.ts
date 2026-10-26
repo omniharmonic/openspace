@@ -1,4 +1,5 @@
 import type { RoomSocket } from "../features/sync/protocol";
+import { createManageHttp } from "./manage-http";
 import {
   type AgentUndoResult,
   type CreateSiteInput,
@@ -33,7 +34,7 @@ export interface HttpHubOptions {
 
 const SIGNED_OUT: Session = { user: null, auth: { github: true, dev: false } };
 
-async function readError(res: Response): Promise<HubError> {
+export async function readError(res: Response): Promise<HubError> {
   let code = `http_${res.status}`;
   let message = res.statusText || `Request failed (${res.status})`;
   try {
@@ -83,6 +84,7 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
 
   return {
     kind: "http",
+    ...createManageHttp({ request, baseUrl, fetch: doFetch, readError }),
 
     async getSession() {
       try {

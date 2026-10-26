@@ -20,6 +20,8 @@ export {
   Popup,
   type PopupProps,
   type PopupTrigger,
+  popupTrigger,
+  SitePopup,
   shortHash,
 } from "./chrome";
 export {
