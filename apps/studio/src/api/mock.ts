@@ -633,7 +633,17 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
         doc: clone(target.doc),
       });
       room.reloadAll(clone(target.doc), "rollback");
-      return { sha: version.sha, summary: version.summary, snapshot, site: clone(site) };
+      const passwords = manage.state.pagePasswords[site.id] ?? {};
+      const pagesWithoutPassword = Object.values(target.doc.pages)
+        .filter((p) => p.access?.password && !passwords[p.id])
+        .map((p) => ({ id: p.id, title: p.title }));
+      return {
+        sha: version.sha,
+        summary: version.summary,
+        snapshot,
+        pagesWithoutPassword,
+        site: clone(site),
+      };
     },
 
     versionPreviewUrl(id, sha) {

@@ -78,3 +78,43 @@ describe("Cloudflare Worker secrets", () => {
     expect(sessionAfter?.updated_at).toBe(sessionSet?.updated_at);
   });
 });
+
+describe("rollback to a version with a password page that has no password", () => {
+  it("names the pages nobody can open until a password is set", async () => {
+    const app = createApp();
+    const owner = await devLogin(app, "Uma Reyes");
+    const site = await createSite(app, owner, "Rollback Pw");
+    const post = (path: string, json?: unknown) =>
+      call(app, `/api/sites/${site.id}${path}`, {
+        method: "POST",
+        cookie: owner,
+        headers: { Origin: STUDIO_ORIGIN },
+        ...(json === undefined ? {} : { json }),
+      });
+    const pageId = "pg_rbpwpage01";
+    await post("/room/ops", {
+      ops: [
+        op({
+          op: "page.create",
+          page: {
+            id: pageId,
+            title: "Retreat",
+            slug: "retreat",
+            access: { password: true },
+            sections: [],
+          },
+        }),
+      ],
+    });
+    const v2 = (await (await post("/publish")).json()) as { publish: { sha: string } };
+    await post("/room/ops", {
+      ops: [op({ op: "page.update", page: pageId, unset: ["access"] })],
+    });
+    expect((await post("/publish")).status).toBe(200);
+    const res = await post("/rollback", { sha: v2.publish.sha });
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { pagesWithoutPassword: unknown }).pagesWithoutPassword).toEqual([
+      { id: pageId, title: "Retreat" },
+    ]);
+  });
+});

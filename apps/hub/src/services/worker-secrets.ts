@@ -102,3 +102,18 @@ export async function republish(services: Services, site: SiteRow, gh?: GitHubAc
   await access.dispatchWorkflow(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
   return true;
 }
+
+/**
+ * Password-protected pages of `doc` that have no password in the Hub (e.g. after going back to
+ * a version from before the password was removed): nobody can open them until one is set.
+ */
+export async function pagesWithoutPassword(
+  db: D1Database,
+  siteId: string,
+  doc: SiteDocument,
+): Promise<Array<{ id: string; title: string }>> {
+  const have = new Set((await pagePasswords(db, siteId)).map((r) => r.page_id));
+  return Object.values(doc.pages)
+    .filter((p) => p.access?.password && !have.has(p.id))
+    .map((p) => ({ id: p.id, title: p.title }));
+}

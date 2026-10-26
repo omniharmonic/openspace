@@ -16,6 +16,7 @@ import {
   schedulePublish,
 } from "../services/publishing";
 import { getSiteView, ownerOf, requireRole, siteForUser } from "../services/sites";
+import { pagesWithoutPassword } from "../services/worker-secrets";
 import type { AppEnv } from "../types";
 
 /** History, rollback, snapshots, scheduled publish and "Fix it for me" (arch §5.4–§5.5). */
@@ -41,7 +42,13 @@ publishingRoutes.post("/:id/rollback", async (c) => {
   const result = await unwrapRoom(
     roomStub(c.env, site.id).rollback(site.id, { userId: user.id, sha }),
   );
-  return c.json({ ...result, site: await getSiteView(c.var.services, site.id, user) });
+  // Studio asks for a password when the restored version protects a page that has none.
+  const { doc } = await unwrapRoom(roomStub(c.env, site.id).getDocument(site.id));
+  return c.json({
+    ...result,
+    pagesWithoutPassword: await pagesWithoutPassword(c.var.services.db, site.id, doc),
+    site: await getSiteView(c.var.services, site.id, user),
+  });
 });
 
 /**

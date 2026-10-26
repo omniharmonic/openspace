@@ -84,6 +84,22 @@ function Versions() {
           ? "Your unpublished changes were saved as a snapshot first."
           : "Your site is going back to that version.",
       });
+      const locked = r.pagesWithoutPassword ?? [];
+      if (locked.length)
+        toast({
+          tone: "danger",
+          title:
+            locked.length === 1
+              ? `Set a password for “${locked[0]?.title}”`
+              : `Set passwords for ${locked.length} protected pages`,
+          description: `${locked.map((p) => `“${p.title}”`).join(", ")} ${
+            locked.length === 1 ? "is" : "are"
+          } password-protected in this version but ${
+            locked.length === 1 ? "has" : "have"
+          } no password, so nobody can open ${
+            locked.length === 1 ? "it" : "them"
+          }. Set one in Page settings.`,
+        });
       setTarget(null);
       void queryClient.invalidateQueries({ queryKey: ["versions", site.id] });
       void queryClient.invalidateQueries({ queryKey: ["snapshots", site.id] });

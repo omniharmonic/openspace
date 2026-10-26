@@ -252,6 +252,8 @@ export interface RollbackResult {
   summary: string;
   /** Snapshot holding unpublished changes saved before rolling back. */
   snapshot: string | null;
+  /** Password-protected pages of the restored version without a password (nobody can open them). */
+  pagesWithoutPassword?: Array<{ id: string; title: string }>;
   site: Site;
 }
 
