@@ -146,6 +146,7 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     ),
     opts.extraHead ?? "",
     site.headInjection ?? "",
+    page.headInjection ?? "",
   ];
 
   const bodyAttrs = [
@@ -170,7 +171,7 @@ ${head.filter(Boolean).join("\n")}
 </head>
 <body ${bodyAttrs}>
 ${body}
-${scripts}${site.footerInjection ?? ""}
+${scripts}${site.footerInjection ?? ""}${page.footerInjection ?? ""}
 </body>
 </html>
 `;

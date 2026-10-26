@@ -44,6 +44,28 @@ describe("canvas", () => {
     );
   });
 
+  it("shows a placeholder, never the code, for a page's head/footer code (M-8)", async () => {
+    const { doc, store } = await openCanvas();
+    expect(doc.querySelector("[data-os-canvas-code]")).toBeNull();
+    const pageId = store().pageId;
+    act(() => {
+      store().commit([
+        {
+          op: "page.update",
+          page: pageId,
+          set: { footerInjection: "<script>window.__osInjectedCode = true</script>" },
+        } as never,
+      ]);
+    });
+    await waitFor(() =>
+      expect(doc.querySelector("[data-os-canvas-code]")?.textContent).toContain("footer code"),
+    );
+    expect(doc.documentElement.innerHTML).not.toContain("__osInjectedCode");
+    expect(
+      (doc.defaultView as unknown as { __osInjectedCode?: boolean }).__osInjectedCode,
+    ).toBeUndefined();
+  });
+
   it("selects blocks and sections by clicking, and edits text inline as ops", async () => {
     const { q, user } = await openCanvas();
     fireEvent.click(q(I.heroButton));

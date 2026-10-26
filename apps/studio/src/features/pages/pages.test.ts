@@ -240,6 +240,42 @@ describe("page commands (ops)", () => {
     ).toBeNull();
   });
 
+  it("saves and clears per-page head and footer code (M-8)", () => {
+    const store = session();
+    const doc = store.getState().doc;
+    const target = Object.values(doc.pages).find((p) => p.slug !== "");
+    if (!target) throw new Error("page");
+    const cmd = updatePageSettings(doc, target.id, {
+      ...pageSettingsOf(target),
+      headCode: '<link rel="preconnect" href="https://cal.com">',
+      footerCode: '<script src="https://cal.com/embed.js" defer></script>',
+      redirectOld: false,
+    });
+    expect(store.getState().commit(cmd?.bodies ?? []).ok).toBe(true);
+    const p = store.getState().doc.pages[target.id];
+    expect(p?.headInjection).toContain("cal.com");
+    expect(p?.footerInjection).toContain("embed.js");
+    // Leaving code undefined (non-designers) never touches it.
+    expect(
+      updatePageSettings(store.getState().doc, target.id, {
+        ...pageSettingsOf(p as never),
+        headCode: undefined,
+        footerCode: undefined,
+        redirectOld: false,
+      }),
+    ).toBeNull();
+    const clear = updatePageSettings(store.getState().doc, target.id, {
+      ...pageSettingsOf(p as never),
+      headCode: "  ",
+      footerCode: "",
+      redirectOld: false,
+    });
+    expect(store.getState().commit(clear?.bodies ?? []).ok).toBe(true);
+    const cleared = store.getState().doc.pages[target.id];
+    expect(cleared?.headInjection).toBeUndefined();
+    expect(cleared?.footerInjection).toBeUndefined();
+  });
+
   it("explains address problems in plain words", () => {
     const doc = session().getState().doc;
     const other = Object.values(doc.pages).find((p) => p.slug !== "");

@@ -272,6 +272,20 @@ export function transformForRole(
         return deny("Editors can't change the header layout; ask a designer");
       return allow;
     }
+    case "page.update":
+      if (patchPaths(op).some((p) => /^(headInjection|footerInjection)(\.|$)/.test(p)))
+        return deny("Editors can't change custom code");
+      return allow;
+    case "page.create":
+      if (op.page.headInjection !== undefined || op.page.footerInjection !== undefined)
+        return deny("Editors can't change custom code");
+      if (op.page.sections.some((s) => s.locked))
+        return deny("Only owners and designers can lock sections");
+      if (!op.page.sections.every((s) => isKnownSectionLook(s, context)))
+        return deny(
+          "Editors build pages from the section gallery; layout and style come from the design",
+        );
+      return allow;
     case "page.delete": {
       const page = doc?.pages[op.page];
       if (!page) return deny("Can't check this page without the current document");
@@ -280,7 +294,7 @@ export function transformForRole(
       return allow;
     }
     default:
-      // page.create/update, nav.update, media.*, collection.*, collectionConfig.upsert
+      // nav.update, media.*, collection.*, collectionConfig.upsert
       return allow;
   }
 }

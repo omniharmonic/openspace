@@ -96,6 +96,19 @@ describe("transformForRole", () => {
     ).toBe(true);
     expect(
       check(
+        { op: "page.update", page: about, set: { headInjection: "<script></script>" } },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check({ op: "page.update", page: about, unset: ["footerInjection"] }, "editor").allowed,
+    ).toBe(false);
+    expect(
+      check({ op: "page.update", page: about, set: { headInjection: "<meta name=x>" } }, "designer")
+        .allowed,
+    ).toBe(true);
+    expect(
+      check(
         {
           op: "collection.upsert",
           collection: "journal",
@@ -296,7 +309,10 @@ describe("transformForRole — editor visuals (M-5)", () => {
         { doc, ...ctx },
       );
     expect(ins(copy).allowed).toBe(true);
-    const restyled = { ...copy, style: { ...copy.style, minHeight: { d: "full" } } } as unknown as Section;
+    const restyled = {
+      ...copy,
+      style: { ...copy.style, minHeight: { d: "full" } },
+    } as unknown as Section;
     expect(ins(restyled)).toMatchObject({
       allowed: false,
       reason: expect.stringMatching(/gallery/),

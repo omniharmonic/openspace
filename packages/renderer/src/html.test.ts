@@ -92,6 +92,24 @@ describe("renderPageHtml", () => {
     expect(html).toContain("<!-- footer -->\n</body>");
   });
 
+  it("adds a page's own head/footer code after the site's, only on that page", () => {
+    const d = siteFixture();
+    d.site.headInjection = '<meta name="x-site" content="1">';
+    d.site.footerInjection = "<!-- site footer -->";
+    const about = must(d.pages[IDS.about]);
+    about.headInjection = '<link rel="preconnect" href="https://cal.example">';
+    about.footerInjection = "<!-- about footer -->";
+    const html = renderPageHtml({ doc: d, pageId: IDS.about });
+    const head = html.slice(0, html.indexOf("</head>"));
+    expect(head.indexOf('<meta name="x-site"')).toBeLessThan(
+      head.indexOf('<link rel="preconnect" href="https://cal.example">'),
+    );
+    expect(html).toContain("<!-- site footer --><!-- about footer -->\n</body>");
+    const home = renderPageHtml({ doc: d, pageId: IDS.home });
+    expect(home).not.toContain("cal.example");
+    expect(home).not.toContain("about footer");
+  });
+
   it("detects behaviors from a document or from HTML", () => {
     const d = siteFixture();
     const home = must(d.pages[IDS.home]);

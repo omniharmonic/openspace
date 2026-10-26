@@ -138,6 +138,9 @@ export interface PageSettingsInput {
   access: "public" | "password" | "members";
   /** Add a redirect from the old address when the slug changes. */
   redirectOld: boolean;
+  /** Per-page code (Advanced; owners and designers). Absent: leave unchanged. */
+  headCode?: string;
+  footerCode?: string;
 }
 
 export function pageSettingsOf(page: Page): Omit<PageSettingsInput, "redirectOld"> {
@@ -150,6 +153,8 @@ export function pageSettingsOf(page: Page): Omit<PageSettingsInput, "redirectOld
     noindex: page.seo?.noindex ?? false,
     unlisted: page.hidden ?? false,
     access: page.access?.members ? "members" : page.access?.password ? "password" : "public",
+    headCode: page.headInjection ?? "",
+    footerCode: page.footerInjection ?? "",
   };
 }
 
@@ -181,6 +186,13 @@ export function updatePageSettings(
   if (input.access !== cur.access) {
     if (input.access === "public") unset.push("access");
     else set.access = input.access === "members" ? { members: true } : { password: true };
+  }
+  for (const [key, path] of [
+    ["headCode", "headInjection"],
+    ["footerCode", "footerInjection"],
+  ] as const) {
+    const v = input[key];
+    if (v !== undefined && v.trim() !== (cur[key] ?? "").trim()) put(path, v, !v.trim());
   }
   // Paths inside a patch must not overlap: an emptied seo object is dropped whole instead.
   const seoKeys = ["title", "description", "image", "noindex", "canonical"] as const;
