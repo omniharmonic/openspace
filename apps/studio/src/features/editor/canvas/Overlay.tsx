@@ -18,6 +18,7 @@ import {
 import {
   type CSSProperties,
   type ReactNode,
+  Suspense,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -49,7 +50,7 @@ import {
 } from "../model/selection";
 import { THEME_LABEL } from "../model/themes";
 import { hasEditableText } from "../text/fields";
-import { TextToolbar } from "../text/TextToolbar";
+import { LazyTextToolbar } from "../text/lazy";
 import { cssSize, elementFor, overlayPointer, type Rect, rectFor, useFrameTick } from "./geometry";
 
 interface OverlayProps {
@@ -201,7 +202,9 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
               </div>
               {editingKind === "rich" && (
                 <Floating rect={r} width={width} height={height} placement="above">
-                  <TextToolbar />
+                  <Suspense fallback={null}>
+                    <LazyTextToolbar />
+                  </Suspense>
                 </Floating>
               )}
             </>

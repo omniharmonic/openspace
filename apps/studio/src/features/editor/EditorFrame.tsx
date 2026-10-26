@@ -88,10 +88,19 @@ const LookStage = lazy(() => import("../looks/LooksPanel").then((m) => ({ defaul
 import { DesignCheckBadge, DesignCheckPanel } from "../design-check/DesignCheckPanel";
 import { useDesignCheckRunner } from "../design-check/store";
 import { useLookTrial } from "../looks/trial";
-import { MediaLibrary } from "../media/MediaLibrary";
-import { MobileStudio } from "../mobile/MobileStudio";
-import { PagesManager } from "../pages/PagesManager";
-import { SiteChromePanel } from "../site-chrome/SiteChromePanel";
+// Panels that aren't on screen when the editor opens load on demand (smaller first load).
+const MediaLibrary = lazy(() =>
+  import("../media/MediaLibrary").then((m) => ({ default: m.MediaLibrary })),
+);
+const MobileStudio = lazy(() =>
+  import("../mobile/MobileStudio").then((m) => ({ default: m.MobileStudio })),
+);
+const PagesManager = lazy(() =>
+  import("../pages/PagesManager").then((m) => ({ default: m.PagesManager })),
+);
+const SiteChromePanel = lazy(() =>
+  import("../site-chrome/SiteChromePanel").then((m) => ({ default: m.SiteChromePanel })),
+);
 import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
 import { UpdateBanner } from "../updates/UpdateBanner";
 import { WorkspaceHost, WorkspaceRail } from "../workspace/WorkspaceHost";
@@ -171,21 +180,26 @@ function PanelSkeleton({ rows = 5, label }: { rows?: number; label: string }) {
 }
 
 function LeftPanelBody({ panel }: { panel: LeftPanel }) {
-  if (panel === "pages") return <PagesManager />;
-  if (panel === "media") return <MediaLibrary />;
-  if (panel === "chrome") return <SiteChromePanel />;
   if (panel === "layers") return <LayersPanel />;
   if (panel === "check") return <DesignCheckPanel />;
-  if (panel === "add" || panel === "styles" || panel === "looks")
+  const Lazy =
+    panel === "pages"
+      ? PagesManager
+      : panel === "media"
+        ? MediaLibrary
+        : panel === "chrome"
+          ? SiteChromePanel
+          : panel === "add"
+            ? AddSectionPanel
+            : panel === "styles"
+              ? SiteStylesPanel
+              : panel === "looks"
+                ? LooksPanel
+                : null;
+  if (Lazy)
     return (
       <Suspense fallback={<PanelSkeleton label="Loading" rows={6} />}>
-        {panel === "add" ? (
-          <AddSectionPanel />
-        ) : panel === "styles" ? (
-          <SiteStylesPanel />
-        ) : (
-          <LooksPanel />
-        )}
+        <Lazy />
       </Suspense>
     );
   const label = PANELS.find((p) => p.id === panel)?.label ?? "";
@@ -604,11 +618,13 @@ function EditorChrome({ site }: { site: Site }) {
     return (
       <>
         <WelcomeToast site={site} />
-        <MobileStudio
-          site={site}
-          onHistory={() => setHistoryOpen(true)}
-          onFrameDocument={setFrameDoc}
-        />
+        <Suspense fallback={<PanelSkeleton label="Loading Studio" rows={8} />}>
+          <MobileStudio
+            site={site}
+            onHistory={() => setHistoryOpen(true)}
+            onFrameDocument={setFrameDoc}
+          />
+        </Suspense>
         <InspectorRuntime />
         <SiteManagementHost site={site} />
         <WorkspaceHost site={site} />

@@ -3,7 +3,7 @@ import { toast } from "../../../ui/toast-store";
 import { locate } from "../model/selection";
 import type { EditorStore } from "../model/store";
 import { fieldSet, getAt, textFieldsOf } from "./fields";
-import { takePendingCaret } from "./InlineText";
+import { takePendingCaret } from "./session";
 
 /**
  * Inline editing for plain text fields (headings in cards, button labels, names…). The element

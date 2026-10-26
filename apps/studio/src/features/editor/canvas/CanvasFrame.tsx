@@ -13,6 +13,7 @@ import {
   isValidElement,
   memo,
   type ReactElement,
+  Suspense,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -22,7 +23,7 @@ import {
 import { createPortal } from "react-dom";
 import { useCanvasImageMap } from "../../media/sources";
 import { useDocStore } from "../model/context";
-import { InlineText } from "../text/InlineText";
+import { LazyInlineText, preloadTextEditing } from "../text/lazy";
 
 registerAll();
 
@@ -52,7 +53,11 @@ function RichField({ block, fieldPath, className, as, children }: RichTextHookAr
       s.editingField.path === fieldPath,
   );
   if (editing)
-    return <InlineText blockId={block.id} path={fieldPath} className={className} as={as} />;
+    return (
+      <Suspense fallback={children}>
+        <LazyInlineText blockId={block.id} path={fieldPath} className={className} as={as} />
+      </Suspense>
+    );
   if (!isValidElement(children)) return <>{children}</>;
   return cloneElement(children as ReactElement<Record<string, unknown>>, {
     "data-os-field": fieldPath,
@@ -169,6 +174,11 @@ export function CanvasFrame({ width, height, scale, onDocument }: CanvasFramePro
     if (custom && custom.textContent !== customCss) custom.textContent = customCss;
     d.documentElement.lang = locale;
   }, [root, compiled, fontsHref, customCss, locale]);
+
+  // Text editing (Tiptap) is a separate chunk; warm it once the canvas is on screen.
+  useEffect(() => {
+    if (root) preloadTextEditing();
+  }, [root]);
 
   useEffect(() => {
     const d = root?.ownerDocument;

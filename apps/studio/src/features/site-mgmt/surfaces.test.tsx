@@ -21,7 +21,11 @@ async function openEditor(panel?: "pages" | "media" | "chrome") {
   const utils = renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
   await screen.findByTitle("Page canvas");
   await waitFor(() => expect(store().doc.pages).toBeTruthy());
-  if (panel) act(() => useEditorUi.getState().setLeftPanel(panel));
+  if (panel) {
+    act(() => useEditorUi.getState().setLeftPanel(panel));
+    // Pages, media and header & footer panels are lazy chunks.
+    await waitFor(() => expect(screen.queryByRole("status", { name: "Loading" })).toBeNull());
+  }
   return utils;
 }
 

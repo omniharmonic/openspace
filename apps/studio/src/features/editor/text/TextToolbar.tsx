@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 import { type FormEvent, type ReactNode, useState } from "react";
 import { Button, IconButton, Input, Popover, Select, Toggle } from "../../../ui";
-import { useTextEditing } from "./InlineText";
 import { applyTextStyle, currentTextStyle, TEXT_STYLES, type TextStyleId } from "./schema";
+import { useTextEditing } from "./session";
 
 /** Keep focus (and the text selection) in the canvas when pressing toolbar buttons. */
 const keepFocus = { onMouseDown: (e: { preventDefault: () => void }) => e.preventDefault() };

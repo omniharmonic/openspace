@@ -6,7 +6,7 @@ import {
   type RichTextDoc,
 } from "@openspace/schema";
 import { Plus } from "lucide-react";
-import type { ComponentType, ReactNode } from "react";
+import { type ComponentType, lazy, type ReactNode, Suspense } from "react";
 import { Button } from "../../../ui";
 import { itemTitle, moveItem, newListItem } from "../model/defaults";
 import { PanelSection, PropRow } from "../ui";
@@ -15,9 +15,26 @@ import { FormBuilder } from "./form";
 import { LinkControl } from "./link";
 import { ImageControl, MediaControl } from "./media";
 import { EmbedControl, ReferenceControl } from "./reference";
-import { RichTextControl } from "./richtext";
 import { SortableList } from "./SortableList";
 import { type ChangeOptions, type ControlProps, useFieldsContext } from "./types";
+
+// Tiptap loads with the first rich-text field (the editor preloads it when idle).
+const RichTextLazy = lazy(() => import("./richtext").then((m) => ({ default: m.RichTextControl })));
+// biome-ignore lint/suspicious/noExplicitAny: same props as the control it wraps
+function RichTextControl(props: any) {
+  return (
+    <Suspense
+      fallback={
+        <div className="st-ip-rich" aria-busy="true">
+          <div className="st-ip-rich__bar" />
+          <div className="st-ip-rich__pm" />
+        </div>
+      }
+    >
+      <RichTextLazy {...props} />
+    </Suspense>
+  );
+}
 
 type Values = Record<string, unknown>;
 export type OnField = (key: string, value: unknown, options?: ChangeOptions) => string | null;

@@ -1,14 +1,7 @@
 import type { Op, OpBody } from "@openspace/ops";
-import {
-  BLOCK_NODE_TYPES,
-  type BlockNodeType,
-  MARK_TYPES,
-  type MarkType,
-  type RichTextDoc,
-} from "@openspace/schema";
+import type { RichTextDoc } from "@openspace/schema";
 import { Editor } from "@tiptap/core";
 import { useLayoutEffect, useRef } from "react";
-import { create } from "zustand";
 import { useCommandStore } from "../../../ui/command-store";
 import { matchesShortcut } from "../../../ui/shortcuts";
 import { useDocStoreApi } from "../model/context";
@@ -16,42 +9,22 @@ import { locate } from "../model/selection";
 import { fromTiptap, restrictDoc, richKey, toTiptap } from "./convert";
 import { fieldMetaAt, fieldSet, getAt } from "./fields";
 import { richTextExtensions } from "./schema";
+import {
+  ALLOW_ALL,
+  TEXT_COMMIT_MS,
+  type TextAllowance,
+  takePendingCaret,
+  useTextEditing,
+} from "./session";
 
-/** Typing commits after this pause (ms); the undo history groups the commits of one burst. */
-export const TEXT_COMMIT_MS = 250;
-
-/** The live Tiptap editor (for the floating toolbar in the parent document). */
-interface TextEditingState {
-  editor: Editor | null;
-  /** Bumps on every transaction so the toolbar re-reads active marks. */
-  tick: number;
-  /** What the edited field allows (the toolbar offers only these). */
-  allow: TextAllowance;
-}
-export interface TextAllowance {
-  marks: readonly MarkType[];
-  blocks: readonly BlockNodeType[];
-}
-export const ALLOW_ALL: TextAllowance = { marks: MARK_TYPES, blocks: BLOCK_NODE_TYPES };
-export const useTextEditing = create<TextEditingState>(() => ({
-  editor: null,
-  tick: 0,
-  allow: ALLOW_ALL,
-}));
-
-/** Where the click that started editing landed (iframe client coordinates). */
-let pendingCaret: { x: number; y: number } | null = null;
-export function setPendingCaret(point: { x: number; y: number } | null) {
-  pendingCaret = point;
-}
-/** Read the pending caret; it is cleared after the current task (StrictMode mounts twice). */
-export function takePendingCaret() {
-  const caret = pendingCaret;
-  queueMicrotask(() => {
-    pendingCaret = null;
-  });
-  return caret;
-}
+export {
+  ALLOW_ALL,
+  setPendingCaret,
+  TEXT_COMMIT_MS,
+  type TextAllowance,
+  takePendingCaret,
+  useTextEditing,
+} from "./session";
 
 export interface InlineTextProps {
   blockId: string;
