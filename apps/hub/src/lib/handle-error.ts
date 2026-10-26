@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import { ZodError } from "zod";
-import { GitHubConflictError, GitHubNotFoundError } from "../github/types";
+import { GitHubConflictError, GitHubInputError, GitHubNotFoundError } from "../github/types";
 import { SiteFilesError } from "../services/site-files";
 import type { AppEnv } from "../types";
 import { errorBody, HttpError } from "./errors";
@@ -13,6 +13,7 @@ export function handleError(err: Error, c: Context<AppEnv>): Response {
   }
   if (err instanceof ZodError)
     return c.json(errorBody("invalid_request", err.issues[0]?.message ?? "Invalid request."), 400);
+  if (err instanceof GitHubInputError) return c.json(errorBody("bad_request", err.message), 400);
   if (err instanceof GitHubConflictError)
     return c.json(
       errorBody("conflict", "Someone else changed this site at the same moment. Try again."),

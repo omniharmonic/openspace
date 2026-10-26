@@ -16,6 +16,8 @@ CREATE TABLE users (
   is_dev                      INTEGER NOT NULL DEFAULT 0,
   refresh_token_enc           TEXT,                       -- AES-GCM "v1.<iv>.<ciphertext>"
   refresh_token_expires_at    INTEGER,
+  access_token_enc            TEXT,                       -- cached short-lived user token (encrypted)
+  access_token_expires_at     INTEGER,
   created_at                  INTEGER NOT NULL,
   updated_at                  INTEGER NOT NULL
 );
@@ -60,6 +62,9 @@ CREATE TABLE sites (
   status           TEXT NOT NULL DEFAULT 'building',     -- building | live | failed
   status_detail    TEXT,
   plan_flags       TEXT NOT NULL DEFAULT '{}',
+  setup_json       TEXT,                                 -- creation inputs, so setup can be retried
+  transfer_to      TEXT,                                 -- pending ownership transfer (login)
+  transfer_requested_at INTEGER,
   archived_at      INTEGER,
   purge_at         INTEGER,                              -- archived sites are purged after 30 days
   created_at       INTEGER NOT NULL,

@@ -18,6 +18,9 @@ export interface SiteRow {
   status: SiteStatus;
   status_detail: string | null;
   plan_flags: string;
+  setup_json: string | null;
+  transfer_to: string | null;
+  transfer_requested_at: number | null;
   archived_at: number | null;
   purge_at: number | null;
   created_at: number;
@@ -39,16 +42,27 @@ const WITH_ROLE = `SELECT s.*, r.role AS role, o.login AS owner_login, o.name AS
 
 export async function insertSite(
   db: D1Database,
-  site: Omit<SiteRow, "archived_at" | "purge_at" | "status_detail" | "plan_flags"> & {
+  site: Omit<
+    SiteRow,
+    | "archived_at"
+    | "purge_at"
+    | "status_detail"
+    | "plan_flags"
+    | "setup_json"
+    | "transfer_to"
+    | "transfer_requested_at"
+  > & {
     plan_flags?: string;
+    setup_json?: string | null;
   },
 ): Promise<void> {
   await db.batch([
     db
       .prepare(
         `INSERT INTO sites (id, owner_id, name, tagline, repo, installation_id, deploy_target, domain,
-          url, template_id, template_version, look, status, plan_flags, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          url, template_id, template_version, look, status, plan_flags, setup_json, created_at,
+          updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         site.id,
@@ -65,6 +79,7 @@ export async function insertSite(
         site.look,
         site.status,
         site.plan_flags ?? "{}",
+        site.setup_json ?? null,
         site.created_at,
         site.updated_at,
       ),
@@ -125,6 +140,8 @@ type Patch = Partial<
     | "owner_id"
     | "archived_at"
     | "purge_at"
+    | "transfer_to"
+    | "transfer_requested_at"
   >
 >;
 

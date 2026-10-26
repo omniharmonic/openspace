@@ -4,6 +4,18 @@ import { describe, expect, it } from "vitest";
 import { readConfig } from "../src/env";
 import { siteCors, siteOrigins } from "../src/lib/cors";
 
+describe("config", () => {
+  it("refuses DEV_MODE on an https Hub unless ALLOW_DEV_MODE is set", () => {
+    const https = { ...env, DEV_MODE: "true", HUB_URL: "https://hub.example.org" };
+    expect(readConfig(https)).toMatchObject({ devMode: false, devModeRefused: true });
+    expect(readConfig({ ...https, ALLOW_DEV_MODE: "true" })).toMatchObject({
+      devMode: true,
+      devModeRefused: false,
+    });
+    expect(readConfig(env)).toMatchObject({ devMode: true, devModeRefused: false });
+  });
+});
+
 describe("public per-site CORS", () => {
   const prod = readConfig({ ...env, DEV_MODE: "false" });
   const dev = readConfig(env);

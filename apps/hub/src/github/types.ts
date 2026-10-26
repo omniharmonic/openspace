@@ -173,6 +173,14 @@ export class GitHubNotFoundError extends Error {
   }
 }
 
+/** A request the Hub refuses before calling GitHub (bad repo name, unsafe file path…). */
+export class GitHubInputError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GitHubInputError";
+  }
+}
+
 /** Any other failure talking to GitHub. */
 export class GitHubApiError extends Error {
   constructor(
@@ -191,7 +199,8 @@ export const PUBLISH_WORKFLOW = "publish.yml";
 
 export function parseRepo(fullName: string): RepoRef {
   const [owner, name] = fullName.split("/");
-  if (!owner || !name) throw new Error(`Invalid repository name ${fullName}`);
+  if (!owner || !name || fullName.split("/").length !== 2)
+    throw new GitHubInputError(`Invalid repository name ${fullName}`);
   return { owner, name };
 }
 

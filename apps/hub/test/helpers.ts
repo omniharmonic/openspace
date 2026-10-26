@@ -26,9 +26,13 @@ export function call(
   return app.request(path, { ...rest, headers, body }, bindings);
 }
 
-/** `name=value` from a Set-Cookie header. */
-export function cookieFrom(res: Response): string {
-  const raw = res.headers.get("set-cookie") ?? "";
+/** `name=value` of the session cookie (or the first cookie, or the named one) a response sets. */
+export function cookieFrom(res: Response, name?: string): string {
+  const all = res.headers.getSetCookie();
+  const raw =
+    (name
+      ? all.find((c) => c.startsWith(`${name}=`))
+      : (all.find((c) => c.startsWith("os_session=")) ?? all[0])) ?? "";
   return raw.split(";")[0] ?? "";
 }
 

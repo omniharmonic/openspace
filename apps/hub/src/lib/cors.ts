@@ -12,11 +12,12 @@ function originOf(url: string | null | undefined): string | null {
   }
 }
 
-/** Origins allowed to call credentialed Studio APIs (/api/*, /auth/*). */
+/**
+ * Origins allowed to call credentialed Studio APIs (/api/*, /auth/*): Studio only. The Hub's own
+ * origin is deliberately excluded — it serves owner content (sandboxed dev previews).
+ */
 export function studioOrigins(config: HubConfig): string[] {
-  return [
-    ...new Set([config.studioOrigin, originOf(config.hubUrl)].filter((o): o is string => !!o)),
-  ];
+  return [config.studioOrigin];
 }
 
 /** Credentialed CORS for Studio. */
@@ -47,7 +48,11 @@ export function siteOrigins(site: Pick<SiteRow, "url" | "domain">, config: HubCo
         : `https://www.${site.domain}`,
     );
   }
-  if (config.devMode) for (const o of studioOrigins(config)) out.add(o);
+  if (config.devMode) {
+    out.add(config.studioOrigin);
+    const hub = originOf(config.hubUrl);
+    if (hub) out.add(hub);
+  }
   return [...out];
 }
 

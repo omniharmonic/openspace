@@ -25,5 +25,28 @@
     }
   ],
   "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
-  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }]
+  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }],
+  // Production: real GitHub App, no dev sign-in. Bindings are not inherited by environments,
+  // so they are repeated here (replace the ids with your own resources).
+  "env": {
+    "production": {
+      "vars": {
+        "DEV_MODE": "false",
+        "HUB_URL": "https://hub.openspace.dev",
+        "STUDIO_ORIGIN": "https://studio.openspace.dev",
+        "GITHUB_APP_SLUG": "openspace",
+        "LOG_LEVEL": "info"
+      },
+      "d1_databases": [
+        {
+          "binding": "HUB_DB",
+          "database_name": "openspace-hub",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+      "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }]
+    }
+  }
 }

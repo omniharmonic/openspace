@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { getCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { z } from "zod";
-import { mintUserAccessToken } from "../auth/github-tokens";
+import { mintUserAccessToken, storeUserTokens } from "../auth/github-tokens";
 import { clearSessionCookie, requireUser, SESSION_COOKIE, setSessionCookie } from "../auth/session";
 import { createSession, deleteSession } from "../db/sessions";
 import { type User, upsertDevUser, upsertGitHubUser } from "../db/users";
@@ -11,7 +11,7 @@ import {
   getAuthenticatedUser,
   listUserInstallations,
 } from "../github/oauth";
-import { encryptSecret, randomToken } from "../lib/crypto";
+import { randomToken, timingSafeEqual } from "../lib/crypto";
 import { HttpError, notFound } from "../lib/errors";
 import { readJson } from "../lib/validate";
 import { CreateSiteSchema, createSite } from "../services/sites";
@@ -20,6 +20,7 @@ import type { AppEnv } from "../types";
 export const authRoutes = new Hono<AppEnv>();
 
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
+const OAUTH_COOKIE = "os_oauth_state";
 
 const DevLoginSchema = z.strictObject({ name: z.string().trim().min(1, "Enter a name").max(60) });
 
@@ -129,6 +130,14 @@ authRoutes.get("/github/start", async (c) => {
     )
     .bind(state, JSON.stringify(intent), now, now + OAUTH_STATE_TTL_MS)
     .run();
+  // Login-CSRF defence: bind the state to this browser. The callback requires the same value.
+  setCookie(c, OAUTH_COOKIE, state, {
+    httpOnly: true,
+    secure: config.secureCookies,
+    sameSite: "Lax",
+    path: "/auth/github",
+    maxAge: OAUTH_STATE_TTL_MS / 1000,
+  });
   return c.redirect(
     authorizeUrl(config.github, { state, redirectUri: `${config.hubUrl}/auth/github/callback` }),
     302,
@@ -148,6 +157,9 @@ authRoutes.get("/github/callback", async (c) => {
   }
   const { code, state, installation_id } = c.req.query();
   if (!code || !state) return fail("missing_code");
+  const browserState = getCookie(c, OAUTH_COOKIE);
+  deleteCookie(c, OAUTH_COOKIE, { path: "/auth/github", secure: config.secureCookies });
+  if (!browserState || !(await timingSafeEqual(browserState, state))) return fail("state_mismatch");
   const row = await services.db
     .prepare("DELETE FROM oauth_states WHERE state = ? RETURNING intent_json, expires_at")
     .bind(state)
@@ -167,27 +179,15 @@ authRoutes.get("/github/callback", async (c) => {
     );
     accessToken = tokens.accessToken;
     const gh = await getAuthenticatedUser(tokens.accessToken, services.fetch);
-    // Encrypt with the user id as AAD; the id is only known after upsert, so upsert first.
+    // Tokens are encrypted with the user id as AAD, so upsert the user first.
     user = await upsertGitHubUser(services.db, {
       githubId: gh.id,
       login: gh.login,
       name: gh.name,
       email: gh.email,
       avatarUrl: gh.avatar_url,
-      refreshTokenEnc: null,
-      refreshTokenExpiresAt: null,
     });
-    if (tokens.refreshToken)
-      await services.db
-        .prepare(
-          "UPDATE users SET refresh_token_enc = ?, refresh_token_expires_at = ? WHERE id = ?",
-        )
-        .bind(
-          await encryptSecret(config.tokenEncKey, tokens.refreshToken, user.id),
-          tokens.refreshTokenExpiresAt,
-          user.id,
-        )
-        .run();
+    await storeUserTokens(services, user.id, tokens);
   } catch (err) {
     log.warn("github oauth failed", { err });
     return fail("github");

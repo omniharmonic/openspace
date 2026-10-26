@@ -18,6 +18,25 @@ export const previewRoutes = new Hono<AppEnv>();
 
 const BEHAVIORS_BASE = "/_os/behaviors";
 
+/**
+ * Rendered site pages are owner content served from the Hub's origin. A CSP sandbox without
+ * `allow-same-origin` gives them an opaque origin, so they can never read Hub cookies or call
+ * credentialed Hub APIs, while still running behaviors, opening links and submitting forms.
+ */
+export const PREVIEW_CSP = "sandbox allow-scripts allow-popups allow-forms";
+
+for (const prefix of ["/s/*", "/p/*", "/t/*"]) {
+  previewRoutes.use(prefix, async (c, next) => {
+    // Dev preview only: with real GitHub, sites are served by Pages (and reading every file per
+    // request would be too slow until Task 15's DraftRoom caching).
+    if (!c.var.config.useDevGitHub) return c.notFound();
+    await next();
+    c.header("Content-Security-Policy", PREVIEW_CSP);
+    c.header("X-Content-Type-Options", "nosniff");
+    c.header("Referrer-Policy", "no-referrer");
+  });
+}
+
 function htmlPage(c: Context<AppEnv>, status: 401 | 403 | 404, title: string, message: string) {
   return c.html(
     `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(title)}</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:560px;margin:15vh auto;padding:0 16px;color:#1d1d1f}</style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(message)}</p></body></html>`,
@@ -104,6 +123,7 @@ previewRoutes.get(`${BEHAVIORS_BASE}/:file`, async (c) => {
   if (source === null) return c.notFound();
   return c.body(source, 200, {
     "Content-Type": "text/javascript; charset=utf-8",
+    "X-Content-Type-Options": "nosniff",
     "Cache-Control": "public, max-age=300",
   });
 });

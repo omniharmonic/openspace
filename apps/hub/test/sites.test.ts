@@ -5,6 +5,7 @@ import { createApp } from "../src/app";
 import { DevGitHubAccess } from "../src/github/dev";
 import { GitHubApiError } from "../src/github/types";
 import { bytesToBase64 } from "../src/lib/crypto";
+import { loadSiteDocument } from "../src/services/site-files";
 import { slugifyRepoName } from "../src/services/sites";
 import { basicTemplate } from "../src/templates/basic";
 import { call, cookieFrom, devLogin } from "./helpers";
@@ -171,6 +172,11 @@ describe("sites API (dev GitHub)", () => {
     // The published site is served by the dev preview without signing in.
     const live = await call(app, `/s/${site.id}/`);
     expect(live.status).toBe(200);
+    // Owner content on the Hub origin is sandboxed (opaque origin: no Hub cookies or APIs).
+    expect(live.headers.get("content-security-policy")).toBe(
+      "sandbox allow-scripts allow-popups allow-forms",
+    );
+    expect(live.headers.get("x-content-type-options")).toBe("nosniff");
     const html = await live.text();
     expect(html).toContain("<title>Home — Maya Yoga</title>");
     expect(html).toContain("Slow, grounded yoga in Boulder.");
@@ -183,6 +189,10 @@ describe("sites API (dev GitHub)", () => {
     expect((await call(app, `/p/${site.id}/`)).status).toBe(401);
     const draft = await call(app, `/p/${site.id}/`, { cookie });
     expect(draft.status).toBe(200);
+    expect(draft.headers.get("content-security-policy")).toContain("sandbox");
+    expect(draft.headers.get("content-security-policy")).not.toContain("allow-same-origin");
+    const notFoundPage = await call(app, `/s/${site.id}/missing`);
+    expect(notFoundPage.headers.get("content-security-policy")).toContain("sandbox");
     expect(draft.headers.get("cache-control")).toBe("no-store");
     expect(await draft.text()).toContain("Draft preview");
     const stranger = await devLogin(app, "Stranger");
@@ -396,6 +406,147 @@ describe("sites API (dev GitHub)", () => {
     expect((await call(app, `/s/${site.id}/`)).status).toBe(200);
   });
 
+  it("resumes setup after a failure creating the repo", async () => {
+    let failCreate = true;
+    const app = createApp({
+      services: {
+        github: (_ctx, sv) => {
+          const dev = new DevGitHubAccess(sv.db, { pagesUrl: () => "http://localhost:8787/s/x/" });
+          const create = dev.createRepoFromTemplate.bind(dev);
+          dev.createRepoFromTemplate = async (input) => {
+            if (failCreate) throw new GitHubApiError("GitHub is down", 503);
+            return create(input);
+          };
+          return dev;
+        },
+      },
+    });
+    const cookie = await devLogin(app, "Retry One");
+    const png = new Uint8Array([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52, 0, 0, 0,
+      4, 0, 0, 0, 4,
+    ]);
+    const { site } = await create(app, cookie, {
+      template: "basic",
+      look: "bold",
+      name: "Second Try",
+      tagline: "Persistence pays.",
+      brandColor: "#123456",
+      logo: `data:image/png;base64,${bytesToBase64(png)}`,
+    });
+    expect(site.status).toBe("failed");
+    const gh = new DevGitHubAccess(env.HUB_DB);
+    const repo = { owner: "retry-one", name: "second-try" };
+    expect(await gh.getRepo(repo)).toBeNull();
+
+    failCreate = false;
+    const retry = await call(app, `/api/sites/${site.id}/publish`, { method: "POST", cookie });
+    expect(await retry.json()).toMatchObject({ status: "live", statusDetail: null });
+    // The repo was created from the stored setup: same look, tagline, color and logo.
+    const doc = loadSiteDocument(await gh.readFiles(repo, "main", { textOnly: true }));
+    expect(doc.config.siteId).toBe(site.id);
+    expect(doc.site.tagline).toBe("Persistence pays.");
+    expect(doc.styles.choices.pairing).toBe("space-grotesk-inter");
+    expect(doc.styles.choices.palette.brand).toBe("#123456");
+    const logoPath = doc.site.logo?.src as string;
+    expect((await gh.readFiles(repo, "main"))[logoPath]).toBe(bytesToBase64(png));
+    expect(await gh.getRef(repo, "os/draft")).toBe(await gh.getRef(repo, "main"));
+  });
+
+  it("resumes setup after a failure committing the initial content", async () => {
+    let failCommit = true;
+    const app = createApp({
+      services: {
+        github: (_ctx, sv) => {
+          const dev = new DevGitHubAccess(sv.db, { pagesUrl: () => "http://localhost:8787/s/x/" });
+          const create = dev.createRepoFromTemplate.bind(dev);
+          dev.createRepoFromTemplate = async (input) => {
+            if (!failCommit) return create(input);
+            // Like GitHub: the repo exists (auto-init README) but the content commit failed.
+            await create({ ...input, files: { "README.md": "# New repo\n" } });
+            throw new GitHubApiError("Commit failed", 502);
+          };
+          return dev;
+        },
+      },
+    });
+    const cookie = await devLogin(app, "Retry Two");
+    const { site } = await create(app, cookie, { template: "basic", name: "Half Done" });
+    expect(site.status).toBe("failed");
+    const gh = new DevGitHubAccess(env.HUB_DB);
+    const repo = { owner: "retry-two", name: "half-done" };
+    expect(await gh.readFile(repo, "openspace.json", "main")).toBeNull();
+    expect(await gh.getRef(repo, "os/draft")).toBeNull();
+
+    failCommit = false;
+    const retry = await call(app, `/api/sites/${site.id}/publish`, { method: "POST", cookie });
+    expect(await retry.json()).toMatchObject({ status: "live" });
+    const files = await gh.readFiles(repo, "main");
+    expect(files["README.md"]).toBe("# New repo\n");
+    expect(JSON.parse(files["openspace.json"] as string).siteId).toBe(site.id);
+    expect(await gh.getRef(repo, "os/draft")).toBe(await gh.getRef(repo, "main"));
+    // Publishing again is a no-op for setup (no duplicate content commit).
+    await call(app, `/api/sites/${site.id}/publish`, { method: "POST", cookie });
+    const log = await gh.listCommits(repo, { ref: "main" });
+    expect(log.map((c) => c.message)).toEqual(["Set up Half Done", "Create Half Done"]);
+  });
+
+  it("retries with the next name when a concurrent create claims the repo name", async () => {
+    let raced = false;
+    const app = createApp({
+      services: {
+        github: (ctx, sv) => {
+          const dev = new DevGitHubAccess(sv.db);
+          const getRepo = dev.getRepo.bind(dev);
+          dev.getRepo = async (repo) => {
+            if (!raced && repo.name === "racy" && ctx.user) {
+              raced = true;
+              // Another request claims "racy" between our availability check and our insert.
+              await sv.db
+                .prepare(
+                  "INSERT INTO sites (id, owner_id, name, repo, template_id, template_version, created_at, updated_at) VALUES ('st_0therrace0', ?, 'Racy', ?, 'basic', '1.0.0', 0, 0)",
+                )
+                .bind(ctx.user.id, `${repo.owner}/racy`)
+                .run();
+            }
+            return getRepo(repo);
+          };
+          return dev;
+        },
+      },
+    });
+    const cookie = await devLogin(app, "Racer");
+    const { res, site } = await create(app, cookie, { template: "basic", name: "Racy" });
+    expect(res.status).toBe(201);
+    expect(site.repo).toBe("racer/racy-2");
+  });
+
+  it("maps invalid repository names to 400", async () => {
+    const app = createApp();
+    const cookie = await devLogin(app, "Broken");
+    const { site } = await create(app, cookie, { template: "basic", name: "Broken" });
+    await env.HUB_DB.prepare("UPDATE sites SET repo = 'no-slash' WHERE id = ?").bind(site.id).run();
+    const res = await call(app, `/api/sites/${site.id}/document`, { cookie });
+    expect(res.status).toBe(400);
+    expect(((await res.json()) as { error: { code: string } }).error.code).toBe("bad_request");
+  });
+
+  it("transfers immediately in dev mode", async () => {
+    const app = createApp();
+    const pro = await devLogin(app, "Dev Pro");
+    await devLogin(app, "Dev Client");
+    const { site } = await create(app, pro, { template: "basic", name: "Handoff" });
+    const res = await call(app, `/api/sites/${site.id}/transfer`, {
+      method: "POST",
+      cookie: pro,
+      json: { to: "dev-client" },
+    });
+    expect(await res.json()).toMatchObject({
+      status: "complete",
+      site: { repo: "dev-client/handoff", role: "designer", transfer: null },
+    });
+  });
+
   it("records a failed site when GitHub fails mid-way", async () => {
     const app = createApp({
       services: {
@@ -463,6 +614,7 @@ describe("sites API (GitHub App, mocked GitHub)", () => {
     const HEAD = "a".repeat(40);
     const COMMIT = "b".repeat(40);
     let mainHead = HEAD;
+    let clientAccepted = false;
     const gh = mockFetch([
       [
         "POST",
@@ -491,6 +643,36 @@ describe("sites API (GitHub App, mocked GitHub)", () => {
       ],
       ["GET", /^\/repos\/maya\/maya-yoga$/, () => status(404, { message: "Not Found" })],
       [
+        "GET",
+        /^\/repos\/client\/maya-yoga$/,
+        () =>
+          clientAccepted
+            ? {
+                name: "maya-yoga",
+                full_name: "client/maya-yoga",
+                owner: { login: "client" },
+                default_branch: "main",
+                html_url: "https://github.com/client/maya-yoga",
+                private: false,
+                archived: false,
+              }
+            : status(404, { message: "Not Found" }),
+      ],
+      [
+        "POST",
+        /^\/repos\/maya\/maya-yoga\/transfer$/,
+        () =>
+          status(202, {
+            name: "maya-yoga",
+            full_name: "maya/maya-yoga",
+            owner: { login: "maya" },
+            default_branch: "main",
+            html_url: "https://github.com/maya/maya-yoga",
+            private: false,
+            archived: false,
+          }),
+      ],
+      [
         "POST",
         /^\/user\/repos$/,
         () =>
@@ -505,6 +687,7 @@ describe("sites API (GitHub App, mocked GitHub)", () => {
           }),
       ],
       ["GET", /\/git\/ref\/heads\/main$/, () => ({ object: { sha: mainHead } })],
+      ["GET", /\/git\/ref\/heads\/os\/draft$/, () => status(404, { message: "Not Found" })],
       [
         "POST",
         /^\/graphql$/,
@@ -557,7 +740,12 @@ describe("sites API (GitHub App, mocked GitHub)", () => {
       githubEnv,
     );
     const state = new URL(start.headers.get("location") as string).searchParams.get("state");
-    const cb = await call(app, `/auth/github/callback?code=c&state=${state}`, {}, githubEnv);
+    const cb = await call(
+      app,
+      `/auth/github/callback?code=c&state=${state}`,
+      { cookie: cookieFrom(start, "os_oauth_state") },
+      githubEnv,
+    );
     expect(cb.status).toBe(302);
     const loc = cb.headers.get("location") as string;
     expect(loc).toMatch(/^https:\/\/studio\.openspace\.test\/sites\/st_[0-9a-z]{10}\?welcome=1$/);
@@ -596,5 +784,55 @@ describe("sites API (GitHub App, mocked GitHub)", () => {
       .bind(siteId)
       .first<{ installation_id: number }>();
     expect(row?.installation_id).toBe(77);
+
+    // With real GitHub, sites are served by Pages: the Hub's dev preview is off.
+    expect((await call(app, `/s/${siteId}/`, {}, githubEnv)).status).toBe(404);
+    expect((await call(app, "/t/basic/", {}, githubEnv)).status).toBe(404);
+
+    // Transfers need the recipient to accept on GitHub: pending, nothing changes yet.
+    await env.HUB_DB.prepare(
+      "INSERT INTO users (id, github_id, login, name, is_dev, created_at, updated_at) VALUES ('usr_client', 9002, 'client', 'Client', 0, 0, 0)",
+    ).run();
+    const pending = await call(
+      app,
+      `/api/sites/${siteId}/transfer`,
+      { method: "POST", cookie, json: { to: "client" } },
+      githubEnv,
+    );
+    expect(pending.status).toBe(200);
+    expect(await pending.json()).toMatchObject({
+      status: "pending",
+      site: {
+        repo: "maya/maya-yoga",
+        role: "owner",
+        transfer: { to: "client", status: "pending" },
+      },
+    });
+    expect(gh.calls.find((c) => c.path.endsWith("/transfer"))?.body).toEqual({
+      new_owner: "client",
+    });
+    const again = await call(
+      app,
+      `/api/sites/${siteId}/transfer`,
+      { method: "POST", cookie, json: { to: "client" } },
+      githubEnv,
+    );
+    expect(again.status).toBe(409);
+    const roles = await env.HUB_DB.prepare("SELECT user_id, role FROM site_roles WHERE site_id = ?")
+      .bind(siteId)
+      .all();
+    expect(roles.results).toHaveLength(1);
+
+    // Once GitHub shows the repo under the recipient, the next status poll completes it.
+    clientAccepted = true;
+    const done = (await (
+      await call(app, `/api/sites/${siteId}`, { cookie }, githubEnv)
+    ).json()) as SiteJson & { transfer: unknown };
+    expect(done).toMatchObject({
+      repo: "client/maya-yoga",
+      role: "designer",
+      owner: "client",
+      transfer: null,
+    });
   });
 });

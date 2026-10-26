@@ -11,6 +11,7 @@ import {
   type FileEncoding,
   type GitHubAccess,
   GitHubConflictError,
+  GitHubInputError,
   GitHubNotFoundError,
   normalizeRef,
   type PullRequestInput,
@@ -292,7 +293,7 @@ export class DevGitHubAccess implements GitHubAccess {
     const blobInserts: D1PreparedStatement[] = [];
     for (const change of input.changes) {
       if (!validPath(change.path))
-        throw new Error(`Invalid file path ${JSON.stringify(change.path)}`);
+        throw new GitHubInputError(`Invalid file path ${JSON.stringify(change.path)}`);
       if (change.content === null) {
         delete tree[change.path];
         continue;

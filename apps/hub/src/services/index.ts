@@ -9,6 +9,8 @@ import { BuiltinTemplateSource, type TemplateSource } from "./templates";
 /** Per-request service container (no module-level request state). */
 export interface Services {
   db: D1Database;
+  /** R2: form uploads, exports, pending site-setup assets (logos). */
+  uploads: R2Bucket;
   config: HubConfig;
   templates: TemplateSource;
   renderer: PageRenderer;
@@ -35,6 +37,7 @@ export function createServices(
   const now = overrides.now ?? Date.now;
   const services: Services = {
     db: env.HUB_DB,
+    uploads: env.UPLOADS,
     config,
     templates: overrides.templates ?? new BuiltinTemplateSource(),
     // TODO(renderer): swap for an adapter over @openspace/renderer's renderPageHtml (ADR-3).

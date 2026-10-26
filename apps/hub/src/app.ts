@@ -32,6 +32,8 @@ export function createApp(options: CreateAppOptions = {}) {
     c.set("config", config);
     c.set("log", log);
     c.set("services", createServices(c.env, config, options.services));
+    if (config.devModeRefused)
+      log.warn("DEV_MODE ignored: HUB_URL is https and ALLOW_DEV_MODE is not set");
     const started = Date.now();
     await next();
     c.header("X-Request-Id", requestId);

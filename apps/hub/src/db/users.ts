@@ -21,6 +21,8 @@ export interface UserRow {
   is_dev: number;
   refresh_token_enc: string | null;
   refresh_token_expires_at: number | null;
+  access_token_enc: string | null;
+  access_token_expires_at: number | null;
   created_at: number;
   updated_at: number;
 }
@@ -82,8 +84,6 @@ export async function upsertGitHubUser(
     name: string | null;
     email: string | null;
     avatarUrl: string | null;
-    refreshTokenEnc: string | null;
-    refreshTokenExpiresAt: number | null;
   },
   now = Date.now(),
 ): Promise<User> {
@@ -94,53 +94,18 @@ export async function upsertGitHubUser(
   if (existing) {
     await db
       .prepare(
-        "UPDATE users SET login = ?, name = ?, email = COALESCE(?, email), avatar_url = ?, refresh_token_enc = ?, refresh_token_expires_at = ?, updated_at = ? WHERE id = ?",
+        "UPDATE users SET login = ?, name = ?, email = COALESCE(?, email), avatar_url = ?, updated_at = ? WHERE id = ?",
       )
-      .bind(
-        input.login,
-        input.name,
-        input.email,
-        input.avatarUrl,
-        input.refreshTokenEnc,
-        input.refreshTokenExpiresAt,
-        now,
-        existing.id,
-      )
+      .bind(input.login, input.name, input.email, input.avatarUrl, now, existing.id)
       .run();
     return toUser((await getUserRow(db, existing.id)) as UserRow);
   }
   const id = randomId("usr");
   await db
     .prepare(
-      "INSERT INTO users (id, github_id, login, name, email, avatar_url, is_dev, refresh_token_enc, refresh_token_expires_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)",
+      "INSERT INTO users (id, github_id, login, name, email, avatar_url, is_dev, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)",
     )
-    .bind(
-      id,
-      input.githubId,
-      input.login,
-      input.name,
-      input.email,
-      input.avatarUrl,
-      input.refreshTokenEnc,
-      input.refreshTokenExpiresAt,
-      now,
-      now,
-    )
+    .bind(id, input.githubId, input.login, input.name, input.email, input.avatarUrl, now, now)
     .run();
   return toUser((await getUserRow(db, id)) as UserRow);
-}
-
-export async function storeRefreshToken(
-  db: D1Database,
-  userId: string,
-  enc: string | null,
-  expiresAt: number | null,
-  now = Date.now(),
-): Promise<void> {
-  await db
-    .prepare(
-      "UPDATE users SET refresh_token_enc = ?, refresh_token_expires_at = ?, updated_at = ? WHERE id = ?",
-    )
-    .bind(enc, expiresAt, now, userId)
-    .run();
 }

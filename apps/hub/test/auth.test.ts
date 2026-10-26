@@ -148,6 +148,13 @@ describe("CORS and origin checks", () => {
       headers: { Origin: "https://evil.example" },
     });
     expect(forged.status).toBe(403);
+    // The Hub's own origin serves owner content, so it is not a trusted Studio origin.
+    const fromHub = await call(app, "/auth/dev/login", {
+      method: "POST",
+      json: { name: "x" },
+      headers: { Origin: "http://localhost:8787" },
+    });
+    expect(fromHub.status).toBe(403);
     const ok = await call(app, "/auth/dev/login", {
       method: "POST",
       json: { name: "x" },
@@ -160,6 +167,7 @@ describe("CORS and origin checks", () => {
 describe("GitHub sign-in (real flow, mocked GitHub)", () => {
   let githubEnv: Record<string, unknown>;
   const encKey = bytesToBase64(crypto.getRandomValues(new Uint8Array(32)));
+  const HOUR = 60 * 60 * 1000;
 
   beforeAll(async () => {
     const { pkcs8 } = await generateAppKey();
@@ -176,23 +184,30 @@ describe("GitHub sign-in (real flow, mocked GitHub)", () => {
     };
   });
 
-  it("start then callback creates the user, stores an encrypted refresh token and a session", async () => {
-    let refreshCount = 0;
-    const gh = mockFetch([
+  /** A fake GitHub OAuth server with real refresh-token rotation semantics. */
+  function fakeGitHub(opts: { revoked?: boolean } = {}) {
+    let current = "ghr_0";
+    let n = 0;
+    const refreshes: string[] = [];
+    const mock = mockFetch([
       [
         "POST",
         /^github\.com\/login\/oauth\/access_token$/,
         (c) => {
           const body = c.body as Record<string, string>;
           if (body.grant_type === "refresh_token") {
-            refreshCount++;
-            expect(body.refresh_token).toBe(
-              refreshCount === 1 ? "ghr_first" : `ghr_rotated_${refreshCount - 1}`,
-            );
+            refreshes.push(body.refresh_token as string);
+            if (opts.revoked || body.refresh_token !== current)
+              return {
+                error: "bad_refresh_token",
+                error_description: "The refresh token passed is incorrect or expired.",
+              };
+            n++;
+            current = `ghr_${n}`;
             return {
-              access_token: `ghu_refreshed_${refreshCount}`,
+              access_token: `ghu_${n}`,
               expires_in: 28800,
-              refresh_token: `ghr_rotated_${refreshCount}`,
+              refresh_token: current,
               refresh_token_expires_in: 15811200,
             };
           }
@@ -202,9 +217,9 @@ describe("GitHub sign-in (real flow, mocked GitHub)", () => {
             client_secret: "client-secret",
           });
           return {
-            access_token: "ghu_first",
+            access_token: "ghu_0",
             expires_in: 28800,
-            refresh_token: "ghr_first",
+            refresh_token: current,
             refresh_token_expires_in: 15811200,
           };
         },
@@ -221,70 +236,182 @@ describe("GitHub sign-in (real flow, mocked GitHub)", () => {
         }),
       ],
     ]);
-    const app = createApp({ services: { fetch: gh.fetch } });
+    return { mock, refreshes, current: () => current };
+  }
 
-    const start = await call(app, "/auth/github/start?template=basic&name=Maya", {}, githubEnv);
-    expect(start.status).toBe(302);
-    const loc = new URL(start.headers.get("location") as string);
-    expect(loc.origin + loc.pathname).toBe("https://github.com/login/oauth/authorize");
-    expect(loc.searchParams.get("client_id")).toBe("Iv1.client");
-    expect(loc.searchParams.get("redirect_uri")).toBe(
+  async function start(app: ReturnType<typeof createApp>) {
+    const res = await call(
+      app,
+      "/auth/github/start?template=basic&name=Maya&return_to=/sites",
+      {},
+      githubEnv,
+    );
+    expect(res.status).toBe(302);
+    const loc = new URL(res.headers.get("location") as string);
+    const state = loc.searchParams.get("state") as string;
+    const setCookie = res.headers.get("set-cookie") ?? "";
+    return { res, loc, state, setCookie, browser: cookieFrom(res, "os_oauth_state") };
+  }
+
+  async function signIn(app: ReturnType<typeof createApp>) {
+    const s = await start(app);
+    // Only sign in here (site creation is covered in the sites tests).
+    await env.HUB_DB.prepare("UPDATE oauth_states SET intent_json = '{}' WHERE state = ?")
+      .bind(s.state)
+      .run();
+    const cb = await call(
+      app,
+      `/auth/github/callback?code=the-code&state=${s.state}`,
+      { cookie: s.browser },
+      githubEnv,
+    );
+    expect(cb.headers.get("location")).toBe("https://studio.openspace.test/sites");
+    return cookieFrom(cb);
+  }
+
+  it("binds the OAuth state to the browser (login CSRF) and stores encrypted tokens", async () => {
+    const gh = fakeGitHub();
+    const app = createApp({ services: { fetch: gh.mock.fetch } });
+    const s = await start(app);
+    expect(s.loc.origin + s.loc.pathname).toBe("https://github.com/login/oauth/authorize");
+    expect(s.loc.searchParams.get("client_id")).toBe("Iv1.client");
+    expect(s.loc.searchParams.get("redirect_uri")).toBe(
       "https://hub.openspace.test/auth/github/callback",
     );
-    const state = loc.searchParams.get("state") as string;
-    // Intent without template so the callback only signs in (site creation is covered in sites tests).
-    await env.HUB_DB.prepare("UPDATE oauth_states SET intent_json = '{}' WHERE state = ?")
-      .bind(state)
-      .run();
+    expect(s.setCookie).toMatch(/^os_oauth_state=[\w-]+;/);
+    expect(s.setCookie).toContain("HttpOnly");
+    expect(s.setCookie).toContain("SameSite=Lax");
+    expect(s.setCookie).toContain("Path=/auth/github");
+    expect(s.setCookie).toContain("Max-Age=600");
 
-    const bad = await call(app, "/auth/github/callback?code=x&state=forged", {}, githubEnv);
-    expect(bad.headers.get("location")).toBe(
-      "https://studio.openspace.test/?signin=failed&reason=expired",
+    // An attacker's callback URL opened in the victim's browser (no state cookie) is refused…
+    const noCookie = await call(
+      app,
+      `/auth/github/callback?code=the-code&state=${s.state}`,
+      {},
+      githubEnv,
     );
+    expect(noCookie.headers.get("location")).toBe(
+      "https://studio.openspace.test/?signin=failed&reason=state_mismatch",
+    );
+    // …as is a cookie for a different sign-in attempt.
+    const other = await start(app);
+    const swapped = await call(
+      app,
+      `/auth/github/callback?code=the-code&state=${s.state}`,
+      { cookie: other.browser },
+      githubEnv,
+    );
+    expect(swapped.headers.get("location")).toContain("reason=state_mismatch");
+    expect(gh.mock.calls.filter((c) => c.path.includes("access_token"))).toHaveLength(0);
 
-    const cb = await call(app, `/auth/github/callback?code=the-code&state=${state}`, {}, githubEnv);
+    const forged = await call(
+      app,
+      "/auth/github/callback?code=x&state=forged",
+      { cookie: "os_oauth_state=forged" },
+      githubEnv,
+    );
+    expect(forged.headers.get("location")).toContain("reason=expired");
+
+    const cb = await call(
+      app,
+      `/auth/github/callback?code=the-code&state=${other.state}`,
+      { cookie: other.browser },
+      githubEnv,
+    );
     expect(cb.status).toBe(302);
-    expect(cb.headers.get("location")).toBe("https://studio.openspace.test/sites");
-    const setCookie = cb.headers.get("set-cookie") ?? "";
-    expect(setCookie).toContain("Secure");
-    const cookie = cookieFrom(cb);
+    // The site intent (template=basic) was carried; return_to was resolved against Studio.
+    const setCookies = cb.headers.getSetCookie();
+    expect(setCookies.some((c) => /^os_oauth_state=;.*Max-Age=0/.test(c))).toBe(true);
+    const session = setCookies.find((c) => c.startsWith("os_session="));
+    expect(session).toContain("Secure");
 
     const user = await env.HUB_DB.prepare("SELECT * FROM users WHERE github_id = 9001").first<
       Record<string, string>
     >();
     expect(user?.login).toBe("MayaLin");
     expect(user?.refresh_token_enc).toMatch(/^v1\./);
-    expect(user?.refresh_token_enc).not.toContain("ghr_first");
-    expect(await decryptSecret(encKey, user?.refresh_token_enc as string, user?.id)).toBe(
-      "ghr_first",
-    );
+    expect(JSON.stringify(user)).not.toContain("ghr_0");
+    expect(JSON.stringify(user)).not.toContain("ghu_0");
+    expect(await decryptSecret(encKey, user?.refresh_token_enc as string, user?.id)).toBe("ghr_0");
+    expect(
+      await decryptSecret(encKey, user?.access_token_enc as string, `${user?.id}:access`),
+    ).toBe("ghu_0");
 
     // State is single-use.
     const replay = await call(
       app,
-      `/auth/github/callback?code=the-code&state=${state}`,
-      {},
+      `/auth/github/callback?code=the-code&state=${other.state}`,
+      { cookie: other.browser },
       githubEnv,
     );
     expect(replay.headers.get("location")).toContain("reason=expired");
+  });
 
-    // /auth/token refreshes (rotating the stored refresh token) and returns a short-lived token.
-    const t1 = await call(app, "/auth/token", { method: "POST", cookie }, githubEnv);
-    expect(await t1.json()).toMatchObject({ mode: "github", token: "ghu_refreshed_1" });
-    const t2 = await call(app, "/auth/token", { method: "POST", cookie }, githubEnv);
-    expect(await t2.json()).toMatchObject({ token: "ghu_refreshed_2" });
-    const after = await env.HUB_DB.prepare(
-      "SELECT refresh_token_enc, id FROM users WHERE github_id = 9001",
-    ).first<Record<string, string>>();
-    expect(await decryptSecret(encKey, after?.refresh_token_enc as string, after?.id)).toBe(
-      "ghr_rotated_2",
-    );
-
-    const me = await call(app, "/api/me", { cookie }, githubEnv);
-    expect(await me.json()).toMatchObject({
-      auth: { github: true, dev: false },
-      devMode: false,
-      github: { configured: true, emulated: false },
+  it("reuses the cached access token, then refreshes (rotating) near expiry", async () => {
+    const gh = fakeGitHub();
+    let now = Date.UTC(2026, 9, 26, 9);
+    const app = createApp({ services: { fetch: gh.mock.fetch, now: () => now } });
+    const cookie = await signIn(app);
+    const t0 = await call(app, "/auth/token", { method: "POST", cookie }, githubEnv);
+    expect(await t0.json()).toEqual({
+      mode: "github",
+      token: "ghu_0",
+      expiresAt: new Date(now + 8 * HOUR).toISOString(),
     });
+    expect(gh.refreshes).toEqual([]);
+    now += 8 * HOUR - 4 * 60 * 1000; // within 5 minutes of expiry
+    const t1 = await call(app, "/auth/token", { method: "POST", cookie }, githubEnv);
+    expect(await t1.json()).toMatchObject({ token: "ghu_1" });
+    const t2 = await call(app, "/auth/token", { method: "POST", cookie }, githubEnv);
+    expect(await t2.json()).toMatchObject({ token: "ghu_1" });
+    expect(gh.refreshes).toEqual(["ghr_0"]);
+    const row = await env.HUB_DB.prepare(
+      "SELECT id, refresh_token_enc FROM users WHERE github_id = 9001",
+    ).first<Record<string, string>>();
+    expect(await decryptSecret(encKey, row?.refresh_token_enc as string, row?.id)).toBe("ghr_1");
+    const me = await call(app, "/api/me", { cookie }, githubEnv);
+    expect(await me.json()).toMatchObject({ auth: { github: true, dev: false }, devMode: false });
+  });
+
+  it("serializes concurrent refreshes: one rotation, everyone gets a token", async () => {
+    const gh = fakeGitHub();
+    let now = Date.UTC(2026, 9, 26, 9);
+    const app = createApp({ services: { fetch: gh.mock.fetch, now: () => now } });
+    const cookie = await signIn(app);
+    now += 9 * HOUR; // cached token expired
+    const results = await Promise.all(
+      Array.from({ length: 4 }, () =>
+        call(app, "/auth/token", { method: "POST", cookie }, githubEnv),
+      ),
+    );
+    const bodies = (await Promise.all(results.map((r) => r.json()))) as Array<{ token: string }>;
+    expect(results.map((r) => r.status)).toEqual([200, 200, 200, 200]);
+    expect(new Set(bodies.map((b) => b.token))).toEqual(new Set(["ghu_1"]));
+    expect(gh.current()).toBe("ghr_1"); // rotated exactly once
+    const row = await env.HUB_DB.prepare(
+      "SELECT id, refresh_token_enc FROM users WHERE github_id = 9001",
+    ).first<Record<string, string>>();
+    expect(await decryptSecret(encKey, row?.refresh_token_enc as string, row?.id)).toBe("ghr_1");
+  });
+
+  it("maps a revoked refresh token to 401 github_reauth_required and forgets the tokens", async () => {
+    const gh = fakeGitHub({ revoked: true });
+    let now = Date.UTC(2026, 9, 26, 9);
+    const app = createApp({ services: { fetch: gh.mock.fetch, now: () => now } });
+    const cookie = await signIn(app);
+    now += 9 * HOUR;
+    const res = await call(app, "/auth/token", { method: "POST", cookie }, githubEnv);
+    expect(res.status).toBe(401);
+    expect(((await res.json()) as { error: { code: string } }).error.code).toBe(
+      "github_reauth_required",
+    );
+    const row = await env.HUB_DB.prepare(
+      "SELECT refresh_token_enc, access_token_enc FROM users WHERE github_id = 9001",
+    ).first();
+    expect(row).toEqual({ refresh_token_enc: null, access_token_enc: null });
+    const again = await call(app, "/auth/token", { method: "POST", cookie }, githubEnv);
+    expect(again.status).toBe(401);
+    expect(gh.refreshes).toHaveLength(1);
   });
 });

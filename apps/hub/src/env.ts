@@ -16,6 +16,8 @@ export interface HubSecrets {
   TOKEN_ENC_KEY?: string;
   /** Owner of template repositories when generating from GitHub templates (optional). */
   GITHUB_TEMPLATE_OWNER?: string;
+  /** "true" to allow DEV_MODE on an https Hub (e.g. a public demo). Refused otherwise. */
+  ALLOW_DEV_MODE?: string;
 }
 
 export type HubBindings = Env & HubSecrets;
@@ -33,6 +35,8 @@ export type LogLevel = "debug" | "info" | "warn" | "error";
 export interface HubConfig {
   /** DEV_MODE=true: DevGitHubAccess, /auth/dev/login, relaxed cookies on http. */
   devMode: boolean;
+  /** DEV_MODE was set but refused (https Hub without ALLOW_DEV_MODE). */
+  devModeRefused: boolean;
   /** Public base URL of this Hub, without trailing slash. */
   hubUrl: string;
   /** Studio origin allowed for credentialed CORS. */
@@ -50,8 +54,14 @@ export interface HubConfig {
 const trimSlash = (s: string) => s.replace(/\/+$/, "");
 
 export function readConfig(env: HubBindings): HubConfig {
-  const devMode = String(env.DEV_MODE ?? "").toLowerCase() === "true";
   const hubUrl = trimSlash(env.HUB_URL || "http://localhost:8787");
+  const devRequested = String(env.DEV_MODE ?? "").toLowerCase() === "true";
+  // Dev mode (name-only sign-in) on a public https Hub is almost certainly a misconfiguration.
+  const devModeRefused =
+    devRequested &&
+    hubUrl.startsWith("https://") &&
+    String(env.ALLOW_DEV_MODE ?? "").toLowerCase() !== "true";
+  const devMode = devRequested && !devModeRefused;
   const github =
     env.GITHUB_APP_ID &&
     env.GITHUB_APP_PRIVATE_KEY &&
@@ -68,6 +78,7 @@ export function readConfig(env: HubBindings): HubConfig {
   const level = (env.LOG_LEVEL || "info").toLowerCase();
   return {
     devMode,
+    devModeRefused,
     hubUrl,
     studioOrigin: trimSlash(env.STUDIO_ORIGIN || "http://localhost:5173"),
     github,
