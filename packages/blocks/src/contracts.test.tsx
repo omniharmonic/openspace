@@ -1,18 +1,13 @@
 // @vitest-environment happy-dom
 import { BlockView, RenderContext, type RenderMode } from "@openspace/renderer";
+import { type BehaviorFile, behaviorSourcePath } from "@openspace/renderer/node";
 import type { AnyBlockDefinition, Block, SiteDocument } from "@openspace/schema";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-// The renderer's real behavior modules, run against this library's markup.
-import accordionBehavior from "../../renderer/src/behaviors/accordion";
-import carouselBehavior from "../../renderer/src/behaviors/carousel";
-import formBehavior from "../../renderer/src/behaviors/form";
-import lightboxBehavior from "../../renderer/src/behaviors/lightbox";
-import newsletterBehavior from "../../renderer/src/behaviors/newsletter";
-import videoLiteBehavior from "../../renderer/src/behaviors/video-lite";
 import { HUB, page, SITE_ID, siteWith, stackSection } from "./__fixtures__/site";
 import {
   accordionBlock,
+  CODE_SANDBOX,
   embedBlock,
   FormSecurityContext,
   formBlock,
@@ -23,15 +18,53 @@ import {
   parseVideoUrl,
   planTiles,
   registerAll,
+  SAME_ORIGIN_URL_SANDBOX,
   shapeBlock,
   shareButtonsBlock,
+  snippetColors,
+  snippetDocument,
   socialLinksBlock,
   tileCoords,
+  tileUrlTemplate,
+  URL_SANDBOX,
   videoBlock,
 } from "./index";
 
-beforeAll(() => registerAll());
-afterAll(() => vi.unstubAllGlobals());
+/**
+ * The renderer's real behavior modules, run against this library's markup. Loaded through the
+ * renderer's public `./node` export (`behaviorSourcePath`) — the package has no browser-side
+ * export for behavior *source* modules (`./behaviors/*` points at built `dist/` files).
+ */
+type Behavior = (el: HTMLElement) => void;
+const behaviors: Partial<Record<BehaviorFile, Behavior>> = {};
+const behavior = (name: BehaviorFile): Behavior => {
+  const fn = behaviors[name];
+  if (!fn) throw new Error(`behavior ${name} not loaded`);
+  return fn;
+};
+
+const consoleError = console.error;
+beforeAll(async () => {
+  registerAll();
+  for (const name of [
+    "accordion",
+    "carousel",
+    "form",
+    "lightbox",
+    "newsletter",
+    "video-lite",
+  ] as const)
+    behaviors[name] = ((await import(behaviorSourcePath(name))) as { default: Behavior }).default;
+  // happy-dom reports every (deliberately disabled) iframe navigation; keep test output clean.
+  console.error = (...args: unknown[]) => {
+    if (String(args[0]).includes("Iframe page loading is disabled")) return;
+    consoleError(...args);
+  };
+});
+afterAll(() => {
+  console.error = consoleError;
+  vi.unstubAllGlobals();
+});
 
 function setup(blocks: Block[]) {
   const p = page("Contact", "contact", [stackSection(blocks)]);
@@ -133,7 +166,20 @@ describe("form block", () => {
               required: true,
               options: ["Yes", "No"],
             },
-            { type: "checkbox", name: "meals", label: "Meals", options: ["Lunch", "Dinner"] },
+            {
+              type: "checkbox",
+              name: "meals",
+              label: "Meals",
+              required: true,
+              options: ["Lunch", "Dinner"],
+            },
+            {
+              type: "checkbox",
+              name: "terms",
+              label: "Agreements",
+              required: true,
+              options: ["I agree to the studio policy"],
+            },
             {
               type: "select",
               name: "workshops",
@@ -154,6 +200,11 @@ describe("form block", () => {
     ).toHaveLength(2);
     expect($("fieldset legend").textContent).toContain("Will you join us?");
     expect(document.querySelectorAll('input[type="checkbox"][name="meals[]"]')).toHaveLength(2);
+    // Required checkbox group: marked for the behavior/Hub; no native `required` (it would
+    // demand every box) unless the group has a single option.
+    expect($('fieldset[data-os-required-group="meals"]').dataset.osMessage).toMatch(/at least one/);
+    expect(document.querySelectorAll('input[name="meals[]"][required]')).toHaveLength(0);
+    expect(document.querySelectorAll('input[name="terms[]"][required]')).toHaveLength(1);
     expect($("select[multiple]").getAttribute("name")).toBe("workshops[]");
     const date = $<HTMLInputElement>('input[type="date"]');
     expect(date.getAttribute("aria-describedby")).toBe(`${date.id}-help ${date.id}-error`);
@@ -166,7 +217,7 @@ describe("form block", () => {
     const form = $<HTMLFormElement>("form");
     const fetch = vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }));
     vi.stubGlobal("fetch", fetch);
-    formBehavior(form);
+    behavior("form")(form);
     form.dispatchEvent(new Event("submit", { cancelable: true }));
     await flush();
     const email = $<HTMLInputElement>('input[name="email"]');
@@ -195,13 +246,17 @@ describe("newsletter block", () => {
     mount([create(newsletterBlock)]);
     const form = $<HTMLFormElement>("form");
     expect(form.getAttribute("action")).toBe(`${HUB}/n/${SITE_ID}/subscribe`);
+    expect($<HTMLInputElement>('input[name="_source"]').value).toBe("/contact/");
+    const anchor = $<HTMLInputElement>('input[name="_anchor"]').value;
+    expect(document.getElementById(anchor)?.textContent).toMatch(/check your inbox/);
+    expect(document.querySelector('input[name="source"]')).toBeNull();
     expect(form.dataset.osBehavior).toBe("newsletter");
     const email = $<HTMLInputElement>('input[type="email"]');
     expect(email.required).toBe(true);
     expect($(`label[for="${email.id}"]`).textContent).toBe("Email address");
     const fetch = vi.fn(async () => new Response("{}", { status: 200 }));
     vi.stubGlobal("fetch", fetch);
-    newsletterBehavior(form);
+    behavior("newsletter")(form);
     email.value = "sam@example.com";
     form.dispatchEvent(new Event("submit", { cancelable: true }));
     await flush();
@@ -233,7 +288,7 @@ describe("accordion block", () => {
       acceptedAnswer: { "@type": "Answer", text: expect.stringContaining("Mats, blocks") },
     });
     vi.stubGlobal("matchMedia", () => ({ matches: true }));
-    accordionBehavior(root);
+    behavior("accordion")(root);
     ($("#" + `${block.id}-q2` + " summary") as HTMLElement).click();
     expect(items[0]?.open).toBe(false);
   });
@@ -259,8 +314,8 @@ describe("gallery block", () => {
       const link = $<HTMLAnchorElement>("a[data-os-lightbox]");
       expect(link.getAttribute("href")).toMatch(/^https:\/\/images\.unsplash\.com\//);
       expect(link.dataset.osCaption).toBeTruthy();
-      carouselBehavior(root);
-      lightboxBehavior(root);
+      behavior("carousel")(root);
+      behavior("lightbox")(root);
     }
   });
 
@@ -316,7 +371,7 @@ describe("video block", () => {
     expect($(".os-video__fallback").getAttribute("href")).toBe(
       "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
     );
-    videoLiteBehavior(root);
+    behavior("video-lite")(root);
     $<HTMLButtonElement>(".os-video__play").click();
     const iframe = $<HTMLIFrameElement>("iframe");
     expect(iframe.getAttribute("src")).toContain("autoplay=1");
@@ -346,6 +401,19 @@ describe("video block", () => {
     expect(video.hasAttribute("data-os-autoplay")).toBe(true);
     expect($("source").getAttribute("src")).toBe("/media/2026/10/studio-tour.mp4");
     expect($("track").getAttribute("kind")).toBe("captions");
+  });
+
+  it("renders nothing at all in production without a video", () => {
+    const fields = videoBlock.create().fields;
+    for (const f of [
+      { ...fields, url: undefined },
+      { ...fields, source: "file" },
+    ]) {
+      mount([create(videoBlock, { fields: f })]);
+      expect(document.querySelector("figure, figcaption, .os-video")).toBeNull();
+      mount([create(videoBlock, { fields: f })], { mode: "preview" });
+      expect($(".os-video--empty").textContent).toBeTruthy();
+    }
   });
 
   it("shows an editing notice for unsupported links, nothing in production", () => {
@@ -379,6 +447,19 @@ describe("map block", () => {
     }
   });
 
+  it("uses a configurable tile host, falling back to OpenStreetMap", () => {
+    expect(tileUrlTemplate(undefined)).toBe("https://tile.openstreetmap.org/{z}/{x}/{y}.png");
+    expect(tileUrlTemplate("http://tiles.example.com/{z}/{x}/{y}.png")).toContain("openstreetmap");
+    expect(tileUrlTemplate("https://tiles.example.com/{z}/{x}.png")).toContain("openstreetmap");
+    const custom = "https://tiles.example.com/osm/{z}/{x}/{y}@2x.png";
+    expect(tileUrlTemplate(custom)).toBe(custom);
+    mount([create(mapBlock, { fields: { ...mapBlock.create().fields, tileServer: custom } })]);
+    for (const img of document.querySelectorAll(".os-map__tiles img"))
+      expect(img.getAttribute("src")).toMatch(
+        /^https:\/\/tiles\.example\.com\/osm\/15\/\d+\/\d+@2x\.png$/,
+      );
+  });
+
   it("renders static tiles, attribution and an Open in Maps link (no API key, no JS)", () => {
     mount([create(mapBlock)]);
     expect(document.querySelectorAll(".os-map__tiles img").length).toBeGreaterThanOrEqual(12);
@@ -397,7 +478,7 @@ describe("map block", () => {
 
 describe("embed block", () => {
   it("sandboxes code snippets in a srcdoc iframe without allow-same-origin", () => {
-    for (const mode of ["editor", "preview", "production"] as const) {
+    for (const mode of ["editor", "preview"] as const) {
       mount([create(embedBlock)], { mode });
       const iframe = $<HTMLIFrameElement>("iframe");
       expect(iframe.getAttribute("srcdoc")).toContain("Paste an embed code");
@@ -407,19 +488,64 @@ describe("embed block", () => {
     }
   });
 
-  it("inlines a snippet only on the published site and only when isolation is off", () => {
+  it("never inlines snippet HTML into the page, in any mode", () => {
     const block = create(embedBlock, {
       fields: {
         ...embedBlock.create().fields,
-        embed: { type: "code", code: "<p id=raw>Hi</p>" },
-        isolate: false,
+        embed: { type: "code", code: "<p id=raw>Hi</p><script>window.pwned=1</script>" },
       },
     });
-    mount([block], { mode: "editor" });
-    expect(document.querySelector("#raw")).toBeNull();
+    for (const mode of ["editor", "preview", "production"] as const) {
+      mount([block], { mode });
+      expect(document.querySelector("#raw")).toBeNull();
+      expect(document.querySelector("script")).toBeNull();
+      const iframe = $<HTMLIFrameElement>("iframe");
+      expect(iframe.getAttribute("srcdoc")).toContain("<p id=raw>Hi</p>");
+      expect(iframe.getAttribute("sandbox")).toBe(CODE_SANDBOX);
+      expect(iframe.getAttribute("sandbox")).not.toContain("allow-same-origin");
+    }
+    expect("isolate" in embedBlock.fields).toBe(false);
+  });
+
+  it("hides the placeholder instruction on the published site", () => {
+    mount([create(embedBlock)], { mode: "production" });
+    expect(document.querySelector(".os-embed")).toBeNull();
+    mount([create(embedBlock)], { mode: "preview" });
+    expect($("iframe").getAttribute("srcdoc")).toContain("Paste an embed code");
+  });
+
+  it("gives snippets the section theme's text color", () => {
+    const { doc } = setup([]);
+    const light = snippetColors(doc, "light");
+    const dark = snippetColors(doc, "dark");
+    expect(light?.text).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(dark?.dark).toBe(true);
+    expect(light?.dark).toBe(false);
+    expect(dark?.text).not.toBe(light?.text);
+    expect(snippetDocument("<p>x</p>", "t", dark)).toContain(
+      `color-scheme:dark;color:${dark?.text}`,
+    );
+    expect(snippetDocument("<p>x</p>", "t")).toContain("color:CanvasText");
+  });
+
+  it("never grants allow-same-origin to the site's own origin", () => {
+    const same = create(embedBlock, {
+      fields: {
+        ...embedBlock.create().fields,
+        embed: { type: "url", url: "https://juniper.github.io/juniper-yoga/widget/" },
+      },
+    });
+    mount([same]);
+    expect($("iframe").getAttribute("sandbox")).toBe(SAME_ORIGIN_URL_SANDBOX);
     expect($("iframe").getAttribute("sandbox")).not.toContain("allow-same-origin");
-    mount([block], { mode: "production" });
-    expect($("#raw").textContent).toBe("Hi");
+    // Non-https URLs are refused by the schema and never rendered.
+    const http = {
+      ...same,
+      fields: { ...same.fields, embed: { type: "url", url: "http://example.com/" } },
+    };
+    expect(embedBlock.validate(http).success).toBe(false);
+    mount([http], { mode: "production" });
+    expect(document.querySelector("iframe")).toBeNull();
   });
 
   it("embeds https URLs lazily", () => {
@@ -434,6 +560,7 @@ describe("embed block", () => {
     ]);
     const iframe = $<HTMLIFrameElement>("iframe");
     expect(iframe.getAttribute("src")).toBe("https://cal.com/juniper");
+    expect(iframe.getAttribute("sandbox")).toBe(URL_SANDBOX);
     expect(iframe.getAttribute("loading")).toBe("lazy");
     expect($(".os-embed").classList.contains("has-aspect")).toBe(true);
   });

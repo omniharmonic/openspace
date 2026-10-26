@@ -33,7 +33,25 @@ export function tileCoords(lat: number, lng: number, zoom: number): { x: number;
 }
 
 /** The tiles that cover a VIEW_W × VIEW_H viewport centred on the point. */
-export function planTiles(lat: number, lng: number, zoom: number): TilePlan {
+/** Default tile host: the OpenStreetMap Foundation's standard tiles. */
+export const OSM_TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+/** An https tile URL template containing `{z}`, `{x}` and `{y}`. */
+export const TILE_URL_RE = /^https:\/\/[a-z0-9.-]+(?::\d+)?\/[^\s"'<>]*$/i;
+
+/** The tile host to use: a valid custom template, else OpenStreetMap. The only place tile URLs are built. */
+export function tileUrlTemplate(custom: string | undefined): string {
+  const t = custom?.trim();
+  return t && TILE_URL_RE.test(t) && ["{z}", "{x}", "{y}"].every((p) => t.includes(p))
+    ? t
+    : OSM_TILE_URL;
+}
+
+export function planTiles(
+  lat: number,
+  lng: number,
+  zoom: number,
+  template: string = OSM_TILE_URL,
+): TilePlan {
   const n = 2 ** zoom;
   const c = tileCoords(lat, lng, zoom);
   const x0 = c.x - VIEW_W / 2;
@@ -48,7 +66,10 @@ export function planTiles(lat: number, lng: number, zoom: number): TilePlan {
         y: ty,
         left: ((tx - x0) / VIEW_W) * 100,
         top: ((ty - y0) / VIEW_H) * 100,
-        src: `https://tile.openstreetmap.org/${zoom}/${wrapped}/${ty}.png`,
+        src: template
+          .replace("{z}", String(zoom))
+          .replace("{x}", String(wrapped))
+          .replace("{y}", String(ty)),
       });
     }
   }
@@ -94,6 +115,13 @@ export const mapBlock = defineBlock({
       help: "Directions, parking, accessibility",
     }),
     linkLabel: f.text({ maxLength: 40, default: "Open in Maps" }),
+    tileServer: f.text({
+      optional: true,
+      maxLength: 300,
+      label: "Tile server (advanced)",
+      placeholder: OSM_TILE_URL,
+      help: "An https tile URL with {z}/{x}/{y}. Leave empty for OpenStreetMap; busy sites should use their own or a commercial tile host.",
+    }),
     aspect: f.select({
       options: [
         { value: "16:9", label: "Wide 16:9" },
@@ -114,7 +142,12 @@ export const mapBlock = defineBlock({
       "Guessing coordinates — ask the owner or geocode the exact address; maps for online-only businesses.",
   },
   render: ({ fields, variant }) => {
-    const plan = planTiles(fields.latitude, fields.longitude, fields.zoom);
+    const plan = planTiles(
+      fields.latitude,
+      fields.longitude,
+      fields.zoom,
+      tileUrlTemplate(fields.tileServer),
+    );
     const lat = fields.latitude.toFixed(5);
     const lng = fields.longitude.toFixed(5);
     const href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${fields.zoom}/${lat}/${lng}`;

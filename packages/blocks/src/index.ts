@@ -32,7 +32,16 @@ export { accordionBlock } from "./blocks/accordion";
 export { buttonBlock } from "./blocks/button";
 export { cardBlock, columnsBlock, iconListBlock } from "./blocks/card";
 export { lineBlock, shapeBlock, spacerBlock } from "./blocks/decor";
-export { CODE_SANDBOX, embedBlock, snippetDocument, URL_SANDBOX } from "./blocks/embed";
+export {
+  CODE_SANDBOX,
+  EMBED_PLACEHOLDER,
+  embedBlock,
+  SAME_ORIGIN_URL_SANDBOX,
+  type SnippetColors,
+  snippetColors,
+  snippetDocument,
+  URL_SANDBOX,
+} from "./blocks/embed";
 export {
   type FormSecurity,
   FormSecurityContext,
@@ -43,7 +52,14 @@ export {
 export { galleryBlock } from "./blocks/gallery";
 export { imageBlock } from "./blocks/image";
 export { logoStripBlock } from "./blocks/logo-strip";
-export { mapBlock, planTiles, type TilePlan, tileCoords } from "./blocks/map";
+export {
+  mapBlock,
+  OSM_TILE_URL,
+  planTiles,
+  type TilePlan,
+  tileCoords,
+  tileUrlTemplate,
+} from "./blocks/map";
 export { newsletterBlock } from "./blocks/newsletter";
 export { quoteBlock, testimonialBlock } from "./blocks/quote";
 export { shareButtonsBlock, socialLinksBlock } from "./blocks/social";

@@ -133,11 +133,13 @@ function FieldShell({
   id,
   children,
   as = "div",
+  attrs,
 }: {
   field: FormField;
   id: string;
   children: ReactNode;
   as?: "div" | "fieldset";
+  attrs?: Record<string, string>;
 }) {
   const Tag = as;
   return (
@@ -147,6 +149,7 @@ function FieldShell({
         `os-field--${field.type}`,
         field.width === "half" && "os-field--half",
       )}
+      {...attrs}
     >
       {children}
       {field.help ? (
@@ -291,8 +294,26 @@ function Choices({
   options: string[];
   describedBy: string;
 }) {
+  // Required checkbox groups ("pick at least one"): HTML can't express this natively. The group
+  // carries `data-os-required-group` (+ a message) for the form behavior / Hub validation; a
+  // single-option group falls back to a native `required` box so it also works without JS.
+  const requiredGroup = type === "checkbox" && field.required;
+  const nativeRequired = (box: number) =>
+    (type === "radio" && field.required) || (requiredGroup && options.length === 1 && box === 0);
   return (
-    <FieldShell field={field} id={id} as="fieldset">
+    <FieldShell
+      field={field}
+      id={id}
+      as="fieldset"
+      attrs={
+        requiredGroup
+          ? {
+              "data-os-required-group": field.name,
+              "data-os-message": "Please choose at least one option.",
+            }
+          : undefined
+      }
+    >
       <legend className="os-label">
         {field.label}
         {field.required ? (
@@ -309,7 +330,7 @@ function Choices({
               id={i === 0 ? id : undefined}
               name={type === "checkbox" ? `${field.name}[]` : field.name}
               value={o}
-              required={(type === "radio" && field.required) || undefined}
+              required={nativeRequired(i) || undefined}
               aria-describedby={describedBy}
             />
             <span>{o}</span>

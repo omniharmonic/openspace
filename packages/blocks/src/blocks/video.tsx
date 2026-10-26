@@ -174,8 +174,10 @@ function Video({ fields, variant }: { fields: VideoFields; variant: string }) {
   );
 
   if (fields.source === "file") {
-    if (!fields.file)
-      return wrap(<Missing mode={ctx.mode} text="Choose a video file" aspect={aspect} />);
+    if (!fields.file) {
+      if (ctx.mode === "production") return null;
+      return wrap(<Missing text="Choose a video file" aspect={aspect} />);
+    }
     const src = mediaUrl(fields.file.src, ctx.basePath);
     const posterSrc = fields.poster?.src ?? fields.file.poster;
     const poster = posterSrc ? mediaUrl(posterSrc, ctx.basePath) : undefined;
@@ -211,17 +213,18 @@ function Video({ fields, variant }: { fields: VideoFields; variant: string }) {
 
   const embed = parseVideoUrl(fields.url);
   if (!embed)
-    return wrap(
-      <Missing
-        mode={ctx.mode}
-        aspect={aspect}
-        text={
-          fields.url
-            ? "This video link isn't supported yet"
-            : "Paste a YouTube, Vimeo or PeerTube link"
-        }
-      />,
-    );
+    return ctx.mode === "production"
+      ? null
+      : wrap(
+          <Missing
+            aspect={aspect}
+            text={
+              fields.url
+                ? "This video link isn't supported yet"
+                : "Paste a YouTube, Vimeo or PeerTube link"
+            }
+          />,
+        );
   const provider = PROVIDER_NAME[embed.provider];
   return wrap(
     <div
@@ -265,8 +268,8 @@ function Video({ fields, variant }: { fields: VideoFields; variant: string }) {
   );
 }
 
-function Missing({ mode, text, aspect }: { mode: string; text: string; aspect: string }) {
-  if (mode === "production") return null;
+/** Editing notice (Studio and previews only; production renders nothing at all). */
+function Missing({ text, aspect }: { text: string; aspect: string }) {
   return (
     <div className="os-video os-video--empty" style={{ "--aspect": aspect }} role="note">
       <span>{text}</span>

@@ -125,11 +125,15 @@ export const newsletterBlock = defineBlock({
               {fields.buttonLabel}
             </Button>
           </div>
-          <input type="hidden" name="source" value={source} />
+          <input type="hidden" name="_source" value={source} />
+          <input type="hidden" name="_anchor" value={sub(id, "sent")} />
           <Honeypot />
           <TurnstileSlot />
           <div className="os-form__status" role="status" aria-live="polite" />
           {fields.note ? <p className="os-newsletter__note">{fields.note}</p> : null}
+          <p className="os-newsletter__sent" id={sub(id, "sent")} tabIndex={-1}>
+            {fields.successMessage}
+          </p>
         </form>
       </div>
     );
@@ -144,6 +148,8 @@ export const newsletterCss = `
 .os-newsletter__row{display:flex;flex-wrap:wrap;gap:var(--os-space-2xs);align-items:stretch}
 .os-newsletter__field{flex:1 1 14rem}
 .os-newsletter__submit{flex:none}
+.os-newsletter__sent{display:none;padding:var(--os-space-xs) var(--os-space-sm);border:1.5px solid currentColor;border-radius:var(--os-radius-input);color:var(--os-color-success)}
+.os-newsletter__sent:target{display:block}
 .os-newsletter__note{font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}
 .os-newsletter--stacked .os-newsletter__row,.os-newsletter--card .os-newsletter__row{display:grid}
 .os-newsletter--stacked .os-newsletter__submit,.os-newsletter--card .os-newsletter__submit{justify-self:start}
