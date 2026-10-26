@@ -14,6 +14,7 @@ import { page, siteWith } from "../__fixtures__/site";
 import { blocksRegistry, blocksStyleTag, registerAll } from "../index";
 import {
   allPresets,
+  blockHeadings,
   copyViolations,
   getPreset,
   headerPresets,
@@ -131,6 +132,41 @@ describe("preset catalog", () => {
     }
   });
 
+  it("declares image slots and copy rules for what each preset contains", () => {
+    for (const p of sectionPresets) {
+      const s = p.build();
+      const json = JSON.stringify(s.blocks);
+      const photos = /"src":"https:\/\/images/.test(json) || s.style.background?.type === "image";
+      const headings =
+        s.blocks.flatMap(blockHeadings).length +
+        s.blocks.filter((b) => b.fields.heading && typeof b.fields.heading === "string").length;
+      const headingRule = p.copy.some(
+        (r) =>
+          r.target.kind === "heading" ||
+          (r.target.kind === "field" && r.target.field === "heading"),
+      );
+      if (photos) expect(p.images.length, `${p.id} images`).toBeGreaterThan(0);
+      if (headings) expect(headingRule, `${p.id} heading copy rule`).toBe(true);
+      if (s.blocks.some((b) => b.type === "text"))
+        expect(
+          p.copy.some((r) => r.target.kind === "body"),
+          `${p.id} body copy rule`,
+        ).toBe(true);
+    }
+  });
+
+  it("designed-for themes reflect real suitability", () => {
+    for (const p of sectionPresets) {
+      const s = p.build();
+      if (s.style.background?.type === "image")
+        expect(p.themes, p.id).toEqual(["dark", "dark-accent"]);
+      if (["pricing", "faq", "contact", "blog", "events", "products", "team"].includes(p.category))
+        expect(p.themes, p.id).not.toContain("brand");
+    }
+    const hero = getPreset("hero/centered@1");
+    expect(hero?.themes).toContain("brand");
+  });
+
   it("demo copy is real (no lorem ipsum, no placeholders)", () => {
     const text = JSON.stringify(sectionPresets.map((p) => p.build()));
     expect(
@@ -218,7 +254,12 @@ describe("building", () => {
     );
     expect(urls?.length).toBeGreaterThan(50);
     for (const u of urls ?? []) expect(credited.has(u.replace(/^.*photo-/, "")), u).toBe(true);
-    for (const c of PRESET_IMAGE_CREDITS) expect(c.license).toBe("Unsplash License");
+    for (const c of PRESET_IMAGE_CREDITS) {
+      expect(c.license).toBe("Unsplash License");
+      expect(c.author.length, c.key).toBeGreaterThan(1);
+      expect(c.authorUrl).toMatch(/^https:\/\/unsplash\.com\/@[\w-]+$/);
+      expect(c.pageUrl).toMatch(/^https:\/\/unsplash\.com\/photos\/[\w-]+$/);
+    }
   });
 });
 

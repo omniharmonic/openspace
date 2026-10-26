@@ -63,12 +63,6 @@ export const PHOTOS = {
     4000,
     "A therapist pouring warm oil before a back massage",
   ),
-  spaStill: p(
-    "1540555700478-4be289fbecef",
-    3000,
-    2000,
-    "Rolled towels, a pump bottle and pink tulips on a white counter",
-  ),
   homeWorkout: p(
     "1571019613454-1cb2f99b2d8b",
     4680,
@@ -125,10 +119,10 @@ export const PHOTOS = {
     "A golden croissant being dusted with sugar on a dark slate",
   ),
   bakeryShelves: p(
-    "1517433670267-08bbd4be890f",
-    4568,
-    3401,
-    "Bakery shelves stacked with baguettes and pastries behind the counter",
+    "1778472506771-22d00e974d2f",
+    8103,
+    5369,
+    "Three rustic loaves cooling side by side",
   ),
   cookies: p(
     "1499636136210-6f4ee915583e",
@@ -137,16 +131,16 @@ export const PHOTOS = {
     "Chocolate chip cookies scattered on a pale linen cloth",
   ),
   cake: p(
-    "1578985545062-69928b1d9587",
-    2955,
-    2173,
-    "A chocolate layer cake piped with ganache on a cake stand",
+    "1626263468007-a9e0cf83f1ac",
+    4800,
+    3200,
+    "A chocolate drip cake topped with cookies and cream",
   ),
   pancakes: p(
-    "1567620905732-2d1ec7ab7445",
-    4160,
-    5027,
-    "Syrup being poured over a tall stack of pancakes",
+    "1650134973809-d8c3a2da59ba",
+    4200,
+    2800,
+    "A tall stack of pancakes with blueberries and syrup",
   ),
   pizza: p(
     "1513104890138-7c749659a591",
@@ -198,23 +192,18 @@ export const PHOTOS = {
     "A close view of freshly roasted coffee beans",
   ),
   cafeInterior: p(
-    "1554118811-1e0d58224f24",
-    4032,
-    2764,
-    "A bright café interior with plants, a long counter and bistro tables",
+    "1555396273-367ea4eb4db5",
+    3883,
+    2912,
+    "A rustic café with wooden tables and pendant lights",
   ),
-  cafeSign: p(
-    "1501339847302-ac426a4a7cbb",
-    4591,
-    3034,
-    "Pendant lights glowing over a café wall painted with the word Cafe",
-  ),
+  cafeSign: p("1775742945898-ec8b18e8a408", 6000, 4500, "A chalkboard menu outside a café"),
   // interiors & places
   livingRoom: p(
-    "1524758631624-e2822e304c36",
-    3762,
-    2508,
-    "A bright, airy lounge with pale chairs and a reading lamp",
+    "1583847268964-b28dc8f51f92",
+    4000,
+    6000,
+    "A bright living room with a pale sofa, cushions and a low table",
   ),
   loungePlants: p(
     "1502672260266-1c1ef2d93688",
@@ -259,10 +248,10 @@ export const PHOTOS = {
     "A clean white kitchen with pendant lights and bar stools",
   ),
   modernHouse: p(
-    "1600585154340-be6161a56a0c",
-    4500,
+    "1568605114967-8130f3a36994",
     3000,
-    "A modern timber house glowing at dusk beneath a large tree",
+    2000,
+    "A dark timber house with glowing windows at dusk",
   ),
   porchHouse: p(
     "1570129477492-45c003edd2be",
@@ -275,12 +264,6 @@ export const PHOTOS = {
     5566,
     3711,
     "A white modern villa with a pool framed by palms",
-  ),
-  officeCalm: p(
-    "1497366216548-37526070297c",
-    2301,
-    1536,
-    "An empty open-plan office with a long pale corridor",
   ),
   officeDesks: p(
     "1497215728101-856f4ea42174",
@@ -302,10 +285,10 @@ export const PHOTOS = {
     "Three colleagues laughing around laptops at a shared table",
   ),
   workshop: p(
-    "1552664730-d307ca884978",
-    3600,
-    2400,
-    "A team planning with sticky notes on a glass wall",
+    "1758876203195-69a51e4145f0",
+    3840,
+    2160,
+    "Colleagues planning a project with sticky notes on a wall",
   ),
   meeting: p(
     "1542744173-8e7e53415bb0",
@@ -344,10 +327,10 @@ export const PHOTOS = {
     "A monitor showing charts and a dashboard in a dark room",
   ),
   laptopCode: p(
-    "1517694712202-14dd9538aa97",
-    6000,
-    4000,
-    "A laptop with code on screen beside a small plant",
+    "1476365518243-f738bf58443d",
+    3539,
+    5316,
+    "A laptop on a pale desk beside a small plant",
   ),
   friendsSunset: p(
     "1511632765486-a01980e01a18",
@@ -386,10 +369,10 @@ export const PHOTOS = {
     "A crowd cheering with raised hands at a live show",
   ),
   stageLights: p(
-    "1516450360452-9312f5e86fc7",
-    3000,
-    2000,
-    "A band on stage under magenta and blue lights",
+    "1669459868647-4c2f1c564052",
+    5702,
+    3801,
+    "A crowd facing a lit stage at a small music venue",
   ),
   microphone: p(
     "1511671782779-c97d3d27a1d4",
@@ -404,10 +387,10 @@ export const PHOTOS = {
     "A couple's hands with wedding rings resting on a bouquet",
   ),
   weddingAisle: p(
-    "1511285560929-80b456fea0bc",
-    5960,
-    3979,
-    "A couple at the end of an outdoor aisle lined with flowers and balloons",
+    "1660286156087-911df708e663",
+    6240,
+    4160,
+    "A couple walking back down the aisle as guests cheer",
   ),
   // portraits
   portraitLake: p(
@@ -453,10 +436,10 @@ export const PHOTOS = {
     "Portrait of a woman in a black top against a soft violet wall",
   ),
   portraitOwen: p(
-    "1472099645785-5658abf4ff4e",
-    5760,
-    3840,
-    "Portrait of a grey-haired man with glasses in a green shirt",
+    "1780387477222-730504564368",
+    5792,
+    8688,
+    "Portrait of a smiling grey-haired woman in a beige jumpsuit",
   ),
   portraitClara: p(
     "1544005313-94ddf0286df2",
@@ -478,10 +461,10 @@ export const PHOTOS = {
   ),
   // making & craft
   pottery: p(
-    "1493106641515-6b5631de4bb9",
-    5062,
-    3031,
-    "Clay-covered hands shaping a pot on a spinning wheel",
+    "1597696929736-6d13bed8e6a8",
+    5881,
+    3921,
+    "Handmade ceramic vases in soft clay colours on a shelf",
   ),
   ceramics: p(
     "1565193566173-7a0ee3dbe261",
@@ -520,10 +503,10 @@ export const PHOTOS = {
     "Young seedlings sprouting in a dark tray of soil",
   ),
   gardenTrowel: p(
-    "1416879595882-3373a0480b5b",
-    4896,
-    3264,
-    "A garden trowel and a pot of soil ready for planting",
+    "1782386963665-b83ce1d6752e",
+    8076,
+    5387,
+    "Gloved hands planting seedlings in a garden bed",
   ),
   books: p(
     "1456513080510-7bf3a84b82f8",
@@ -556,23 +539,18 @@ export const PHOTOS = {
     3000,
     "A single dark running shoe suspended against a white background",
   ),
-  shirts: p(
-    "1523381210434-271e8be1f52b",
-    7952,
-    5304,
-    "Sage-green t-shirts hanging in a row on wooden hangers",
-  ),
+  shirts: p("1555529733-ba28d9c4587c", 3417, 5472, "Shirts hanging in a row on a clothes rail"),
   yogaMats: p(
-    "1601925260368-ae2f83cf8b7f",
-    3133,
-    3133,
-    "Rolled yoga mats in green and teal stacked in white cubbies",
+    "1767605523281-8b54b3692078",
+    4480,
+    6720,
+    "Rolled yoga mats in a woven basket beside a plant",
   ),
   skincare: p(
-    "1556228578-8c89e6adf883",
-    3417,
-    5126,
-    "A skincare tube resting on sand among dried flowers",
+    "1712168044214-f5a272c23a5b",
+    2160,
+    2700,
+    "A tube of cream on a table against a peach wall",
   ),
   dropper: p(
     "1515377905703-c4788e51af15",
@@ -595,10 +573,10 @@ export const PHOTOS = {
   ),
   cliffs: p("1470071459604-3b5ec3a7fe05", 7372, 4392, "Mist rolling over green cliffs at sunrise"),
   bridge: p(
-    "1447752875215-b2761acb3c5d",
-    5472,
-    3648,
-    "A wooden footbridge leading into a dense green forest",
+    "1543270915-a8381a52e201",
+    4000,
+    6000,
+    "A person crossing a suspension footbridge into the forest",
   ),
   meadow: p(
     "1465146344425-f00d5f5c8f07",
@@ -614,10 +592,10 @@ export const PHOTOS = {
     "A rowing boat on a turquoise lake below jagged mountains",
   ),
   mountainLake: p(
-    "1493246507139-91e8fad9978e",
-    5472,
-    3648,
-    "Snow-dusted peaks glowing pink over a still mountain lake",
+    "1783611066016-59e16b0ac1c8",
+    6192,
+    4128,
+    "Snowy peaks reflected in a still mountain lake",
   ),
   valley: p(
     "1506744038136-46273834b3fb",
@@ -712,6 +690,486 @@ export function photo(
   };
 }
 
+/**
+ * Photographer credits: Unsplash photo id → [name, username, photo page slug]. Each entry was
+ * checked against the public photo page (https://unsplash.com/photos/<slug>), which shows the
+ * same image id, the photographer's name and their @username.
+ */
+const PHOTO_CREDITS: Record<string, readonly [name: string, username: string, slug: string]> = {
+  "1506126613408-eca07ce68773": [
+    "Jared Rice",
+    "jareddrice",
+    "woman-doing-yoga-meditation-on-brown-parquet-flooring-NTyBbu66_SI",
+  ],
+  "1544367567-0f2fcb009e0b": [
+    "kike vega",
+    "kikekiks",
+    "silhouette-photography-of-woman-doing-yoga-F2qh3yjz6Jk",
+  ],
+  "1545205597-3d9d02c29597": [
+    "Kaylee Garrett",
+    "realkayls",
+    "five-woman-standing-on-seashore-GaprWyIw66o",
+  ],
+  "1518611012118-696072aa579a": [
+    "bruce mars",
+    "brucemars",
+    "group-of-women-doing-yoga-gJtDg6WfMlQ",
+  ],
+  "1544161515-4ab6ce6db874": [
+    "alan caishan",
+    "caishan119",
+    "woman-lying-with-prone-position-cU53ZFBr3lk",
+  ],
+  "1571019613454-1cb2f99b2d8b": [
+    "Jonathan Borba",
+    "jonathanborba",
+    "woman-exercising-indoors-lrQPTQs7nQQ",
+  ],
+  "1534438327276-14e5300c3a48": [
+    "Danielle Cerullo",
+    "dncerullo",
+    "woman-standing-surrounded-by-exercise-equipment-CQfNt66ttZM",
+  ],
+  "1414235077428-338989a2e8c0": [
+    "Jay Wennington",
+    "jaywennington",
+    "dish-on-white-ceramic-plate-N_Y88TWmGwA",
+  ],
+  "1517248135467-4c7edcad34c4": [
+    "Jason Leung",
+    "ninjason",
+    "photo-of-pub-set-in-room-during-daytime-poI7DelFiVA",
+  ],
+  "1559339352-11d035aa65de": [
+    "Albert",
+    "picturesbyalbert",
+    "a-restaurant-with-a-view-of-the-water-YYZU0Lo1uXE",
+  ],
+  "1528605248644-14dd04022da1": [
+    "Priscilla Du Preez 🇨🇦",
+    "priscilladupreez",
+    "people-sitting-in-front-of-table-talking-and-eating-W3SEyZODn8U",
+  ],
+  "1509440159596-0249088772ff": [
+    "Wesual Click",
+    "wesual",
+    "rustic-bread-loaves-with-wheat-stalks-rsWZ-P9FbQ4",
+  ],
+  "1549931319-a545dcf3bc73": [
+    "Jude Infantini",
+    "judowoodo_",
+    "selective-focus-photography-of-sliced-bread-rYOqbTcGp1c",
+  ],
+  "1555507036-ab1f4038808a": ["Mae Mu", "picoftasty", "two-brown-croissants-m9pzwmxm2rk"],
+  "1778472506771-22d00e974d2f": [
+    "Renee Hughes",
+    "reneehughes",
+    "three-loaves-of-whole-grain-bread-on-a-white-cloth-ucHcsGJv9u0",
+  ],
+  "1499636136210-6f4ee915583e": [
+    "Food Photographer | Jennifer Pallian",
+    "foodess",
+    "close-up-photo-of-baked-cookies-OfdDiqx8Cz8",
+  ],
+  "1626263468007-a9e0cf83f1ac": [
+    "Syed Maaz",
+    "syedmaaz904",
+    "chocolate-cake-with-chocolate-syrup-on-top-QLSh4y2v93c",
+  ],
+  "1650134973809-d8c3a2da59ba": [
+    "Amber Fisher",
+    "lindsaysworld",
+    "a-stack-of-pancakes-covered-in-blueberries-and-syrup-krqTbKwuFgw",
+  ],
+  "1513104890138-7c749659a591": [
+    "Ivan Torres",
+    "iavnt",
+    "cheese-pizza-with-tomatoes-and-rosemary-MQUqbmszGGM",
+  ],
+  "1512621776951-a57141f2eefd": [
+    "Anna Pelzer",
+    "annapelzer",
+    "bowl-of-vegetable-salads-IGfIGP5ONV0",
+  ],
+  "1504674900247-0877df9cc836": [
+    "Lily Banse",
+    "lvnatikk",
+    "three-plates-of-asian-food-on-wood-table--YHSwy6uqvk",
+  ],
+  "1551218808-94e220e084d2": [
+    "Jonathan Borba",
+    "jonathanborba",
+    "person-slicing-vegetable-uB7q7aipU2o",
+  ],
+  "1495474472287-4d71bcdd2085": [
+    "Nathan Dumlao",
+    "nate_dumlao",
+    "three-person-holding-beverage-cups-6VhPY27jdps",
+  ],
+  "1509042239860-f550ce710b93": [
+    "Nathan Dumlao",
+    "nate_dumlao",
+    "shallow-focus-photography-of-coffee-late-in-mug-on-table-zUNs99PGDg0",
+  ],
+  "1442512595331-e89e73853f31": [
+    "Karl Fredrickson",
+    "kfred",
+    "person-filling-glass-container-TYIzeCiZ_60",
+  ],
+  "1447933601403-0c6688de566e": ["Mike Kenneally", "asthetik", "coffee-bean-lot-TD4DBagg2wE"],
+  "1555396273-367ea4eb4db5": [
+    "Shawn",
+    "shawnanggg",
+    "interior-of-rustic-cafe-with-wooden-tables-nmpW_WwwVSc",
+  ],
+  "1775742945898-ec8b18e8a408": [
+    "Annie Spratt",
+    "anniespratt",
+    "chalkboard-menu-outside-a-french-cafe-with-coffee-prices-QOM-ulmcLpE",
+  ],
+  "1583847268964-b28dc8f51f92": [
+    "Minh Pham",
+    "minhphamdesign",
+    "a-living-room-filled-with-furniture-and-a-large-window-OtXADkUh3-I",
+  ],
+  "1502672260266-1c1ef2d93688": [
+    "Patrick Perkins",
+    "patrickperkins",
+    "gray-fabric-loveseat-near-brown-wooden-table-3wylDrjxH-E",
+  ],
+  "1556228453-efd6c1ff04f6": [
+    "Curology",
+    "curology",
+    "brown-leather-sofa-and-two-pink-sofa-chair-6CJg-fOTYs4",
+  ],
+  "1586023492125-27b2c045efd7": [
+    "Kam Idris",
+    "ka_idris",
+    "brown-wooden-framed-yellow-padded-chair-_HqHX3LBN18",
+  ],
+  "1555041469-a586c61ea9bc": ["Phillip Goldsberry", "phillipgold", "green-fabric-sofa-fZuleEfeA1Q"],
+  "1567016432779-094069958ea5": ["Inside Weather", "insideweather", "red-fabric-sofa-dbH_vy7vICE"],
+  "1503602642458-232111445657": [
+    "Ruslan Bardash",
+    "ruslanbardash",
+    "beige-wooden-bar-stool-4kTbAMRAHtQ",
+  ],
+  "1484154218962-a197022b5858": [
+    "Naomi Hébert",
+    "naomish",
+    "gray-steel-3-door-refrigerator-near-modular-kitchen-MP0bgaS_d1c",
+  ],
+  "1568605114967-8130f3a36994": [
+    "vu anh",
+    "naomi365photography",
+    "brown-and-black-wooden-house-TiVPTYCG_3E",
+  ],
+  "1570129477492-45c003edd2be": ["todd kent", "churchoftodd", "gray-wooden-house-178j8tJrNlc"],
+  "1512917774080-9991f1c4c750": [
+    "Frames For Your Heart",
+    "framesforyourheart",
+    "white-and-grey-concrete-building-near-swimming-pool-under-clear-sky-during-daytime-2d4lAQAlbDA",
+  ],
+  "1497215728101-856f4ea42174": [
+    "Alesia Kazantceva",
+    "alesiaskaz",
+    "turned-off-laptop-computer-on-top-of-brown-wooden-table-VWcPlbHglYc",
+  ],
+  "1556761175-5973dc0f32e7": [
+    "Austin Distel",
+    "austindistel",
+    "man-standing-in-front-of-group-of-men-rxpThOwuVgE",
+  ],
+  "1522202176988-66273c2fd55f": [
+    "Brooke Cagle",
+    "brookecagle",
+    "three-people-sitting-in-front-of-table-laughing-together-g1Kr4Ozfoac",
+  ],
+  "1758876203195-69a51e4145f0": [
+    "Vitaly Gariev",
+    "silverkblack",
+    "two-people-brainstorming-with-sticky-notes-on-wall-ynkz9cpyvzI",
+  ],
+  "1542744173-8e7e53415bb0": [
+    "Campaign Creators",
+    "campaign_creators",
+    "man-standing-in-front-of-people-sitting-beside-table-with-laptop-computers-gMsnXqILjp4",
+  ],
+  "1600880292203-757bb62b4baf": [
+    "krakenimages",
+    "krakenimages",
+    "man-in-white-dress-shirt-sitting-beside-woman-in-black-long-sleeve-shirt-376KN_ISplE",
+  ],
+  "1497032628192-86f99bcd76bc": [
+    "ian dooley",
+    "sadswim",
+    "cup-of-coffee-near-macbook-pro-DJ7bWa-Gwks",
+  ],
+  "1434030216411-0b793f4b4173": [
+    "Unseen Studio",
+    "uns__nstudio",
+    "person-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM",
+  ],
+  "1503387762-592deb58ef4e": [
+    "Daniel McCullough",
+    "d_mccullough",
+    "an-architect-working-on-a-draft-with-a-pencil-and-ruler-HtBlQdxfG9k",
+  ],
+  "1551288049-bebda4e38f71": [
+    "Luke Chesser",
+    "lukechesser",
+    "graphs-of-performance-analytics-on-a-laptop-screen-JKUTrJ4vK00",
+  ],
+  "1476365518243-f738bf58443d": [
+    "Dawid Liberadzki",
+    "dawidliberadzki",
+    "silver-laptop-computer-on-table-vPFbVB7DPZI",
+  ],
+  "1511632765486-a01980e01a18": [
+    "Helena Lopes",
+    "helenalopesph",
+    "four-person-hands-wrap-around-shoulders-while-looking-at-sunset-PGnqT0rXWLs",
+  ],
+  "1529156069898-49953e39b3ac": [
+    "Duy Pham",
+    "miinyuii",
+    "people-holding-shoulders-sitting-on-wall-Cecb0_8Hx-o",
+  ],
+  "1488521787991-ed7bbaae773c": [
+    "Larm Rmah",
+    "larm",
+    "five-children-smiling-while-doing-peace-hand-sign-AEaTUnvneik",
+  ],
+  "1540575467063-178a50c2df87": [
+    "Headway",
+    "headwayio",
+    "crowd-of-people-sitting-on-chairs-inside-room-F2KRf_QfCqw",
+  ],
+  "1475721027785-f74eccf877e2": [
+    "Kane Reinholdtsen",
+    "kanereinholdtsen",
+    "silver-corded-microphone-in-shallow-focus-photography-LETdkk7wHQk",
+  ],
+  "1501386761578-eac5c94b800a": [
+    "Nicholas Green",
+    "nickxshotz",
+    "excited-crowd-cheering-at-concert-or-event-nPz8akkUmDI",
+  ],
+  "1669459868647-4c2f1c564052": [
+    "Leon Rockel",
+    "lonski",
+    "a-crowd-of-people-in-a-room-with-a-stage-and-a-stage-T3L72nHQ6aQ",
+  ],
+  "1511671782779-c97d3d27a1d4": [
+    "israel palacio",
+    "othentikisra",
+    "bokeh-photography-of-condenser-microphone-Y20JJ_ddy9M",
+  ],
+  "1465495976277-4387d4b0b4c6": [
+    "Drew Coffman",
+    "drewcoffman",
+    "man-and-woman-holding-hands-llWjwo200fo",
+  ],
+  "1660286156087-911df708e663": [
+    "Asdrubal luna",
+    "infectedluna",
+    "a-bride-and-groom-walking-down-the-aisle-n5xGMMSqLVQ",
+  ],
+  "1438761681033-6461ffad8d80": [
+    "Christopher Campbell",
+    "chrisjoelcampbell",
+    "shallow-focus-photography-of-woman-outdoor-during-day-rDEOVtE7vOs",
+  ],
+  "1500648767791-00dcc994a43e": [
+    "Jurica Koletić",
+    "juricakoletic",
+    "man-wearing-henley-top-portrait-7YVZYZeITc8",
+  ],
+  "1494790108377-be9c29b29330": [
+    "Michael Dam",
+    "michaeldam",
+    "closeup-photography-of-woman-smiling-mEZ3PoFGs_k",
+  ],
+  "1507003211169-0a1dd7228f2d": [
+    "Joseph Gonzalez",
+    "miracletwentyone",
+    "man-wearing-white-v-neck-shirt-iFgRcqHznqg",
+  ],
+  "1580489944761-15a19d654956": [
+    "Jake Nackos",
+    "jakenackos",
+    "woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI",
+  ],
+  "1539571696357-5a69c17a67c6": [
+    "ian dooley",
+    "sadswim",
+    "man-standing-near-white-wall-d1UPkiFd04A",
+  ],
+  "1534528741775-53994a69daeb": [
+    "Aiony Haust",
+    "aiony",
+    "woman-wearing-black-crew-neck-shirt-3TLl_97HNJo",
+  ],
+  "1780387477222-730504564368": [
+    "Centre for Ageing Better",
+    "ageing_better",
+    "woman-in-beige-jumpsuit-smiling-sitting-on-a-stool-IxacjtwPdGM",
+  ],
+  "1544005313-94ddf0286df2": [
+    "Štefan Štefančík",
+    "cikstefan",
+    "smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+  ],
+  "1573496359142-b8d87734a5a2": [
+    "Christina @ wocintechchat.com M",
+    "wocintechchat",
+    "shallow-focus-photo-of-woman-in-gray-jacket-0Zx1bDv5BNY",
+  ],
+  "1560250097-0b93528c311a": [
+    "LinkedIn Sales Solutions",
+    "linkedinsalesnavigator",
+    "man-standing-beside-wall-pAtA8xe_iVM",
+  ],
+  "1597696929736-6d13bed8e6a8": [
+    "Chloe Bolton",
+    "crystalmind_design",
+    "ceramic-vases-on-wooden-surface-R0qthXq3jec",
+  ],
+  "1565193566173-7a0ee3dbe261": ["Tom Crew", "tomcrewceramics", "three-white-bottles-j6sxCTf3UyU"],
+  "1513364776144-60967b0f800f": [
+    "Anna Kolosyuk",
+    "anko_",
+    "three-silver-paint-brushes-on-white-textile-D5nh6mCW52c",
+  ],
+  "1513519245088-0e12902e5a38": [
+    "Jonny Caspari",
+    "jonnycspr",
+    "assorted-color-framed-paintings-on-the-wall-KuudDjBHIlA",
+  ],
+  "1459411552884-841db9b3cc2a": [
+    "Annie Spratt",
+    "anniespratt",
+    "green-cactus-plant-on-brown-pot-fbAnIjhrOL4",
+  ],
+  "1485955900006-10f4d324d411": [
+    "Galina N",
+    "galina88",
+    "green-succulent-in-teal-ceramic-vase-miziNqvJx5M",
+  ],
+  "1466692476868-aef1dfb1e735": [
+    "Markus Spiske",
+    "markusspiske",
+    "selective-focus-photo-of-plant-spouts-vrbZVyX2k4I",
+  ],
+  "1782386963665-b83ce1d6752e": [
+    "Erwin Bosman",
+    "erwinbosman",
+    "hands-in-gloves-planting-small-seedlings-in-dark-soil-6xMClJG5dW8",
+  ],
+  "1456513080510-7bf3a84b82f8": ["Aaron Burden", "aaronburden", "opened-book-QJDzYT_K8Xg"],
+  "1526170375885-4d8ecf77b99f": [
+    "eniko kis",
+    "enikoo",
+    "white-and-black-polaroid-one-step-2-instant-camera-on-white-board-KsLPTsYaqIQ",
+  ],
+  "1505740420928-5e560c06d30e": [
+    "C D-X",
+    "cdx2",
+    "flatlay-photography-of-wireless-headphones-PDX_a_82obo",
+  ],
+  "1523275335684-37898b6baf30": [
+    "Rachit Tank",
+    "rachitank",
+    "round-white-watch-with-white-band-2cFZ_FB08UM",
+  ],
+  "1491553895911-0055eca6402d": [
+    "Imani Bahati",
+    "imani_bht",
+    "unpaired-gray-nike-running-shoe-LxVxPA1LOVM",
+  ],
+  "1555529733-ba28d9c4587c": [
+    "charlesdeluvio",
+    "charlesdeluvio",
+    "hanger-of-cloth-lot-sWiqbPItyg8",
+  ],
+  "1767605523281-8b54b3692078": [
+    "Margaret Young",
+    "wildsoulmagsyogi",
+    "rolled-yoga-mats-in-a-decorative-basket-with-plants-OuMxVZS72N0",
+  ],
+  "1712168044214-f5a272c23a5b": [
+    "Point Normal",
+    "normals",
+    "a-tube-of-cream-sitting-on-top-of-a-table-Xp0bTCLD07k",
+  ],
+  "1515377905703-c4788e51af15": [
+    "Christin Hume",
+    "christinhumephoto",
+    "person-holding-amber-glass-bottle-0MoF-Fe0w0A",
+  ],
+  "1501854140801-50d01698950b": [
+    "Qingbao Meng",
+    "ideasboom",
+    "birds-eye-view-photograph-of-green-mountains-01_igFr7hd4",
+  ],
+  "1441974231531-c6227db76b6e": ["Lukasz Szmigiel", "szmigieldesign", "forest-trees-jFCViYFYcus"],
+  "1470071459604-3b5ec3a7fe05": ["v2osk", "v2osk", "foggy-mountain-summit-1Z2niiBPg5A"],
+  "1543270915-a8381a52e201": ["Joel Vodell", "joelvodell", "person-walking-on-bridge-HoMw854Uya8"],
+  "1465146344425-f00d5f5c8f07": ["enrico bet", "henry_be", "orange-flowers-IicyiaPYGGI"],
+  "1490750967868-88aa4486c946": [
+    "Sergey Shmidt",
+    "monstercritic",
+    "orange-petaled-flowers-koy6FlCCy5s",
+  ],
+  "1501785888041-af3ef285b470": [
+    "Pietro De Grandi",
+    "peter_mc_greats",
+    "three-brown-wooden-boat-on-blue-lake-water-taken-at-daytime-T7K4aEPoGGk",
+  ],
+  "1783611066016-59e16b0ac1c8": [
+    "Roger Benz",
+    "robe76",
+    "a-serene-mountain-lake-reflecting-majestic-peaks-and-green-forests-QMtI1dZ6KJM",
+  ],
+  "1506744038136-46273834b3fb": [
+    "Bailey Zindel",
+    "baileyzindel",
+    "river-in-yosemite-valley-at-low-light-NRQV-hBF10M",
+  ],
+  "1507525428034-b723cf961d3e": [
+    "Sean Oulashin",
+    "oulashin",
+    "seashore-during-golden-hour-KMn4VEeEPR8",
+  ],
+  "1518837695005-2083093ee35b": ["Matt Hardy", "matthardy", "body-of-water-under-sky-6ArTTluciuA"],
+  "1505142468610-359e7d316be0": [
+    "Shifaaz shamoon",
+    "sotti",
+    "aerial-photo-of-seashore-sLAk1guBG90",
+  ],
+  "1500530855697-b586d89ba3ee": [
+    "Jake Blucker",
+    "jakeblucker",
+    "black-concrete-road-surrounded-by-brown-rocks-tMzCrBkM99Y",
+  ],
+  "1477959858617-67f85cf4f1df": [
+    "Pedro Lastra",
+    "peterlaster",
+    "white-and-brown-city-buildings-during-daytime-Nyvq2juw4_o",
+  ],
+  "1449824913935-59a10b8d2000": [
+    "Andrea Cau",
+    "andreacau",
+    "pathway-between-high-rise-buildings-nV7GJmSq3zc",
+  ],
+  "1487958449943-2429e8be8625": [
+    "Lance Anderson",
+    "lanceanderson",
+    "rock-and-roll-hall-of-fame-cleveland-QdAAasrZhdk",
+  ],
+};
+
 /** Image credits for every demo photo presets use (Unsplash License). */
 export interface ImageCredit {
   key: PhotoKey;
@@ -720,20 +1178,31 @@ export interface ImageCredit {
   source: "Unsplash";
   license: "Unsplash License";
   licenseUrl: string;
-  /** Photographer, when known; Unsplash's license does not require attribution. */
-  author: string | null;
+  /** Photographer's name as shown on Unsplash. */
+  author: string;
+  /** Photographer's Unsplash profile. */
+  authorUrl: string;
+  /** The photo's page on Unsplash. */
+  pageUrl: string;
   alt: string;
 }
 
 export const PRESET_IMAGE_CREDITS: readonly ImageCredit[] = (
   Object.entries(PHOTOS) as [PhotoKey, DemoPhoto][]
-).map(([key, ph]) => ({
-  key,
-  id: ph.id,
-  url: `https://images.unsplash.com/photo-${ph.id}`,
-  source: "Unsplash",
-  license: "Unsplash License",
-  licenseUrl: "https://unsplash.com/license",
-  author: null,
-  alt: ph.alt,
-}));
+).map(([key, ph]) => {
+  const credit = PHOTO_CREDITS[ph.id];
+  if (!credit) throw new Error(`No photographer credit for ${key} (${ph.id})`);
+  const [author, username, slug] = credit;
+  return {
+    key,
+    id: ph.id,
+    url: `https://images.unsplash.com/photo-${ph.id}`,
+    source: "Unsplash",
+    license: "Unsplash License",
+    licenseUrl: "https://unsplash.com/license",
+    author,
+    authorUrl: `https://unsplash.com/@${username}`,
+    pageUrl: `https://unsplash.com/photos/${slug}`,
+    alt: ph.alt,
+  };
+});

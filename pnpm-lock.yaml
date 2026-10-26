@@ -9,6 +9,9 @@ catalogs:
     '@types/node':
       specifier: ^22.18.0
       version: 22.20.5
+    tsup:
+      specifier: ^8.5.0
+      version: 8.5.1
     typescript:
       specifier: ~5.9.3
       version: 5.9.3
@@ -301,9 +304,6 @@ importers:
       '@openspace/ops':
         specifier: workspace:*
         version: link:../ops
-      '@openspace/renderer':
-        specifier: workspace:*
-        version: link:../renderer
       '@openspace/schema':
         specifier: workspace:*
         version: link:../schema

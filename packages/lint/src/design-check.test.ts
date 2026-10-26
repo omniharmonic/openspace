@@ -316,8 +316,56 @@ describe("text over photos", () => {
     expect(only(designCheck(fix(doc, issue)), "text-over-photo")).toEqual([]);
   });
 
+  it("keeps a block's own padding when putting it on a panel", () => {
+    const pic = img();
+    const t = p("A caption over the photo");
+    t.style = { padding: { d: "xs" } };
+    const doc = onePage(
+      stackSection([h("Welcome to the studio", 1), btn()]),
+      gridSection([
+        [pic, { x: 1, y: 1, w: 16, h: 20 }, { x: 1, y: 1, w: 8, h: 12 }],
+        [t, { x: 12, y: 6, w: 12, h: 8, z: 2 }, { x: 1, y: 14, w: 8, h: 8, z: 2 }],
+      ]),
+    ).doc;
+    const op = only(designCheck(doc), "text-over-photo")[0]?.autofix?.ops[0] as {
+      style?: { padding?: unknown };
+    };
+    expect(op.style?.padding).toEqual({ d: "xs" });
+  });
+
   it("accepts text on a themed panel", () => {
     expect(only(designCheck(layered(true)), "text-over-photo")).toEqual([]);
+  });
+});
+
+describe("hidden text", () => {
+  it("errors when a higher-layer image completely covers text", () => {
+    const pic = img();
+    const t = p("Words nobody will see");
+    const { doc } = onePage(
+      stackSection([h("Welcome to the studio", 1), btn()]),
+      gridSection([
+        [t, { x: 4, y: 4, w: 6, h: 3 }, { x: 1, y: 14, w: 8, h: 3 }],
+        [pic, { x: 1, y: 1, w: 16, h: 12, z: 3 }, { x: 1, y: 1, w: 8, h: 12 }],
+      ]),
+    );
+    const issue = only(designCheck(doc), "text-hidden")[0];
+    expect(issue?.severity).toBe("error");
+    expect(issue?.message).toContain("desktop");
+  });
+
+  it("allows text in front of the image or only partly behind it", () => {
+    const pic = img();
+    const t = p("Words in front");
+    t.style = { colorTheme: "light" };
+    const { doc } = onePage(
+      stackSection([h("Welcome to the studio", 1), btn()]),
+      gridSection([
+        [pic, { x: 1, y: 1, w: 16, h: 12 }, { x: 1, y: 1, w: 8, h: 12 }],
+        [t, { x: 4, y: 4, w: 6, h: 3, z: 2 }, { x: 1, y: 14, w: 8, h: 3 }],
+      ]),
+    );
+    expect(only(designCheck(doc), "text-hidden")).toEqual([]);
   });
 });
 
@@ -415,7 +463,7 @@ describe("copy length", () => {
     const { doc } = onePage(s);
     const issue = only(designCheck(doc), "copy-length")[0];
     expect(issue?.severity).toBe("warning");
-    expect(issue?.message).toMatch(/Headline is \d+ words; this layout is designed for 3–10/);
+    expect(issue?.message).toMatch(/Headline is \d+ words; this layout is designed for 3–9/);
   });
 
   it("notes copy shorter than the range as info, and ignores sections without a preset", () => {

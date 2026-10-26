@@ -2,7 +2,7 @@ import { applyAll, validate } from "@openspace/ops";
 import type { Page, SiteDocument } from "@openspace/schema";
 import { describe, expect, it } from "vitest";
 import { btn, h, img, p, page, siteWith, stackSection } from "./__fixtures__/doc";
-import { effectiveTitle, type Issue, seoCheck } from "./index";
+import { designCheck, effectiveTitle, type Issue, seoCheck } from "./index";
 
 const LONG_TEXT =
   "Small, unhurried yoga classes on Pearl Street in Boulder. Foundations on Saturday mornings for complete beginners, vinyasa four evenings a week and a slow yin class on Sunday nights. Mats, blocks and blankets are provided, and every teacher knows your name by the second class. Come ten minutes early for tea.";
@@ -95,12 +95,18 @@ describe("seoCheck", () => {
     expect(rules(seoCheck(a, doc))).toContain("seo-title-long");
   });
 
-  it("flags a missing or repeated Heading 1", () => {
+  it("leaves Heading 1 problems to designCheck (one owner)", () => {
     const pg = goodPage();
-    pg.sections = [stackSection([h("Classes"), p(LONG_TEXT)])];
-    expect(rules(seoCheck(pg, siteWith([pg])))).toContain("seo-h1-missing");
-    pg.sections = [stackSection([h("Classes", 1), h("Prices", 1), p(LONG_TEXT)])];
-    expect(rules(seoCheck(pg, siteWith([pg])))).toContain("seo-h1-multiple");
+    pg.sections = [stackSection([h("Classes"), p(LONG_TEXT), p(LONG_TEXT), btn()])];
+    const doc = siteWith([pg]);
+    expect(rules(seoCheck(pg, doc)).filter((r) => r.includes("h1"))).toEqual([]);
+    expect(designCheck(doc).map((i) => i.rule)).toContain("heading-missing-h1");
+  });
+
+  it("treats an empty SEO description like a missing one", () => {
+    const pg = goodPage();
+    pg.seo = { ...pg.seo, description: "" };
+    expect(rules(seoCheck(pg, siteWith([pg])))).toContain("seo-description-missing");
   });
 
   it("suggests a share image from the page's first photo", () => {

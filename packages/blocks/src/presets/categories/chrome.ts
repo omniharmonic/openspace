@@ -3,7 +3,18 @@ import { contactInfoBlock, hoursBlock } from "../../blocks/business";
 import { lineBlock } from "../../blocks/decor";
 import { newsletterBlock } from "../../blocks/newsletter";
 import { socialLinksBlock } from "../../blocks/social";
-import { defineHeaderPreset, definePreset, grid, heading, make, r, rt, stack, text } from "../kit";
+import {
+  copy,
+  defineHeaderPreset,
+  definePreset,
+  grid,
+  heading,
+  make,
+  r,
+  rt,
+  stack,
+  text,
+} from "../kit";
 
 /** Footer and site header presets. */
 
@@ -36,7 +47,7 @@ export const footerPresets = [
     name: "columns",
     label: "Footer with link columns",
     description: "A short description, three columns of links and social icons.",
-    copy: [],
+    copy: [copy.body(1, 40)],
     footer: true,
     defaultTheme: "dark",
     tags: ["columns", "links"],
@@ -91,7 +102,7 @@ export const footerPresets = [
     name: "centered",
     label: "Centred footer",
     description: "Name, social icons and small print, centred.",
-    copy: [],
+    copy: [copy.body(1, 40)],
     footer: true,
     defaultTheme: "light-accent",
     tags: ["centered", "minimal"],
@@ -132,7 +143,7 @@ export const footerPresets = [
     name: "newsletter",
     label: "Footer with newsletter",
     description: "A newsletter signup alongside links and contact details.",
-    copy: [],
+    copy: [copy.body(1, 40), copy.field("heading", "Heading", "newsletter", "heading", 2, 8)],
     footer: true,
     defaultTheme: "dark-accent",
     tags: ["newsletter", "columns"],
@@ -187,7 +198,7 @@ export const footerPresets = [
     name: "big-name",
     label: "Big name footer",
     description: "The business name set large across the page, with links and small print beneath.",
-    copy: [],
+    copy: [copy.body(1, 40), copy.headline(1, 3)],
     footer: true,
     defaultTheme: "brand",
     tags: ["typographic", "bold"],
@@ -229,7 +240,7 @@ export const footerPresets = [
     name: "visit",
     label: "Footer with hours and address",
     description: "Address, opening hours and social links — everything for visitors.",
-    copy: [],
+    copy: [copy.body(1, 40), copy.field("heading", "Heading", "contact-info", "heading", 1, 4)],
     footer: true,
     defaultTheme: "dark",
     tags: ["hours", "address", "local"],
@@ -287,7 +298,7 @@ export const footerPresets = [
     name: "minimal-row",
     label: "One-line footer",
     description: "Small print on the left, links on the right, in a single row.",
-    copy: [],
+    copy: [copy.body(1, 40)],
     footer: true,
     defaultTheme: "light",
     tags: ["minimal", "compact"],

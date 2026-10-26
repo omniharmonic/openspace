@@ -37,7 +37,6 @@
   "dependencies": {
     "@openspace/blocks": "workspace:*",
     "@openspace/ops": "workspace:*",
-    "@openspace/renderer": "workspace:*",
     "@openspace/schema": "workspace:*",
     "@openspace/theme": "workspace:*"
   }

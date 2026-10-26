@@ -1,10 +1,10 @@
 import { copyViolations, getPreset } from "@openspace/blocks";
 import { FOOTER, type Op, type SiteDocument } from "@openspace/ops";
-import { fallbackMobileRects } from "@openspace/renderer";
 import {
   type Block,
   COLOR_THEMES,
   type ColorTheme,
+  fallbackMobileRects,
   type GridRect,
   type Page,
   type RichTextDoc,
@@ -508,8 +508,25 @@ class Ctx {
       // Text drawn over a photo needs its own panel (a block color theme) to stay legible.
       const media = section.blocks.filter((x) => PHOTO_BLOCKS.has(x.type));
       for (const t of text) {
-        if (t.style?.colorTheme) continue;
         const rt = rectAt(t.id, bp);
+        let hidden = false;
+        for (const m of media) {
+          const rm = rectAt(m.id, bp);
+          if (!rt || !rm || (rm.z ?? 1) <= (rt.z ?? 1) || !covers(rm, rt)) continue;
+          hidden = true;
+          this.add({
+            rule: "text-hidden",
+            severity: "error",
+            page,
+            section: section.id,
+            block: t.id,
+            key: `${bp}:${m.id}`,
+            message: `A ${t.type} block is completely covered by a ${m.type} on ${names[bp]}, so visitors can't see it.`,
+            fix: `Bring the ${t.type} to the front (a higher layer than the ${m.type}) or move it off the ${m.type}.`,
+          });
+          break;
+        }
+        if (hidden || t.style?.colorTheme) continue;
         for (const m of media) {
           const rm = rectAt(m.id, bp);
           if (!rt || !rm || !overlaps(rt, rm) || (rt.z ?? 1) < (rm.z ?? 1)) continue;
@@ -530,7 +547,11 @@ class Ctx {
                   ...this.meta(),
                   page: page as never,
                   block: t.id,
-                  style: { ...(t.style ?? {}), colorTheme: themeOf(section), padding: { d: "lg", m: "md" } },
+                  style: {
+                    ...(t.style ?? {}),
+                    colorTheme: themeOf(section),
+                    padding: t.style?.padding ?? { d: "lg", m: "md" },
+                  },
                 } as Op,
               ],
             },
@@ -722,6 +743,16 @@ class Ctx {
       });
     }
   }
+}
+
+/** `outer` covers every cell of `inner`. */
+function covers(outer: GridRect, inner: GridRect): boolean {
+  return (
+    outer.x <= inner.x &&
+    outer.y <= inner.y &&
+    outer.x + outer.w >= inner.x + inner.w &&
+    outer.y + outer.h >= inner.y + inner.h
+  );
 }
 
 function overlaps(a: GridRect, b: GridRect): boolean {

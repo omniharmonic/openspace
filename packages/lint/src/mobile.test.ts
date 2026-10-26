@@ -31,6 +31,51 @@ describe("readingOrder", () => {
     expect(order.map((o) => o.id)).toEqual(["left", "right", "middle", "bottom"]);
   });
 
+  it("keeps a text column in order beside a taller photo that starts higher", () => {
+    const order = readingOrder([
+      { id: "photo", rect: { x: 13, y: 1, w: 12, h: 20 } },
+      { id: "eyebrow", rect: { x: 2, y: 3, w: 8, h: 2 } },
+      { id: "heading", rect: { x: 1, y: 6, w: 11, h: 4 } },
+      { id: "button", rect: { x: 2, y: 12, w: 5, h: 2 } },
+    ]);
+    expect(order.map((o) => o.id)).toEqual(["eyebrow", "heading", "button", "photo"]);
+  });
+
+  it("reads a slightly misaligned row of cards left to right", () => {
+    const order = readingOrder([
+      { id: "c", rect: { x: 17, y: 1, w: 8, h: 10 } },
+      { id: "a", rect: { x: 1, y: 3, w: 8, h: 10 } },
+      { id: "b", rect: { x: 9, y: 2, w: 8, h: 10 } },
+    ]);
+    expect(order.map((o) => o.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("reads an aligned 2×2 grid row by row, and staggered columns column by column", () => {
+    const grid = readingOrder([
+      { id: "br", rect: { x: 13, y: 7, w: 12, h: 5 } },
+      { id: "tl", rect: { x: 1, y: 1, w: 12, h: 5 } },
+      { id: "bl", rect: { x: 1, y: 7, w: 12, h: 5 } },
+      { id: "tr", rect: { x: 13, y: 1, w: 12, h: 5 } },
+    ]);
+    expect(grid.map((o) => o.id)).toEqual(["tl", "tr", "bl", "br"]);
+    const staggered = readingOrder([
+      { id: "tl", rect: { x: 1, y: 1, w: 12, h: 5 } },
+      { id: "tr", rect: { x: 13, y: 3, w: 12, h: 5 } },
+      { id: "bl", rect: { x: 1, y: 7, w: 12, h: 5 } },
+      { id: "br", rect: { x: 13, y: 9, w: 12, h: 5 } },
+    ]);
+    expect(staggered.map((o) => o.id)).toEqual(["tl", "bl", "tr", "br"]);
+  });
+
+  it("starts a new band below a gap, even when a column continues", () => {
+    const order = readingOrder([
+      { id: "intro", rect: { x: 1, y: 1, w: 10, h: 4 } },
+      { id: "photo", rect: { x: 13, y: 1, w: 12, h: 6 } },
+      { id: "cta", rect: { x: 1, y: 9, w: 24, h: 3 } },
+    ]);
+    expect(order.map((o) => o.id)).toEqual(["intro", "photo", "cta"]);
+  });
+
   it("does not depend on insertion order", () => {
     const items = [
       { id: "a", rect: { x: 1, y: 1, w: 8, h: 4 } },
@@ -104,6 +149,31 @@ describe("autoMobileLayout", () => {
     expect(overlaps(m(items, photo.id), sm)).toBe(true);
     expect(sm.w).toBeLessThan(8);
     expect(sm.z).toBe(1);
+  });
+
+  it("only layers onto media: a small text block over a big text block stacks", () => {
+    const big = p("A large block of text");
+    const small = p("A small note");
+    const s = gridSection([
+      [big, { x: 1, y: 1, w: 24, h: 12 }],
+      [small, { x: 3, y: 3, w: 6, h: 3, z: 2 }],
+    ]);
+    const items = autoMobileLayout(s);
+    expect(overlaps(m(items, big.id), m(items, small.id))).toBe(false);
+  });
+
+  it("orders stacked items around a panel layered across two columns", () => {
+    const photo = img();
+    const words = p("Words in the left column");
+    const panel = p("A panel over the photo");
+    const s = gridSection([
+      [photo, { x: 10, y: 1, w: 15, h: 24 }],
+      [words, { x: 1, y: 3, w: 8, h: 6 }],
+      [panel, { x: 8, y: 8, w: 10, h: 8, z: 2 }], // 70% on the photo, also touches the words column
+    ]);
+    const items = autoMobileLayout(s);
+    expect(m(items, words.id).y).toBeLessThan(m(items, photo.id).y);
+    expect(overlaps(m(items, photo.id), m(items, panel.id))).toBe(true);
   });
 
   it("stacks side-by-side images that overlap only a little", () => {

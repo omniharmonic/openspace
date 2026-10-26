@@ -39,6 +39,29 @@ export { rt };
 
 export const ALL_THEMES: ColorTheme[] = ["light", "light-accent", "dark", "dark-accent", "brand"];
 
+/** Themes for sections drawn over a photograph. */
+export const PHOTO_THEMES: ColorTheme[] = ["dark", "dark-accent"];
+
+/**
+ * Designed-for themes by category. The saturated `brand` theme suits short, bold sections
+ * (heroes, calls to action, quotes, numbers, footers); dense content — prices, questions, forms,
+ * lists, people — reads better on the four calmer themes.
+ */
+const CALM_THEMES: ColorTheme[] = ["light", "light-accent", "dark", "dark-accent"];
+export const CATEGORY_THEMES: Partial<Record<PresetCategory, ColorTheme[]>> = {
+  about: CALM_THEMES,
+  services: CALM_THEMES,
+  features: CALM_THEMES,
+  gallery: CALM_THEMES,
+  pricing: CALM_THEMES,
+  faq: CALM_THEMES,
+  team: CALM_THEMES,
+  contact: CALM_THEMES,
+  blog: CALM_THEMES,
+  events: CALM_THEMES,
+  products: CALM_THEMES,
+};
+
 export const url = (path: string): Link => ({ type: "url", url: path });
 
 // --- blocks -------------------------------------------------------------------------------------
@@ -309,8 +332,8 @@ export function definePreset(spec: PresetSpec): SectionPreset {
     throw new Error(`preset ${spec.name}: unknown category ${spec.category}`);
   const version = spec.version ?? 1;
   const id = `${spec.category}/${spec.name}@${version}` as PresetId;
-  const themes = spec.themes ?? ALL_THEMES;
-  const defaultTheme = spec.defaultTheme ?? themes[0] ?? "light";
+  let themes = spec.themes ?? CATEGORY_THEMES[spec.category] ?? ALL_THEMES;
+  let defaultTheme = spec.defaultTheme ?? themes[0] ?? "light";
 
   const build = (opts: PresetBuildOptions = {}): Section => {
     const ctx: BuildContext = {
@@ -336,6 +359,12 @@ export function definePreset(spec: PresetSpec): SectionPreset {
   };
 
   const sample = build();
+  // Photo backgrounds are designed for dark themes: the scrim is the section background colour,
+  // and light scrims wash photos out.
+  if (!spec.themes && sample.style.background?.type === "image") {
+    themes = PHOTO_THEMES;
+    if (!themes.includes(defaultTheme)) defaultTheme = "dark";
+  }
   const violations = copyViolations(sample, spec.copy);
   if (violations.length) {
     const v = violations[0];

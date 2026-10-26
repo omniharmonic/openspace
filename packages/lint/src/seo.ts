@@ -1,11 +1,10 @@
 import type { Op, SiteDocument } from "@openspace/ops";
 import type { Page } from "@openspace/schema";
-import { blocksInOrder, blockText, headingsOf, imagesIn } from "./content";
+import { blocksInOrder, blockText, imagesIn } from "./content";
 import { type CheckOptions, type Issue, issue, opMeta, sortIssues } from "./issue";
 
 /**
- * SEO check for one page: title and description (presence, length, uniqueness), a single
- * Heading 1, a social sharing image, thin content, image alt text, vague link labels and
+ * SEO check for one page: title and description (presence, length, uniqueness), a social sharing image, thin content, image alt text, vague link labels and
  * no-index pages. Autofixes fill in a missing description from the page's first paragraph and a
  * missing share image from the page's first photo.
  */
@@ -31,7 +30,7 @@ export function seoCheck(page: Page, doc: SiteDocument, options: CheckOptions = 
       message: `The page title in search results is ${title.length} characters (“${title}”); search engines cut it off after about 60.`,
       fix: "Set a shorter SEO title for this page.",
     });
-  } else if ((page.seo?.title ?? page.title).trim().length < 4) {
+  } else if ((page.seo?.title || page.title).trim().length < 4) {
     add({
       rule: "seo-title-short",
       severity: "info",
@@ -52,7 +51,7 @@ export function seoCheck(page: Page, doc: SiteDocument, options: CheckOptions = 
   }
 
   // Description
-  const description = page.seo?.description ?? undefined;
+  const description = page.seo?.description || undefined;
   const firstParagraph = blocks
     .filter((b) => b.type === "text" || b.type === "heading")
     .map((b) => (b.type === "heading" ? String(b.fields.subheading ?? "") : blockText(b)))
@@ -100,23 +99,8 @@ export function seoCheck(page: Page, doc: SiteDocument, options: CheckOptions = 
     }
   }
 
-  // Heading 1
-  const h1s = blocks.flatMap(headingsOf).filter((h) => h.level === 1);
-  if (h1s.length === 0) {
-    add({
-      rule: "seo-h1-missing",
-      severity: "warning",
-      message: "The page has no Heading 1, which tells search engines what the page is about.",
-      fix: "Make the main headline a Heading 1.",
-    });
-  } else if (h1s.length > 1) {
-    add({
-      rule: "seo-h1-multiple",
-      severity: "info",
-      message: `The page has ${h1s.length} Heading 1s.`,
-      fix: "Keep one Heading 1 and make the others Heading 2.",
-    });
-  }
+  // Heading 1 problems are reported by `designCheck` (heading-missing-h1 / heading-multiple-h1),
+  // which owns the page outline; seoCheck doesn't repeat them.
 
   // Share image
   if (!page.seo?.image && !doc.site.seo?.image) {

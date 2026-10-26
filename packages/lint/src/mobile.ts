@@ -36,27 +36,61 @@ function coverage(a: GridRect, b: GridRect): number {
   return (w * h) / (a.w * a.h);
 }
 
-/** Vertical overlap of two rects as a share of the shorter one. */
-function verticalShare(a: GridRect, b: GridRect): number {
-  const h = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
-  return h <= 0 ? 0 : h / Math.min(a.h, b.h);
-}
-
 /**
- * Visual reading order of desktop rects: items are grouped into horizontal bands (items that
- * share at least half of their height with the band's first item), bands top to bottom, items
- * left to right within a band.
+ * Visual reading order of desktop rects.
+ *
+ * 1. Bands: walking top to bottom, an item joins the current band while it starts above the
+ *    band's bottom edge (it overlaps the band vertically); otherwise it starts a new band.
+ * 2. Columns: inside a band, items whose horizontal extents overlap (transitively) form a
+ *    column. Columns are read left to right, each top to bottom.
+ *
+ * So an eyebrow, heading and button stacked beside a tall photo read eyebrow → heading →
+ * button → photo, even when the photo starts higher; a row of cards reads left to right; and
+ * staggered columns read column by column.
+ *
+ * Note: the renderer's DOM order (and `fallbackMobileRects`) still sorts by each rect's top-left
+ * corner only. Stored `m` placements from `autoMobileLayout` are what make mobile follow this
+ * order; the DOM order for assistive tech is unchanged.
  */
 export function readingOrder<T extends { id: string; rect: GridRect }>(items: readonly T[]): T[] {
   const sorted = [...items].sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x);
   const bands: T[][] = [];
+  let bottom = 0;
   for (const it of sorted) {
     const band = bands[bands.length - 1];
-    const lead = band?.[0];
-    if (band && lead && verticalShare(lead.rect, it.rect) >= 0.5) band.push(it);
-    else bands.push([it]);
+    if (band && it.rect.y < bottom) {
+      band.push(it);
+      bottom = Math.max(bottom, it.rect.y + it.rect.h);
+    } else {
+      bands.push([it]);
+      bottom = it.rect.y + it.rect.h;
+    }
   }
-  return bands.flatMap((band) => band.sort((a, b) => a.rect.x - b.rect.x || a.rect.y - b.rect.y));
+  return bands.flatMap(columnsOf);
+}
+
+/** Group a band into columns of horizontally overlapping items; read columns left to right. */
+function columnsOf<T extends { rect: GridRect }>(band: T[]): T[] {
+  const parent = band.map((_, i) => i);
+  const find = (i: number): number => {
+    let root = i;
+    while (parent[root] !== root) root = parent[root] as number;
+    return root;
+  };
+  for (let i = 0; i < band.length; i++)
+    for (let j = i + 1; j < band.length; j++) {
+      const a = (band[i] as T).rect;
+      const b = (band[j] as T).rect;
+      if (a.x < b.x + b.w && b.x < a.x + a.w) parent[find(i)] = find(j);
+    }
+  const groups = new Map<number, T[]>();
+  band.forEach((it, i) => {
+    const root = find(i);
+    groups.set(root, [...(groups.get(root) ?? []), it]);
+  });
+  return [...groups.values()]
+    .sort((a, b) => Math.min(...a.map((i) => i.rect.x)) - Math.min(...b.map((i) => i.rect.x)))
+    .flatMap((col) => col.sort((a, b) => a.rect.y - b.rect.y || a.rect.x - b.rect.x));
 }
 
 /** Mobile row span for a desktop rect: media keeps its aspect ratio, text its pixel height. */
@@ -97,11 +131,9 @@ export function autoMobileLayout(
       cursor = Math.max(cursor, item.m.y + item.m.h + 1);
     }
   }
-  const pending = readingOrder(
-    Object.entries(layout.items)
-      .filter(([, item]) => options.reset || !item.m)
-      .map(([id, item]) => ({ id, rect: item.d })),
-  );
+  const pending = Object.entries(layout.items)
+    .filter(([, item]) => options.reset || !item.m)
+    .map(([id, item]) => ({ id, rect: item.d }));
   const cols = GRID_COLUMNS.m;
 
   // An item is layered on a larger item that covers at least half of it (a caption card on a
@@ -111,7 +143,16 @@ export function autoMobileLayout(
   const hostOf = new Map<string, string>();
   for (const { id, rect } of pending) {
     const host = all
-      .filter((o) => o.id !== id && area(o.d) > area(rect) && coverage(rect, o.d) >= 0.5)
+      .filter((o) => {
+        const hb = blocks.get(o.id);
+        return (
+          o.id !== id &&
+          !!hb &&
+          !isTextBlock(hb) &&
+          area(o.d) > area(rect) &&
+          coverage(rect, o.d) >= 0.5
+        );
+      })
       .sort((x, y) => coverage(rect, y.d) - coverage(rect, x.d) || area(y.d) - area(x.d))[0];
     if (host) hostOf.set(id, host.id);
   }
@@ -171,8 +212,10 @@ export function autoMobileLayout(
   // Items layered on stored (kept) placements.
   for (const pl of [...placed]) placeLayered(pl.id);
   // Stack the items that aren't layered on anything in reading order, each followed by its layers.
-  for (const { id, rect: d } of pending) {
-    if (hostOf.has(id) || placedById.has(id)) continue;
+  // Reading order is computed over the items that stack, so a panel layered across two columns
+  // doesn't merge them.
+  for (const { id, rect: d } of readingOrder(pending.filter((it) => !hostOf.has(it.id)))) {
+    if (placedById.has(id)) continue;
     const block = blocks.get(id);
     const m: GridRect = { x: 1, y: cursor, w: cols, h: mobileHeight(block, d, width) };
     if (d.z !== undefined) m.z = d.z;

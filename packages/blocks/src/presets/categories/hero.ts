@@ -18,11 +18,11 @@ import {
   text,
 } from "../kit";
 
-const headline = copy.headline(3, 10, 1);
+const headline = copy.headline(3, 9, 1);
 const intro = copy.sub(10, 40);
 
 const AI_AVOID =
-  "More than one hero per page; a second Heading 1; headlines longer than ten words; stock photos that don't show the business.";
+  "More than one hero per page; a second Heading 1; headlines longer than nine words; stock photos that don't show the business.";
 
 export const heroPresets = [
   definePreset({
@@ -336,7 +336,7 @@ export const heroPresets = [
     label: "Big type with details",
     description:
       "An oversized headline across the page with the introduction and action in two columns below.",
-    copy: [headline, intro],
+    copy: [headline, intro, copy.body(8, 40)],
     defaultTheme: "light",
     tags: ["text-only", "typographic", "bold"],
     links: { primary: "/contact", secondary: "/case-studies" },
@@ -414,7 +414,7 @@ export const heroPresets = [
     name: "staggered-photos",
     label: "Staggered photographs",
     description: "Three photos stepped across the page with the headline layered in front.",
-    copy: [headline, intro],
+    copy: [headline, intro, copy.body(8, 40)],
     images: [{ slot: "photos", aspect: "fill", count: 3 }],
     defaultTheme: "light",
     tags: ["image", "grid", "overlap", "gallery"],
@@ -509,7 +509,7 @@ export const heroPresets = [
     name: "caption-card",
     label: "Photograph with caption card",
     description: "A wide photograph with a card overlapping its lower edge.",
-    copy: [headline, intro],
+    copy: [headline, intro, copy.body(8, 40)],
     images: [{ slot: "photo", aspect: "fill" }],
     tags: ["image", "grid", "overlap", "card"],
     links: { primary: "/donate", secondary: "/our-work" },

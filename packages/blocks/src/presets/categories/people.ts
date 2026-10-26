@@ -58,7 +58,7 @@ export const faqPresets = [
     name: "split",
     label: "Questions beside heading",
     description: "A heading and contact prompt on the left, questions on the right.",
-    copy: [headline, q],
+    copy: [headline, q, copy.body(4, 25)],
     defaultTheme: "light",
     tags: ["accordion", "two-column"],
     links: { primary: "/contact" },
@@ -365,9 +365,9 @@ export const teamPresets = [
       const panel = text(
         [
           rt.p("Founder", "eyebrow"),
-          rt.h(2, "Walt Hughes", "h2"),
+          rt.h(2, "Marion Hughes", "h2"),
           rt.p(
-            "Walt built his first bike from scrap parts at eleven and opened the shop at twenty-four. Forty years later he still does every wheel build himself and teaches the Tuesday repair class.",
+            "Marion built her first bike from scrap parts at eleven and opened the shop at twenty-four. Forty years later she still does every wheel build herself and teaches the Tuesday repair class.",
           ),
         ],
         { style: { colorTheme: c.theme, padding: { d: "xl", m: "md" } } },

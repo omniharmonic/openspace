@@ -411,7 +411,7 @@ export const contactPresets = [
     name: "hours-overlap",
     label: "Hours card over photo",
     description: "A photograph of the shopfront with an opening-hours card layered on top.",
-    copy: [],
+    copy: [copy.field("heading", "Heading", "hours", "heading", 1, 4)],
     images: [{ slot: "photo", aspect: "fill" }],
     tags: ["image", "grid", "overlap", "hours"],
     ai: {
