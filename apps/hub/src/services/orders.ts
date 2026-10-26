@@ -371,18 +371,22 @@ export async function completeSession(
   const invoice = typeof session.invoice === "string" ? session.invoice : null;
   // Subscription sessions are paid through their first invoice: its payment intent is what
   // refunds use and what `charge.refunded` events name.
+  const fromInvoice =
+    typeof session.payment_intent !== "string" && invoice
+      ? await invoicePaymentIntent(services, site.id, invoice, log)
+      : null;
   const pi =
     typeof session.payment_intent === "string"
       ? session.payment_intent
-      : invoice
-        ? await invoicePaymentIntent(services, site.id, invoice, log)
-        : null;
+      : (fromInvoice?.paymentIntent ?? null);
   if (invoice)
     await db
       .prepare(
-        "UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.invoice', ?) WHERE id = ?",
+        `UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.invoice', ?,
+           '$.noPayment', json(?)) WHERE id = ?`,
       )
-      .bind(invoice, order.id)
+      // A $0 first invoice (full discount, trial) has no payment to refund: nothing to look up.
+      .bind(invoice, fromInvoice?.read && !fromInvoice.paymentIntent ? "true" : "false", order.id)
       .run();
   const common = [
     email,
@@ -591,14 +595,27 @@ async function invoicePaymentIntent(
   siteId: string,
   invoice: string,
   log?: Logger,
-): Promise<string | null> {
+): Promise<{ read: boolean; paymentIntent: string | null }> {
   try {
     const { api } = await stripeForSite(services, siteId);
-    return (await api.retrieveInvoice(invoice)).paymentIntent;
+    return { read: true, paymentIntent: (await api.retrieveInvoice(invoice)).paymentIntent };
   } catch (err) {
     log?.warn("couldn't read a subscription invoice; the daily cron retries", { invoice, err });
-    return null;
+    return { read: false, paymentIntent: null };
   }
+}
+
+/** Retries of subscription housekeeping (invoice lookups, cancels) before giving up. */
+export const MAX_SUBSCRIPTION_ATTEMPTS = 7;
+
+async function noteSubscriptionAttempt(services: Services, orderId: string) {
+  await services.db
+    .prepare(
+      `UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.subAttempts',
+         COALESCE(json_extract(meta_json, '$.subAttempts'), 0) + 1) WHERE id = ?`,
+    )
+    .bind(orderId)
+    .run();
 }
 
 /**
@@ -625,11 +642,10 @@ async function cancelRefundedSubscription(services: Services, orderId: string, l
   } catch (err) {
     log?.error("couldn't cancel a refunded subscription", { order: order.id, err });
     await services.db
-      .prepare(
-        "UPDATE orders SET followup_attempts = followup_attempts + 1, followup_error = ? WHERE id = ?",
-      )
+      .prepare("UPDATE orders SET followup_error = ? WHERE id = ?")
       .bind(failureNote("Canceling the subscription failed", err), order.id)
       .run();
+    await noteSubscriptionAttempt(services, order.id);
   }
 }
 
@@ -730,25 +746,38 @@ export async function retryOrderFollowups(services: Services, log?: Logger) {
   // (refunds need it), and cancel refunded subscriptions that are still running.
   const subs = await services.db
     .prepare(
-      `SELECT * FROM orders WHERE kind = 'order' AND subscription_id IS NOT NULL AND (
-         (payment_intent IS NULL AND json_extract(meta_json, '$.invoice') IS NOT NULL
-           AND status IN ('paid', 'out_of_stock', 'partially_refunded'))
-         OR (refunded >= total AND total > 0 AND COALESCE(json_extract(meta_json, '$.subscriptionEnded'), 0) = 0))
-       LIMIT 100`,
+      `SELECT * FROM orders WHERE kind = 'order' AND subscription_id IS NOT NULL
+         AND COALESCE(json_extract(meta_json, '$.subAttempts'), 0) < ?
+         AND (
+           (payment_intent IS NULL AND json_extract(meta_json, '$.invoice') IS NOT NULL
+             AND COALESCE(json_extract(meta_json, '$.noPayment'), 0) = 0
+             AND status IN ('paid', 'out_of_stock', 'partially_refunded'))
+           OR (refunded >= total AND total > 0
+             AND COALESCE(json_extract(meta_json, '$.subscriptionEnded'), 0) = 0))
+       ORDER BY created_at LIMIT 100`,
     )
+    .bind(MAX_SUBSCRIPTION_ATTEMPTS)
     .all<OrderRow>();
   let subscriptions = 0;
   for (const o of subs.results) {
     if (!o.payment_intent) {
       const invoice = parse<{ invoice?: string }>(o.meta_json, {}).invoice;
-      const pi = invoice ? await invoicePaymentIntent(services, o.site_id, invoice, log) : null;
-      if (pi) {
+      const r = invoice ? await invoicePaymentIntent(services, o.site_id, invoice, log) : null;
+      if (r?.paymentIntent) {
         await services.db
           .prepare("UPDATE orders SET payment_intent = ? WHERE id = ? AND payment_intent IS NULL")
-          .bind(pi, o.id)
+          .bind(r.paymentIntent, o.id)
           .run();
         subscriptions++;
-      }
+      } else if (r?.read) {
+        // Read, but nothing was charged ($0 invoice): leave the queue for good.
+        await services.db
+          .prepare(
+            "UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.noPayment', json('true')) WHERE id = ?",
+          )
+          .bind(o.id)
+          .run();
+      } else await noteSubscriptionAttempt(services, o.id);
     } else {
       await cancelRefundedSubscription(services, o.id, log);
       subscriptions++;

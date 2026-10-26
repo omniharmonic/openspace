@@ -150,7 +150,16 @@ export async function createUpload(
   services: Services,
   site: SiteRow,
   form: Form,
-  input: { field: string; name: string; type: string; size: number; verified?: boolean },
+  input: {
+    field: string;
+    name: string;
+    type: string;
+    size: number;
+    /** Passed Turnstile (a root). */
+    verified?: boolean;
+    /** Reserved on the proof of this root instead. */
+    proofOf?: string | null;
+  },
 ): Promise<{ id: string; uploadUrl: string; expiresAt: string; type: string }> {
   const field = fileField(form, input.field);
   const name = cleanFileName(input.name);
@@ -162,8 +171,8 @@ export async function createUpload(
   const id = randomId("upl");
   await services.db
     .prepare(
-      `INSERT INTO form_uploads (id, site_id, form_id, field, name, type, size, status, created_at, expires_at, verified)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+      `INSERT INTO form_uploads (id, site_id, form_id, field, name, type, size, status, created_at, expires_at, verified, proof_of)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)`,
     )
     .bind(
       id,
@@ -175,7 +184,8 @@ export async function createUpload(
       input.size,
       now,
       now + PENDING_TTL,
-      input.verified ? 1 : 0,
+      input.verified && !input.proofOf ? 1 : 0,
+      input.proofOf ?? null,
     )
     .run();
   const exp = now + UPLOAD_LINK_TTL;
@@ -350,28 +360,58 @@ export async function attachUploads(
   return false;
 }
 
+const PROOF_WINDOW = 10 * 60 * 1000;
+
+interface ProofRoot {
+  id: string;
+  created_at: number;
+}
+
 /**
- * Proof for a reservation without a Turnstile token: an earlier reservation for the same form
- * that passed Turnstile in the last 10 minutes and isn't attached yet (one submit, several files).
+ * A Turnstile-verified reservation ("root") of this form that is still usable: not consumed by a
+ * submission, not attached, and made in the last 10 minutes.
  */
-export async function verifiedUpload(
+async function liveRoot(
   services: Services,
   siteId: string,
   formId: string,
   id: unknown,
-): Promise<boolean> {
-  if (typeof id !== "string" || !/^upl_[0-9a-z]+$/.test(id)) return false;
-  const row = await services.db
+): Promise<ProofRoot | null> {
+  if (typeof id !== "string" || !/^upl_[0-9a-z]+$/.test(id)) return null;
+  return services.db
     .prepare(
-      `SELECT 1 AS ok FROM form_uploads WHERE id = ? AND site_id = ? AND form_id = ? AND verified = 1
-         AND status != 'attached' AND created_at > ?`,
+      `SELECT id, created_at FROM form_uploads WHERE id = ? AND site_id = ? AND form_id = ?
+         AND verified = 1 AND proof_of IS NULL AND status != 'attached' AND created_at > ?`,
     )
-    .bind(id, siteId, formId, services.now() - 10 * 60 * 1000)
-    .first<{ ok: number }>();
-  return !!row;
+    .bind(id, siteId, formId, services.now() - PROOF_WINDOW)
+    .first<ProofRoot>();
 }
 
-/** True if a submission names a verified upload of this form (its Turnstile token went there). */
+/**
+ * Proof for a reservation without a Turnstile token (the other files of one submit): `proof`
+ * must be a live root, not a proof-derived reservation (no chaining), and the root vouches for at
+ * most `maxDerived` more files (the form's other file fields). Returns the root id, or null.
+ */
+export async function proofRoot(
+  services: Services,
+  siteId: string,
+  formId: string,
+  proof: unknown,
+  maxDerived: number,
+): Promise<string | null> {
+  const root = await liveRoot(services, siteId, formId, proof);
+  if (!root || maxDerived < 1) return null;
+  const used = await services.db
+    .prepare("SELECT COUNT(*) AS n FROM form_uploads WHERE proof_of = ?")
+    .bind(root.id)
+    .first<{ n: number }>();
+  return (used?.n ?? 0) < maxDerived ? root.id : null;
+}
+
+/**
+ * True if a submission names an upload of a live root of this form (its Turnstile token was spent
+ * reserving it). Each root vouches for one submission: it is consumed here.
+ */
 export async function submissionHasVerifiedUpload(
   services: Services,
   siteId: string,
@@ -382,7 +422,18 @@ export async function submissionHasVerifiedUpload(
     if (f.type !== "file") continue;
     const raw = values[f.name];
     const id = Array.isArray(raw) ? raw[raw.length - 1] : raw;
-    if (await verifiedUpload(services, siteId, form.id, id)) return true;
+    if (typeof id !== "string" || !/^upl_[0-9a-z]+$/.test(id)) continue;
+    const row = await services.db
+      .prepare("SELECT id, proof_of FROM form_uploads WHERE id = ? AND site_id = ? AND form_id = ?")
+      .bind(id, siteId, form.id)
+      .first<{ id: string; proof_of: string | null }>();
+    const root = row ? await liveRoot(services, siteId, form.id, row.proof_of ?? row.id) : null;
+    if (!root) continue;
+    const consumed = await services.db
+      .prepare("UPDATE form_uploads SET verified = 2 WHERE id = ? AND verified = 1")
+      .bind(root.id)
+      .run();
+    if ((consumed.meta.changes ?? 0) === 1) return true;
   }
   return false;
 }

@@ -244,6 +244,14 @@ describe("form file uploads (PRD 5.2, P4)", () => {
     const second = await reserve(f, { field: "letter", name: "b.pdf", ...meta, proof: first.id });
     expect(second.status).toBe(201);
     const secondBody = (await second.json()) as { id: string; uploadUrl: string };
+    // No chaining: a proof-derived reservation is never a proof itself, and a root vouches only
+    // for the form's other file fields (here one).
+    expect(
+      (await reserve(f, { field: "letter", name: "c.pdf", ...meta, proof: secondBody.id })).status,
+    ).toBe(403);
+    expect(
+      (await reserve(f, { field: "letter", name: "d.pdf", ...meta, proof: first.id })).status,
+    ).toBe(403);
     await put(f, first.uploadUrl);
     await put(f, secondBody.uploadUrl);
     // No token left for the entry itself: the verified upload vouches for it.
@@ -253,6 +261,13 @@ describe("form file uploads (PRD 5.2, P4)", () => {
       { json: true, formId: TWO.id },
     );
     expect(sent.status).toBe(200);
+    // The root vouched for that one entry: another entry can't reuse it.
+    const again = await postForm(
+      f,
+      { email: "eve@example.com", cv: first.id, letter: secondBody.id },
+      { json: true, formId: TWO.id },
+    );
+    expect(again.status).toBe(403);
   });
 
   it("infers a missing MIME type from the extension and counts open reservations in the quota", async () => {

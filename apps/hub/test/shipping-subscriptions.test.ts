@@ -6,8 +6,9 @@ import { MAIN_BRANCH, parseRepo } from "../src/github/types";
 import { createServices } from "../src/services";
 import { catalogFromDocument } from "../src/services/catalog";
 import { shippingRatesFor } from "../src/services/commerce";
-import { retryOrderFollowups } from "../src/services/orders";
+import { MAX_SUBSCRIPTION_ATTEMPTS, retryOrderFollowups } from "../src/services/orders";
 import { serializeMdoc } from "../src/services/site-files";
+import { HttpStripe } from "../src/services/stripe";
 import {
   devSession,
   makeGrowthApp,
@@ -20,6 +21,7 @@ import {
   WEBHOOK_SECRET,
 } from "./growth-helpers";
 import { call } from "./helpers";
+import { mockFetch } from "./mock-fetch";
 import type { SiteFixture } from "./public-helpers";
 
 const sessionId = (url: string) => new URL(url).pathname.split("/").pop() as string;
@@ -376,5 +378,63 @@ describe("subscription products (PRD 5.6, Stripe Billing)", () => {
     const after = await orderOf(orderId);
     expect(after.status).toBe("refunded");
     expect(await subscriptionCanceled(after.subscription_id)).toBe(true);
+  });
+
+  it("treats an already-gone subscription as canceled (Stripe 404 resource_missing)", async () => {
+    const m = mockFetch([
+      [
+        "DELETE",
+        /api\.stripe\.com\/v1\/subscriptions\/sub_gone/,
+        () =>
+          new Response(
+            JSON.stringify({
+              error: { code: "resource_missing", message: "No such subscription" },
+            }),
+            { status: 404 },
+          ),
+      ],
+      [
+        "DELETE",
+        /api\.stripe\.com\/v1\/subscriptions\/sub_err/,
+        () => new Response(JSON.stringify({ error: { message: "boom" } }), { status: 500 }),
+      ],
+    ]);
+    const key = ["sk", "test", "abc"].join("_");
+    const s = new HttpStripe(key, m.fetch, "acct_owner");
+    await expect(s.cancelSubscription("sub_gone")).resolves.toBeUndefined();
+    await expect(s.cancelSubscription("sub_err")).rejects.toMatchObject({ upstreamStatus: 500 });
+  });
+
+  it("drops $0 invoices from the cron and caps retries for unreadable ones", async () => {
+    const { app, f } = await setup();
+    const pay = async () => {
+      const { url, orderId } = (await (
+        await postCheckout(f, { items: [{ sku: "JOURNAL-YEAR", qty: 1 }] })
+      ).json()) as { url: string; orderId: string };
+      await payDev(app, url);
+      return orderId;
+    };
+    // A $0 invoice (full discount): no payment intent will ever exist.
+    const free = await pay();
+    const freeInvoice = JSON.parse((await orderOf(free)).meta_json).invoice as string;
+    await env.HUB_DB.prepare("UPDATE dev_stripe_objects SET data_json = '{}' WHERE id = ?")
+      .bind(freeInvoice)
+      .run();
+    // An invoice Stripe can't find (yet).
+    const missing = await pay();
+    const missingInvoice = JSON.parse((await orderOf(missing)).meta_json).invoice as string;
+    await env.HUB_DB.prepare("DELETE FROM dev_stripe_objects WHERE id = ?")
+      .bind(missingInvoice)
+      .run();
+    await env.HUB_DB.prepare("UPDATE orders SET payment_intent = NULL WHERE id IN (?, ?)")
+      .bind(free, missing)
+      .run();
+    const services = createServices(env as never, readConfig(env as never));
+    await retryOrderFollowups(services);
+    expect(JSON.parse((await orderOf(free)).meta_json).noPayment).toBe(true);
+    for (let i = 0; i < MAX_SUBSCRIPTION_ATTEMPTS + 2; i++) await retryOrderFollowups(services);
+    expect(JSON.parse((await orderOf(missing)).meta_json).subAttempts).toBe(
+      MAX_SUBSCRIPTION_ATTEMPTS,
+    );
   });
 });

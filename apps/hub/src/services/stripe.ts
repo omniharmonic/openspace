@@ -110,6 +110,8 @@ export interface StripeApi {
 }
 
 export class StripeError extends HttpError {
+  /** Stripe's own HTTP status (`status` is what the Hub answers with: 402 or 502). */
+  readonly upstreamStatus: number;
   constructor(
     status: number,
     readonly stripeCode: string | undefined,
@@ -121,6 +123,7 @@ export class StripeError extends HttpError {
       `Stripe couldn't complete that: ${message}`,
     );
     this.name = "StripeError";
+    this.upstreamStatus = status;
   }
 }
 
@@ -215,8 +218,14 @@ export class HttpStripe implements StripeApi {
         idempotencyKey ? { idempotencyKey } : {},
       );
     } catch (err) {
-      // Already canceled: nothing left to do.
-      if (err instanceof StripeError && err.status === 404) return;
+      // Gone or already canceled: nothing left to do.
+      if (
+        err instanceof StripeError &&
+        (err.upstreamStatus === 404 ||
+          err.stripeCode === "resource_missing" ||
+          (err.upstreamStatus === 400 && /cancel/i.test(err.message)))
+      )
+        return;
       throw err;
     }
   }

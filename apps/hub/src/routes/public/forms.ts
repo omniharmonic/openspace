@@ -30,13 +30,13 @@ import { siteBaseUrl } from "../../services/email";
 import {
   attachUploads,
   createUpload,
+  proofRoot,
   receiveUpload,
   resolveUploads,
   serveDownload,
   storeDirect,
   submissionHasVerifiedUpload,
   type UploadedFile,
-  verifiedUpload,
 } from "../../services/form-uploads";
 import { loadManifest, SPAM_THRESHOLD, spamScore, validateSubmission } from "../../services/forms";
 import { notifyInstant } from "../../services/notifications";
@@ -271,14 +271,21 @@ publicFormRoutes.post("/f/:siteId/:formId/uploads", async (c) => {
     proof?: unknown;
   } | null;
   const formId = c.req.param("formId");
-  // Reservations have their own rate bucket, and need Turnstile or proof from a verified one.
-  const proven = await verifiedUpload(services, site.id, formId, body?.proof);
+  const base = siteBaseUrl(site, services.config.hubUrl);
+  const entry = (await loadManifest(services, site, base)).find((f) => f.form.id === formId);
+  if (!entry) throw new HttpError(404, "form_not_found", "This form isn't accepting entries.");
+  // Reservations have their own rate bucket, and need Turnstile, or proof from a root reserved
+  // with Turnstile for the same submit (only for the form's other file fields; no chaining).
+  const fileFields = entry.form.fields.filter((f) => f.type === "file").length;
+  const root = body?.proof
+    ? await proofRoot(services, site.id, formId, body.proof, fileFields - 1)
+    : null;
   const blocked = await gate(
     c,
     site,
     "upload",
     typeof body?.token === "string" ? body.token : null,
-    proven ? { turnstile: false } : {},
+    root ? { turnstile: false } : {},
   );
   if (blocked) return c.json(failureBody(blocked), blocked.status as 429);
   if (
@@ -289,15 +296,13 @@ publicFormRoutes.post("/f/:siteId/:formId/uploads", async (c) => {
     typeof body.size !== "number"
   )
     throw new HttpError(400, "invalid_request", "Send the file's field, name, type and size.");
-  const base = siteBaseUrl(site, services.config.hubUrl);
-  const entry = (await loadManifest(services, site, base)).find((f) => f.form.id === formId);
-  if (!entry) throw new HttpError(404, "form_not_found", "This form isn't accepting entries.");
   const upload = await createUpload(services, site, entry.form, {
     field: body.field,
     name: body.name,
     type: body.type,
     size: body.size,
-    verified: true,
+    verified: !root,
+    proofOf: root,
   });
   return c.json(upload, 201);
 });
