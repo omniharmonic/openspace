@@ -72,6 +72,8 @@ function invertBody(doc: SiteDocument, op: Op): Body {
         variant: op.variant !== undefined ? (block.variant ?? null) : undefined,
         style: op.style !== undefined ? (block.style ? clone(block.style) : null) : undefined,
         column: op.column !== undefined ? (block.column ?? null) : undefined,
+        label: op.label !== undefined ? (block.label ?? null) : undefined,
+        hidden: op.hidden !== undefined ? (block.hidden ?? null) : undefined,
       });
     }
     case "block.insert": {

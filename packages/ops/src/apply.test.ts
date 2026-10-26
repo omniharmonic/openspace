@@ -108,6 +108,32 @@ describe("apply / invert / validate", () => {
     ).toMatch(/not on page/);
   });
 
+  it("block.update sets and clears a block's layers label and visibility (and inverts)", () => {
+    const doc = siteFixture();
+    const op = {
+      op: "block.update" as const,
+      page: home,
+      block: IDS.button,
+      label: "Main call to action",
+      hidden: true,
+    };
+    const { doc: next } = ok(doc, op);
+    const b = next.pages[home]?.sections[0]?.blocks[1];
+    expect(b).toMatchObject({ label: "Main call to action", hidden: true });
+    const inv = invert(doc, { ...op, id: "x", actor: "a", ts: 1 });
+    expect(inv).toMatchObject({ label: null, hidden: null });
+    expect(apply(next, inv)).toEqual(doc);
+    const { doc: shown } = ok(next, {
+      op: "block.update",
+      page: home,
+      block: IDS.button,
+      hidden: false,
+      label: null,
+    });
+    expect(shown.pages[home]?.sections[0]?.blocks[1]).not.toHaveProperty("hidden");
+    expect(shown.pages[home]?.sections[0]?.blocks[1]).not.toHaveProperty("label");
+  });
+
   it("block.update edits footer blocks", () => {
     const doc = siteFixture();
     const { doc: next } = ok(doc, {

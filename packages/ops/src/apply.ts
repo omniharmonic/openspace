@@ -115,6 +115,14 @@ export function mutate(doc: SiteDocument, op: Op): void {
         if (op.style === null) delete b.style;
         else b.style = clone(op.style);
       }
+      if (op.label !== undefined) {
+        if (op.label === null) delete b.label;
+        else b.label = op.label;
+      }
+      if (op.hidden !== undefined) {
+        if (!op.hidden) delete b.hidden;
+        else b.hidden = true;
+      }
       if (op.column !== undefined) {
         if (op.column === null) delete b.column;
         else b.column = op.column;

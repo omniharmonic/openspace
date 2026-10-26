@@ -5,6 +5,7 @@ import {
   HubError,
   type Session,
   type Site,
+  type SiteDocumentResponse,
   type TemplateSummary,
   type TransferResult,
   type User,
@@ -132,6 +133,10 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
       await request<void>("DELETE", `/api/sites/${encodeURIComponent(id)}`, {
         confirm: confirmName,
       });
+    },
+
+    async getDocument(id) {
+      return request<SiteDocumentResponse>("GET", `/api/sites/${encodeURIComponent(id)}/document`);
     },
 
     async transferSite(id, to) {

@@ -439,6 +439,11 @@ describe("Section", () => {
 describe("Block", () => {
   const block = hero.blocks[2];
   it("accepts block instances", () => expectValid(BlockSchema, block));
+  it("accepts an optional layers label and hidden flag", () => {
+    expectValid(BlockSchema, { ...block, label: "Studio photo", hidden: true });
+    expectInvalid(BlockSchema, { ...block, label: "x".repeat(81) });
+    expectInvalid(BlockSchema, { ...block, hidden: "yes" });
+  });
   it("rejects malformed instances", () => {
     expectInvalid(BlockSchema, { ...block, id: "blk_a3" });
     expectInvalid(BlockSchema, { ...block, type: "Image" });

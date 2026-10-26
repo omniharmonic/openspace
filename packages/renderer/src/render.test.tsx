@@ -1,11 +1,24 @@
-import { SiteDocumentSchema } from "@openspace/schema";
+import {
+  type Block,
+  defineBlock,
+  f,
+  type RichTextDoc,
+  SiteDocumentSchema,
+} from "@openspace/schema";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { fixtureBlocks } from "./__fixtures__/blocks";
 import { IDS, must, siteFixture } from "./__fixtures__/site";
 import { BlockView } from "./block";
-import { EditorContext, ImageResolverContext, RenderContext, type RenderMode } from "./context";
+import {
+  EditorContext,
+  fieldPathOf,
+  ImageResolverContext,
+  RenderContext,
+  type RenderMode,
+  type RichTextHookArgs,
+} from "./context";
 import { Header } from "./header";
 import { Img } from "./image";
 import { resolveLink } from "./link";
@@ -452,5 +465,114 @@ describe("fix round 1", () => {
     expect(html(<Img src="https://example.com/p.jpg" alt="" aspect="16:9" />)).not.toContain(
       "is-unsized",
     );
+  });
+});
+
+const faqBlock = defineBlock({
+  type: "faq-test",
+  version: 1,
+  category: "text",
+  label: "FAQ",
+  icon: "list",
+  fields: {
+    intro: f.richText(),
+    items: f.list({ fields: { q: f.text(), a: f.richText() } }),
+  },
+  ai: { purpose: "test", whenToUse: "test", avoid: "test" },
+  render: ({ fields }) => (
+    <div>
+      <RichText doc={fields.intro as RichTextDoc} className="intro" />
+      {(fields.items as Array<{ q: string; a: RichTextDoc }>).map((it) => (
+        <section key={it.q}>
+          <h3>{it.q}</h3>
+          <RichText doc={it.a} as="article" />
+        </section>
+      ))}
+    </div>
+  ),
+});
+
+const p = (text: string): RichTextDoc => ({
+  type: "doc",
+  content: [{ type: "paragraph", content: [{ type: "text", text }] }],
+});
+
+describe("editor hooks: rich text and hidden blocks", () => {
+  beforeAll(() => registerBlocks([faqBlock]));
+  const faq: Block = {
+    id: "blk_faqtest001",
+    type: "faq-test",
+    v: 1,
+    fields: {
+      intro: p("Hello"),
+      items: [
+        { q: "One", a: p("First") },
+        { q: "Two", a: p("Second") },
+      ],
+    },
+  };
+
+  it("renders identically when no renderRichText hook is set", () => {
+    const plain = html(<BlockView block={faq} />, "editor");
+    const withOtherHooks = html(
+      <EditorContext.Provider value={{ wrapBlock: ({ children }) => children }}>
+        <BlockView block={faq} />
+      </EditorContext.Provider>,
+      "editor",
+    );
+    expect(withOtherHooks).toBe(plain);
+    expect(plain).toContain('<div class="os-rich intro"><p>Hello</p></div>');
+    expect(plain).toContain('<article class="os-rich"><p>Second</p></article>');
+  });
+
+  it("calls renderRichText with each field's path, classes, element and default output", () => {
+    const calls: Omit<RichTextHookArgs, "children">[] = [];
+    const out = html(
+      <EditorContext.Provider
+        value={{
+          renderRichText: ({ children, ...args }) => {
+            calls.push(args);
+            return args.fieldPath === "items.1.a" ? <i data-editing={args.fieldPath} /> : children;
+          },
+        }}
+      >
+        <BlockView block={faq} />
+      </EditorContext.Provider>,
+      "editor",
+    );
+    expect(calls.map((c) => [c.fieldPath, c.className, c.as])).toEqual([
+      ["intro", "intro", "div"],
+      ["items.0.a", undefined, "article"],
+      ["items.1.a", undefined, "article"],
+    ]);
+    expect(calls[0]?.block.id).toBe(faq.id);
+    expect(out).toContain('<i data-editing="items.1.a"></i>');
+    expect(out).toContain("First");
+    expect(out).not.toContain("Second");
+  });
+
+  it("finds field paths by identity", () => {
+    const fields = { a: p("x"), list: [{ b: p("y") }] };
+    expect(fieldPathOf(fields, fields.list[0]?.b)).toBe("list.0.b");
+    expect(fieldPathOf(fields, p("x"))).toBeUndefined();
+  });
+
+  it("skips hidden blocks on the site and ghosts them in the editor", () => {
+    const hidden = { ...must(hero.blocks[0]), hidden: true, label: "Headline" };
+    const section = { ...hero, blocks: [hidden, ...hero.blocks.slice(1)] };
+    for (const mode of ["production", "preview"] as const) {
+      const out = html(<SectionView section={section} />, mode);
+      expect(out).not.toContain(`data-os-id="${hidden.id}"`);
+      expect(html(<BlockView block={hidden} />, mode)).toBe("");
+    }
+    const editor = html(<SectionView section={section} />, "editor");
+    expect(editor).toMatch(new RegExp(`data-os-id="${hidden.id}"[^>]*data-os-hidden=""`));
+    // Grid sections skip the hidden block's grid cell too.
+    const gridHidden = {
+      ...grid,
+      blocks: grid.blocks.map((b, i) => (i === 0 ? { ...b, hidden: true } : b)),
+    };
+    const first = must(grid.blocks[0]);
+    expect(html(<SectionView section={gridHidden} />)).not.toContain(`data-os-item="${first.id}"`);
   });
 });

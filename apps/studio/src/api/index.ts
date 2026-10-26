@@ -11,7 +11,9 @@ import type { HubApi } from "./types";
  * (loaded on demand so it never ships in the default bundle), else HTTP to `VITE_HUB_URL`.
  */
 export async function hubFromEnv(env: ImportMetaEnv = import.meta.env): Promise<HubApi> {
-  if (env.VITE_MOCK_API === "1" || env.VITE_MOCK_API === "true") {
+  // Read the flag straight off `import.meta.env` so production builds drop the mock (and its
+  // demo content) entirely: Vite inlines the value and the dead branch is removed.
+  if (import.meta.env.VITE_MOCK_API === "1" || import.meta.env.VITE_MOCK_API === "true") {
     const { createMockHub } = await import("./mock");
     return createMockHub({ sites: "demo", persistKey: "openspace.mockHub", latencyMs: 250 });
   }
