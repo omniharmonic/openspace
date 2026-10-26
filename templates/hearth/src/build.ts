@@ -9,6 +9,7 @@ import {
   makePage,
   page,
   photo,
+  PHOTO_SCRIM,
   photoBackground,
   photoUrl,
   rt,
@@ -293,7 +294,7 @@ function home() {
         },
       }),
       fromPreset("cta/photo-background@1", {
-        style: { background: photoBackground(photo("terrace", 1440, "original"), 0.62) },
+        style: { background: photoBackground(photo("terrace", 1440, "original"), PHOTO_SCRIM) },
         edit: {
           0: {
             text: "A long table for your celebration",

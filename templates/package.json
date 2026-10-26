@@ -40,7 +40,10 @@
     "@openspace/lint": "workspace:*",
     "@openspace/renderer": "workspace:*",
     "@openspace/site-kit": "workspace:*",
+    "@types/jsdom": "^30.0.0",
     "@types/node": "catalog:",
+    "axe-core": "^4.14.0",
+    "jsdom": "^30.1.3",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

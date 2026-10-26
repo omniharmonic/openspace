@@ -322,10 +322,17 @@ export function section(
   };
 }
 
+/**
+ * Overlay opacity for text sections over photographs. The Design check requires text to pass
+ * WCAG against the scrim over both a black and a white photo, which every look's dark themes
+ * reach at 78%.
+ */
+export const PHOTO_SCRIM = 0.78;
+
 /** A theme-relative scrim over a background photograph. */
 export const photoBackground = (
   img: ImageValue,
-  opacity = 0.55,
+  opacity = PHOTO_SCRIM,
   focal?: [number, number],
 ): SectionBackground => ({
   type: "image",

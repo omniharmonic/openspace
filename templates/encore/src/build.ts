@@ -11,6 +11,7 @@ import {
   makePage,
   page,
   photo,
+  PHOTO_SCRIM,
   photoBackground,
   photoUrl,
   rt,
@@ -68,7 +69,7 @@ function home() {
         style: {
           background: photoBackground(
             photo("concert", 1440, "original", "A crowd with raised hands at a Juno Vale show"),
-            0.58,
+            PHOTO_SCRIM,
             [0.5, 0.4],
           ),
         },
