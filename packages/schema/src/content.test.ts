@@ -269,6 +269,45 @@ describe("Styles", () => {
     expectValid(StylesSchema, doc.styles);
     expectValid(StylesSchema, { choices: doc.styles.choices });
   });
+  it("takes uploaded fonts with a web-use confirmation and uses them by family", () => {
+    const font = {
+      family: "Studio Grotesk",
+      category: "sans-serif",
+      files: [
+        { src: "media/fonts/studio-grotesk-400-1a2b3c4d.woff2", weight: 400, style: "normal" },
+        { src: "media/fonts/studio-grotesk-700-5e6f7a8b.otf", weight: 700, style: "normal" },
+      ],
+      license: { webUse: true },
+    };
+    expectValid(StylesSchema, {
+      ...doc.styles,
+      choices: { ...doc.styles.choices, headingFont: "Studio Grotesk" },
+      fonts: [font],
+    });
+    // Without the confirmation, outside media/fonts/, an unknown family or a duplicate: refused.
+    expectInvalid(StylesSchema, {
+      ...doc.styles,
+      fonts: [{ ...font, license: { webUse: false } }],
+    });
+    expectInvalid(StylesSchema, {
+      ...doc.styles,
+      fonts: [{ ...font, files: [{ src: "media/2026/x.woff2", weight: 400, style: "normal" }] }],
+    });
+    expectInvalid(
+      StylesSchema,
+      {
+        ...doc.styles,
+        choices: { ...doc.styles.choices, bodyFont: "Nope" },
+        fonts: [font],
+      },
+      "No uploaded font is named Nope",
+    );
+    expectInvalid(
+      StylesSchema,
+      { ...doc.styles, fonts: [font, { ...font }] },
+      "Two uploaded fonts",
+    );
+  });
   it("rejects bad choices and malformed DTCG overrides", () => {
     expectInvalid(
       StylesSchema,

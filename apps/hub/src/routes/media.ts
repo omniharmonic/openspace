@@ -62,7 +62,20 @@ const EXT_MIME: Record<string, string> = {
   wav: "audio/wav",
   flac: "audio/flac",
   heic: "image/heic",
+  // Uploaded fonts (PRD §5.1), media/fonts/ only, owners and designers.
+  woff2: "font/woff2",
+  ttf: "font/ttf",
+  otf: "font/otf",
 };
+
+/** WOFF2 / TrueType / OpenType by their signatures. */
+export function sniffFont(b: Uint8Array): string | null {
+  const tag = String.fromCharCode(...b.subarray(0, 4));
+  if (tag === "wOF2") return "font/woff2";
+  if (tag === "OTTO") return "font/otf";
+  if (tag === "true" || (b[0] === 0 && b[1] === 1 && b[2] === 0 && b[3] === 0)) return "font/ttf";
+  return null;
+}
 
 /** SVG elements Studio's sanitizer (DOMPurify SVG profile) keeps; anything else is refused. */
 const SVG_ELEMENTS = new Set(
@@ -218,7 +231,15 @@ mediaRoutes.post("/:id/media", async (c) => {
   let mime: string;
   let size: { width: number; height: number } | null = null;
   const fmt = sniffImage(bytes);
-  if (fmt) {
+  if (extMime.startsWith("font/")) {
+    // Fonts are design: owners and designers upload them, into media/fonts/.
+    requireRole(site, "designer");
+    if (!meta.path.startsWith("media/fonts/"))
+      throw new HttpError(400, "bad_request", "Fonts are stored in media/fonts/.");
+    const font = sniffFont(bytes);
+    if (!font) throw new HttpError(415, "unsupported_media_type", "That file isn't a font.");
+    mime = font;
+  } else if (fmt) {
     mime = IMAGE_MIME[fmt] as string;
     bytes = stripMetadata(bytes);
     size = imageSize(bytes);

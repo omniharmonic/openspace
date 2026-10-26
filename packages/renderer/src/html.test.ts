@@ -110,6 +110,33 @@ describe("renderPageHtml", () => {
     expect(home).not.toContain("about footer");
   });
 
+  it("self-hosts uploaded fonts with @font-face and a preload, dropping unused web fonts", () => {
+    const d = siteFixture();
+    d.styles = {
+      ...d.styles,
+      choices: { ...d.styles.choices, headingFont: "Studio Grotesk", bodyFont: "Studio Grotesk" },
+      fonts: [
+        {
+          family: "Studio Grotesk",
+          category: "sans-serif",
+          files: [
+            { src: "media/fonts/studio-grotesk-400-1a2b3c4d.woff2", weight: 400, style: "normal" },
+            { src: "media/fonts/studio-grotesk-700-5e6f7a8b.woff2", weight: 700, style: "normal" },
+          ],
+          license: { webUse: true },
+        },
+      ],
+    };
+    const html = renderPageHtml({ doc: d, pageId: IDS.home, basePath: "/maya" });
+    expect(html).toContain('<style data-os="fonts">@font-face{font-family:"Studio Grotesk";');
+    expect(html).toContain('url("/maya/media/fonts/studio-grotesk-700-5e6f7a8b.woff2")');
+    expect(html).toMatch(
+      /<link rel="preload" as="font" type="font\/woff2" href="\/maya\/media\/fonts\/studio-grotesk-[0-9a-z-]+\.woff2" crossorigin>/,
+    );
+    expect(html).not.toContain("fonts.googleapis.com");
+    expect(html).toContain('--os-font-heading: "Studio Grotesk"');
+  });
+
   it("detects behaviors from a document or from HTML", () => {
     const d = siteFixture();
     const home = must(d.pages[IDS.home]);

@@ -22,6 +22,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useCanvasImageMap } from "../../media/sources";
+import { useCustomFontCss } from "../../styles/fonts";
 import { useDocStore } from "../model/context";
 import { LazyInlineText, preloadTextEditing } from "../text/lazy";
 
@@ -118,6 +119,7 @@ function initDocument(d: Document): HTMLElement {
     el(d, "style", { "data-os": "tokens" }),
     el(d, "style", { "data-os": "base" }),
     el(d, "style", { "data-os": "blocks" }),
+    el(d, "style", { "data-os": "custom-fonts" }),
     el(d, "style", { "data-os": "custom" }),
     el(d, "style", { "data-os": "editor" }),
   );
@@ -179,6 +181,8 @@ export function CanvasFrame({ width, height, scale, onDocument }: CanvasFramePro
   const compiled = useMemo(() => compiledStylesFor(doc.styles), [doc.styles]);
   const fontsHref = useMemo(() => googleFontsUrl(compiled.tokens.pairing), [compiled]);
   const customCss = doc.site.customCss ?? "";
+  // Uploaded fonts (PRD §5.1), loaded from this session's copies or the site's draft files.
+  const fontFaces = useCustomFontCss(doc.styles);
   const locale = doc.site.locale;
   useLayoutEffect(() => {
     const d = root?.ownerDocument;
@@ -190,8 +194,10 @@ export function CanvasFrame({ width, height, scale, onDocument }: CanvasFramePro
     if (fonts && fonts.getAttribute("href") !== fontsHref) fonts.setAttribute("href", fontsHref);
     const custom = q("custom");
     if (custom && custom.textContent !== customCss) custom.textContent = customCss;
+    const faces = q("custom-fonts");
+    if (faces && faces.textContent !== fontFaces) faces.textContent = fontFaces;
     d.documentElement.lang = locale;
-  }, [root, compiled, fontsHref, customCss, locale]);
+  }, [root, compiled, fontsHref, customCss, fontFaces, locale]);
 
   // Text editing (Tiptap) is a separate chunk; warm it once the canvas is on screen.
   useEffect(() => {

@@ -1,5 +1,10 @@
 import type { Page, SiteDocument } from "@openspace/schema";
-import { googleFontsUrl } from "@openspace/theme";
+import {
+  chosenCustomFont,
+  customFontFaces,
+  customFontPreloads,
+  googleFontsUrl,
+} from "@openspace/theme";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BEHAVIOR_LOADER, type BehaviorName, behaviorsInHtml } from "./behaviors-manifest";
@@ -104,7 +109,19 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
   const noindex = mode === "preview" || page.seo?.noindex || site.seo?.noindex;
   const ogImageSrc = page.seo?.image ?? site.seo?.image;
   const ogImage = ogImageSrc ? ogImageUrl(ogImageSrc, siteUrl, opts.imageMap) : undefined;
-  const fonts = opts.fontStylesheets ?? [googleFontsUrl(styles.tokens.pairing)];
+  // Uploaded fonts (PRD §5.1) publish with the site; when they replace both the heading and the
+  // body family, the pairing's web fonts aren't loaded at all.
+  const customHeading = chosenCustomFont(doc.styles, doc.styles.choices.headingFont);
+  const customBody = chosenCustomFont(doc.styles, doc.styles.choices.bodyFont);
+  const fonts =
+    customHeading && customBody
+      ? []
+      : (opts.fontStylesheets ?? [googleFontsUrl(styles.tokens.pairing)]);
+  const fontFaces = customFontFaces(doc.styles, (src) => mediaUrl(src, basePath));
+  const fontPreloads = customFontPreloads(doc.styles, {
+    heading: styles.tokens.pairing.headingWeight,
+    body: styles.tokens.pairing.bodyWeight,
+  });
   const usesGoogle = fonts.some((f) => f.startsWith("https://fonts.googleapis.com/"));
 
   const meta = (name: string, content: string | undefined, attr = "name") =>
@@ -130,7 +147,12 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     usesGoogle
       ? '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
       : "",
+    ...fontPreloads.map(
+      (src) =>
+        `<link rel="preload" as="font" type="font/woff2" href="${escapeHtml(mediaUrl(src, basePath))}" crossorigin>`,
+    ),
     ...fonts.map((href) => `<link rel="stylesheet" href="${escapeHtml(href)}">`),
+    fontFaces ? `<style data-os="fonts">${safeCss(fontFaces)}</style>` : "",
     opts.stylesheets?.tokens
       ? `<link rel="stylesheet" href="${escapeHtml(opts.stylesheets.tokens)}">`
       : `<style data-os="tokens">${styles.css}</style>`,

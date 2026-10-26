@@ -14,6 +14,7 @@ import {
   relativeLuminance,
   type ThemeColorSet,
 } from "./contrast";
+import { chosenCustomFont, customFontStack, nearestWeight } from "./custom-fonts";
 import {
   BUTTON_ROLES,
   buttonTokens,
@@ -189,6 +190,18 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
     root.set(varName("color", "neutral", step), neutralHex[step]);
 
   const fonts = fontTokens(pairing);
+  // Uploaded fonts replace the pairing's heading and/or body family (PRD §5.1).
+  const headingFont = chosenCustomFont(styles, choices.headingFont);
+  if (headingFont) {
+    fonts.heading = customFontStack(headingFont);
+    fonts["weight-heading"] = String(nearestWeight(headingFont, pairing.headingWeight));
+  }
+  const bodyFont = chosenCustomFont(styles, choices.bodyFont);
+  if (bodyFont) {
+    fonts.body = customFontStack(bodyFont);
+    fonts["weight-body"] = String(nearestWeight(bodyFont, pairing.bodyWeight));
+    fonts["weight-strong"] = String(nearestWeight(bodyFont, pairing.strongWeight));
+  }
   for (const [k, v] of Object.entries(fonts)) root.set(varName("font", k), v);
   const type = typeScale(pairing);
   for (const preset of TYPE_PRESET_NAMES) {

@@ -460,3 +460,83 @@
 .st-ss-tokenadd > :first-child {
   grid-column: 1 / -1;
 }
+
+/* Your fonts (uploaded, licensed fonts). */
+.st-ss-fonts {
+  display: grid;
+  gap: 8px;
+}
+.st-ss-fonts__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.st-ss-font {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--st-line);
+  border-radius: var(--st-r-sm);
+}
+.st-ss-font__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.st-ss-font__name {
+  overflow: hidden;
+  color: var(--st-text);
+  font-size: 16px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.st-ss-font__meta {
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+}
+.st-ss-fontform {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--st-line);
+  border-radius: var(--st-r-sm);
+  background: var(--st-field);
+}
+.st-ss-fontform__files {
+  width: 100%;
+  font: inherit;
+  font-size: var(--st-fs-sm);
+}
+.st-ss-fontform__face {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px;
+}
+.st-ss-fontform__file {
+  overflow: hidden;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.st-ss-fontform__license {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  line-height: 1.4;
+}
+.st-ss-fontform__license input {
+  margin-top: 2px;
+}
+.st-ss-fontform__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
