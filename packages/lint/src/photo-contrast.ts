@@ -1,5 +1,6 @@
 import type { Block, RichTextDoc, Section, StyleChoices } from "@openspace/schema";
 import { contrastRatio, toHex } from "@openspace/theme";
+import { NON_TEXT_BLOCKS } from "./content";
 
 /**
  * Worst-case contrast of text drawn over a photo or video section background (doc 04 §3.3).
@@ -48,6 +49,7 @@ function richChecks(doc: RichTextDoc | undefined, out: PhotoTextCheck[]) {
 
 /** The text colours a block draws directly on the section background. */
 export function photoTextChecks(block: Block, buttons: StyleChoices["buttons"]): PhotoTextCheck[] {
+  if (NON_TEXT_BLOCKS.has(block.type)) return [];
   const f = block.fields as Record<string, unknown>;
   const out: PhotoTextCheck[] = [];
   switch (block.type) {
@@ -68,11 +70,6 @@ export function photoTextChecks(block: Block, buttons: StyleChoices["buttons"]):
       if (f.note) out.push({ role: "text-muted", label: "Button note", min: 4.5 });
       break;
     }
-    case "image":
-    case "spacer":
-    case "line":
-    case "shape":
-      break;
     default:
       out.push({ role: "text", label: "Text", min: 4.5 });
   }

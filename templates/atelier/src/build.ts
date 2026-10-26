@@ -6,6 +6,7 @@ import {
   definePages,
   formId,
   fromPreset,
+  grid,
   headerFrom,
   heading,
   item,
@@ -13,10 +14,9 @@ import {
   page,
   photo,
   photoUrl,
+  r,
   rt,
   section,
-  grid,
-  r,
 } from "../../lib/kit";
 
 /**
@@ -85,7 +85,10 @@ const projects = [
 function fullBleed(s: Section): Section {
   const [only] = s.blocks;
   if (!only || s.blocks.length !== 1) throw new Error("fullBleed expects one block");
-  s.layout = grid([[only, r(1, 1, 24, 30, { bleed: "both" }), r(1, 1, 8, 12, { bleed: "both" })]], "full").layout;
+  s.layout = grid(
+    [[only, r(1, 1, 24, 30, { bleed: "both" }), r(1, 1, 8, 12, { bleed: "both" })]],
+    "full",
+  ).layout;
   return s;
 }
 
@@ -96,56 +99,58 @@ function home() {
     "",
     "Elias Varga photographs landscapes and architecture in quiet light. Portfolio, commissions and limited-edition prints from Denver.",
     [
-      fullBleed(fromPreset("gallery/slideshow@1", {
-        style: { padding: { d: "none", m: "none" } },
-        edit: {
-          gallery: {
-            images: [
-              {
-                image: photo(
-                  "mountainLake",
-                  1440,
-                  "3:2",
-                  "Snowy peaks reflected in a still mountain lake, from Cordillera",
-                ),
-              },
-              {
-                image: photo(
-                  "architecture",
-                  1440,
-                  "3:2",
-                  "A white angular building against a clear sky, from White City",
-                ),
-              },
-              {
-                image: photo(
-                  "coast",
-                  1440,
-                  "3:2",
-                  "Turquoise surf meeting a sandy shore from above, from Salt & Glass",
-                ),
-              },
-              {
-                image: photo(
-                  "meadow",
-                  1440,
-                  "3:2",
-                  "Wild poppies scattered through a summer meadow, from Field Studies",
-                ),
-              },
-              {
-                image: photo(
-                  "valley",
-                  1440,
-                  "3:2",
-                  "A misty river valley with pines at dawn, from Cordillera",
-                ),
-              },
-            ],
-            lightbox: true,
+      fullBleed(
+        fromPreset("gallery/slideshow@1", {
+          style: { padding: { d: "none", m: "none" } },
+          edit: {
+            gallery: {
+              images: [
+                {
+                  image: photo(
+                    "mountainLake",
+                    1440,
+                    "3:2",
+                    "Snowy peaks reflected in a still mountain lake, from Cordillera",
+                  ),
+                },
+                {
+                  image: photo(
+                    "architecture",
+                    1440,
+                    "3:2",
+                    "A white angular building against a clear sky, from White City",
+                  ),
+                },
+                {
+                  image: photo(
+                    "coast",
+                    1440,
+                    "3:2",
+                    "Turquoise surf meeting a sandy shore from above, from Salt & Glass",
+                  ),
+                },
+                {
+                  image: photo(
+                    "meadow",
+                    1440,
+                    "3:2",
+                    "Wild poppies scattered through a summer meadow, from Field Studies",
+                  ),
+                },
+                {
+                  image: photo(
+                    "valley",
+                    1440,
+                    "3:2",
+                    "A misty river valley with pines at dawn, from Cordillera",
+                  ),
+                },
+              ],
+              lightbox: true,
+            },
           },
-        },
-      })),
+        }),
+      ),
       fromPreset("hero/big-type@1", {
         edit: {
           heading: {
