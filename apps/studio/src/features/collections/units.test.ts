@@ -24,9 +24,10 @@ import { KIND_META, kindOf, listCollections } from "./kinds";
 import {
   defaultRepeat,
   describeRepeat,
+  isSimpleRule,
   nextDates,
-  normalizeRRule,
   parseRRule,
+  retargetRule,
   toRRule,
 } from "./rrule";
 import { combinations, suggestSku, syncVariants } from "./variants";
@@ -88,7 +89,7 @@ describe("repeat rules", () => {
       start,
     );
     expect(until).toBe("FREQ=WEEKLY;BYDAY=TU;UNTIL=20270131T235959Z");
-    expect(parseRRule(until, start)?.end).toEqual({ type: "until", date: "2027-01-31" });
+    expect(parseRRule(until, start)?.end).toMatchObject({ type: "until", date: "2027-01-31" });
     // Every rule the editor writes is one the schema accepts.
     for (const r of [rule, monthly, until]) {
       const item = {
@@ -101,19 +102,14 @@ describe("repeat rules", () => {
     }
   });
 
-  it("always includes the first date's weekday and writes all-day UNTIL as a date", () => {
+  it("writes all-day UNTIL as a date and doesn't add the start's weekday", () => {
     const allDay = "2026-11-03"; // a Tuesday
     expect(toRRule({ ...defaultRepeat(allDay), byDay: ["FR"] }, allDay)).toBe(
-      "FREQ=WEEKLY;BYDAY=TU,FR",
+      "FREQ=WEEKLY;BYDAY=FR",
     );
     expect(
       toRRule({ ...defaultRepeat(allDay), end: { type: "until", date: "2026-12-31" } }, allDay),
     ).toBe("FREQ=WEEKLY;BYDAY=TU;UNTIL=20261231");
-    const r = parseRRule("FREQ=WEEKLY;BYDAY=FR;COUNT=2", allDay);
-    if (!r) throw new Error("no rule");
-    expect(normalizeRRule("FREQ=WEEKLY;BYDAY=FR;COUNT=2", allDay)).toBe(
-      "FREQ=WEEKLY;BYDAY=TU,FR;COUNT=2",
-    );
     const item = {
       kind: "events",
       slug: "x",
@@ -127,6 +123,51 @@ describe("repeat rules", () => {
       body: "",
     };
     expect(CollectionItemSchema.safeParse(item).success).toBe(true);
+  });
+
+  it("tells simple rules from custom ones and keeps unmodeled parts when edited", () => {
+    const tue = "2026-11-03T19:00:00-07:00";
+    for (const simple of [
+      "FREQ=WEEKLY;BYDAY=TU",
+      "FREQ=WEEKLY",
+      "FREQ=WEEKLY;BYDAY=TH,TU;COUNT=4",
+      "FREQ=MONTHLY",
+      "FREQ=MONTHLY;BYMONTHDAY=3",
+      "FREQ=MONTHLY;BYDAY=1TU",
+      "FREQ=DAILY;INTERVAL=1;UNTIL=20261231T060000Z",
+      "FREQ=WEEKLY;BYDAY=TU;WKST=SU",
+    ])
+      expect(isSimpleRule(simple, tue), simple).toBe(true);
+    for (const custom of [
+      "FREQ=MONTHLY;BYMONTHDAY=15",
+      "FREQ=MONTHLY;BYDAY=-1TU",
+      "FREQ=MONTHLY;BYDAY=1TU,3TU",
+      "FREQ=YEARLY;BYMONTH=6;BYDAY=2SU",
+      "FREQ=MONTHLY;BYDAY=TU;BYSETPOS=2",
+    ])
+      expect(isSimpleRule(custom, tue), custom).toBe(false);
+    // Editing a simple rule keeps WKST and the exact UNTIL time.
+    const r = parseRRule("FREQ=WEEKLY;BYDAY=TU;UNTIL=20261231T060000Z;WKST=SU", tue);
+    if (!r) throw new Error("no rule");
+    expect(toRRule({ ...r, interval: 2 }, tue)).toBe(
+      "FREQ=WEEKLY;INTERVAL=2;BYDAY=TU;UNTIL=20261231T060000Z;WKST=SU",
+    );
+  });
+
+  it("moves rules that followed the first date, and leaves the rest alone", () => {
+    const tue = "2026-11-03";
+    const wed = "2026-11-04";
+    expect(retargetRule("FREQ=WEEKLY;BYDAY=TU;COUNT=5", tue, wed)).toBe(
+      "FREQ=WEEKLY;BYDAY=WE;COUNT=5",
+    );
+    expect(retargetRule("FREQ=WEEKLY;BYDAY=TU,TH", tue, wed)).toBe("FREQ=WEEKLY;BYDAY=TU,TH");
+    expect(retargetRule("FREQ=MONTHLY;BYDAY=1TU", tue, "2026-11-11")).toBe(
+      "FREQ=MONTHLY;BYDAY=2WE",
+    );
+    expect(retargetRule("FREQ=MONTHLY;BYMONTHDAY=3;BYMONTH=6", tue, wed)).toBe(
+      "FREQ=MONTHLY;BYMONTHDAY=4;BYMONTH=6",
+    );
+    expect(retargetRule("FREQ=MONTHLY;BYDAY=-1TU", tue, wed)).toBe("FREQ=MONTHLY;BYDAY=-1TU");
   });
 
   it("describes rules in plain words and lists the next dates", () => {

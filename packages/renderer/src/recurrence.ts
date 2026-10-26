@@ -54,14 +54,17 @@ const utc = (y: number, m: number, d: number) => new Date(Date.UTC(y, m - 1, d))
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 /**
- * Occurrence dates (YYYY-MM-DD) of a rule starting on `start`, in order, until `through`
- * (inclusive) or `max` dates. COUNT is counted from the first date even when `through` cuts
- * the list short.
+ * Occurrence dates (YYYY-MM-DD) of a rule starting on `start`, in order.
+ * - `from` / `through` bound the dates returned (inclusive);
+ * - `max` caps how many are returned (counted from `from`, never from the first date);
+ * - COUNT is counted from the first date, as RFC 5545 says (DTSTART is the first occurrence).
+ * Without COUNT, the walk jumps straight to `from`, so a series that started years ago costs the
+ * same as a new one.
  */
 export function occurrenceDates(
   rule: string | RecurrenceRule,
   start: string,
-  options: { through?: string; max?: number } = {},
+  options: { from?: string; through?: string; max?: number } = {},
 ): string[] {
   const r = typeof rule === "string" ? parseRecurrence(rule) : rule;
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(start);
@@ -70,20 +73,42 @@ export function occurrenceDates(
   const mo = Number(m[2]);
   const d = Number(m[3]);
   const first = utc(y, mo, d);
-  if (!r) return [iso(first)];
-  const max = Math.min(options.max ?? 500, r.count ?? Number.POSITIVE_INFINITY);
+  const from = options.from ?? iso(first);
+  const max = options.max ?? 500;
+  if (!r) return iso(first) >= from && max > 0 ? [iso(first)] : [];
   const last = [r.until, options.through].filter(Boolean).sort()[0];
+  const over = (date: Date) => (last ? iso(date) > last : false);
   const out: string[] = [];
   const seen = new Set<string>();
-  const push = (date: Date) => {
+  let total = 0;
+  const take = (date: Date) => {
     const s = iso(date);
     if (date < first || seen.has(s)) return;
     seen.add(s);
-    out.push(s);
+    total += 1;
+    if (s >= from) out.push(s);
   };
-  push(first); // DTSTART is always the first occurrence.
-  const over = (date: Date) => (last ? iso(date) > last : false);
-  for (let i = 0; out.length < max && i < 5000; i++) {
+  const done = () => out.length >= max || (r.count !== undefined && total >= r.count);
+
+  // Jump close to `from` when COUNT doesn't need every earlier date (whole periods only).
+  let i0 = 0;
+  if (r.count === undefined && from > iso(first)) {
+    const f = new Date(`${from}T00:00:00Z`);
+    const days = Math.floor((f.getTime() - first.getTime()) / DAY_MS);
+    const months = (f.getUTCFullYear() - y) * 12 + (f.getUTCMonth() + 1 - mo);
+    const periods =
+      r.freq === "DAILY"
+        ? days / r.interval
+        : r.freq === "WEEKLY"
+          ? days / (7 * r.interval)
+          : r.freq === "MONTHLY"
+            ? months / r.interval
+            : (f.getUTCFullYear() - y) / r.interval;
+    i0 = Math.max(0, Math.floor(periods) - 1);
+  }
+  if (i0 === 0) take(first); // DTSTART is always the first occurrence.
+
+  for (let i = i0; !done() && i < i0 + 20_000; i++) {
     const batch: Date[] = [];
     if (r.freq === "DAILY") batch.push(utc(y, mo, d + i * r.interval));
     else if (r.freq === "WEEKLY") {
@@ -126,24 +151,75 @@ export function occurrenceDates(
     }
     let stop = false;
     for (const date of batch) {
-      if (out.length >= max) break;
+      if (done()) break;
       if (over(date)) {
         stop = true;
         break;
       }
-      push(date);
+      take(date);
     }
-    if (stop || batch.some(over)) break;
+    if (stop) break;
   }
   return out;
 }
 
-/** The same event moved to another date (time of day, offset and length kept). */
+/** UTC offset (minutes) of an IANA zone at an instant; null when the zone is unknown. */
+export function zoneOffsetMinutes(timeZone: string, at: number): number | null {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hourCycle: "h23",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }).formatToParts(new Date(at));
+    const n = (t: string) => Number(parts.find((p) => p.type === t)?.value);
+    const wall = Date.UTC(n("year"), n("month") - 1, n("day"), n("hour"), n("minute"), n("second"));
+    return Math.round((wall - at) / 60_000);
+  } catch {
+    return null;
+  }
+}
+
+const fmtOffset = (min: number) => {
+  const sign = min < 0 ? "-" : "+";
+  const a = Math.abs(min);
+  return `${sign}${String(Math.floor(a / 60)).padStart(2, "0")}:${String(a % 60).padStart(2, "0")}`;
+};
+
+/**
+ * A date-time on another day at the same local wall time. With an IANA `timeZone` the offset is
+ * the zone's offset on that day (so 7pm stays 7pm across daylight-saving changes); otherwise the
+ * written offset is kept.
+ */
+export function shiftDateTime(value: string, days: number, timeZone?: string): string {
+  const day = new Date(Date.parse(`${value.slice(0, 10)}T00:00:00Z`) + days * DAY_MS)
+    .toISOString()
+    .slice(0, 10);
+  const m = /^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)(Z|[+-]\d{2}:\d{2})?$/.exec(
+    value,
+  );
+  if (!m) return `${day}${value.slice(10)}`;
+  const time = m[1] as string;
+  if (!timeZone) return `${day}T${time}${m[2] ?? ""}`;
+  const wall = Date.parse(`${day}T${time.length === 5 ? `${time}:00` : time}Z`);
+  // The instant whose local time in the zone is `wall` (two passes settle DST edges).
+  let off = zoneOffsetMinutes(timeZone, wall);
+  if (off === null) return `${day}T${time}${m[2] ?? ""}`;
+  off = zoneOffsetMinutes(timeZone, wall - off * 60_000) ?? off;
+  return `${day}T${time}${fmtOffset(off)}`;
+}
+
+/** The same event moved to another date (local time of day and length kept). */
 export function eventOn(item: Extract<CollectionItem, { kind: "events" }>, date: string) {
   const fm = item.frontmatter;
-  const shift = Date.parse(`${date}T00:00:00Z`) - Date.parse(`${fm.start.slice(0, 10)}T00:00:00Z`);
-  const move = (v: string) =>
-    `${new Date(Date.parse(`${v.slice(0, 10)}T00:00:00Z`) + shift).toISOString().slice(0, 10)}${v.slice(10)}`;
+  const days = Math.round(
+    (Date.parse(`${date}T00:00:00Z`) - Date.parse(`${fm.start.slice(0, 10)}T00:00:00Z`)) / DAY_MS,
+  );
+  const move = (v: string) => shiftDateTime(v, days, fm.timezone);
   return {
     ...item,
     frontmatter: { ...fm, start: move(fm.start), ...(fm.end ? { end: move(fm.end) } : {}) },
@@ -172,11 +248,14 @@ export function expandOccurrences(
             DAY_MS,
         )
       : 0;
-    const dates = occurrenceDates(fm.recurrence as string, fm.start, { through: window.through });
     // Keep occurrences that haven't ended before the window starts.
     const fromStart = iso(new Date(Date.parse(`${window.from}T00:00:00Z`) - lengthDays * DAY_MS));
-    const inWindow = dates.filter((x) => x >= fromStart).slice(0, window.perEvent ?? 12);
-    for (const date of inWindow) out.push(eventOn(item, date));
+    const dates = occurrenceDates(fm.recurrence as string, fm.start, {
+      from: fromStart,
+      through: window.through,
+      max: window.perEvent ?? 12,
+    });
+    for (const date of dates) out.push(eventOn(item, date));
   }
   return out;
 }

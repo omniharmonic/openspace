@@ -23,6 +23,7 @@ import { errorMessage, SwitchRow, TagInput } from "../workspace/ui";
 import { IntField, MediaField, MoneyField } from "./fields";
 import { fromInputDateTime, localDate, toInputDateTime } from "./itemOps";
 import { RepeatEditor } from "./RepeatEditor";
+import { retargetRule } from "./rrule";
 import { suggestSku, syncVariants, variantLabel } from "./variants";
 import "./collections.css";
 
@@ -229,6 +230,14 @@ export function EventFields({ item, onChange, problems }: FrontmatterProps) {
   const fm = item.frontmatter as FM;
   const allDay = Boolean(fm.allDay) || /^\d{4}-\d{2}-\d{2}$/.test(fm.start ?? "");
   const loc: FM = fm.location ?? {};
+  /** A new first date; a repeat rule that simply followed the old date follows the new one. */
+  const moveStart = (start: string) =>
+    set({
+      start,
+      ...(fm.recurrence
+        ? { recurrence: retargetRule(fm.recurrence, String(fm.start), start) }
+        : {}),
+    });
   const setLoc = (patch: FM) => {
     const next: FM = { ...loc };
     for (const [k, v] of Object.entries(patch)) {
@@ -265,7 +274,7 @@ export function EventFields({ item, onChange, problems }: FrontmatterProps) {
             <Input
               type="date"
               value={String(fm.start ?? "").slice(0, 10)}
-              onChange={(e) => set({ start: e.target.value })}
+              onChange={(e) => e.target.value && moveStart(e.target.value)}
             />
           ) : (
             <Input
@@ -273,7 +282,7 @@ export function EventFields({ item, onChange, problems }: FrontmatterProps) {
               value={toInputDateTime(fm.start)}
               onChange={(e) => {
                 const v = fromInputDateTime(e.target.value, fm.start);
-                if (v) set({ start: v });
+                if (v) moveStart(v);
               }}
             />
           )}

@@ -49,7 +49,13 @@ export function DonationsView({ site }: AreaProps) {
         }
       />
       <div className="st-stats">
-        <Stat label="Gifts received" value={number(list.length)} />
+        <Stat
+          label="Gifts received"
+          value={`${number(list.length)}${gifts.hasNextPage ? "+" : ""}`}
+          detail={
+            gifts.hasNextPage ? "More below: choose “Show more” to count them all" : undefined
+          }
+        />
         <Stat
           label="Total given"
           value={totalText}

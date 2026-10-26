@@ -28,8 +28,19 @@ export interface Repeat {
   byDay: Weekday[];
   /** Monthly: on the same date ("the 15th") or the same weekday ("the 2nd Tuesday"). */
   monthMode: "date" | "weekday";
-  end: { type: "never" } | { type: "count"; count: number } | { type: "until"; date: string };
+  end:
+    | { type: "never" }
+    | { type: "count"; count: number }
+    /** `raw` keeps the UNTIL value as written while its date is unchanged. */
+    | { type: "until"; date: string; raw?: string };
+  /** Rule parts the editor doesn't model (e.g. WKST), written back verbatim. */
+  extra?: string[];
 }
+
+/** Parts the simple editor understands. */
+const MODELED = new Set(["FREQ", "INTERVAL", "BYDAY", "BYMONTHDAY", "COUNT", "UNTIL"]);
+/** Unmodeled parts that don't change which dates happen (safe to carry along). */
+const HARMLESS = new Set(["WKST"]);
 
 const JS_DAY: Weekday[] = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
 
@@ -50,10 +61,68 @@ export function isDateOnly(start: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(start);
 }
 
-/** The rule written the way `toRRule` writes it today (or null when it isn't a rule). */
-export function normalizeRRule(rule: string, start: string): string | null {
+/** `KEY=VALUE` parts of a rule, keys upper-cased, values as written. */
+function partsOf(rule: string): Array<[string, string]> {
+  return rule
+    .replace(/^RRULE:/i, "")
+    .split(";")
+    .map((p) => p.split("="))
+    .filter((kv): kv is [string, string] => Boolean(kv[0] && kv[1]))
+    .map(([k, v]) => [k.toUpperCase(), v]);
+}
+
+/** A comparable form: defaults spelled out, lists sorted, order ignored. */
+function canonical(rule: string, start: string): string {
+  const p = ymd(start);
+  const startDay = p ? weekdayOf(utc(p.y, p.m, p.d)) : "MO";
+  const map = new Map(partsOf(rule).map(([k, v]) => [k, v.toUpperCase()]));
+  if (map.get("INTERVAL") === "1") map.delete("INTERVAL");
+  if (map.get("FREQ") === "WEEKLY" && !map.has("BYDAY")) map.set("BYDAY", startDay);
+  if (map.get("FREQ") === "MONTHLY" && !map.has("BYDAY") && !map.has("BYMONTHDAY") && p)
+    map.set("BYMONTHDAY", String(p.d));
+  if (map.has("BYDAY")) map.set("BYDAY", (map.get("BYDAY") as string).split(",").sort().join(","));
+  if (map.has("UNTIL")) map.set("UNTIL", (map.get("UNTIL") as string).slice(0, 8));
+  return [...map]
+    .map(([k, v]) => `${k}=${v}`)
+    .sort()
+    .join(";");
+}
+
+/**
+ * Whether the simple editor can show and edit this rule without changing what it means.
+ * Anything else (BYSETPOS, BYMONTH, "last Tuesday", several weekdays a month…) is a custom rule:
+ * shown as text and only changed when the person edits it.
+ */
+export function isSimpleRule(rule: string, start: string): boolean {
   const r = parseRRule(rule, start);
-  return r ? toRRule(r, start) : null;
+  if (!r) return false;
+  if (partsOf(rule).some(([k]) => !MODELED.has(k) && !HARMLESS.has(k))) return false;
+  return canonical(rule, start) === canonical(toRRule(r, start), start);
+}
+
+/**
+ * The rule after the event's first date moves from `from` to `to`: days that were simply "the
+ * start's day" follow it (weekly BYDAY, monthly BYMONTHDAY or nth weekday). Everything else is
+ * kept exactly as written.
+ */
+export function retargetRule(rule: string, from: string, to: string): string {
+  const a = ymd(from);
+  const b = ymd(to);
+  if (!a || !b) return rule;
+  const da = utc(a.y, a.m, a.d);
+  const db = utc(b.y, b.m, b.d);
+  const parts = partsOf(rule);
+  const freq = parts.find(([k]) => k === "FREQ")?.[1].toUpperCase();
+  return parts
+    .map(([k, v]) => {
+      const V = v.toUpperCase();
+      if (k === "BYDAY" && freq === "WEEKLY" && V === weekdayOf(da)) return `${k}=${weekdayOf(db)}`;
+      if (k === "BYDAY" && freq === "MONTHLY" && V === `${nthOfMonth(da)}${weekdayOf(da)}`)
+        return `${k}=${nthOfMonth(db)}${weekdayOf(db)}`;
+      if (k === "BYMONTHDAY" && Number(V) === a.d) return `${k}=${b.d}`;
+      return `${k}=${v}`;
+    })
+    .join(";");
 }
 
 export function defaultRepeat(start: string): Repeat {
@@ -66,11 +135,8 @@ export function toRRule(r: Repeat, start: string): string {
   const parts = [`FREQ=${r.freq}`];
   if (r.interval > 1) parts.push(`INTERVAL=${Math.floor(r.interval)}`);
   const p = ymd(start);
-  if (r.freq === "WEEKLY") {
-    // The first date always counts as an occurrence (and toward COUNT), so its weekday is always
-    // part of the rule; otherwise calendars disagree about which dates COUNT covers.
-    const startDay = p ? weekdayOf(utc(p.y, p.m, p.d)) : undefined;
-    const days = WEEKDAYS.filter((d) => r.byDay.includes(d) || d === startDay);
+  if (r.freq === "WEEKLY" && r.byDay.length) {
+    const days = WEEKDAYS.filter((d) => r.byDay.includes(d));
     parts.push(`BYDAY=${days.join(",")}`);
   }
   if (r.freq === "MONTHLY" && p) {
@@ -82,8 +148,10 @@ export function toRRule(r: Repeat, start: string): string {
   if (r.end.type === "until") {
     // RFC 5545: UNTIL has the same value type as DTSTART — a DATE for all-day events.
     const day = r.end.date.replace(/-/g, "");
-    parts.push(isDateOnly(start) ? `UNTIL=${day}` : `UNTIL=${day}T235959Z`);
+    if (r.end.raw && r.end.raw.slice(0, 8) === day) parts.push(`UNTIL=${r.end.raw}`);
+    else parts.push(isDateOnly(start) ? `UNTIL=${day}` : `UNTIL=${day}T235959Z`);
   }
+  for (const extra of r.extra ?? []) parts.push(extra);
   return parts.join(";");
 }
 
@@ -104,6 +172,9 @@ export function parseRRule(rule: string, start: string): Repeat | null {
     .filter((d) => (WEEKDAYS as readonly string[]).includes(d));
   const until = map.get("UNTIL");
   const count = map.get("COUNT");
+  const extra = partsOf(rule)
+    .filter(([k]) => !MODELED.has(k))
+    .map(([k, v]) => `${k}=${v}`);
   return {
     freq,
     interval: Number.isFinite(interval) && interval > 0 ? interval : 1,
@@ -112,8 +183,13 @@ export function parseRRule(rule: string, start: string): Repeat | null {
     end: count
       ? { type: "count", count: Number(count) }
       : until
-        ? { type: "until", date: `${until.slice(0, 4)}-${until.slice(4, 6)}-${until.slice(6, 8)}` }
+        ? {
+            type: "until",
+            date: `${until.slice(0, 4)}-${until.slice(4, 6)}-${until.slice(6, 8)}`,
+            raw: until,
+          }
         : { type: "never" },
+    ...(extra.length ? { extra } : {}),
   };
 }
 

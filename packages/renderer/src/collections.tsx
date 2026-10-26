@@ -131,11 +131,26 @@ export const RECURRENCE_HORIZON_DAYS = 366;
 /** A repeating event shown at its next date (or its last one, once the series is over). */
 export function nextOccurrence(item: CollectionItem, now: Date): CollectionItem {
   if (item.kind !== "events" || !item.frontmatter.recurrence) return item;
-  const dates = occurrenceDates(item.frontmatter.recurrence, item.frontmatter.start, {
+  const rule = item.frontmatter.recurrence;
+  const start = item.frontmatter.start;
+  // From a couple of days back (an event may still be running), the next few dates.
+  const soon = occurrenceDates(rule, start, {
+    from: plusDays(now, -2),
     through: plusDays(now, RECURRENCE_HORIZON_DAYS),
+    max: 4,
   });
-  const upcoming = dates.map((d) => eventOn(item, d)).find((e) => isUpcoming(e, now));
-  return upcoming ?? (dates.length ? eventOn(item, dates[dates.length - 1] as string) : item);
+  const upcoming = soon.map((d) => eventOn(item, d)).find((e) => isUpcoming(e, now));
+  if (upcoming) return upcoming;
+  // The series is over: show its last date (searching back from today, a year at a time).
+  for (let back = 1; back <= 50; back++) {
+    const past = occurrenceDates(rule, start, {
+      from: plusDays(now, -RECURRENCE_HORIZON_DAYS * back),
+      through: isoDay(now),
+    });
+    if (past.length) return eventOn(item, past[past.length - 1] as string);
+    if (plusDays(now, -RECURRENCE_HORIZON_DAYS * back) < start.slice(0, 10)) break;
+  }
+  return item;
 }
 
 export interface QueryOptions {

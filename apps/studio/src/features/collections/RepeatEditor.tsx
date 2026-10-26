@@ -1,5 +1,6 @@
+import { occurrenceDates } from "@openspace/renderer";
 import { Repeat as RepeatIcon } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { cx, Field, Input, Segmented, Select } from "../../ui";
 import { date as fmtDate } from "../workspace/format";
 import { SwitchRow } from "../workspace/ui";
@@ -7,8 +8,8 @@ import {
   defaultRepeat,
   describeRepeat,
   type Freq,
+  isSimpleRule,
   nextDates,
-  normalizeRRule,
   parseRRule,
   type Repeat,
   toRRule,
@@ -45,18 +46,10 @@ export function RepeatEditor({
     const base = repeat ?? defaultRepeat(start);
     onChange(toRRule({ ...base, ...patch }, start));
   };
-  const upcoming = repeat ? nextDates(repeat, start, 4) : [];
-  // Moving the start date (or switching to all day) rewrites the rule to match it.
-  useEffect(() => {
-    if (!value) return;
-    const normal = normalizeRRule(value, start);
-    if (normal && normal !== value) onChange(normal);
-  }, [value, start, onChange]);
-  const startDay = /^\d{4}-\d{2}-\d{2}/.test(start)
-    ? (["SU", "MO", "TU", "WE", "TH", "FR", "SA"] as const)[
-        new Date(`${start.slice(0, 10)}T12:00:00Z`).getUTCDay()
-      ]
-    : undefined;
+  // Rules the simple controls can't express are shown as text and left exactly as written
+  // (nothing is rewritten just by opening the event).
+  const custom = Boolean(value && !isSimpleRule(value, start));
+  const upcoming = value ? occurrenceDates(value, start, { max: 4 }) : [];
   return (
     <fieldset className="st-fieldset st-repeat">
       <legend>Repeats</legend>
@@ -66,11 +59,24 @@ export function RepeatEditor({
             <RepeatIcon aria-hidden="true" className="st-inline-icon" /> Repeating event
           </>
         }
-        hint={repeat ? describeRepeat(repeat, start) : "Happens once."}
+        hint={
+          !repeat
+            ? "Happens once."
+            : custom
+              ? "A custom repeat rule"
+              : describeRepeat(repeat, start)
+        }
         checked={Boolean(repeat)}
         onCheckedChange={(on) => onChange(on ? toRRule(defaultRepeat(start), start) : undefined)}
       />
-      {repeat && (
+      {repeat && custom && value && (
+        <CustomRule
+          value={value}
+          onChange={onChange}
+          onSimplify={() => onChange(toRRule(defaultRepeat(start), start))}
+        />
+      )}
+      {repeat && !custom && (
         <>
           <div className="st-repeat__every">
             <span>Every</span>
@@ -98,16 +104,13 @@ export function RepeatEditor({
             <fieldset className="st-repeat__days">
               <legend className="st-sr-only">On these days</legend>
               {WEEKDAYS.map((d) => {
-                const isStart = d === startDay;
-                const on = repeat.byDay.includes(d) || isStart;
+                const on = repeat.byDay.includes(d);
                 return (
                   <button
                     key={d}
                     type="button"
                     aria-pressed={on}
                     aria-label={WEEKDAY_NAMES[d]}
-                    disabled={isStart}
-                    title={isStart ? "The event's first date is on this day" : undefined}
                     className={cx("st-repeat__day", on && "is-on")}
                     onClick={() => {
                       const next = on ? repeat.byDay.filter((x) => x !== d) : [...repeat.byDay, d];
@@ -193,5 +196,44 @@ export function RepeatEditor({
         </>
       )}
     </fieldset>
+  );
+}
+
+const RULE_RE = /^FREQ=(?:DAILY|WEEKLY|MONTHLY|YEARLY)(?:;[A-Z]+=[A-Za-z0-9,+-]+)*$/;
+
+/** A rule from another calendar app: edited as text, saved only when it's a valid rule. */
+function CustomRule({
+  value,
+  onChange,
+  onSimplify,
+}: {
+  value: string;
+  onChange: (rule: string) => void;
+  onSimplify: () => void;
+}) {
+  const [text, setText] = useState(value);
+  const bad = !RULE_RE.test(text.trim());
+  return (
+    <div className="st-form">
+      <Field
+        label="Repeat rule"
+        hint="This rule came from another calendar app, so it's shown as written. Change it here, or switch to a simple rule."
+        error={bad ? "That isn't a repeat rule (it should start with FREQ=)." : undefined}
+      >
+        <Input
+          className="st-repeat__raw"
+          value={text}
+          spellCheck={false}
+          onChange={(e) => {
+            setText(e.target.value);
+            const v = e.target.value.trim();
+            if (RULE_RE.test(v) && v !== value) onChange(v);
+          }}
+        />
+      </Field>
+      <button type="button" className="st-linklike" onClick={onSimplify}>
+        Use a simple weekly rule instead
+      </button>
+    </div>
   );
 }

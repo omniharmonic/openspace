@@ -1,5 +1,5 @@
 import type { CollectionItem } from "@openspace/schema";
-import { act, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useEditorUi } from "../editor/editor-store";
 import { editorStore, FORBIDDEN, openWorkspace, visibleCopy, WILLOW } from "../workspace/testing";
@@ -112,6 +112,48 @@ describe("collections", () => {
     const fm = item("events", "community-open-house")?.frontmatter as { recurrence?: string };
     expect(fm.recurrence).toMatch(/^FREQ=WEEKLY;BYDAY=\w\w,\w\w$/);
     expect(screen.getByText(/^Next:/)).toBeInTheDocument();
+  });
+
+  it("never rewrites a repeat rule just by opening it, and moves a weekly day with the start date", async () => {
+    const { user, router } = await openWorkspace("content/events");
+    await screen.findByRole("list", { name: "Events" });
+    const base = item("events", "community-open-house") as CollectionItem;
+    const withRule = (slug: string, start: string, recurrence: string) =>
+      ({
+        ...base,
+        slug,
+        frontmatter: { ...base.frontmatter, title: slug, start, allDay: true, recurrence },
+      }) as CollectionItem;
+    act(() => {
+      editorStore().commit([
+        {
+          op: "collection.upsert",
+          collection: "events",
+          item: withRule("last-tuesdays", "2026-11-24", "FREQ=MONTHLY;BYDAY=-1TU;WKST=SU"),
+        } as never,
+        {
+          op: "collection.upsert",
+          collection: "events",
+          item: withRule("tuesdays", "2026-11-03", "FREQ=WEEKLY;BYDAY=TU;COUNT=8"),
+        } as never,
+      ]);
+    });
+    await act(() => router.navigate(`/sites/${WILLOW.id}/content/events/last-tuesdays`));
+    expect(await screen.findByDisplayValue("FREQ=MONTHLY;BYDAY=-1TU;WKST=SU")).toBeInTheDocument();
+    expect(screen.getByText("A custom repeat rule")).toBeInTheDocument();
+    expect(screen.queryByText("Unsaved changes")).toBeNull();
+
+    await act(() => router.navigate(`/sites/${WILLOW.id}/content/events/tuesdays`));
+    const starts = await screen.findByLabelText("Starts");
+    expect(screen.queryByText("Unsaved changes")).toBeNull();
+    fireEvent.change(starts, { target: { value: "2026-11-04" } }); // a Wednesday
+    await user.click(screen.getByRole("button", { name: "Update event" }));
+    await waitFor(() => {
+      const fm = (item("events", "tuesdays") as CollectionItem).frontmatter as {
+        recurrence?: string;
+      };
+      expect(fm.recurrence).toBe("FREQ=WEEKLY;BYDAY=WE;COUNT=8");
+    });
   });
 
   it("gives products options, variants with their own price and stock", async () => {
