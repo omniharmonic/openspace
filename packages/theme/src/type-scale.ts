@@ -56,6 +56,9 @@ const LINE_HEIGHT: Record<TypePresetName, number> = {
   nav: 1.3,
 };
 
+/** Smallest rendered size (px) for any preset — keeps captions and eyebrows legible. */
+export const MIN_FONT_SIZE_PX = 14;
+
 const HEADINGS = new Set<TypePresetName>(["display", "h1", "h2", "h3", "h4"]);
 const LARGE_HEADINGS = new Set<TypePresetName>(["display", "h1", "h2"]);
 
@@ -109,7 +112,9 @@ function halfTracking(value: string): string {
 export function typeScale(p: TypePairing): Record<TypePresetName, TypePresetTokens> {
   const out = {} as Record<TypePresetName, TypePresetTokens>;
   for (const name of TYPE_PRESET_NAMES) {
-    const { min, max } = stepSizes(PRESET_STEP[name]);
+    const sizes = stepSizes(PRESET_STEP[name]);
+    const min = Math.max(MIN_FONT_SIZE_PX, sizes.min);
+    const max = Math.max(MIN_FONT_SIZE_PX, sizes.max);
     const heading = HEADINGS.has(name);
     let letterSpacing = "0em";
     if (LARGE_HEADINGS.has(name)) letterSpacing = p.headingTracking;

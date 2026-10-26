@@ -2,6 +2,7 @@ import { type Styles, StylesSchema } from "@openspace/schema";
 import { describe, expect, it } from "vitest";
 import { compileStyles } from "./compile";
 import { contrastRatio } from "./contrast";
+import { buttonContrastFailures } from "./test-helpers";
 import { allTokenVars, THEME_CLASSES, TOKEN_VARS } from "./vars";
 
 /** The doc 04 §2.1 example (Meadow). */
@@ -96,6 +97,52 @@ describe("compileStyles", () => {
     expect(contrastRatio(light["accent-text"], light.accent)).toBeGreaterThanOrEqual(4.5);
     // Only the light theme gets a bare `color.<role>` override.
     expect(out.tokens.themes.dark.accent).not.toBe("#b55f40");
+  });
+
+  it("derives solver-checked hover/pressed fills (Meadow accent override regression)", () => {
+    const out = compileStyles(MEADOW);
+    const t = out.tokens.themes.light;
+    expect(t.accent).toBe("#b55f40");
+    for (const state of ["accent-hover", "accent-pressed"] as const) {
+      expect(t[state]).not.toBe(t.accent);
+      expect(contrastRatio(t["accent-text"], t[state])).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(t[state], t.background)).toBeGreaterThanOrEqual(3);
+    }
+    expect(out.tokens.vars.themed["--os-button-primary-bg-hover"]).toBe(
+      "var(--os-color-accent-hover)",
+    );
+    expect(out.tokens.vars.themed["--os-button-primary-bg-active"]).toBe(
+      "var(--os-color-accent-pressed)",
+    );
+    expect(out.css).not.toContain("color-mix");
+    expect(buttonContrastFailures(out.tokens.themes)).toEqual([]);
+  });
+
+  it("applies color.all.<role> to every theme with theme > light > all precedence", () => {
+    const out = compileStyles(
+      base(
+        {},
+        {
+          color: {
+            all: { link: { $value: "#2255aa" } },
+            link: { $value: "#1144aa" },
+            dark: { link: { $value: "#99bbff" } },
+          },
+        },
+      ),
+    );
+    const { themes } = out.tokens;
+    expect(themes.light.link).toBe("#1144aa");
+    expect(themes.dark.link).toBe("#99bbff");
+    expect(themes["light-accent"].link).toBe("#2255aa");
+    // Where #2255aa can't pass (dark accent), the solver adjusts it and says so.
+    expect(
+      contrastRatio(themes["dark-accent"].link, themes["dark-accent"].background),
+    ).toBeGreaterThanOrEqual(4.5);
+    expect(out.warnings).toContainEqual(
+      expect.objectContaining({ code: "contrast-adjusted", path: "color.all.link" }),
+    );
+    expect(out.contrast.failures).toEqual([]);
   });
 
   it("handles aliases, scale overrides, dimensions, durations, composites and theme overrides", () => {

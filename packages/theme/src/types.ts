@@ -6,3 +6,9 @@ export type ColorRole = (typeof COLOR_ROLES)[number];
 export type ScaleStep = (typeof COLOR_SCALE_STEPS)[number];
 /** An 11-step color scale. */
 export type ColorScale<T = string> = Record<ScaleStep, T>;
+
+/** Interaction states the solver derives from `accent` (not schema roles; theme-internal). */
+export const STATE_ROLES = ["accent-hover", "accent-pressed"] as const;
+export type StateRole = (typeof STATE_ROLES)[number];
+/** Every color a section theme defines: the 14 semantic roles plus the accent states. */
+export type ThemeRole = ColorRole | StateRole;

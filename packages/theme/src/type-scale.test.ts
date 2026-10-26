@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { getPairing } from "./pairings";
-import { fluidClamp, stepSizes, TYPE_PRESET_NAMES, typeScale } from "./type-scale";
+import {
+  fluidClamp,
+  MIN_FONT_SIZE_PX,
+  stepSizes,
+  TYPE_PRESET_NAMES,
+  typeScale,
+} from "./type-scale";
 
 describe("fluid type scale", () => {
   it("interpolates between the 1.2 mobile and 1.333 desktop ratios", () => {
@@ -20,6 +26,22 @@ describe("fluid type scale", () => {
     expect(at(360)).toBeCloseTo(32, 1);
     expect(at(1440)).toBeCloseTo(64, 1);
     expect(fluidClamp(16, 16)).toBe("1rem");
+  });
+
+  it("never goes below 14px (small and eyebrow are floored)", () => {
+    const pairing = getPairing("fraunces-hanken");
+    if (!pairing) throw new Error("missing pairing");
+    const scale = typeScale(pairing);
+    expect(scale.small["font-size"]).toBe("0.875rem");
+    expect(scale.eyebrow["font-size"]).toBe("0.875rem");
+    for (const preset of TYPE_PRESET_NAMES) {
+      const sizes = [...scale[preset]["font-size"].matchAll(/([\d.]+)rem/g)].map((m) =>
+        Number(m[1]),
+      );
+      expect(Math.min(sizes[0] ?? 0, sizes.at(-1) ?? 0) * 16, preset).toBeGreaterThanOrEqual(
+        MIN_FONT_SIZE_PX,
+      );
+    }
   });
 
   it("produces every preset with a descending size order", () => {

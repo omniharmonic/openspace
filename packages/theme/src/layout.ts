@@ -104,6 +104,9 @@ export const BUTTON_PROPS = [
   "bg-hover",
   "color-hover",
   "border-color-hover",
+  "bg-active",
+  "color-active",
+  "border-color-active",
 ] as const;
 export type ButtonProp = (typeof BUTTON_PROPS)[number];
 
@@ -150,11 +153,11 @@ const BUTTON_SYSTEMS: Record<ButtonStyle, Record<ButtonRole, Variant>> = {
 };
 
 const c = (role: string) => `var(--os-color-${role})`;
-const mix = (a: string, b: string, pct: number) => `color-mix(in oklab, ${a} ${pct}%, ${b})`;
 
 /**
- * Button tokens. Label colors only use roles the contrast solver guarantees at 4.5:1 on their
- * surface: `accent-text` on `accent`, and `link` / `text` on the section background.
+ * Button tokens. Every label/fill combination — including hover and pressed — is one the
+ * contrast solver guarantees at 4.5:1: `accent-text` on `accent`/`accent-hover`/`accent-pressed`,
+ * `background` on `text`, and `link` / `text` / `heading` on the section surfaces. No `color-mix()`.
  */
 function variantTokens(v: Variant): Record<ButtonProp, string> {
   const ink = v.tone === "accent" ? c("link") : c("text");
@@ -163,9 +166,11 @@ function variantTokens(v: Variant): Record<ButtonProp, string> {
   const bare = { "padding-x": "0", "padding-y": "var(--os-space-3xs)" };
   switch (v.kind) {
     case "solid": {
-      const fill = v.tone === "accent" ? c("accent") : c("text");
-      const label = v.tone === "accent" ? c("accent-text") : c("background");
-      const hover = mix(fill, c("text"), 88);
+      const accent = v.tone === "accent";
+      const fill = accent ? c("accent") : c("text");
+      const label = accent ? c("accent-text") : c("background");
+      const hover = accent ? c("accent-hover") : c("heading");
+      const active = accent ? c("accent-pressed") : c("heading");
       return {
         bg: fill,
         color: label,
@@ -178,6 +183,9 @@ function variantTokens(v: Variant): Record<ButtonProp, string> {
         "bg-hover": hover,
         "color-hover": label,
         "border-color-hover": hover,
+        "bg-active": active,
+        "color-active": label,
+        "border-color-active": active,
       };
     }
     case "outline": {
@@ -196,6 +204,9 @@ function variantTokens(v: Variant): Record<ButtonProp, string> {
         "bg-hover": fillHover,
         "color-hover": labelHover,
         "border-color-hover": fillHover,
+        "bg-active": v.tone === "accent" ? c("accent-pressed") : c("heading"),
+        "color-active": labelHover,
+        "border-color-active": v.tone === "accent" ? c("accent-pressed") : c("heading"),
       };
     }
     case "underline":
@@ -211,6 +222,9 @@ function variantTokens(v: Variant): Record<ButtonProp, string> {
         "bg-hover": "transparent",
         "color-hover": c("heading"),
         "border-color-hover": "transparent",
+        "bg-active": "transparent",
+        "color-active": c("heading"),
+        "border-color-active": "transparent",
       };
     case "text-arrow":
       return {
@@ -225,6 +239,9 @@ function variantTokens(v: Variant): Record<ButtonProp, string> {
         "bg-hover": "transparent",
         "color-hover": c("heading"),
         "border-color-hover": "transparent",
+        "bg-active": "transparent",
+        "color-active": c("heading"),
+        "border-color-active": "transparent",
       };
   }
 }

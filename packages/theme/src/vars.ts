@@ -33,7 +33,7 @@ import {
   type MotionProp,
 } from "./layout";
 import { TYPE_PRESET_NAMES, type TypePresetName, type TypePresetTokens } from "./type-scale";
-import type { ColorRole, ScaleStep } from "./types";
+import { type ScaleStep, STATE_ROLES, type ThemeRole } from "./types";
 
 export const VAR_PREFIX = "--os-";
 
@@ -82,8 +82,8 @@ const record = <K extends string | number, V>(keys: readonly K[], fn: (k: K) => 
 
 /** The documented variable map. Values are custom-property names (`--os-…`). */
 export const TOKEN_VARS = {
-  /** Semantic roles (theme-scoped). */
-  color: record<ColorRole, string>(COLOR_ROLES, (r) => varName("color", r)),
+  /** Semantic roles plus `accent-hover` / `accent-pressed` (theme-scoped, contrast-solved). */
+  color: record<ThemeRole, string>([...COLOR_ROLES, ...STATE_ROLES], (r) => varName("color", r)),
   /** Accent scale `--os-color-accent-50` … `-950`. */
   accent: record<ScaleStep, string>(COLOR_SCALE_STEPS, (s) => varName("color", "accent", s)),
   /** Neutral scale `--os-color-neutral-50` … `-950`. */

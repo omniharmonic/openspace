@@ -34,6 +34,7 @@ import {
   type TypePairing,
 } from "./pairings";
 import {
+  accentStates,
   buildPalette,
   type ContrastAdjustment,
   onColor,
@@ -42,7 +43,7 @@ import {
   themeRoles,
 } from "./themes";
 import { fontTokens, TYPE_PRESET_NAMES, typeScale } from "./type-scale";
-import type { ColorRole, ColorScale } from "./types";
+import { type ColorRole, type ColorScale, STATE_ROLES, type ThemeRole } from "./types";
 import { imageTreatmentClass, THEME_CLASSES, themeClass, varName } from "./vars";
 
 export interface CompileWarning {
@@ -99,6 +100,9 @@ export interface CompiledStyles {
 const FALLBACK_BRAND = "oklch(0.55 0.12 250)";
 const COLOR_THEME_SET = new Set<string>(COLOR_THEMES);
 const COLOR_ROLE_SET = new Set<string>(COLOR_ROLES);
+/** Override scope that targets every section theme: `color.all.<role>`. */
+export const ALL_THEMES = "all";
+const THEME_ROLES: readonly ThemeRole[] = [...COLOR_ROLES, ...STATE_ROLES];
 
 function scaleHex(scale: ColorScale<Oklch>): ColorScale<string> {
   const out = {} as ColorScale<string>;
@@ -135,10 +139,15 @@ function overrideColor(
 /**
  * Compile `content/styles.json` into the full token set and the site's token stylesheet.
  *
- * Override paths (DTCG): `color.<role>` sets a role in the default (light) theme,
- * `color.<theme>.<role>` in one section theme — both before the contrast solver runs;
- * `color.accent-500`/`color.neutral-200`/`color.brand` replace scale variables; every other path
- * maps to `--os-<path>` (see `vars.ts`), e.g. `type.display.letterSpacing`.
+ * Override paths (DTCG):
+ * - `color.all.<role>`: the role in **every** section theme;
+ * - `color.<role>`: the role in the default (light) theme only;
+ * - `color.<theme>.<role>`: the role in one section theme.
+ *   Precedence is theme > light > all. All three apply before the contrast solver runs; an
+ *   overridden `accent` gets a freshly picked `accent-text` unless that is overridden too, and
+ *   `accent-hover`/`accent-pressed` are always derived from the final accent.
+ * - `color.accent-500` / `color.neutral-200` / `color.brand` replace scale variables.
+ * - Every other path maps to `--os-<path>` (see `vars.ts`), e.g. `type.display.letterSpacing`.
  */
 export function compileStyles(styles: Styles, options: CompileOptions = {}): CompiledStyles {
   const { choices } = styles;
@@ -210,7 +219,15 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   // --- overrides ---
   const roles = themeRoles(palette);
   const custom = new Map<string, string>();
-  const overriddenRoles = new Set<string>();
+  /** `theme:role` → the override path that set it. */
+  const overriddenRoles = new Map<string, string>();
+  const roleOverrides: {
+    tier: number;
+    scope: string;
+    role: ColorRole;
+    dotted: string;
+    value: unknown;
+  }[] = [];
   for (const { path, token, type: t } of flattenDtcg(styles.overrides)) {
     const dotted = path.join(".");
     const invalid = (why: string) =>
@@ -218,16 +235,19 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
 
     if (path[0] === "color") {
       const [, a, b] = path;
-      const theme = path.length === 3 && a && COLOR_THEME_SET.has(a) ? (a as ColorTheme) : null;
-      const role = theme ? b : path.length === 2 ? a : undefined;
+      const scope =
+        path.length === 3 && a && (a === ALL_THEMES || COLOR_THEME_SET.has(a)) ? a : null;
+      const role = scope ? b : path.length === 2 ? a : undefined;
       if (role && COLOR_ROLE_SET.has(role)) {
-        const target = theme ?? "light";
-        const color = overrideColor(token.$value, palette, roles[target]);
-        if (!color) invalid(`"${String(token.$value)}" is not a color.`);
-        else {
-          roles[target][role as ColorRole] = color;
-          overriddenRoles.add(`${target}:${role}`);
-        }
+        // Precedence: `color.<theme>.<role>` > `color.<role>` (light) > `color.all.<role>`.
+        const tier = scope === ALL_THEMES ? 0 : scope ? 2 : 1;
+        roleOverrides.push({
+          tier,
+          scope: scope ?? "light",
+          role: role as ColorRole,
+          dotted,
+          value: token.$value,
+        });
         continue;
       }
     }
@@ -266,6 +286,22 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
     }
   }
   for (const name of [...custom.keys()].sort()) root.set(name, custom.get(name) as string);
+  for (const o of roleOverrides.sort((x, y) => x.tier - y.tier)) {
+    const targets = o.scope === ALL_THEMES ? COLOR_THEMES : [o.scope as ColorTheme];
+    for (const target of targets) {
+      const color = overrideColor(o.value, palette, roles[target]);
+      if (!color) {
+        warnings.push({
+          code: "invalid-override",
+          path: o.dotted,
+          message: `"${String(o.value)}" is not a color.`,
+        });
+        break;
+      }
+      roles[target][o.role] = color;
+      overriddenRoles.set(`${target}:${o.role}`, o.dotted);
+    }
+  }
   // A new accent gets a fresh label color unless that was overridden too.
   for (const theme of COLOR_THEMES) {
     if (overriddenRoles.has(`${theme}:accent`) && !overriddenRoles.has(`${theme}:accent-text`)) {
@@ -279,8 +315,10 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   if (options.solve === false) {
     themes = {} as ThemeColorSet;
     for (const theme of COLOR_THEMES) {
-      const out = {} as Record<ColorRole, string>;
-      for (const role of COLOR_ROLES) out[role] = oklchToHex(roles[theme][role]);
+      const set = roles[theme];
+      const all = { ...set, ...accentStates(set.accent, set["accent-text"]) };
+      const out = {} as Record<ThemeRole, string>;
+      for (const role of THEME_ROLES) out[role] = oklchToHex(all[role]);
       themes[theme] = out;
     }
   } else {
@@ -288,10 +326,11 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   }
   const failures = auditContrast(themes, { contrast: mode });
   for (const a of adjustments) {
-    if (!overridden(styles, a.theme, a.role)) continue;
+    const path = overriddenRoles.get(`${a.theme}:${a.role}`);
+    if (!path) continue;
     warnings.push({
       code: "contrast-adjusted",
-      path: a.theme === "light" ? `color.${a.role}` : `color.${a.theme}.${a.role}`,
+      path,
       message: `Override ${a.from} adjusted to ${a.to} to reach ${a.required}:1 against ${a.against} (${a.theme}).`,
     });
   }
@@ -306,7 +345,7 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   const themeVars = {} as Record<ColorTheme, Record<string, string>>;
   for (const theme of COLOR_THEMES) {
     const vars: Record<string, string> = {};
-    for (const role of COLOR_ROLES) vars[varName("color", role)] = themes[theme][role];
+    for (const role of THEME_ROLES) vars[varName("color", role)] = themes[theme][role];
     themeVars[theme] = vars;
   }
 
@@ -348,14 +387,6 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
     contrast: { mode, adjustments, failures },
     warnings,
   };
-}
-
-function overridden(styles: Styles, theme: ColorTheme, role: ColorRole): boolean {
-  const color = styles.overrides?.color as Record<string, unknown> | undefined;
-  if (!color) return false;
-  if (theme === "light" && color[role] !== undefined) return true;
-  const group = color[theme] as Record<string, unknown> | undefined;
-  return typeof group === "object" && group !== null && group[role] !== undefined;
 }
 
 function block(selectors: string[], decls: Record<string, string>, indent = ""): string {

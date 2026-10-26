@@ -1,8 +1,9 @@
 import { COLOR_THEMES, type Styles } from "@openspace/schema";
 import { describe, expect, it } from "vitest";
 import { compileStyles } from "./compile";
-import { auditContrast, contrastRatio, nearestAccessible } from "./contrast";
+import { auditContrast, CONTRAST_PAIRS, contrastRatio, nearestAccessible } from "./contrast";
 import { curatedPalettes } from "./palettes";
+import { buttonContrastFailures } from "./test-helpers";
 import { buildPalette, solveThemes, themeRoles } from "./themes";
 
 const styles = (
@@ -54,6 +55,8 @@ describe("contrast solver", () => {
         expect(Object.keys(themes).sort()).toEqual([...COLOR_THEMES].sort());
         const failures = auditContrast(themes, { contrast });
         expect(failures, `${p.id} (${contrast})`).toEqual([]);
+        const body = contrast === "high" ? 7 : 4.5;
+        expect(buttonContrastFailures(themes, body), `${p.id} buttons (${contrast})`).toEqual([]);
       }
     }
   });
@@ -125,6 +128,23 @@ describe("contrast solver", () => {
     const t = out.tokens.themes.light;
     expect(contrastRatio(t.accent, t.background)).toBeGreaterThanOrEqual(3);
     expect(contrastRatio(t["accent-text"], t.accent)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("checks accent on surface-raised and the hover/pressed fills", () => {
+    const pairs = CONTRAST_PAIRS.map((p) => `${p.fg}/${p.bg}`);
+    expect(pairs).toContain("accent/surface-raised");
+    expect(pairs).toContain("accent-text/accent-hover");
+    expect(pairs).toContain("accent-text/accent-pressed");
+  });
+
+  it("keeps text-muted no stronger than text (brand theme on a mid-tone brand)", () => {
+    for (const brand of ["oklch(0.62 0.09 145)", "oklch(0.6 0.2 30)", "#808080"]) {
+      const { themes } = solveThemes(themeRoles(buildPalette(brand, "warm")));
+      const t = themes.brand;
+      expect(contrastRatio(t["text-muted"], t.background)).toBeLessThanOrEqual(
+        contrastRatio(t.text, t.background),
+      );
+    }
   });
 
   it("auditContrast lists failing pairs with ratios", () => {

@@ -1,6 +1,6 @@
 import { COLOR_THEMES, type ColorTheme } from "@openspace/schema";
 import { gamutMap, hexToRgb, type Oklch, oklchToHex, parseColor, srgbToLinear } from "./color";
-import type { ColorRole } from "./types";
+import type { ColorRole, ThemeRole } from "./types";
 
 /** WCAG 2.x relative luminance of an sRGB color (0 = black, 1 = white). */
 export function relativeLuminance(color: string | Oklch): number {
@@ -32,9 +32,11 @@ export const CONTRAST_MINIMUMS: Record<ContrastMode, Record<ContrastLevel, numbe
 };
 
 export interface ContrastPair {
-  fg: ColorRole;
-  bg: ColorRole;
+  fg: ThemeRole;
+  bg: ThemeRole;
   level: ContrastLevel;
+  /** Which side the solver moves (default `fg`). State colors are always the side that moves. */
+  adjust?: "fg" | "bg";
 }
 
 const BACKGROUNDS = ["background", "surface", "surface-raised"] as const;
@@ -45,14 +47,16 @@ const onAll = (fg: ColorRole, level: ContrastLevel): ContrastPair[] =>
  * Every role pair that must meet contrast in every section theme. Order matters to the solver:
  * `accent` is settled against the backgrounds before `accent-text` is settled against `accent`.
  * `border` is decorative (inputs use `text-muted`-strength outlines) and is not checked.
+ * The last four pairs cover the button hover/pressed fills ({@link STATE_PAIRS}).
  */
-export const CONTRAST_PAIRS: readonly ContrastPair[] = [
+export const CORE_CONTRAST_PAIRS: readonly ContrastPair[] = [
   ...onAll("text", "body"),
   ...onAll("heading", "body"),
   ...onAll("text-muted", "body"),
   ...onAll("link", "body"),
   { fg: "accent", bg: "background", level: "large" },
   { fg: "accent", bg: "surface", level: "large" },
+  { fg: "accent", bg: "surface-raised", level: "large" },
   { fg: "accent-text", bg: "accent", level: "body" },
   ...onAll("focus", "large"),
   ...onAll("success", "body"),
@@ -60,19 +64,29 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   ...onAll("danger", "body"),
 ];
 
-export type ThemeColors = Record<ColorRole, string>;
+/** Button hover/pressed fills: labels stay legible and the fill stays visible as UI. */
+export const STATE_PAIRS: readonly ContrastPair[] = [
+  { fg: "accent-text", bg: "accent-hover", level: "body", adjust: "bg" },
+  { fg: "accent-text", bg: "accent-pressed", level: "body", adjust: "bg" },
+  { fg: "accent-hover", bg: "background", level: "large" },
+  { fg: "accent-pressed", bg: "background", level: "large" },
+];
+
+export const CONTRAST_PAIRS: readonly ContrastPair[] = [...CORE_CONTRAST_PAIRS, ...STATE_PAIRS];
+
+export type ThemeColors = Record<ThemeRole, string>;
 export type ThemeColorSet = Record<ColorTheme, ThemeColors>;
 
 export interface ContrastFailure {
   theme: ColorTheme;
-  fg: ColorRole;
-  bg: ColorRole;
+  fg: ThemeRole;
+  bg: ThemeRole;
   fgColor: string;
   bgColor: string;
   ratio: number;
   required: number;
   level: ContrastLevel;
-  /** The nearest accessible replacement for `fg` (lightness-only change). */
+  /** Nearest accessible replacement (lightness-only) for the side the solver adjusts: `fg`, or `bg` for state fills. */
   suggestion: string;
 }
 
@@ -86,20 +100,26 @@ export function auditContrast(
   for (const theme of COLOR_THEMES) {
     const colors = themes[theme];
     if (!colors) continue;
-    for (const pair of CONTRAST_PAIRS) {
-      const fgColor = colors[pair.fg];
-      const bgColor = colors[pair.bg];
-      const required = mins[pair.level];
+    for (const { fg, bg, level, adjust } of CONTRAST_PAIRS) {
+      const fgColor = colors[fg] as string | undefined;
+      const bgColor = colors[bg] as string | undefined;
+      if (fgColor === undefined || bgColor === undefined) continue;
+      const required = mins[level];
       const ratio = contrastRatio(fgColor, bgColor);
       if (ratio < required) {
         failures.push({
           theme,
-          ...pair,
+          fg,
+          bg,
+          level,
           fgColor,
           bgColor,
           ratio: Math.round(ratio * 100) / 100,
           required,
-          suggestion: nearestAccessible(fgColor, bgColor, required),
+          suggestion:
+            adjust === "bg"
+              ? nearestAccessible(bgColor, fgColor, required)
+              : nearestAccessible(fgColor, bgColor, required),
         });
       }
     }

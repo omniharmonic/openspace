@@ -72,13 +72,13 @@
   --os-type-body-font-weight: var(--os-font-weight-body);
   --os-type-body-text-transform: none;
   --os-type-small-font-family: var(--os-font-body);
-  --os-type-small-font-size: clamp(0.8333rem, 0.8298rem + 0.0157vw, 0.844rem);
+  --os-type-small-font-size: 0.875rem;
   --os-type-small-line-height: 1.5;
   --os-type-small-letter-spacing: 0em;
   --os-type-small-font-weight: var(--os-font-weight-body);
   --os-type-small-text-transform: none;
   --os-type-eyebrow-font-family: var(--os-font-body);
-  --os-type-eyebrow-font-size: clamp(0.8333rem, 0.8298rem + 0.0157vw, 0.844rem);
+  --os-type-eyebrow-font-size: 0.875rem;
   --os-type-eyebrow-line-height: 1.3;
   --os-type-eyebrow-letter-spacing: 0.12em;
   --os-type-eyebrow-font-weight: var(--os-font-weight-strong);
@@ -155,6 +155,8 @@
   --os-color-success: #007835;
   --os-color-warning: #8a5600;
   --os-color-danger: #b32322;
+  --os-color-accent-hover: #c97152;
+  --os-color-accent-pressed: #d2795a;
 }
 
 .os-theme-light-accent {
@@ -173,6 +175,8 @@
   --os-color-success: #007131;
   --os-color-warning: #825100;
   --os-color-danger: #ac1a1c;
+  --os-color-accent-hover: #3c6c3e;
+  --os-color-accent-pressed: #2b5b2e;
 }
 
 .os-theme-dark {
@@ -191,6 +195,8 @@
   --os-color-success: #76cf8a;
   --os-color-warning: #eca851;
   --os-color-danger: #ff968a;
+  --os-color-accent-hover: #93c394;
+  --os-color-accent-pressed: #a6d6a6;
 }
 
 .os-theme-dark-accent {
@@ -209,6 +215,8 @@
   --os-color-success: #89da9b;
   --os-color-warning: #f6b669;
   --os-color-danger: #ffaba1;
+  --os-color-accent-hover: #b7ddb7;
+  --os-color-accent-pressed: #caf1ca;
 }
 
 .os-theme-brand {
@@ -227,6 +235,8 @@
   --os-color-success: #00290e;
   --os-color-warning: #341d00;
   --os-color-danger: #4e0003;
+  --os-color-accent-hover: #070603;
+  --os-color-accent-pressed: #010100;
 }
 
 :root,
@@ -244,9 +254,12 @@
   --os-button-primary-padding-y: var(--os-space-xs);
   --os-button-primary-text-decoration: none;
   --os-button-primary-icon: none;
-  --os-button-primary-bg-hover: color-mix(in oklab, var(--os-color-accent) 88%, var(--os-color-text));
+  --os-button-primary-bg-hover: var(--os-color-accent-hover);
   --os-button-primary-color-hover: var(--os-color-accent-text);
-  --os-button-primary-border-color-hover: color-mix(in oklab, var(--os-color-accent) 88%, var(--os-color-text));
+  --os-button-primary-border-color-hover: var(--os-color-accent-hover);
+  --os-button-primary-bg-active: var(--os-color-accent-pressed);
+  --os-button-primary-color-active: var(--os-color-accent-text);
+  --os-button-primary-border-color-active: var(--os-color-accent-pressed);
   --os-button-secondary-bg: transparent;
   --os-button-secondary-color: var(--os-color-text);
   --os-button-secondary-border-color: var(--os-color-text);
@@ -259,6 +272,9 @@
   --os-button-secondary-bg-hover: var(--os-color-text);
   --os-button-secondary-color-hover: var(--os-color-background);
   --os-button-secondary-border-color-hover: var(--os-color-text);
+  --os-button-secondary-bg-active: var(--os-color-heading);
+  --os-button-secondary-color-active: var(--os-color-background);
+  --os-button-secondary-border-color-active: var(--os-color-heading);
   --os-button-tertiary-bg: transparent;
   --os-button-tertiary-color: var(--os-color-text);
   --os-button-tertiary-border-color: transparent;
@@ -271,6 +287,9 @@
   --os-button-tertiary-bg-hover: transparent;
   --os-button-tertiary-color-hover: var(--os-color-heading);
   --os-button-tertiary-border-color-hover: transparent;
+  --os-button-tertiary-bg-active: transparent;
+  --os-button-tertiary-color-active: var(--os-color-heading);
+  --os-button-tertiary-border-color-active: transparent;
   --os-image-radius: 9999px 9999px 0 0;
   --os-image-clip-path: none;
   --os-image-aspect-ratio: auto;
