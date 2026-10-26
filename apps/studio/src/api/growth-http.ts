@@ -1,5 +1,6 @@
 import type {
   AnalyticsReport,
+  CampaignLimits,
   CampaignPreview,
   CampaignStats,
   CampaignView,
@@ -326,6 +327,9 @@ export function createGrowthHttp({
         `${site(siteId)}/segments/count${queryString({ tag: segment.tags, match: segment.match })}`,
       );
       return r.count;
+    },
+    async getCampaignLimits(siteId) {
+      return request<CampaignLimits>("GET", `${site(siteId)}/campaign-limits`);
     },
     async listCampaigns(siteId) {
       return (await request<{ campaigns: CampaignView[] }>("GET", `${site(siteId)}/campaigns`))

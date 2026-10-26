@@ -596,4 +596,18 @@ export interface GrowthApi {
   unscheduleCampaign(siteId: string, campaignId: string): Promise<CampaignView>;
   sendCampaign(siteId: string, campaignId: string): Promise<CampaignView>;
   getCampaignStats(siteId: string, campaignId: string): Promise<CampaignStats>;
+  /** Today's sending limit (warm-up) and whether sending is paused. */
+  getCampaignLimits(siteId: string): Promise<CampaignLimits>;
+}
+
+/** Campaign volume cap with warm-up (PRD §9.3). */
+export interface CampaignLimits {
+  limit: number;
+  sentToday: number;
+  remaining: number;
+  cleanDays: number;
+  window: { sent: number; bounced: number; complained: number };
+  paused: { reason: "bounces" | "complaints"; rate: number; message: string } | null;
+  /** The Hub operator's abuse-report address (shown in every email's footer). */
+  abuseEmail: string | null;
 }

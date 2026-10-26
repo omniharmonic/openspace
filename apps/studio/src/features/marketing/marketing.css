@@ -194,3 +194,25 @@
 .st-campaign__notsaved {
   color: var(--st-danger);
 }
+
+/* Daily sending limit (campaign warm-up). */
+.st-camp-limit {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  line-height: 1.5;
+}
+.st-camp-limit svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  color: var(--st-text-3);
+}
+.st-camp-limit strong {
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}

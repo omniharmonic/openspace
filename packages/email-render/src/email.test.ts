@@ -312,4 +312,24 @@ describe("templates", () => {
       campaignEmail({ ...common, subject: "s", blocks, unsubscribeUrl: "/u/1" }).html,
     ).toContain("https://maya.example/u/1");
   });
+
+  it("campaignEmail shows the operator's abuse-report address in the footer", () => {
+    const r = campaignEmail({
+      ...common,
+      subject: "s",
+      blocks,
+      unsubscribeUrl: "https://maya.example/u/1",
+      abuseEmail: "abuse@openspace.example",
+    });
+    expect(r.html).toContain('href="mailto:abuse@openspace.example"');
+    expect(r.text).toContain("Report abuse: abuse@openspace.example");
+    const bad = campaignEmail({
+      ...common,
+      subject: "s",
+      blocks,
+      unsubscribeUrl: "https://maya.example/u/1",
+      abuseEmail: '"><script>@x.y',
+    });
+    expect(bad.html).not.toContain("Report abuse");
+  });
 });

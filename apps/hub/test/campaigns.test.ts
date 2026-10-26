@@ -1,9 +1,13 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import { consumeCampaignBatch } from "../src/cron/growth";
+import { readConfig } from "../src/env";
 import type { CampaignJob } from "../src/growth-env";
 import { randomId } from "../src/lib/crypto";
 import { runScheduled } from "../src/scheduled";
+import { createServices } from "../src/services";
+import { campaignQuota } from "../src/services/campaign-limits";
+import { runCampaign } from "../src/services/campaigns";
 import {
   checkSenderDns,
   snsStringToSign,
@@ -183,6 +187,91 @@ describe("campaigns", () => {
       .bind(f.siteId)
       .first<{ status: string }>();
     expect(st?.status).toBe("unsubscribed");
+  });
+
+  it("caps daily volume for new senders and warms up with clean sending days (M-10)", async () => {
+    const operator = { campaign: { dailyBase: 1, dailyMax: 100 } };
+    const app = makeGrowthApp({ operator });
+    const f = await campaignSite(app);
+    const id = await createCampaign(app, f, { segment: { tags: [] } });
+    const sent = await call(
+      app,
+      `/api/sites/${f.siteId}/campaigns/${id}/send`,
+      { method: "POST", cookie: f.cookie },
+      HTTPS,
+    );
+    expect(sent.status).toBe(202);
+    expect(((await sent.json()) as { campaign: { status: string } }).campaign.status).toBe(
+      "sending",
+    );
+    expect(await mails(f.siteId)).toHaveLength(1);
+    const limits = await call(app, `/api/sites/${f.siteId}/campaign-limits`, {
+      cookie: f.cookie,
+    });
+    expect(await limits.json()).toMatchObject({
+      limit: 1,
+      sentToday: 1,
+      remaining: 0,
+      paused: null,
+    });
+    // The next day the limit has doubled (one clean sending day) and the rest goes out.
+    const tomorrow = Date.now() + 86_400_000;
+    const services = createServices(env as never, readConfig(env as never), {
+      now: () => tomorrow,
+      operator,
+    });
+    expect((await campaignQuota(services, f.siteId)).limit).toBe(2);
+    const r = await runCampaign(services, f.siteId, id, 50);
+    expect(r).toMatchObject({ sent: 2, done: true });
+    expect(await mails(f.siteId)).toHaveLength(3);
+  });
+
+  it("pauses sending when bounces or complaints run high, and shows the abuse address", async () => {
+    const app = makeGrowthApp({ operator: { abuseEmail: "abuse@hub.test" } });
+    const f = await campaignSite(app);
+    const id = await createCampaign(app, f);
+    const now = Date.now() - 86_400_000;
+    const rows = Array.from({ length: 60 }, (_, i) =>
+      env.HUB_DB.prepare(
+        `INSERT INTO campaign_recipients (id, campaign_id, site_id, subscriber_id, email, status, sent_at)
+         VALUES (?, 'cmp_old', ?, ?, ?, ?, ?)`,
+      ).bind(
+        `rcp_old${i}`,
+        f.siteId,
+        `sub_old${i}`,
+        `old${i}@example.com`,
+        i < 6 ? "bounced" : "sent",
+        now,
+      ),
+    );
+    await env.HUB_DB.batch(rows);
+    const res = await call(
+      app,
+      `/api/sites/${f.siteId}/campaigns/${id}/send`,
+      { method: "POST", cookie: f.cookie },
+      HTTPS,
+    );
+    expect(res.status).toBe(422);
+    expect(await res.json()).toMatchObject({ error: { code: "sending_paused" } });
+    const limits = (await (
+      await call(app, `/api/sites/${f.siteId}/campaign-limits`, { cookie: f.cookie })
+    ).json()) as { paused: { reason: string } | null; remaining: number; abuseEmail: string };
+    expect(limits).toMatchObject({ remaining: 0, abuseEmail: "abuse@hub.test" });
+    expect(limits.paused?.reason).toBe("bounces");
+    // A clean history sends, and the footer carries the abuse address.
+    await env.HUB_DB.prepare(
+      "UPDATE campaign_recipients SET status = 'sent' WHERE campaign_id = 'cmp_old'",
+    ).run();
+    const ok = await call(
+      app,
+      `/api/sites/${f.siteId}/campaigns/${id}/send`,
+      { method: "POST", cookie: f.cookie },
+      HTTPS,
+    );
+    expect(ok.status).toBe(202);
+    const out = await mails(f.siteId);
+    expect(out[0]?.html).toContain("mailto:abuse@hub.test");
+    expect(out[0]?.text).toContain("Report abuse: abuse@hub.test");
   });
 
   it("tracks clicks only to links in the campaign (no open redirect)", async () => {

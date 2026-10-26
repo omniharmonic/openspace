@@ -1,6 +1,6 @@
 import { blocksRegistry } from "@openspace/blocks";
 import type { Block } from "@openspace/schema";
-import { ArrowLeft, Mail, Plus, Send, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Gauge, Mail, Plus, Send, ShieldCheck, TriangleAlert } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
 import {
@@ -8,6 +8,7 @@ import {
   type CampaignView,
   useCampaign,
   useCampaignActions,
+  useCampaignLimits,
   useCampaigns,
   useSenders,
   useSubscribers,
@@ -144,6 +145,7 @@ function CampaignList({ site }: { site: Site }) {
           </span>
         </div>
       )}
+      <SendingLimit siteId={site.id} />
       <div className="st-ws-panel">
         {campaigns.isPending ? (
           <div className="st-ws-section">
@@ -202,6 +204,36 @@ function CampaignList({ site }: { site: Site }) {
   );
 }
 
+/**
+ * Today's sending limit (PRD §9.3: new senders start with low volume caps that grow with a clean
+ * history) or, when bounces or spam reports ran high, why sending is paused.
+ */
+function SendingLimit({ siteId }: { siteId: string }) {
+  const limits = useCampaignLimits(siteId);
+  const l = limits.data;
+  if (!l) return null;
+  if (l.paused)
+    return (
+      <div className="st-callout st-callout--danger" role="alert">
+        <TriangleAlert aria-hidden="true" />
+        <span>{l.paused.message}</span>
+      </div>
+    );
+  return (
+    <p className="st-camp-limit">
+      <Gauge aria-hidden="true" />
+      <span>
+        <strong>
+          {number(l.remaining)} of {number(l.limit)}
+        </strong>{" "}
+        emails left to send today. New senders start small; the limit doubles each day you send
+        without bounces or spam reports. Bigger lists keep sending the next day.
+        {l.abuseEmail ? ` Every email links to ${l.abuseEmail} for reporting abuse.` : ""}
+      </span>
+    </p>
+  );
+}
+
 function CampaignScreen({ site, campaignId }: { site: Site; campaignId: string }) {
   const q = useCampaign(site.id, campaignId);
   const subs = useSubscribers(site.id, { limit: 200 });
@@ -241,7 +273,7 @@ function CampaignReport({
         title={campaign.subject}
         description={
           campaign.status === "sending"
-            ? "Sending now. This page updates as it goes."
+            ? "Sending now. This page updates as it goes. If your daily limit is reached, the rest goes out tomorrow."
             : `Sent ${dateTime(campaign.finishedAt ?? campaign.startedAt)} to ${number(campaign.recipients)} people${
                 campaign.segment?.tags.length ? ` tagged ${campaign.segment.tags.join(", ")}` : ""
               }.`

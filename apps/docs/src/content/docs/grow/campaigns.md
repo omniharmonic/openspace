@@ -24,6 +24,14 @@ Open **Campaigns → Sending setup**:
 - **Preview** in desktop, phone and **dark mode**, with the inbox line as people will see it. Any rendering warnings are listed.
 - Send yourself a **test**, then **Send now** or **Schedule** (designers and owners), each with a confirmation showing the audience size.
 
+## Sending limits
+
+New senders start small. Each site can send campaign email to **100 people a day** at first, and that limit **doubles for every day you've sent without trouble** (up to 50,000 a day), so a healthy list reaches full speed in about ten sending days. When a campaign is bigger than today's limit, it keeps going the next day on its own; **Campaigns** shows how many sends are left today.
+
+If more than **5% of recent emails bounce** or more than **0.3% are marked as spam** (over the last 30 days), sending **pauses** for the site and Studio explains why. Clean up the list (remove old or mistyped addresses, and only email people who asked to hear from you); sending resumes as the window moves on. Hub operators can change the starting limit and the ceiling (`CAMPAIGN_DAILY_BASE`, `CAMPAIGN_DAILY_MAX`).
+
+Every email's footer also shows the Hub operator's **abuse reporting address**, so recipients can report spam or phishing directly.
+
 Every email includes a one-click **unsubscribe** link and the standard headers mail apps use for their own unsubscribe button. Hard bounces and spam complaints are unsubscribed automatically.
 
 ## Reports

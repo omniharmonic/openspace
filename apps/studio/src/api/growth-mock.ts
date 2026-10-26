@@ -1659,6 +1659,23 @@ export function createGrowthMock(ctx: GrowthMockContext): {
       s.campaigns.push(c);
       return view(c);
     },
+    async getCampaignLimits(siteId) {
+      await call("getCampaignLimits", [siteId]);
+      const today = iso(now()).slice(0, 10);
+      const sentToday = of(siteId)
+        .campaigns.filter((c) => (c.startedAt ?? "").slice(0, 10) === today)
+        .reduce((n, c) => n + c.recipients, 0);
+      const limit = 100;
+      return {
+        limit,
+        sentToday,
+        remaining: Math.max(0, limit - sentToday),
+        cleanDays: 0,
+        window: { sent: sentToday, bounced: 0, complained: 0 },
+        paused: null,
+        abuseEmail: "abuse@openspace.dev",
+      };
+    },
     async getCampaign(siteId, campaignId) {
       await call("getCampaign", [siteId, campaignId]);
       const c = campaignOf(siteId, campaignId);
