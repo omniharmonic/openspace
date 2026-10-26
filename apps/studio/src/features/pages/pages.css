@@ -583,3 +583,9 @@
 .st-seo-hints__fix {
   color: var(--st-text-3);
 }
+
+.st-tier-picker {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}

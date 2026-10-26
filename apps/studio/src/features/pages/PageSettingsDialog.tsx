@@ -4,7 +4,7 @@ import type { Page, SiteDocument } from "@openspace/schema";
 import { Cloud, ImagePlus, KeyRound, Lock, Users, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { usePagePasswords, useSetPagePassword } from "../../api";
+import { useCommerceSettings, usePagePasswords, useSetPagePassword, useTiers } from "../../api";
 import {
   Button,
   Dialog,
@@ -107,6 +107,16 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
   const setPw = useSetPagePassword(site?.id ?? "");
   const hasPassword = passwords.data?.some((p) => p.pageId === page.id) ?? false;
   const cloudflare = site?.deployTarget === "cloudflare";
+  const membersPage = form.access === "members";
+  const tiers = useTiers(site?.id ?? "", membersPage && Boolean(site));
+  const commerce = useCommerceSettings(site?.id ?? "", membersPage && Boolean(site));
+  const activeTiers = (tiers.data ?? []).filter((t) => t.active || form.tiers.includes(t.id));
+  // Members-only without a plan restriction = anyone who signs up, when sign-up is open.
+  const openToAnyone =
+    membersPage &&
+    commerce.data?.settings.membersSignup === "open" &&
+    (form.tiers.length === 0 ||
+      form.tiers.some((id) => activeTiers.find((t) => t.id === id && !t.price)));
   const isHome = page.slug === "";
 
   useEffect(() => {
@@ -401,9 +411,50 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
                   </p>
                 ))}
               {form.access === "members" && (
+                <>
+                  <p className="st-muted-note">
+                    <Users aria-hidden="true" /> Visitors sign in with a link sent to their email.
+                    Manage members in Members.
+                  </p>
+                  {activeTiers.length > 0 && (
+                    <div className="st-tier-picker" role="group" aria-label="Membership plans">
+                      {activeTiers.map((t) => (
+                        <Switch
+                          key={t.id}
+                          id={`pg-tier-${t.id}`}
+                          label={t.name}
+                          hint={t.price ? "Paid plan" : "Free plan"}
+                          checked={form.tiers.includes(t.id)}
+                          onChange={(on) =>
+                            set(
+                              "tiers",
+                              on ? [...form.tiers, t.id] : form.tiers.filter((x) => x !== t.id),
+                            )
+                          }
+                        />
+                      ))}
+                      <p className="st-muted-note">
+                        {form.tiers.length
+                          ? "Only members on the plans switched on can open this page."
+                          : "No plan chosen: every member can open this page."}
+                      </p>
+                    </div>
+                  )}
+                  {openToAnyone && (
+                    <div className="st-callout st-callout--pending" role="note">
+                      <Users aria-hidden="true" />
+                      <div>
+                        <strong>Anyone can become a member.</strong> Sign-up is open, so anyone who
+                        enters their email can see this page. Choose paid plans above, or make
+                        sign-up invite-only in Members.
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+              {form.access !== "public" && (
                 <p className="st-muted-note">
-                  <Users aria-hidden="true" /> Visitors sign in with a link sent to their email.
-                  Manage members in Members.
+                  This page's content is kept by OpenSpace, never in your site's public files.
                 </p>
               )}
             </fieldset>

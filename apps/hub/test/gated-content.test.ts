@@ -162,6 +162,42 @@ describe("the repository never contains gated content", () => {
     expect(JSON.stringify(bundle.pages[0]?.page)).toContain(SECRET_TEXT);
   });
 
+  it("gated content committed before sealing (or directly) is sealed out on the next flush", async () => {
+    const app = createApp();
+    const owner = await devLogin(app, "Kim Soto");
+    const site = await createSite(app, owner, "Legacy Gated");
+    const repo = { owner: "kim-soto", name: "legacy-gated" };
+    const gh = new DevGitHubAccess(env.HUB_DB);
+    // The room is already loaded; a direct commit moves the draft underneath it.
+    await unwrapRoom(room(site.id).getDocument(site.id));
+    const head = (await gh.getRef(repo, "os/draft")) as string;
+    await gh.commitFiles(repo, {
+      branch: "os/draft",
+      expectedHead: head,
+      message: "Direct commit",
+      files: [
+        {
+          path: "content/pages/members/library.json",
+          content: `${JSON.stringify(gatedPage(), null, 2)}\n`,
+        },
+      ],
+    });
+    expect(await repoText(repo, "os/draft")).toContain(SECRET_TEXT);
+    // Any edit makes the room notice the moved draft and reload it; the flush seals the page.
+    await call(app, `/api/sites/${site.id}/room/ops`, {
+      method: "POST",
+      cookie: owner,
+      json: { ops: [setText(T.heroTitle, "Hello")] },
+    });
+    await unwrapRoom(room(site.id).flush(site.id));
+    await runFlushAlarm(site.id);
+    expect(await repoText(repo, "os/draft")).not.toContain(SECRET_TEXT);
+    const live = (await (
+      await call(app, `/api/sites/${site.id}/room/document`, { cookie: owner })
+    ).json()) as { document: SiteDocument };
+    expect(JSON.stringify(live.document)).toContain(SECRET_TEXT);
+  });
+
   it("sites created from a template with gated pages start without their content in the repo", async () => {
     const tpl = {
       ...basicTemplate,

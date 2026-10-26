@@ -57,8 +57,11 @@ export const useMediaSources = create<MediaSourcesState>((set, get) => ({
     return url;
   },
   reset: () => {
+    // Leaving the site: free this session's object URLs and the bytes kept for them.
     for (const url of Object.values(get().local))
-      if (url.startsWith("blob:")) URL.revokeObjectURL(url);
+      if (url.startsWith("blob:") && typeof URL.revokeObjectURL === "function")
+        URL.revokeObjectURL(url);
+    localBlobs.clear();
     set({ repo: null, remote: null, local: {} });
   },
 }));

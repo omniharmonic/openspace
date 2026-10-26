@@ -223,3 +223,14 @@ export function gatedContext(
 ): GatedStoreContext {
   return { store: services.uploads, siteId, hmacKey: services.pub.config.hmacKey };
 }
+
+/** Gated page files whose content is still in the repository (committed before sealing). */
+export function unsealedGatedPaths(files: Record<string, string>): string[] {
+  const out: string[] = [];
+  for (const [path, text] of Object.entries(files)) {
+    if (!isPageFile(path)) continue;
+    const page = parse(text);
+    if (page && isGatedPage(page) && !isStub(page)) out.push(path);
+  }
+  return out.sort();
+}

@@ -178,11 +178,12 @@ export function useAnalytics(siteId: string, range: AnalyticsRange) {
 
 // --- commerce --------------------------------------------------------------------------------
 
-export function useCommerceSettings(siteId: string) {
+export function useCommerceSettings(siteId: string, enabled = true) {
   const hub = useHub();
   return useQuery({
     queryKey: growthKeys.commerce(siteId),
     queryFn: () => hub.getCommerceSettings(siteId),
+    enabled,
   });
 }
 
@@ -359,9 +360,13 @@ export function useMembersPaged(siteId: string, query: MemberQuery) {
   });
 }
 
-export function useTiers(siteId: string) {
+export function useTiers(siteId: string, enabled = true) {
   const hub = useHub();
-  return useQuery({ queryKey: growthKeys.tiers(siteId), queryFn: () => hub.listTiers(siteId) });
+  return useQuery({
+    queryKey: growthKeys.tiers(siteId),
+    queryFn: () => hub.listTiers(siteId),
+    enabled,
+  });
 }
 
 export function useMemberActions(siteId: string) {

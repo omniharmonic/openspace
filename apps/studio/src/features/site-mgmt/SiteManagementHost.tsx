@@ -68,6 +68,8 @@ export function SiteManagementHost({ site }: { site: Site }) {
       }),
     );
   }, [site.repo, site.id, site.private, hub, emulated]);
+  // Another site (or leaving the editor): revoke this site's local object URLs.
+  useEffect(() => () => useMediaSources.getState().reset(), [site.id]);
 
   // Finish uploads left in the queue by an earlier visit; pause them when the editor closes.
   useEffect(() => {

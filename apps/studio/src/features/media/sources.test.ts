@@ -1,5 +1,11 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { draftMediaRemote, mediaFetchInit, previewUrl, useMediaSources } from "./sources";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  draftMediaRemote,
+  mediaFetchInit,
+  previewUrl,
+  readMediaBytes,
+  useMediaSources,
+} from "./sources";
 
 describe("media sources", () => {
   afterEach(() => useMediaSources.getState().reset());
@@ -35,5 +41,21 @@ describe("media sources", () => {
     expect(draftMediaRemote({ emulated: true, isPrivate: false, base })).toBe(base);
     expect(draftMediaRemote({ emulated: false, isPrivate: true, base })).toBe(base);
     expect(draftMediaRemote({ emulated: true, isPrivate: false, base: null })).toBeNull();
+  });
+
+  it("leaving a site revokes its object URLs and forgets the bytes", async () => {
+    const revoke = vi.fn();
+    const urls = URL as unknown as Record<string, unknown>;
+    const saved = { create: urls.createObjectURL, revoke: urls.revokeObjectURL };
+    urls.createObjectURL = () => "blob:local-1";
+    urls.revokeObjectURL = revoke;
+    useMediaSources.getState().addLocal("media/a.png", new Blob([new Uint8Array([1, 2, 3])]));
+    expect(await readMediaBytes("media/a.png")).toEqual(new Uint8Array([1, 2, 3]));
+    useMediaSources.getState().reset();
+    expect(revoke).toHaveBeenCalledWith("blob:local-1");
+    expect(useMediaSources.getState().local).toEqual({});
+    expect(await readMediaBytes("media/a.png")).toBeNull();
+    urls.createObjectURL = saved.create;
+    urls.revokeObjectURL = saved.revoke;
   });
 });

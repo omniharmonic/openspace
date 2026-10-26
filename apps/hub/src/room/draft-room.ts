@@ -21,11 +21,17 @@ import { bytesToBase64, canonicalJson, randomId, sha1Hex, sha256Hex } from "../l
 import { HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
-import { gatedContext, readOpenedDocumentFiles, sealChanges } from "../services/gated-content";
+import {
+  gatedContext,
+  openFiles,
+  readOpenedDocumentFiles,
+  sealChanges,
+  unsealedGatedPaths,
+} from "../services/gated-content";
 import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
 import { recordNextScheduled } from "../services/site-automation";
-import { diffSiteFiles, loadSiteDocument } from "../services/site-files";
+import { diffSiteFiles, isDocumentPath, loadSiteDocument } from "../services/site-files";
 import { syncWorkerSecretsSafely } from "../services/worker-secrets";
 import { commitMessage, type TrailerActor, trailerEmail } from "./commit";
 import {
@@ -192,7 +198,12 @@ export class DraftRoom extends DurableObject<HubBindings> {
   private async readHead(
     gh: GitHubAccess,
     repo: RepoRef,
-  ): Promise<{ head: string; files: Record<string, string>; doc: SiteDocument }> {
+  ): Promise<{
+    head: string;
+    files: Record<string, string>;
+    doc: SiteDocument;
+    unsealed: string[];
+  }> {
     let head = await gh.getRef(repo, DRAFT_BRANCH);
     if (!head) {
       const main = await gh.getRef(repo, MAIN_BRANCH);
@@ -203,13 +214,30 @@ export class DraftRoom extends DurableObject<HubBindings> {
       head = (await gh.getRef(repo, DRAFT_BRANCH)) ?? main;
     }
     // Gated pages are stubs in the repository; the room works on their full content.
-    const files = await readOpenedDocumentFiles(
-      gatedContext(this.services(), this.siteId()),
-      gh,
-      repo,
-      head,
-    );
-    return { head, files, doc: loadSiteDocument(files) };
+    const all = await gh.readFiles(repo, head, { textOnly: true });
+    const raw: Record<string, string> = {};
+    for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) raw[p] = c;
+    const files = await openFiles(gatedContext(this.services(), this.siteId()), raw);
+    return { head, files, doc: loadSiteDocument(files), unsealed: unsealedGatedPaths(raw) };
+  }
+
+  /**
+   * Gated pages committed with their content (before sealing existed, or by a direct commit):
+   * remember them so the next flush seals them out of the repository, and flush soon.
+   */
+  private async noteUnsealed(paths: string[]): Promise<void> {
+    if (!paths.length) return;
+    this.state.setMeta("unsealed", JSON.stringify(paths));
+    await this.ctx.storage.setAlarm(Date.now() + 1000);
+  }
+
+  private unsealed(): string[] {
+    try {
+      const v = JSON.parse(this.state.getMeta("unsealed") ?? "[]") as unknown;
+      return Array.isArray(v) ? v.filter((p): p is string => typeof p === "string") : [];
+    } catch {
+      return [];
+    }
   }
 
   private async ensureLoaded(siteId: string): Promise<void> {
@@ -225,8 +253,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
       const services = this.services();
       const site = await this.site(services, siteId);
       const gh = await this.github(services, site);
-      const { head, files, doc } = await this.readHead(gh, parseRepo(site.repo));
-      if (!this.state.doc) this.state.rebaseOnHead(head, files, doc);
+      const { head, files, doc, unsealed } = await this.readHead(gh, parseRepo(site.repo));
+      if (!this.state.doc) {
+        this.state.rebaseOnHead(head, files, doc);
+        await this.noteUnsealed(unsealed);
+      }
     })().finally(() => {
       this.loading = null;
     });
@@ -1059,21 +1090,31 @@ export class DraftRoom extends DurableObject<HubBindings> {
   ): Promise<{ head: string; seq: number; committed: boolean }> {
     const upTo = this.state.seq;
     const from = this.state.flushedSeq;
-    if (from >= upTo) return { head: this.state.head, seq: upTo, committed: false };
+    const unsealed = this.unsealed();
+    if (from >= upTo && !unsealed.length)
+      return { head: this.state.head, seq: upTo, committed: false };
     const doc = this.state.doc as SiteDocument;
     const ops = this.state.opsAfter(from).filter((o) => o.seq <= upTo);
     const changes = diffSiteFiles(this.state.files(), doc);
+    // Re-commit gated pages whose content is still in the repository: sealing turns them into stubs.
+    const current = this.state.files();
+    for (const path of unsealed)
+      if (current[path] !== undefined && !changes.some((c) => c.path === path))
+        changes.push({ path, content: current[path] as string });
     if (!changes.length) {
       this.state.markFlushed(upTo);
+      this.state.setMeta("unsealed", "[]");
       return { head: this.state.head, seq: upTo, committed: false };
     }
     const before = this.state.docAt(from) ?? doc;
     const actors = this.trailerActors(ops);
-    const { message } = commitMessage(
-      ops.map((o) => o.op),
-      before,
-      actors,
-    );
+    const message = ops.length
+      ? commitMessage(
+          ops.map((o) => o.op),
+          before,
+          actors,
+        ).message
+      : "Moved members-only page content out of the site files";
     const services = this.services();
     const site = await this.site(services, siteId);
     const gh = await this.github(services, site);
@@ -1091,6 +1132,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
       });
       this.state.applyFileChanges(changes);
       this.state.setMeta("head", commit.sha);
+      this.state.setMeta("unsealed", "[]");
       this.state.markFlushed(upTo);
       this.state.prune();
       this.broadcast({ type: "flushed", seq: upTo, head: commit.sha });
@@ -1143,8 +1185,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
 
   /** Re-read the draft head, replay unflushed ops on it, tell everyone to reload. */
   private async reloadFromHead(gh: GitHubAccess, repo: RepoRef, reason: string): Promise<void> {
-    const { head, files, doc } = await this.readHead(gh, repo);
+    const { head, files, doc, unsealed } = await this.readHead(gh, repo);
     const dropped = this.state.rebaseOnHead(head, files, doc);
+    await this.noteUnsealed(unsealed);
     if (dropped.length) this.log.warn("ops dropped on reload", { count: dropped.length });
     this.broadcast({
       type: "reload",
