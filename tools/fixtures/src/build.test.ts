@@ -453,14 +453,17 @@ describe("astro build on the Cloudflare target", () => {
 
 describe("astro dev", () => {
   it("serves pages from content/ through the same route", async () => {
-    const root = join(FIXTURES, ".build", "meadow");
-    if (!(await exists(join(root, "openspace.json")))) await assemble("meadow");
+    const root = await assemble("meadow-dev");
+    // A clean environment: vitest's NODE_ENV=test / VITEST* would put Astro in test mode.
+    const env = Object.fromEntries(
+      Object.entries(process.env).filter(
+        ([k]) => !k.startsWith("VITEST") && k !== "NODE_ENV" && k !== "TEST",
+      ),
+    );
     const { stdout } = await run(
       process.execPath,
       [join(FIXTURES, "scripts", "dev-smoke.mjs"), root],
-      {
-        env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
-      },
+      { env: { ...env, ASTRO_TELEMETRY_DISABLED: "1" } },
     );
     expect(stdout).toContain("/ 200 true");
     expect(stdout).toContain("/journal/2026-10-26-opening-day/ 200 true");
