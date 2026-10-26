@@ -1,0 +1,300 @@
+/* Grid editing layer, drawn in the Studio document over the canvas (overlay px). */
+.st-grid {
+  --st-grid-guide: #e0367f;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.st-grid__clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.st-grid__lines > i,
+.st-grid__ghosts > div,
+.st-grid__guides > div,
+.st-grid__marquee,
+.st-grid__readout,
+.st-grid__badge,
+.st-grid__handles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  will-change: transform;
+}
+
+/* Column guides: soft stripes over the live rows. */
+.st-grid__col {
+  background: color-mix(in srgb, var(--st-accent) 7%, transparent);
+  box-shadow:
+    inset 1px 0 0 color-mix(in srgb, var(--st-accent) 22%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--st-accent) 22%, transparent);
+}
+
+/* Bleed tracks (full-start / full-end): hatched. */
+.st-grid__bleed {
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--st-accent) 10%, transparent) 0 1px,
+    transparent 1px 7px
+  );
+}
+
+/* Row unit lines; the dashed ones below show where rows grow to. */
+.st-grid__row {
+  height: 0;
+  border-top: 1px solid color-mix(in srgb, var(--st-accent) 16%, transparent);
+}
+
+.st-grid__row.is-extra {
+  border-top-style: dashed;
+  border-top-color: color-mix(in srgb, var(--st-accent) 12%, transparent);
+}
+
+/* Snapped destination and the free-following preview. */
+.st-grid__ghost {
+  border: 2px dashed var(--st-accent);
+  background: color-mix(in srgb, var(--st-accent) 10%, transparent);
+  border-radius: 2px;
+}
+
+.st-grid__float {
+  border: 1px solid color-mix(in srgb, var(--st-accent) 70%, transparent);
+  background: color-mix(in srgb, var(--st-accent) 6%, transparent);
+  box-shadow: 0 6px 22px rgb(20 24 60 / 0.18);
+}
+
+.st-grid__ghosts[data-copy] .st-grid__ghost {
+  border-color: var(--st-live);
+  background: color-mix(in srgb, var(--st-live) 12%, transparent);
+}
+
+/* Smart guides and distance labels. */
+.st-grid__guide {
+  border-left: 1px solid var(--st-grid-guide);
+  border-top: 1px solid var(--st-grid-guide);
+}
+
+.st-grid__guide[data-kind="section"] {
+  border-style: dashed;
+}
+
+.st-grid__dist {
+  border-color: var(--st-grid-guide);
+  border-style: solid;
+  border-width: 0;
+}
+
+.st-grid__dist[data-axis="x"] {
+  border-top-width: 1px;
+}
+
+.st-grid__dist[data-axis="y"] {
+  border-left-width: 1px;
+}
+
+.st-grid__dist::after {
+  content: attr(data-value);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--st-grid-guide);
+  color: #fff;
+  font: 600 10px / 16px var(--st-font);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-grid__marquee {
+  border: 1px solid var(--st-accent);
+  background: color-mix(in srgb, var(--st-accent) 8%, transparent);
+}
+
+.st-grid__readout {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--st-accent);
+  color: var(--st-on-accent);
+  font: 600 10px / 16px var(--st-font);
+  white-space: nowrap;
+}
+
+.st-grid__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 3px;
+  background: var(--st-pending);
+  color: #fff;
+  font: 600 11px / 20px var(--st-font);
+  white-space: nowrap;
+}
+
+.st-grid__badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Eight resize handles. */
+.st-grid__handle {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border: 1px solid var(--st-accent);
+  border-radius: 1px;
+  background: #fff;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.st-grid__handle[data-pos="nw"] {
+  left: 0;
+  top: 0;
+  cursor: nwse-resize;
+}
+.st-grid__handle[data-pos="n"] {
+  left: 50%;
+  top: 0;
+  cursor: ns-resize;
+}
+.st-grid__handle[data-pos="ne"] {
+  left: 100%;
+  top: 0;
+  cursor: nesw-resize;
+}
+.st-grid__handle[data-pos="e"] {
+  left: 100%;
+  top: 50%;
+  cursor: ew-resize;
+}
+.st-grid__handle[data-pos="se"] {
+  left: 100%;
+  top: 100%;
+  cursor: nwse-resize;
+}
+.st-grid__handle[data-pos="s"] {
+  left: 50%;
+  top: 100%;
+  cursor: ns-resize;
+}
+.st-grid__handle[data-pos="sw"] {
+  left: 0;
+  top: 100%;
+  cursor: nesw-resize;
+}
+.st-grid__handle[data-pos="w"] {
+  left: 0;
+  top: 50%;
+  cursor: ew-resize;
+}
+
+/* The handle being dragged keeps pointer capture, so it stays mounted but invisible. */
+.st-grid.is-resize .st-grid__handle {
+  opacity: 0;
+}
+
+/* While dragging, the regular selection chrome steps aside. */
+.st-ov:has(.st-grid[data-grid-active]) .st-ov__box--selected,
+.st-ov:has(.st-grid[data-grid-active]) .st-ov__floating,
+.st-ov:has(.st-grid[data-grid-active]) .st-ov__add {
+  visibility: hidden;
+}
+
+/* The grid bar: stacking order, tablet override, phone reset, trim. */
+.st-grid__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 4px 0 8px;
+  border-radius: var(--st-r);
+  background: var(--st-panel-raised);
+  box-shadow: var(--st-shadow-pop);
+  color: var(--st-text);
+  font-size: var(--st-fs-sm);
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.st-grid__bar .st-icon-button {
+  width: 26px;
+  height: 26px;
+}
+
+.st-grid__bar-label {
+  padding-right: 4px;
+  font-weight: 600;
+}
+
+.st-grid__bar-label em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--st-text-3);
+}
+
+.st-grid__bar-note {
+  color: var(--st-text-2);
+}
+
+.st-grid__bar-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+/* Phones: the simplified reorder list. */
+.st-grid__reorder {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0 0 12px;
+  list-style: none;
+}
+
+.st-grid__reorder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 4px 0 8px;
+  border-radius: var(--st-r);
+  background: var(--st-field);
+}
+
+.st-grid__reorder-row > svg {
+  width: 16px;
+  height: 16px;
+  color: var(--st-text-2);
+}
+
+.st-grid__reorder-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-grid__reorder-row .st-icon-button {
+  width: 40px;
+  height: 40px;
+}
+
+.st-grid__reorder-note {
+  margin: 0 0 8px;
+  color: var(--st-text-2);
+}

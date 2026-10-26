@@ -28,6 +28,7 @@ import { useAddSection } from "../../add-section/blockMenuStore";
 import { useInspectorTab } from "../../inspector/env";
 import { BlockIcon } from "../blockIcons";
 import { useEditorUi } from "../editor-store";
+import { GridLayer } from "../grid/GridLayer";
 import {
   deleteItems,
   duplicateItems,
@@ -137,7 +138,14 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
               rect={r}
               kind={item.kind}
               variant={editing === item.id ? "editing-block" : "selected"}
-              handles={selection.length === 1 && !editing}
+              handles={
+                selection.length === 1 &&
+                !editing &&
+                // Grid blocks get the grid layer's 8 resize handles instead.
+                !(
+                  item.kind === "block" && locate(doc, pageId, item)?.section.layout.mode === "grid"
+                )
+              }
             >
               {size && (
                 <span className="st-ov__size st-num">
@@ -148,6 +156,8 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
           );
         })}
       </div>
+
+      <GridLayer frameDoc={frameDoc} scale={scale} width={width} height={height} />
 
       {focusLoc && focusRect && visible(focusRect, height) && !editing && (
         <AddSectionAffordances

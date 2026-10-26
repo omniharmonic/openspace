@@ -35,6 +35,12 @@ export function cssSize(frameDoc: Document | null, item: SelItem): { w: number; 
 }
 
 /**
+ * While a grid drag runs, the drag loop positions its own elements; document observers must
+ * not re-render the overlay on every frame.
+ */
+export const frameTickFreeze = { active: false };
+
+/**
  * A counter that bumps (once per animation frame at most) whenever canvas geometry may have
  * changed: scrolling, resizing, layout changes, fonts or images loading.
  */
@@ -45,7 +51,7 @@ export function useFrameTick(frameDoc: Document | null, deps: unknown[] = []): n
     if (!frameDoc || !win) return;
     let raf = 0;
     const bump = () => {
-      if (raf) return;
+      if (raf || frameTickFreeze.active) return;
       raf = win.requestAnimationFrame(() => {
         raf = 0;
         setTick((t) => t + 1);

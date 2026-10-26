@@ -15,9 +15,9 @@ import {
   newId,
   type Section,
   type SiteDocument,
-  type StackLayout,
 } from "@openspace/schema";
-import { canvasSections, locate, readingOrder, type SelItem } from "./selection";
+import { gridReadingOrder, stackToGrid } from "../grid/convert";
+import { canvasSections, locate, type SelItem } from "./selection";
 
 /**
  * Op builders for editor commands. Each builder works on a scratch copy of the document,
@@ -366,9 +366,6 @@ export const renameSection = (doc: SiteDocument, pageId: string, s: Section, lab
 export const setSectionTheme = (doc: SiteDocument, pageId: string, s: Section, theme: ColorTheme) =>
   sectionPatch(doc, pageId, s.id, { set: { "style.colorTheme": theme } }, "Change color theme");
 
-/** Rows per pixel for converting measured heights into grid rows (desktop row unit = 1.5rem). */
-const ROW_PX = 24;
-
 /**
  * Switch a section between stack and grid. Stack → grid lays each column out as a vertical run
  * on the 24-column grid (heights from `measure`, in CSS px, when available) with a full-width
@@ -385,40 +382,13 @@ export function setLayoutMode(
   if (!loc || loc.section.layout.mode === mode) return null;
   const section = loc.section;
   const b = new OpBuilder(doc);
-  const rowsFor = (id: string) => Math.max(2, Math.ceil((measure?.(id) ?? 4 * ROW_PX) / ROW_PX));
   if (mode === "grid") {
-    const layout = section.layout as StackLayout;
-    const spans = layout.columns.d;
-    const items: GridLayout["items"] = {};
-    const colY = spans.map(() => 1);
-    let my = 1;
-    let maxY = 1;
-    for (const blk of readingOrder(section)) {
-      const c = Math.min(blk.column ?? 0, spans.length - 1);
-      const x = 1 + 2 * spans.slice(0, c).reduce((a, n) => a + n, 0);
-      const w = 2 * (spans[c] ?? 12);
-      const h = rowsFor(blk.id);
-      const y = colY[c] ?? 1;
-      items[blk.id as keyof GridLayout["items"]] = {
-        d: { x, y, w, h },
-        m: { x: 1, y: my, w: 8, h },
-      };
-      colY[c] = y + h;
-      my += h;
-      maxY = Math.max(maxY, y + h - 1);
-    }
+    // Stack → grid keeps the visual order (columns side by side, phone stacking order).
     b.push({
       op: "section.update",
       page: loc.container,
       section: sectionId,
-      set: {
-        layout: {
-          mode: "grid",
-          rows: { d: Math.max(maxY, 1), m: Math.max(my - 1, 1) },
-          items,
-          ...(layout.width ? { width: layout.width } : {}),
-        },
-      },
+      set: { layout: stackToGrid(section, measure) },
     } as OpBody);
     for (const blk of section.blocks)
       if (blk.column !== undefined)
@@ -440,9 +410,9 @@ export function setLayoutMode(
         },
       },
     } as OpBody);
-    // Keep the grid's visual reading order as the stack order.
+    // Keep the grid's visual reading order (bands, then columns) as the stack order.
     let prev: string | undefined;
-    for (const blk of readingOrder(section)) {
+    for (const blk of gridReadingOrder(section)) {
       b.push({
         op: "block.move",
         page: loc.container,
