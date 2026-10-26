@@ -102,6 +102,8 @@ export interface MockHub extends HubApi {
   room(siteId: string): MockRoom;
   /** Make the next publish of a site fail with one of {@link MOCK_PUBLISH_ERRORS}. */
   failNextPublish(siteId: string, code?: keyof typeof MOCK_PUBLISH_ERRORS): void;
+  /** The next publish of a site never reports progress (a host that stays silent). */
+  hangNextPublish(siteId: string): void;
   /** Run scheduled publishes that are due. */
   runSchedules(): Promise<void>;
 }
@@ -208,6 +210,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
 
   const rooms = new Map<string, MockRoom>();
   const failNext = new Map<string, string>();
+  const hangNext = new Set<string>();
   let shaCounter = 0;
   const newSha = () =>
     `${now().toString(16)}${(++shaCounter).toString(16).padStart(6, "0")}a1b2c3d4e5f60718293a4b5c`
@@ -312,6 +315,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       });
     };
     version.status = "queued";
+    if (hangNext.delete(site.id)) return;
     setTimeout(() => notice("in_progress"), step);
     setTimeout(() => {
       if (code) {
@@ -398,6 +402,10 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
 
     failNextPublish(siteId, code = "image_too_large") {
       failNext.set(siteId, code);
+    },
+
+    hangNextPublish(siteId) {
+      hangNext.add(siteId);
     },
 
     async runSchedules() {

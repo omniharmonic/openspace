@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { PublishSchedule } from "../../api/types";
+import { useConfig } from "../../app/config";
 import {
   Button,
   Dialog,
@@ -33,7 +34,8 @@ const DESIGNERS = new Set(["owner", "designer"]);
 export function useRole(): string {
   const { site } = useSync();
   const roomRole = useRoomState((s) => s.you?.role);
-  return site.role ?? roomRole ?? "owner";
+  // Unknown means least privilege: never offer actions the Hub would refuse.
+  return site.role ?? roomRole ?? "contributor";
 }
 
 export const formatWhen = (iso: string) =>
@@ -402,10 +404,76 @@ const FIX_COPY: Record<string, string> = {
 };
 
 /** Publishing progress: Publishing… → Live (with link) or Couldn’t publish (+ Fix it for me). */
+/**
+ * Publishing progress normally arrives as room `build` messages. They can be lost (reconnect
+ * mid-publish, no status from the host, someone else's publish), so while publishing the
+ * versions list is polled too, and after `timeoutMs` the pill says it's taking longer.
+ */
+function usePublishReconcile() {
+  const { hub, site, session } = useSync();
+  const queryClient = useQueryClient();
+  const { publishing } = useConfig();
+  const pollMs = publishing?.pollMs ?? 5000;
+  const timeoutMs = publishing?.timeoutMs ?? 180_000;
+  const phase = useSyncSession((s) => s.publish.phase);
+  const active = phase === "publishing" || phase === "slow";
+  useEffect(() => {
+    if (!active) return;
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const versions = await hub.listVersions(site.id);
+        const p = session.getState().publish;
+        if (cancelled || (p.phase !== "publishing" && p.phase !== "slow")) return;
+        const v = p.sha
+          ? versions.find((x) => x.sha === p.sha || x.sha.startsWith(p.sha as string))
+          : versions.find((x) => x.current);
+        if (v?.status === "success") {
+          session.setState({
+            publish: { ...p, phase: "live", sha: v.sha, url: site.url, error: null },
+          });
+        } else if (v?.status === "failure") {
+          session.setState({
+            publish: {
+              ...p,
+              phase: "failed",
+              sha: v.sha,
+              error: v.error ?? {
+                code: "publish_failed",
+                title: "Couldn’t publish",
+                message: "Something went wrong while publishing.",
+                fix: null,
+              },
+            },
+          });
+        } else return;
+        void queryClient.invalidateQueries({ queryKey: ["versions", site.id] });
+        void queryClient.invalidateQueries({ queryKey: ["sites", site.id] });
+      } catch {
+        // Offline: try again on the next tick.
+      }
+    };
+    const poll = setInterval(() => void check(), pollMs);
+    const slow =
+      phase === "publishing"
+        ? setTimeout(() => {
+            const p = session.getState().publish;
+            if (p.phase === "publishing") session.setState({ publish: { ...p, phase: "slow" } });
+          }, timeoutMs)
+        : undefined;
+    return () => {
+      cancelled = true;
+      clearInterval(poll);
+      clearTimeout(slow);
+    };
+  }, [active, phase, hub, site, session, pollMs, timeoutMs, queryClient]);
+}
+
 export function PublishPill() {
   const { hub, site, session } = useSync();
   const publish = useSyncSession((s) => s.publish);
   const [fixing, setFixing] = useState(false);
+  usePublishReconcile();
   // "Live" fades after a while; failures stay until fixed or dismissed.
   useEffect(() => {
     if (publish.phase !== "live") return;
@@ -441,6 +509,16 @@ export function PublishPill() {
           <Spinner size={12} />
           <span className="st-pill__title">Publishing…</span>
           {publish.summary && <span className="st-pill__detail">{publish.summary}</span>}
+        </>
+      )}
+      {publish.phase === "slow" && (
+        <>
+          <Spinner size={12} />
+          <span className="st-pill__title">Still publishing</span>
+          <span className="st-pill__detail">
+            This is taking longer than usual. It finishes on its own; History shows when it’s live.
+          </span>
+          <IconButton label="Dismiss" icon={<X />} size="sm" tooltip={false} onClick={dismiss} />
         </>
       )}
       {publish.phase === "live" && (

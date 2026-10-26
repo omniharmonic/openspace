@@ -129,6 +129,7 @@
 .st-pill[data-phase="publishing"] {
   padding-right: 14px;
 }
+.st-pill[data-phase="slow"],
 .st-pill[data-phase="failed"] {
   border-radius: var(--st-r);
   flex-wrap: wrap;
@@ -156,6 +157,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.st-pill[data-phase="slow"] .st-pill__detail,
 .st-pill[data-phase="failed"] .st-pill__detail {
   white-space: normal;
 }
@@ -311,6 +313,12 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
+}
+.st-history__unavailable {
+  padding: 4px 0;
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  white-space: nowrap;
 }
 .st-history__form {
   display: flex;

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useHub } from "../../api/context";
 import { type HubApi, HubError, type Site } from "../../api/types";
 import { useConfig } from "../../app/config";
-import { type DraftCache, defaultDraftCache } from "./cache";
+import { type DraftCache, type DraftRecord, defaultDraftCache, draftKey, TAB_ID } from "./cache";
 import { foldOps } from "./RoomClient";
 
 /** Where the editor starts: the room's document at `seq` plus this device's unsaved edits. */
@@ -24,24 +24,77 @@ export interface DraftBootstrap {
 const isNetworkError = (err: unknown) =>
   (err instanceof HubError && (err.status === 0 || err.status >= 500)) || err instanceof TypeError;
 
+/** Who is editing, from which tab: device records are scoped to the person and the tab. */
+export interface DraftOwner {
+  userId: string;
+  tabId: string;
+}
+
+/**
+ * Merge every record this person has for the site (one per tab). The oldest base wins (pending
+ * edits were made against it or later), pending edits are concatenated in time order and
+ * de-duplicated by id; edits the room already has come back in `hello` and are confirmed by id.
+ */
+function mergeRecords(records: DraftRecord[]): DraftRecord | undefined {
+  if (records.length === 0) return undefined;
+  const withPending = records.filter((r) => r.pending.length);
+  const pool = withPending.length ? withPending : records;
+  const base = withPending.length
+    ? pool.reduce((a, b) => (b.seq < a.seq ? b : a))
+    : pool.reduce((a, b) => (b.seq > a.seq ? b : a));
+  const seen = new Set<string>();
+  const pending: Op[] = [];
+  for (const op of withPending
+    .flatMap((r) => r.pending.map((o, i) => ({ o, i, at: r.savedAt })))
+    .sort((a, b) => a.o.ts - b.o.ts || a.at - b.at || a.i - b.i)
+    .map((x) => x.o)) {
+    if (seen.has(op.id)) continue;
+    seen.add(op.id);
+    pending.push(op);
+  }
+  const site = records.reduce<DraftRecord | undefined>(
+    (a, b) => (b.site && (!a?.site || b.savedAt > a.savedAt) ? b : a),
+    undefined,
+  )?.site;
+  return { ...base, pending, ...(site ? { site } : {}) };
+}
+
 /**
  * Edits saved on this device but not yet confirmed win: start from the cached document and
  * its seq, so connecting replays what happened since and rebases them. Otherwise start from
  * the room's latest document, falling back to the device copy when the Hub is unreachable.
+ *
+ * Records left by other tabs (closed, crashed or still open) are adopted: the merged record
+ * is written under this tab's key first, then the others are removed, so nothing is lost even
+ * if this tab closes right away. A still-open tab rewrites its own record on its next change;
+ * its ops may then be sent twice, which the room acknowledges as duplicates.
  */
 export async function loadDraft(
   hub: HubApi,
   cache: DraftCache,
   siteId: string,
+  owner: DraftOwner,
 ): Promise<DraftBootstrap> {
-  let cached: Awaited<ReturnType<DraftCache["get"]>>;
+  let records: DraftRecord[] = [];
   try {
-    cached = await cache.get(siteId);
+    records = await cache.list(owner.userId, siteId);
   } catch {
-    cached = undefined;
+    records = [];
   }
-  const fromCache = (offline: boolean): DraftBootstrap => {
-    const c = cached as NonNullable<typeof cached>;
+  const cached = mergeRecords(records);
+  const adopt = async () => {
+    if (!cached) return;
+    const key = draftKey(owner.userId, siteId, owner.tabId);
+    try {
+      await cache.put({ ...cached, key, tabId: owner.tabId, userId: owner.userId, siteId });
+      for (const r of records) if (r.key !== key) await cache.delete(r.key);
+    } catch {
+      // Storage blocked: the other records stay where they are.
+    }
+  };
+  const fromCache = async (offline: boolean): Promise<DraftBootstrap> => {
+    const c = cached as DraftRecord;
+    await adopt();
     const { doc, kept } = foldOps(c.doc, c.pending);
     return {
       doc,
@@ -75,13 +128,18 @@ export function useDraftCache(): DraftCache {
 }
 
 /** Loads the editor's starting point once per editing session. */
-export function useDraftBootstrap(siteId: string | undefined, enabled: boolean) {
+export function useDraftBootstrap(
+  siteId: string | undefined,
+  userId: string | undefined,
+  enabled: boolean,
+) {
   const hub = useHub();
   const cache = useDraftCache();
+  const tabId = useConfig().tabId ?? TAB_ID;
   return useQuery({
-    queryKey: ["draft", siteId ?? ""],
-    queryFn: () => loadDraft(hub, cache, siteId as string),
-    enabled: Boolean(siteId) && enabled,
+    queryKey: ["draft", siteId ?? "", userId ?? ""],
+    queryFn: () => loadDraft(hub, cache, siteId as string, { userId: userId as string, tabId }),
+    enabled: Boolean(siteId) && Boolean(userId) && enabled,
     // After loading, the editor store and room client own the document.
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: 0,

@@ -10,6 +10,7 @@ import { toast } from "../../ui/toast-store";
 import type { EditorStore } from "../editor/model/store";
 import type { DraftBootstrap } from "./bootstrap";
 import { useDraftCache } from "./bootstrap";
+import { TAB_ID } from "./cache";
 import { MockDemo } from "./MockDemo";
 import { pageOf } from "./ops-meta";
 import { RoomClient, type RoomSyncState, type SyncTarget } from "./RoomClient";
@@ -63,11 +64,13 @@ export function useRoomClient(
   site: Site,
   store: EditorStore,
   boot: DraftBootstrap,
+  userId: string,
   enabled = true,
 ): RoomClient {
   const hub = useHub();
   const config = useConfig();
   const cache = useDraftCache();
+  const tabId = config.tabId ?? TAB_ID;
   const [client] = useState(
     () =>
       new RoomClient({
@@ -77,6 +80,16 @@ export function useRoomClient(
         fetchDocument: () => hub.getRoomDocument(site.id),
         initial: { doc: boot.confirmed, seq: boot.seq, head: boot.head, pending: boot.pending },
         cache,
+        owner: { userId, tabId },
+        probeAuth: async () => {
+          try {
+            return Boolean((await hub.getSession()).user);
+          } catch (err) {
+            // Can't tell (offline): not a sign-in problem.
+            if (err instanceof HubError && err.status === 401) return false;
+            throw err;
+          }
+        },
         site,
         timing: config.sync,
       }),
@@ -174,13 +187,18 @@ function SyncEffects() {
           return;
         }
         case "rejected":
+          // The room's reason is for logs; people get a plain explanation.
           if (e.code === "forbidden")
-            toast({ tone: "danger", title: "You can’t change that", description: e.message });
+            toast({
+              tone: "danger",
+              title: "You can’t change that here",
+              description: "Your role on this site doesn’t allow this change, so it was undone.",
+            });
           else if (e.code === "invalid")
             toast({
               tone: "danger",
               title: "That change couldn’t be saved",
-              description: e.message,
+              description: "It didn’t fit this part of the site, so it was undone.",
             });
           return;
         case "remote": {

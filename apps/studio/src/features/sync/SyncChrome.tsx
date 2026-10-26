@@ -1,4 +1,4 @@
-import { Check, CloudOff, Sparkles } from "lucide-react";
+import { Check, CloudOff, LogIn, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { AvatarStack, Button, Spinner, Tooltip, toast } from "../../ui";
 import { useDocStore } from "../editor/model/context";
@@ -141,11 +141,34 @@ function AgentBanner({ run }: { run: AgentRun }) {
 export function SyncBanners() {
   const { client } = useSync();
   const hubDown = useRoomState((s) => s.hubDown);
+  const authRequired = useRoomState((s) => s.authRequired);
   const agents = useSyncSession((s) => s.agents);
   const runs = agents.filter((a) => !a.active && !a.resolved && a.changes > 0);
-  if (!hubDown && runs.length === 0) return null;
+  if (!hubDown && !authRequired && runs.length === 0) return null;
+  const next = typeof window !== "undefined" ? window.location.pathname : "/sites";
   return (
     <div className="st-banners">
+      {authRequired && (
+        <section className="st-banner st-banner--offline" role="alert" aria-label="Signed out">
+          <LogIn aria-hidden="true" className="st-banner__icon" />
+          <p className="st-banner__text">
+            <strong>Sign in again to keep saving.</strong> Your changes are safe on this device and
+            sync once you’re back in.
+          </p>
+          <div className="st-banner__actions">
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => window.open(`/signin?next=${encodeURIComponent(next)}`, "_blank")}
+            >
+              Sign in again
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => client.reconnectNow()}>
+              Try again
+            </Button>
+          </div>
+        </section>
+      )}
       {hubDown && (
         <section className="st-banner st-banner--offline" role="status" aria-label="Offline">
           <CloudOff aria-hidden="true" className="st-banner__icon" />

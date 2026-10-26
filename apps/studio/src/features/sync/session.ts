@@ -19,7 +19,8 @@ export interface AgentRun {
   resolved: boolean;
 }
 
-export type PublishPhase = "idle" | "publishing" | "live" | "failed";
+/** `slow`: no word on the outcome for a long time (status messages lost); still checking. */
+export type PublishPhase = "idle" | "publishing" | "slow" | "live" | "failed";
 
 export interface PublishPillState {
   phase: PublishPhase;

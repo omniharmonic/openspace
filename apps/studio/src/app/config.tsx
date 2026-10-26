@@ -19,6 +19,10 @@ export interface StudioConfig {
   sync?: Partial<RoomClientTiming>;
   /** Where drafts are kept on this device (default: IndexedDB). */
   draftCache?: DraftCache;
+  /** This tab's id for the device cache (default: one per page load; tests set it). */
+  tabId?: string;
+  /** Publishing progress fallback when status messages don't arrive. */
+  publishing?: { pollMs?: number; timeoutMs?: number };
 }
 
 export const defaultConfig: StudioConfig = {

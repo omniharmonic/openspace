@@ -770,12 +770,14 @@ function SyncedSession({
   site,
   boot,
   store,
+  userId,
 }: {
   site: Site;
   boot: DraftBootstrap;
   store: EditorStore;
+  userId: string;
 }) {
-  const client = useRoomClient(site, store, boot, site.status !== "building");
+  const client = useRoomClient(site, store, boot, userId, site.status !== "building");
   if (import.meta.env.MODE === "test")
     (window as unknown as { __osRoomClient?: unknown }).__osRoomClient = client;
   return (
@@ -805,7 +807,7 @@ function EditorSession({ site, boot, actor }: { site: Site; boot: DraftBootstrap
   }, [boot.offline]);
   return (
     <EditorStoreProvider store={store}>
-      <SyncedSession site={site} boot={boot} store={store} />
+      <SyncedSession site={site} boot={boot} store={store} userId={actor.replace(/^user:/, "")} />
     </EditorStoreProvider>
   );
 }
@@ -820,6 +822,7 @@ export function EditorFrame() {
   // The draft loads from the room (or this device's copy); offline, the cached site is used.
   const content = useDraftBootstrap(
     user ? id : undefined,
+    user?.id,
     site.data ? site.data.status !== "building" : site.isError,
   );
   const navigate = useNavigate();

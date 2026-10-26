@@ -3,7 +3,7 @@ import { apply, deepEqual, type Op, rebase, validate } from "@openspace/ops";
 import type { SiteDocument } from "@openspace/schema";
 import { createStore, type StoreApi } from "zustand/vanilla";
 import type { Site } from "../../api/types";
-import type { DraftCache } from "./cache";
+import { type DraftCache, draftKey } from "./cache";
 import {
   type BuildNotice,
   type ClientMessage,
@@ -69,6 +69,8 @@ export interface RoomSyncState {
   members: RoomMember[];
   /** Set when access was removed; the client stops. */
   removed: string | null;
+  /** The connection keeps failing because the sign-in expired: "Sign in again". */
+  authRequired: boolean;
 }
 
 export type RoomEvent =
@@ -90,6 +92,10 @@ export interface RoomClientTiming {
   helloTimeoutMs: number;
   /** Keep-alive ping interval; a silent connection for 2.5× this is treated as lost. */
   heartbeatMs: number;
+  /** After this many failed connections in a row, check whether the sign-in expired. */
+  authProbeAfter: number;
+  /** A `sync` that hasn't filled a gap after this long falls back to a full reload. */
+  resyncTimeoutMs: number;
 }
 
 export const DEFAULT_ROOM_TIMING: RoomClientTiming = {
@@ -98,6 +104,8 @@ export const DEFAULT_ROOM_TIMING: RoomClientTiming = {
   hubDownMs: 30_000,
   helloTimeoutMs: 15_000,
   heartbeatMs: 20_000,
+  authProbeAfter: 3,
+  resyncTimeoutMs: 5000,
 };
 
 export interface RoomClientOptions {
@@ -109,6 +117,10 @@ export interface RoomClientOptions {
   /** Starting point: the room's document at `seq`, plus unconfirmed local edits. */
   initial: { doc: SiteDocument; seq: number; head?: string | null; pending?: Op[] };
   cache?: DraftCache;
+  /** Whose device record this is (records are per person and per tab). */
+  owner?: { userId: string; tabId: string };
+  /** Is the person still signed in? (Probed after repeated connection failures.) */
+  probeAuth?: () => Promise<boolean>;
   site?: Site;
   timing?: Partial<RoomClientTiming>;
   now?: () => number;
@@ -176,6 +188,14 @@ export class RoomClient {
   private awaitingReload = false;
   private presence: { page: string | null; selection: string[] } | null = null;
   private lastFrameAt = 0;
+  /** A document fetch after `stale` is in flight (one per burst). */
+  private refetching = false;
+  /** The seq a `sync` was last asked from; asking again from it means sync didn't help. */
+  private resyncFrom: number | null = null;
+  private resyncTimer: ReturnType<typeof setTimeout> | undefined;
+  /** Connections in a row that closed before `hello`. */
+  private failures = 0;
+  private authProbed = false;
 
   private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
   private helloTimer: ReturnType<typeof setTimeout> | undefined;
@@ -208,6 +228,7 @@ export class RoomClient {
       you: null,
       members: [],
       removed: null,
+      authRequired: false,
     }));
   }
 
@@ -222,6 +243,8 @@ export class RoomClient {
       window.addEventListener("offline", this.onOffline);
     }
     this.heartbeat = setInterval(() => this.beat(), this.timing.heartbeatMs);
+    // Keep a device copy from the start, so the editor can open offline later.
+    this.persistSoon();
     this.connect();
   }
 
@@ -237,6 +260,8 @@ export class RoomClient {
     clearTimeout(this.reconnectTimer);
     clearTimeout(this.helloTimer);
     clearTimeout(this.hubDownTimer);
+    clearTimeout(this.resyncTimer);
+    this.resyncTimer = undefined;
     clearInterval(this.heartbeat);
     const sock = this.socket;
     this.socket = null;
@@ -256,6 +281,8 @@ export class RoomClient {
   }
 
   setSite(site: Site): void {
+    // Site polls return equal data most of the time: only rewrite the device copy on a change.
+    if (this.site && deepEqual(this.site, site)) return;
     this.site = site;
     this.persistSoon();
   }
@@ -270,8 +297,20 @@ export class RoomClient {
 
   /** Reconnect now (e.g. the person pressed "Try again"). */
   reconnectNow(): void {
-    if (this.stopped || this.socket) return;
+    if (this.stopped) return;
+    const sock = this.socket;
+    if (sock) {
+      if (this.ready) return;
+      // A connection that never said hello is hung: close it and start over.
+      this.socket = null;
+      try {
+        sock.close(4000, "retry");
+      } catch {
+        /* ignore */
+      }
+    }
     clearTimeout(this.reconnectTimer);
+    this.attempt = 0;
     this.connect();
   }
 
@@ -347,6 +386,19 @@ export class RoomClient {
       this.patch({ status: "offline" });
       this.stop();
       return;
+    }
+    this.failures++;
+    if (this.failures >= this.timing.authProbeAfter && !this.authProbed && this.opts.probeAuth) {
+      this.authProbed = true;
+      void this.opts
+        .probeAuth()
+        .then((signedIn) => {
+          if (!signedIn && !this.stopped) this.patch({ authRequired: true });
+        })
+        .catch(() => {
+          // Unreachable: that's the offline case, not a sign-in problem.
+          this.authProbed = false;
+        });
     }
     const s = this.state.getState();
     if (s.offlineSince === null) {
@@ -484,10 +536,19 @@ export class RoomClient {
     clearTimeout(this.hubDownTimer);
     this.ready = true;
     this.attempt = 0;
+    this.failures = 0;
+    this.authProbed = false;
+    // A fresh hello is a fresh base: whatever reload we were waiting for is superseded (its
+    // `ops` bring us up to date, or its `doc` replaces the document below).
+    this.awaitingReload = false;
+    this.resyncFrom = null;
+    clearTimeout(this.resyncTimer);
+    this.resyncTimer = undefined;
     this.patch({
       status: "online",
       offlineSince: null,
       hubDown: false,
+      authRequired: false,
       you: msg.you,
       members: msg.members,
     });
@@ -495,7 +556,10 @@ export class RoomClient {
     else {
       this.head = msg.head;
       for (const o of msg.ops ?? []) {
-        if (!this.ready) return; // a gap triggered a resync
+        if (o.seq > this.seq + 1) {
+          this.resync();
+          break;
+        }
         this.logged(o);
       }
     }
@@ -543,11 +607,15 @@ export class RoomClient {
       this.resync();
       return;
     }
+    // The room may have rebased or re-stamped our op: then the local view changes too, and an
+    // inline text session on that block settles first.
+    const changed = idx !== 0 || !sameOp(local, stored);
+    if (changed) this.opts.target.beforeExternalChange([stored]);
+    const at = this.pending.findIndex((p) => p.op.id === stored.id);
     this.confirmed = next;
     this.seq = seq;
-    this.pending.splice(idx, 1);
-    // The room may have rebased or re-stamped our op: then the local view changes too.
-    this.afterPendingChange(idx !== 0 || !sameOp(local, stored));
+    if (at >= 0) this.pending.splice(at, 1);
+    this.afterPendingChange(changed);
   }
 
   private applyRemote(o: LoggedOp): void {
@@ -584,28 +652,52 @@ export class RoomClient {
       void this.refetch();
       return;
     }
-    const idx = opId ? this.pending.findIndex((p) => p.op.id === opId) : -1;
-    if (idx >= 0) {
-      this.pending.splice(idx, 1);
+    const found = opId ? this.pending.find((p) => p.op.id === opId) : undefined;
+    if (found) {
+      // Rolling the edit back moves the document: settle an inline text session first.
+      this.opts.target.beforeExternalChange([found.op]);
+      this.pending = this.pending.filter((p) => p !== found);
       this.afterPendingChange(true);
     }
     this.emit({ type: "rejected", opId, code, message });
   }
 
-  private async refetch(): Promise<void> {
+  /** One document fetch per stale burst. */
+  private async refetch(reason = "stale"): Promise<void> {
+    if (this.refetching) return;
+    this.refetching = true;
     try {
       const r = await this.opts.fetchDocument();
       if (this.stopped || !this.awaitingReload) return;
-      this.reload(r.document, r.seq, r.head ?? this.head, "stale");
+      this.reload(r.document, r.seq, r.head ?? this.head, reason);
     } catch {
-      // Still stale: the next connection's hello brings the document.
+      // Still stale: reconnect; the next hello brings the document (or the ops) and clears it.
       if (this.awaitingReload && this.socket) this.drop(this.socket);
+    } finally {
+      this.refetching = false;
     }
   }
 
-  /** Lost track of the order: ask the room for everything since our seq. */
+  /**
+   * Lost track of the order: ask the room for everything since our seq. If that already
+   * didn't help (asked from the same seq again), reload the whole document instead.
+   */
   private resync(): void {
+    // Already asked from here: frames still in flight will gap too; wait for the answer.
+    if (this.resyncTimer && this.resyncFrom === this.seq) return;
+    clearTimeout(this.resyncTimer);
+    this.resyncFrom = this.seq;
     if (!this.send({ type: "sync", since: this.seq })) return;
+    const from = this.seq;
+    this.resyncTimer = setTimeout(() => {
+      this.resyncTimer = undefined;
+      if (this.stopped || this.seq !== from || !this.socket) return;
+      // The sync didn't fill the gap: reload the whole document instead.
+      this.resyncFrom = null;
+      this.awaitingReload = true;
+      for (const p of this.pending) p.sent = false;
+      void this.refetch("resync");
+    }, this.timing.resyncTimeoutMs);
   }
 
   private reload(doc: SiteDocument, seq: number, head: string | null, reason: string): void {
@@ -665,12 +757,16 @@ export class RoomClient {
 
   private persistSoon(): void {
     const cache = this.opts.cache;
-    if (!cache || this.persistQueued) return;
+    const owner = this.opts.owner;
+    if (!cache || !owner || this.persistQueued) return;
     this.persistQueued = true;
     this.persisting = this.persisting.then(async () => {
       this.persistQueued = false;
       try {
         await cache.put({
+          key: draftKey(owner.userId, this.opts.siteId, owner.tabId),
+          userId: owner.userId,
+          tabId: owner.tabId,
           siteId: this.opts.siteId,
           doc: this.confirmed,
           seq: this.seq,

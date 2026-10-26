@@ -6,7 +6,7 @@ import { type HubApi, HubError } from "../../api/types";
 import { devSiteDocument, DEV_IDS as I } from "../editor/model/dev-site";
 import { createEditorStore, type EditorStore } from "../editor/model/store";
 import { loadDraft } from "./bootstrap";
-import { createMemoryDraftCache, type DraftCache } from "./cache";
+import { createMemoryDraftCache, type DraftCache, draftKey } from "./cache";
 import type { ConflictNotice, RoomSocket } from "./protocol";
 import { type RoomClient as Client, RoomClient, type RoomEvent } from "./RoomClient";
 import { asBody, storeTarget } from "./SyncContext";
@@ -59,6 +59,8 @@ function setup(
     /** What the editor shows at start (default: the initial document). */
     storeDoc?: SiteDocument;
     cache?: DraftCache & { records: Map<string, unknown> };
+    tabId?: string;
+    userId?: string;
   } = {},
 ): Setup {
   const room = options.room ?? new MockRoom({ doc: devSiteDocument() });
@@ -84,6 +86,7 @@ function setup(
     },
     initial,
     cache,
+    owner: { userId: options.userId ?? SAM.userId, tabId: options.tabId ?? "tab1" },
     timing: FAST,
     watchNetwork: false,
   });
@@ -110,7 +113,7 @@ describe("RoomClient", () => {
     expect(client.state.getState()).toMatchObject({ pending: 0, seq: 1 });
     expect(client.confirmedDocument).toEqual(room.doc);
     await client.flushCache();
-    const saved = await cache.get("st_test");
+    const saved = (await cache.list(SAM.userId, "st_test"))[0];
     expect(saved).toMatchObject({ seq: 1, pending: [] });
     expect(label(saved?.doc as SiteDocument).label).toBe("Book a class");
   });
@@ -175,7 +178,7 @@ describe("RoomClient", () => {
     store.getState().commit([setLabel("Offline two", "secondaryLabel")]);
     expect(client.state.getState().pending).toBe(2);
     await client.flushCache();
-    expect((await cache.get("st_test"))?.pending).toHaveLength(2);
+    expect((await cache.list(SAM.userId, "st_test"))[0]?.pending).toHaveLength(2);
 
     // Reconnect attempts back off but keep going.
     await tick(80);
@@ -269,7 +272,10 @@ describe("RoomClient", () => {
         throw new HubError(0, "network", "offline");
       },
     } as unknown as HubApi;
-    const boot = await loadDraft(offlineHub, cache, "st_test");
+    const boot = await loadDraft(offlineHub, cache, "st_test", {
+      userId: SAM.userId,
+      tabId: "tab2",
+    });
     expect(boot.pending).toHaveLength(1);
     expect(label(boot.doc).label).toBe("Saved on this device");
     expect(label(boot.confirmed).label).not.toBe("Saved on this device");
@@ -278,6 +284,7 @@ describe("RoomClient", () => {
     const second = setup({
       room: first.room,
       cache,
+      tabId: "tab2",
       initial: { doc: boot.confirmed, seq: boot.seq, pending: boot.pending },
       storeDoc: boot.doc,
     });
@@ -288,23 +295,34 @@ describe("RoomClient", () => {
   it("without pending edits, the Hub's document wins and an unreachable Hub falls back to the copy", async () => {
     const cache = createMemoryDraftCache();
     const doc = devSiteDocument();
-    await cache.put({ siteId: "s", doc, seq: 4, head: null, pending: [], savedAt: 0 });
+    await cache.put({
+      key: draftKey("u", "s", "old"),
+      userId: "u",
+      tabId: "old",
+      siteId: "s",
+      doc,
+      seq: 4,
+      head: null,
+      pending: [],
+      savedAt: 0,
+    });
+    const me = { userId: "u", tabId: "new" };
     const hub = {
       getRoomDocument: async () => ({ document: doc, seq: 9, head: "h" }),
     } as unknown as HubApi;
-    expect(await loadDraft(hub, cache, "s")).toMatchObject({ seq: 9, offline: false });
+    expect(await loadDraft(hub, cache, "s", me)).toMatchObject({ seq: 9, offline: false });
     const down = {
       getRoomDocument: async () => {
         throw new HubError(0, "network", "offline");
       },
     } as unknown as HubApi;
-    expect(await loadDraft(down, cache, "s")).toMatchObject({ seq: 4, offline: true });
+    expect(await loadDraft(down, cache, "s", me)).toMatchObject({ seq: 4, offline: true });
     const denied = {
       getRoomDocument: async () => {
         throw new HubError(404, "not_found", "gone");
       },
     } as unknown as HubApi;
-    await expect(loadDraft(denied, cache, "s")).rejects.toThrow("gone");
+    await expect(loadDraft(denied, cache, "s", me)).rejects.toThrow("gone");
   });
 
   it("ends an inline text session touched by someone else's change before applying it", async () => {

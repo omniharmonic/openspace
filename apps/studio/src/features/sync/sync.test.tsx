@@ -4,7 +4,7 @@ import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import { beforeEach, describe, expect, it } from "vitest";
 import { demoSites } from "../../api/fixtures";
 import type { Site } from "../../api/types";
-import { renderStudio, SAM } from "../../test/render";
+import { FAST, renderStudio, SAM } from "../../test/render";
 import { useToastStore } from "../../ui/toast-store";
 import { useEditorUi } from "../editor/editor-store";
 import { DEV_IDS as I } from "../editor/model/dev-site";
@@ -148,6 +148,54 @@ describe("publishing", () => {
   });
 });
 
+describe("publishing when status messages go missing", () => {
+  beforeEach(() => useEditorUi.getState().reset());
+  const config = { ...FAST, publishing: { pollMs: 25, timeoutMs: 300 } };
+
+  it("still reaches Live from the versions list when the progress messages are lost", async () => {
+    const { user, hub } = renderStudio(`/sites/${willow.id}`, { user: SAM, sites }, config);
+    await screen.findByText("Saved");
+    await edit("Book a class");
+    await user.click(screen.getByRole("button", { name: "Publish" }));
+    const dialog = await screen.findByRole("dialog", { name: "Publish changes" });
+    await within(dialog).findByText("1 page edited");
+    await user.click(within(dialog).getByRole("button", { name: "Publish now" }));
+    // The connection drops right after publishing: no build messages reach this editor.
+    act(() => hub.room(willow.id).setDown(true));
+    await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "live"), { timeout: 2000 });
+    expect(screen.getByRole("button", { name: "Publish" })).not.toHaveAttribute("aria-disabled");
+  });
+
+  it("says it's taking longer instead of spinning forever, and frees the Publish button", async () => {
+    const { user, hub } = renderStudio(`/sites/${willow.id}`, { user: SAM, sites }, config);
+    await screen.findByText("Saved");
+    await edit("Slow one");
+    hub.hangNextPublish(willow.id);
+    await user.click(screen.getByRole("button", { name: "Publish" }));
+    const dialog = await screen.findByRole("dialog", { name: "Publish changes" });
+    await within(dialog).findByText("1 page edited");
+    await user.click(within(dialog).getByRole("button", { name: "Publish now" }));
+    await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "slow"), { timeout: 2000 });
+    expect(pill()).toHaveTextContent("Still publishing");
+    expect(screen.getByRole("button", { name: "Publish" })).not.toHaveAttribute("aria-disabled");
+  });
+});
+
+describe("signed out while editing", () => {
+  beforeEach(() => useEditorUi.getState().reset());
+
+  it("asks to sign in again when the connection keeps failing because the sign-in expired", async () => {
+    const { hub } = await openEditor();
+    await act(async () => {
+      await hub.logout();
+      hub.room(willow.id).setDown(true);
+    });
+    act(() => hub.room(willow.id).setDown(false));
+    const banner = await screen.findByRole("alert", { name: "Signed out" }, { timeout: 3000 });
+    expect(banner).toHaveTextContent("Sign in again to keep saving.");
+  });
+});
+
 describe("history", () => {
   beforeEach(() => useEditorUi.getState().reset());
 
@@ -172,10 +220,15 @@ describe("history", () => {
       opened.push(url);
       return null;
     }) as typeof window.open;
+    // Only the live version can be previewed until the Hub serves earlier ones.
+    expect(
+      within(items[1] as HTMLElement).queryByRole("button", { name: /Preview the version/ }),
+    ).not.toBeInTheDocument();
+    expect(items[1]).toHaveTextContent("Preview not available yet");
     await user.click(
-      within(items[1] as HTMLElement).getByRole("button", { name: /Preview the version/ }),
+      within(items[0] as HTMLElement).getByRole("button", { name: /Preview the version/ }),
     );
-    expect(opened[0]).toContain("?version=");
+    expect(opened[0]).toMatch(/\?version=[0-9a-f]{7}/);
 
     await user.click(
       within(items[1] as HTMLElement).getByRole("button", { name: /Roll back to the version/ }),

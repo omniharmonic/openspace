@@ -20,6 +20,12 @@ import { IDLE_PUBLISH } from "./session";
 import "./sync.css";
 
 const DESIGNERS = new Set(["owner", "designer"]);
+
+/**
+ * Whether the Hub can show an earlier version (`/s/:id/?version=<sha>`). Until it can, only
+ * the live version gets a Preview button; flip this when the Hub honours `?version=`.
+ */
+export const VERSION_PREVIEWS = false;
 const EDITORS = new Set(["owner", "designer", "editor"]);
 
 /** A friendly name for a snapshot (automatic ones are named by what they protect). */
@@ -126,19 +132,23 @@ function Versions() {
               <VersionBadges v={v} />
             </div>
             <div className="st-history__actions">
-              <Tooltip content="Open this version in a new tab">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  icon={<Eye />}
-                  aria-label={`Preview the version from ${formatWhen(v.date)}`}
-                  onClick={() =>
-                    window.open(hub.versionPreviewUrl(site.id, v.sha), "_blank", "noopener")
-                  }
-                >
-                  Preview
-                </Button>
-              </Tooltip>
+              {v.current || VERSION_PREVIEWS ? (
+                <Tooltip content="Open this version in a new tab">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    icon={<Eye />}
+                    aria-label={`Preview the version from ${formatWhen(v.date)}`}
+                    onClick={() =>
+                      window.open(hub.versionPreviewUrl(site.id, v.sha), "_blank", "noopener")
+                    }
+                  >
+                    Preview
+                  </Button>
+                </Tooltip>
+              ) : (
+                <span className="st-history__unavailable">Preview not available yet</span>
+              )}
               {!v.current && v.status !== "failure" && canRollback && (
                 <Button
                   size="sm"
@@ -227,10 +237,11 @@ function Snapshots() {
     try {
       const r = await hub.restoreSnapshot(site.id, target.name);
       toast({
-        tone: "success",
-        title: "Snapshot restored",
-        description:
-          r.applied === 0
+        tone: r.failed ? "neutral" : "success",
+        title: r.failed ? "Snapshot partly restored" : "Snapshot restored",
+        description: r.failed
+          ? `${r.applied} change${r.applied === 1 ? "" : "s"} applied; ${r.failed} couldn’t be, because ${r.failed === 1 ? "that part has" : "those parts have"} changed too much since. Publish when you’re happy with the draft.`
+          : r.applied === 0
             ? "The draft already matched it."
             : `${r.applied} change${r.applied === 1 ? "" : "s"} applied to the draft. Publish to make them live.`,
       });

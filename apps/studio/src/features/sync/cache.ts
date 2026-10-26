@@ -8,10 +8,20 @@ import type { Site } from "../../api/types";
  * going offline or closing the tab (PRD §4.3 "Autosave, always"; arch §5.3 offline mode).
  *
  * `doc` is the room's document at `seq` (what the Hub has confirmed); `pending` are this
- * device's edits the Hub hasn't confirmed yet, in order. The editor shows `doc` + `pending`.
+ * tab's edits the Hub hasn't confirmed yet, in order. The editor shows `doc` + `pending`.
+ *
+ * Every editor tab writes its own record (`userId:siteId:tabId`), so two tabs editing offline
+ * never overwrite each other's queue. The next tab that opens the site adopts every record of
+ * the same person (merging their pending edits; the room dedupes ops by id), writes the merged
+ * record under its own key, then removes the adopted ones. Records are scoped to the signed-in
+ * person, so another account's queued edits are never resubmitted.
  */
 export interface DraftRecord {
+  /** `userId:siteId:tabId`. */
+  key: string;
   siteId: string;
+  userId: string;
+  tabId: string;
   doc: SiteDocument;
   seq: number;
   head: string | null;
@@ -21,10 +31,14 @@ export interface DraftRecord {
   savedAt: number;
 }
 
+export const draftKey = (userId: string, siteId: string, tabId: string) =>
+  `${userId}:${siteId}:${tabId}`;
+
 export interface DraftCache {
-  get(siteId: string): Promise<DraftRecord | undefined>;
+  /** Every record this person has for the site (one per tab that edited it). */
+  list(userId: string, siteId: string): Promise<DraftRecord[]>;
   put(record: DraftRecord): Promise<void>;
-  delete(siteId: string): Promise<void>;
+  delete(key: string): Promise<void>;
 }
 
 interface DraftDB extends DBSchema {
@@ -32,29 +46,32 @@ interface DraftDB extends DBSchema {
 }
 
 const DB_NAME = "openspace-studio";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 /** IndexedDB-backed cache (the default in browsers). */
 export function createIdbDraftCache(name = DB_NAME): DraftCache {
   let db: Promise<IDBPDatabase<DraftDB>> | null = null;
   const open = () => {
     db ??= openDB<DraftDB>(name, DB_VERSION, {
-      upgrade(d) {
-        if (!d.objectStoreNames.contains("drafts"))
-          d.createObjectStore("drafts", { keyPath: "siteId" });
+      upgrade(d, oldVersion) {
+        // v1 records were keyed by site only (one writer per device); start over.
+        if (oldVersion < 2 && d.objectStoreNames.contains("drafts")) d.deleteObjectStore("drafts");
+        d.createObjectStore("drafts", { keyPath: "key" });
       },
     });
     return db;
   };
   return {
-    async get(siteId) {
-      return (await open()).get("drafts", siteId);
+    async list(userId, siteId) {
+      const prefix = `${userId}:${siteId}:`;
+      const range = IDBKeyRange.bound(prefix, `${prefix}￿`);
+      return (await open()).getAll("drafts", range);
     },
     async put(record) {
       await (await open()).put("drafts", record);
     },
-    async delete(siteId) {
-      await (await open()).delete("drafts", siteId);
+    async delete(key) {
+      await (await open()).delete("drafts", key);
     },
   };
 }
@@ -64,15 +81,16 @@ export function createMemoryDraftCache(): DraftCache & { records: Map<string, Dr
   const records = new Map<string, DraftRecord>();
   return {
     records,
-    async get(siteId) {
-      const r = records.get(siteId);
-      return r ? structuredClone(r) : undefined;
+    async list(userId, siteId) {
+      return [...records.values()]
+        .filter((r) => r.userId === userId && r.siteId === siteId)
+        .map((r) => structuredClone(r));
     },
     async put(record) {
-      records.set(record.siteId, structuredClone(record));
+      records.set(record.key, structuredClone(record));
     },
-    async delete(siteId) {
-      records.delete(siteId);
+    async delete(key) {
+      records.delete(key);
     },
   };
 }
@@ -84,3 +102,6 @@ export function defaultDraftCache(): DraftCache {
   shared ??= typeof indexedDB !== "undefined" ? createIdbDraftCache() : createMemoryDraftCache();
   return shared;
 }
+
+/** This page load's tab id (a reload is a new tab: its old record is adopted, then removed). */
+export const TAB_ID = `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
