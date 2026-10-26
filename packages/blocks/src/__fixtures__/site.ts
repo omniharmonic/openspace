@@ -198,7 +198,7 @@ export function demoCollections(): Record<string, Record<string, CollectionItem>
           compareAtPrice: { amount: 8000, currency: "USD" },
           sku: "MAT-CORK",
           image: img("1601925260368-ae2f83cf8b7f"),
-          imageAlt: "A rolled cork yoga mat on a wooden floor",
+          imageAlt: "Yoga mats rolled up on white shelves",
           options: [{ name: "Length", values: ["Standard", "Long"] }],
           variants: [
             { sku: "MAT-CORK-STD", options: { Length: "Standard" } },

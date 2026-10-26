@@ -147,7 +147,7 @@ export const dataCss = `
 .os-align-center .os-stats__item,.os-malign-center .os-stats__item{align-items:center;text-align:center}
 
 .os-timeline{--dot:0.75rem;display:grid;gap:0;margin:0;padding:0;list-style:none}
-.os-timeline__item{position:relative;display:grid;gap:var(--os-space-3xs);padding:0 0 var(--os-space-md) calc(var(--dot) + var(--os-space-sm))}
+.os-timeline__item{position:relative;display:grid;align-content:start;gap:var(--os-space-3xs);padding:0 0 var(--os-space-md) calc(var(--dot) + var(--os-space-sm))}
 .os-timeline__item::before{content:"";position:absolute;inset-inline-start:0;top:0.35em;width:var(--dot);height:var(--dot);border-radius:var(--os-radius-full);background:var(--os-color-accent)}
 .os-timeline__item::after{content:"";position:absolute;inset-inline-start:calc(var(--dot) / 2 - 1px);top:calc(0.35em + var(--dot) + 0.3rem);bottom:0.3rem;width:2px;background:var(--os-color-border)}
 .os-timeline__item:last-child::after{display:none}

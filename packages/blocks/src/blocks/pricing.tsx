@@ -156,10 +156,14 @@ export const pricingCss = `
 @container block (min-width:48rem){.os-pricing--columns .os-pricing__plan{border-top:0;border-inline-start:1px solid var(--os-color-border)}.os-pricing--columns .os-pricing__plan:first-child{border-inline-start:0}}
 .os-pricing--columns .os-pricing__plan.is-featured .os-pricing__name{color:var(--os-color-accent)}
 .os-pricing--compact .os-pricing__plans{grid-template-columns:minmax(0,1fr);gap:0}
+.os-pricing--compact .os-pricing__plan{padding:var(--os-space-sm) 0;border-radius:0;border-bottom:1px solid var(--os-color-border)}
+.os-pricing--compact .os-pricing__amount{font-size:var(--os-type-h3-font-size)}
+.os-pricing--compact .os-pricing__features{border-top:0;padding-top:0;margin:0;font-size:var(--os-type-small-font-size)}
+.os-pricing--compact .os-pricing__button{align-self:start}
+@container block (min-width:40rem){
 .os-pricing--compact .os-pricing__plan{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:var(--os-space-sm);padding:var(--os-space-sm) 0;border-radius:0;border-bottom:1px solid var(--os-color-border)}
 .os-pricing--compact .os-pricing__head,.os-pricing--compact .os-pricing__desc,.os-pricing--compact .os-pricing__features{grid-column:1}
 .os-pricing--compact .os-pricing__price{grid-column:2;grid-row:1;justify-content:flex-end}
-.os-pricing--compact .os-pricing__amount{font-size:var(--os-type-h3-font-size)}
-.os-pricing--compact .os-pricing__features{border-top:0;padding-top:0;margin:0;font-size:var(--os-type-small-font-size)}
 .os-pricing--compact .os-pricing__button{grid-column:2;grid-row:2 / span 3;align-self:center;margin:0}
+}
 `;

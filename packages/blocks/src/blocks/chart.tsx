@@ -315,13 +315,13 @@ export const chartCss = `
 .os-chart__dot{position:absolute;left:var(--x);bottom:var(--y);width:0.7rem;height:0.7rem;translate:-50% 50%;border-radius:var(--os-radius-full);background:currentColor;box-shadow:0 0 0 2px var(--os-color-background)}
 .os-chart__point{position:absolute;left:var(--x);bottom:var(--y);translate:-50% -0.6rem;line-height:1}
 .os-chart__xaxis{grid-column:2;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));padding-top:var(--os-space-2xs);text-align:center}
-.os-chart__xaxis>span{overflow-wrap:anywhere;padding-inline:0.15rem}
+.os-chart__xaxis>span{hyphens:auto;overflow-wrap:break-word;padding-inline:0.15rem}
 .os-chart__pie{display:grid;gap:var(--os-space-md);align-items:center}
 @container block (min-width:36rem){.os-chart__pie{grid-template-columns:minmax(0,16rem) minmax(0,1fr)}}
 .os-chart__pie>.os-chart__svg{width:100%;max-width:16rem;rotate:0deg}
 .os-chart__ring{fill:none;stroke:var(--os-color-surface);stroke-width:7}
 .os-chart__slice{fill:none;stroke-width:7}
-.os-chart__legend{display:grid;gap:var(--os-space-2xs);margin:0;padding:0;list-style:none}
+.os-chart__legend{max-inline-size:26rem;display:grid;gap:var(--os-space-2xs);margin:0;padding:0;list-style:none}
 .os-chart__legend li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--os-space-xs);align-items:center}
 .os-chart__swatch{width:0.9rem;height:0.9rem;border-radius:var(--os-radius-sm)}
 .os-chart__data>summary{cursor:pointer;font-size:var(--os-type-small-font-size);font-weight:var(--os-font-weight-strong);color:var(--os-color-link)}

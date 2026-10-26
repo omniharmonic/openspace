@@ -431,6 +431,7 @@ export const donationBlock = defineBlock({
 
 export const commerceCss = `
 .os-product{display:grid;gap:var(--os-space-sm);align-content:start}
+.os-product--minimal{max-inline-size:34rem}
 .os-product__body{display:grid;gap:var(--os-space-xs);align-content:start;min-width:0}
 .os-product__title{margin:0;color:var(--os-color-heading)}
 .os-product__link{color:inherit;text-decoration:none}
@@ -445,7 +446,7 @@ export const commerceCss = `
 html:not(.os-js) .os-product__buy{display:none}
 .os-product__soldout{margin:0;font-weight:var(--os-font-weight-strong);color:var(--os-color-text-muted)}
 .os-product__details{justify-self:start;font-size:var(--os-type-small-font-size);font-weight:var(--os-font-weight-strong);color:var(--os-color-link)}
-.os-product--card{padding:var(--os-space-sm);background:var(--os-color-surface);border-radius:var(--os-radius-card)}
+.os-product--card{max-inline-size:26rem;padding:var(--os-space-sm);background:var(--os-color-surface);border-radius:var(--os-radius-card)}
 .os-block.has-radius .os-product--card{border-radius:var(--radius)}
 .os-block.os-themed .os-product--card{background:transparent;padding:0}
 @container block (min-width:48rem){.os-product--split{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--os-space-lg);align-items:center}}
