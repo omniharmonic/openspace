@@ -1,7 +1,7 @@
 import type { MediaMeta, SiteDocument } from "@openspace/schema";
 import { create } from "zustand";
 import { type HubApi, HubError } from "../../api/types";
-import type { ImageCodec } from "./codec";
+import type { ImageCodec, ImageEdit } from "./codec";
 import { MediaError, type ProcessedMedia, processMedia } from "./pipeline";
 import type { QueuedUpload, UploadQueue } from "./queue";
 import { useMediaSources } from "./sources";
@@ -78,7 +78,10 @@ const RETRYABLE = (err: unknown) =>
 
 export interface Uploader {
   /** Process and queue files (drag/drop, paste, picker, camera). Resolves with the results. */
-  add(files: File[]): Promise<Array<{ path: string; duplicate: boolean } | null>>;
+  add(
+    files: File[],
+    options?: { edit?: ImageEdit; name?: string },
+  ): Promise<Array<{ path: string; duplicate: boolean } | null>>;
   /** Pick up uploads left in the queue by an earlier session. */
   resume(): Promise<void>;
   retry(id: string): void;
@@ -177,12 +180,15 @@ export function createUploader(deps: UploaderDeps): Uploader {
   };
   if (typeof window !== "undefined") window.addEventListener("online", onOnline);
 
-  const processOne = async (file: File): Promise<{ path: string; duplicate: boolean } | null> => {
+  const processOne = async (
+    file: File,
+    options: { edit?: ImageEdit; name?: string } = {},
+  ): Promise<{ path: string; duplicate: boolean } | null> => {
     const id = newUploadId();
     const base: UploadItem = {
       id,
       siteId: deps.siteId,
-      name: file.name || "Pasted image",
+      name: options.name ?? (file.name || "Pasted image"),
       status: "processing",
       attempts: 0,
     };
@@ -202,6 +208,8 @@ export function createUploader(deps: UploaderDeps): Uploader {
         now: deps.now,
         existing: doc.media,
         allowVideo: deps.allowVideo?.() ?? false,
+        edit: options.edit,
+        name: options.name ?? (file.name || "pasted-image"),
       });
     } catch (err) {
       const message =
@@ -241,9 +249,9 @@ export function createUploader(deps: UploaderDeps): Uploader {
   };
 
   return {
-    async add(files) {
+    async add(files, options) {
       const results: Array<{ path: string; duplicate: boolean } | null> = [];
-      for (const f of files) results.push(await processOne(f));
+      for (const f of files) results.push(await processOne(f, options));
       void drain();
       return results;
     },
