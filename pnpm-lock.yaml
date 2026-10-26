@@ -212,12 +212,6 @@ importers:
       esbuild:
         specifier: ^0.27.7
         version: 0.27.7
-      react:
-        specifier: ^19.3.1
-        version: 19.3.1
-      react-dom:
-        specifier: ^19.3.1
-        version: 19.3.1(react@19.3.1)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -231,6 +225,12 @@ importers:
       happy-dom:
         specifier: ^21.0.4
         version: 21.0.4
+      react:
+        specifier: ^19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.1
+        version: 19.3.1(react@19.3.1)
       tsup:
         specifier: 'catalog:'
         version: 8.5.1(postcss@8.5.31)(typescript@5.9.3)

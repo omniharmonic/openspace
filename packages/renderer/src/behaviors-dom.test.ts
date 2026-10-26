@@ -8,7 +8,9 @@ import form from "./behaviors/form";
 import menu from "./behaviors/menu";
 import popup from "./behaviors/popup";
 import reveal from "./behaviors/reveal";
+import search from "./behaviors/search";
 import tabs from "./behaviors/tabs";
+import videoLite from "./behaviors/video-lite";
 
 const flush = () => new Promise((r) => setTimeout(r, 0));
 
@@ -202,5 +204,48 @@ describe("beacon", () => {
     const [url, payload] = send.mock.calls[0] as unknown as [string, string];
     expect(url).toBe("https://hub.test/a/st_01jb3q8w2n");
     expect(JSON.parse(payload)).toMatchObject({ p: "/about/", u: { source: "newsletter" } });
+  });
+});
+
+describe("fix round 1 behaviors", () => {
+  it("video-lite only loads https embeds", () => {
+    document.body.innerHTML = `<div class="os-video" data-os-embed="javascript:alert(1)"><button class="os-video__play">Play</button></div>
+      <div class="os-video" data-os-embed="https://www.youtube-nocookie.com/embed/abc"><button class="os-video__play">Play</button></div>`;
+    const [bad, good] = [...document.querySelectorAll<HTMLElement>(".os-video")];
+    videoLite(bad as HTMLElement);
+    videoLite(good as HTMLElement);
+    bad?.querySelector("button")?.click();
+    good?.querySelector("button")?.click();
+    expect(bad?.querySelector("iframe")).toBeNull();
+    expect(good?.querySelector("iframe")?.getAttribute("src")).toBe(
+      "https://www.youtube-nocookie.com/embed/abc?autoplay=1",
+    );
+  });
+
+  it("tells the visitor when a queued entry is later rejected", async () => {
+    const action = "https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001";
+    localStorage.setItem(
+      "os-form-queue",
+      JSON.stringify([{ action, fields: [["email", "a@b.co"]], at: Date.now() }]),
+    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ message: "Form closed" }), { status: 422 }),
+    );
+    document.body.innerHTML = `<form action="${action}"><input name="email"><button>Send</button></form>`;
+    const f = document.querySelector("form") as HTMLFormElement;
+    form(f);
+    for (let i = 0; i < 5; i++) await flush();
+    const status = f.querySelector(".os-form__status") as HTMLElement;
+    expect(status?.dataset.state).toBe("error");
+    expect(status.textContent).toContain("couldn't be delivered (Form closed)");
+    expect(JSON.parse(localStorage.getItem("os-form-queue") ?? "[]")).toEqual([]);
+  });
+
+  it("search registers a single global / shortcut", () => {
+    const spy = vi.spyOn(document, "addEventListener");
+    document.body.innerHTML = `<button id="s1"></button><button id="s2"></button>`;
+    search(document.getElementById("s1") as HTMLElement);
+    search(document.getElementById("s2") as HTMLElement);
+    expect(spy.mock.calls.filter(([t]) => t === "keydown")).toHaveLength(1);
   });
 });

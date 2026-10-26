@@ -121,13 +121,13 @@ ${typeClasses}
 .os-grid{--row-unit:1.25rem;--grid-gap:${v(T.space["2xs"])};display:grid;grid-template-columns:[full-start] ${v(T.section.gutter)} [content-start] repeat(8,minmax(0,1fr)) [content-end] ${v(T.section.gutter)} [full-end];grid-template-rows:repeat(var(--mrows,1),minmax(var(--row-unit),auto));grid-auto-rows:minmax(var(--row-unit),auto);column-gap:var(--grid-gap)}
 .os-grid__item{grid-column:var(--mcs,calc(var(--mx) + 1))/var(--mce,calc(var(--mx) + 1 + var(--mw)));grid-row:var(--my)/span var(--mh);z-index:var(--mz,1);min-width:0;display:flex;flex-direction:column}
 .os-grid__item>.os-block{flex:1}
+.os-grid__item--unplaced{grid-column:content-start/content-end;grid-row:auto}
 
 @media (min-width:768px){
 .os-page{--bar-h:calc(max(var(--tlogo-h,2.5rem),2.75rem) + 2rem)}
 .os-section{padding-block:var(--tpad,${v(T.section.padY)});min-height:var(--tminh,auto)}
 .os-stack{grid-template-columns:var(--tcols,minmax(0,1fr))}
 .os-col{order:var(--to,0)}
-.has-overlay-header .os-main>.os-section:first-child{padding-top:calc(var(--tpad,${v(T.section.padY)}) + var(--header-h))}
 .os-grid{--row-unit:1.5rem;grid-template-columns:[full-start] minmax(${v(T.section.gutter)},1fr) [content-start] repeat(24,minmax(0,calc((var(--content-max) - 23 * var(--grid-gap)) / 24))) [content-end] minmax(${v(T.section.gutter)},1fr) [full-end];grid-template-rows:repeat(var(--trows,1),minmax(var(--row-unit),auto))}
 .os-grid__item{grid-column:var(--tcs,calc(var(--tx) + 1))/var(--tce,calc(var(--tx) + 1 + var(--tw)));grid-row:var(--ty)/span var(--th);z-index:var(--tz,1)}
 }
@@ -136,7 +136,6 @@ ${typeClasses}
 .os-section{padding-block:var(--pad,${v(T.section.padY)});min-height:var(--minh,auto)}
 .os-stack{grid-template-columns:var(--cols,minmax(0,1fr))}
 .os-col{order:0}
-.has-overlay-header .os-main>.os-section:first-child{padding-top:calc(var(--pad,${v(T.section.padY)}) + var(--header-h))}
 .os-grid{grid-template-rows:repeat(var(--rows,1),minmax(var(--row-unit),auto))}
 .os-grid__item{grid-column:var(--cs,calc(var(--x) + 1))/var(--ce,calc(var(--x) + 1 + var(--w)));grid-row:var(--y)/span var(--h);z-index:var(--z,1)}
 }
@@ -193,6 +192,7 @@ ${typeClasses}
 .os-img__img{width:100%;height:100%;object-fit:cover;object-position:var(--focal,50% 50%);filter:${v(T.image.filter)};mix-blend-mode:${v(T.image.blend)};transition:transform ${v(M["duration-slow"])} ${ease}}
 .os-img__img.has-placeholder{background-size:cover;background-position:center}
 .os-img.is-contain .os-img__img{object-fit:contain}
+.os-img.is-unsized{aspect-ratio:var(--aspect,3 / 2)}
 .os-img.is-fill{height:100%;min-height:calc(var(--row-unit,1.5rem) * 4);aspect-ratio:auto}
 .os-img.is-fill>picture{position:absolute;inset:${v(T.image["frame-padding"])}}
 .os-grid__item>.os-block>:only-child:has(>.os-img.is-fill),.os-grid__item>.os-block>.os-img.is-fill{height:100%}
@@ -250,7 +250,9 @@ ${button("tertiary")}
 .os-header.is-scrolled{box-shadow:0 1px 0 ${v(c.border)},${v(T.shadow.sm)}}
 .has-overlay-header .os-header{background:transparent;margin-bottom:calc(-1 * var(--header-h))}
 .has-overlay-header .os-header.is-scrolled{background:${v(c.background)}}
-.has-overlay-header .os-main>.os-section:first-child{padding-top:calc(var(--mpad,${v(T.section.padY)}) + var(--header-h))}
+.has-overlay-header .os-section--first{padding-top:calc(var(--mpad,${v(T.section.padY)}) + var(--header-h))}
+@media (min-width:768px){.has-overlay-header .os-section--first{padding-top:calc(var(--tpad,${v(T.section.padY)}) + var(--header-h))}}
+@media (min-width:1200px){.has-overlay-header .os-section--first{padding-top:calc(var(--pad,${v(T.section.padY)}) + var(--header-h))}}
 .os-header__bar{display:flex;align-items:center;gap:${v(T.space.sm)};min-height:var(--bar-h);max-inline-size:calc(${v(T.width.wide)} + 2 * ${v(T.section.gutter)});margin-inline:auto;padding:0.75rem ${v(T.section.gutter)}}
 .os-header__brand{display:inline-flex;align-items:center;flex:none;color:${v(c.heading)};text-decoration:none;margin-inline-end:auto}
 .os-header__logo{height:var(--mlogo-h,2rem);width:auto;border-radius:0;background:none}

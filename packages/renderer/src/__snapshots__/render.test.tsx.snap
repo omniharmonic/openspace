@@ -3,7 +3,7 @@
 exports[`SectionView > renders a grid section (SSR snapshot) 1`] = `
 "<section id="sec_9bz1abcdef" class="os-section os-theme-dark os-section--grid has-bg-image" data-os-id="sec_9bz1abcdef" data-os-section="">
 <div class="os-section__bg is-parallax" aria-hidden="true">
-<span class="os-img os-image-none os-section__media" style="--focal:50% 30%">
+<span class="os-img os-image-none is-fill os-section__media" style="--focal:50% 30%">
 <picture>
 <img class="os-img__img" src="/media/2026/10/studio.jpg" alt="" loading="lazy" decoding="async"/>
 </picture>

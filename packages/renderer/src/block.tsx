@@ -8,7 +8,7 @@ import {
   type Section,
 } from "@openspace/schema";
 import { imageTreatmentClass, TOKEN_VARS, themeClass } from "@openspace/theme";
-import { type ReactNode, useContext } from "react";
+import { Component, type ReactNode, useContext } from "react";
 import { BlockRegistryContext, type RenderMode, useEditor, useRenderContext } from "./context";
 import { type CssVars, cx } from "./cx";
 import { responsiveVars } from "./layout-vars";
@@ -53,7 +53,7 @@ export function blockStyleProps(
   return { className, vars, attrs };
 }
 
-function MissingBlock({ block, reason }: { block: Block; reason: string }) {
+export function MissingBlock({ block, reason }: { block: Block; reason: string }) {
   const editor = useEditor();
   const { mode } = useRenderContext();
   if (mode === "production") return null;
@@ -85,13 +85,38 @@ function prepare(def: RendererBlockDefinition | undefined, raw: Block, mode: Ren
       ok: false,
       reason: `This ${def.label} block has invalid content: ${parsed.error.issues[0]?.message ?? "unknown error"}`,
     };
-  // Production: best effort with defaults filled in, never a broken page.
-  return { ok: true, def, block, fields: { ...def.meta.defaults.fields, ...block.fields } };
+  // Production: replace only the failing fields with their defaults (or drop them), then
+  // re-validate. Raw invalid values never reach a render function (e.g. unsafe link URLs).
+  const repaired = repairFields(def, block.fields, parsed.error.issues);
+  const again = def.fieldsSchema.safeParse(repaired);
+  if (again.success) return { ok: true, def, block, fields: again.data as Record<string, unknown> };
+  return { ok: false, reason: `This ${def.label} block has invalid content` };
+}
+
+/** Swap each top-level field with a validation issue for its default, or remove it. */
+export function repairFields(
+  def: Pick<RendererBlockDefinition, "meta">,
+  fields: Record<string, unknown>,
+  issues: readonly { path: readonly PropertyKey[] }[],
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...fields };
+  const defaults = def.meta.defaults.fields as Record<string, unknown>;
+  for (const issue of issues) {
+    const key = issue.path[0];
+    if (typeof key !== "string") continue;
+    if (defaults[key] !== undefined) out[key] = structuredClone(defaults[key]);
+    else delete out[key];
+  }
+  return out;
 }
 
 /**
  * Calls the definition's render function as its own component so hooks inside it keep a
- * stable order, and so a throwing block degrades to a notice instead of breaking the page.
+ * stable order. The try/catch only covers the render function's own synchronous execution:
+ * an error thrown by a nested component (rendered later by React) is not caught here. On the
+ * client (Studio canvas) {@link BlockErrorBoundary} catches those; during static rendering
+ * (`renderToStaticMarkup` has no error boundaries) such an error fails the page render, which
+ * site-kit reports as a build error rather than shipping a silently broken page.
  */
 function RenderBlock(props: {
   def: RendererBlockDefinition;
@@ -118,6 +143,27 @@ function RenderBlock(props: {
   }
 }
 
+/** Client-side error boundary around each block (no effect during static rendering). */
+export class BlockErrorBoundary extends Component<
+  { block: Block; children: ReactNode },
+  { error: string | null }
+> {
+  override state = { error: null as string | null };
+  static getDerivedStateFromError(err: unknown) {
+    return { error: String(err) };
+  }
+  override render() {
+    if (this.state.error)
+      return (
+        <MissingBlock
+          block={this.props.block}
+          reason={`This block failed to render: ${this.state.error}`}
+        />
+      );
+    return this.props.children;
+  }
+}
+
 export interface BlockViewProps {
   block: Block;
   /** The containing section (absent for standalone renders such as email/OG). */
@@ -136,7 +182,9 @@ export function BlockView({ block, section }: BlockViewProps) {
   const prepared = prepare(def, block, ctx.mode);
 
   const content: ReactNode = prepared.ok ? (
-    <RenderBlock def={prepared.def} block={prepared.block} fields={prepared.fields} />
+    <BlockErrorBoundary block={block}>
+      <RenderBlock def={prepared.def} block={prepared.block} fields={prepared.fields} />
+    </BlockErrorBoundary>
   ) : (
     <MissingBlock block={block} reason={prepared.reason} />
   );

@@ -335,8 +335,12 @@ describe("Header", () => {
       expect(out).toContain("os-nav__list--start");
       expect(out).toContain("os-header__brand--split");
     }
-    if (variant === "transparent-overlay")
-      expect(out).toContain("is-overlay os-theme-light-accent".split(" ")[0]);
+    if (variant === "transparent-overlay") {
+      // Overlays the first section, so it takes the hero's theme.
+      expect(out).toContain(
+        "os-header--transparent-overlay os-theme-light-accent is-sticky is-overlay",
+      );
+    }
   });
 
   it("resolves nav: folders, hidden items, aria-current, buttons", () => {
@@ -376,5 +380,77 @@ describe("PageView", () => {
     expect(out).toContain('<footer class="os-footer">');
     expect(out).toContain(`data-os-id="${IDS.footer}"`);
     expect(out.indexOf(IDS.hero)).toBeLessThan(out.indexOf(IDS.grid));
+  });
+});
+
+describe("fix round 1", () => {
+  it("production repairs only failing fields with defaults and never renders unsafe values", () => {
+    const badVariant = {
+      ...must(hero.blocks[1]),
+      fields: { label: "Go", link: { type: "page", page: IDS.about }, variant: "loud" },
+    };
+    const out = html(<BlockView block={badVariant} />);
+    expect(out).toContain('class="os-button os-button--primary"');
+    const unsafe = {
+      ...must(hero.blocks[1]),
+      fields: { label: "Go", link: { type: "url", url: "javascript:alert(1)" } },
+    };
+    const prod = html(<BlockView block={unsafe} />);
+    expect(prod).toBe("");
+    expect(prod).not.toContain("javascript:");
+    expect(html(<BlockView block={unsafe} />, "preview")).toContain("invalid content");
+  });
+
+  it("shows grid blocks without a placement in preview/editor only", () => {
+    const orphan = {
+      id: "blk_0rphan0000" as const,
+      type: "text",
+      v: 1,
+      fields: { content: { type: "doc", content: [] } },
+    };
+    const s = { ...grid, blocks: [...grid.blocks, orphan] };
+    expect(html(<SectionView section={s} />)).not.toContain("blk_0rphan0000");
+    const preview = html(<SectionView section={s} />, "preview");
+    expect(preview).toContain(
+      'class="os-grid__item os-grid__item--unplaced" data-os-unplaced="blk_0rphan0000"',
+    );
+    expect(preview).toContain("no position in the grid");
+    const custom = html(
+      <EditorContext.Provider
+        value={{ renderMissingBlock: ({ block }) => <i data-x={block.id} /> }}
+      >
+        <SectionView section={s} />
+      </EditorContext.Provider>,
+      "editor",
+    );
+    expect(custom).toContain('<i data-x="blk_0rphan0000"></i>');
+  });
+
+  it("marks the first page section so overlay compensation survives editor wrappers", () => {
+    const out = renderToStaticMarkup(
+      <PageView
+        doc={doc}
+        page={{ ...home, header: { transparentOnHero: true } }}
+        mode="editor"
+        editor={{ wrapSection: ({ children }) => <div className="studio-wrap">{children}</div> }}
+      />,
+    );
+    expect(out).toContain("has-overlay-header");
+    expect(out.match(/os-section--first/g)?.length).toBe(1);
+    expect(out).toMatch(
+      /<div class="studio-wrap"><section id="welcome" class="[^"]*os-section--first/,
+    );
+  });
+
+  it("gives remote images without dimensions an aspect-ratio box", () => {
+    expect(html(<Img src="https://example.com/photo.jpg" alt="" />)).toContain(
+      'class="os-img is-unsized"',
+    );
+    expect(
+      html(<Img src={{ src: "https://example.com/p.jpg", alt: "", width: 1200, height: 800 }} />),
+    ).toContain('width="1200" height="800"');
+    expect(html(<Img src="https://example.com/p.jpg" alt="" aspect="16:9" />)).not.toContain(
+      "is-unsized",
+    );
   });
 });

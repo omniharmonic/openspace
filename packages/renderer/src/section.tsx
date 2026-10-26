@@ -1,7 +1,7 @@
 import type { Section, SectionBackground } from "@openspace/schema";
 import { themeClass } from "@openspace/theme";
 import { createContext, type ReactNode, useContext } from "react";
-import { BlockView } from "./block";
+import { BlockView, MissingBlock } from "./block";
 import { SectionContext, useEditor, useRenderContext } from "./context";
 import { type CssVars, cx } from "./cx";
 import { Img } from "./image";
@@ -56,6 +56,7 @@ export function SectionBackgroundLayer({
           alt=""
           sizes="100vw"
           treatment="none"
+          fill
           {...(background.focal ? { focal: background.focal } : {})}
           priority={first}
           className="os-section__media"
@@ -127,6 +128,7 @@ function StackBody({ section }: { section: Section & { layout: { mode: "stack" }
 
 function GridBody({ section }: { section: Section & { layout: { mode: "grid" } } }) {
   const { layout } = section;
+  const { mode } = useRenderContext();
   const fallback = fallbackMobileRects(layout);
   const vars = { ...gridVars(layout), "--mrows": mobileRows(layout, fallback) };
   // DOM order follows desktop reading order (top-to-bottom, left-to-right) for assistive tech.
@@ -151,6 +153,10 @@ function GridBody({ section }: { section: Section & { layout: { mode: "grid" } }
           >
             <BlockView block={b} section={section} />
           </div>
+        ) : mode !== "production" ? (
+          <div key={b.id} className="os-grid__item os-grid__item--unplaced" data-os-unplaced={b.id}>
+            <MissingBlock block={b} reason="This block has no position in the grid" />
+          </div>
         ) : null,
       )}
     </div>
@@ -173,6 +179,7 @@ export interface SectionViewProps {
 export function SectionView({ section, as: Tag = "section", className }: SectionViewProps) {
   const { mode } = useRenderContext();
   const editor = useEditor();
+  const first = useContext(FirstSectionContext);
   if (section.hidden && mode !== "editor") return null;
   const { style, layout } = section;
   const vars = { ...sectionStyleVars(style), ...backgroundVars(style.background) };
@@ -196,6 +203,7 @@ export function SectionView({ section, as: Tag = "section", className }: Section
         bgType !== "none" && `has-bg-${bgType}`,
         style.minHeight && "has-minh",
         style.padding && "has-pad",
+        first && "os-section--first",
         className,
       )}
       data-os-id={section.id}

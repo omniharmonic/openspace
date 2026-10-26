@@ -6,6 +6,8 @@ import { h, siteInfo } from "./shared";
  */
 let dialog: HTMLDialogElement | undefined;
 let loading: Promise<void> | undefined;
+let open: (() => void) | undefined;
+let shortcut = false;
 
 function load(base: string, mount: HTMLElement): Promise<void> {
   loading ??= new Promise<void>((resolve, reject) => {
@@ -29,7 +31,7 @@ function load(base: string, mount: HTMLElement): Promise<void> {
 
 export default function search(trigger: HTMLElement): void {
   const { base } = siteInfo();
-  const open = () => {
+  open ??= () => {
     if (!dialog) {
       const mount = h("div", { class: "os-search__mount" });
       dialog = h("dialog", { class: "os-search", "aria-label": "Search this site" }, mount);
@@ -44,13 +46,15 @@ export default function search(trigger: HTMLElement): void {
   };
   trigger.addEventListener("click", (e) => {
     e.preventDefault();
-    open();
+    open?.();
   });
+  if (shortcut) return;
+  shortcut = true;
   document.addEventListener("keydown", (e) => {
     const t = e.target as HTMLElement;
     if (e.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !t.isContentEditable) {
       e.preventDefault();
-      open();
+      open?.();
     }
   });
 }

@@ -150,6 +150,7 @@ export function Img(props: ImgProps) {
         aspect && "has-aspect",
         props.fit === "contain" && "is-contain",
         props.fill && "is-fill",
+        !props.fill && !aspect && (r.width === undefined || r.height === undefined) && "is-unsized",
         props.className,
       )}
       style={Object.keys(style).length ? style : undefined}

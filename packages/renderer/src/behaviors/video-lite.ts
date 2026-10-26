@@ -23,11 +23,17 @@ export default function videoLite(el: HTMLElement): void {
   }
   const button = el.querySelector<HTMLButtonElement>(".os-video__play");
   const src = el.dataset.osEmbed;
-  if (!button || !src) return;
+  if (!button || !src || !/^https:\/\//i.test(src)) return;
   button.addEventListener(
     "click",
     () => {
-      const url = new URL(src);
+      let url: URL;
+      try {
+        url = new URL(src);
+      } catch {
+        return;
+      }
+      if (url.protocol !== "https:") return;
       url.searchParams.set("autoplay", "1");
       const iframe = document.createElement("iframe");
       iframe.src = url.toString();

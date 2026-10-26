@@ -87,6 +87,17 @@ function absolute(siteUrl: string, path: string): string {
   return new URL(path.replace(/^\/+/, ""), siteUrl).toString();
 }
 
+/**
+ * Absolute URL for a share image. Image-map srcs are already final URLs (root-relative ones
+ * include the base path), so they resolve against the origin; `media/` paths resolve against
+ * the site URL, which carries the base path.
+ */
+export function ogImageUrl(src: string, siteUrl: string, imageMap?: ImageMap): string {
+  const mapped = imageMap?.[src]?.src;
+  if (mapped) return new URL(mapped, siteUrl).toString();
+  return absolute(siteUrl, mediaUrl(src));
+}
+
 /** `<title>`: SEO title, else page title, through the site's `%s` template (home: site title). */
 export function pageTitle(doc: SiteDocument, page: Page): string {
   const own = page.seo?.title;
@@ -141,9 +152,7 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
   const canonical = page.seo?.canonical ?? absolute(siteUrl, pagePath(page));
   const noindex = mode === "preview" || page.seo?.noindex || site.seo?.noindex;
   const ogImageSrc = page.seo?.image ?? site.seo?.image;
-  const ogImage = ogImageSrc
-    ? absolute(siteUrl, opts.imageMap?.[ogImageSrc]?.src ?? mediaUrl(ogImageSrc))
-    : undefined;
+  const ogImage = ogImageSrc ? ogImageUrl(ogImageSrc, siteUrl, opts.imageMap) : undefined;
   const fonts = opts.fontStylesheets ?? [googleFontsUrl(styles.tokens.pairing)];
   const usesGoogle = fonts.some((f) => f.startsWith("https://fonts.googleapis.com/"));
 

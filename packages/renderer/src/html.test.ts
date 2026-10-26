@@ -123,4 +123,39 @@ describe("renderPageHtml", () => {
     about.seo = { title: "Meet Maya" };
     expect(pageTitle(d, about)).toBe("Meet Maya");
   });
+
+  it("resolves og:image from the image map against the origin (no doubled base path)", () => {
+    const d = siteFixture();
+    const mapped = renderPageHtml({
+      doc: d,
+      pageId: IDS.home,
+      basePath: "/maya-yoga",
+      imageMap: {
+        "media/2026/10/hero-k3f9.jpg": {
+          src: "/maya-yoga/_astro/hero.hash.jpg",
+          width: 1200,
+          height: 630,
+        },
+      },
+    });
+    expect(mapped).toContain(
+      '<meta property="og:image" content="https://maya.github.io/maya-yoga/_astro/hero.hash.jpg">',
+    );
+    const raw = renderPageHtml({ doc: d, pageId: IDS.home, basePath: "/maya-yoga" });
+    expect(raw).toContain(
+      '<meta property="og:image" content="https://maya.github.io/maya-yoga/media/2026/10/hero-k3f9.jpg">',
+    );
+    const remote = renderPageHtml({
+      doc: d,
+      pageId: IDS.home,
+      imageMap: {
+        "media/2026/10/hero-k3f9.jpg": {
+          src: "https://cdn.example.com/h.jpg",
+          width: 1,
+          height: 1,
+        },
+      },
+    });
+    expect(remote).toContain('content="https://cdn.example.com/h.jpg"');
+  });
 });
