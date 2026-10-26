@@ -14,7 +14,18 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "sharp": "^0.35.5",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@openspace/blocks": "workspace:*",
+    "@openspace/renderer": "workspace:*",
+    "@openspace/schema": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
+    "astro": "^7.4.2",
+    "cookie": "^2.0.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   }
 }

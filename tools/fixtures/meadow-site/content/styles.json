@@ -1,0 +1,15 @@
+{
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.62 0.09 145)",
+      "neutral": "warm",
+      "contrast": "standard"
+    },
+    "pairing": "fraunces-hanken",
+    "density": "airy",
+    "shape": "soft",
+    "buttons": "pill-solid",
+    "motion": "subtle",
+    "imageTreatment": "none"
+  }
+}

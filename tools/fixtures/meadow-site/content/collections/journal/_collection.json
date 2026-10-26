@@ -1,0 +1,34 @@
+{
+  "kind": "blog",
+  "label": "Journal",
+  "slugPattern": "{date}-{title}",
+  "list": {
+    "layout": "cards",
+    "pageSize": 12,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": true,
+    "showRelated": true
+  },
+  "taxonomies": {
+    "categories": [
+      {
+        "slug": "news",
+        "label": "Studio news"
+      },
+      {
+        "slug": "teaching",
+        "label": "On teaching"
+      }
+    ],
+    "tags": true
+  },
+  "feed": {
+    "enabled": true,
+    "title": "Meadow Yoga Journal",
+    "description": "Notes from the studio."
+  }
+}

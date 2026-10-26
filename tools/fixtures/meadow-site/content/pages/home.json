@@ -1,0 +1,181 @@
+{
+  "id": "pg_13fyssvz8c",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Small, unhurried yoga classes on Pearl Street in Boulder."
+  },
+  "sections": [
+    {
+      "id": "sec_ckv18efrck",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_8yqzqzxr34",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Pearl Street · Boulder"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1,
+                    "preset": "display"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Yoga for slow mornings"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Small classes, patient teaching and tea afterwards. Everyone starts somewhere — start here."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0
+        },
+        {
+          "id": "blk_h6rte2ry8k",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "See the class schedule",
+            "link": {
+              "type": "page",
+              "page": "pg_f7jcnz65me"
+            },
+            "role": "primary"
+          },
+          "variant": "large",
+          "column": 0
+        },
+        {
+          "id": "blk_4eq06hgrrf",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "media/2026/10/morning-light.jpg",
+              "alt": "Morning light across the practice room floor",
+              "width": 2400,
+              "height": 1600
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_bh65x73gff",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_93vy1t8qhp",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The first class where nobody rushed me. I've been coming every Saturday since."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Priya Raman",
+            "role": "Member since 2025"
+          },
+          "variant": "large"
+        }
+      ]
+    },
+    {
+      "id": "sec_yxh7rytftw",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_54y4ybmqmz",
+          "type": "newsletter",
+          "v": 1,
+          "fields": {
+            "heading": "Letters from the studio",
+            "description": "One short email a month: new classes, workshops and the occasional recipe.",
+            "askName": false,
+            "placeholder": "you@example.com",
+            "buttonLabel": "Subscribe",
+            "successMessage": "Thanks — check your inbox to confirm."
+          },
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

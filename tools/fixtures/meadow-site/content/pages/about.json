@@ -1,0 +1,117 @@
+{
+  "id": "pg_sat2c09jw4",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Meadow Yoga has taught in Boulder since 2014.",
+    "image": "media/2026/10/studio-open.jpg"
+  },
+  "sections": [
+    {
+      "id": "sec_gyfczqcgtm",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_m4rb9ak6gt",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "About the studio"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We opened in 2014 with six mats and a kettle. The room is bigger now, but the idea hasn't changed: twelve people at most, teachers who learn your name, and time afterwards to sit and talk."
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_gjpc209tvm",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_rgzey5sjt3",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "images": [
+              {
+                "image": {
+                  "src": "media/2026/10/studio-open.jpg",
+                  "alt": "The new studio on Pearl Street with mats laid out",
+                  "width": 1600,
+                  "height": 1067
+                },
+                "caption": "The east room in the morning"
+              },
+              {
+                "image": {
+                  "src": "media/2026/10/tea-after-class.jpg",
+                  "alt": "Cups of tea on a low wooden table after class",
+                  "width": 1600,
+                  "height": 1067
+                },
+                "caption": "Tea after every class"
+              },
+              {
+                "image": {
+                  "src": "media/2026/10/foundations.jpg",
+                  "alt": "A teacher guiding a student into a supported lunge",
+                  "width": 1200,
+                  "height": 1500
+                },
+                "caption": "Saturday Foundations"
+              }
+            ],
+            "aspect": "auto",
+            "columns": "3",
+            "lightbox": true,
+            "showCaptions": true
+          },
+          "variant": "grid"
+        }
+      ]
+    }
+  ]
+}

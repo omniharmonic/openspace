@@ -1,0 +1,95 @@
+{
+  "media/2026/10/morning-light.jpg": {
+    "id": "med_0000000001",
+    "path": "media/2026/10/morning-light.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 27164,
+    "width": 2400,
+    "height": 1600,
+    "alt": "Morning light across the practice room floor",
+    "createdAt": "2026-10-20T15:04:05Z",
+    "placeholder": "data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAADQAQCdASoMAAgABABoJQAAYv/jfieGAAD+52n/8xlqCEdvubwdZoCAAAA="
+  },
+  "media/2026/10/studio-open.jpg": {
+    "id": "med_0000000002",
+    "path": "media/2026/10/studio-open.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 13605,
+    "width": 1600,
+    "height": 1067,
+    "alt": "The new studio on Pearl Street with mats laid out",
+    "createdAt": "2026-10-20T15:04:05Z",
+    "placeholder": "data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAAAQAgCdASoMAAgABABoJZgCdAEf/8UVCaZAAP7rIQBTaOrTvnuWiv2q2l9qoAAA"
+  },
+  "media/2026/10/tea-after-class.jpg": {
+    "id": "med_0000000003",
+    "path": "media/2026/10/tea-after-class.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 13822,
+    "width": 1600,
+    "height": 1067,
+    "alt": "Cups of tea on a low wooden table after class",
+    "createdAt": "2026-10-20T15:04:05Z",
+    "placeholder": "data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAADQAQCdASoMAAgABABoJQBOgCFp30gaAAD+4Jz1pO0DnLCfIw0Z2TvEAAA="
+  },
+  "media/2026/10/foundations.jpg": {
+    "id": "med_0000000004",
+    "path": "media/2026/10/foundations.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 14914,
+    "width": 1200,
+    "height": 1500,
+    "alt": "A teacher guiding a student into a supported lunge",
+    "createdAt": "2026-10-20T15:04:05Z",
+    "placeholder": "data:image/webp;base64,UklGRjgAAABXRUJQVlA4ICwAAADwAQCdASoMAA8ABABoJYwCdAEfTjEk3gAA/ufoY2xz2ZPyovwvxI4e8pgAAA=="
+  },
+  "media/2026/11/retreat-meadow.jpg": {
+    "id": "med_0000000005",
+    "path": "media/2026/11/retreat-meadow.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 16711,
+    "width": 1800,
+    "height": 1200,
+    "alt": "A meadow at the foothills at dusk",
+    "createdAt": "2026-10-20T15:04:05Z",
+    "placeholder": "data:image/webp;base64,UklGRjIAAABXRUJQVlA4ICYAAACQAQCdASoMAAgABABoJQAAWtRjfeAA/uCXyMTd/7mCC38qT+QAAA=="
+  },
+  "media/2026/11/bolster.jpg": {
+    "id": "med_0000000006",
+    "path": "media/2026/11/bolster.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 11941,
+    "width": 1200,
+    "height": 1200,
+    "alt": "A linen-covered bolster in oatmeal",
+    "createdAt": "2026-10-20T15:04:05Z",
+    "placeholder": "data:image/webp;base64,UklGRjgAAABXRUJQVlA4ICwAAAAQAgCdASoMAAwABABoJQBOgCP/9nSW3BAAAP7rIQHhO8xAGqkQZAdkGYAAAA=="
+  },
+  "media/brand/logo.png": {
+    "id": "med_0000000007",
+    "path": "media/brand/logo.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 5203,
+    "width": 480,
+    "height": 144,
+    "alt": "Meadow Yoga",
+    "createdAt": "2026-10-20T15:04:05Z",
+    "placeholder": "data:image/webp;base64,UklGRjAAAABXRUJQVlA4ICQAAACwAQCdASoMAAQABABoJQBOgB5fszUAAPDOBf2TRW0mXeIAAAA="
+  },
+  "media/podcast/slow-mornings-01.mp3": {
+    "id": "med_a00000000a",
+    "path": "media/podcast/slow-mornings-01.mp3",
+    "kind": "audio",
+    "mime": "audio/mpeg",
+    "bytes": 10008,
+    "duration": 1520,
+    "createdAt": "2026-10-20T15:04:05Z"
+  }
+}

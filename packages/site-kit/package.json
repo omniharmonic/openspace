@@ -1,7 +1,7 @@
 {
   "name": "@openspace/site-kit",
   "version": "0.1.0",
-  "description": "OpenSpace site-kit package.",
+  "description": "OpenSpace site-kit: the Astro integration that builds and publishes an OpenSpace site.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -12,6 +12,30 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./content": {
+      "types": "./src/content/index.ts",
+      "default": "./src/content/index.ts"
+    },
+    "./route": {
+      "types": "./src/runtime/route.ts",
+      "default": "./src/runtime/route.ts"
+    },
+    "./cloudflare": {
+      "types": "./src/cloudflare/index.ts",
+      "default": "./src/cloudflare/index.ts"
+    },
+    "./cloudflare/gated": {
+      "types": "./src/cloudflare/endpoints/gated.ts",
+      "default": "./src/cloudflare/endpoints/gated.ts"
+    },
+    "./cloudflare/auth-callback": {
+      "types": "./src/cloudflare/endpoints/auth-callback.ts",
+      "default": "./src/cloudflare/endpoints/auth-callback.ts"
+    },
+    "./cloudflare/password": {
+      "types": "./src/cloudflare/endpoints/password.ts",
+      "default": "./src/cloudflare/endpoints/password.ts"
     }
   },
   "publishConfig": {
@@ -20,6 +44,30 @@
       ".": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "./content": {
+        "types": "./dist/content/index.d.ts",
+        "default": "./dist/content/index.js"
+      },
+      "./route": {
+        "types": "./dist/runtime/route.d.ts",
+        "default": "./dist/runtime/route.js"
+      },
+      "./cloudflare": {
+        "types": "./dist/cloudflare/index.d.ts",
+        "default": "./dist/cloudflare/index.js"
+      },
+      "./cloudflare/gated": {
+        "types": "./dist/cloudflare/endpoints/gated.d.ts",
+        "default": "./dist/cloudflare/endpoints/gated.js"
+      },
+      "./cloudflare/auth-callback": {
+        "types": "./dist/cloudflare/endpoints/auth-callback.d.ts",
+        "default": "./dist/cloudflare/endpoints/auth-callback.js"
+      },
+      "./cloudflare/password": {
+        "types": "./dist/cloudflare/endpoints/password.d.ts",
+        "default": "./dist/cloudflare/endpoints/password.js"
       }
     }
   },
@@ -29,9 +77,38 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@astrojs/cloudflare": "^14.4.2",
     "@types/node": "catalog:",
+    "astro": "^7.4.2",
+    "sharp": "^0.35.5",
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "wrangler": "^4.152.0"
+  },
+  "dependencies": {
+    "@fontsource/hanken-grotesk": "^5.3.0",
+    "@markdoc/markdoc": "^0.5.10",
+    "@openspace/blocks": "workspace:*",
+    "@openspace/renderer": "workspace:*",
+    "@openspace/schema": "workspace:*",
+    "@openspace/theme": "workspace:*",
+    "@resvg/resvg-js": "^2.6.2",
+    "esbuild": "^0.27.7",
+    "pagefind": "^1.5.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "satori": "^0.63.2",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "peerDependencies": {
+    "@astrojs/cloudflare": "^14.4.2",
+    "astro": "^7.4.2"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/cloudflare": {
+      "optional": true
+    }
   }
 }
