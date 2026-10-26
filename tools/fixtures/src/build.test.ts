@@ -190,8 +190,11 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
       expect.arrayContaining(["form", "newsletter", "lightbox", "accordion", "menu"]),
     );
     // Behaviors nobody uses are not published.
-    for (const b of ["carousel", "cart", "popup", "tabs", "marquee", "beacon"])
+    for (const b of ["carousel", "popup", "tabs", "marquee", "beacon"])
       expect(shipped).not.toContain(b);
+    // The cart ships only for product pages (blocks B product block), never elsewhere.
+    if (shipped.includes("cart"))
+      expect(await read(out, "shop/linen-bolster/index.html")).toContain("/_os/behaviors/cart.js");
     expect(
       shipped.every((b) => b === "os-behaviors" || (BEHAVIORS as readonly string[]).includes(b)),
     ).toBe(true);
@@ -201,6 +204,7 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
     expect(contact).toContain("/_os/behaviors/form.js");
     expect(about).not.toContain("/_os/behaviors/form.js");
     expect(about).toContain("/_os/behaviors/lightbox.js");
+    expect(about).not.toContain("/_os/behaviors/cart.js");
     // Content pages stay well under the 30 KB JS budget.
     let total = 0;
     for (const f of js.filter((x) => x.startsWith("_os/behaviors/")))
