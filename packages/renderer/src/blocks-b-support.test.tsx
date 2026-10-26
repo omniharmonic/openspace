@@ -50,8 +50,20 @@ describe("header landmarks", () => {
 });
 
 describe("select height", () => {
-  it("single-line selects get the text-input height in os.css", () => {
-    expect(BASE_CSS).toContain(".os-select:not([multiple]){height:calc(2.8em + 2px)}");
+  it("single-line selects get exactly the text-input box height in os.css", () => {
+    // Derive the input's border-box height from its own rule (padding + line-height + border)
+    // and check the select height matches it, so the two can't drift apart silently.
+    const rule = /\.os-input,\.os-textarea,\.os-select\{([^}]*)\}/.exec(BASE_CSS)?.[1] ?? "";
+    const pad = Number(/padding:([\d.]+)em [\d.]+em/.exec(rule)?.[1]);
+    const lh = Number(/line-height:([\d.]+)(?:;|$)/.exec(rule)?.[1]);
+    const border = Number(/border:(\d+)px solid/.exec(rule)?.[1]);
+    expect([pad, lh, border].every(Number.isFinite)).toBe(true);
+    const em = Math.round((2 * pad + lh) * 100) / 100;
+    expect(BASE_CSS).toContain(
+      `.os-select:not([multiple]){height:calc(${em}em + ${2 * border}px)}`,
+    );
+    // Both share min-height, so neither can end up taller than the other.
+    expect(rule).toContain("min-height:3rem");
   });
 });
 
@@ -72,6 +84,10 @@ describe("form: required checkbox groups", () => {
       .mockResolvedValue(new Response("{}", { status: 200 }));
     const f = document.querySelector("form") as HTMLFormElement;
     form(f);
+    // Tabbing through the boxes before any submit attempt raises no error.
+    for (const b of f.querySelectorAll("input")) b.dispatchEvent(new Event("blur"));
+    expect(f.querySelector(".os-field__error")?.textContent).toBe("");
+    expect(f.querySelector("input")?.hasAttribute("aria-invalid")).toBe(false);
     f.dispatchEvent(new Event("submit", { cancelable: true }));
     await flush();
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -168,7 +184,8 @@ describe("video-lite: generic lazy embeds", () => {
     videoLite(el);
     (el.querySelector("[data-os-load]") as HTMLButtonElement).click();
     const iframe = el.querySelector("iframe");
-    expect(iframe?.getAttribute("src")).toBe("https://cal.com/maya/30min/embed?autoplay=1");
+    expect(iframe?.getAttribute("src")).toBe("https://cal.com/maya/30min/embed");
+    expect(iframe?.getAttribute("allow")).toBeNull();
     expect(iframe?.title).toBe("Booking");
     err.mockRestore();
   });
@@ -270,6 +287,13 @@ describe("collections", () => {
     ).toEqual(["past"]);
     expect(isUpcoming(events.today, new Date("2026-10-26T23:59:00Z"))).toBe(true);
     expect(isUpcoming(events.today, new Date("2026-10-27T00:00:01Z"))).toBe(false);
+    // In the event's own zone: 03:00 UTC on the 27th is still the evening of the 26th in Denver.
+    const denver = {
+      ...events.today,
+      frontmatter: { ...events.today.frontmatter, timezone: "America/Denver" },
+    } as CollectionItem;
+    expect(isUpcoming(denver, new Date("2026-10-27T03:00:00Z"))).toBe(true);
+    expect(isUpcoming(denver, new Date("2026-10-27T07:00:00Z"))).toBe(false);
   });
 
   it("CollectionsContext overrides the document's collections, time and feeds", () => {

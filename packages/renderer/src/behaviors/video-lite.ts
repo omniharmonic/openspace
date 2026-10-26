@@ -35,11 +35,13 @@ export default function videoLite(el: HTMLElement): void {
         return;
       }
       if (url.protocol !== "https:") return;
-      url.searchParams.set("autoplay", "1");
+      // Videos start playing on the click that loaded them; other embeds (calendars) don't.
+      const isVideo = button.classList.contains("os-video__play");
+      if (isVideo) url.searchParams.set("autoplay", "1");
       const iframe = document.createElement("iframe");
       iframe.src = url.toString();
       iframe.title = el.dataset.osTitle ?? "Video";
-      iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+      if (isVideo) iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
       iframe.allowFullscreen = true;
       iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
       el.replaceChildren(iframe);

@@ -108,8 +108,13 @@ export default function form(el: HTMLElement): void {
     [...f.elements].filter(
       (x): x is HTMLInputElement => "checkValidity" in x && (x as HTMLInputElement).name !== "",
     );
+  // "Pick at least one" groups are only checked on blur once a submit has been attempted, so
+  // tabbing through the boxes never raises an error before the visitor has had a chance.
+  let attempted = false;
   for (const field of fields()) {
+    const inGroup = field.type === "checkbox" && !!field.closest("[data-os-required-group]");
     field.addEventListener("blur", () => {
+      if (inGroup && !attempted) return;
       if (field.value !== "" || field.getAttribute("aria-invalid") === "true") validate(field);
     });
     field.addEventListener(field.type === "checkbox" ? "change" : "input", () => {
@@ -121,6 +126,7 @@ export default function form(el: HTMLElement): void {
 
   f.addEventListener("submit", async (e) => {
     e.preventDefault();
+    attempted = true;
     // One entry per invalid control; a required group counts once (its first box).
     const seen = new Set<Element>();
     const invalid = fields().filter((x) => {
