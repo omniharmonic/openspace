@@ -1,0 +1,132 @@
+.st-upd-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 6px 6px 12px;
+  border-radius: var(--st-r);
+  background: var(--st-panel-raised);
+  box-shadow: var(--st-shadow-pop);
+}
+
+.st-upd-banner__icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--st-accent-text);
+}
+
+.st-upd-banner[data-security] .st-upd-banner__icon {
+  color: var(--st-danger);
+}
+
+.st-upd-banner__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.st-upd-banner__text strong {
+  font-weight: 600;
+}
+
+.st-upd-banner__detail {
+  overflow: hidden;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-upd {
+  display: grid;
+  gap: 14px;
+}
+
+.st-upd__log {
+  display: grid;
+  gap: 10px;
+}
+
+.st-upd__version ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: var(--st-text-2);
+  line-height: 1.5;
+}
+
+.st-upd__vtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--st-fs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-upd__vtitle svg {
+  width: 12px;
+  height: 12px;
+}
+
+.st-upd__frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--st-r-sm);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--st-line);
+}
+
+.st-upd__frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.st-upd__muted {
+  margin: 0;
+  color: var(--st-text-2);
+  line-height: 1.45;
+}
+
+.st-upd__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.st-upd__error {
+  margin: 0;
+  color: var(--st-danger);
+}
+
+.st-upd__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.st-upd__spacer {
+  flex: 1;
+}
+
+@media (max-width: 767px) {
+  .st-upd-banner .st-button {
+    --_h: 44px;
+  }
+
+  .st-upd-banner .st-icon-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .st-upd__foot {
+    flex-wrap: wrap;
+  }
+}

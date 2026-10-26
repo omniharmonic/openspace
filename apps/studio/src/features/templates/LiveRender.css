@@ -1,0 +1,36 @@
+.st-render {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--st-field);
+  contain: paint;
+}
+
+.st-render__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  background: #fff;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.st-render--interactive .st-render__frame {
+  pointer-events: auto;
+}
+
+.st-render__placeholder {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--st-field) 0%, var(--st-hover) 40%, var(--st-field) 80%);
+  background-color: var(--st-field);
+  background-size: 300% 100%;
+  animation: st-shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-render__placeholder {
+    animation: none;
+  }
+}

@@ -19,6 +19,15 @@
   transform: scale(calc(100cqw / (var(--_fw) * 1px)));
 }
 
+/* Interactive previews show one device screen and scroll inside. */
+.st-tpreview--device {
+  aspect-ratio: 1 / var(--_ar);
+}
+
+.st-tpreview--device .st-tpreview__frame {
+  height: calc(var(--_fw) * var(--_ar) * 1px);
+}
+
 .st-tpreview__img {
   display: block;
   width: 100%;

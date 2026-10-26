@@ -20,7 +20,7 @@ import {
 import { normalizeHex } from "../../ui/color";
 import { SignInPanel } from "../auth/SignInPanel";
 import { LookPicker } from "../templates/LookPicker";
-import { SiteSketch } from "../templates/SiteSketch";
+import { TemplatePreview } from "../templates/TemplatePreview";
 import { BuildingProgress } from "./BuildingProgress";
 import { clearDraft, loadDraft, type SiteDraft, saveDraft } from "./draft";
 import "./NewSite.css";
@@ -360,12 +360,17 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
         </section>
         <section className="st-new__preview-col" aria-label="Preview">
           <div className="st-new__preview">
-            <SiteSketch
-              styles={look.styles}
-              name={draft.name.trim() || sample.name}
-              tagline={draft.tagline.trim() || (draft.name.trim() ? "" : sample.tagline)}
-              logo={draft.logo}
-              accent={draft.brandColor}
+            <TemplatePreview
+              template={template}
+              look={look}
+              eager
+              title={`Preview of ${draft.name.trim() || sample.name}`}
+              personalize={{
+                name: draft.name.trim() || sample.name,
+                tagline: draft.tagline.trim() || (draft.name.trim() ? "" : sample.tagline),
+                logo: draft.logo,
+                brandColor: draft.brandColor,
+              }}
             />
           </div>
           <div className="st-new__look">

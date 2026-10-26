@@ -6,7 +6,7 @@ import type { TemplateLook, TemplateSummary } from "../../api/types";
 import { useConfig } from "../../app/config";
 import { Wordmark } from "../../app/Wordmark";
 import { Button, cx, Spinner } from "../../ui";
-import { SiteSketch } from "../templates/SiteSketch";
+import { TemplateRender } from "../templates/TemplateRender";
 import "./BuildingProgress.css";
 import type { SiteDraft } from "./draft";
 
@@ -170,13 +170,20 @@ export function BuildingProgress({ siteId, template, look, draft, onDone }: Buil
             </span>
             {finished && <span className="st-building__live">Live</span>}
           </div>
-          <SiteSketch
-            styles={look.styles}
-            name={draft.name}
-            tagline={draft.tagline}
-            logo={draft.logo}
-            accent={draft.brandColor}
-            reveal={failed ? step : Math.min(step + 1, 4)}
+          <TemplateRender
+            template={template}
+            look={look}
+            eager
+            aspect={0.66}
+            title={`Preview of ${draft.name}`}
+            personalize={{
+              name: draft.name,
+              tagline: draft.tagline,
+              logo: draft.logo,
+              brandColor: draft.brandColor,
+            }}
+            // The page assembles as the steps advance: header, then section by section.
+            sections={failed ? step : finished ? undefined : Math.min(step + 1, 4)}
           />
         </div>
       </div>

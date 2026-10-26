@@ -1,5 +1,6 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument, Styles } from "@openspace/schema";
 import type { BuildState, PublishError, RoomSocket } from "../features/sync/protocol";
+import type { CatalogApi } from "./catalog-types";
 import type { GrowthApi } from "./growth-types";
 import type { ManageApi } from "./manage-types";
 
@@ -49,6 +50,8 @@ export interface TemplateLook {
   id: string;
   name: string;
   styles: LookStyles;
+  /** The look's complete Site Styles (`content/styles.json`), when the Hub sends them. */
+  siteStyles?: Styles;
 }
 
 /** `GET /api/templates` item. */
@@ -65,6 +68,8 @@ export interface TemplateSummary {
   thumbnailUrl?: string | null;
   /** Live preview page; `?look=<id>` selects a look. */
   previewUrl?: string | null;
+  /** Template version (semver). */
+  version?: string;
 }
 
 export type SiteStatus = "building" | "live" | "failed";
@@ -126,8 +131,9 @@ export interface GitHubSignInParams {
 /**
  * `ManageApi`: site-management routes (Task 24, ./manage-types.ts). `GrowthApi`: inbox,
  * subscribers, analytics, commerce, members and email (Task 25, ./growth-types.ts).
+ * `CatalogApi`: template documents and kit updates (Task 26, ./catalog-types.ts).
  */
-export interface HubApi extends ManageApi, GrowthApi {
+export interface HubApi extends ManageApi, GrowthApi, CatalogApi {
   readonly kind: "http" | "mock";
   getSession(): Promise<Session>;
   devLogin(name: string): Promise<User>;

@@ -73,6 +73,7 @@ function PreviewDialog({
             look={look}
             frameWidth={DEVICE_WIDTH[device]}
             interactive
+            eager
           />
         </div>
       </div>

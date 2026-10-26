@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vite-plugin-pwa/vanillajs" />
 
 interface ImportMetaEnv {
   /** Base URL of the OpenSpace Hub. Defaults to http://localhost:8787. */

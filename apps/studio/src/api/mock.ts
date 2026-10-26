@@ -2,6 +2,7 @@ import { deepEqual, diff, summarize } from "@openspace/ops";
 import { newId, type SiteDocument } from "@openspace/schema";
 import { devSiteDocument } from "../features/editor/model/dev-site";
 import type { BuildNotice, PublishError } from "../features/sync/protocol";
+import { type CatalogMockState, createCatalogMock } from "./catalog-mock";
 import { demoSites, TEMPLATE_FIXTURES } from "./fixtures";
 import { demoCollections } from "./growth-fixtures";
 import { createGrowthMock, type GrowthMockState } from "./growth-mock";
@@ -105,6 +106,8 @@ export interface MockHub extends HubApi {
   readonly calls: Array<{ method: keyof HubApi; args: unknown[] }>;
   /** Site-management state (domains, collaborators, uploads, hosting…; Task 24). */
   readonly manage: ManageMockState;
+  /** Kit updates (Task 26). */
+  readonly catalog: CatalogMockState;
   /** Inbox, subscribers, commerce, members and email state (Task 25). */
   readonly growth: GrowthMockState;
   /** The site's in-memory draft room (created on first use). */
@@ -216,6 +219,15 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   };
 
   const manage = createManageMock({ calls, wait, requireUser, findSite, now });
+  const catalog = createCatalogMock({
+    calls,
+    wait,
+    requireUser,
+    findSite,
+    now,
+    templates: () => templates,
+    save: () => save(),
+  });
   const demoContent = options.demoContent ?? options.sites === "demo";
   const growth = createGrowthMock({
     calls,
@@ -421,12 +433,14 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
 
   const hub: MockHub = {
     ...manage.api,
+    ...catalog.api,
     ...growth.api,
     ...growth.overrides,
     kind: "mock",
     state,
     calls,
     manage: manage.state,
+    catalog: catalog.state,
     growth: growth.state,
 
     room(siteId) {

@@ -188,12 +188,19 @@ export const EDITOR_SHORTCUTS: ShortcutDef[] = [
     group: "Panels",
     run: (e) => e.toggleChrome(),
   },
-  ...[1, 2, 3, 4, 5, 6].map(
+  ...[1, 2, 3, 4, 5, 6, 7, 8].map(
     (n): ShortcutDef => ({
       keys: [`alt+${n}`],
-      label: ["Pages", "Layers", "Add section", "Site styles", "Media", "Header & footer"][
-        n - 1
-      ] as string,
+      label: [
+        "Pages",
+        "Layers",
+        "Add section",
+        "Site styles",
+        "Media",
+        "Header & footer",
+        "Design check",
+        "Try a new look",
+      ][n - 1] as string,
       group: "Panels",
       run: (e) => e.openPanel(n - 1),
     }),

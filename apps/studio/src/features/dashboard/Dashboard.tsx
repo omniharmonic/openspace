@@ -42,7 +42,7 @@ import {
   useRegisterCommands,
 } from "../../ui";
 import { displayUrl } from "../onboarding/BuildingProgress";
-import { SiteSketch } from "../templates/SiteSketch";
+import { TemplateRender } from "../templates/TemplateRender";
 import "./Dashboard.css";
 
 type View = "cards" | "gardener";
@@ -270,8 +270,14 @@ function SiteCard({
         tabIndex={-1}
         aria-hidden="true"
       >
-        {look ? (
-          <SiteSketch styles={look.styles} name={site.name} tagline={site.tagline} />
+        {look && template ? (
+          <TemplateRender
+            template={template}
+            look={look}
+            aspect={9 / 16}
+            title={`Preview of ${site.name}`}
+            personalize={{ name: site.name, tagline: site.tagline ?? undefined }}
+          />
         ) : (
           <div className="st-sitecard__blank" />
         )}
