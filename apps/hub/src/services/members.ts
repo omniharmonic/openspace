@@ -245,12 +245,59 @@ export async function consumeMagicLink(
     .prepare("UPDATE members SET last_login_at = ?, updated_at = ? WHERE id = ?")
     .bind(now, now, member.id)
     .run();
+  return { redirect: await memberCallbackUrl(services, site, member, row.return_to), member };
+}
+
+/** The site's `/_os/auth/callback?token=…&return=…` with a fresh Hub-signed member token. */
+export async function memberCallbackUrl(
+  services: Services,
+  site: SiteRow,
+  member: MemberRow,
+  returnTo: string | null | undefined,
+): Promise<string> {
   const jwt = await memberToken(services, site, member);
   const base = siteBaseUrl(site, services.config.hubUrl);
   const callback = new URL("_os/auth/callback", base);
   callback.searchParams.set("token", jwt);
-  callback.searchParams.set("return", memberReturnPath(base, row.return_to));
-  return { redirect: callback.toString(), member };
+  callback.searchParams.set("return", memberReturnPath(base, returnTo));
+  return callback.toString();
+}
+
+// ---- silent re-sign-in (Hub cookie) ---------------------------------------------------------------
+
+/**
+ * Site sessions are short (a day, see site-kit's `MEMBER_SESSION_TTL`). After a sign-in link was
+ * used, the Hub remembers the member on its own domain (this cookie, scoped to the site's `/m/`
+ * paths) so the site can send them back through `/m/:siteId/login` and get a fresh token —
+ * carrying their *current* tier — without another email. Blocked or deleted members don't.
+ */
+export const HUB_MEMBER_COOKIE = "os_hub_member";
+export const HUB_MEMBER_TTL_SEC = 60 * 60 * 24 * 30;
+
+export async function hubMemberCookieValue(services: Services, siteId: string, memberId: string) {
+  return signPreviewValue(
+    services,
+    siteId,
+    { kind: "hub-member", sub: memberId },
+    HUB_MEMBER_TTL_SEC,
+  );
+}
+
+/** The member a Hub re-sign-in cookie names, if it is valid and they are still active. */
+export async function rememberedMember(
+  services: Services,
+  siteId: string,
+  raw: string | undefined,
+): Promise<MemberRow | null> {
+  const v = await readPreviewValue(services, siteId, raw);
+  if (v?.kind !== "hub-member" || typeof v.sub !== "string") return null;
+  const m = await getMember(services.db, siteId, v.sub);
+  if (m?.status !== "active") return null;
+  await services.db
+    .prepare("UPDATE members SET last_login_at = ?, updated_at = ? WHERE id = ?")
+    .bind(services.now(), services.now(), m.id)
+    .run();
+  return m;
 }
 
 /** The Hub-signed member token (claims match site-kit's `HubClaims`). */

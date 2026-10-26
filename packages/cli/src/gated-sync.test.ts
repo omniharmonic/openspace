@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { afterAll, describe, expect, it } from "vitest";
 import { gatedBucketName, runGatedSync, sealedStubs } from "./gated-sync";
 import { captureIo } from "./io";
-import { cleanup, editJson, meadowCopy } from "./test-helpers";
+import { cleanup, cli, editJson, meadowCopy } from "./test-helpers";
 
 afterAll(cleanup);
 
@@ -106,5 +106,12 @@ describe("openspace gated-sync", () => {
       runGatedSync(captureIo(dir, env).io, {}, { fetch, wrangler: async () => 0 }),
     ).rejects.toThrow(/missing private page content/);
     await expect(runGatedSync(captureIo(dir).io, {}, { fetch })).rejects.toThrow(/id-token/);
+  });
+
+  it("sealed stubs pass `openspace check`", async () => {
+    const dir = await cloudflareSite();
+    const r = await cli(dir, ["check", "--json"]);
+    const report = JSON.parse(r.out) as { ok: boolean; issues?: Array<{ message: string }> };
+    expect(report.ok, r.out.slice(0, 2000)).toBe(true);
   });
 });
