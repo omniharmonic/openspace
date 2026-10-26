@@ -119,14 +119,12 @@ function ratio(aspect: AspectRatio | undefined): string | undefined {
 const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
 
 /**
- * Above-the-fold images in the page's first section. Provided per render by `SectionView`:
- * the first two there (the likely LCP element) load eagerly with `fetchpriority="high"`;
- * every other image loads lazily unless `priority` is set.
+ * Above-the-fold images: the sources `SectionView` picked for the page's first section (the
+ * first two in reading order, background first — the likely LCP element). Those load eagerly
+ * with `fetchpriority="high"`; every other image loads lazily unless `priority` is set. A plain
+ * value computed from the section, so rendering stays pure.
  */
-export interface AboveFold {
-  /** High-priority fetches left for this section. */
-  high: number;
-}
+export type AboveFold = ReadonlySet<string>;
 export const AboveFoldContext = createContext<AboveFold | null>(null);
 
 /**
@@ -155,13 +153,9 @@ export function Img(props: ImgProps) {
   if (focal) style["--focal"] = `${pct(focal[0])} ${pct(focal[1])}`;
   const imgStyle = r.placeholder ? { backgroundImage: `url("${r.placeholder}")` } : undefined;
   const fold = useContext(AboveFoldContext);
-  let high = props.priority === true;
-  if (props.priority !== false && fold && fold.high > 0) {
-    fold.high--;
-    high = true;
-  }
   // Later images in the first section stay lazy: on phones they're below the fold, and on
   // larger screens the browser still fetches lazy images that are in view right away.
+  const high = props.priority ?? fold?.has(src) ?? false;
   const eager = high;
   return (
     <span

@@ -164,6 +164,29 @@ describe("renderPageHtml", () => {
 });
 
 describe("published page details", () => {
+  it("picks the first two images of a section in reading order, background first", async () => {
+    const { leadImages } = await import("./section");
+    const section = {
+      style: { background: { type: "image", src: "media/bg.jpg" } },
+      layout: { mode: "stack", columns: { d: [6, 6] } },
+      blocks: [
+        {
+          id: "b1",
+          type: "image",
+          column: 1,
+          fields: { image: { src: "media/right.jpg", alt: "" } },
+        },
+        {
+          id: "b2",
+          type: "image",
+          column: 0,
+          fields: { image: { src: "media/left.jpg", alt: "" } },
+        },
+      ],
+    } as never;
+    expect([...leadImages(section)]).toEqual(["media/bg.jpg", "media/left.jpg"]);
+  });
+
   it("gives sites without a tab icon an inline monogram (no /favicon.ico 404)", () => {
     const doc = siteFixture();
     const bare = { ...doc, site: { ...doc.site, favicon: null } } as typeof doc;
@@ -173,7 +196,7 @@ describe("published page details", () => {
     expect(decodeURIComponent(icon ?? "")).toContain(">M</text>");
   });
 
-  it("loads the first two first-section images eagerly at high priority; the rest lazily", () => {
+  it("loads the images the first section picked eagerly at high priority; the rest lazily", () => {
     const img = (src: string) =>
       createElement(Img, { src: `https://example.com/${src}.jpg`, alt: "" });
     const html = renderToStaticMarkup(
@@ -182,7 +205,7 @@ describe("published page details", () => {
         null,
         createElement(
           AboveFoldContext.Provider,
-          { value: { high: 2 } },
+          { value: new Set(["https://example.com/a.jpg", "https://example.com/b.jpg"]) },
           img("a"),
           img("b"),
           img("c"),

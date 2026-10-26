@@ -5,6 +5,7 @@ import { BlockView, MissingBlock } from "./block";
 import { SectionContext, useEditor, useRenderContext } from "./context";
 import { type CssVars, cx } from "./cx";
 import { AboveFoldContext, Img } from "./image";
+import { collectImageSrcs } from "./image-map";
 import {
   blocksByColumn,
   colorValue,
@@ -178,6 +179,24 @@ export interface SectionViewProps {
   children?: ReactNode;
 }
 
+/** The first two image sources of a section in reading order (background first). */
+export function leadImages(section: Section, count = 2): ReadonlySet<string> {
+  const layout = section.layout;
+  const blocks =
+    layout.mode === "stack"
+      ? [...section.blocks].sort((a, b) => (a.column ?? 0) - (b.column ?? 0))
+      : [...section.blocks].sort((a, b) => {
+          const ra = layout.items[a.id]?.d;
+          const rb = layout.items[b.id]?.d;
+          return ra && rb ? ra.y - rb.y || ra.x - rb.x : 0;
+        });
+  const srcs = new Set<string>();
+  const bg = section.style.background;
+  if (bg?.type === "image" && bg.src) srcs.add(bg.src);
+  for (const b of blocks) collectImageSrcs(b.fields, srcs);
+  return new Set([...srcs].slice(0, count));
+}
+
 /**
  * A page section: color-theme wrapper, background layer, then the stack or grid body. Every
  * per-instance value is an inline custom property; classes come from the shared stylesheet.
@@ -219,7 +238,7 @@ export function SectionView({ section, as: Tag = "section", className }: Section
       {...reveal}
     >
       <SectionContext.Provider value={section}>
-        <AboveFoldContext.Provider value={first ? { high: 2 } : null}>
+        <AboveFoldContext.Provider value={first ? leadImages(section) : null}>
           <SectionBackgroundLayer background={style.background} />
           {layout.mode === "stack" ? (
             <StackBody section={section as Section & { layout: { mode: "stack" } }} />
