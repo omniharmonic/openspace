@@ -16,6 +16,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@openspace/blocks": "workspace:*",
+    "@openspace/lint": "workspace:*",
     "@openspace/ops": "workspace:*",
     "@openspace/renderer": "workspace:*",
     "@openspace/schema": "workspace:*",

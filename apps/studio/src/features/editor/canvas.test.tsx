@@ -238,14 +238,14 @@ describe("canvas", () => {
     expect(label.textContent).toBe("See the schedule");
   });
 
-  it("adds a section from a starter and switches pages", async () => {
+  it("adds a section from the preset gallery and switches pages", async () => {
     const { doc, user } = await openCanvas();
     const before = doc.querySelectorAll("main [data-os-section]").length;
     act(() => {
       fireEvent.keyDown(window, { key: "£", code: "Digit3", altKey: true });
     });
-    const add = await screen.findByRole("list", { name: "Section starters" });
-    await user.click(within(add).getByRole("button", { name: /Text and image/ }));
+    const add = await screen.findByRole("complementary", { name: "Add section" });
+    await user.click(within(add).getByRole("button", { name: /^Story with portrait/ }));
     expect(doc.querySelectorAll("main [data-os-section]").length).toBe(before + 1);
 
     act(() => {

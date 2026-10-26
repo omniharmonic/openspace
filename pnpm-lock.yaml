@@ -99,6 +99,9 @@ importers:
       '@openspace/blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
+      '@openspace/lint':
+        specifier: workspace:*
+        version: link:../../packages/lint
       '@openspace/ops':
         specifier: workspace:*
         version: link:../../packages/ops

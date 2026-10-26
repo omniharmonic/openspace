@@ -1,0 +1,250 @@
+/* ---------- Live preview frame ---------- */
+.st-preview {
+  position: relative;
+  overflow: hidden;
+  flex: none;
+  border-radius: var(--st-r-sm);
+  background: var(--st-field);
+  box-shadow: inset 0 0 0 1px var(--st-line);
+  contain: strict;
+}
+
+.st-preview__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  background: #fff;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+/* ---------- Preset gallery ---------- */
+.st-gal {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.st-gal__bar {
+  display: grid;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--st-line);
+}
+
+.st-gal__bar .st-input svg {
+  width: 13px;
+  height: 13px;
+  margin-left: 8px;
+  color: var(--st-text-3);
+}
+
+.st-gal__main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.st-gal__cats {
+  display: grid;
+  align-content: start;
+  gap: 1px;
+  width: 196px;
+  flex: none;
+  overflow: auto;
+  padding: 8px;
+  border-right: 1px solid var(--st-line);
+}
+
+.st-gal__cat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: none;
+  color: var(--st-text-2);
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.st-gal__cat span {
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-gal__cat:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-gal__cat[aria-current="true"] {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-text);
+  font-weight: 600;
+}
+
+.st-gal__cat:focus-visible {
+  outline: none;
+  box-shadow: var(--st-focus);
+}
+
+.st-gal__list {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  padding: 4px 12px 24px;
+  scrollbar-width: thin;
+}
+
+.st-gal__group-title {
+  position: sticky;
+  top: -4px;
+  z-index: 1;
+  margin: 0 -12px;
+  padding: 10px 12px 6px;
+  background: var(--st-panel);
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.st-gal__grid {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.st-gal--dialog .st-gal__grid {
+  grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+  padding-top: 12px;
+}
+
+.st-gal__card {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--st-text);
+  font: inherit;
+  text-align: left;
+  cursor: default;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 180px;
+}
+
+.st-gal__card .st-preview {
+  margin-bottom: 4px;
+  transition: box-shadow var(--st-fast) var(--st-ease);
+}
+
+.st-gal__card:hover .st-preview {
+  box-shadow:
+    inset 0 0 0 1px var(--st-line-strong),
+    0 0 0 3px var(--st-accent-soft);
+}
+
+.st-gal__card:focus-visible {
+  outline: none;
+}
+
+.st-gal__card:focus-visible .st-preview {
+  box-shadow: var(--st-focus);
+}
+
+.st-gal__card:disabled {
+  opacity: 0.5;
+}
+
+.st-gal__name {
+  font-weight: 600;
+  font-size: var(--st-fs-sm);
+}
+
+.st-gal__desc {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  line-height: 1.4;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.st-gal__empty {
+  padding: 24px 0;
+  color: var(--st-text-3);
+  text-align: center;
+}
+
+.st-gal-dialog {
+  height: min(760px, calc(100vh - 64px));
+  display: flex;
+  flex-direction: column;
+}
+
+.st-gal-dialog .st-gal {
+  flex: 1;
+  min-height: 0;
+  margin: 0 -20px -20px;
+  border-top: 1px solid var(--st-line);
+}
+
+/* ---------- Block menu ---------- */
+.st-blockmenu__where {
+  margin: 0;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--st-line);
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+}
+
+.st-blockmenu__list {
+  max-height: min(440px, 60vh);
+}
+
+.st-blockmenu__item {
+  min-height: 40px;
+  align-items: center;
+}
+
+.st-blockmenu .st-blockmenu__item svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: var(--st-text-2);
+}
+
+.st-blockmenu__text {
+  display: grid;
+  min-width: 0;
+}
+
+.st-blockmenu__desc {
+  overflow: hidden;
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 767px) {
+  .st-gal__cats {
+    display: none;
+  }
+
+  .st-gal-dialog {
+    height: calc(100vh - 32px);
+  }
+}

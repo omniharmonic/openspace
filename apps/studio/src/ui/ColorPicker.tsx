@@ -95,10 +95,17 @@ export interface ColorPickerPanelProps {
   value: ColorValue | null;
   onChange: (value: ColorValue) => void;
   tokens: ReadonlyArray<ColorToken>;
+  /** Offer the "Exact" escape hatch (default true; Studio limits it to designers). */
+  allowExact?: boolean;
 }
 
 /** Picker body: palette tokens first, "Exact" color as escape hatch. */
-export function ColorPickerPanel({ value, onChange, tokens }: ColorPickerPanelProps) {
+export function ColorPickerPanel({
+  value,
+  onChange,
+  tokens,
+  allowExact = true,
+}: ColorPickerPanelProps) {
   const [mode, setMode] = useState<"palette" | "exact">(
     value?.kind === "exact" ? "exact" : "palette",
   );
@@ -119,18 +126,20 @@ export function ColorPickerPanel({ value, onChange, tokens }: ColorPickerPanelPr
 
   return (
     <div className="st-cp">
-      <Segmented
-        aria-label="Color source"
-        block
-        size="sm"
-        value={mode}
-        onValueChange={setMode}
-        options={[
-          { value: "palette", label: "Site colors" },
-          { value: "exact", label: "Exact" },
-        ]}
-      />
-      {mode === "palette" ? (
+      {allowExact && (
+        <Segmented
+          aria-label="Color source"
+          block
+          size="sm"
+          value={mode}
+          onValueChange={setMode}
+          options={[
+            { value: "palette", label: "Site colors" },
+            { value: "exact", label: "Exact" },
+          ]}
+        />
+      )}
+      {mode === "palette" || !allowExact ? (
         <fieldset className="st-cp__tokens">
           <legend className="st-visually-hidden">Site colors</legend>
           {tokens.map((t) => (
@@ -184,7 +193,7 @@ export interface ColorPickerProps extends ColorPickerPanelProps {
 }
 
 /** Swatch trigger + popover picker. */
-export function ColorPicker({ label, value, onChange, tokens }: ColorPickerProps) {
+export function ColorPicker({ label, value, onChange, tokens, allowExact }: ColorPickerProps) {
   const color = resolveColor(value, tokens);
   const tokenName =
     value?.kind === "token" ? tokens.find((t) => t.id === value.token)?.name : undefined;
@@ -203,7 +212,12 @@ export function ColorPicker({ label, value, onChange, tokens }: ColorPickerProps
         </button>
       }
     >
-      <ColorPickerPanel value={value} onChange={onChange} tokens={tokens} />
+      <ColorPickerPanel
+        value={value}
+        onChange={onChange}
+        tokens={tokens}
+        {...(allowExact !== undefined ? { allowExact } : {})}
+      />
     </Popover>
   );
 }

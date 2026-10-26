@@ -14,6 +14,8 @@ export interface ShortcutEnv {
   toggleShortcutsSheet: () => void;
   toggleChrome: () => void;
   openPanel: (index: number) => void;
+  /** Open the block menu (⌘/ or "/"). */
+  openBlockMenu?: () => void;
 }
 
 export interface ShortcutDef {
@@ -119,6 +121,15 @@ export const EDITOR_SHORTCUTS: ShortcutDef[] = [
       s.select(parentOf(s.doc, s.pageId, item) ?? null);
     },
   },
+  {
+    keys: ["mod+/", "/"],
+    label: "Add a block",
+    group: "Edit",
+    run: (e) => {
+      if (!e.openBlockMenu) return false;
+      e.openBlockMenu();
+    },
+  },
   { keys: ["mod+k"], label: "Command palette", group: "View", run: (e) => e.togglePalette() },
   { keys: ["?"], label: "Keyboard shortcuts", group: "View", run: (e) => e.toggleShortcutsSheet() },
   { keys: ["mod+="], label: "Zoom in", group: "View", run: (e) => e.zoomIn() },
@@ -157,7 +168,7 @@ function step(env: ShortcutEnv, dir: -1 | 1) {
 }
 
 /** Shortcuts that also work while typing in a field (none edit the document). */
-const WHILE_TYPING = new Set(["mod+k", "mod+backslash"]);
+const WHILE_TYPING = new Set(["mod+k", "mod+backslash", "mod+/"]);
 
 /** Keys that act on the canvas selection only when focus isn't on some other control. */
 const SURFACE_KEYS = new Set([
