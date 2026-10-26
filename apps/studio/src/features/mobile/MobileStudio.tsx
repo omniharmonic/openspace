@@ -19,7 +19,7 @@ import {
   Undo2,
   WandSparkles,
 } from "lucide-react";
-import { lazy, type ReactNode, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, type ReactNode, Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Site } from "../../api/types";
 import { Button, cx, IconButton, Sheet, Spinner } from "../../ui";
@@ -122,15 +122,15 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
   const [screen, setScreen] = useState<MobileScreen>("sections");
   const [sheet, setSheet] = useState<SheetState>(null);
   // Panels opened from elsewhere (the publish dialog's "Review issues") open as sheets here.
-  // The desktop's open panel (Pages by default) isn't a request: start clean.
-  const started = useRef(false);
+  // The desktop's open panel (Pages by default) isn't a request: start clean. A separate
+  // mount effect, declared first, so it also runs again when React StrictMode re-mounts (whose
+  // cleanup of the editor resets the UI store back to the default "pages").
   useEffect(() => {
-    if (!started.current) {
-      started.current = true;
-      if (requested) useEditorUi.setState({ leftPanel: null });
-      return;
-    }
-    if (!requested) return;
+    useEditorUi.setState({ leftPanel: null });
+  }, []);
+  useEffect(() => {
+    // Read the live value: a re-run can carry the stale default from the first render.
+    if (!requested || useEditorUi.getState().leftPanel !== requested) return;
     // Panels asked for from elsewhere (⌘K, the publish dialog's "Review issues", shortcuts)
     // open the phone way; the request is consumed so asking again works.
     if (requested === "add") useAddSection.getState().openAt("end");
