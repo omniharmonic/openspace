@@ -1,5 +1,6 @@
 import type { GridRect } from "@openspace/schema";
 import { create } from "zustand";
+import { toast } from "../../../ui";
 import { frameTickFreeze } from "../canvas/geometry";
 import { useEditorUi } from "../editor-store";
 import type { Command } from "../model/actions";
@@ -19,6 +20,7 @@ import {
   type GridSection,
   type Handle,
   isGridSection,
+  isMobileAuto,
   metricsFromTracks,
   parseTracks,
   planMove,
@@ -641,7 +643,25 @@ export class GridController {
       );
     }
     this.end(true);
-    if (cmd) st.run(cmd);
+    if (!cmd) return;
+    const r = st.run(cmd);
+    if (r.ok && s.bp === "d" && s.kind !== "marquee") this.remindPhone(s.section);
+  }
+
+  private reminded = new Set<string>();
+
+  /**
+   * Doc 04 §9 rule 9 ("after any grid change, review the mobile placement"): a section with its
+   * own phone layout doesn't follow desktop edits, so say so once per section.
+   */
+  private remindPhone(section: GridSection) {
+    if (this.reminded.has(section.id) || isMobileAuto(section)) return;
+    this.reminded.add(section.id);
+    toast({
+      title: "Check the phone layout",
+      description:
+        "This section has its own phone arrangement, so desktop changes don’t move it. Review it in Phone view, or use “Reset mobile layout” to rebuild it from desktop.",
+    });
   }
 
   cancel() {

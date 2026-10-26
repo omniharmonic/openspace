@@ -239,6 +239,24 @@
   font-weight: 600;
 }
 
+/* Breakpoint override dot (FR-15): tablet purple, phone orange, as in the inspector. */
+.st-grid__dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: 1px;
+}
+
+.st-grid__dot[data-bp="t"] {
+  background: #b25fd6;
+}
+
+.st-grid__dot[data-bp="m"] {
+  background: #e0731f;
+}
+
 .st-grid__bar-label em {
   font-style: normal;
   font-weight: 400;

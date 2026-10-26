@@ -396,6 +396,9 @@ function GridBar({
   return (
     <div ref={ref} className="st-grid__bar" style={style} role="toolbar" aria-label="Grid">
       <span className="st-grid__bar-label">
+        {((view === "t" && customized) || (view === "m" && !auto)) && (
+          <i className="st-grid__dot" data-bp={view} title="This layout has its own placements" />
+        )}
         Grid · {BP_NAME[view]}
         {view === "t" && !customized && <em> follows desktop</em>}
         {view === "m" && <em> {auto ? "automatic" : "custom"}</em>}

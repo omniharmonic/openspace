@@ -2,7 +2,7 @@ import type { GridLayout, SiteDocument } from "@openspace/schema";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { TooltipProvider } from "../../../ui";
+import { TooltipProvider, useToastStore } from "../../../ui";
 import { InspectorEnvProvider } from "../../inspector/env";
 import { useEditorUi } from "../editor-store";
 import { setLayoutMode } from "../model/actions";
@@ -144,6 +144,8 @@ describe("grid drag loop", () => {
     });
     expect(d(I.heroImage)).toMatchObject({ x: 9, y: 3, w: 10, h: 4 });
     expect(s().undoStack.length).toBe(undo0 + 1);
+    // The hero keeps its own phone order, so the person is reminded to review it (doc 04 §9.9).
+    expect(useToastStore.getState().toasts.map((t) => t.title)).toContain("Check the phone layout");
     expect(useGridDrag.getState().active).toBeNull();
     // The click that ends the drag doesn't select or start editing.
     expect(gridController.consumeClick()).toBe(true);
