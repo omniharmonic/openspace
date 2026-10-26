@@ -155,7 +155,11 @@ export class CloudflareApiSender implements EmailSender {
     const out = (await res.json().catch(() => ({}))) as {
       success?: boolean;
       errors?: Array<{ message?: string }>;
-      result?: { permanent_bounces?: string[] };
+      result?: {
+        message_id?: string;
+        permanent_bounces?: string[];
+        suppressed_recipients?: string[];
+      };
     };
     if (!res.ok || out.success === false)
       throw new EmailSendError(
@@ -163,9 +167,11 @@ export class CloudflareApiSender implements EmailSender {
         this.kind,
         res.status,
       );
-    if (out.result?.permanent_bounces?.length)
+    // `POST /accounts/{id}/email/sending/send` reports delivery per recipient; a permanent bounce
+    // or an address on the account's suppression list is a hard failure for this recipient.
+    if (out.result?.permanent_bounces?.length || out.result?.suppressed_recipients?.length)
       throw new EmailSendError("permanent bounce", this.kind, 550);
-    return { id: randomId("cfm"), provider: this.kind };
+    return { id: out.result?.message_id ?? randomId("cfm"), provider: this.kind };
   }
 }
 

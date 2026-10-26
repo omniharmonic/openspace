@@ -91,8 +91,12 @@ export async function createDiscount(
   if (expiresAt !== undefined && expiresAt <= services.now())
     throw new HttpError(422, "invalid_date", "The end date must be in the future.");
   const { api } = await stripeForSite(services, siteId);
+  // Idempotency keys: a retried or concurrent create of the same code makes one coupon and one
+  // promotion code at Stripe.
+  const key = `discount-${siteId}-${code}`;
   const coupon = await api.createCoupon({
     name: code,
+    idempotencyKey: `${key}-coupon`,
     ...(input.percentOff !== undefined ? { percentOff: input.percentOff } : {}),
     ...(input.amountOff !== undefined
       ? { amountOff: input.amountOff, currency: input.currency }
@@ -101,15 +105,16 @@ export async function createDiscount(
   const promo = await api.createPromotionCode({
     coupon: coupon.id,
     code,
+    idempotencyKey: `${key}-promo`,
     ...(input.maxRedemptions ? { maxRedemptions: input.maxRedemptions } : {}),
     ...(expiresAt ? { expiresAt } : {}),
   });
   const id = randomId("dsc", 10);
-  await services.db
+  const ins = await services.db
     .prepare(
       `INSERT INTO discount_codes (id, site_id, code, percent_off, amount_off, currency, max_redemptions,
          expires_at, stripe_coupon, stripe_promotion_code, active, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?) ON CONFLICT (site_id, code) DO NOTHING`,
     )
     .bind(
       id,
@@ -125,6 +130,8 @@ export async function createDiscount(
       services.now(),
     )
     .run();
+  // Lost a concurrent create of the same code (the Stripe objects are shared via the keys).
+  if ((ins.meta.changes ?? 0) !== 1) throw conflict("code_taken", "That code already exists.");
   const row = await services.db
     .prepare("SELECT * FROM discount_codes WHERE id = ?")
     .bind(id)

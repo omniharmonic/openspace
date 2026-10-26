@@ -158,14 +158,19 @@ devStripeRoutes.post("/dev/stripe/checkout/:id", async (c) => {
     .prepare("SELECT mode FROM commerce_settings WHERE site_id = ?")
     .bind(siteId)
     .first<{ mode: string }>();
-  const result = await handleStripeWebhook(
-    services,
-    payload,
-    signature,
-    mode?.mode === "sovereign" ? { kind: "sovereign", siteId } : { kind: "connect" },
-    c.var.log,
-  );
-  if (result.status !== 200) c.var.log.warn("dev stripe webhook rejected", { result });
+  try {
+    const result = await handleStripeWebhook(
+      services,
+      payload,
+      signature,
+      mode?.mode === "sovereign" ? { kind: "sovereign", siteId } : { kind: "connect" },
+      c.var.log,
+    );
+    if (result.status !== 200) c.var.log.warn("dev stripe webhook rejected", { result });
+  } catch (err) {
+    // Like real Stripe: the payment stands; the cron retries unfinished follow-ups.
+    c.var.log.warn("dev stripe webhook processing failed", { err });
+  }
   return c.redirect(s.params.success_url, 303);
 });
 

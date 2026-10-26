@@ -2,7 +2,8 @@
  * Task 18 scheduled work and the campaign Queue consumer. `index.ts` dispatches by cron string:
  * - every minute (Task 15's `runScheduled` calls `runDueCampaigns`): due scheduled campaigns,
  *   continuing unfinished sends when there is no Queue.
- * - GROWTH_DAILY_CRON ("0 4 * * *"): update-bot checks and growth housekeeping.
+ * - GROWTH_DAILY_CRON ("0 4 * * *"): update-bot checks, order follow-up / sold-out refund
+ *   retries and growth housekeeping.
  */
 import type { HubBindings } from "../env";
 import { readConfig } from "../env";
@@ -10,6 +11,7 @@ import type { CampaignJob } from "../growth-env";
 import { createLogger } from "../lib/log";
 import { createServices, type ServiceOverrides, type Services } from "../services";
 import { BATCH_SIZE, runCampaign } from "../services/campaigns";
+import { retryOrderFollowups } from "../services/orders";
 import { runUpdateChecks } from "../services/updates";
 
 export const GROWTH_DAILY_CRON = "0 4 * * *";
@@ -27,7 +29,7 @@ export async function growthHousekeeping(services: Services): Promise<Record<str
         .run()
     ).meta.changes ?? 0;
   return {
-    memberTokens: await n("DELETE FROM member_tokens WHERE expires_at < ?", now - DAY),
+    memberLinks: await n("DELETE FROM member_links WHERE expires_at < ?", now - DAY),
     // Checkout sessions expire after an hour; the order rows are only attempts.
     abandonedOrders: await n(
       "UPDATE orders SET status = 'expired', updated_at = ? WHERE status = 'pending' AND created_at < ?",
@@ -54,6 +56,13 @@ export async function runGrowthCron(
     } catch (err) {
       out.updatesFailed = true;
       log.error("update checks failed", { err });
+    }
+    try {
+      // Paid orders whose follow-ups failed, and sold-out orders whose automatic refund failed.
+      out.orders = await retryOrderFollowups(services, log);
+    } catch (err) {
+      out.ordersFailed = true;
+      log.error("order retries failed", { err });
     }
     try {
       out.housekeeping = await growthHousekeeping(services);

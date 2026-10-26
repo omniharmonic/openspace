@@ -68,6 +68,8 @@ export interface OrderRow {
   meta_json: string | null;
   paid_at: number | null;
   updated_at: number | null;
+  followups_at: number | null;
+  restocked: number;
 }
 
 const parse = <T>(json: string | null, fallback: T): T => {
@@ -274,8 +276,9 @@ async function orderForSession(
   const id = meta.os_order ?? (session.client_reference_id as string | undefined);
   if (!id) return null;
   const order = await getOrder(services.db, siteId, id);
-  // The session must be the one this order created (no cross-order replays).
-  if (!order || (order.stripe_session && order.stripe_session !== session.id)) return null;
+  // The session must be the one this order created (no cross-order replays). An order whose
+  // session id was never stored can't be completed by any event.
+  if (!order?.stripe_session || order.stripe_session !== session.id) return null;
   return order;
 }
 
@@ -391,36 +394,55 @@ export async function completeSession(
     if (!isOversell(err)) throw err;
     return outOfStock(services, site, order, { email, name, pi, amountTotal, amounts }, log);
   }
-  if (!claimed) return { order: order.id, duplicate: true };
+  const current = (await getOrder(db, site.id, order.id)) as OrderRow;
+  if (!claimed && (current.status !== "paid" || current.followups_at))
+    return { order: order.id, duplicate: true };
+  // Claimed now, or a redelivery of a paid order whose follow-ups didn't finish: (re)run them.
+  // They are idempotent; a failure throws so the webhook answers 500 and Stripe redelivers (the
+  // daily cron also retries).
+  const out = await runFollowups(services, site, current, {
+    customer: typeof session.customer === "string" ? session.customer : null,
+    log,
+  });
+  return { order: order.id, status: "paid", ...(claimed ? {} : { resumed: true }), ...out };
+}
 
-  const paid = (await getOrder(db, site.id, order.id)) as OrderRow;
-  const out: Record<string, unknown> = { order: order.id, status: "paid" };
-  // Follow-ups never fail the webhook (the payment is recorded; Stripe must not retry it).
-  const titles = new Map(items.map((i) => [i.sku, i.title]));
+/**
+ * After payment: low-stock alerts (best effort, alerted once per restock), the member tier for
+ * memberships, and digital delivery. Marks `followups_at` only when everything succeeded.
+ */
+export async function runFollowups(
+  services: Services,
+  site: SiteRow,
+  order: OrderRow,
+  opts: { customer?: string | null; log?: Logger } = {},
+): Promise<Record<string, unknown>> {
+  const out: Record<string, unknown> = {};
+  const items = orderItems(order);
+  const tracked = order.kind === "order" ? items : [];
   out.lowStock = await lowStockAlerts(
     services,
     site,
     tracked.map((i) => i.sku),
-    titles,
+    new Map(items.map((i) => [i.sku, i.title])),
   ).catch((err) => {
-    log?.warn("low-stock alert failed", { err, siteId: site.id });
+    opts.log?.warn("low-stock alert failed", { err, siteId: site.id });
     return [];
   });
-  if (order.kind === "membership" && email) {
-    const tier = parse<{ tier?: string }>(order.meta_json, {}).tier ?? null;
+  if (order.kind === "membership" && order.email)
     out.member = await applyMembershipPayment(services, site, {
-      email,
-      name,
-      tier,
-      customer: typeof session.customer === "string" ? session.customer : null,
-      subscription: sub,
+      email: order.email,
+      name: order.customer_name,
+      tier: parse<{ tier?: string }>(order.meta_json, {}).tier ?? null,
+      customer: opts.customer ?? null,
+      subscription: order.subscription_id,
     });
-  }
-  if (email && items.some((i) => i.digital) && order.kind === "order")
-    out.delivered = await sendDigitalDelivery(services, site, paid).catch((err) => {
-      log?.warn("digital delivery email failed", { err, siteId: site.id });
-      return false;
-    });
+  if (order.email && order.kind === "order" && items.some((i) => i.digital))
+    out.delivered = await sendDigitalDelivery(services, site, order);
+  await services.db
+    .prepare("UPDATE orders SET followups_at = ? WHERE id = ? AND followups_at IS NULL")
+    .bind(services.now(), order.id)
+    .run();
   return out;
 }
 
@@ -448,22 +470,7 @@ async function outOfStock(
     .bind(p.email, p.name, p.pi, p.amountTotal, JSON.stringify(p.amounts), now, order.id)
     .run();
   if ((res.meta.changes ?? 0) !== 1) return { order: order.id, duplicate: true };
-  let refunded = false;
-  if (p.pi) {
-    try {
-      const { api } = await stripeForSite(services, site.id);
-      const r = await api.createRefund({ paymentIntent: p.pi, idempotencyKey: `oos-${order.id}` });
-      await db
-        .prepare(
-          "UPDATE orders SET status = 'refunded', refunded = ?, updated_at = ? WHERE id = ? AND status = 'out_of_stock'",
-        )
-        .bind(r.amount || p.amountTotal, services.now(), order.id)
-        .run();
-      refunded = true;
-    } catch (err) {
-      log?.error("automatic refund for a sold-out order failed", { err, order: order.id });
-    }
-  }
+  const refunded = await autoRefund(services, site, order.id, log);
   if (p.email)
     await sendSimpleMail(services, site, p.email, "order-sold-out", `Your ${site.name} order`, [
       "Sorry — an item in your order sold out while you were paying.",
@@ -472,6 +479,119 @@ async function outOfStock(
         : "We'll refund your payment in full shortly.",
     ]).catch(() => undefined);
   return { order: order.id, status: refunded ? "refunded" : "out_of_stock", outOfStock: true };
+}
+
+/**
+ * Full refund of a sold-out order (idempotent: one Stripe idempotency key per order). A failure
+ * leaves it `out_of_stock`; the daily cron and the dashboard's refund button retry.
+ */
+export async function autoRefund(
+  services: Services,
+  site: SiteRow,
+  orderId: string,
+  log?: Logger,
+): Promise<boolean> {
+  const order = await getOrder(services.db, site.id, orderId);
+  if (order?.status !== "out_of_stock" || !order.payment_intent) return false;
+  try {
+    const { api } = await stripeForSite(services, site.id);
+    const r = await api.createRefund({
+      paymentIntent: order.payment_intent,
+      idempotencyKey: `oos-${order.id}`,
+    });
+    await recordRefund(services, order, r.id, r.amount || order.total - order.refunded, false);
+    return true;
+  } catch (err) {
+    log?.error("automatic refund for a sold-out order failed", { err, order: order.id });
+    return false;
+  }
+}
+
+/**
+ * Record a Stripe refund once (by refund id) and recompute the order's refunded total from all
+ * of them. Restocking is guarded by the order transition (fully refunded, stock applied, not yet
+ * restocked) inside the same transaction, so concurrent refunds restock at most once.
+ */
+async function recordRefund(
+  services: Services,
+  order: OrderRow,
+  refundId: string,
+  amount: number,
+  restock: boolean,
+) {
+  const db = services.db;
+  const now = services.now();
+  const sum = "(SELECT COALESCE(SUM(amount), 0) FROM order_refunds WHERE order_id = ?)";
+  const stmts = [
+    db
+      .prepare(
+        `INSERT INTO order_refunds (id, order_id, site_id, amount, created_at) VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT (id) DO NOTHING`,
+      )
+      .bind(refundId, order.id, order.site_id, amount, now),
+    db
+      .prepare(
+        `UPDATE orders SET refunded = MIN(total, MAX(refunded, ${sum})),
+           status = CASE WHEN MAX(refunded, ${sum}) >= total THEN 'refunded'
+                         WHEN status = 'out_of_stock' THEN 'out_of_stock'
+                         ELSE 'partially_refunded' END,
+           updated_at = ?
+         WHERE id = ?`,
+      )
+      .bind(order.id, order.id, now, order.id),
+  ];
+  if (restock && order.kind === "order") {
+    for (const it of orderItems(order))
+      stmts.push(
+        db
+          .prepare(
+            `UPDATE inventory SET qty = qty + ?, alerted_at = NULL, updated_at = ?
+             WHERE site_id = ? AND sku = ? AND EXISTS (SELECT 1 FROM orders WHERE id = ?
+               AND refunded >= total AND stock_applied = 1 AND restocked = 0)`,
+          )
+          .bind(it.qty, now, order.site_id, it.sku, order.id),
+      );
+    stmts.push(
+      db
+        .prepare(
+          "UPDATE orders SET restocked = 1 WHERE id = ? AND refunded >= total AND stock_applied = 1 AND restocked = 0",
+        )
+        .bind(order.id),
+    );
+  }
+  await db.batch(stmts);
+}
+
+/** Daily: retry follow-ups that failed and refunds of sold-out orders. */
+export async function retryOrderFollowups(services: Services, log?: Logger) {
+  const now = services.now();
+  const stuck = await services.db
+    .prepare(
+      `SELECT * FROM orders WHERE (status = 'paid' AND followups_at IS NULL AND paid_at < ?)
+         OR (status = 'out_of_stock' AND payment_intent IS NOT NULL) LIMIT 100`,
+    )
+    .bind(now - 10 * 60 * 1000)
+    .all<OrderRow>();
+  let followups = 0;
+  let refunds = 0;
+  let failed = 0;
+  for (const o of stuck.results) {
+    const site = await getSite(services.db, o.site_id);
+    if (!site) continue;
+    try {
+      if (o.status === "out_of_stock") {
+        if (await autoRefund(services, site, o.id, log)) refunds++;
+        else failed++;
+      } else {
+        await runFollowups(services, site, o, { log });
+        followups++;
+      }
+    } catch (err) {
+      failed++;
+      log?.warn("order follow-up retry failed", { order: o.id, err });
+    }
+  }
+  return { followups, refunds, failed };
 }
 
 async function refundedCharge(services: Services, siteId: string, charge: Record<string, unknown>) {
@@ -483,7 +603,8 @@ async function refundedCharge(services: Services, siteId: string, charge: Record
       `UPDATE orders SET refunded = MAX(refunded, ?),
          status = CASE WHEN MAX(refunded, ?) >= total THEN 'refunded' ELSE 'partially_refunded' END,
          updated_at = ?
-       WHERE site_id = ? AND payment_intent = ? AND status IN ('paid', 'partially_refunded', 'refunded')`,
+       WHERE site_id = ? AND payment_intent = ?
+         AND status IN ('paid', 'partially_refunded', 'refunded', 'out_of_stock')`,
     )
     .bind(amount, amount, services.now(), siteId, pi)
     .run();
@@ -721,10 +842,15 @@ export async function refundOrder(
 ): Promise<OrderView> {
   const order = await getOrder(services.db, site.id, orderId);
   if (!order) throw notFound("We couldn't find that order.");
-  if (!["paid", "partially_refunded"].includes(order.status) || !order.payment_intent)
+  // Sold-out orders whose automatic refund failed can be refunded from the dashboard too.
+  if (
+    !["paid", "partially_refunded", "out_of_stock"].includes(order.status) ||
+    !order.payment_intent
+  )
     throw new HttpError(409, "not_refundable", "This order can't be refunded.");
   const remaining = order.total - order.refunded;
-  const amount = input.amount ?? remaining;
+  // A sold-out order is always refunded in full (the same refund the automatic attempt makes).
+  const amount = order.status === "out_of_stock" ? remaining : (input.amount ?? remaining);
   if (!Number.isInteger(amount) || amount < 1 || amount > remaining)
     throw new HttpError(
       422,
@@ -734,36 +860,14 @@ export async function refundOrder(
   const { api } = await stripeForSite(services, site.id);
   const r = await api.createRefund({
     paymentIntent: order.payment_intent,
-    amount,
-    idempotencyKey: `refund-${order.id}-${order.refunded}-${amount}`,
+    ...(order.status === "out_of_stock" ? {} : { amount }),
+    // Same order state + amount → same Stripe refund (double clicks refund once).
+    idempotencyKey:
+      order.status === "out_of_stock"
+        ? `oos-${order.id}`
+        : `refund-${order.id}-${order.refunded}-${amount}`,
   });
-  const now = services.now();
-  const total = order.refunded + (r.amount || amount);
-  const restock =
-    input.restock && total >= order.total && order.stock_applied === 1 && order.kind === "order";
-  const stmts = [
-    services.db
-      .prepare(
-        `UPDATE orders SET refunded = ?, status = ?, updated_at = ? WHERE id = ? AND refunded = ?`,
-      )
-      .bind(
-        total,
-        total >= order.total ? "refunded" : "partially_refunded",
-        now,
-        order.id,
-        order.refunded,
-      ),
-  ];
-  if (restock)
-    for (const it of orderItems(order))
-      stmts.push(
-        services.db
-          .prepare(
-            "UPDATE inventory SET qty = qty + ?, alerted_at = NULL, updated_at = ? WHERE site_id = ? AND sku = ?",
-          )
-          .bind(it.qty, now, site.id, it.sku),
-      );
-  await services.db.batch(stmts);
+  await recordRefund(services, order, r.id, r.amount || amount, input.restock === true);
   return toOrderView((await getOrder(services.db, site.id, order.id)) as OrderRow);
 }
 

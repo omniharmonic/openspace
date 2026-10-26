@@ -80,8 +80,18 @@ ALTER TABLE members ADD COLUMN updated_at INTEGER;
 CREATE INDEX members_site ON members(site_id, created_at);
 CREATE INDEX members_subscription ON members(subscription_id);
 
-ALTER TABLE member_tokens ADD COLUMN return_to TEXT;        -- site path to land on after sign-in
-CREATE INDEX member_tokens_member ON member_tokens(member_id, kind, created_at);
+-- Magic sign-in links. Keyed by email (not member): the member row is only created when a link
+-- is used, so typing an address into a sign-in form never creates a member.
+CREATE TABLE member_links (
+  token_hash TEXT PRIMARY KEY,
+  site_id    TEXT NOT NULL,
+  email      TEXT NOT NULL,
+  return_to  TEXT,
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  used_at    INTEGER
+);
+CREATE INDEX member_links_email ON member_links(site_id, email, created_at);
 
 CREATE TABLE member_tiers (
   id           TEXT PRIMARY KEY,                          -- tier_…
@@ -163,9 +173,21 @@ ALTER TABLE orders ADD COLUMN note TEXT;
 ALTER TABLE orders ADD COLUMN meta_json TEXT;               -- tier id, interval, return paths
 ALTER TABLE orders ADD COLUMN paid_at INTEGER;
 ALTER TABLE orders ADD COLUMN updated_at INTEGER;
+ALTER TABLE orders ADD COLUMN followups_at INTEGER;         -- member tier / delivery done (re-run until set)
+ALTER TABLE orders ADD COLUMN restocked INTEGER NOT NULL DEFAULT 0;
 CREATE UNIQUE INDEX orders_stripe_session ON orders(stripe_session) WHERE stripe_session IS NOT NULL;
 CREATE UNIQUE INDEX orders_number ON orders(site_id, number) WHERE number IS NOT NULL;
 CREATE INDEX orders_site_status ON orders(site_id, status, created_at);
+
+-- Refunds recorded once per Stripe refund id (orders.refunded = their sum).
+CREATE TABLE order_refunds (
+  id         TEXT PRIMARY KEY,                            -- Stripe refund id
+  order_id   TEXT NOT NULL,
+  site_id    TEXT NOT NULL,
+  amount     INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX order_refunds_order ON order_refunds(order_id);
 
 -- Processed webhook events (idempotency; Stripe retries and may deliver twice).
 CREATE TABLE stripe_events (

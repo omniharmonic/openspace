@@ -202,6 +202,10 @@ export async function erasePerson(
     .bind(siteId, e)
     .run();
   await db
+    .prepare("DELETE FROM member_links WHERE site_id = ? AND lower(email) = ?")
+    .bind(siteId, e)
+    .run();
+  await db
     .prepare("DELETE FROM campaign_recipients WHERE site_id = ? AND lower(email) = ?")
     .bind(siteId, e)
     .run();

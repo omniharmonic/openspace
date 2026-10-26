@@ -523,8 +523,17 @@ describe("orders dashboard, refunds, discounts, stock API", () => {
       redirect: "manual",
     });
     expect(done.headers.get("location")).toBe("http://localhost:5173");
-    const status = (await (
+    // GET reads the stored status only (no Stripe call, no write)…
+    const stored = (await (
       await call(app, `/api/sites/${f.siteId}/commerce/connect`, { cookie: f.cookie })
+    ).json()) as { payments: { chargesEnabled: boolean } };
+    expect(stored.payments.chargesEnabled).toBe(false);
+    // …POST refresh asks Stripe and stores the result.
+    const status = (await (
+      await call(app, `/api/sites/${f.siteId}/commerce/connect/refresh`, {
+        method: "POST",
+        cookie: f.cookie,
+      })
     ).json()) as {
       payments: { chargesEnabled: boolean; ready: boolean; account: string };
     };
@@ -541,7 +550,8 @@ describe("orders dashboard, refunds, discounts, stock API", () => {
       },
       { ...(env as unknown as Record<string, unknown>), DEV_MODE: "false" },
     );
-    expect([409, 503]).toContain(prod.status);
+    expect(prod.status).toBe(503);
+    expect(((await prod.json()) as { error: { code: string } }).error.code).toBe("not_configured");
   });
 });
 

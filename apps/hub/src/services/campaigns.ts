@@ -24,8 +24,11 @@ import { listUnsubscribeHeaders, TagSchema, unsubscribeUrl } from "./newsletter"
 import { getSender, type SenderRow, senderFor } from "./senders";
 
 export const BATCH_SIZE = 50;
-/** Recipients sent inline per request when there is no Queue (the cron continues the rest). */
-export const INLINE_BUDGET = 500;
+/**
+ * Recipients sent inline per request / cron tick when there is no Queue. Small, so a Studio
+ * request returns quickly; the minute cron continues the rest.
+ */
+export const INLINE_BUDGET = 50;
 const UNSUB_TAG = "{{os_unsubscribe}}";
 const TRACK_TAG = "{{os_track}}";
 
@@ -389,8 +392,16 @@ async function campaignSender(
   };
 }
 
+/** Test sends per site (they go through the owner's sender, but must not become a spam cannon). */
+export const TEST_SEND_RULE = { name: "campaign-test", limit: 10, windowSec: 3600 };
+
 export async function sendTest(services: Services, site: SiteRow, id: string, to: string) {
   const r = await requireCampaign(services.db, site.id, id);
+  const rate = await services.pub.rateLimit.hit(`${site.id}|campaign-test`, TEST_SEND_RULE);
+  if (!rate.ok)
+    throw new HttpError(429, "rate_limited", "That's a lot of test emails. Try again in a while.", {
+      retryAfter: rate.retryAfter,
+    });
   const { sender, from, replyTo } = await campaignSender(services, site, r);
   const rendered = renderCampaign(services, site, r, { track: false, trackOpens: false });
   const unsub = siteBaseUrl(site, services.config.hubUrl);
@@ -658,6 +669,16 @@ export async function runDueCampaigns(services: Services, now: number, log?: Log
     )
     .bind(now - 15 * 60 * 1000)
     .run();
+  // Finish campaigns with nothing left to send (whichever worker sent the last batch, Queue or
+  // not — e.g. the last recipients failed or a consumer died after its final batch).
+  const finished = await services.db
+    .prepare(
+      `UPDATE campaigns SET status = 'sent', finished_at = ?, updated_at = ? WHERE status = 'sending'
+         AND NOT EXISTS (SELECT 1 FROM campaign_recipients r WHERE r.campaign_id = campaigns.id
+                         AND r.status IN ('queued', 'sending'))`,
+    )
+    .bind(now, now)
+    .run();
   let continued = 0;
   if (!services.growth.queue) {
     const sending = await services.db
@@ -668,7 +689,7 @@ export async function runDueCampaigns(services: Services, now: number, log?: Log
       continued++;
     }
   }
-  return { started, continued };
+  return { started, continued, finished: finished.meta.changes ?? 0 };
 }
 
 // ---- stats + tracking ---------------------------------------------------------------------------

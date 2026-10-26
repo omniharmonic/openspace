@@ -459,12 +459,16 @@ export async function connectDomain(
   const hostname = normalizeHostname(input);
   const now = services.now();
   const taken = await services.db
-    .prepare("SELECT site_id, status, created_at FROM domains WHERE hostname = ?")
+    .prepare("SELECT site_id, status, created_at, verified_at FROM domains WHERE hostname = ?")
     .bind(hostname)
-    .first<{ site_id: string; status: string; created_at: number }>();
+    .first<{ site_id: string; status: string; created_at: number; verified_at: number | null }>();
   if (taken && taken.site_id !== site.id) {
     // An unverified claim older than 7 days is released; anything else belongs to that site.
-    if (taken.status === "active" || now - taken.created_at < DOMAIN_CLAIM_TTL_MS)
+    if (
+      taken.status === "active" ||
+      taken.verified_at !== null ||
+      now - taken.created_at < DOMAIN_CLAIM_TTL_MS
+    )
       throw conflict("domain_taken", "That domain is already connected to another site.");
     await expireDomainClaims(services.db, now);
   }
@@ -480,10 +484,11 @@ export async function connectDomain(
         `INSERT INTO domains (site_id, hostname, status, https, created_at, registrar)
          VALUES (?, ?, 'pending', 0, ?, ?)
          ON CONFLICT (site_id, hostname) DO UPDATE SET
-           -- Re-submitting a live domain keeps it live; an unverified claim restarts its 7-day
-           -- clock (created_at), so the daily cron never releases a domain that is in use.
-           status = CASE WHEN domains.status = 'active' THEN 'active' ELSE 'pending' END,
-           created_at = CASE WHEN domains.status = 'active' THEN domains.created_at ELSE excluded.created_at END,
+           -- Re-submitting keeps a live domain live. created_at is never reset: an unverified
+           -- claim keeps its original 7-day clock, so re-submitting can't squat a name forever.
+           -- (expireDomainClaims never touches verified rows.)
+           status = CASE WHEN domains.status = 'active' OR domains.verified_at IS NOT NULL
+                         THEN domains.status ELSE 'pending' END,
            registrar = excluded.registrar`,
       )
       .bind(site.id, hostname, now, rdap?.registrar ?? null),

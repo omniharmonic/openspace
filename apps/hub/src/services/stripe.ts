@@ -12,7 +12,7 @@
  * HMAC-SHA256 with the endpoint secret, checked in constant time with a 5-minute tolerance.
  */
 import type { FetchLike } from "../github/http";
-import { randomId, timingSafeEqual } from "../lib/crypto";
+import { randomId, sha256Hex, timingSafeEqual } from "../lib/crypto";
 import { HttpError } from "../lib/errors";
 import { hmacHex } from "../lib/seal";
 
@@ -90,12 +90,14 @@ export interface StripeApi {
     amountOff?: number;
     currency?: string;
     name: string;
+    idempotencyKey?: string;
   }): Promise<{ id: string }>;
   createPromotionCode(input: {
     coupon: string;
     code: string;
     maxRedemptions?: number;
     expiresAt?: number;
+    idempotencyKey?: string;
   }): Promise<{ id: string }>;
   setPromotionCodeActive(id: string, active: boolean): Promise<void>;
 }
@@ -236,15 +238,21 @@ export class HttpStripe implements StripeApi {
     amountOff?: number;
     currency?: string;
     name: string;
+    idempotencyKey?: string;
   }) {
-    const c = await this.request<{ id: string }>("POST", "/v1/coupons", {
-      name: input.name,
-      duration: "once",
-      ...(input.percentOff !== undefined ? { percent_off: input.percentOff } : {}),
-      ...(input.amountOff !== undefined
-        ? { amount_off: input.amountOff, currency: input.currency?.toLowerCase() }
-        : {}),
-    });
+    const c = await this.request<{ id: string }>(
+      "POST",
+      "/v1/coupons",
+      {
+        name: input.name,
+        duration: "once",
+        ...(input.percentOff !== undefined ? { percent_off: input.percentOff } : {}),
+        ...(input.amountOff !== undefined
+          ? { amount_off: input.amountOff, currency: input.currency?.toLowerCase() }
+          : {}),
+      },
+      input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : {},
+    );
     return { id: c.id };
   }
 
@@ -253,13 +261,19 @@ export class HttpStripe implements StripeApi {
     code: string;
     maxRedemptions?: number;
     expiresAt?: number;
+    idempotencyKey?: string;
   }) {
-    const p = await this.request<{ id: string }>("POST", "/v1/promotion_codes", {
-      coupon: input.coupon,
-      code: input.code,
-      max_redemptions: input.maxRedemptions,
-      expires_at: input.expiresAt ? Math.floor(input.expiresAt / 1000) : undefined,
-    });
+    const p = await this.request<{ id: string }>(
+      "POST",
+      "/v1/promotion_codes",
+      {
+        coupon: input.coupon,
+        code: input.code,
+        max_redemptions: input.maxRedemptions,
+        expires_at: input.expiresAt ? Math.floor(input.expiresAt / 1000) : undefined,
+      },
+      input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : {},
+    );
     return { id: p.id };
   }
 
@@ -289,10 +303,17 @@ export class DevStripe implements StripeApi {
     readonly account: string | null = null,
   ) {}
 
+  /** Like Stripe: the same idempotency key yields the same object. */
+  private async keyedId(prefix: string, key?: string): Promise<string> {
+    return key
+      ? `${prefix}_${(await sha256Hex(`${this.account ?? ""}|${key}`)).slice(0, 20)}`
+      : randomId(prefix);
+  }
+
   private async put(kind: string, id: string, status: string | null, data: unknown) {
     await this.db
       .prepare(
-        "INSERT INTO dev_stripe_objects (id, kind, account, status, data_json, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO dev_stripe_objects (id, kind, account, status, data_json, created_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO NOTHING",
       )
       .bind(id, kind, this.account, status, JSON.stringify(data), this.now())
       .run();
@@ -309,10 +330,24 @@ export class DevStripe implements StripeApi {
     return { id, url };
   }
 
-  async createRefund(input: { paymentIntent: string; amount?: number }) {
-    const id = randomId("re_dev");
-    await this.put("refund", id, "succeeded", input);
-    return { id, amount: input.amount ?? 0, status: "succeeded" };
+  /** Honors idempotency keys like Stripe: the same key returns the same refund. */
+  async createRefund(input: { paymentIntent: string; amount?: number; idempotencyKey?: string }) {
+    const id = input.idempotencyKey
+      ? `re_dev_${(await sha256Hex(`${this.account ?? ""}|${input.idempotencyKey}`)).slice(0, 20)}`
+      : randomId("re_dev");
+    await this.db
+      .prepare(
+        `INSERT INTO dev_stripe_objects (id, kind, account, status, data_json, created_at)
+         VALUES (?, 'refund', ?, 'succeeded', ?, ?) ON CONFLICT (id) DO NOTHING`,
+      )
+      .bind(id, this.account, JSON.stringify(input), this.now())
+      .run();
+    const row = await this.db
+      .prepare("SELECT data_json FROM dev_stripe_objects WHERE id = ?")
+      .bind(id)
+      .first<{ data_json: string }>();
+    const stored = JSON.parse(row?.data_json ?? "{}") as { amount?: number };
+    return { id, amount: stored.amount ?? 0, status: "succeeded" };
   }
 
   async createAccount(input: { email?: string | null }) {
@@ -342,8 +377,9 @@ export class DevStripe implements StripeApi {
     amountOff?: number;
     currency?: string;
     name: string;
+    idempotencyKey?: string;
   }) {
-    const id = randomId("co_dev");
+    const id = await this.keyedId("co_dev", input.idempotencyKey);
     await this.put("coupon", id, null, input);
     return { id };
   }
@@ -353,8 +389,9 @@ export class DevStripe implements StripeApi {
     code: string;
     maxRedemptions?: number;
     expiresAt?: number;
+    idempotencyKey?: string;
   }) {
-    const id = randomId("promo_dev");
+    const id = await this.keyedId("promo_dev", input.idempotencyKey);
     await this.put("promotion_code", id, "active", input);
     return { id };
   }

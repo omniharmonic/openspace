@@ -8,6 +8,7 @@ import { z } from "zod";
 import type { SiteRow } from "../db/sites";
 import type { User } from "../db/users";
 import { parseRepo } from "../github/types";
+import { notConfigured } from "../growth-env";
 import { conflict, HttpError } from "../lib/errors";
 import { openSecret, sealSecret } from "../lib/seal";
 import { emailSite, sendTransactional, siteBaseUrl } from "./email";
@@ -201,6 +202,9 @@ export async function stripeForSite(
       account: null,
     };
   }
+  // A production Hub without a platform key can't take Connect payments at all.
+  if (!services.growth.config.stripeDev && !services.growth.config.stripeSecretKey)
+    throw notConfigured("Payments (STRIPE_SECRET_KEY)");
   if (services.growth.config.stripeDev) {
     // Dev: works with or without a (fake) connected account so checkout demos need no setup.
     const account = row?.stripe_account ?? null;

@@ -204,14 +204,23 @@ const webhook =
     const siteId = c.req.param("siteId") ?? "";
     if (endpoint === "sovereign" && !/^st_[0-9a-z]{4,40}$/.test(siteId))
       return c.json(failureBody({ status: 404, code: "not_found", message: "Not found." }), 404);
-    const result = await handleStripeWebhook(
-      c.var.services,
-      raw,
-      c.req.header("stripe-signature") ?? null,
-      endpoint === "connect" ? { kind: "connect" } : { kind: "sovereign", siteId },
-      c.var.log,
-    );
-    return c.json(result.body, result.status);
+    try {
+      const result = await handleStripeWebhook(
+        c.var.services,
+        raw,
+        c.req.header("stripe-signature") ?? null,
+        endpoint === "connect" ? { kind: "connect" } : { kind: "sovereign", siteId },
+        c.var.log,
+      );
+      return c.json(result.body, result.status);
+    } catch (err) {
+      // Not recorded as processed: Stripe redelivers, and idempotent follow-ups resume.
+      c.var.log.error("stripe webhook processing failed", { err });
+      return c.json(
+        { error: { code: "processing_failed", message: "Couldn't process the event; retry." } },
+        500,
+      );
+    }
   };
 
 publicCheckoutRoutes.post("/c/stripe/webhook", webhook("connect"));

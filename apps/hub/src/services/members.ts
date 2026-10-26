@@ -141,7 +141,9 @@ export type LoginOutcome = "sent" | "throttled" | "not_member" | "blocked";
 
 /**
  * Email a sign-in link. The visitor always sees the same answer (no member enumeration);
- * invite-only sites only email existing members.
+ * invite-only sites only email existing members. No member row is created here: on open sites
+ * the member is created when the link is used (`consumeMagicLink`), so typing an address into a
+ * form never adds anyone to the directory.
  */
 export async function requestMagicLink(
   services: Services,
@@ -150,34 +152,31 @@ export async function requestMagicLink(
 ): Promise<LoginOutcome> {
   const email = normalizeEmail(input.email);
   const settings = await growthSettings(services.db, site.id);
-  let member = await memberByEmail(services.db, site.id, email);
-  if (!member) {
-    if (settings.membersSignup === "invite") return "not_member";
-    member = await upsertMember(services, site.id, email, { source: "signup", tier: null });
-  }
-  if (member.status === "blocked") return "blocked";
+  const member = await memberByEmail(services.db, site.id, email);
+  if (!member && settings.membersSignup === "invite") return "not_member";
+  if (member?.status === "blocked") return "blocked";
   const now = services.now();
   const recent = await services.db
     .prepare(
-      "SELECT COUNT(*) AS n FROM member_tokens WHERE member_id = ? AND kind = 'magic' AND created_at > ?",
+      "SELECT COUNT(*) AS n FROM member_links WHERE site_id = ? AND email = ? AND created_at > ?",
     )
-    .bind(member.id, now - 60 * 60 * 1000)
+    .bind(site.id, email, now - 60 * 60 * 1000)
     .first<{ n: number }>();
   if ((recent?.n ?? 0) >= MAGIC_PER_HOUR) return "throttled";
   const base = siteBaseUrl(site, services.config.hubUrl);
   const token = randomToken(32);
   await services.db
     .prepare(
-      `INSERT INTO member_tokens (token_hash, member_id, site_id, kind, created_at, expires_at, return_to)
-       VALUES (?, ?, ?, 'magic', ?, ?, ?)`,
+      `INSERT INTO member_links (token_hash, site_id, email, return_to, created_at, expires_at)
+       VALUES (?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       await sha256Hex(token),
-      member.id,
       site.id,
+      email,
+      memberReturnPath(base, input.returnTo),
       now,
       now + MAGIC_TTL_MS,
-      memberReturnPath(base, input.returnTo),
     )
     .run();
   const mail = magicLinkEmail({
@@ -205,17 +204,18 @@ export async function peekMagicLink(services: Services, siteId: string, token: s
   if (!TOKEN_RE.test(token)) return null;
   return services.db
     .prepare(
-      `SELECT t.member_id FROM member_tokens t JOIN members m ON m.id = t.member_id
-       WHERE t.token_hash = ? AND t.site_id = ? AND t.kind = 'magic' AND t.used_at IS NULL
-         AND t.expires_at > ? AND m.status = 'active'`,
+      `SELECT l.email FROM member_links l
+       WHERE l.token_hash = ? AND l.site_id = ? AND l.used_at IS NULL AND l.expires_at > ?
+         AND NOT EXISTS (SELECT 1 FROM members m WHERE m.site_id = l.site_id AND m.email = l.email
+                         AND m.status = 'blocked')`,
     )
     .bind(await sha256Hex(token), siteId, services.now())
-    .first<{ member_id: string }>();
+    .first<{ email: string }>();
 }
 
 /**
  * Use a sign-in link (once) and build the site callback URL carrying a Hub-signed token.
- * Returns null for unknown, expired, used or blocked links.
+ * Creates the member on open sites. Returns null for unknown, expired, used or blocked links.
  */
 export async function consumeMagicLink(
   services: Services,
@@ -227,18 +227,20 @@ export async function consumeMagicLink(
   const hash = await sha256Hex(token);
   const claimed = await services.db
     .prepare(
-      `UPDATE member_tokens SET used_at = ? WHERE token_hash = ? AND site_id = ? AND kind = 'magic'
-         AND used_at IS NULL AND expires_at > ?`,
+      `UPDATE member_links SET used_at = ? WHERE token_hash = ? AND site_id = ?
+         AND used_at IS NULL AND expires_at > ? RETURNING email, return_to`,
     )
     .bind(now, hash, site.id, now)
-    .run();
-  if ((claimed.meta.changes ?? 0) !== 1) return null;
-  const row = await services.db
-    .prepare("SELECT member_id, return_to FROM member_tokens WHERE token_hash = ?")
-    .bind(hash)
-    .first<{ member_id: string; return_to: string | null }>();
-  const member = row ? await getMember(services.db, site.id, row.member_id) : null;
-  if (member?.status !== "active") return null;
+    .all<{ email: string; return_to: string | null }>();
+  const row = claimed.results[0];
+  if (!row) return null;
+  let member = await memberByEmail(services.db, site.id, row.email);
+  if (!member) {
+    // Invite-only sites only ever email existing members; re-check in case the policy changed.
+    if ((await growthSettings(services.db, site.id)).membersSignup === "invite") return null;
+    member = await upsertMember(services, site.id, row.email, { source: "signup", tier: null });
+  }
+  if (member.status !== "active") return null;
   await services.db
     .prepare("UPDATE members SET last_login_at = ?, updated_at = ? WHERE id = ?")
     .bind(now, now, member.id)
@@ -247,7 +249,7 @@ export async function consumeMagicLink(
   const base = siteBaseUrl(site, services.config.hubUrl);
   const callback = new URL("_os/auth/callback", base);
   callback.searchParams.set("token", jwt);
-  callback.searchParams.set("return", memberReturnPath(base, row?.return_to));
+  callback.searchParams.set("return", memberReturnPath(base, row.return_to));
   return { redirect: callback.toString(), member };
 }
 
@@ -376,8 +378,10 @@ export async function patchMember(
   if (patch.status === "blocked")
     // Outstanding sign-in links stop working at once.
     await services.db
-      .prepare("UPDATE member_tokens SET used_at = ? WHERE member_id = ? AND used_at IS NULL")
-      .bind(now, id)
+      .prepare(
+        "UPDATE member_links SET used_at = ? WHERE site_id = ? AND email = ? AND used_at IS NULL",
+      )
+      .bind(now, siteId, m.email)
       .run();
   return toMemberView((await getMember(services.db, siteId, id)) as MemberRow);
 }

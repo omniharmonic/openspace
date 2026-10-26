@@ -285,60 +285,12 @@ export async function applyUpdate(
     const pkg = main ? await gh.readFile(repo, "package.json", main) : null;
     if (!main || !pkg) throw new Error("The site has no package.json");
     const now = kitVersion(pkg);
-    if (now && compareSemver(now, u.to_version) >= 0) {
-      await markApplied(services, u.id);
-      return view(
-        (await db
-          .prepare("SELECT * FROM site_updates WHERE id = ?")
-          .bind(u.id)
-          .first<UpdateRow>()) as UpdateRow,
-      );
-    }
-    // Re-generate on the current main so merging never reverts newer content.
-    const head = await writeBranch(gh, repo, u.to_version, main, pkg);
-    let number = u.pr_number;
-    if (!number) {
-      const pr = await gh.openPullRequest(repo, {
-        head: branchFor(u.to_version),
-        base: MAIN_BRANCH,
-        title: title(u),
-        body: prBody(
-          {
-            version: u.to_version,
-            changelog: JSON.parse(u.changelog_json),
-            security: !!u.security,
-          },
-          u.from_version,
-        ),
-      });
-      number = pr.number;
-      await db
-        .prepare("UPDATE site_updates SET pr_number = ?, pr_url = ? WHERE id = ?")
-        .bind(pr.number, pr.url, u.id)
-        .run();
-    }
-    await gh.mergePullRequest(repo, number, { title: title(u), sha: head });
-    // Carry the bump to the draft too, or the next publish (draft tree → main) would undo it.
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const draft = await gh.getRef(repo, DRAFT_BRANCH);
-      if (!draft) break;
-      const dpkg = await gh.readFile(repo, "package.json", draft);
-      if (!dpkg || kitVersion(dpkg) === u.to_version) break;
-      try {
-        await gh.commitFiles(repo, {
-          branch: DRAFT_BRANCH,
-          expectedHead: draft,
-          message: `OpenSpace update ${u.to_version}`,
-          files: [{ path: "package.json", content: bumpPackageJson(dpkg, u.to_version) }],
-          author: { name: "OpenSpace" },
-        });
-        break;
-      } catch (err) {
-        if (!(err instanceof GitHubConflictError)) throw err;
-      }
-    }
+    // Already merged (e.g. a retry after the post-merge step failed): skip straight to the draft.
+    const merged = !!now && compareSemver(now, u.to_version) >= 0;
+    if (!merged) await mergeUpdate(gh, repo, u, main, pkg, db);
+    await carryToDraft(gh, repo, u.to_version);
     // Dev emulation only builds on dispatch; real GitHub builds on the push to main.
-    if (gh.kind === "dev")
+    if (gh.kind === "dev" && !merged)
       await gh.dispatchWorkflow(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
     await markApplied(services, u.id);
     await audit(
@@ -365,6 +317,60 @@ export async function applyUpdate(
       .bind(u.id)
       .first<UpdateRow>()) as UpdateRow,
   );
+}
+
+/** Re-generate the update branch on the current main and squash-merge its PR. */
+async function mergeUpdate(
+  gh: GitHubAccess,
+  repo: RepoRef,
+  u: UpdateRow,
+  main: string,
+  pkg: string,
+  db: D1Database,
+) {
+  // Re-generate on the current main so merging never reverts newer content.
+  const head = await writeBranch(gh, repo, u.to_version, main, pkg);
+  let number = u.pr_number;
+  if (!number) {
+    const pr = await gh.openPullRequest(repo, {
+      head: branchFor(u.to_version),
+      base: MAIN_BRANCH,
+      title: title(u),
+      body: prBody(
+        { version: u.to_version, changelog: JSON.parse(u.changelog_json), security: !!u.security },
+        u.from_version,
+      ),
+    });
+    number = pr.number;
+    await db
+      .prepare("UPDATE site_updates SET pr_number = ?, pr_url = ? WHERE id = ?")
+      .bind(pr.number, pr.url, u.id)
+      .run();
+  }
+  await gh.mergePullRequest(repo, number, { title: title(u), sha: head });
+}
+
+/** Carry the bump to the draft too, or the next publish (draft tree → main) would undo it. */
+async function carryToDraft(gh: GitHubAccess, repo: RepoRef, version: string) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const draft = await gh.getRef(repo, DRAFT_BRANCH);
+    if (!draft) return;
+    const dpkg = await gh.readFile(repo, "package.json", draft);
+    const at = kitVersion(dpkg);
+    if (!dpkg || (at && compareSemver(at, version) >= 0)) return;
+    try {
+      await gh.commitFiles(repo, {
+        branch: DRAFT_BRANCH,
+        expectedHead: draft,
+        message: `OpenSpace update ${version}`,
+        files: [{ path: "package.json", content: bumpPackageJson(dpkg, version) }],
+        author: { name: "OpenSpace" },
+      });
+      return;
+    } catch (err) {
+      if (!(err instanceof GitHubConflictError) || attempt === 2) throw err;
+    }
+  }
 }
 
 async function markApplied(services: Services, id: string) {

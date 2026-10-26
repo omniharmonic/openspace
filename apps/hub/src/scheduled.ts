@@ -27,6 +27,8 @@ const SITE_TABLES = [
   "domains",
   // Task 18 growth + commerce tables (campaign_clicks has no site_id; see below).
   "sender_connections",
+  "member_links",
+  "order_refunds",
   "campaign_recipients",
   "member_tiers",
   "page_passwords",

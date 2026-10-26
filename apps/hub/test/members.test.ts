@@ -124,9 +124,7 @@ describe("member sign-in (magic link, Hub-signed ES256 token)", () => {
     expect(path).toMatch(new RegExp(`^/m/${f.siteId}/verify/[A-Za-z0-9_-]{40,}$`));
     const token = path.split("/").pop() as string;
     // Only the hash is stored.
-    const stored = await env.HUB_DB.prepare(
-      "SELECT token_hash FROM member_tokens WHERE site_id = ?",
-    )
+    const stored = await env.HUB_DB.prepare("SELECT token_hash FROM member_links WHERE site_id = ?")
       .bind(f.siteId)
       .first<{ token_hash: string }>();
     expect(stored?.token_hash).toBe(await sha256Hex(token));

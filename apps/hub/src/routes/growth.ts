@@ -143,9 +143,23 @@ growthRoutes.post("/:id/commerce/connect", async (c) => {
   return c.json(out);
 });
 
+/** Stored payment status (no side effects). */
 growthRoutes.get("/:id/commerce/connect", async (c) => {
   const { site } = await siteWith(c, "designer");
-  return c.json({ payments: await refreshConnectStatus(c.var.services, site.id) });
+  const { services } = c.var;
+  return c.json({
+    payments: paymentsView(services, site.id, await commerceRow(services.db, site.id)),
+  });
+});
+
+/** Re-read the connected account's status from Stripe (Studio calls this after onboarding). */
+growthRoutes.post("/:id/commerce/connect/refresh", async (c) => {
+  const { site, user } = await siteWith(c, "designer");
+  const payments = await refreshConnectStatus(c.var.services, site.id);
+  await log(c, site.id, user, "commerce.connect.refresh", {
+    chargesEnabled: payments.chargesEnabled,
+  });
+  return c.json({ payments });
 });
 
 growthRoutes.put("/:id/commerce/sovereign", async (c) => {
@@ -521,8 +535,10 @@ growthRoutes.post("/:id/senders", async (c) => {
 });
 
 growthRoutes.post("/:id/senders/:sid/verify", async (c) => {
-  const { site } = await siteWith(c, "designer");
-  return c.json({ sender: await verifySender(c.var.services, site.id, c.req.param("sid")) });
+  const { site, user } = await siteWith(c, "designer");
+  const sender = await verifySender(c.var.services, site.id, c.req.param("sid"));
+  await log(c, site.id, user, "sender.verify", { sender: sender.id, status: sender.status });
+  return c.json({ sender });
 });
 
 growthRoutes.delete("/:id/senders/:sid", async (c) => {
@@ -647,15 +663,28 @@ growthRoutes.get("/:id/updates", async (c) => {
 });
 
 growthRoutes.post("/:id/updates/check", async (c) => {
-  const { site } = await siteWith(c, "designer");
-  return c.json({ update: await checkSiteUpdate(c.var.services, site, c.var.log) });
+  const { site, user } = await siteWith(c, "designer");
+  const update = await checkSiteUpdate(c.var.services, site, c.var.log);
+  await log(c, site.id, user, "update.check", {
+    update: update?.id ?? null,
+    to: update?.to ?? null,
+  });
+  return c.json({ update });
 });
 
 growthRoutes.post("/:id/updates/:uid/apply", async (c) => {
   const { site, user } = await siteWith(c, "designer");
-  return c.json({
-    update: await applyUpdate(c.var.services, site, user, c.req.param("uid"), c.var.log),
-  });
+  try {
+    return c.json({
+      update: await applyUpdate(c.var.services, site, user, c.req.param("uid"), c.var.log),
+    });
+  } catch (err) {
+    await log(c, site.id, user, "update.apply_failed", {
+      update: c.req.param("uid"),
+      code: err instanceof HttpError ? err.code : "error",
+    });
+    throw err;
+  }
 });
 
 growthRoutes.post("/:id/updates/:uid/dismiss", async (c) => {

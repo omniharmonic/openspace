@@ -3,7 +3,9 @@ import type { Page, SiteDocument } from "@openspace/schema";
 import { type Context, Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { getSite, getSiteForUser } from "../db/sites";
-import { parseFields, single } from "../lib/public";
+import { sha256Hex } from "../lib/crypto";
+import { clientIp, parseFields, rateKeyIp, single } from "../lib/public";
+import { requireHmacKey } from "../public-env";
 import { verifyJwt } from "../services/member-keys";
 import {
   checkPagePassword,
@@ -50,7 +52,12 @@ for (const prefix of ["/s/*", "/p/*", "/t/*"]) {
   });
 }
 
-function htmlPage(c: Context<AppEnv>, status: 401 | 403 | 404, title: string, message: string) {
+function htmlPage(
+  c: Context<AppEnv>,
+  status: 401 | 403 | 404 | 429,
+  title: string,
+  message: string,
+) {
   return c.html(
     `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(title)}</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:560px;margin:15vh auto;padding:0 16px;color:#1d1d1f}</style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(message)}</p></body></html>`,
     status,
@@ -92,6 +99,9 @@ async function render(
   if (mode === "draft") c.header("X-Robots-Tag", "noindex");
   return c.html(html);
 }
+
+const PASSWORD_RULE = { name: "page-password", limit: 10, windowSec: 600 };
+const PASSWORD_PAGE_RULE = { name: "page-password-page", limit: 100, windowSec: 600 };
 
 // ---- dev preview gating (Task 18) -------------------------------------------------------------
 
@@ -179,6 +189,20 @@ previewRoutes.post("/s/:siteId/_os/auth/password", async (c) => {
   const f = await parseFields(c);
   const pageId = single(f.page) ?? "";
   const back = previewReturn(basePath, single(f.return));
+  // Password guessing: per visitor (IPv4 / IPv6 /64) and a ceiling per page.
+  const who = (
+    await sha256Hex(`${requireHmacKey(c.var.services.pub.config)}|${rateKeyIp(clientIp(c))}`)
+  ).slice(0, 24);
+  for (const [key, rule] of [
+    [`${siteId}|${who}`, PASSWORD_RULE],
+    [`${siteId}|${pageId}|*`, PASSWORD_PAGE_RULE],
+  ] as const) {
+    const rate = await c.var.services.pub.rateLimit.hit(key, rule);
+    if (!rate.ok) {
+      c.header("Retry-After", String(rate.retryAfter));
+      return htmlPage(c, 429, "Too many attempts", "Please wait a few minutes and try again.");
+    }
+  }
   const row = /^pg_[0-9a-z]{10}$/.test(pageId)
     ? await c.var.services.db
         .prepare("SELECT hash FROM page_passwords WHERE site_id = ? AND page_id = ?")
