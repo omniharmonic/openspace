@@ -67,7 +67,9 @@ changes land on \`main\` (\`.github/workflows/publish.yml\`).
 4. **Styles change through tokens** in \`content/styles.json\` (palette, type pairing, density,
    shape…), never inline CSS. Sections pick one of five color themes.
 5. **Never put secrets in content** (API keys, tokens, passwords). \`openspace check\` fails on them.
-   Gated pages (members / password) are not stored in this repository.
+   Members-only and password pages are only stubs here (a page file with \`contentRef\` and no
+   sections): their content is kept by the OpenSpace Hub and never committed. Edit them in
+   Studio or with the Hub's MCP tools; never add sections to a stub (they would be public).
 6. **Run \`npx openspace check\` before committing.** It validates schemas, links, image references,
    size budgets and scans for secrets.
 7. Write real copy in the owner's voice. No placeholder text, no invented testimonials, prices

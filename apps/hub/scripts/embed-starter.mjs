@@ -39,6 +39,7 @@ const hosting = {
     ".github/workflows/publish.yml": cloudflare[".github/workflows/publish.yml"],
     "astro.config.mjs": cloudflare["astro.config.mjs"],
     "wrangler.jsonc": cloudflare["wrangler.jsonc"],
+    ".github/openspace/gated-sync.mjs": cloudflare[".github/openspace/gated-sync.mjs"],
   },
 };
 

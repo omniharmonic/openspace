@@ -4,6 +4,7 @@ import { renderAgentsMd, writeAgentsMd } from "./agents";
 import { type Budgets, formatReport, githubAnnotations, runCheck } from "./check";
 import { runDev, type Spawner } from "./dev";
 import { EJECT_WARNING, runEject } from "./eject";
+import { type GatedSyncDeps, runGatedSync } from "./gated-sync";
 import { CliError, colorEnabled, type Io, paint } from "./io";
 import { runMcp } from "./mcp";
 import { runMigrate } from "./migrate";
@@ -15,6 +16,7 @@ export const VERSION = "0.1.0";
 export interface ProgramDeps {
   spawner?: Spawner;
   findBin?: (cwd: string) => string | undefined;
+  gatedSync?: GatedSyncDeps;
 }
 
 export function createProgram(
@@ -148,6 +150,16 @@ export function createProgram(
       if (r.addedDependencies.length)
         io.out(`Added dependencies: ${r.addedDependencies.join(", ")}. Run "npm install".`);
       io.out("Done. Studio can no longer edit this site.");
+    });
+
+  program
+    .command("gated-sync")
+    .description(
+      "Publish workflow (Cloudflare): put this version's members-only and password pages into the Worker's private storage.",
+    )
+    .option("--bucket <name>", "R2 bucket (default: the OS_GATED bucket in wrangler.jsonc)")
+    .action(async (opts: { bucket?: string }) => {
+      await runGatedSync(io, opts, deps.gatedSync);
     });
 
   program

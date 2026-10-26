@@ -40,9 +40,11 @@ import { type DecodedImage, decodeImageDataUrl } from "../lib/image";
 import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
+import { gatedContext as gatedContextFor, loadOpenedDocument, sealFiles } from "./gated-content";
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
 import { draftReady } from "./publishing";
+import { refreshRepoIdentity, syncTurnstileVariable } from "./site-automation";
 import { CONFIG_PATH, isDocumentPath, loadSiteDocument, siteDocumentToFiles } from "./site-files";
 import type { TemplateMeta } from "./templates";
 
@@ -325,6 +327,14 @@ async function buildSiteFiles(
       issues: (err as { issues?: unknown }).issues,
     });
   }
+  // The public Turnstile key also lives in openspace.json (site-kit's fallback when the
+  // repository variable is missing).
+  const turnstileSiteKey = services.pub.config.turnstile.siteKey;
+  if (turnstileSiteKey)
+    doc = {
+      ...doc,
+      config: { ...doc.config, integrations: { ...doc.config.integrations, turnstileSiteKey } },
+    };
   const secrets = scanValueForSecrets(doc);
   if (secrets.length)
     throw new HttpError(
@@ -336,7 +346,11 @@ async function buildSiteFiles(
   const files: Record<string, string | FileContent> = {};
   for (const [path, content] of Object.entries(template.files))
     if (!isDocumentPath(path)) files[path] = content;
-  Object.assign(files, siteDocumentToFiles(doc));
+  // Templates may ship members-only / password pages: their content stays in the Hub.
+  Object.assign(
+    files,
+    await sealFiles(gatedContextFor(services, site.id), siteDocumentToFiles(doc)),
+  );
   if (setup.logo) {
     let b64 = logoBase64;
     if (b64 === undefined) {
@@ -410,6 +424,20 @@ async function runSetup(
     }
     // The content is on main: the setup logo in R2 is no longer needed.
     await deleteSetupAssets(services, site.id, opts.log);
+    stage = "variables";
+    // The repository's ids bind the publish workflow's identity token to this site.
+    try {
+      await refreshRepoIdentity(services, site, gh);
+    } catch (err) {
+      opts.log?.warn("repository ids not recorded", { siteId: site.id, err });
+    }
+    // Forms, sign-up and sign-in on the built site load Turnstile with the Hub's public key.
+    try {
+      await syncTurnstileVariable(services, site, gh);
+    } catch (err) {
+      // The minute cron backfills it; a missing variable must not block the first publish.
+      opts.log?.warn("turnstile variable not set", { siteId: site.id, err });
+    }
     stage = "draft";
     if (!(await gh.getRef(repo, DRAFT_BRANCH))) await gh.createBranch(repo, DRAFT_BRANCH, head);
     stage = "pages";
@@ -842,7 +870,7 @@ export async function readSiteDocument(
   }
   if (!head) throw notFound("This site has no content yet.");
   const files = await gh.readFiles(repo, head, { textOnly: true });
-  return { doc: loadSiteDocument(files), head, branch };
+  return { doc: await loadOpenedDocument(gatedContextFor(services, site.id), files), head, branch };
 }
 
 /** Find the page for a URL path below the site root ("" = home). */

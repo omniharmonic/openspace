@@ -276,6 +276,31 @@ describe("page commands (ops)", () => {
     expect(cleared?.footerInjection).toBeUndefined();
   });
 
+  it("members-only pages can be limited to membership plans", () => {
+    const store = session();
+    const doc = store.getState().doc;
+    const target = Object.values(doc.pages).find((p) => p.slug !== "");
+    if (!target) throw new Error("page");
+    const cmd = updatePageSettings(doc, target.id, {
+      ...pageSettingsOf(target),
+      access: "members",
+      tiers: ["tier_patron", "tier_gold", "tier_gold"],
+      redirectOld: false,
+    });
+    expect(store.getState().commit(cmd?.bodies ?? []).ok).toBe(true);
+    const gated = store.getState().doc.pages[target.id];
+    expect(gated?.access).toEqual({ members: true, tiers: ["tier_gold", "tier_patron"] });
+    expect(pageSettingsOf(gated as never).tiers).toEqual(["tier_gold", "tier_patron"]);
+    // Every member again.
+    const open = updatePageSettings(store.getState().doc, target.id, {
+      ...pageSettingsOf(gated as never),
+      tiers: [],
+      redirectOld: false,
+    });
+    expect(store.getState().commit(open?.bodies ?? []).ok).toBe(true);
+    expect(store.getState().doc.pages[target.id]?.access).toEqual({ members: true });
+  });
+
   it("explains address problems in plain words", () => {
     const doc = session().getState().doc;
     const other = Object.values(doc.pages).find((p) => p.slug !== "");

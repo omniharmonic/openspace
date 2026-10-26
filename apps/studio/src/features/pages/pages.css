@@ -606,3 +606,11 @@
   font-family: var(--st-font-mono);
   font-size: 12px;
 }
+
+.st-tier-picker {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+}

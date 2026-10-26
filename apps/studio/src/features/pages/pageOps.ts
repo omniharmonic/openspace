@@ -96,7 +96,9 @@ export function duplicatePage(
   const { access, ...restNoAccess } = rest;
   const page = {
     ...restNoAccess,
-    ...(access?.members ? { access: { members: true } } : {}),
+    ...(access?.members
+      ? { access: { members: true, ...(access.tiers?.length ? { tiers: access.tiers } : {}) } }
+      : {}),
     id: newId("pg"),
     title,
     slug,
@@ -136,6 +138,8 @@ export interface PageSettingsInput {
   /** Published but left out of navigation, search and the sitemap. */
   unlisted: boolean;
   access: "public" | "password" | "members";
+  /** Members-only pages: the tiers (Hub tier ids) that may open it; empty = every member. */
+  tiers: string[];
   /** Add a redirect from the old address when the slug changes. */
   redirectOld: boolean;
   /** Per-page code (Advanced; owners and designers). Absent: leave unchanged. */
@@ -155,6 +159,7 @@ export function pageSettingsOf(page: Page): Omit<PageSettingsInput, "redirectOld
     access: page.access?.members ? "members" : page.access?.password ? "password" : "public",
     headCode: page.headInjection ?? "",
     footerCode: page.footerInjection ?? "",
+    tiers: page.access?.members ? [...(page.access.tiers ?? [])] : [],
   };
 }
 
@@ -183,9 +188,16 @@ export function updatePageSettings(
   if (input.seoImage !== cur.seoImage) put("seo.image", input.seoImage, !input.seoImage);
   if (input.noindex !== cur.noindex) put("seo.noindex", true, !input.noindex);
   if (input.unlisted !== cur.unlisted) put("hidden", true, !input.unlisted);
-  if (input.access !== cur.access) {
+  const tiers = [...new Set(input.tiers ?? [])].sort();
+  const tiersChanged =
+    input.access === "members" && tiers.join("\n") !== [...cur.tiers].sort().join("\n");
+  if (input.access !== cur.access || tiersChanged) {
     if (input.access === "public") unset.push("access");
-    else set.access = input.access === "members" ? { members: true } : { password: true };
+    else
+      set.access =
+        input.access === "members"
+          ? { members: true, ...(tiers.length ? { tiers } : {}) }
+          : { password: true };
   }
   for (const [key, path] of [
     ["headCode", "headInjection"],

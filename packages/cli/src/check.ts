@@ -305,20 +305,38 @@ export async function runCheck(root: string, options: CheckOptions = {}): Promis
 
   // Only pages can be gated: collection items carry no access flags in the schema.
   // --- gated content in a public repo ---------------------------------------------------------
-  if (doc?.config.deploy.target === "github-pages") {
-    for (const page of Object.values(doc.pages)) {
-      const kinds = [page.access?.password && "password", page.access?.members && "members-only"]
+  // Members-only / password pages are stubs in the repository (`contentRef`, no sections); their
+  // content lives in the Hub and reaches only the Cloudflare Worker's private storage.
+  for (const page of doc ? Object.values(doc.pages) : []) {
+    const gated =
+      page.access?.password ||
+      page.access?.members ||
+      page.slug === "members" ||
+      page.slug.startsWith("members/");
+    if (!gated) continue;
+    const kinds =
+      [page.access?.password && "password", page.access?.members && "members-only"]
         .filter(Boolean)
-        .join(" and ");
-      if (kinds)
-        add({
-          severity: "error",
-          rule: "gating",
-          file: pageFiles[page.id] ?? PAGES_DIR,
-          path: "access",
-          message: `Page "${page.title}" is ${kinds} gated, but GitHub Pages publishes the whole repository publicly. Switch the site to the Cloudflare target or remove the gate.`,
-        });
-    }
+        .join(" and ") || "members-only";
+    const file = pageFiles[page.id] ?? PAGES_DIR;
+    // A warning, not an error: template samples and hand-made sites may carry it on purpose,
+    // and the Hub never commits it (it seals gated pages into stubs).
+    if (page.sections.length)
+      add({
+        severity: "warning",
+        rule: "gating",
+        file,
+        path: "sections",
+        message: `Page "${page.title}" is ${kinds}, but its content is in the site's files, which anyone can read. Edit it in Studio (the Hub keeps gated content out of the files); the published site serves only content the Hub holds.`,
+      });
+    else if (doc?.config.deploy.target === "github-pages")
+      add({
+        severity: "warning",
+        rule: "gating",
+        file,
+        path: "access",
+        message: `Page "${page.title}" is ${kinds}: it is only published with Cloudflare hosting.`,
+      });
   }
 
   const errors = findings.filter((f) => f.severity === "error").length;

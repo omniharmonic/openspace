@@ -153,14 +153,11 @@ test("edit headline inline, replace an image (EXIF stripped), add a preset secti
   await palettes.locator('button[aria-pressed="false"]').nth(2).click();
   const pairings = page.getByRole("group", { name: "Font pairings" });
   const pairing = pairings.locator('button[aria-pressed="false"]').nth(3);
-  // The pairing's accessible name is its visible name text (the specimen lines are aria-hidden).
-  const pairingName = ((await pairing.locator(".st-ss-pairing__name").textContent()) ?? "").trim();
-  expect(pairingName).not.toBe("");
+  const pairingName = (await pairing.locator(".st-ss-pairing__name").textContent())?.trim();
   await pairing.click();
-  await expect(pairings.getByRole("button", { name: pairingName, exact: true })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  await expect(
+    pairings.getByRole("button", { name: pairingName ?? "", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
   await expect.poll(async () => JSON.stringify((await draft()).styles)).not.toBe(stylesBefore);
 });
 

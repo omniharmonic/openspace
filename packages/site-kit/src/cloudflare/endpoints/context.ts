@@ -11,6 +11,8 @@ export function gateContext(): GateContext {
     fontStylesheets: options.fontStylesheets,
     hubUrl: options.hubUrl,
     turnstileSiteKey: options.turnstileSiteKey,
+    // `astro dev` with gated content in the working copy; a deployed Worker reads only R2.
+    devFallback: options.dev === true,
   };
 }
 

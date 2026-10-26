@@ -47,9 +47,10 @@ export interface GitHubAppAccessOptions {
 }
 
 interface RestRepo {
+  id?: number;
   name: string;
   full_name: string;
-  owner: { login: string };
+  owner: { login: string; id?: number };
   default_branch: string;
   html_url: string;
   private: boolean;
@@ -80,6 +81,8 @@ function toRepoInfo(r: RestRepo): RepoInfo {
     htmlUrl: r.html_url,
     private: r.private,
     archived: r.archived,
+    ...(typeof r.id === "number" ? { id: r.id } : {}),
+    ...(typeof r.owner.id === "number" ? { ownerId: r.owner.id } : {}),
   };
 }
 
@@ -635,6 +638,28 @@ export class GitHubAppAccess implements GitHubAccess {
       `${this.repoPath(repo)}/actions/secrets?per_page=100`,
     );
     return (res?.secrets ?? []).map((s) => s.name);
+  }
+
+  async getVariable(repo: RepoRef, name: string): Promise<string | null> {
+    const res = await this.rest<{ name: string; value: string }>(
+      `${this.repoPath(repo)}/actions/variables/${enc(name)}`,
+      { allow404: true },
+    );
+    return res?.value ?? null;
+  }
+
+  async setVariable(repo: RepoRef, name: string, value: string): Promise<void> {
+    // REST: PATCH updates an existing variable, POST creates one.
+    if ((await this.getVariable(repo, name)) !== null)
+      await this.rest(`${this.repoPath(repo)}/actions/variables/${enc(name)}`, {
+        method: "PATCH",
+        body: { name, value },
+      });
+    else
+      await this.rest(`${this.repoPath(repo)}/actions/variables`, {
+        method: "POST",
+        body: { name, value },
+      });
   }
 
   async addCollaborator(

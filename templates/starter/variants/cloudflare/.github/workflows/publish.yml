@@ -1,7 +1,9 @@
 # .github/workflows/publish.yml (generated; managed by site-kit updates) — Cloudflare target.
 # Prerendered pages deploy as static assets of a Worker in the owner's Cloudflare account; the
-# Worker serves members pages, sign-in and password pages. The R2 bucket and D1 database are
-# provisioned automatically on the first deploy.
+# Worker serves members pages, sign-in and password pages. The D1 database is provisioned
+# automatically on the first deploy. Members-only / password page content is never in this
+# repository: the Hub keeps it, and this run copies the versions its commit names into the
+# Worker's private R2 bucket (authorized by the run's GitHub OIDC identity, no stored token).
 name: Publish
 on:
   push: { branches: [main] }
@@ -9,7 +11,22 @@ on:
 permissions: { contents: read }
 concurrency: { group: publish, cancel-in-progress: true }
 jobs:
+  # Members-only and password pages → the Worker's private R2 bucket (from the Hub). The only job
+  # that may mint the run's identity token, so it installs nothing: one Node script, built-ins only.
+  gated:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, id-token: write }
+    steps:
+      - uses: actions/checkout@v7
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v7
+        with: { node-version: 22 }
+      - run: node .github/openspace/gated-sync.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
   publish:
+    needs: gated
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -29,6 +46,23 @@ jobs:
           OPENSPACE_TURNSTILE_SITE_KEY: ${{ vars.OPENSPACE_TURNSTILE_SITE_KEY }}
           # Self-host the font pairing (downloaded once from Google Fonts during the build).
           OPENSPACE_GOOGLE_FONTS: download
+      # Worker secrets from this repository's Actions secrets (the Hub sets them): the member
+      # session key, page password hashes and, in sovereign mode, the owner's own Stripe keys.
+      # Before the deploy, so the new version starts with them: on the very first run
+      # `wrangler secret bulk` creates the Worker as a draft (non-interactive default), and
+      # `wrangler deploy` never deletes secrets. Re-running is idempotent.
+      - name: Worker secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          OS_SESSION_SECRET: ${{ secrets.OS_SESSION_SECRET }}
+          OS_PAGE_PASSWORDS: ${{ secrets.OS_PAGE_PASSWORDS }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        run: |
+          node -e 'const o={};for(const k of ["OS_SESSION_SECRET","OS_PAGE_PASSWORDS","STRIPE_SECRET_KEY","STRIPE_WEBHOOK_SECRET"])if(process.env[k])o[k]=process.env[k];if(Object.keys(o).length)require("fs").writeFileSync(process.env.RUNNER_TEMP+"/os-secrets.json",JSON.stringify(o),{mode:0o600})'
+          if [ -f "$RUNNER_TEMP/os-secrets.json" ]; then npx wrangler secret bulk "$RUNNER_TEMP/os-secrets.json"; fi
+          rm -f "$RUNNER_TEMP/os-secrets.json"
       - run: npx wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

@@ -242,6 +242,38 @@ describe("history", () => {
     await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "live"));
   });
 
+  it("asks for a password when going back to a version that protects a page without one", async () => {
+    const { user, hub } = await openEditor();
+    const access = (value: unknown) =>
+      act(() => {
+        store().commit([
+          (value
+            ? { op: "page.update", page: I.about, set: { access: value } }
+            : { op: "page.update", page: I.about, unset: ["access"] }) as OpBody,
+        ]);
+      });
+    await access({ password: true });
+    await screen.findByText("Saved");
+    await hub.publish(willow.id);
+    await access(null);
+    await screen.findByText("Saved");
+    await hub.publish(willow.id);
+    await user.click(screen.getByRole("button", { name: "History" }));
+    const sheet = await screen.findByRole("dialog", { name: "History" });
+    const list = await within(sheet).findByRole("list", { name: "Published versions" });
+    const items = within(list).getAllByRole("listitem");
+    await user.click(
+      within(items[1] as HTMLElement).getByRole("button", { name: /Roll back to the version/ }),
+    );
+    const confirm = await screen.findByRole("dialog", { name: "Roll back to this version?" });
+    await user.click(within(confirm).getByRole("button", { name: "Roll back" }));
+    await waitFor(() =>
+      expect(
+        useToastStore.getState().toasts.some((t) => /^Set a password for “/.test(String(t.title))),
+      ).toBe(true),
+    );
+  });
+
   it("saves a named snapshot and restores it into the draft", async () => {
     const { user, hub } = await openEditor();
     await edit("Before the redesign");

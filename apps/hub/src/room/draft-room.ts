@@ -21,9 +21,18 @@ import { bytesToBase64, canonicalJson, randomId, sha1Hex, sha256Hex } from "../l
 import { HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
+import {
+  gatedContext,
+  openFiles,
+  readOpenedDocumentFiles,
+  sealChanges,
+  unsealedGatedPaths,
+} from "../services/gated-content";
 import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
+import { recordNextScheduled } from "../services/site-automation";
 import { diffSiteFiles, isDocumentPath, loadSiteDocument } from "../services/site-files";
+import { syncWorkerSecretsSafely } from "../services/worker-secrets";
 import { commitMessage, type TrailerActor, trailerEmail } from "./commit";
 import {
   type BuildNotice,
@@ -189,7 +198,12 @@ export class DraftRoom extends DurableObject<HubBindings> {
   private async readHead(
     gh: GitHubAccess,
     repo: RepoRef,
-  ): Promise<{ head: string; files: Record<string, string>; doc: SiteDocument }> {
+  ): Promise<{
+    head: string;
+    files: Record<string, string>;
+    doc: SiteDocument;
+    unsealed: string[];
+  }> {
     let head = await gh.getRef(repo, DRAFT_BRANCH);
     if (!head) {
       const main = await gh.getRef(repo, MAIN_BRANCH);
@@ -199,10 +213,31 @@ export class DraftRoom extends DurableObject<HubBindings> {
       });
       head = (await gh.getRef(repo, DRAFT_BRANCH)) ?? main;
     }
+    // Gated pages are stubs in the repository; the room works on their full content.
     const all = await gh.readFiles(repo, head, { textOnly: true });
-    const files: Record<string, string> = {};
-    for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) files[p] = c;
-    return { head, files, doc: loadSiteDocument(files) };
+    const raw: Record<string, string> = {};
+    for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) raw[p] = c;
+    const files = await openFiles(gatedContext(this.services(), this.siteId()), raw);
+    return { head, files, doc: loadSiteDocument(files), unsealed: unsealedGatedPaths(raw) };
+  }
+
+  /**
+   * Gated pages committed with their content (before sealing existed, or by a direct commit):
+   * remember them so the next flush seals them out of the repository, and flush soon.
+   */
+  private async noteUnsealed(paths: string[]): Promise<void> {
+    if (!paths.length) return;
+    this.state.setMeta("unsealed", JSON.stringify(paths));
+    await this.ctx.storage.setAlarm(Date.now() + 1000);
+  }
+
+  private unsealed(): string[] {
+    try {
+      const v = JSON.parse(this.state.getMeta("unsealed") ?? "[]") as unknown;
+      return Array.isArray(v) ? v.filter((p): p is string => typeof p === "string") : [];
+    } catch {
+      return [];
+    }
   }
 
   private async ensureLoaded(siteId: string): Promise<void> {
@@ -218,8 +253,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
       const services = this.services();
       const site = await this.site(services, siteId);
       const gh = await this.github(services, site);
-      const { head, files, doc } = await this.readHead(gh, parseRepo(site.repo));
-      if (!this.state.doc) this.state.rebaseOnHead(head, files, doc);
+      const { head, files, doc, unsealed } = await this.readHead(gh, parseRepo(site.repo));
+      if (!this.state.doc) {
+        this.state.rebaseOnHead(head, files, doc);
+        await this.noteUnsealed(unsealed);
+      }
     })().finally(() => {
       this.loading = null;
     });
@@ -786,9 +824,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
       const repo = parseRepo(site.repo);
       const main = await gh.getRef(repo, MAIN_BRANCH);
       if (!main) throw new HttpError(409, "not_ready", "This site isn't published yet.");
-      const all = await gh.readFiles(repo, main, { textOnly: true });
-      const files: Record<string, string> = {};
-      for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) files[p] = c;
+      const files = await readOpenedDocumentFiles(gatedContext(services, siteId), gh, repo, main);
       const target = loadSiteDocument(files);
       const ops = diff(this.state.doc as SiteDocument, target, {
         actor: "discard",
@@ -1054,36 +1090,49 @@ export class DraftRoom extends DurableObject<HubBindings> {
   ): Promise<{ head: string; seq: number; committed: boolean }> {
     const upTo = this.state.seq;
     const from = this.state.flushedSeq;
-    if (from >= upTo) return { head: this.state.head, seq: upTo, committed: false };
+    const unsealed = this.unsealed();
+    if (from >= upTo && !unsealed.length)
+      return { head: this.state.head, seq: upTo, committed: false };
     const doc = this.state.doc as SiteDocument;
     const ops = this.state.opsAfter(from).filter((o) => o.seq <= upTo);
     const changes = diffSiteFiles(this.state.files(), doc);
+    // Re-commit gated pages whose content is still in the repository: sealing turns them into stubs.
+    const current = this.state.files();
+    for (const path of unsealed)
+      if (current[path] !== undefined && !changes.some((c) => c.path === path))
+        changes.push({ path, content: current[path] as string });
     if (!changes.length) {
       this.state.markFlushed(upTo);
+      this.state.setMeta("unsealed", "[]");
       return { head: this.state.head, seq: upTo, committed: false };
     }
     const before = this.state.docAt(from) ?? doc;
     const actors = this.trailerActors(ops);
-    const { message } = commitMessage(
-      ops.map((o) => o.op),
-      before,
-      actors,
-    );
+    const message = ops.length
+      ? commitMessage(
+          ops.map((o) => o.op),
+          before,
+          actors,
+        ).message
+      : "Moved members-only page content out of the site files";
     const services = this.services();
     const site = await this.site(services, siteId);
     const gh = await this.github(services, site);
     const repo = parseRepo(site.repo);
     const firstHuman = actors.find((a) => a.kind === "human");
     try {
+      // Members-only / password page content never goes into the repository (PRD §7.3).
+      const sealed = await sealChanges(gatedContext(services, siteId), changes);
       const commit = await gh.commitFiles(repo, {
         branch: DRAFT_BRANCH,
-        files: changes,
+        files: sealed,
         message,
         expectedHead: this.state.head,
         author: { name: firstHuman?.name ?? "OpenSpace" },
       });
       this.state.applyFileChanges(changes);
       this.state.setMeta("head", commit.sha);
+      this.state.setMeta("unsealed", "[]");
       this.state.markFlushed(upTo);
       this.state.prune();
       this.broadcast({ type: "flushed", seq: upTo, head: commit.sha });
@@ -1136,8 +1185,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
 
   /** Re-read the draft head, replay unflushed ops on it, tell everyone to reload. */
   private async reloadFromHead(gh: GitHubAccess, repo: RepoRef, reason: string): Promise<void> {
-    const { head, files, doc } = await this.readHead(gh, repo);
+    const { head, files, doc, unsealed } = await this.readHead(gh, repo);
     const dropped = this.state.rebaseOnHead(head, files, doc);
+    await this.noteUnsealed(unsealed);
     if (dropped.length) this.log.warn("ops dropped on reload", { count: dropped.length });
     this.broadcast({
       type: "reload",
@@ -1149,6 +1199,15 @@ export class DraftRoom extends DurableObject<HubBindings> {
   }
 
   // --- publishing ---------------------------------------------------------------------------
+
+  /** Remember when the next scheduled post/event of what just went live is due (cron rebuild). */
+  private async noteScheduled(services: Services, siteId: string, doc: SiteDocument) {
+    try {
+      await recordNextScheduled(services, siteId, doc);
+    } catch (err) {
+      this.log.warn("recording scheduled items failed", { siteId, err });
+    }
+  }
 
   private async sameTree(gh: GitHubAccess, repo: RepoRef, a: string, b: string): Promise<boolean> {
     if (a === b) return true;
@@ -1296,6 +1355,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
           actors,
           "Published changes",
         );
+        // Cloudflare: the Worker's secrets must be in place before the commit starts the build.
+        await syncWorkerSecretsSafely(services, site, this.log, {
+          gh,
+          doc: this.state.doc as SiteDocument,
+        });
         const commit = await gh.commitTree(repo, {
           branch: MAIN_BRANCH,
           treeOf: draftHead,
@@ -1304,6 +1368,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
           author: { name: publisher?.name ?? publisher?.login ?? "OpenSpace" },
         });
         this.state.markPublished(this.state.flushedSeq);
+        await this.noteScheduled(services, siteId, this.state.doc as SiteDocument);
         if (await this.resetDraftIfAt(gh, repo, draftHead, commit.sha))
           this.state.setMeta("head", commit.sha);
         // Someone committed to the draft while we published: keep their work.
@@ -1381,6 +1446,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const when = target.date.slice(0, 10);
         const summary = `Went back to the version from ${when}`;
         const firstLine = target.message.split("\n")[0] ?? "";
+        await syncWorkerSecretsSafely(services, site, this.log, { gh });
         const commit = await gh.commitTree(repo, {
           branch: MAIN_BRANCH,
           treeOf: target.sha,
@@ -1400,6 +1466,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         // on the rolled-back draft.
         this.state.markPublished(this.state.flushedSeq);
         await this.reloadFromHead(gh, repo, "The site went back to an earlier version.");
+        await this.noteScheduled(services, siteId, this.state.doc as SiteDocument);
         await this.recordPublish(services, gh, site, {
           kind: "rollback",
           sha: commit.sha,

@@ -186,20 +186,34 @@ describe("openspace check", () => {
     expect(jpg?.message).toMatch(/width, height and alt text/);
   });
 
-  it("rejects gated pages on the github-pages target, allows them on cloudflare", async () => {
+  it("flags gated page content in the files; stubs pass (a note on GitHub Pages)", async () => {
     const root = await meadowCopy();
     await editJson(join(root, "content/pages/about.json"), (p) => {
       p.access = { members: true };
     });
     const pages = await runCheck(root);
-    expect(rules(pages)).toContain("gating");
-    expect(pages.findings.find((f) => f.rule === "gating")?.file).toBe("content/pages/about.json");
+    const finding = pages.findings.find((f) => f.rule === "gating");
+    expect(finding).toMatchObject({ severity: "warning", file: "content/pages/about.json" });
+    expect(finding?.message).toContain("anyone can read");
 
     await editJson(join(root, "openspace.json"), (c) => {
       c.deploy.target = "cloudflare";
     });
+    // Content in the files is flagged on Cloudflare too: it's public there.
+    expect(rules(await runCheck(root), "warning")).toContain("gating");
+
+    // The stub the Hub commits is fine.
+    await editJson(join(root, "content/pages/about.json"), (p) => {
+      p.sections = [];
+      p.contentRef = "abcdef0123456789abcdef0123456789abcdef01";
+    });
     const cf = await runCheck(root);
-    expect(rules(cf)).not.toContain("gating");
+    expect(cf.findings.map((f) => f.rule)).not.toContain("gating");
+    await editJson(join(root, "openspace.json"), (c) => {
+      c.deploy.target = "github-pages";
+    });
+    const gp = await runCheck(root);
+    expect(gp.findings.find((f) => f.rule === "gating")?.severity).toBe("warning");
   });
 
   it("prints JSON and GitHub annotations", async () => {

@@ -22,10 +22,20 @@ export type PageSeo = z.infer<typeof PageSeoSchema>;
  * Gating flags. Passwords and member lists live in the Hub, never in content; these flags
  * only say which gate applies.
  */
-export const PageAccessSchema = z.strictObject({
-  password: z.boolean().optional(),
-  members: z.boolean().optional(),
-});
+export const PageAccessSchema = z
+  .strictObject({
+    password: z.boolean().optional(),
+    members: z.boolean().optional(),
+    /**
+     * Members-only pages: the membership tiers (Hub tier ids) that may open the page. Absent or
+     * empty = every signed-in member, including free sign-ups when sign-up is open.
+     */
+    tiers: z.array(z.string().min(1).max(64)).max(20).optional(),
+  })
+  .refine((a) => !a.tiers?.length || a.members === true, {
+    message: "Membership plans only apply to members-only pages",
+    path: ["tiers"],
+  });
 export type PageAccess = z.infer<typeof PageAccessSchema>;
 
 /** A page document (`content/pages/**.json`, arch §3.2). */
@@ -44,6 +54,15 @@ export const PageSchema = named(
       /** Hidden pages are published but left out of navigation, search and the sitemap. */
       hidden: z.boolean().optional(),
       access: PageAccessSchema.optional(),
+      /**
+       * Only in the repository copy of a members-only / password page: its content is kept by the
+       * Hub (and the site Worker's private storage) under this reference, never in the public
+       * repository, so the committed file has no sections.
+       */
+      contentRef: z
+        .string()
+        .regex(/^[a-z0-9]{16,64}$/)
+        .optional(),
       sections: z.array(SectionSchema),
       /**
        * Per-page code injection (PRD §5.1 "per-page head/footer injection"): raw HTML added to

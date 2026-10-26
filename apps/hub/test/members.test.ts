@@ -50,7 +50,7 @@ async function gatedSite(app: TestApp): Promise<SiteFixture> {
     id: string,
     slug: string,
     title: string,
-    access: Record<string, boolean>,
+    access: Record<string, boolean | string[]>,
     text: string,
   ) => ({
     path: `content/pages/${slug}.json`,
@@ -88,6 +88,13 @@ async function gatedSite(app: TestApp): Promise<SiteFixture> {
     files: [
       page("pg_members000", "members", "Members", { members: true }, "Secret class recordings"),
       page("pg_retreat000", "retreat", "Retreat", { password: true }, "Retreat packing list"),
+      page(
+        "pg_gdsessn000",
+        "gold",
+        "Gold sessions",
+        { members: true, tiers: ["tier_gold"] },
+        "Gold tier recordings",
+      ),
     ],
   });
   return f;
@@ -267,6 +274,147 @@ describe("member sign-in (magic link, Hub-signed ES256 token)", () => {
       redirect: "manual",
     });
     expect(evil.headers.get("location")).toBe(`/s/${f.siteId}/`);
+  });
+
+  it("purpose-bound cookies: a page-password cookie never passes as a member session", async () => {
+    const app = makePublicApp();
+    const f = await gatedSite(app);
+    await call(app, `/api/sites/${f.siteId}/page-passwords/pg_retreat000`, {
+      method: "PUT",
+      cookie: f.cookie,
+      json: { password: "cedar-grove" },
+    });
+    const right = await call(app, `/s/${f.siteId}/_os/auth/password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        page: "pg_retreat000",
+        password: "cedar-grove",
+        return: `/s/${f.siteId}/retreat`,
+      }).toString(),
+      redirect: "manual",
+    });
+    const pw = cookieFrom(right, "os_pw").split("=").slice(1).join("=");
+    const res = await call(app, `/s/${f.siteId}/members`, {
+      cookie: `os_member=${pw}`,
+      redirect: "manual",
+    });
+    expect(res.status).toBe(303);
+    expect(await res.text()).not.toContain("Secret class recordings");
+  });
+
+  it("tier-limited pages and silent re-sign-in with the current tier; blocked members can't", async () => {
+    const app = makePublicApp();
+    const f = await gatedSite(app);
+    await login(app, f.siteId, "ana@example.com");
+    const used = await call(app, await magicLink(app, "ana@example.com"), {
+      method: "POST",
+      redirect: "manual",
+    });
+    const hubCookie = cookieFrom(used, "os_hub_member");
+    expect(used.headers.getSetCookie().join("\n")).toContain(`Path=/m/${f.siteId}/`);
+    const cb = new URL(used.headers.get("location") as string);
+    const landed = await call(app, `${cb.pathname}${cb.search}`, { redirect: "manual" });
+    const cookie = cookieFrom(landed, "os_member");
+    const gold = () => call(app, `/s/${f.siteId}/gold`, { cookie, redirect: "manual" });
+    const free = await gold();
+    expect(free.status).toBe(403);
+    expect(await free.text()).not.toContain("Gold tier recordings");
+    await env.HUB_DB.prepare("UPDATE members SET tier = 'tier_gold' WHERE site_id = ?")
+      .bind(f.siteId)
+      .run();
+    const paid = await gold();
+    expect(paid.status).toBe(200);
+    expect(await paid.text()).toContain("Gold tier recordings");
+
+    // The site's session ran out: the Hub signs the member in again without an email.
+    const again = await call(app, `/m/${f.siteId}/login?return=/s/${f.siteId}/gold`, {
+      cookie: hubCookie,
+      redirect: "manual",
+    });
+    expect(again.status).toBe(303);
+    const back = new URL(again.headers.get("location") as string);
+    expect(back.pathname).toBe(`/s/${f.siteId}/_os/auth/callback`);
+    expect(back.searchParams.get("return")).toBe(`/s/${f.siteId}/gold`);
+    const v = await verifyLikeSiteKit(app, back.searchParams.get("token") as string);
+    expect(v.ok).toBe(true);
+    expect(v.claims.tier).toBe("tier_gold");
+
+    // Blocked: no silent sign-in, the form instead (and the Hub cookie is cleared).
+    await env.HUB_DB.prepare("UPDATE members SET status = 'blocked' WHERE site_id = ?")
+      .bind(f.siteId)
+      .run();
+    const refused = await call(app, `/m/${f.siteId}/login`, {
+      cookie: hubCookie,
+      redirect: "manual",
+    });
+    expect(refused.status).toBe(200);
+    expect(refused.headers.get("set-cookie")).toContain("os_hub_member=;");
+    expect((await gold()).status).toBe(303);
+  });
+
+  it("media only gated pages use needs the signed URL their (gate-checked) page carries", async () => {
+    const app = makePublicApp();
+    const f = await gatedSite(app);
+    const gh = new DevGitHubAccess(env.HUB_DB);
+    const repo = parseRepo(f.repo);
+    const head = (await gh.getRef(repo, MAIN_BRANCH)) as string;
+    const png =
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+    const media = JSON.parse(
+      (await gh.readFile(repo, "content/media.json", head)) ?? "{}",
+    ) as Record<string, unknown>;
+    media["media/members-only.png"] = {
+      id: "med_mbrsp0t001",
+      path: "media/members-only.png",
+      kind: "image",
+      mime: "image/png",
+      bytes: 68,
+      width: 1,
+      height: 1,
+      alt: "Recording still",
+      createdAt: "2026-10-01T00:00:00.000Z",
+    };
+    const members = JSON.parse(
+      (await gh.readFile(repo, "content/pages/members.json", head)) as string,
+    );
+    members.sections[0].blocks.push({
+      id: "blk_membersmg1",
+      type: "image",
+      v: 1,
+      fields: {
+        image: { src: "media/members-only.png", alt: "Recording still" },
+        aspect: "3:2",
+        lightbox: false,
+      },
+    });
+    await gh.commitFiles(repo, {
+      branch: MAIN_BRANCH,
+      expectedHead: head,
+      message: "Members image",
+      files: [
+        { path: "media/members-only.png", content: png, encoding: "base64" },
+        { path: "content/media.json", content: JSON.stringify(media) },
+        { path: "content/pages/members.json", content: JSON.stringify(members) },
+      ],
+    });
+    const r0 = await call(app, `/s/${f.siteId}/media/members-only.png`);
+    expect(r0.status, await r0.clone().text()).toBe(404);
+    await login(app, f.siteId, "ana@example.com");
+    const used = await call(app, await magicLink(app, "ana@example.com"), {
+      method: "POST",
+      redirect: "manual",
+    });
+    const cb = new URL(used.headers.get("location") as string);
+    const landed = await call(app, `${cb.pathname}${cb.search}`, { redirect: "manual" });
+    const html = await (
+      await call(app, `/s/${f.siteId}/members`, { cookie: cookieFrom(landed, "os_member") })
+    ).text();
+    const src = html.match(/src="([^"]*members-only\.png[^"]*)"/)?.[1]?.replace(/&amp;/g, "&");
+    expect(src).toMatch(/\?exp=\d+&sig=/);
+    const img = await call(app, src as string);
+    expect(img.status).toBe(200);
+    expect(img.headers.get("cache-control")).toBe("private, max-age=600");
   });
 
   it("hash format matches site-kit's PBKDF2 (`pbkdf2$100000$salt$hash`)", async () => {

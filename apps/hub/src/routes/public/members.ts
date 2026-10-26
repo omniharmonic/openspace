@@ -11,7 +11,8 @@
  *   prefetch links). `POST` uses it once and 303s to `<site>/_os/auth/callback?token=<JWT>&return=`.
  */
 import { esc } from "@openspace/email-render";
-import { Hono } from "hono";
+import { type Context, Hono } from "hono";
+import { getCookie } from "hono/cookie";
 import { HttpError } from "../../lib/errors";
 import { PAGE_HEADERS, PAGE_HEADERS_REDIRECTING, publicPage } from "../../lib/page";
 import {
@@ -29,7 +30,16 @@ import {
 } from "../../lib/public";
 import { siteBaseUrl } from "../../services/email";
 import { jwks } from "../../services/member-keys";
-import { consumeMagicLink, peekMagicLink, requestMagicLink } from "../../services/members";
+import {
+  consumeMagicLink,
+  HUB_MEMBER_COOKIE,
+  HUB_MEMBER_TTL_SEC,
+  hubMemberCookieValue,
+  memberCallbackUrl,
+  peekMagicLink,
+  rememberedMember,
+  requestMagicLink,
+} from "../../services/members";
 import type { AppEnv } from "../../types";
 import { gate } from "./gate";
 
@@ -55,10 +65,26 @@ function loginPageHeaders(siteKey: string | null) {
   };
 }
 
+const hubMemberCookie = (c: Context<AppEnv>, siteId: string, value: string, maxAge: number) =>
+  `${HUB_MEMBER_COOKIE}=${value}; Path=/m/${siteId}/; Max-Age=${maxAge}; HttpOnly; SameSite=Lax${c.var.config.secureCookies ? "; Secure" : ""}`;
+
 publicMemberRoutes.get("/m/:siteId/login", async (c) => {
   const site = await publicSite(c.var.services.db, c.req.param("siteId"));
   const siteKey = c.var.services.pub.config.turnstile.siteKey;
   const ret = c.req.query("return") ?? "";
+  // Silent re-sign-in: the site's short session ran out (or the tier changed) and this browser
+  // already signed in here — hand back a fresh token with the member's current tier.
+  const remembered = await rememberedMember(
+    c.var.services,
+    site.id,
+    getCookie(c, HUB_MEMBER_COOKIE),
+  );
+  if (remembered) {
+    c.header("Cache-Control", "no-store");
+    c.header("Referrer-Policy", "no-referrer");
+    return c.redirect(await memberCallbackUrl(c.var.services, site, remembered, ret), 303);
+  }
+  if (getCookie(c, HUB_MEMBER_COOKIE)) c.header("Set-Cookie", hubMemberCookie(c, site.id, "", 0));
   const form = `<form method="post" action="/m/${esc(site.id)}/login">
 <p><label for="email">Email address</label><br><input id="email" name="email" type="email" required autocomplete="email" inputmode="email" style="width:100%;padding:10px;font:inherit;border:1px solid var(--line);border-radius:8px"></p>
 <input type="hidden" name="return_to" value="${esc(ret)}"><input type="hidden" name="_hub" value="1">
@@ -174,6 +200,15 @@ publicMemberRoutes.post("/m/:siteId/verify/:token", async (c) => {
   const site = await publicSite(services.db, c.req.param("siteId"));
   const result = await consumeMagicLink(services, site, c.req.param("token"));
   if (!result) return c.html(expired(), 404, PAGE_HEADERS);
+  c.header(
+    "Set-Cookie",
+    hubMemberCookie(
+      c,
+      site.id,
+      await hubMemberCookieValue(services, site.id, result.member.id),
+      HUB_MEMBER_TTL_SEC,
+    ),
+  );
   c.header("Cache-Control", "no-store");
   c.header("Referrer-Policy", "no-referrer");
   return c.redirect(result.redirect, 303);

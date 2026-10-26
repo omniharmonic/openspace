@@ -9,8 +9,12 @@ import type { FileChange } from "../github/types";
 import { CLOUDFLARE_PACKAGE_ADDITIONS, STARTER_HOSTING_FILES } from "../templates/starter-files";
 import { CONFIG_PATH } from "./site-files";
 
-/** Secrets a Cloudflare-hosted site's publish workflow needs. */
+/** Secrets a Cloudflare-hosted site's publish workflow needs from the owner. */
 export const CLOUDFLARE_SECRETS = ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"] as const;
+
+/** Worker secrets the Hub itself keeps in the repository's Actions secrets. */
+export const SESSION_SECRET_NAME = "OS_SESSION_SECRET";
+export const PAGE_PASSWORDS_SECRET_NAME = "OS_PAGE_PASSWORDS";
 
 const json = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 
@@ -23,6 +27,11 @@ export function workerName(repoName: string): string {
       .replace(/^-+|-+$/g, "")
       .slice(0, 63) || "openspace-site"
   );
+}
+
+/** The Worker's private R2 bucket for gated page content (R2 names: ≤ 63 chars). */
+export function gatedBucketName(repoName: string): string {
+  return `${workerName(repoName).slice(0, 57).replace(/-+$/, "")}-gated`;
 }
 
 /**
@@ -44,14 +53,19 @@ export async function hostingChanges(
   }
   const files: Record<string, string> = { ...STARTER_HOSTING_FILES[target] };
   if (target === "cloudflare" && files["wrangler.jsonc"])
-    files["wrangler.jsonc"] = files["wrangler.jsonc"].replace(
-      '"name": "openspace-site"',
-      `"name": ${JSON.stringify(workerName(repoName))}`,
-    );
+    files["wrangler.jsonc"] = files["wrangler.jsonc"]
+      .replace('"name": "openspace-site"', `"name": ${JSON.stringify(workerName(repoName))}`)
+      .replace(
+        '"bucket_name": "openspace-site-gated"',
+        `"bucket_name": ${JSON.stringify(gatedBucketName(repoName))}`,
+      );
   for (const [path, content] of Object.entries(files))
     if ((await read(path)) !== content) changes.push({ path, content });
-  if (target === "github-pages" && (await read("wrangler.jsonc")) !== null)
-    changes.push({ path: "wrangler.jsonc", content: null });
+  // Cloudflare-only files go when switching back to GitHub Pages.
+  if (target === "github-pages")
+    for (const path of Object.keys(STARTER_HOSTING_FILES.cloudflare))
+      if (!(path in STARTER_HOSTING_FILES["github-pages"]) && (await read(path)) !== null)
+        changes.push({ path, content: null });
   const pkgText = await read("package.json");
   if (pkgText) {
     const pkg = JSON.parse(pkgText) as Record<string, Record<string, string> | unknown>;

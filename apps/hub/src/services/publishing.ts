@@ -12,6 +12,7 @@ import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
 import { buildErrorByCode } from "./build-errors";
+import { gatedContext, readOpenedDocumentFiles } from "./gated-content";
 import type { Services } from "./index";
 import { loadSiteDocument } from "./site-files";
 
@@ -153,7 +154,7 @@ export async function restoreSnapshot(
   const tag = `${SNAPSHOT_PREFIX}${name}`;
   const sha = await gh.getRef(repo, `tags/${tag}`);
   if (!sha) throw notFound("We couldn't find that snapshot.");
-  const files = await gh.readFiles(repo, sha, { textOnly: true });
+  const files = await readOpenedDocumentFiles(gatedContext(services, site.id), gh, repo, sha);
   const doc = loadSiteDocument(files);
   const result = await unwrapRoom(roomStub(env, site.id).restoreDocument(site.id, user.id, doc));
   await audit(services.db, {

@@ -37,6 +37,16 @@ export const SiteConfigSchema = named(
       analytics: z.boolean(),
       search: z.boolean(),
     }),
+    /** Public service keys the Hub provides (never secrets). */
+    integrations: z
+      .strictObject({
+        /** Cloudflare Turnstile site key (public) for forms, sign-up and sign-in. */
+        turnstileSiteKey: z
+          .string()
+          .regex(/^[A-Za-z0-9_-]{1,100}$/)
+          .optional(),
+      })
+      .optional(),
   }),
 );
 export type SiteConfig = z.infer<typeof SiteConfigSchema>;

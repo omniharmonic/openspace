@@ -19,6 +19,10 @@ export interface RepoInfo extends RepoRef {
   htmlUrl: string;
   private: boolean;
   archived: boolean;
+  /** GitHub's numeric repository id (stable across renames and transfers). */
+  id?: number;
+  /** Numeric id of the owning user or organization. */
+  ownerId?: number;
 }
 
 export type FileEncoding = "utf-8" | "base64";
@@ -178,6 +182,10 @@ export interface GitHubAccess {
   ): Promise<void>;
   /** Names of the repo's Actions secrets (values are never readable). */
   listSecretNames(repo: RepoRef): Promise<string[]>;
+  /** Create or update an Actions variable (`vars.NAME` in workflows; public values only). */
+  setVariable(repo: RepoRef, name: string, value: string): Promise<void>;
+  /** An Actions variable's value, or null when it isn't set. */
+  getVariable(repo: RepoRef, name: string): Promise<string | null>;
   addCollaborator(repo: RepoRef, login: string, permission?: CollaboratorPermission): Promise<void>;
   removeCollaborator(repo: RepoRef, login: string): Promise<void>;
   /** Names of the failed jobs/steps of a workflow run (for plain-language build errors). */

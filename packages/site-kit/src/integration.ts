@@ -18,11 +18,14 @@ import type { PodcastOptions } from "./feeds";
 import { fontPreloads, resolveFonts } from "./node/fonts";
 import { writeSiteOutputs } from "./node/postbuild";
 import { siteStylesheets } from "./render";
-import { gatedPages, planSite } from "./routes";
+import { gatedPages, planSite, withoutGatedContent } from "./routes";
 import type { RuntimeOptions } from "./runtime-options";
 
 export interface OpenSpaceOptions {
-  /** Turnstile site key (public). Defaults to `OPENSPACE_TURNSTILE_SITE_KEY`. Forms then load Turnstile. */
+  /**
+   * Turnstile site key (public). Defaults to `OPENSPACE_TURNSTILE_SITE_KEY`, then
+   * `integrations.turnstileSiteKey` in openspace.json. Forms then load Turnstile.
+   */
   turnstileSiteKey?: string;
   /** Hub origin override (default: `hub` in openspace.json). */
   hubUrl?: string;
@@ -65,8 +68,11 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
   let search = false;
   let now = new Date();
 
+  let building = false;
   const siteModule = async () => {
-    const doc = await loadSiteDocument(rootDir);
+    const loaded = await loadSiteDocument(rootDir);
+    // The Worker bundle never carries gated page content: deployed Workers read it from R2.
+    const doc = building ? withoutGatedContent(loaded) : loaded;
     return `export const doc = JSON.parse(${JSON.stringify(JSON.stringify(doc))});\nexport const options = ${JSON.stringify(runtime)};\n`;
   };
 
@@ -82,6 +88,7 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
         logger,
       }) => {
         rootDir = fileURLToPath(config.root);
+        building = command === "build";
         const fixedNow = options.now ?? process.env.OPENSPACE_BUILD_TIME;
         now = fixedNow ? new Date(fixedNow) : new Date();
         const doc = await loadSiteDocument(rootDir);
@@ -100,8 +107,11 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
               : `fonts load from Google Fonts; install ${fonts.missing.join(", ")} or set OPENSPACE_GOOGLE_FONTS=download to self-host them`,
           );
         const pairing = compiledStylesFor(doc.styles).tokens.pairing;
+        // Option, then the repository variable the Hub sets, then the key in openspace.json.
         const turnstileSiteKey =
-          options.turnstileSiteKey ?? process.env.OPENSPACE_TURNSTILE_SITE_KEY;
+          options.turnstileSiteKey ||
+          process.env.OPENSPACE_TURNSTILE_SITE_KEY ||
+          doc.config.integrations?.turnstileSiteKey;
         runtime = {
           now: now.toISOString(),
           location,
@@ -116,6 +126,7 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
           hubUrl: options.hubUrl,
           turnstileSiteKey: turnstileSiteKey || undefined,
           ogImages: options.ogImages ?? true,
+          dev: command === "dev",
           socialFeeds:
             typeof options.socialFeeds === "function"
               ? await options.socialFeeds()

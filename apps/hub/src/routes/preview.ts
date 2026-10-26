@@ -10,10 +10,12 @@ import { base64url, sha256Hex, timingSafeEqual } from "../lib/crypto";
 import { clientIp, parseFields, rateKeyIp, single } from "../lib/public";
 import { requireHmacKey } from "../public-env";
 import { roomStub, unwrapRoom } from "../room";
+import { gatedContext, isGatedPage, readOpenedDocumentFiles } from "../services/gated-content";
 import { verifyJwt } from "../services/member-keys";
 import {
   checkPagePassword,
   getMember,
+  type MemberRow,
   PREVIEW_MEMBER_COOKIE,
   PREVIEW_PASSWORD_COOKIE,
   PREVIEW_SESSION_TTL_SEC,
@@ -21,7 +23,7 @@ import {
   signPreviewValue,
 } from "../services/members";
 import { escapeHtml, type RenderMode } from "../services/renderer";
-import { isDocumentPath, loadSiteDocument } from "../services/site-files";
+import { loadSiteDocument } from "../services/site-files";
 import { readSiteDocument } from "../services/sites";
 import type { AppEnv } from "../types";
 
@@ -79,18 +81,23 @@ async function render(
   path: string,
   mode: RenderMode,
   basePath: string,
-  imageMap?: ImageMap,
+  givenImageMap?: ImageMap,
 ) {
+  let imageMap = givenImageMap;
   const renderer = c.var.services.renderer;
   const now = new Date(c.var.services.now());
   const found = renderer.findPage({ doc, path, now });
   if (!found) return htmlPage(c, 404, "Page not found", "There's no page at this address.");
   const page = found.page;
+  const isGated = isGatedPage(page);
   if (mode === "published") {
     // Dev preview enforces the same gates as the Cloudflare site Worker (arch §9.4): gated content
     // is never served without a member session / the page password.
     const gated = await gate(c, page, basePath);
     if (gated) return gated;
+    // Images only gated pages use are served with a signature (sandboxed pages send no cookies).
+    if (isGated && !imageMap)
+      imageMap = await signedImageMap(c, basePath.split("/")[2] as string, doc, "s", "gated-media");
   }
   const html = await renderer.renderPage({
     doc,
@@ -102,7 +109,6 @@ async function render(
     ...(imageMap ? { imageMap } : {}),
   });
   if (html === null) return htmlPage(c, 404, "Page not found", "There's no page at this address.");
-  const isGated = !!(page.access?.members || page.access?.password || isMembersPath(page.slug));
   c.header(
     "Cache-Control",
     mode === "draft" ? "no-store" : isGated ? "private, no-store" : "public, max-age=10",
@@ -116,7 +122,13 @@ async function render(
 /** Draft media URLs are signed: sandboxed preview pages have an opaque origin and send no cookies. */
 const MEDIA_URL_TTL_MS = 60 * 60 * 1000;
 
-async function mediaSignature(c: Context<AppEnv>, siteId: string, path: string, exp: number) {
+async function mediaSignature(
+  c: Context<AppEnv>,
+  siteId: string,
+  path: string,
+  exp: number,
+  purpose: "draft-media" | "gated-media" = "draft-media",
+) {
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(requireHmacKey(c.var.services.pub.config)),
@@ -127,25 +139,31 @@ async function mediaSignature(c: Context<AppEnv>, siteId: string, path: string, 
   const mac = await crypto.subtle.sign(
     "HMAC",
     key,
-    new TextEncoder().encode(`draft-media|${siteId}|${path}|${exp}`),
+    new TextEncoder().encode(`${purpose}|${siteId}|${path}|${exp}`),
   );
   return base64url(new Uint8Array(mac)).slice(0, 32);
 }
 
 /** Image map for a draft: every repo image → a signed `/p/:id/media/…` URL (an hour, aligned). */
-async function draftImageMap(
+const draftImageMap = (c: Context<AppEnv>, siteId: string, doc: SiteDocument) =>
+  signedImageMap(c, siteId, doc, "p", "draft-media");
+
+/** Every repo image → a signed `/<p|s>/:id/media/…?exp&sig` URL (an hour, aligned). */
+async function signedImageMap(
   c: Context<AppEnv>,
   siteId: string,
   doc: SiteDocument,
+  prefix: "p" | "s",
+  purpose: "draft-media" | "gated-media",
 ): Promise<ImageMap> {
   const now = c.var.services.now();
   const exp = Math.ceil((now + MEDIA_URL_TTL_MS) / MEDIA_URL_TTL_MS) * MEDIA_URL_TTL_MS;
   const map: Record<string, ResolvedImage> = {};
   for (const [path, meta] of Object.entries(doc.media ?? {})) {
     if (meta.kind !== "image" || !meta.width || !meta.height) continue;
-    const sig = await mediaSignature(c, siteId, path, exp);
+    const sig = await mediaSignature(c, siteId, path, exp, purpose);
     map[path] = {
-      src: `/p/${siteId}/${path}?exp=${exp}&sig=${sig}`,
+      src: `/${prefix}/${siteId}/${path}?exp=${exp}&sig=${sig}`,
       width: meta.width,
       height: meta.height,
       ...(meta.placeholder ? { placeholder: meta.placeholder } : {}),
@@ -200,11 +218,27 @@ async function serveRepoMedia(
   });
 }
 
-/** Published media (`/s/:id/media/…`): public, like the live site's files. */
+/**
+ * Published media (`/s/:id/media/…`): public, like the live site's files — except files only
+ * members-only / password pages use, which need the signed URL the (gate-checked) page carries.
+ */
 previewRoutes.get("/s/:siteId/media/*", async (c) => {
   const site = await getSite(c.var.services.db, c.req.param("siteId"));
   if (!site || site.archived_at !== null) return c.notFound();
-  return serveRepoMedia(c, site, restPath(c, `/s/${site.id}/`), MAIN_BRANCH, "public, max-age=60");
+  const path = restPath(c, `/s/${site.id}/`);
+  const { doc } = await readSiteDocument(c.var.services, site, "published");
+  if (gatedOnlyMedia(doc).has(path)) {
+    const exp = Number(c.req.query("exp") ?? "0");
+    const sig = c.req.query("sig") ?? "";
+    if (
+      !Number.isFinite(exp) ||
+      exp < c.var.services.now() ||
+      !(await timingSafeEqual(sig, await mediaSignature(c, site.id, path, exp, "gated-media")))
+    )
+      return c.notFound();
+    return serveRepoMedia(c, site, path, MAIN_BRANCH, "private, max-age=600");
+  }
+  return serveRepoMedia(c, site, path, MAIN_BRANCH, "public, max-age=60");
 });
 
 /** Draft media (`/p/:id/media/…?exp&sig`): a signed URL from the draft preview's image map. */
@@ -230,6 +264,28 @@ const PASSWORD_PAGE_RULE = { name: "page-password-page", limit: 300, windowSec: 
 
 const isMembersPath = (slug: string) => slug === "members" || slug.startsWith("members/");
 
+/** `media/…` paths a JSON value mentions. */
+function mediaPaths(value: unknown, into = new Set<string>()): Set<string> {
+  if (typeof value === "string") {
+    if (/^media\/[A-Za-z0-9]/.test(value)) into.add(value.split(/[?#]/)[0] as string);
+  } else if (Array.isArray(value)) for (const v of value) mediaPaths(v, into);
+  else if (value && typeof value === "object")
+    for (const v of Object.values(value)) mediaPaths(v, into);
+  return into;
+}
+
+/** Media used only by members-only / password pages (never by anything public). */
+export function gatedOnlyMedia(doc: SiteDocument): Set<string> {
+  const gated = new Set<string>();
+  const open = new Set<string>();
+  for (const page of Object.values(doc.pages)) mediaPaths(page, isGatedPage(page) ? gated : open);
+  mediaPaths(doc.site, open);
+  mediaPaths(doc.styles, open);
+  mediaPaths(doc.collections, open);
+  for (const p of open) gated.delete(p);
+  return gated;
+}
+
 function cookieAttrs(c: Context<AppEnv>, basePath: string, maxAge: number): string {
   return `Path=${basePath}/; Max-Age=${maxAge}; HttpOnly; SameSite=Lax${c.var.config.secureCookies ? "; Secure" : ""}`;
 }
@@ -248,26 +304,37 @@ function previewReturn(basePath: string, raw: string | null | undefined): string
   return `${basePath}/`;
 }
 
-async function memberSession(c: Context<AppEnv>, siteId: string): Promise<boolean> {
+/**
+ * The signed-in member (purpose-bound `member` cookie; a page-password cookie never counts),
+ * re-checked against the directory on every request: blocked or deleted members lose access at
+ * once, and tier changes apply immediately.
+ */
+async function memberSession(c: Context<AppEnv>, siteId: string): Promise<MemberRow | null> {
   const v = await readPreviewValue(c.var.services, siteId, getCookie(c, PREVIEW_MEMBER_COOKIE));
-  if (!v || typeof v.sub !== "string") return false;
+  if (v?.kind !== "member" || typeof v.sub !== "string") return null;
   const m = await getMember(c.var.services.db, siteId, v.sub);
-  return m?.status === "active";
+  return m?.status === "active" ? m : null;
 }
 
 async function gate(c: Context<AppEnv>, page: Page, basePath: string): Promise<Response | null> {
   const siteId = basePath.split("/")[2] as string;
   const path = c.req.path;
   if (page.access?.members || isMembersPath(page.slug)) {
-    if (await memberSession(c, siteId)) return null;
+    const member = await memberSession(c, siteId);
+    c.header("Cache-Control", "private, no-store");
+    if (member) {
+      const tiers = page.access?.tiers ?? [];
+      if (!tiers.length || (member.tier !== null && tiers.includes(member.tier))) return null;
+      return htmlPage(c, 403, page.title, "This page is for members on another membership plan.");
+    }
     const login = new URL(`${c.var.config.hubUrl}/m/${siteId}/login`);
     login.searchParams.set("return", path);
-    c.header("Cache-Control", "private, no-store");
     return c.redirect(login.toString(), 303);
   }
   if (page.access?.password) {
     const v = await readPreviewValue(c.var.services, siteId, getCookie(c, PREVIEW_PASSWORD_COOKIE));
-    if (Array.isArray(v?.pages) && (v.pages as unknown[]).includes(page.id)) return null;
+    if (v?.kind === "pw" && Array.isArray(v.pages) && (v.pages as unknown[]).includes(page.id))
+      return null;
     const error = c.req.query("os_password") === "error";
     c.header("Cache-Control", "private, no-store");
     return c.html(
@@ -297,7 +364,7 @@ previewRoutes.get("/s/:siteId/_os/auth/callback", async (c) => {
       "Sign-in link",
       "This sign-in link has expired or isn't valid. Please request a new one.",
     );
-  const value = await signPreviewValue(c.var.services, siteId, { sub: member.id });
+  const value = await signPreviewValue(c.var.services, siteId, { kind: "member", sub: member.id });
   c.header(
     "Set-Cookie",
     `${PREVIEW_MEMBER_COOKIE}=${value}; ${cookieAttrs(c, basePath, PREVIEW_SESSION_TTL_SEC)}`,
@@ -349,9 +416,12 @@ previewRoutes.post("/s/:siteId/_os/auth/password", async (c) => {
     getCookie(c, PREVIEW_PASSWORD_COOKIE),
   );
   const pages = [
-    ...new Set([...(Array.isArray(prev?.pages) ? (prev.pages as string[]) : []), pageId]),
+    ...new Set([
+      ...(prev?.kind === "pw" && Array.isArray(prev.pages) ? (prev.pages as string[]) : []),
+      pageId,
+    ]),
   ].slice(-50);
-  const value = await signPreviewValue(c.var.services, siteId, { pages });
+  const value = await signPreviewValue(c.var.services, siteId, { kind: "pw", pages });
   c.header(
     "Set-Cookie",
     `${PREVIEW_PASSWORD_COOKIE}=${value}; ${cookieAttrs(c, basePath, PREVIEW_SESSION_TTL_SEC)}`,
@@ -414,9 +484,12 @@ async function readPublishedVersion(
   const history = await gh.listCommits(repo, { ref: MAIN_BRANCH, limit: 200 });
   const matches = history.filter((h) => h.sha.startsWith(wanted));
   if (matches.length !== 1 || !matches[0]) return null;
-  const all = await gh.readFiles(repo, matches[0].sha, { textOnly: true });
-  const files: Record<string, string> = {};
-  for (const [p, content] of Object.entries(all)) if (isDocumentPath(p)) files[p] = content;
+  const files = await readOpenedDocumentFiles(
+    gatedContext(c.var.services, site.id),
+    gh,
+    repo,
+    matches[0].sha,
+  );
   return loadSiteDocument(files);
 }
 previewRoutes.get("/s/:siteId", published);

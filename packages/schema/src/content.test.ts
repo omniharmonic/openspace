@@ -813,3 +813,24 @@ describe("Form", () => {
     });
   });
 });
+
+describe("page access", () => {
+  const page = (access: unknown) => ({
+    id: "pg_accesspg01",
+    title: "Gated",
+    slug: "gated",
+    access,
+    sections: [],
+  });
+  it("membership plans only on members-only pages; stubs carry a content reference", () => {
+    expect(PageSchema.safeParse(page({ members: true, tiers: ["tier_gold"] })).success).toBe(true);
+    expect(PageSchema.safeParse(page({ password: true, tiers: ["tier_gold"] })).success).toBe(
+      false,
+    );
+    expect(PageSchema.safeParse(page({ tiers: ["tier_gold"] })).success).toBe(false);
+    expect(PageSchema.safeParse(page({ password: true, tiers: [] })).success).toBe(true);
+    expect(PageSchema.safeParse({ ...page({ members: true }), contentRef: "abc" }).success).toBe(
+      false,
+    );
+  });
+});
