@@ -174,6 +174,11 @@ export interface ShippingOption {
   maxDays?: number;
   /** Free when the order subtotal (minor units) is at least this. */
   freeOver?: number;
+  /**
+   * Weight tiers: the parcel (computed by OpenSpace from product weights) pays the first tier it
+   * fits in; heavier parcels can't use this option.
+   */
+  byWeight?: Array<{ upToGrams: number; amount: number }>;
 }
 
 export interface GrowthSettings {
@@ -255,6 +260,8 @@ export interface OrderItem {
   qty: number;
   unitAmount: number;
   digital: boolean;
+  /** Subscription products: billed every month or year. */
+  interval?: "month" | "year";
 }
 
 export interface OrderView {
@@ -279,6 +286,8 @@ export interface OrderView {
   fulfilledAt: string | null;
   /** Something needs the owner's attention (a follow-up kept failing). */
   problem?: { message: string; attempts: number; gaveUp: boolean } | null;
+  /** Subscription products: billed every month or year until canceled. */
+  subscription?: { interval: "month" | "year"; id: string | null; ended: boolean } | null;
 }
 
 export interface OrderQuery {

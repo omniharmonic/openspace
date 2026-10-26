@@ -183,12 +183,21 @@ export const ProductFrontmatterSchema = named(
             available: z.boolean().optional(),
             /** Photo shown when this variant is chosen. */
             image: MediaSrcSchema.optional(),
+            /** Shipping weight in grams when it differs from the product's. */
+            weight: z.int().min(0).max(1_000_000).optional(),
           }),
         )
         .max(100)
         .optional(),
       digital: z.boolean().optional(),
       available: z.boolean().optional(),
+      /** Shipping weight in grams (weight-based shipping rates, PRD §5.6). */
+      weight: z.int().min(0).max(1_000_000).optional(),
+      /**
+       * Sold as a subscription (Stripe Billing, PRD §5.6): the price is charged every month or
+       * year until the customer cancels.
+       */
+      subscription: z.strictObject({ interval: z.enum(["month", "year"]) }).optional(),
     })
     .superRefine((fm, ctx) => {
       checkScheduled(fm, ctx);

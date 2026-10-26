@@ -120,6 +120,8 @@ export interface OrderView {
   fulfilledAt: string | null;
   /** Something the owner must resolve (failed delivery or refund after retries), else null. */
   problem: { message: string; attempts: number; gaveUp: boolean } | null;
+  /** Subscription products (Stripe Billing): the interval and whether it has ended. */
+  subscription: { interval: "month" | "year"; id: string | null; ended: boolean } | null;
 }
 
 export function toOrderView(o: OrderRow): OrderView {
@@ -151,7 +153,17 @@ export function toOrderView(o: OrderRow): OrderView {
           gaveUp: o.followup_attempts >= MAX_FOLLOWUP_ATTEMPTS,
         }
       : null,
+    subscription: subscriptionOf(o),
   };
+}
+
+function subscriptionOf(o: OrderRow): OrderView["subscription"] {
+  if (o.kind !== "order") return null;
+  const meta = parse<{ subscription?: unknown; subscriptionEnded?: unknown }>(o.meta_json, {});
+  const interval =
+    meta.subscription === "month" || meta.subscription === "year" ? meta.subscription : null;
+  if (!interval) return null;
+  return { interval, id: o.subscription_id, ended: meta.subscriptionEnded === true };
 }
 
 export async function getOrder(db: D1Database, siteId: string, id: string) {

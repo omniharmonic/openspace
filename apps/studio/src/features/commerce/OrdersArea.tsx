@@ -209,6 +209,7 @@ function OrdersList({ site }: { site: Site }) {
                           {o.fulfillment === "fulfilled" ? "Sent" : "To send"}
                         </Badge>
                       )}
+                      {o.subscription && <SubscriptionBadge sub={o.subscription} />}
                       {o.problem && (
                         <AlertTriangle className="st-order__warn" aria-label="Needs attention" />
                       )}
@@ -299,6 +300,7 @@ function OrderDetail({ site, orderId }: { site: Site; orderId: string }) {
         actions={
           <>
             <Badge tone={ORDER_STATUS[o.status].tone}>{ORDER_STATUS[o.status].label}</Badge>
+            {o.subscription && <SubscriptionBadge sub={o.subscription} />}
             {physical && (
               <Button icon={<Printer />} onClick={printSlip}>
                 Packing slip
@@ -639,5 +641,15 @@ function RefundDialog({
         )}
       </div>
     </Dialog>
+  );
+}
+
+/** Subscription products: how often the buyer is charged, and whether they canceled. */
+function SubscriptionBadge({ sub }: { sub: NonNullable<OrderView["subscription"]> }) {
+  const every = sub.interval === "year" ? "Yearly" : "Monthly";
+  return (
+    <Badge tone={sub.ended ? "neutral" : "live"}>
+      {sub.ended ? `${every} · canceled` : `${every} subscription`}
+    </Badge>
   );
 }

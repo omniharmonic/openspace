@@ -20,7 +20,12 @@ type GrowthState = {
   }>;
   inventory: Record<string, { qty: number | null }>;
   commerce: {
-    shippingOptions: Array<{ label: string; amount: number; freeOver?: number }>;
+    shippingOptions: Array<{
+      label: string;
+      amount: number;
+      freeOver?: number;
+      byWeight?: Array<{ upToGrams: number; amount: number }>;
+    }>;
     taxEnabled: boolean;
     donationMin: number;
     donationMax: number;
@@ -136,6 +141,34 @@ describe("products and stock", () => {
     );
     await waitFor(() => expect(growth(hub).inventory["BLOCK-STD"]?.qty).toBe(40));
     expect(screen.getByText(/Download ready/)).toBeInTheDocument();
+  });
+});
+
+describe("subscriptions and weight-based shipping (PRD 5.6)", () => {
+  it("shows subscription orders with their interval", async () => {
+    await openWorkspace("orders");
+    expect((await screen.findAllByText("Monthly subscription")).length).toBeGreaterThan(0);
+  });
+
+  it("sets up weight tiers for a shipping option", async () => {
+    const { user, hub } = await openWorkspace("store");
+    await screen.findByText("Ready to take payments");
+    await user.click(screen.getByRole("button", { name: "Add an option" }));
+    const last = screen.getAllByRole("group", { name: /Shipping option/ }).at(-1) as HTMLElement;
+    await user.click(within(last).getByRole("radio", { name: "By weight" }));
+    const tiers = within(last).getByRole("group", { name: "Weight tiers" });
+    const w = within(tiers).getByRole("spinbutton", { name: "Tier 1 weight in kilograms" });
+    await user.clear(w);
+    await user.type(w, "0.25");
+    await user.tab();
+    await user.click(screen.getByRole("button", { name: "Save shipping" }));
+    await waitFor(() =>
+      expect(growth(hub).commerce.shippingOptions.at(-1)?.byWeight).toEqual([
+        { upToGrams: 250, amount: 500 },
+        { upToGrams: 2000, amount: 900 },
+        { upToGrams: 10_000, amount: 1800 },
+      ]),
+    );
   });
 });
 

@@ -321,61 +321,62 @@ interface ShipRow extends ShippingOption {
   /** Stable React key for the row (new rows have no Hub id yet). */
   key: string;
   kind: ShipKind;
-  /** Weight band, e.g. "up to 2 kg" (shown to buyers in the label). */
-  band?: string;
 }
 
-/** The Hub keeps shipping labels to 60 characters, band included. */
+/** The Hub keeps shipping labels to 60 characters. */
 export const LABEL_MAX = 60;
-export const BAND_MAX = 20;
 let rowKey = 0;
 const nextKey = () => `row-${++rowKey}`;
 
-/** "Standard (up to 2 kg)", trimmed so the whole label fits the Hub's limit. */
-export function bandLabel(label: string, band: string): string {
-  const b = band.trim().slice(0, BAND_MAX);
-  const suffix = ` (${b})`;
-  return `${label
-    .trim()
-    .slice(0, LABEL_MAX - suffix.length)
-    .trimEnd()}${suffix}`;
-}
+/** Default tiers for a new weight-based option (grams → minor units). */
+const DEFAULT_TIERS = [
+  { upToGrams: 500, amount: 500 },
+  { upToGrams: 2000, amount: 900 },
+  { upToGrams: 10_000, amount: 1800 },
+];
 
-const BAND_RE = /\s*\(([^)]*\b(?:kg|g|lb|oz)\b[^)]*)\)$/i;
+const kg = (grams: number) =>
+  grams >= 1000 ? `${Number((grams / 1000).toFixed(2))} kg` : `${grams} g`;
+
+/** Tiers sorted by weight, without duplicates (what the Hub accepts). */
+export function cleanTiers(
+  tiers: Array<{ upToGrams: number; amount: number }>,
+): Array<{ upToGrams: number; amount: number }> {
+  const byWeight = new Map<number, number>();
+  for (const t of tiers)
+    if (Number.isInteger(t.upToGrams) && t.upToGrams > 0 && t.amount >= 0)
+      byWeight.set(t.upToGrams, t.amount);
+  return [...byWeight]
+    .sort((a, b) => a[0] - b[0])
+    .slice(0, 10)
+    .map(([upToGrams, amount]) => ({ upToGrams, amount }));
+}
 
 function toRows(options: ShippingOption[]): ShipRow[] {
   return options.map((o) => {
-    const band = BAND_RE.exec(o.label)?.[1];
-    const kind: ShipKind =
-      o.amount === 0 && /pick ?up|collect/i.test(o.label)
+    const kind: ShipKind = o.byWeight?.length
+      ? "weight"
+      : o.amount === 0 && /pick ?up|collect/i.test(o.label)
         ? "pickup"
-        : band
-          ? "weight"
-          : o.freeOver !== undefined
-            ? "free"
-            : "flat";
-    return {
-      ...o,
-      key: o.id ?? nextKey(),
-      kind,
-      band,
-      label: band ? o.label.replace(BAND_RE, "") : o.label,
-    };
+        : o.freeOver !== undefined
+          ? "free"
+          : "flat";
+    return { ...o, key: o.id ?? nextKey(), kind };
   });
 }
 
 function fromRows(rows: ShipRow[]): ShippingOption[] {
-  return rows.map(({ kind, band, key: _key, ...o }) => {
-    const out: ShippingOption = {
-      ...o,
-      label:
-        kind === "weight" && band ? bandLabel(o.label, band) : o.label.trim().slice(0, LABEL_MAX),
-    };
+  return rows.map(({ kind, key: _key, ...o }) => {
+    const out: ShippingOption = { ...o, label: o.label.trim().slice(0, LABEL_MAX) };
     if (kind === "pickup") {
       out.amount = 0;
       delete out.freeOver;
     }
-    if (kind !== "free") delete out.freeOver;
+    if (kind !== "free" && kind !== "weight") delete out.freeOver;
+    if (kind === "weight") {
+      out.byWeight = cleanTiers(o.byWeight ?? DEFAULT_TIERS);
+      out.amount = out.byWeight[0]?.amount ?? 0;
+    } else delete out.byWeight;
     return out;
   });
 }
@@ -423,7 +424,7 @@ function Shipping({
                   kind,
                   ...(kind === "pickup" ? { amount: 0, label: r.label || "Pick up" } : {}),
                   ...(kind === "free" ? { freeOver: r.freeOver ?? 5000 } : {}),
-                  ...(kind === "weight" ? { band: r.band ?? "up to 1 kg" } : {}),
+                  ...(kind === "weight" ? { byWeight: r.byWeight ?? DEFAULT_TIERS } : {}),
                 })
               }
               options={[
@@ -437,23 +438,11 @@ function Shipping({
               <Field label="Name buyers see">
                 <Input
                   value={r.label}
-                  maxLength={
-                    r.kind === "weight" ? LABEL_MAX - 3 - (r.band ?? "").length : LABEL_MAX
-                  }
+                  maxLength={LABEL_MAX}
                   onChange={(e) => set(i, { label: e.target.value })}
                 />
               </Field>
-              {r.kind === "weight" && (
-                <Field label="Weight band">
-                  <Input
-                    value={r.band ?? ""}
-                    maxLength={BAND_MAX}
-                    placeholder="up to 2 kg"
-                    onChange={(e) => set(i, { band: e.target.value })}
-                  />
-                </Field>
-              )}
-              {r.kind !== "pickup" && (
+              {r.kind !== "pickup" && r.kind !== "weight" && (
                 <Field label="Price">
                   <Input
                     inputMode="decimal"
@@ -513,13 +502,20 @@ function Shipping({
                 onClick={() => setRows(rows.filter((_, j) => j !== i))}
               />
             </div>
+            {r.kind === "weight" && (
+              <WeightTiers
+                currency={cur}
+                tiers={r.byWeight ?? DEFAULT_TIERS}
+                onChange={(byWeight) => set(i, { byWeight })}
+              />
+            )}
             <p className="st-ws-hint">
               {r.kind === "pickup"
                 ? "Free. Buyers collect from you."
                 : r.kind === "free"
                   ? `${money(r.amount, cur)}, or free when the order is over ${money(r.freeOver ?? 0, cur)}.`
                   : r.kind === "weight"
-                    ? `Shown as “${r.label} (${r.band ?? ""})” for ${money(r.amount, cur)}. Buyers pick the band that fits.`
+                    ? `Priced by the parcel’s weight, worked out from your products’ shipping weights. Parcels over ${kg(cleanTiers(r.byWeight ?? DEFAULT_TIERS).at(-1)?.upToGrams ?? 0)} can’t use this option.`
                     : `${money(r.amount, cur)} per order.`}
             </p>
           </fieldset>
@@ -797,5 +793,77 @@ function StockAlerts({
         </div>
       )}
     </form>
+  );
+}
+
+/** Weight tiers of a shipping option: "up to 2 kg → $9". */
+function WeightTiers({
+  currency,
+  tiers,
+  onChange,
+}: {
+  currency: string;
+  tiers: Array<{ upToGrams: number; amount: number }>;
+  onChange: (tiers: Array<{ upToGrams: number; amount: number }>) => void;
+}) {
+  const setTier = (i: number, patch: Partial<{ upToGrams: number; amount: number }>) =>
+    onChange(tiers.map((t, j) => (j === i ? { ...t, ...patch } : t)));
+  return (
+    <div className="st-ship__tiers" role="group" aria-label="Weight tiers">
+      {tiers.map((t, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: tiers have no ids
+        <div key={i} className="st-ship__tier">
+          <span className="st-ship__tier-label">Up to</span>
+          <Input
+            type="number"
+            min={0.01}
+            step={0.01}
+            size="sm"
+            suffix="kg"
+            aria-label={`Tier ${i + 1} weight in kilograms`}
+            defaultValue={String(t.upToGrams / 1000)}
+            onBlur={(e) => {
+              const v = Number(e.target.value);
+              if (Number.isFinite(v) && v > 0) setTier(i, { upToGrams: Math.round(v * 1000) });
+            }}
+          />
+          <Input
+            inputMode="decimal"
+            size="sm"
+            aria-label={`Tier ${i + 1} price`}
+            defaultValue={moneyInput(t.amount, currency)}
+            onBlur={(e) => {
+              const v = parseMoney(e.target.value, currency);
+              if (v !== null && v >= 0) setTier(i, { amount: v });
+            }}
+          />
+          <IconButton
+            size="sm"
+            label={`Remove tier ${i + 1}`}
+            icon={<Trash2 />}
+            disabled={tiers.length === 1}
+            onClick={() => onChange(tiers.filter((_, j) => j !== i))}
+          />
+        </div>
+      ))}
+      {tiers.length < 10 && (
+        <Button
+          size="sm"
+          variant="ghost"
+          icon={<Plus />}
+          onClick={() =>
+            onChange([
+              ...tiers,
+              {
+                upToGrams: (tiers.at(-1)?.upToGrams ?? 0) + 5000,
+                amount: tiers.at(-1)?.amount ?? 0,
+              },
+            ])
+          }
+        >
+          Add a tier
+        </Button>
+      )}
+    </div>
   );
 }

@@ -88,6 +88,8 @@ export interface CatalogVariant {
   sku: string;
   options: Record<string, string>;
   price: Money;
+  /** Shipping weight in grams. */
+  weight?: number;
   available: boolean;
 }
 
@@ -102,6 +104,10 @@ export interface CatalogProduct {
   compareAtPrice?: Money;
   available: boolean;
   digital: boolean;
+  /** Shipping weight in grams (weight-based shipping, server-side). */
+  weight?: number;
+  /** Subscription products: billed every month or year. */
+  interval?: "month" | "year";
   image?: string;
   options?: { name: string; values: string[] }[];
   variants?: CatalogVariant[];
@@ -147,6 +153,8 @@ export function catalogManifest(plan: SitePlan): CatalogManifest {
         digital: fm.digital === true,
       };
       if (fm.compareAtPrice) product.compareAtPrice = fm.compareAtPrice;
+      if (fm.weight !== undefined) product.weight = fm.weight;
+      if (fm.subscription) product.interval = fm.subscription.interval;
       const image = fm.image ?? fm.images?.[0]?.src;
       if (image) product.image = image;
       if (fm.options?.length) product.options = fm.options;
@@ -160,6 +168,7 @@ export function catalogManifest(plan: SitePlan): CatalogManifest {
             price: v.price ?? fm.price,
             available: available && v.available !== false,
           };
+          if (v.weight !== undefined) variant.weight = v.weight;
           claimSku(skus, vsku, `${collection}/${item.slug}`);
           skus[vsku] = {
             price: variant.price,

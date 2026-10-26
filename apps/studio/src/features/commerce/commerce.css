@@ -137,3 +137,20 @@
 .st-ship__fields > * {
   min-width: 0;
 }
+
+/* Weight tiers of a shipping option. */
+.st-ship__tiers {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+.st-ship__tier {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+.st-ship__tier-label {
+  color: var(--st-text-3);
+  font-size: var(--st-fs-sm);
+}

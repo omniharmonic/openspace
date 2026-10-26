@@ -314,6 +314,24 @@ function seed(site: Site, now: number): GrowthSiteState {
     ),
     order(5, { status: "refunded", items: [block(1)], refunded: 3000 }, 6),
     order(
+      9,
+      {
+        status: "paid",
+        items: [
+          {
+            sku: "TEA-CLUB",
+            title: "Studio tea of the month",
+            qty: 1,
+            unitAmount: 1500,
+            digital: false,
+            interval: "month",
+          },
+        ],
+        subscription: { interval: "month", id: "sub_dev_tea", ended: false },
+      },
+      3,
+    ),
+    order(
       6,
       {
         status: "paid",

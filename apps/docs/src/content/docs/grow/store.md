@@ -11,6 +11,8 @@ A store needs [Cloudflare hosting](/grow/members/#hosting), because GitHub Pages
 
 Products are a **collection** in your site's content: title, description, images, price, compare-at price, SKU, options (like size or glaze) and variants with their own prices and availability. Physical or **digital**. Edit them in Studio's **Content** area like blog posts, and show them with product sections — a grid, a carousel or a featured product with **Add to cart**.
 
+Give physical products a **shipping weight** (in grams, packed); variants can have their own. Set **Sold as** to **Monthly** or **Yearly** to sell a **subscription** (a coffee club, a print a month): buyers are charged every period through Stripe Billing until they cancel, the price shows as "$15 / month", and **Orders** marks those orders *Monthly subscription* (or *canceled*). Monthly and yearly subscriptions are checked out separately.
+
 The cart is a tiny script that keeps items in the visitor's browser and opens a slide-out drawer. At checkout, prices are **always re-read from your published catalog** — never trusted from the browser — so a tampered cart can't change what anyone pays.
 
 ## Payments
@@ -22,7 +24,7 @@ Prefer to keep everything in your own accounts? Owners can use **sovereign mode*
 Also in store settings:
 
 - **Currency.**
-- **Shipping** — up to five options: flat rate, by weight, free over an amount, or local pickup, each with a delivery-time range and the countries you ship to.
+- **Shipping** — up to five options: flat rate, **by weight** (tiers such as "up to 0.5 kg: $5, up to 2 kg: $9"), free over an amount, or local pickup, each with a delivery-time range and the countries you ship to. OpenSpace works out each parcel's weight from your products' shipping weights at checkout (never from the visitor's browser) and only offers the options it fits; subscriptions with physical items add the cheapest fitting rate to the first payment.
 - **Tax** — turn on Stripe Tax if you want Stripe to calculate it (Stripe charges its own fee for this).
 - **Discount codes** — show a code box at checkout and create codes for a percentage or an amount, with a use limit and an end date.
 - **Low-stock alerts** — a threshold and who to email.

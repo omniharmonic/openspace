@@ -4,7 +4,7 @@ import { type CollectionItem, CollectionItemSchema, type SiteDocument } from "@o
 import { describe, expect, it } from "vitest";
 import { demoCollections } from "../../api/growth-fixtures";
 import { niceTicks } from "../analytics/charts";
-import { bandLabel, LABEL_MAX } from "../commerce/StoreSettingsView";
+import { cleanTiers } from "../commerce/StoreSettingsView";
 import { devSiteDocument } from "../editor/model/dev-site";
 import { forceDark, previewEmail } from "../marketing/emailPreview";
 import { duration, money, parseDuration, parseMoney } from "../workspace/format";
@@ -320,12 +320,20 @@ describe("review diffs", () => {
   });
 });
 
-describe("shipping labels", () => {
-  it("keeps a weight band label within the Hub's 60 characters", () => {
-    expect(bandLabel("Standard", "up to 2 kg")).toBe("Standard (up to 2 kg)");
-    const long = bandLabel("x".repeat(80), "up to 20 kilograms ok");
-    expect(long.length).toBeLessThanOrEqual(LABEL_MAX);
-    expect(long.endsWith("(up to 20 kilograms o)")).toBe(true);
+describe("shipping weight tiers", () => {
+  it("sorts tiers by weight, drops duplicates and bad rows (what the Hub accepts)", () => {
+    expect(
+      cleanTiers([
+        { upToGrams: 2000, amount: 900 },
+        { upToGrams: 500, amount: 500 },
+        { upToGrams: 2000, amount: 950 },
+        { upToGrams: 0, amount: 100 },
+        { upToGrams: 1500.5, amount: 1 },
+      ]),
+    ).toEqual([
+      { upToGrams: 500, amount: 500 },
+      { upToGrams: 2000, amount: 950 },
+    ]);
   });
 });
 

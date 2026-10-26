@@ -31,7 +31,61 @@ export const ShippingOptionSchema = z.strictObject({
   maxDays: z.number().int().min(0).max(120).optional(),
   /** Free when the order subtotal is at least this (minor units). */
   freeOver: z.number().int().min(0).optional(),
+  /**
+   * Weight-tiered rate (PRD §5.6): the price of the first tier the parcel's weight fits in
+   * (`amount` is then ignored). Heavier parcels than the last tier can't use this option.
+   */
+  byWeight: z
+    .array(
+      z.strictObject({
+        /** Parcel weight in grams up to and including this. */
+        upToGrams: z.number().int().min(1).max(1_000_000),
+        amount: z.number().int().min(0).max(10_000_000),
+      }),
+    )
+    .min(1)
+    .max(10)
+    .refine((t) => t.every((x, i) => i === 0 || x.upToGrams > (t[i - 1]?.upToGrams ?? 0)), {
+      message: "Weight tiers must go up",
+    })
+    .optional(),
 });
+export type ShippingOption = z.infer<typeof ShippingOptionSchema>;
+
+export interface ShippingRate {
+  label: string;
+  amount: number;
+  minDays?: number;
+  maxDays?: number;
+}
+
+/**
+ * The shipping rates a parcel can use, computed server-side from the catalog's weights and the
+ * priced subtotal (never from anything the browser sends): flat rates, weight tiers (an option
+ * whose tiers the parcel exceeds is left out), and free-over thresholds.
+ */
+export function shippingRatesFor(
+  options: readonly ShippingOption[],
+  parcel: { subtotal: number; weightGrams: number },
+): ShippingRate[] {
+  const out: ShippingRate[] = [];
+  for (const o of options) {
+    let amount = o.amount;
+    if (o.byWeight) {
+      const tier = o.byWeight.find((t) => parcel.weightGrams <= t.upToGrams);
+      if (!tier) continue;
+      amount = tier.amount;
+    }
+    if (o.freeOver !== undefined && parcel.subtotal >= o.freeOver) amount = 0;
+    out.push({
+      label: o.label,
+      amount,
+      ...(o.minDays !== undefined ? { minDays: o.minDays } : {}),
+      ...(o.maxDays !== undefined ? { maxDays: o.maxDays } : {}),
+    });
+  }
+  return out;
+}
 
 export const GrowthSettingsSchema = z.object({
   currency: z
