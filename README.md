@@ -12,6 +12,12 @@ Requires Node 22 and pnpm 10. Everything runs locally with no external accounts:
 
 Other commands: `pnpm build`, `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm format`, `pnpm e2e`.
 
+## Status
+
+OpenSpace is pre-release. [docs/PARITY.md](docs/PARITY.md) tracks every PRD capability as Done, Partial or Missing against the Squarespace feature set, with the evidence for each.
+
+External services (GitHub, Cloudflare, Stripe, email providers, Turnstile, registrar DNS) are exercised end to end only through their dev emulations in this repo. The real implementations exist behind the same interfaces but have not yet been tested against live accounts, so treat production use as experimental until that verification lands.
+
 ## Architecture map
 
 | Path                    | Purpose                                                |
