@@ -1,0 +1,20 @@
+{
+  "name": "@openspace/claude-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenSpace Claude Code plugin.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
