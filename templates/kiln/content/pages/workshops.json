@@ -1,0 +1,352 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_rgdkzzbgjy",
+  "title": "Workshops",
+  "slug": "workshops",
+  "seo": {
+    "description": "Weekend pottery workshops at Saltmarsh Pottery in Mystic: wheel throwing for beginners, hand-building and glazing. Six places per class."
+  },
+  "sections": [
+    {
+      "id": "sec_mtrqtb5pdg",
+      "preset": "hero/split-image@1",
+      "label": "Split with portrait image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_fdna7dj99g",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Get your hands in the clay",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Workshops",
+            "subheading": "Small weekend workshops in the boatshed, for complete beginners and anyone who misses the wheel. Six students, all materials and two firings included."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_w61wqj3zbd",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "See upcoming dates",
+            "link": {
+              "type": "url",
+              "url": "/classes/"
+            },
+            "role": "primary",
+            "secondaryLabel": "Private groups",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_qpse8ffgrr"
+            },
+            "note": "Gift vouchers available for any workshop."
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_95b6pb8zsm",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1597696929736-6d13bed8e6a8?w=2240&q=80",
+              "alt": "Finished pieces from a weekend workshop on the shelf",
+              "width": 2240,
+              "height": 1493
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_rs3f9n845g",
+      "preset": "events/list@1",
+      "label": "Upcoming events list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_jdbzn06h2c",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "heading": "Upcoming workshops",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "classes",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 8
+            },
+            "showImage": false,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "Book a place",
+            "emptyMessage": "New workshop dates are posted each season.",
+            "structuredData": true
+          },
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_2k75481p78",
+      "preset": "services/steps@1",
+      "label": "How it works in three steps",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_he1ar39n5j",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "From lump of clay to finished pot",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "What to expect"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_jh08jczcwe",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "Saturday: make",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Wedge, centre and throw on the wheel, with plenty of help. Most people make three to five pieces."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Sunday: trim",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Come back the next morning to trim your favourites and add handles or carved details."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Three weeks later: collect",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Choose a glaze; Wren fires everything twice and lets you know when your pots are ready."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "3",
+            "aspect": "original"
+          },
+          "variant": "steps"
+        },
+        {
+          "id": "blk_vzms9hpb8c",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a workshop",
+            "link": {
+              "type": "url",
+              "url": "/classes/"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_2k1z8dq2g1",
+      "preset": "faq/centered@1",
+      "label": "Centred questions",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_6bxrjjcw2x",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Good to know",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Workshops"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_pe9pdt6ahg",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "I've never touched clay. Is that OK?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Completely. Most of our students are beginners, and the first hour is all about centring."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What should I wear?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Clothes you don't mind getting muddy and short nails. Aprons and towels are provided."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I book the studio for a group?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes, for four to eight people on weekday evenings. Write to us with a date in mind."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "minimal"
+        }
+      ]
+    }
+  ]
+}

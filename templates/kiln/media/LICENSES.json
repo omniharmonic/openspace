@@ -1,0 +1,119 @@
+{
+  "$comment": "Licenses for the demo media in the Kiln template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a",
+      "title": "A small cactus in a terracotta pot against a blush wall",
+      "author": "Annie Spratt",
+      "authorUrl": "https://unsplash.com/@anniespratt",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/green-cactus-plant-on-brown-pot-fbAnIjhrOL4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1485955900006-10f4d324d411",
+      "title": "A spiky succulent in a mint-green pot on a white table",
+      "author": "Galina N",
+      "authorUrl": "https://unsplash.com/@galina88",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/green-succulent-in-teal-ceramic-vase-miziNqvJx5M",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      "title": "Portrait of a woman in a red sweater, laughing",
+      "author": "Michael Dam",
+      "authorUrl": "https://unsplash.com/@michaeldam",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/closeup-photography-of-woman-smiling-mEZ3PoFGs_k",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1503602642458-232111445657",
+      "title": "A simple wooden stool against a pale blue wall",
+      "author": "Ruslan Bardash",
+      "authorUrl": "https://unsplash.com/@ruslanbardash",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/beige-wooden-bar-stool-4kTbAMRAHtQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+      "title": "Portrait of a smiling man in a white t-shirt",
+      "author": "Joseph Gonzalez",
+      "authorUrl": "https://unsplash.com/@miracletwentyone",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-white-v-neck-shirt-iFgRcqHznqg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
+      "title": "Two cappuccinos with latte art beside potted herbs",
+      "author": "Nathan Dumlao",
+      "authorUrl": "https://unsplash.com/@nate_dumlao",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/shallow-focus-photography-of-coffee-late-in-mug-on-table-zUNs99PGDg0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261",
+      "title": "Three matte grey vases with dried stems against a dark wall",
+      "author": "Tom Crew",
+      "authorUrl": "https://unsplash.com/@tomcrewceramics",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/three-white-bottles-j6sxCTf3UyU",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1597696929736-6d13bed8e6a8",
+      "title": "Handmade ceramic vases in soft clay colours on a shelf",
+      "author": "Chloe Bolton",
+      "authorUrl": "https://unsplash.com/@crystalmind_design",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/ceramic-vases-on-wooden-surface-R0qthXq3jec",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1780387477222-730504564368",
+      "title": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+      "author": "Centre for Ageing Better",
+      "authorUrl": "https://unsplash.com/@ageing_better",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-beige-jumpsuit-smiling-sitting-on-a-stool-IxacjtwPdGM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

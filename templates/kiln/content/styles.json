@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.52 0.08 50)",
+      "neutral": "warm",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "gloock-albert-sans",
+    "density": "comfortable",
+    "shape": "soft",
+    "buttons": "solid",
+    "motion": "subtle",
+    "imageTreatment": "grain"
+  }
+}

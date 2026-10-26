@@ -1,0 +1,263 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Saltmarsh Pottery",
+  "tagline": "Pots for everyday rituals.",
+  "nav": [
+    {
+      "type": "collection",
+      "collection": "shop",
+      "label": "Shop"
+    },
+    {
+      "type": "page",
+      "page": "pg_rgdkzzbgjy",
+      "label": "Workshops"
+    },
+    {
+      "type": "page",
+      "page": "pg_me0855hfs5",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_qpse8ffgrr",
+      "label": "Visit"
+    }
+  ],
+  "announcement": {
+    "enabled": true,
+    "message": "The December firing opens in the shop on Friday the 4th at 10am.",
+    "link": {
+      "type": "url",
+      "url": "/shop/"
+    },
+    "dismissible": true
+  },
+  "header": {
+    "variant": "split-nav",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "fullscreen",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_hfnhm46150",
+    "preset": "footer/newsletter@1",
+    "label": "Footer with newsletter",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          6,
+          3,
+          3
+        ],
+        "m": [
+          12
+        ]
+      },
+      "gap": "xl"
+    },
+    "style": {
+      "colorTheme": "dark-accent",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_4zbsga68sh",
+        "type": "newsletter",
+        "v": 1,
+        "fields": {
+          "heading": "News from the boatshed",
+          "description": "New firings, workshop dates and studio sales, about once a month.",
+          "askName": false,
+          "placeholder": "you@example.com",
+          "buttonLabel": "Subscribe",
+          "successMessage": "Thank you! Check your inbox to confirm."
+        },
+        "column": 0,
+        "variant": "stacked"
+      },
+      {
+        "id": "blk_27cd2kzdt8",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Shop"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "All pottery",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/shop/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Workshops",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/workshops/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "About",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/about/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default"
+      },
+      {
+        "id": "blk_367s1mce7a",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Visit"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "12 Holmes Street, Mystic, Connecticut"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "studio@saltmarshpottery.example",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "mailto:studio@saltmarshpottery.example"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Saltmarsh Pottery"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 2,
+        "variant": "default"
+      },
+      {
+        "id": "blk_km8zyh9cha",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "column": 2,
+        "variant": "icons"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/saltmarshpottery.example"
+    },
+    {
+      "network": "pinterest",
+      "url": "https://pinterest.com/saltmarshpottery-example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:studio@saltmarshpottery.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Saltmarsh Pottery",
+    "description": "Wheel-thrown stoneware from a boatshed in Mystic, Connecticut.",
+    "image": "https://images.unsplash.com/photo-1597696929736-6d13bed8e6a8?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

@@ -21,6 +21,7 @@ import { encore } from "./encore/src/build";
 import { fieldNotes } from "./field-notes/src/build";
 import { harbor } from "./harbor/src/build";
 import { hearth } from "./hearth/src/build";
+import { kiln } from "./kiln/src/build";
 import { ledger } from "./ledger/src/build";
 import { meadow } from "./meadow/src/build";
 import { signal } from "./signal/src/build";
@@ -47,6 +48,7 @@ export const templateSpecs: readonly TemplateSpec[] = [
   signal,
   fieldNotes,
   encore,
+  kiln,
 ];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);
