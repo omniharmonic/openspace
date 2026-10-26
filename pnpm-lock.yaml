@@ -619,7 +619,20 @@ importers:
         version: 3.2.7(@types/node@22.20.5)(happy-dom@21.0.4)(jsdom@30.1.3)(lightningcss@1.33.0)(yaml@2.9.1)
 
   plugin:
+    dependencies:
+      yaml:
+        specifier: ^2.9.1
+        version: 2.9.1
     devDependencies:
+      '@openspace/blocks':
+        specifier: workspace:*
+        version: link:../packages/blocks
+      '@openspace/mcp-tools':
+        specifier: workspace:*
+        version: link:../packages/mcp-tools
+      '@openspace/templates':
+        specifier: workspace:*
+        version: link:../templates
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.5
