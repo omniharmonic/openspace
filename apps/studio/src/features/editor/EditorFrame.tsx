@@ -623,26 +623,24 @@ function EditorChrome({ site }: { site: Site }) {
   const showRight = !ui.chromeHidden && ui.inspectorOpen;
   const leftMeta = PANELS.find((p) => p.id === ui.leftPanel);
 
-  // Phones get their own layout (arch §5.7): pages → sections → edit in a sheet.
-  if (narrow)
-    return (
-      <>
-        <WelcomeToast site={site} />
-        <Suspense fallback={<PanelSkeleton label="Loading Studio" rows={8} />}>
-          <MobileStudio
-            site={site}
-            onHistory={() => setHistoryOpen(true)}
-            onFrameDocument={setFrameDoc}
-          />
-        </Suspense>
-        <InspectorRuntime />
-        <SiteManagementHost site={site} />
-        <WorkspaceHost site={site} />
-        <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
-      </>
-    );
-
-  return (
+  // Phones get their own layout (arch §5.7): pages → sections → edit in a sheet. Site
+  // management (dialogs, upload queue, local media) stays mounted across the switch: it sits at
+  // the same place in both trees.
+  const layout = narrow ? (
+    <>
+      <WelcomeToast site={site} />
+      <Suspense fallback={<PanelSkeleton label="Loading Studio" rows={8} />}>
+        <MobileStudio
+          site={site}
+          onHistory={() => setHistoryOpen(true)}
+          onFrameDocument={setFrameDoc}
+        />
+      </Suspense>
+      <InspectorRuntime />
+      <WorkspaceHost site={site} />
+      <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
+    </>
+  ) : (
     <div
       className={cx("st-editor", ui.chromeHidden && "st-editor--bare")}
       data-left={showLeft ? "open" : "closed"}
@@ -872,10 +870,16 @@ function EditorChrome({ site }: { site: Site }) {
 
       <ShortcutsSheet />
       <InspectorRuntime />
-      <SiteManagementHost site={site} />
       <WorkspaceHost site={site} />
       <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
     </div>
+  );
+
+  return (
+    <>
+      {layout}
+      <SiteManagementHost site={site} />
+    </>
   );
 }
 

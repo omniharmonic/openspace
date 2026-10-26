@@ -12,6 +12,7 @@ import { useDesignCheck } from "../design-check/store";
 import { useEditorUi } from "../editor/editor-store";
 import { DEV_IDS as I } from "../editor/model/dev-site";
 import type { EditorStore } from "../editor/model/store";
+import { useMediaSources } from "../media/sources";
 import { type FakeImage, fakeCodec, fakePhoto } from "../media/testing";
 import { useUploads } from "../media/uploader";
 import { mediaTestHooks } from "../media/useUploader";
@@ -296,5 +297,44 @@ describe("mobile helpers", () => {
     expect(css).toContain("env(safe-area-inset-top)");
     expect(css).toContain("env(safe-area-inset-bottom)");
     expect(css).toMatch(/\.st-mob \{[^}]*overflow: hidden;/);
+  });
+
+  it("keeps this session's local media when the layout switches between phone and desktop", async () => {
+    let narrow = true;
+    const listeners = new Set<() => void>();
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 390 });
+    window.matchMedia = (query: string) =>
+      ({
+        get matches() {
+          return /max-width:\s*767px/.test(query) ? narrow : false;
+        },
+        media: query,
+        onchange: null,
+        addListener() {},
+        removeListener() {},
+        addEventListener: (_: string, fn: () => void) => listeners.add(fn),
+        removeEventListener: (_: string, fn: () => void) => listeners.delete(fn),
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList;
+    renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
+    await screen.findByTestId("mobile-studio");
+    const urls = URL as unknown as Record<string, unknown>;
+    const saved = { create: urls.createObjectURL, revoke: urls.revokeObjectURL };
+    const revoked: string[] = [];
+    urls.createObjectURL = () => "blob:kept";
+    urls.revokeObjectURL = (u: string) => revoked.push(u);
+    try {
+      useMediaSources.getState().addLocal("media/fresh.png", new Blob([new Uint8Array([1])]));
+      narrow = false;
+      act(() => {
+        for (const fn of [...listeners]) fn();
+      });
+      await waitFor(() => expect(screen.queryByTestId("mobile-studio")).not.toBeInTheDocument());
+      expect(useMediaSources.getState().local["media/fresh.png"]).toBe("blob:kept");
+      expect(revoked).toEqual([]);
+    } finally {
+      urls.createObjectURL = saved.create;
+      urls.revokeObjectURL = saved.revoke;
+    }
   });
 });

@@ -30,6 +30,9 @@ export const PageAccessSchema = z.strictObject({
    * empty = every signed-in member, including free sign-ups when sign-up is open.
    */
   tiers: z.array(z.string().min(1).max(64)).max(20).optional(),
+}).refine((a) => !a.tiers?.length || a.members === true, {
+  message: "Membership plans only apply to members-only pages",
+  path: ["tiers"],
 });
 export type PageAccess = z.infer<typeof PageAccessSchema>;
 
