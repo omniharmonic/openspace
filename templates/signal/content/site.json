@@ -1,0 +1,345 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Tidewire",
+  "tagline": "Incident response for small engineering teams.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_m6t2wx7vce",
+      "label": "Pricing"
+    },
+    {
+      "type": "collection",
+      "collection": "changelog",
+      "label": "Changelog"
+    },
+    {
+      "type": "page",
+      "page": "pg_0sbf72xqnm",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_khh7x3t3zt",
+      "label": "Contact"
+    },
+    {
+      "type": "link",
+      "label": "Sign in",
+      "href": "https://app.tidewire.example/login"
+    },
+    {
+      "type": "button",
+      "label": "Start free",
+      "link": {
+        "type": "url",
+        "url": "https://app.tidewire.example/signup"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-center",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "dropdown",
+    "colorTheme": "dark"
+  },
+  "footer": {
+    "id": "sec_znv93n856e",
+    "preset": "footer/columns@1",
+    "label": "Footer with link columns",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          4,
+          2,
+          2,
+          4
+        ],
+        "m": [
+          6,
+          6
+        ]
+      },
+      "gap": "lg"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_42ychezmvx",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Tidewire"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Incident response for small engineering teams. Made remotely, in nine time zones."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_jynwq7skvb",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "column": 0,
+        "variant": "icons"
+      },
+      {
+        "id": "blk_rrgtcj67vz",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Product"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Pricing",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/pricing/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Changelog",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/changelog/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Status",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://status.tidewire.example"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default"
+      },
+      {
+        "id": "blk_rc8q2ay6mt",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Company"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "About",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/about/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Contact",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/contact/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 2,
+        "variant": "default"
+      },
+      {
+        "id": "blk_nm1yv9eeg5",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Product updates"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "New features every two weeks, written by the engineers who built them. "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Read the changelog",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/changelog/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Tidewire, Inc."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 3,
+        "variant": "default"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "github",
+      "url": "https://github.com/tidewire-example"
+    },
+    {
+      "network": "bluesky",
+      "url": "https://bsky.app/profile/tidewire.example"
+    },
+    {
+      "network": "linkedin",
+      "url": "https://linkedin.com/company/tidewire-example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Tidewire",
+    "description": "Incident response for small engineering teams.",
+    "image": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

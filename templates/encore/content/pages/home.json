@@ -1,0 +1,363 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_a2aw835bvy",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Juno Vale makes late-night synth-pop in Chicago. Listen to the new album Afterglow, see tour dates and catch Night Shift Sessions."
+  },
+  "sections": [
+    {
+      "id": "sec_8yckr0h7ky",
+      "preset": "hero/photo-corner-text@1",
+      "label": "Photograph with corner headline",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        },
+        "minHeight": {
+          "d": "92vh",
+          "m": "85svh"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=2880&q=80",
+          "focal": [
+            0.5,
+            0.4
+          ],
+          "overlay": {
+            "color": "background",
+            "opacity": 0.78
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_tnex5nfkvs",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Songs for driving home after midnight",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "New album · Afterglow · Out now",
+            "subheading": "Afterglow is Juno Vale's second album: ten songs of warm synths, drum machines and city lights, recorded over one long Chicago winter."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_30tjz04e8s",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Listen to Afterglow",
+            "link": {
+              "type": "page",
+              "page": "pg_4czb9an2pn"
+            },
+            "role": "primary",
+            "secondaryLabel": "Tour dates",
+            "secondaryLink": {
+              "type": "url",
+              "url": "/tour/"
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_kt9qvgq1wz",
+      "label": "Latest single",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_389xtfa3fm",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Neon Tide",
+            "eyebrow": "The single",
+            "subheading": "The first song from Afterglow, recorded live to tape in one take."
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_qmfbj87jpa",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "secondary",
+            "label": "Stream everywhere",
+            "link": {
+              "type": "url",
+              "url": "https://open.spotify.com/artist/junovale-example",
+              "newTab": true
+            }
+          },
+          "column": 0
+        },
+        {
+          "id": "blk_krkzb59g33",
+          "type": "audio",
+          "v": 1,
+          "fields": {
+            "audio": {
+              "kind": "audio",
+              "src": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Synth_pop_with_4_on_the_floor.ogg",
+              "title": "Neon Tide"
+            },
+            "title": "Neon Tide",
+            "show": "Afterglow",
+            "description": "Four on the floor, stepped pads and a melody that won't leave you alone.",
+            "cover": {
+              "src": "https://images.unsplash.com/photo-1669459868647-4c2f1c564052?w=960&q=80",
+              "alt": "Afterglow album cover: a crowd facing a lit stage",
+              "width": 960,
+              "height": 640
+            },
+            "links": [
+              {
+                "platform": "spotify",
+                "link": {
+                  "type": "url",
+                  "url": "https://open.spotify.com/artist/junovale-example"
+                }
+              },
+              {
+                "platform": "other",
+                "label": "Apple Music",
+                "link": {
+                  "type": "url",
+                  "url": "https://music.apple.com/artist/junovale-example"
+                }
+              },
+              {
+                "platform": "other",
+                "label": "Bandcamp",
+                "link": {
+                  "type": "url",
+                  "url": "https://junovale.bandcamp.example"
+                }
+              }
+            ]
+          },
+          "variant": "card",
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_xwv7vs5wa5",
+      "preset": "events/list@1",
+      "label": "Upcoming events list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_thv3z3zd99",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "heading": "Afterglow tour",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "tour",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 6
+            },
+            "showImage": false,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "Tickets",
+            "emptyMessage": "New dates are announced to the mailing list first.",
+            "structuredData": true
+          },
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_a0dk61e0fp",
+      "preset": "testimonials/large-single@1",
+      "label": "One big testimonial",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_rq3szj4k6k",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Afterglow sounds like the last train home: tired, glowing and quietly euphoric. Vale's best work yet."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Northside Sound",
+            "role": "Album review, ★★★★½"
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_30044qmwr1",
+      "preset": "blog/list@1",
+      "label": "Post list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_73z4wzyh3w",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "heading": "Night Shift Sessions",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "sessions",
+              "sort": "date-desc",
+              "limit": 3
+            },
+            "columns": "3",
+            "showImage": false,
+            "showDate": true,
+            "showExcerpt": true,
+            "showMeta": false,
+            "linkLabel": "All episodes",
+            "link": {
+              "type": "url",
+              "url": "/sessions/"
+            },
+            "emptyMessage": "A new session is being recorded. Subscribe to hear it first."
+          },
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_1zszyhscq1",
+      "preset": "newsletter/banner@1",
+      "label": "Newsletter banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_t46jny5cz8",
+          "type": "newsletter",
+          "v": 1,
+          "fields": {
+            "heading": "Join the night shift",
+            "description": "Presale codes, new music and the occasional voice memo from the studio. Once a month at most.",
+            "askName": false,
+            "placeholder": "you@example.com",
+            "buttonLabel": "Sign up",
+            "successMessage": "You're on the list. Check your inbox to confirm."
+          },
+          "variant": "banner"
+        }
+      ]
+    }
+  ]
+}

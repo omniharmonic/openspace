@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.62 0.07 145)",
+      "neutral": "warm",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "fraunces-hanken",
+    "density": "airy",
+    "shape": "soft",
+    "buttons": "pill-solid",
+    "motion": "subtle",
+    "imageTreatment": "grain"
+  },
+  "overrides": {
+    "color": {
+      "accent": {
+        "$value": "oklch(0.55 0.12 40)",
+        "$type": "color"
+      }
+    }
+  }
+}

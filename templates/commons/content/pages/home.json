@@ -1,0 +1,540 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_782p7fqf60",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "The Hudson Valley Food Commons is a cooperative of 42 farms, kitchens and food banks sharing cold storage, trucks and buying power."
+  },
+  "sections": [
+    {
+      "id": "sec_jkb292th3y",
+      "preset": "hero/image-below@1",
+      "label": "Headline over wide image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_bsv5fgxmh3",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Feeding the valley, together",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "A cooperative of 42 farms, kitchens and food banks",
+            "subheading": "We share cold storage, delivery trucks and buying power so that small farms stay in business and good food reaches every town from Kingston to Beacon."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_5yahwf5bam",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Join the commons",
+            "link": {
+              "type": "page",
+              "page": "pg_767k25afbn"
+            },
+            "role": "primary",
+            "secondaryLabel": "Meet our members",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_3cz4x9rxbd"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_6nvg3rm6z5",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=2560&q=80",
+              "alt": "Green hills of the valley seen from above",
+              "width": 2560,
+              "height": 1524
+            },
+            "aspect": "21:9",
+            "lightbox": false
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_b16bkj32mf",
+      "preset": "stats/with-image@1",
+      "label": "Big numbers with photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_ceh1qmwwx2",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=1800&q=80",
+              "alt": "Seedlings sprouting in a tray at a member farm",
+              "width": 1800,
+              "height": 1200
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_gy12vq9jq6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What we've built by sharing",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Since 2019"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_8cn4et8v66",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "42",
+                "label": "Member organizations"
+              },
+              {
+                "value": "1.2M lbs",
+                "label": "Food moved in 2025"
+              },
+              {
+                "value": "9",
+                "label": "Counties served"
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "large"
+        }
+      ]
+    },
+    {
+      "id": "sec_gyxxy3r33m",
+      "preset": "services/icon-grid@1",
+      "label": "Service grid with icons",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_accm5p1jka",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Shared infrastructure, owned in common",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "How it works",
+            "subheading": "Every member owns one share and gets one vote. Together we own what none of us could afford alone."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_vd0fsj6an6",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "home",
+                "title": "Cold storage",
+                "text": "A 6,000-square-foot cooler in Kingston, open to members around the clock."
+              },
+              {
+                "icon": "truck",
+                "title": "Shared trucks",
+                "text": "Three refrigerated trucks run routes four days a week."
+              },
+              {
+                "icon": "shopping-bag",
+                "title": "Bulk buying",
+                "text": "Seed, packaging and fuel bought together at wholesale prices."
+              },
+              {
+                "icon": "graduation-cap",
+                "title": "Training",
+                "text": "Food-safety, bookkeeping and grant-writing workshops every season."
+              },
+              {
+                "icon": "heart-handshake",
+                "title": "Food access",
+                "text": "Surplus goes to member food banks within 24 hours."
+              },
+              {
+                "icon": "globe",
+                "title": "A shared voice",
+                "text": "We speak together at county and state hearings on farmland."
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_8c1jxnkqf0",
+      "label": "Map",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_4jy4tj26jr",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Where our members are",
+            "eyebrow": "The map",
+            "subheading": "From orchards in Ulster County to kitchens in Poughkeepsie and pantries in Newburgh. The cooperative's hub is the shared cooler in Kingston."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_bn14tmztwe",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "latitude": 41.9271,
+            "longitude": -73.9974,
+            "zoom": 9,
+            "aspect": "16:9",
+            "name": "Food Commons hub",
+            "address": "61 Prince Street, Kingston, NY 12401",
+            "details": "Member deliveries Monday to Thursday, 6am to 2pm.",
+            "linkLabel": "Open in Maps"
+          },
+          "variant": "split"
+        }
+      ]
+    },
+    {
+      "id": "sec_qz3trj1vsa",
+      "preset": "logos/grid@1",
+      "label": "Partner grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_yv6x9m2vpf",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Some of the 42 members",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Members",
+            "subheading": "Farms, kitchens, food banks and grocers, from one-acre market gardens to a 400-family pantry."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_zqd36xvjdb",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "logos": [
+              {
+                "name": "Rondout Valley Growers"
+              },
+              {
+                "name": "Esopus Creek Farm"
+              },
+              {
+                "name": "Kingston Community Kitchen"
+              },
+              {
+                "name": "Newburgh Food Pantry"
+              },
+              {
+                "name": "Wallkill Orchards"
+              },
+              {
+                "name": "Catskill Grain Co."
+              },
+              {
+                "name": "Shawangunk Dairy"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_qt2hkn0ve5",
+      "preset": "events/list@1",
+      "label": "Upcoming events list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_985bq5xvxs",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "heading": "Gatherings & assemblies",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "gatherings",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 4
+            },
+            "showImage": false,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "RSVP",
+            "emptyMessage": "The next general assembly will be announced to members soon.",
+            "structuredData": true
+          },
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_8eqe4r09mq",
+      "preset": "cta/card-over-photo@1",
+      "label": "Card over photo",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 23,
+          "m": 23
+        },
+        "items": {
+          "blk_m8d6jfjhkt": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 20,
+              "h": 20
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_fq8e28xcb8": {
+            "d": {
+              "x": 1,
+              "y": 9,
+              "w": 10,
+              "h": 11,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 10,
+              "z": 2
+            }
+          },
+          "blk_v077r1rrfb": {
+            "d": {
+              "x": 2,
+              "y": 21,
+              "w": 9,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_m8d6jfjhkt",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=2200&q=80",
+              "alt": "Members of the cooperative together at sunset",
+              "width": 2200,
+              "height": 1467
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_fq8e28xcb8",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "There's room at the table"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Farms, kitchens, pantries and grocers in the Hudson Valley can join for a one-time share and a sliding-scale yearly fee."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            }
+          }
+        },
+        {
+          "id": "blk_v077r1rrfb",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Apply to join",
+            "link": {
+              "type": "page",
+              "page": "pg_767k25afbn"
+            },
+            "role": "primary"
+          },
+          "variant": "default"
+        }
+      ]
+    }
+  ]
+}

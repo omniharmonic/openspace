@@ -1,0 +1,396 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_fs2y203dqx",
+  "title": "Menu",
+  "slug": "menu",
+  "seo": {
+    "description": "The Ember & Olive dinner menu: antipasti, handmade pasta, wood-fired pizza, dishes from the oven, desserts and natural wine."
+  },
+  "sections": [
+    {
+      "id": "sec_k15h2k90jf",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_cpgv8g3ntp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h1",
+            "size": "display",
+            "text": "Menu",
+            "eyebrow": "Dinner · Tuesday to Sunday",
+            "subheading": "Made to share. Order a few plates for the middle of the table and add more as you go."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_gts8rpp5qt",
+      "preset": "services/price-list@1",
+      "label": "Dinner menu",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_syt9zy28f4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Dinner",
+            "subheading": "Served Tuesday to Sunday from 5pm, and from noon at weekends."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_yv2y8w12jz",
+          "type": "restaurant-menu",
+          "v": 1,
+          "fields": {
+            "legend": true,
+            "sections": [
+              {
+                "title": "Antipasti",
+                "items": [
+                  {
+                    "name": "Focaccia",
+                    "description": "Rosemary, flaky salt, whipped ricotta and honey.",
+                    "price": "9",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Burrata",
+                    "description": "Roasted grapes, saba, toasted hazelnuts.",
+                    "price": "16",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      },
+                      {
+                        "tag": "n"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Arancini",
+                    "description": "Saffron risotto, smoked mozzarella, Calabrian chili aioli.",
+                    "price": "13",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      },
+                      {
+                        "tag": "spicy"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Crudo",
+                    "description": "Local fluke, blood orange, fennel, olive oil.",
+                    "price": "18",
+                    "dietary": [
+                      {
+                        "tag": "gf"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "title": "Pasta",
+                "note": "Made by hand every afternoon",
+                "items": [
+                  {
+                    "name": "Cacio e pepe",
+                    "description": "Tonnarelli, pecorino romano, black pepper.",
+                    "price": "24",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Pappardelle",
+                    "description": "Slow-braised short rib ragù, parmigiano.",
+                    "price": "29",
+                    "dietary": []
+                  },
+                  {
+                    "name": "Agnolotti",
+                    "description": "Butternut squash, brown butter, sage, amaretti.",
+                    "price": "26",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      },
+                      {
+                        "tag": "n"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Linguine alle vongole",
+                    "description": "Rhode Island littlenecks, garlic, white wine, chili.",
+                    "price": "31",
+                    "dietary": [
+                      {
+                        "tag": "spicy"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "title": "Pizza",
+                "note": "From the oak-fired oven",
+                "items": [
+                  {
+                    "name": "Margherita DOP",
+                    "description": "San Marzano tomato, fior di latte, basil.",
+                    "price": "19",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Diavola",
+                    "description": "Spicy soppressata, tomato, mozzarella, hot honey.",
+                    "price": "22",
+                    "dietary": [
+                      {
+                        "tag": "spicy"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Funghi",
+                    "description": "Roasted mushrooms, taleggio, thyme, garlic.",
+                    "price": "21",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "title": "Dal forno",
+                "items": [
+                  {
+                    "name": "Half chicken",
+                    "description": "Brined and roasted in the oven, salsa verde, potatoes.",
+                    "price": "32",
+                    "dietary": [
+                      {
+                        "tag": "gf"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Whole branzino",
+                    "description": "Charred lemon, capers, herbs.",
+                    "price": "38",
+                    "dietary": [
+                      {
+                        "tag": "gf"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Bistecca for two",
+                    "description": "Dry-aged ribeye, rosemary, sea salt, arugula.",
+                    "price": "84",
+                    "dietary": [
+                      {
+                        "tag": "gf"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "title": "Dolci",
+                "items": [
+                  {
+                    "name": "Tiramisù",
+                    "description": "Espresso, mascarpone, cocoa.",
+                    "price": "12",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Olive oil cake",
+                    "description": "Citrus, whipped mascarpone.",
+                    "price": "11",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Affogato",
+                    "description": "Fior di latte gelato, a shot of espresso.",
+                    "price": "9",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      },
+                      {
+                        "tag": "gf"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "currency": "$",
+            "footnote": "A 20% service charge is added for tables of eight or more. Please tell us about any allergies."
+          },
+          "variant": "classic"
+        }
+      ]
+    },
+    {
+      "id": "sec_41ahsyr9pj",
+      "label": "Drinks",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_6p9yxfzk5p",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Wine & drinks",
+            "eyebrow": "By the glass and bottle"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_d0jbst6p36",
+          "type": "restaurant-menu",
+          "v": 1,
+          "fields": {
+            "legend": false,
+            "sections": [
+              {
+                "title": "Wine by the glass",
+                "items": [
+                  {
+                    "name": "Frizzante, Lambrusco di Sorbara",
+                    "description": "Bright, dry and a little fizzy.",
+                    "price": "12",
+                    "dietary": []
+                  },
+                  {
+                    "name": "Bianco, Etna",
+                    "description": "Volcanic, mineral, saline.",
+                    "price": "14",
+                    "dietary": []
+                  },
+                  {
+                    "name": "Rosso, Nero d'Avola",
+                    "description": "Ripe, juicy, easy with pizza.",
+                    "price": "13",
+                    "dietary": []
+                  }
+                ]
+              },
+              {
+                "title": "Aperitivi",
+                "items": [
+                  {
+                    "name": "Negroni",
+                    "description": "Gin, Campari, sweet vermouth.",
+                    "price": "14",
+                    "dietary": []
+                  },
+                  {
+                    "name": "Spritz",
+                    "description": "Aperol or Select, prosecco, soda.",
+                    "price": "13",
+                    "dietary": []
+                  },
+                  {
+                    "name": "Chinotto spritz",
+                    "description": "Italian bitter orange soda, no alcohol.",
+                    "price": "8",
+                    "dietary": []
+                  }
+                ]
+              }
+            ],
+            "currency": "$"
+          },
+          "variant": "columns"
+        }
+      ]
+    }
+  ]
+}

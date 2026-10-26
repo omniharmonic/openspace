@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
-import { diff, type Op, type Role } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import { diff, type Op, type OpIssue, type Role } from "@openspace/ops";
+import type { DeployTarget, SiteDocument } from "@openspace/schema";
 import { audit } from "../db/audit";
 import { insertPublish, latestPublish, type PublishRow, updatePublish } from "../db/publishes";
 import { getSite, type SiteRow, type SiteStatus, updateSite } from "../db/sites";
@@ -17,10 +17,11 @@ import {
   type RepoRef,
   type WorkflowRun,
 } from "../github/types";
-import { canonicalJson, randomId, sha256Hex } from "../lib/crypto";
+import { bytesToBase64, canonicalJson, randomId, sha1Hex, sha256Hex } from "../lib/crypto";
 import { HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
+import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
 import { diffSiteFiles, isDocumentPath, loadSiteDocument } from "../services/site-files";
 import { commitMessage, type TrailerActor, trailerEmail } from "./commit";
@@ -29,6 +30,7 @@ import {
   ClientMessageSchema,
   type ConflictNotice,
   type Member,
+  type PublishActor,
   type ServerMessage,
   type SubmitResult,
 } from "./protocol";
@@ -67,6 +69,14 @@ interface Attachment {
   role: Role;
   page: string | null;
   selection: string[];
+}
+
+/** Why an atomic batch was refused (nothing was applied). */
+export interface AtomicRejection {
+  index: number;
+  code: "invalid" | "forbidden";
+  message: string;
+  errors?: OpIssue[];
 }
 
 export interface PublishResult {
@@ -658,8 +668,15 @@ export class DraftRoom extends DurableObject<HubBindings> {
    */
   async submit(
     siteId: string,
-    input: { ops: unknown[]; baseSeq?: number; client?: string; actor: RoomActorInput },
-  ): Promise<RoomResult<{ results: SubmitResult[]; seq: number }>> {
+    input: {
+      ops: unknown[];
+      baseSeq?: number;
+      client?: string;
+      actor: RoomActorInput;
+      /** All-or-nothing (MCP): check the whole batch first; on failure nothing is applied. */
+      atomic?: boolean;
+    },
+  ): Promise<RoomResult<{ results: SubmitResult[]; seq: number; rejected?: AtomicRejection }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       const services = this.services();
@@ -671,6 +688,10 @@ export class DraftRoom extends DurableObject<HubBindings> {
         actorInput = { ...actorInput, label: session.label };
       }
       const actor = await this.resolveActor(services, actorInput);
+      if (input.atomic && input.baseSeq === undefined) {
+        const dry = this.state.dryRun(input.ops, role, input.actor.userId);
+        if (!dry.ok) return { results: [], seq: this.state.seq, rejected: dry };
+      }
       const client = input.client ?? (actor.kind === "agent" ? actor.actor : `rpc:${actor.actor}`);
       const results = input.ops.map((op) =>
         this.state.submit({
@@ -699,13 +720,21 @@ export class DraftRoom extends DurableObject<HubBindings> {
     siteId: string,
     userId: string,
     ops: Op[],
+    agentSession?: string,
   ): Promise<{ results: SubmitResult[]; seq: number }> {
     await this.ensureLoaded(siteId);
     const services = this.services();
     const role = await this.roleOf(services, siteId, userId);
     if (!role) throw new HttpError(403, "forbidden", "You don't have access to this site.");
-    const actor = await this.resolveActor(services, { userId, kind: "human" });
-    const client = `server:${actor.actor}`;
+    // Server-made ops on behalf of an AI session are that session's ops ("Undo all of Claude's").
+    const session = agentSession ? this.requireOwnSession(agentSession, userId) : null;
+    const actor = await this.resolveActor(
+      services,
+      session
+        ? { userId, kind: "agent", session: session.id, label: session.label }
+        : { userId, kind: "human" },
+    );
+    const client = session ? actor.actor : `server:${actor.actor}`;
     const results = ops.map((op) => this.state.submit({ op, client, actor, role, trusted: true }));
     await this.afterSubmit(services, siteId, actor, role, client, results);
     return { results, seq: this.state.seq };
@@ -730,6 +759,224 @@ export class DraftRoom extends DurableObject<HubBindings> {
         failed: results.filter((r) => r.status !== "accepted").length,
         seq,
       };
+    });
+  }
+
+  /**
+   * "Discard changes": turn the draft back into what is live (main), as ordinary ops from the
+   * person discarding — undoable, and broadcast like any edit. Designer or owner only.
+   */
+  async discardDraft(
+    siteId: string,
+    input: { userId: string; agentSession?: string },
+  ): Promise<RoomResult<{ applied: number; failed: number; seq: number; hadChanges: boolean }>> {
+    return this.rpc(async () => {
+      await this.ensureLoaded(siteId);
+      const services = this.services();
+      const role = await this.roleOf(services, siteId, input.userId);
+      if (!role) throw new HttpError(403, "forbidden", "You don't have access to this site.");
+      if (ROLE_RANK[role] < ROLE_RANK.designer)
+        throw new HttpError(
+          403,
+          "forbidden",
+          "Discarding everyone's unpublished changes needs a designer or the owner.",
+        );
+      const site = await this.site(services, siteId);
+      const gh = await this.github(services, site);
+      const repo = parseRepo(site.repo);
+      const main = await gh.getRef(repo, MAIN_BRANCH);
+      if (!main) throw new HttpError(409, "not_ready", "This site isn't published yet.");
+      const all = await gh.readFiles(repo, main, { textOnly: true });
+      const files: Record<string, string> = {};
+      for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) files[p] = c;
+      const target = loadSiteDocument(files);
+      const ops = diff(this.state.doc as SiteDocument, target, {
+        actor: "discard",
+        ts: Date.now(),
+        idPrefix: `discard-${Date.now().toString(36)}-`,
+      });
+      if (!ops.length) return { applied: 0, failed: 0, seq: this.state.seq, hadChanges: false };
+      const { results, seq } = await this.applyTrustedOps(
+        siteId,
+        input.userId,
+        ops,
+        input.agentSession,
+      );
+      const applied = results.filter((r) => r.status === "accepted").length;
+      await audit(services.db, {
+        siteId,
+        actor: input.agentSession ? `agent:${input.agentSession}` : input.userId,
+        action: "site.discard",
+        meta: { ops: ops.length, applied },
+      });
+      return { applied, failed: results.length - applied, seq, hadChanges: true };
+    });
+  }
+
+  /**
+   * Store a media file in the site (Studio uploads, MCP `upload_image`): one commit on the draft,
+   * serialized with flushes so the room's head stays exact. The document entry (`media.add`) is
+   * a separate op by the uploader. `existed` when the draft already has these exact bytes there.
+   */
+  async storeMedia(
+    siteId: string,
+    input: { userId: string; path: string; bytes: Uint8Array },
+  ): Promise<RoomResult<{ head: string; existed: boolean }>> {
+    return this.rpc(async () => {
+      await this.ensureLoaded(siteId);
+      if (
+        !/^media\/[A-Za-z0-9][A-Za-z0-9._/-]{0,200}$/.test(input.path) ||
+        input.path.includes("..")
+      )
+        throw new HttpError(400, "bad_request", "That file name isn't allowed.");
+      const services = this.services();
+      const role = await this.roleOf(services, siteId, input.userId);
+      if (!role || ROLE_RANK[role] < ROLE_RANK.editor)
+        throw new HttpError(
+          403,
+          "forbidden",
+          "Adding files needs an editor, designer or the owner.",
+        );
+      const user = await this.userFor(services, input.userId);
+      return this.exclusive(async () => {
+        await this.flushLocked(siteId);
+        const site = await this.site(services, siteId);
+        const gh = await this.github(services, site);
+        const repo = parseRepo(site.repo);
+        const header = new TextEncoder().encode(`blob ${input.bytes.length}\0`);
+        const blob = new Uint8Array(header.length + input.bytes.length);
+        blob.set(header);
+        blob.set(input.bytes, header.length);
+        const blobSha = await sha1Hex(blob);
+        const tree = await gh.readTree(repo, this.state.head);
+        if (tree.some((e) => e.path === input.path && e.sha === blobSha))
+          return { head: this.state.head, existed: true };
+        const name = input.path.split("/").pop() ?? input.path;
+        const commitOnce = () =>
+          gh.commitFiles(repo, {
+            branch: DRAFT_BRANCH,
+            files: [{ path: input.path, content: bytesToBase64(input.bytes), encoding: "base64" }],
+            message: `Added ${name}`,
+            expectedHead: this.state.head,
+            author: { name: user?.name ?? user?.login ?? "OpenSpace" },
+          });
+        let commit: Awaited<ReturnType<typeof commitOnce>>;
+        try {
+          commit = await commitOnce();
+        } catch (err) {
+          if (!(err instanceof GitHubConflictError)) throw err;
+          await this.reloadFromHead(
+            gh,
+            repo,
+            "The draft changed elsewhere; merged the latest version.",
+          );
+          await this.flushLocked(siteId);
+          commit = await commitOnce();
+        }
+        this.state.setMeta("head", commit.sha);
+        this.broadcast({ type: "flushed", seq: this.state.flushedSeq, head: commit.sha });
+        return { head: commit.sha, existed: false };
+      });
+    });
+  }
+
+  /**
+   * Switch hosting (owner): the hosting files change on the draft and on main in two commits
+   * (unpublished content stays unpublished), the room reloads its config, and the live site is
+   * rebuilt with the new target.
+   */
+  async switchHosting(
+    siteId: string,
+    input: { userId: string; target: DeployTarget },
+  ): Promise<RoomResult<{ sha: string | null; changed: boolean }>> {
+    return this.rpc(async () => {
+      await this.ensureLoaded(siteId);
+      const services = this.services();
+      const role = await this.roleOf(services, siteId, input.userId);
+      if (role !== "owner")
+        throw new HttpError(403, "forbidden", "Only the owner can change hosting.");
+      return this.exclusive(async () => {
+        await this.flushLocked(siteId);
+        const site = await this.site(services, siteId);
+        const gh = await this.github(services, site);
+        const repo = parseRepo(site.repo);
+        const user = await this.userFor(services, input.userId);
+        const label = input.target === "cloudflare" ? "Cloudflare" : "GitHub Pages";
+        const message = `Switched hosting to ${label}`;
+        const author = { name: user?.name ?? user?.login ?? "OpenSpace" };
+        // Main first (what's live), then the draft. Each step recomputes its changes from the
+        // branch's current files and retries once on a concurrent commit, so a repeated switch
+        // finishes whatever an interrupted one left (the changes are idempotent).
+        let sha: string | null = null;
+        for (let attempt = 0; ; attempt++) {
+          const mainHead = await gh.getRef(repo, MAIN_BRANCH);
+          if (!mainHead) break;
+          const mainChanges = await hostingChanges(
+            (path) => gh.readFile(repo, path, mainHead),
+            input.target,
+            repo.name,
+          );
+          if (!mainChanges.length) break;
+          try {
+            const commit = await gh.commitFiles(repo, {
+              branch: MAIN_BRANCH,
+              files: mainChanges,
+              message,
+              expectedHead: mainHead,
+              author,
+            });
+            sha = commit.sha;
+            await this.recordPublish(services, gh, site, {
+              kind: "publish",
+              sha,
+              prev: mainHead,
+              summary: message,
+              actor: input.userId,
+              by: this.publishActor(user),
+            });
+            break;
+          } catch (err) {
+            if (!(err instanceof GitHubConflictError) || attempt > 0) throw err;
+          }
+        }
+        let draftChanged = false;
+        for (let attempt = 0; ; attempt++) {
+          const draftChanges = await hostingChanges(
+            (path) => gh.readFile(repo, path, this.state.head),
+            input.target,
+            repo.name,
+          );
+          if (!draftChanges.length) break;
+          try {
+            await gh.commitFiles(repo, {
+              branch: DRAFT_BRANCH,
+              files: draftChanges,
+              message,
+              expectedHead: this.state.head,
+              author,
+            });
+            draftChanged = true;
+            await this.reloadFromHead(gh, repo, "Hosting changed.");
+            break;
+          } catch (err) {
+            if (!(err instanceof GitHubConflictError) || attempt > 0) throw err;
+            await this.reloadFromHead(
+              gh,
+              repo,
+              "The draft changed elsewhere; merged the latest version.",
+            );
+            await this.flushLocked(siteId);
+          }
+        }
+        await updateSite(services.db, siteId, { deploy_target: input.target }, services.now());
+        await audit(services.db, {
+          siteId,
+          actor: input.userId,
+          action: "site.hosting",
+          meta: { target: input.target, sha },
+        });
+        return { sha, changed: draftChanged || sha !== null };
+      });
     });
   }
 
@@ -914,6 +1161,23 @@ export class DraftRoom extends DurableObject<HubBindings> {
     return key(ta) === key(tb);
   }
 
+  /** The `published` frame's actor: the person, or their AI session when an agent published. */
+  private publishActor(user: User | null, agentSession?: string): PublishActor {
+    const session = agentSession ? this.state.agentSession(agentSession) : null;
+    if (session)
+      return {
+        userId: session.userId,
+        name: session.label,
+        kind: "agent",
+        session: session.id,
+      };
+    return {
+      userId: user?.id ?? null,
+      name: user ? (user.name ?? user.login) : "OpenSpace",
+      kind: "human",
+    };
+  }
+
   private async userFor(services: Services, userId: string | null): Promise<User | null> {
     if (!userId) return null;
     const row = await getUserRow(services.db, userId);
@@ -934,6 +1198,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
       prev: string | null;
       summary: string;
       actor: string;
+      by: PublishActor;
     },
   ): Promise<{ publish: PublishRow; run: WorkflowRun }> {
     const repo = parseRepo(site.repo);
@@ -968,7 +1233,13 @@ export class DraftRoom extends DurableObject<HubBindings> {
     const siteStatus: SiteStatus =
       status === "success" ? "live" : status === "failure" ? "failed" : "building";
     await updateSite(services.db, site.id, { status: siteStatus, status_detail: null }, now);
-    this.broadcast({ type: "published", sha: entry.sha, summary: entry.summary, kind: entry.kind });
+    this.broadcast({
+      type: "published",
+      sha: entry.sha,
+      summary: entry.summary,
+      kind: entry.kind,
+      actor: entry.by,
+    });
     this.broadcast({
       type: "build",
       state: status,
@@ -987,7 +1258,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
    */
   async publish(
     siteId: string,
-    input: { userId: string | null; actor?: string },
+    input: { userId: string | null; actor?: string; agentSession?: string },
   ): Promise<RoomResult<PublishResult>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
@@ -1043,6 +1314,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
           prev: mainHead,
           summary,
           actor: input.actor ?? input.userId ?? "system",
+          by: this.publishActor(publisher, input.agentSession),
         });
         await audit(services.db, {
           siteId,
@@ -1068,10 +1340,18 @@ export class DraftRoom extends DurableObject<HubBindings> {
    */
   async rollback(
     siteId: string,
-    input: { userId: string; sha: string },
+    input: { userId: string; sha: string; agentSession?: string },
   ): Promise<RoomResult<{ sha: string; summary: string; snapshot: string | null }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
+      // Defense in depth (Studio and MCP check too): rolling back needs a designer or the owner.
+      const role = await this.roleOf(this.services(), siteId, input.userId);
+      if (!role || ROLE_RANK[role] < ROLE_RANK.designer)
+        throw new HttpError(
+          403,
+          "forbidden",
+          "Going back to an earlier version needs a designer or the owner.",
+        );
       return this.exclusive(async () => {
         const services = this.services();
         const site = await this.site(services, siteId);
@@ -1126,6 +1406,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
           prev: mainHead,
           summary,
           actor: input.userId,
+          by: this.publishActor(user, input.agentSession),
         });
         await audit(services.db, {
           siteId,
@@ -1223,6 +1504,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
           prev: mainHead,
           summary,
           actor: input.userId,
+          by: this.publishActor(user),
         });
         await audit(services.db, {
           siteId,
@@ -1336,7 +1618,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
 
   async endAgentSession(
     siteId: string,
-    input: { userId: string; sessionId: string },
+    input: { userId: string; sessionId: string; reason?: "ended" | "idle" | "revoked" },
   ): Promise<RoomResult<void>> {
     return this.rpc(async () => {
       this.siteId(siteId);
@@ -1344,8 +1626,20 @@ export class DraftRoom extends DurableObject<HubBindings> {
       const session = this.state.agentSession(sessionId);
       if (!session) throw new HttpError(404, "not_found", "We couldn't find that AI session.");
       await this.requireSessionControl(this.services(), siteId, session.userId, input.userId);
+      if (session.endedAt) return;
       this.state.endAgentSession(sessionId);
-      this.agents.delete(`agent:${sessionId}`);
+      this.agents.delete(session.actor);
+      // Studio's "Accept / Undo all of Claude's changes" banner.
+      this.broadcast({
+        type: "agent_session_ended",
+        sessionId,
+        actor: session.actor,
+        label: session.label,
+        userId: session.userId,
+        ops: this.state.agentSessionOpCount(sessionId),
+        tag: session.tag,
+        reason: input.reason ?? "ended",
+      });
       this.broadcastPresence();
     });
   }

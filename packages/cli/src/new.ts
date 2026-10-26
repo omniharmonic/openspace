@@ -44,11 +44,21 @@ const slugify = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "") || "my-site";
 
-/** Template ids that exist as folders under the templates dir (the starter is the shell, not a look). */
+/**
+ * Template ids under the templates dir: folders with a `template.json` (the registry's gallery
+ * metadata). Helper folders such as `lib/`, `test/` or `node_modules/` are not templates, and the
+ * starter is the shell, not a look.
+ */
 async function templateIds(dir: string): Promise<string[]> {
   try {
     return (await readdir(dir, { withFileTypes: true }))
-      .filter((d) => d.isDirectory() && d.name !== "starter" && !d.name.startsWith("."))
+      .filter(
+        (d) =>
+          d.isDirectory() &&
+          d.name !== "starter" &&
+          !d.name.startsWith(".") &&
+          existsSync(join(dir, d.name, "template.json")),
+      )
       .map((d) => d.name)
       .sort();
   } catch {
@@ -72,7 +82,7 @@ async function resolveTemplate(id: string, io: Io, opts: NewOptions): Promise<Te
     const root = join(dir, id);
     if (existsSync(join(root, "content", "site.json")) && existsSync(join(root, "openspace.json")))
       return { root, usedFallback: false };
-    if (existsSync(root)) known = true;
+    if (existsSync(join(root, "template.json"))) known = true;
   }
   const fallback =
     io.env.OPENSPACE_FALLBACK_TEMPLATE ??

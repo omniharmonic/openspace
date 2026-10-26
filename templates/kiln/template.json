@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "kiln",
+  "name": "Kiln",
+  "description": "A tactile, crafted site for makers and small shops: a product grid, the maker's story and weekend workshops, ready for checkout when commerce arrives.",
+  "persona": "Makers, small shops",
+  "mood": "Tactile, crafted",
+  "version": "1.0.0",
+  "tags": [
+    "shop",
+    "maker",
+    "ceramics",
+    "products",
+    "workshops",
+    "craft"
+  ],
+  "sample": {
+    "name": "Saltmarsh Pottery",
+    "tagline": "Pots for everyday rituals."
+  },
+  "thumbnailPage": "pg_szfgyxn8pz",
+  "looks": [
+    {
+      "id": "charcoal-clay",
+      "name": "Charcoal & Clay",
+      "description": "Fired clay against charcoal and bone, with Gloock headings and soft corners.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.52 0.08 50)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "gloock-albert-sans",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "grain"
+      }
+    },
+    {
+      "id": "glaze",
+      "name": "Celadon",
+      "description": "A pale celadon glaze green with Alegreya and rounded shapes.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.58 0.06 170)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "alegreya",
+        "density": "airy",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "workshop",
+      "name": "Workshop",
+      "description": "Ink black and raw terracotta with Josefin Sans, crisp and graphic.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.55 0.13 40)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "josefin-crimson",
+        "density": "comfortable",
+        "shape": "sharp",
+        "buttons": "outline",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_szfgyxn8pz",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_rgdkzzbgjy",
+      "title": "Workshops",
+      "slug": "workshops"
+    },
+    {
+      "id": "pg_me0855hfs5",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_qpse8ffgrr",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "blog",
+  "label": "Essays",
+  "itemLabel": "Essay",
+  "slugPattern": "{title}",
+  "list": {
+    "layout": "list",
+    "pageSize": 20,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": true,
+    "showRelated": true
+  },
+  "taxonomies": {
+    "categories": [
+      {
+        "slug": "essays",
+        "label": "Essays"
+      }
+    ],
+    "tags": true
+  },
+  "feed": {
+    "enabled": true,
+    "title": "The Long Field",
+    "description": "Essays on walking, weather and paying attention."
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "ledger",
+  "name": "Ledger",
+  "description": "A crisp, editorial site for consultants, coaches and freelancers, with case studies, services framed by outcomes and a booking call to action.",
+  "persona": "Consultants, coaches, freelancers",
+  "mood": "Crisp, editorial, confident",
+  "version": "1.0.0",
+  "tags": [
+    "consulting",
+    "coaching",
+    "professional services",
+    "case studies",
+    "booking"
+  ],
+  "sample": {
+    "name": "Calder Advisory",
+    "tagline": "Calm operations for companies that grew fast."
+  },
+  "thumbnailPage": "pg_haqyew0wc8",
+  "looks": [
+    {
+      "id": "ledger-green",
+      "name": "Ledger Green",
+      "description": "Ink and ivory with a deep green accent, Source Serif headings and crisp square corners.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.42 0.08 160)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "source-serif-plex",
+        "density": "comfortable",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "ink-blue",
+      "name": "Ink Blue",
+      "description": "Fountain-pen blue with Libre Baskerville and Karla, for a quieter, literary tone.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.35 0.08 265)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "libre-baskerville-karla",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "outline",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "modern",
+      "name": "Modern",
+      "description": "Space Grotesk and Inter on cool greys with a teal accent and rounded buttons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.5 0.09 200)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "space-grotesk-inter",
+        "density": "compact",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_haqyew0wc8",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_5xz5p00ed7",
+      "title": "Services",
+      "slug": "services"
+    },
+    {
+      "id": "pg_xqtrkthjqy",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_h1dexgwrz0",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

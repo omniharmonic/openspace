@@ -1,0 +1,113 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "commons",
+  "name": "Commons",
+  "description": "A grounded, collective site for coalitions, cooperatives and movements, with a member directory, a map, gatherings and a join form.",
+  "persona": "Coalitions, cooperatives, movements",
+  "mood": "Grounded, collective",
+  "version": "1.0.0",
+  "tags": [
+    "cooperative",
+    "coalition",
+    "movement",
+    "directory",
+    "membership",
+    "events"
+  ],
+  "sample": {
+    "name": "Hudson Valley Food Commons",
+    "tagline": "Feeding the valley, together."
+  },
+  "thumbnailPage": "pg_782p7fqf60",
+  "looks": [
+    {
+      "id": "earth-sky",
+      "name": "Earth & Sky",
+      "description": "Grounded greens under an open sky, with Spectral headings and soft corners.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.5 0.1 140)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "spectral-epilogue",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      },
+      "overrides": {
+        "color": {
+          "light-accent": {
+            "background": {
+              "$value": "oklch(0.95 0.025 235)",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "forest",
+      "name": "Forest",
+      "description": "Old-growth green with Lora and Inter, calmer and more traditional.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.4 0.07 150)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "lora-inter",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "assembly",
+      "name": "Assembly",
+      "description": "A bold poster red with Archivo and sharp shapes, for campaigns and movements.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.55 0.19 28)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "archivo",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_782p7fqf60",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_3cz4x9rxbd",
+      "title": "Members",
+      "slug": "members"
+    },
+    {
+      "id": "pg_767k25afbn",
+      "title": "Join",
+      "slug": "join"
+    },
+    {
+      "id": "pg_n3zn43m479",
+      "title": "About",
+      "slug": "about"
+    }
+  ]
+}

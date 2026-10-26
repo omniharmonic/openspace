@@ -1,11 +1,15 @@
 import { esc } from "@openspace/email-render";
+import type { ImageMap, ResolvedImage } from "@openspace/renderer";
 import type { Page, SiteDocument } from "@openspace/schema";
 import { type Context, Hono } from "hono";
 import { getCookie } from "hono/cookie";
-import { getSite, getSiteForUser } from "../db/sites";
-import { sha256Hex } from "../lib/crypto";
+import { getSite, getSiteForUser, type SiteRow } from "../db/sites";
+import { getUserRow, toUser } from "../db/users";
+import { DRAFT_BRANCH, MAIN_BRANCH, parseRepo } from "../github/types";
+import { base64url, sha256Hex, timingSafeEqual } from "../lib/crypto";
 import { clientIp, parseFields, rateKeyIp, single } from "../lib/public";
 import { requireHmacKey } from "../public-env";
+import { roomStub, unwrapRoom } from "../room";
 import { verifyJwt } from "../services/member-keys";
 import {
   checkPagePassword,
@@ -17,8 +21,8 @@ import {
   signPreviewValue,
 } from "../services/members";
 import { escapeHtml, type RenderMode } from "../services/renderer";
-import { loadSiteDocument } from "../services/site-files";
-import { findPageBySlug, readSiteDocument } from "../services/sites";
+import { isDocumentPath, loadSiteDocument } from "../services/site-files";
+import { readSiteDocument } from "../services/sites";
 import type { AppEnv } from "../types";
 
 /**
@@ -75,22 +79,29 @@ async function render(
   path: string,
   mode: RenderMode,
   basePath: string,
+  imageMap?: ImageMap,
 ) {
-  const page = findPageBySlug(doc, path);
-  if (!page) return htmlPage(c, 404, "Page not found", "There's no page at this address.");
+  const renderer = c.var.services.renderer;
+  const now = new Date(c.var.services.now());
+  const found = renderer.findPage({ doc, path, now });
+  if (!found) return htmlPage(c, 404, "Page not found", "There's no page at this address.");
+  const page = found.page;
   if (mode === "published") {
     // Dev preview enforces the same gates as the Cloudflare site Worker (arch §9.4): gated content
     // is never served without a member session / the page password.
     const gated = await gate(c, page, basePath);
     if (gated) return gated;
   }
-  const html = await c.var.services.renderer.renderPage({
+  const html = await renderer.renderPage({
     doc,
-    page,
+    path,
     mode,
     basePath,
-    behaviorsBase: BEHAVIORS_BASE,
+    hubUrl: c.var.config.hubUrl,
+    now,
+    ...(imageMap ? { imageMap } : {}),
   });
+  if (html === null) return htmlPage(c, 404, "Page not found", "There's no page at this address.");
   const isGated = !!(page.access?.members || page.access?.password || isMembersPath(page.slug));
   c.header(
     "Cache-Control",
@@ -99,6 +110,118 @@ async function render(
   if (mode === "draft") c.header("X-Robots-Tag", "noindex");
   return c.html(html);
 }
+
+// ---- media in previews --------------------------------------------------------------------------
+
+/** Draft media URLs are signed: sandboxed preview pages have an opaque origin and send no cookies. */
+const MEDIA_URL_TTL_MS = 60 * 60 * 1000;
+
+async function mediaSignature(c: Context<AppEnv>, siteId: string, path: string, exp: number) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(requireHmacKey(c.var.services.pub.config)),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const mac = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`draft-media|${siteId}|${path}|${exp}`),
+  );
+  return base64url(new Uint8Array(mac)).slice(0, 32);
+}
+
+/** Image map for a draft: every repo image → a signed `/p/:id/media/…` URL (an hour, aligned). */
+async function draftImageMap(
+  c: Context<AppEnv>,
+  siteId: string,
+  doc: SiteDocument,
+): Promise<ImageMap> {
+  const now = c.var.services.now();
+  const exp = Math.ceil((now + MEDIA_URL_TTL_MS) / MEDIA_URL_TTL_MS) * MEDIA_URL_TTL_MS;
+  const map: Record<string, ResolvedImage> = {};
+  for (const [path, meta] of Object.entries(doc.media ?? {})) {
+    if (meta.kind !== "image" || !meta.width || !meta.height) continue;
+    const sig = await mediaSignature(c, siteId, path, exp);
+    map[path] = {
+      src: `/p/${siteId}/${path}?exp=${exp}&sig=${sig}`,
+      width: meta.width,
+      height: meta.height,
+      ...(meta.placeholder ? { placeholder: meta.placeholder } : {}),
+    };
+  }
+  return map;
+}
+
+const MEDIA_TYPES: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  webp: "image/webp",
+  avif: "image/avif",
+  svg: "image/svg+xml",
+  pdf: "application/pdf",
+  mp3: "audio/mpeg",
+  m4a: "audio/mp4",
+  ogg: "audio/ogg",
+  wav: "audio/wav",
+  flac: "audio/flac",
+  mp4: "video/mp4",
+  webm: "video/webm",
+};
+
+async function serveRepoMedia(
+  c: Context<AppEnv>,
+  site: SiteRow,
+  path: string,
+  branch: string,
+  cache: string,
+) {
+  if (!/^media\/[A-Za-z0-9][A-Za-z0-9._/-]{0,200}$/.test(path) || path.includes(".."))
+    return c.notFound();
+  const owner = await getUserRow(c.var.services.db, site.owner_id);
+  const gh = c.var.services.github({ site, user: owner ? toUser(owner) : null });
+  const repo = parseRepo(site.repo);
+  const ref = (await gh.getRef(repo, branch)) ? branch : MAIN_BRANCH;
+  const bytes = await gh.readFileBytes(repo, path, ref);
+  if (!bytes) return c.notFound();
+  const ext = path.split(".").pop()?.toLowerCase() ?? "";
+  return new Response(bytes, {
+    headers: {
+      "Content-Type": MEDIA_TYPES[ext] ?? "application/octet-stream",
+      "Cache-Control": cache,
+      "X-Content-Type-Options": "nosniff",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+      // Preview pages are sandboxed (opaque origin): let them load the bytes.
+      "Cross-Origin-Resource-Policy": "cross-origin",
+    },
+  });
+}
+
+/** Published media (`/s/:id/media/…`): public, like the live site's files. */
+previewRoutes.get("/s/:siteId/media/*", async (c) => {
+  const site = await getSite(c.var.services.db, c.req.param("siteId"));
+  if (!site || site.archived_at !== null) return c.notFound();
+  return serveRepoMedia(c, site, restPath(c, `/s/${site.id}/`), MAIN_BRANCH, "public, max-age=60");
+});
+
+/** Draft media (`/p/:id/media/…?exp&sig`): a signed URL from the draft preview's image map. */
+previewRoutes.get("/p/:siteId/media/*", async (c) => {
+  const site = await getSite(c.var.services.db, c.req.param("siteId"));
+  if (!site || site.archived_at !== null) return c.notFound();
+  const path = restPath(c, `/p/${site.id}/`);
+  const exp = Number(c.req.query("exp") ?? "0");
+  const sig = c.req.query("sig") ?? "";
+  if (
+    !Number.isFinite(exp) ||
+    exp < c.var.services.now() ||
+    !(await timingSafeEqual(sig, await mediaSignature(c, site.id, path, exp)))
+  )
+    return c.notFound();
+  return serveRepoMedia(c, site, path, DRAFT_BRANCH, "private, max-age=600");
+});
 
 const PASSWORD_RULE = { name: "page-password", limit: 10, windowSec: 600 };
 const PASSWORD_PAGE_RULE = { name: "page-password-page", limit: 300, windowSec: 600 };
@@ -236,14 +359,66 @@ previewRoutes.post("/s/:siteId/_os/auth/password", async (c) => {
   return c.redirect(back.replace(/[?&]os_password=error/, ""), 303);
 });
 
+const behavior = async (c: Context<AppEnv>) => {
+  const file = c.req.param("file") ?? "";
+  const name = file.endsWith(".js") ? file.slice(0, -3) : file;
+  if (!/^[a-z0-9-]+$/.test(name)) return c.notFound();
+  const source = await c.var.services.renderer.behavior(name);
+  if (source === null) return c.notFound();
+  return c.body(source, 200, {
+    "Content-Type": "text/javascript; charset=utf-8",
+    "X-Content-Type-Options": "nosniff",
+    "Cache-Control": "public, max-age=300",
+    // Module scripts are CORS fetches; sandboxed preview pages have an opaque origin.
+    "Access-Control-Allow-Origin": "*",
+  });
+};
+previewRoutes.get(`${BEHAVIORS_BASE}/:file`, behavior);
+// Rendered pages load behaviors from `<basePath>/_os/behaviors/` (as on a published site).
+previewRoutes.get(`/s/:siteId${BEHAVIORS_BASE}/:file`, behavior);
+previewRoutes.get(`/p/:siteId${BEHAVIORS_BASE}/:file`, behavior);
+previewRoutes.get(`/t/:templateId${BEHAVIORS_BASE}/:file`, behavior);
+
 const published = async (c: Context<AppEnv>) => {
   const siteId = c.req.param("siteId") as string;
   const site = await getSite(c.var.services.db, siteId);
   if (!site || site.archived_at !== null)
     return htmlPage(c, 404, "Site not found", "This site doesn't exist or was deleted.");
+  const version = c.req.query("version");
+  if (version !== undefined) {
+    // Studio history preview (`/s/:id/?version=<sha>`): a version that was published (a commit on
+    // main), rendered like the live site. Never cached, never indexed.
+    const doc = await readPublishedVersion(c, site, version);
+    if (!doc)
+      return htmlPage(c, 404, "Version not found", "That version of the site doesn't exist.");
+    const res = await render(c, doc, restPath(c, `/s/${siteId}`), "published", `/s/${siteId}`);
+    res.headers.set("Cache-Control", "private, no-store");
+    res.headers.set("X-Robots-Tag", "noindex");
+    return res;
+  }
   const snap = await readSiteDocument(c.var.services, site, "published");
   return render(c, snap.doc, restPath(c, `/s/${siteId}`), "published", `/s/${siteId}`);
 };
+
+/** The document of a published version (a sha or unique prefix on main's history), or null. */
+async function readPublishedVersion(
+  c: Context<AppEnv>,
+  site: SiteRow,
+  version: string,
+): Promise<SiteDocument | null> {
+  const wanted = version.toLowerCase();
+  if (!/^[0-9a-f]{7,40}$/.test(wanted)) return null;
+  const owner = await getUserRow(c.var.services.db, site.owner_id);
+  const gh = c.var.services.github({ site, user: owner ? toUser(owner) : null });
+  const repo = parseRepo(site.repo);
+  const history = await gh.listCommits(repo, { ref: MAIN_BRANCH, limit: 200 });
+  const matches = history.filter((h) => h.sha.startsWith(wanted));
+  if (matches.length !== 1 || !matches[0]) return null;
+  const all = await gh.readFiles(repo, matches[0].sha, { textOnly: true });
+  const files: Record<string, string> = {};
+  for (const [p, content] of Object.entries(all)) if (isDocumentPath(p)) files[p] = content;
+  return loadSiteDocument(files);
+}
 previewRoutes.get("/s/:siteId", published);
 previewRoutes.get("/s/:siteId/*", published);
 
@@ -260,8 +435,16 @@ const draft = async (c: Context<AppEnv>) => {
   const site = await getSiteForUser(c.var.services.db, siteId, user.id);
   if (!site)
     return htmlPage(c, 404, "Site not found", "This site doesn't exist or you don't have access.");
-  const snap = await readSiteDocument(c.var.services, site, "draft", user);
-  return render(c, snap.doc, restPath(c, `/p/${siteId}`), "draft", `/p/${siteId}`);
+  // The live draft (the room's document, including edits not yet saved to the draft branch).
+  const { doc } = await unwrapRoom(roomStub(c.env, siteId).getDocument(siteId));
+  return render(
+    c,
+    doc,
+    restPath(c, `/p/${siteId}`),
+    "draft",
+    `/p/${siteId}`,
+    await draftImageMap(c, siteId, doc),
+  );
 };
 previewRoutes.get("/p/:siteId", draft);
 previewRoutes.get("/p/:siteId/*", draft);
@@ -279,16 +462,3 @@ const template = async (c: Context<AppEnv>) => {
 };
 previewRoutes.get("/t/:templateId", template);
 previewRoutes.get("/t/:templateId/*", template);
-
-previewRoutes.get(`${BEHAVIORS_BASE}/:file`, async (c) => {
-  const file = c.req.param("file");
-  const name = file.endsWith(".js") ? file.slice(0, -3) : file;
-  if (!/^[a-z0-9-]+$/.test(name)) return c.notFound();
-  const source = await c.var.services.renderer.behavior(name);
-  if (source === null) return c.notFound();
-  return c.body(source, 200, {
-    "Content-Type": "text/javascript; charset=utf-8",
-    "X-Content-Type-Options": "nosniff",
-    "Cache-Control": "public, max-age=300",
-  });
-});

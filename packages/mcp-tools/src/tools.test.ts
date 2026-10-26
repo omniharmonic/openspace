@@ -248,6 +248,22 @@ describe("restores go through ops", () => {
     const designer = await setup({ grant: { sites: "*", publish: true, role: "designer" } });
     await designer.rpc.call("discard_draft", { confirm: true });
   });
+
+  it("per-site roles override the grant's role for that site", async () => {
+    const doc = await meadowDoc();
+    const siteId = doc.config.siteId as string;
+    const asDesigner = await setup({
+      doc,
+      grant: { sites: "*", publish: true, role: "editor", roles: { [siteId]: "designer" } },
+    });
+    await asDesigner.rpc.call("discard_draft", { confirm: true });
+    const asEditor = await setup({
+      grant: { sites: "*", publish: true, role: "designer", roles: { [siteId]: "editor" } },
+    });
+    expect((await asEditor.rpc.callError("discard_draft", { confirm: true })).code).toBe(
+      "forbidden",
+    );
+  });
 });
 
 describe("editing tools", () => {

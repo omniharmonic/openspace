@@ -1,0 +1,326 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_a479vp9zja",
+  "title": "Travel & stay",
+  "slug": "travel",
+  "seo": {
+    "description": "How to get to Beltane Ranch in Glen Ellen, where to stay in Sonoma, our hotel room blocks and the wedding shuttle times."
+  },
+  "sections": [
+    {
+      "id": "sec_nt1b2sdyth",
+      "preset": "hero/split-landscape@1",
+      "label": "Split with landscape image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            1,
+            0
+          ],
+          "t": [
+            1,
+            0
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_yd1sj2tgey",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1520&q=80",
+              "alt": "Morning mist over the valley near Glen Ellen",
+              "width": 1520,
+              "height": 1014
+            },
+            "aspect": "3:2",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_t0742bdb2j",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Getting to Glen Ellen",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Travel & stay",
+            "subheading": "Beltane Ranch is an hour's drive north of San Francisco. Fly into SFO or Oakland, or into Santa Rosa (STS) for the shortest drive."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_m16gyb0nxp",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a hotel",
+            "link": {
+              "type": "page",
+              "page": "pg_a479vp9zja",
+              "anchor": "hotels"
+            },
+            "role": "primary",
+            "secondaryLabel": "Shuttle times",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_a479vp9zja",
+              "anchor": "faq"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_akh46x852x",
+      "preset": "contact/two-locations@1",
+      "label": "Two locations",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_y420rfmzz5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Where to stay",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Room blocks"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_2bxs0s0e0w",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Glen Ellen Inn",
+            "headingLevel": "h3",
+            "address": "13670 Arnold Drive\nGlen Ellen, CA 95442",
+            "phone": "+1 (707) 555-0164",
+            "directions": true,
+            "note": "Mention AMARA-THEO for our rate until July 1. Shuttle pick-up at the front door."
+          },
+          "column": 0,
+          "variant": "card"
+        },
+        {
+          "id": "blk_h4xw2cbppm",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "The Sonoma Plaza Hotel",
+            "headingLevel": "h3",
+            "address": "110 West Spain Street\nSonoma, CA 95476",
+            "phone": "+1 (707) 555-0192",
+            "directions": true,
+            "note": "Book with code VOW27 by June 15. Twenty minutes from the ranch by shuttle."
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ],
+      "anchor": "hotels"
+    },
+    {
+      "id": "sec_vxw1mfas10",
+      "preset": "faq/split@1",
+      "label": "Questions beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_ew2wkj7tfd",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Good to know",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Questions"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_001xpfsamg",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Anything else? Text Theo's sister Freya, our day-of coordinator."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_1jtbcnahrw",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Send us a message",
+            "link": {
+              "type": "page",
+              "page": "pg_9r8e3vc3gk"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_fpgkcwqppd",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Is there parking at the ranch?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Very little, so please take the shuttle. It runs from both hotels from 3:15pm and back from 10pm."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Are children invited?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "We love your kids, but Saturday is adults only. The hotels can recommend local sitters."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What's the weather like in September?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Warm days around 80°F and cool evenings. Bring a layer for after sunset."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I bring a plus-one?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "If your invitation names a guest, yes! Their name will be on the RSVP form."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ],
+      "anchor": "faq"
+    }
+  ]
+}

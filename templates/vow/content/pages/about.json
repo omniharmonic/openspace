@@ -1,0 +1,314 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_1qkwpmqv9x",
+  "title": "Our story",
+  "slug": "about",
+  "seo": {
+    "description": "How Amara Osei and Theo Lindgren met on the wrong train, and the friends and family standing with them on the day."
+  },
+  "sections": [
+    {
+      "id": "sec_j0haescs8x",
+      "preset": "about/story-editorial@1",
+      "label": "Editorial story",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_k1brdntras",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Seven years and one wrong train",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Our story"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_v24zg0zrdm",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "In March 2019, Amara boarded a train at Oakland's 12th Street station, sure it was going to Berkeley. Theo, coming home from a hospital night shift, was sure of the same thing. It was going to Richmond. By the time they realised, they had covered favourite books, terrible roommates and why anyone eats cereal for dinner."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Their first date was a week later, at a taco truck that has since closed and is still mourned. There followed two apartments, one adopted cat called Admiral, a lot of camping in the rain and a shared conviction that the best evenings involve a long table and too much food."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Theo proposed in April 2026 on the 12th Street platform, during the evening rush, with a ring hidden in a paperback. Amara said yes before he'd finished the question. We're so glad you're part of the story."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "drop-cap"
+        }
+      ]
+    },
+    {
+      "id": "sec_fpk4gypthk",
+      "preset": "gallery/layered-pair@1",
+      "label": "Layered pair",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 24,
+          "m": 30
+        },
+        "items": {
+          "blk_w3dews5483": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 13,
+              "h": 18
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_pc7nsyfhm5": {
+            "d": {
+              "x": 10,
+              "y": 12,
+              "w": 7,
+              "h": 13,
+              "z": 2
+            },
+            "m": {
+              "x": 4,
+              "y": 9,
+              "w": 5,
+              "h": 9,
+              "z": 2
+            }
+          },
+          "blk_fqbwy7jt6v": {
+            "d": {
+              "x": 18,
+              "y": 6,
+              "w": 7,
+              "h": 6
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_ashhzhqb4v": {
+            "d": {
+              "x": 18,
+              "y": 12,
+              "w": 7,
+              "h": 7
+            },
+            "m": {
+              "x": 1,
+              "y": 25,
+              "w": 8,
+              "h": 6
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_w3dews5483",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1660286156087-911df708e663?w=1280&q=80",
+              "alt": "Walking back down the aisle at a friend's wedding",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_pc7nsyfhm5",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=720&q=80",
+              "alt": "Rings resting on a bouquet",
+              "width": 720,
+              "height": 480
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default",
+          "style": {
+            "shadow": "lg"
+          }
+        },
+        {
+          "id": "blk_fqbwy7jt6v",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Platform 2, rush hour",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The proposal"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_ashhzhqb4v",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A paperback, a ring and a lot of very surprised commuters, who applauded when Amara said yes."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_qe98axyw8s",
+      "preset": "team/circles@1",
+      "label": "Team in circles",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_8p450x8jek",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The wedding party",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Standing with us"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_x7da20a8eq",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Priya Nair",
+                "role": "Officiant · Amara's oldest friend",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=560&q=80",
+                  "alt": "Portrait of Priya Nair",
+                  "width": 560,
+                  "height": 700
+                }
+              },
+              {
+                "name": "Freya Lindgren",
+                "role": "Best woman · Theo's sister",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=560&q=80",
+                  "alt": "Portrait of Freya Lindgren",
+                  "width": 560,
+                  "height": 839
+                }
+              },
+              {
+                "name": "Kwame Osei",
+                "role": "Man of honour · Amara's brother",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=560&q=80",
+                  "alt": "Portrait of Kwame Osei",
+                  "width": 560,
+                  "height": 840
+                }
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "circles"
+        }
+      ]
+    }
+  ]
+}

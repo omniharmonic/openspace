@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["./worker-configuration.d.ts", "node", "@cloudflare/vitest-pool-workers"]
+    "types": ["./worker-configuration.d.ts", "node", "@cloudflare/vitest-pool-workers"],
+    "paths": {
+      "jsdom": ["./test/no-dom-types.d.ts"]
+    }
   },
   "include": ["src", "test", "*.config.ts", "worker-configuration.d.ts"]
 }

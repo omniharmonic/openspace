@@ -1,0 +1,113 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "vow",
+  "name": "Vow",
+  "description": "A romantic, refined site for weddings and celebrations, with a countdown, a timeline of the day, travel and hotel details, registry links and an RSVP form.",
+  "persona": "Weddings, celebrations",
+  "mood": "Romantic, refined",
+  "version": "1.0.0",
+  "tags": [
+    "wedding",
+    "rsvp",
+    "celebration",
+    "event",
+    "travel",
+    "registry"
+  ],
+  "sample": {
+    "name": "Amara & Theo",
+    "tagline": "September 18, 2027 · Glen Ellen, California"
+  },
+  "thumbnailPage": "pg_vgg928jvv2",
+  "looks": [
+    {
+      "id": "dusty-rose",
+      "name": "Dusty Rose",
+      "description": "Linen, ink and a muted rose, with Cormorant Garamond and airy spacing.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.68 0.07 10)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "cormorant-jost",
+        "density": "airy",
+        "shape": "soft",
+        "buttons": "pill-outline",
+        "motion": "subtle",
+        "imageTreatment": "arch"
+      }
+    },
+    {
+      "id": "garden",
+      "name": "Garden Party",
+      "description": "Soft sage with Playfair Display, for an outdoor, summery celebration.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.6 0.06 140)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "playfair-source-sans",
+        "density": "airy",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "black-tie",
+      "name": "Black Tie",
+      "description": "Ink and champagne gold with Bodoni Moda, formal and elegant.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.7 0.08 85)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "bodoni-montserrat",
+        "density": "comfortable",
+        "shape": "sharp",
+        "buttons": "outline",
+        "motion": "subtle",
+        "imageTreatment": "frame"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_vgg928jvv2",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_ney032yen1",
+      "title": "The weekend",
+      "slug": "schedule"
+    },
+    {
+      "id": "pg_a479vp9zja",
+      "title": "Travel & stay",
+      "slug": "travel"
+    },
+    {
+      "id": "pg_sy1zdkvjrk",
+      "title": "Registry",
+      "slug": "registry"
+    },
+    {
+      "id": "pg_9r8e3vc3gk",
+      "title": "RSVP",
+      "slug": "rsvp"
+    },
+    {
+      "id": "pg_1qkwpmqv9x",
+      "title": "Our story",
+      "slug": "about"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "@openspace/templates",
+  "version": "1.0.0",
+  "description": "OpenSpace launch templates: twelve complete sites (content, styles, media credits) with three looks each, and a typed registry.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "index.ts",
+    "lib",
+    "*/src",
+    "*/openspace.json",
+    "*/template.json",
+    "*/content",
+    "*/media",
+    "!starter"
+  ],
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "default": "./index.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "generate": "UPDATE_TEMPLATES=1 vitest run test/generate.test.ts"
+  },
+  "dependencies": {
+    "@openspace/blocks": "workspace:*",
+    "@openspace/schema": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
+    "@openspace/theme": "workspace:*",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@openspace/cli": "workspace:*",
+    "@openspace/lint": "workspace:*",
+    "@openspace/renderer": "workspace:*",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "catalog:",
+    "axe-core": "^4.14.0",
+    "jsdom": "^30.1.3",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

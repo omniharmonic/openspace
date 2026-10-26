@@ -96,6 +96,24 @@ export function safeReturnTo(value: string | undefined, studioOrigin: string): s
   }
 }
 
+/** Back to the MCP consent flow (`/authorize?…` on this Hub) after signing in with GitHub. */
+export function hubAuthorizeReturn(value: string | undefined, hubUrl: string): string | null {
+  if (
+    !value ||
+    value.length > 4000 ||
+    value.includes("\\") ||
+    [...value].some((ch) => ch.charCodeAt(0) < 0x20)
+  )
+    return null;
+  try {
+    const url = new URL(value);
+    const hub = new URL(hubUrl);
+    return url.origin === hub.origin && url.pathname === "/authorize" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 interface OAuthIntent {
   template?: string;
   look?: string;
@@ -120,7 +138,9 @@ authRoutes.get("/github/start", async (c) => {
   const intent: OAuthIntent = {};
   for (const key of ["template", "look", "name", "tagline", "brandColor"] as const)
     if (q[key]) intent[key] = q[key].slice(0, 200);
-  const returnTo = safeReturnTo(q.return_to ?? q.next ?? q.returnTo, config.studioOrigin);
+  const rawReturn = q.return_to ?? q.next ?? q.returnTo;
+  const returnTo =
+    safeReturnTo(rawReturn, config.studioOrigin) ?? hubAuthorizeReturn(rawReturn, config.hubUrl);
   if (returnTo) intent.returnTo = returnTo;
   const state = randomToken(24);
   const now = services.now();

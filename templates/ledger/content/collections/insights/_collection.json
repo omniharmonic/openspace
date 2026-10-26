@@ -1,0 +1,21 @@
+{
+  "kind": "blog",
+  "label": "Insights",
+  "slugPattern": "{date}-{title}",
+  "list": {
+    "layout": "list",
+    "pageSize": 12,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": false,
+    "showRelated": true
+  },
+  "feed": {
+    "enabled": true,
+    "title": "Calder Advisory insights",
+    "description": "Essays on running a growing company."
+  }
+}

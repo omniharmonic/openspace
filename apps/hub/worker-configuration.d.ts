@@ -3,6 +3,7 @@
 // Runtime types generated with workerd@1.20261019.1 2026-03-01 nodejs_compat
 interface __BaseEnv_Env {
 	CACHE: KVNamespace;
+	OAUTH_KV: KVNamespace;
 	UPLOADS: R2Bucket;
 	HUB_DB: D1Database;
 	DEV_MODE: string;
@@ -19,6 +20,7 @@ declare namespace Cloudflare {
 	}
 	interface ProductionEnv {
 		CACHE: KVNamespace;
+		OAUTH_KV: KVNamespace;
 		UPLOADS: R2Bucket;
 		HUB_DB: D1Database;
 		DEV_MODE: string;

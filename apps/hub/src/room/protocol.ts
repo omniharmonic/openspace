@@ -94,6 +94,34 @@ export interface BuildNotice {
   error?: { code: string; title: string; message: string; fix: string | null } | null;
 }
 
+/** Who caused a publish / rollback (`published` frame). */
+export interface PublishActor {
+  userId: string | null;
+  name: string;
+  kind: ActorKind;
+  /** Agent session id when an AI published. */
+  session?: string;
+}
+
+/**
+ * An AI (MCP) session finished — the client disconnected or went idle. Studio shows the
+ * "Accept / Undo all of Claude's changes" banner for it (`ops` > 0).
+ */
+export interface AgentSessionEnded {
+  type: "agent_session_ended";
+  sessionId: string;
+  actor: string;
+  /** "Claude". */
+  label: string;
+  /** The person the agent worked for. */
+  userId: string;
+  /** Ops the session made (still in the log). */
+  ops: number;
+  /** Snapshot taken when the session started (`os/snap/agent-…`). */
+  tag: string | null;
+  reason: "ended" | "idle" | "revoked";
+}
+
 export type ServerMessage =
   | {
       type: "hello";
@@ -120,7 +148,15 @@ export type ServerMessage =
   | { type: "presence"; members: Member[] }
   | { type: "flushed"; seq: number; head: string }
   | { type: "reload"; seq: number; head: string; doc: SiteDocument; reason: string }
-  | { type: "published"; sha: string; summary: string; kind: string }
+  | {
+      type: "published";
+      sha: string;
+      summary: string;
+      kind: string;
+      /** Who published (Task 17): a person, or an AI acting for one. */
+      actor: PublishActor;
+    }
+  | AgentSessionEnded
   | BuildNotice
   | { type: "removed"; message: string }
   | { type: "error"; message: string };

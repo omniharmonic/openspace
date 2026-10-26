@@ -13,7 +13,7 @@ import {
   siteWith,
   stackSection,
 } from "./__fixtures__/doc";
-import { designCheck, type Issue } from "./index";
+import { blendOver, designCheck, type Issue, worstCaseRatio } from "./index";
 
 const rules = (issues: Issue[]) => issues.map((i) => i.rule);
 const only = (issues: Issue[], rule: string) => issues.filter((i) => i.rule === rule);
@@ -491,6 +491,50 @@ describe("photo backgrounds", () => {
   });
 });
 
+describe("text over photos", () => {
+  const photoSection = (opacity: number) => {
+    const s = stackSection(
+      [
+        h("Welcome to the studio", 1),
+        p("Small classes, every morning."),
+        btn("Join us", "secondary"),
+      ],
+      "dark",
+    );
+    s.style.background = {
+      type: "image",
+      src: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920",
+      overlay: { color: "background", opacity },
+    };
+    return s;
+  };
+
+  it("checks text against the scrim over both a black and a white photo", () => {
+    expect(worstCaseRatio("#ffffff", "#000000", 1)).toBeCloseTo(21, 0);
+    // A 40% black scrim over a white photo leaves white text far below 4.5:1.
+    expect(worstCaseRatio("#ffffff", "#000000", 0.4)).toBeLessThan(3);
+    expect(blendOver("#000000", 0.5, "#ffffff")).toBe("#808080");
+  });
+
+  it("flags text a light scrim can't protect, with an autofix that raises the overlay", () => {
+    const { doc } = onePage(photoSection(0.4));
+    const issues = only(designCheck(doc), "text-over-photo-contrast");
+    expect(issues.length).toBeGreaterThan(0);
+    expect(issues.every((i) => i.severity === "error")).toBe(true);
+    const fixed = fix(doc, issues[0] as Issue);
+    expect(only(designCheck(fixed), "text-over-photo-contrast")).toEqual([]);
+  });
+
+  it("passes with a strong scrim, and skips text on its own panel", () => {
+    expect(only(designCheck(onePage(photoSection(0.8)).doc), "text-over-photo-contrast")).toEqual(
+      [],
+    );
+    const s = photoSection(0.4);
+    for (const b of s.blocks) b.style = { ...b.style, colorTheme: "dark" };
+    expect(only(designCheck(onePage(s).doc), "text-over-photo-contrast")).toEqual([]);
+  });
+});
+
 describe("pages assembled from presets", () => {
   const sectionsOf = (pg: Page) => pg.sections.length;
   it("every page preset passes the Design check with no errors in every theme", () => {
@@ -505,11 +549,25 @@ describe("pages assembled from presets", () => {
         if (pr.target === "page" && pr.category !== "hero")
           pg.sections.push(pr.build({ colorTheme: theme }));
       const doc = siteWith([pg]);
-      const errors = designCheck(doc).filter((i) => i.severity === "error");
+      // Photo-background presets are designed for the dark themes only (their scrim is the
+      // section background); text-over-photo contrast is checked in those themes below.
+      const offDesign = new Set(
+        pg.sections
+          .filter((s) => !getPreset(s.preset ?? "")?.themes.includes(theme))
+          .map((s) => s.id),
+      );
+      const errors = designCheck(doc).filter(
+        (i) =>
+          i.severity === "error" &&
+          !(i.rule === "text-over-photo-contrast" && offDesign.has(i.section as never)),
+      );
       expect(errors, theme).toEqual([]);
       // Page-composition warnings (rhythm on a 100-section page) aside, presets are clean.
       const other = designCheck(doc).filter(
-        (i) => !i.rule.startsWith("rhythm") && i.severity !== "info",
+        (i) =>
+          !i.rule.startsWith("rhythm") &&
+          i.severity !== "info" &&
+          !(i.rule === "text-over-photo-contrast" && offDesign.has(i.section as never)),
       );
       expect(
         other.map((i) => `${i.rule}: ${i.message}`),
@@ -517,5 +575,20 @@ describe("pages assembled from presets", () => {
       ).toEqual([]);
       expect(sectionsOf(pg)).toBeGreaterThan(80);
     }
+  });
+
+  it("photo-background presets keep their text readable over any photo in their designed themes", () => {
+    const bad: string[] = [];
+    for (const pr of sectionPresets) {
+      if (pr.target !== "page") continue;
+      for (const theme of pr.themes) {
+        const s = pr.build({ colorTheme: theme });
+        if (s.style.background?.type !== "image") continue;
+        const doc = siteWith([page("P", "", [s])]);
+        for (const i of designCheck(doc).filter((x) => x.rule === "text-over-photo-contrast"))
+          bad.push(`${pr.id} ${theme}: ${i.message}`);
+      }
+    }
+    expect(bad).toEqual([]);
   });
 });

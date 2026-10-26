@@ -1,0 +1,232 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_qpse8ffgrr",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Visit Saltmarsh Pottery at 12 Holmes Street, Mystic. Studio hours, wholesale enquiries, commissions and private workshops."
+  },
+  "sections": [
+    {
+      "id": "sec_jr06vf2gr0",
+      "preset": "contact/form-split@1",
+      "label": "Contact form with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_8c97hhmby9",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Visit, commission or stock our work",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact",
+            "subheading": "The studio is open on Saturdays, and by appointment. For wholesale, commissions or private workshops, write below."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_fnt20gdrc0",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Saltmarsh Pottery",
+            "address": "12 Holmes Street\nMystic, CT 06355",
+            "phone": "+1 (860) 555-0174",
+            "email": "studio@saltmarshpottery.example",
+            "directions": true
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_6zchern50k",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_s0kk9shy00",
+              "name": "Studio enquiry",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "topic",
+                  "label": "Enquiry",
+                  "width": "full",
+                  "options": [
+                    "An order",
+                    "Wholesale",
+                    "Commission",
+                    "Private workshop",
+                    "Something else"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Message",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send",
+              "success": {
+                "type": "message",
+                "message": "Thank you! Wren replies within three working days, usually from the studio."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_1cpx51htzd",
+      "preset": "contact/location@1",
+      "label": "Map, hours and address",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_ec59kjgt6r",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Saltmarsh Pottery",
+            "address": "12 Holmes Street, Mystic, CT 06355",
+            "latitude": 41.3543,
+            "longitude": -71.9665,
+            "zoom": 15,
+            "linkLabel": "Open in Maps",
+            "aspect": "4:3"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_tsqye304bq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Studio hours",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Visit"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_g5p5v9m0ya",
+          "type": "hours",
+          "v": 1,
+          "fields": {
+            "heading": "Opening hours",
+            "headingLevel": "h3",
+            "rows": [
+              {
+                "day": "mon",
+                "closed": true
+              },
+              {
+                "day": "tue",
+                "closed": true
+              },
+              {
+                "day": "wed",
+                "closed": true
+              },
+              {
+                "day": "thu",
+                "opens": "12:00",
+                "closes": "17:00",
+                "closed": false
+              },
+              {
+                "day": "fri",
+                "opens": "12:00",
+                "closes": "17:00",
+                "closed": false
+              },
+              {
+                "day": "sat",
+                "opens": "10:00",
+                "closes": "16:00",
+                "closed": false
+              },
+              {
+                "day": "sun",
+                "closed": true
+              }
+            ],
+            "note": "Closed on firing days; check Instagram before a long drive. Free parking by the boat ramp."
+          },
+          "column": 1,
+          "variant": "compact"
+        },
+        {
+          "id": "blk_hwgbeff7yp",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "address": "12 Holmes Street\nMystic, CT 06355",
+            "phone": "+1 (860) 555-0174",
+            "email": "studio@saltmarshpottery.example",
+            "directions": true
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,290 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Fernwood Yoga & Bodywork",
+  "tagline": "Slow yoga and bodywork for real bodies.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_f7jcnz65me",
+      "label": "Classes"
+    },
+    {
+      "type": "page",
+      "page": "pg_xmmxstbmvf",
+      "label": "Bodywork"
+    },
+    {
+      "type": "collection",
+      "collection": "workshops",
+      "label": "Workshops"
+    },
+    {
+      "type": "collection",
+      "collection": "journal",
+      "label": "Journal"
+    },
+    {
+      "type": "page",
+      "page": "pg_sat2c09jw4",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_av2p7shq0g",
+      "label": "Contact"
+    },
+    {
+      "type": "button",
+      "label": "Book a class",
+      "link": {
+        "type": "url",
+        "url": "https://cal.com/fernwood-yoga"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-left",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_bvnzd7252z",
+    "preset": "footer/newsletter@1",
+    "label": "Footer with newsletter",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          6,
+          3,
+          3
+        ],
+        "m": [
+          12
+        ]
+      },
+      "gap": "xl"
+    },
+    "style": {
+      "colorTheme": "dark-accent",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_skztgd3xta",
+        "type": "newsletter",
+        "v": 1,
+        "fields": {
+          "heading": "Letters from the studio",
+          "description": "One short email a month: new classes, workshops and the occasional recipe for the tea.",
+          "askName": false,
+          "placeholder": "you@example.com",
+          "buttonLabel": "Subscribe",
+          "successMessage": "Thank you — check your inbox to confirm."
+        },
+        "column": 0,
+        "variant": "stacked"
+      },
+      {
+        "id": "blk_dspzjcncdw",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Practice"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Class schedule",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/classes/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Bodywork",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/bodywork/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Workshops",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/workshops/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Journal",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/journal/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default"
+      },
+      {
+        "id": "blk_63xrte7q4d",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Visit"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "2418 SE Division Street, Portland"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "hello@fernwoodyoga.example",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "mailto:hello@fernwoodyoga.example"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Fernwood Yoga & Bodywork"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 2,
+        "variant": "default"
+      },
+      {
+        "id": "blk_37zmz1gf1c",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "column": 2,
+        "variant": "icons"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/fernwoodyoga.example"
+    },
+    {
+      "network": "youtube",
+      "url": "https://youtube.com/@fernwoodyoga.example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:hello@fernwoodyoga.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Fernwood Yoga",
+    "description": "Sage on oat paper with clay-coloured buttons and links, Fraunces headings and arched photographs.",
+    "image": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": "https://cal.com/fernwood-yoga",
+    "stripeConnected": false
+  }
+}

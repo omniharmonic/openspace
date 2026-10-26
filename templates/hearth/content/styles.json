@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.6 0.2 30)",
+      "neutral": "warm",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "young-serif-work-sans",
+    "density": "comfortable",
+    "shape": "soft",
+    "buttons": "pill-solid",
+    "motion": "subtle",
+    "imageTreatment": "rounded"
+  },
+  "overrides": {
+    "color": {
+      "accent": {
+        "$value": "oklch(0.5 0.1 115)",
+        "$type": "color"
+      }
+    }
+  }
+}

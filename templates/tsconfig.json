@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": { "types": ["node"] },
+  "include": ["index.ts", "lib", "test", "*/src", "vitest.config.ts", "tsup.config.ts"],
+  "exclude": ["starter", "node_modules"]
+}

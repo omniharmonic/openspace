@@ -1,0 +1,428 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_at43pg8ew2",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "The Long Field is a fortnightly letter by Ruth Ellery about walking, rural places and paying attention. Free, with essays every other Sunday."
+  },
+  "sections": [
+    {
+      "id": "sec_pg3ksqk0df",
+      "preset": "hero/signup@1",
+      "label": "Headline with email signup",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "3xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_nh4xhg8zsq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Essays on walking, weather and paying attention",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "A letter every other Sunday",
+            "subheading": "The Long Field is a free letter from a hill farm in Vermont: one essay, one walk and one good thing to read. Joined by 14,000 readers."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_gta63zc588",
+          "type": "newsletter",
+          "v": 1,
+          "fields": {
+            "askName": false,
+            "placeholder": "you@example.com",
+            "buttonLabel": "Subscribe",
+            "successMessage": "You're in. The next letter arrives on a Sunday morning.",
+            "note": "Free. One click to unsubscribe, and I never share your address."
+          },
+          "variant": "inline",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_570vz57hw3",
+      "preset": "blog/intro-list@1",
+      "label": "Journal with introduction",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_629z7bm12p",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Recent essays",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Latest"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_vq3gn1vmqd",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Long-form pieces about land, work and the small rituals of rural life. Each one also arrives in your inbox, if you'd like it there."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_m2ycf3emgz",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Browse the archive",
+            "link": {
+              "type": "url",
+              "url": "/essays/"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_9c4r8ak5vt",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "source": {
+              "collection": "essays",
+              "sort": "date-desc",
+              "limit": 4
+            },
+            "columns": "3",
+            "showImage": false,
+            "showDate": true,
+            "showExcerpt": true,
+            "showMeta": false,
+            "emptyMessage": "The next essay is being written. Subscribe to get it first."
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_0fbmc121dd",
+      "preset": "about/portrait-overlap@1",
+      "label": "Portrait with overlapping story",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 26,
+          "m": 32
+        },
+        "items": {
+          "blk_e1mxgdxq2f": {
+            "d": {
+              "x": 2,
+              "y": 1,
+              "w": 9,
+              "h": 26
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 7,
+              "h": 16
+            }
+          },
+          "blk_1vbwk0hf7p": {
+            "d": {
+              "x": 9,
+              "y": 6,
+              "w": 14,
+              "h": 15,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 14,
+              "w": 8,
+              "h": 15,
+              "z": 2
+            }
+          },
+          "blk_vpfj36cp1k": {
+            "d": {
+              "x": 11,
+              "y": 22,
+              "w": 12,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 30,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_e1mxgdxq2f",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=1040&q=80",
+              "alt": "Portrait of the writer Ruth Ellery beside a lake",
+              "width": 1040,
+              "height": 693
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_1vbwk0hf7p",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "About the writer"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Hello, I'm Ruth"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I left a newspaper job in Boston in 2019 for forty acres of hill farm and a dog who refuses to walk in the rain. The Long Field began as letters to friends about what I was learning, and slowly found more readers than I ever expected."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I write about land, work and attention, and "
+                    },
+                    {
+                      "type": "text",
+                      "text": "I answer every reply.",
+                      "marks": [
+                        {
+                          "type": "highlight"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            }
+          }
+        },
+        {
+          "id": "blk_vpfj36cp1k",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Read more about me",
+            "link": {
+              "type": "page",
+              "page": "pg_jb98pzwwr8"
+            },
+            "role": "tertiary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_br8n2x0sfg",
+      "preset": "testimonials/carousel@1",
+      "label": "Testimonial slides",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_rvgc5z80m3",
+          "type": "quote-carousel",
+          "v": 1,
+          "fields": {
+            "label": "What readers say",
+            "quotes": [
+              {
+                "quote": "The only email I open with a cup of tea and read twice. Ruth writes the way good walks feel.",
+                "name": "Hannah Ostrowski",
+                "role": "Reader since 2021",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+                  "alt": "Portrait of Hannah Ostrowski",
+                  "width": 320,
+                  "height": 479
+                }
+              },
+              {
+                "quote": "Every other Sunday I learn the name of a bird, a tool or a field I'd never noticed. It has changed how I walk to work.",
+                "name": "Marcus Bell",
+                "role": "Reader in Glasgow",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=320&q=80",
+                  "alt": "Portrait of Marcus Bell",
+                  "width": 320,
+                  "height": 480
+                }
+              },
+              {
+                "quote": "Quietly the best writing about rural life I've read in years, and it arrives for free.",
+                "name": "June Abara",
+                "role": "Editor, Quarry Quarterly",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=320&q=80",
+                  "alt": "Portrait of June Abara",
+                  "width": 320,
+                  "height": 480
+                }
+              }
+            ]
+          },
+          "variant": "slides"
+        }
+      ]
+    },
+    {
+      "id": "sec_az9txfbcgy",
+      "preset": "newsletter/card@1",
+      "label": "Newsletter card",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "brand"
+      },
+      "blocks": [
+        {
+          "id": "blk_5tjmr7cm97",
+          "type": "newsletter",
+          "v": 1,
+          "fields": {
+            "heading": "Get the next letter",
+            "description": "One essay every other Sunday morning, plus the occasional photograph from the farm.",
+            "askName": true,
+            "placeholder": "you@example.com",
+            "buttonLabel": "Subscribe",
+            "successMessage": "You're in. The next letter arrives on a Sunday morning.",
+            "note": "Free, and always will be."
+          },
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}
