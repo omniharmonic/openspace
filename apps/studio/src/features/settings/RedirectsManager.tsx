@@ -36,7 +36,8 @@ export function redirectProblem(r: Redirect, others: Redirect[]): string | null 
 
 /** Redirects manager (`site.redirects`): old addresses that send visitors somewhere else. */
 export function RedirectsManager({ disabled }: { disabled?: boolean }) {
-  const redirects = useDocStore((s) => s.doc.site.redirects ?? []);
+  const stored = useDocStore((s) => s.doc.site.redirects);
+  const redirects = stored ?? [];
   const update = useSiteUpdate();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -150,7 +151,7 @@ export function RedirectsManager({ disabled }: { disabled?: boolean }) {
           icon={<Plus />}
           disabled={disabled || !from || !to || Boolean(problem)}
         >
-          Add
+          Add redirect
         </Button>
       </form>
       {problem && (

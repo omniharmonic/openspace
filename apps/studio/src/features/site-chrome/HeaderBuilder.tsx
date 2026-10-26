@@ -6,6 +6,7 @@ import {
   type SiteDocument,
 } from "@openspace/schema";
 import { Check } from "lucide-react";
+import { useEffect, useState } from "react";
 import { cx, Field, Input, Segmented, Slider } from "../../ui";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import { ImagePick, LinkField, SwitchRow, ThemePicker, useSiteUpdate } from "./controls";
@@ -127,6 +128,8 @@ export function HeaderBuilder() {
   const ci = ctaIndex(nav);
   const cta = ci >= 0 ? (nav[ci] as Extract<NavItem, { type: "button" }>) : undefined;
   const logoH = header.logoHeight;
+  const [ctaText, setCtaText] = useState(cta?.label ?? "");
+  useEffect(() => setCtaText(cta?.label ?? ""), [cta?.label]);
 
   const setNav = (tree: NavItem[], label: string, mergeKey?: string) =>
     api
@@ -337,12 +340,13 @@ export function HeaderBuilder() {
             <Field label="Button text">
               <Input
                 size="sm"
-                value={cta.label}
+                value={ctaText}
                 maxLength={60}
-                onChange={(e) =>
-                  e.target.value.trim() &&
-                  setCta({ label: e.target.value }, "Button text", "cta-label")
-                }
+                onChange={(e) => {
+                  setCtaText(e.target.value);
+                  if (e.target.value.trim())
+                    setCta({ label: e.target.value }, "Button text", "cta-label");
+                }}
               />
             </Field>
             <Field label="Goes to">

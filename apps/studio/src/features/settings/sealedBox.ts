@@ -11,7 +11,9 @@ export async function sealSecret(publicKeyB64: string, value: string): Promise<s
   const key = sodium.from_base64(publicKeyB64, sodium.base64_variants.ORIGINAL);
   if (key.length !== sodium.crypto_box_PUBLICKEYBYTES)
     throw new Error("The encryption key is not valid.");
-  const sealed = sodium.crypto_box_seal(sodium.from_string(value), key);
+  // Copy into this realm's Uint8Array (libsodium checks `instanceof`).
+  const message = Uint8Array.from(new TextEncoder().encode(value));
+  const sealed = sodium.crypto_box_seal(message, Uint8Array.from(key));
   return sodium.to_base64(sealed, sodium.base64_variants.ORIGINAL);
 }
 

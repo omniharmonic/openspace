@@ -123,7 +123,8 @@ export function CollaboratorsSettings({ site }: { site: Site }) {
   const [locksFor, setLocksFor] = useState<Collaborator | null>(null);
   const [rejecting, setRejecting] = useState<{ id: string; title: string } | null>(null);
   const [note, setNote] = useState("");
-  const isEmail = who.includes("@");
+  // "@name" is a GitHub username; "name@domain" an email address.
+  const isEmail = /^[^@\s]+@/.test(who.trim());
   const value = who.trim().replace(/^@/, "");
   const valid = isEmail
     ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
