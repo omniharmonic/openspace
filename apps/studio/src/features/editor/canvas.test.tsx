@@ -31,7 +31,7 @@ describe("canvas", () => {
 
   it("renders the page through the renderer with site tokens, base and block CSS", async () => {
     const { doc, hub } = await openCanvas();
-    expect(hub.calls.some((c) => c.method === "getDocument")).toBe(true);
+    expect(hub.calls.some((c) => c.method === "getRoomDocument")).toBe(true);
     expect(doc.querySelector('style[data-os="tokens"]')?.textContent).toContain("--os-");
     expect(doc.querySelector('style[data-os="base"]')?.textContent?.length).toBeGreaterThan(1000);
     expect(doc.querySelector('style[data-os="blocks"]')?.textContent).toContain("@layer os.blocks");

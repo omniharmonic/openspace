@@ -8,6 +8,7 @@ import {
   CornerLeftUp,
   Eye,
   FileText,
+  History,
   Image,
   Keyboard,
   Layers,
@@ -19,6 +20,7 @@ import {
   PanelRight,
   Plus,
   Redo2,
+  Send,
   Smartphone,
   Tablet,
   Trash,
@@ -27,12 +29,11 @@ import {
 } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router";
-import { useSession, useSite, useSiteDocument } from "../../api";
+import { useSession, useSite } from "../../api";
 import type { Site } from "../../api/types";
 import { useConfig } from "../../app/config";
 import { Mark } from "../../app/Wordmark";
 import {
-  AvatarStack,
   Badge,
   Button,
   cx,
@@ -50,6 +51,11 @@ import {
   useRegisterCommands,
 } from "../../ui";
 import { displayUrl } from "../onboarding/BuildingProgress";
+import { type DraftBootstrap, useDraftBootstrap } from "../sync/bootstrap";
+import { HistorySheet } from "../sync/HistoryPanel";
+import { PublishButton, PublishPill } from "../sync/PublishFlow";
+import { AgentActivity, PresenceAvatars, SyncBanners, SyncStatus } from "../sync/SyncChrome";
+import { SyncProvider, useRoomClient } from "../sync/SyncContext";
 import { Canvas } from "./canvas/Canvas";
 import "./canvas/canvas.css";
 import {
@@ -320,6 +326,7 @@ function EditorChrome({ site }: { site: Site }) {
   const checklist = useChecklist(site.id);
   const [sheet, setSheet] = useState<LeftPanel | "inspector" | null>(null);
   const [frameDoc, setFrameDoc] = useState<Document | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const store = useDocStoreApi();
   const pageTitle = useDocStore(
     (s) => s.doc.pages[s.pageId as keyof SiteDocument["pages"]]?.title ?? "",
@@ -496,6 +503,14 @@ function EditorChrome({ site }: { site: Site }) {
       run: () => openPanel(p.id),
     })),
     {
+      id: "history",
+      label: "Show history and versions",
+      group: "Site",
+      icon: <History />,
+      keywords: ["rollback", "snapshot", "versions", "restore"],
+      run: () => setHistoryOpen(true),
+    },
+    {
       id: "copy-link",
       label: "Copy live link",
       group: "Site",
@@ -566,6 +581,11 @@ function EditorChrome({ site }: { site: Site }) {
               },
               { label: "Copy live link", icon: <Copy />, onSelect: () => void copyLink(site.url) },
               { label: "Show setup checklist", icon: <ListChecks />, onSelect: checklist.show },
+              {
+                label: "History and versions",
+                icon: <History />,
+                onSelect: () => setHistoryOpen(true),
+              },
               { type: "separator" },
               { label: "Your sites", icon: <LayoutGrid />, onSelect: () => navigate("/sites") },
             ]}
@@ -590,12 +610,9 @@ function EditorChrome({ site }: { site: Site }) {
         </div>
 
         <div className="st-ed-top__right">
+          <AgentActivity />
           {user && (
-            <AvatarStack
-              people={[{ id: user.id, name: user.name, avatarUrl: user.avatarUrl }]}
-              label="Editing now"
-              size={22}
-            />
+            <PresenceAvatars self={{ id: user.id, name: user.name, avatarUrl: user.avatarUrl }} />
           )}
           {live ? (
             <Badge tone="live" dot title={site.url}>
@@ -606,10 +623,11 @@ function EditorChrome({ site }: { site: Site }) {
               Setting up
             </Badge>
           ) : (
-            <Badge tone="danger" dot>
+            <Badge tone="danger" dot title={site.statusDetail ?? undefined}>
               Needs attention
             </Badge>
           )}
+          {site.status !== "building" && <SyncStatus />}
           <span className="st-ed-top__sep" aria-hidden="true" />
           <IconButton
             label="Undo"
@@ -645,11 +663,21 @@ function EditorChrome({ site }: { site: Site }) {
               <span className="st-ed-hide-narrow">Preview</span>
             </Button>
           </Tooltip>
-          <Tooltip content="No changes to publish yet">
-            <Button variant="primary" size="sm" disabled focusableWhenDisabled>
-              Publish
-            </Button>
-          </Tooltip>
+          <IconButton
+            label="History"
+            icon={<History />}
+            onClick={() => setHistoryOpen(true)}
+            className="st-ed-hide-narrow"
+          />
+          {site.status === "building" ? (
+            <Tooltip content="Your site is still being set up">
+              <Button variant="primary" size="sm" icon={<Send />} disabled focusableWhenDisabled>
+                Publish
+              </Button>
+            </Tooltip>
+          ) : (
+            <PublishButton />
+          )}
         </div>
       </header>
 
@@ -697,6 +725,10 @@ function EditorChrome({ site }: { site: Site }) {
         ) : (
           <Canvas siteName={site.name} onFrameDocument={setFrameDoc} />
         )}
+        <div className="st-ed-main__top">
+          <PublishPill />
+          <SyncBanners />
+        </div>
         <div className="st-ed-main__overlay">
           <FirstRunChecklist checklist={checklist} />
         </div>
@@ -718,32 +750,62 @@ function EditorChrome({ site }: { site: Site }) {
         {sheet === "inspector" ? <Inspector /> : sheet ? <LeftPanelBody panel={sheet} /> : null}
       </Sheet>
       <ShortcutsSheet />
+      <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
     </div>
   );
 }
 
 const PENDING_DOC = placeholderDocument();
+const PENDING_BOOT: DraftBootstrap = {
+  doc: PENDING_DOC,
+  confirmed: PENDING_DOC,
+  seq: 0,
+  head: null,
+  pending: [],
+  offline: false,
+};
 
-/** Holds the per-site document store once the content has loaded. */
-function EditorSession({
+/** Runs the draft room connection for the session (not while the site is still being set up). */
+function SyncedSession({
   site,
-  document: content,
-  actor,
+  boot,
+  store,
 }: {
   site: Site;
-  document: SiteDocument;
-  actor: string;
+  boot: DraftBootstrap;
+  store: EditorStore;
 }) {
+  const client = useRoomClient(site, store, boot, site.status !== "building");
+  if (import.meta.env.MODE === "test")
+    (window as unknown as { __osRoomClient?: unknown }).__osRoomClient = client;
+  return (
+    <SyncProvider client={client} store={store} site={site}>
+      <EditorChrome site={site} />
+    </SyncProvider>
+  );
+}
+
+/** Holds the per-site document store once the content has loaded. */
+function EditorSession({ site, boot, actor }: { site: Site; boot: DraftBootstrap; actor: string }) {
   const store = useMemo<EditorStore>(
-    () => createEditorStore({ doc: content, actor }),
-    [content, actor],
+    () => createEditorStore({ doc: boot.doc, actor }),
+    [boot, actor],
   );
   // Tests drive the store directly (removed from production builds).
   if (import.meta.env.MODE === "test")
     (window as unknown as { __osEditorStore?: EditorStore }).__osEditorStore = store;
+  useEffect(() => {
+    if (boot.offline)
+      toast({
+        id: "opened-offline",
+        title: "Opened from this device",
+        description:
+          "OpenSpace can’t be reached, so you’re editing the copy saved here. Changes sync when it’s back.",
+      });
+  }, [boot.offline]);
   return (
     <EditorStoreProvider store={store}>
-      <EditorChrome site={site} />
+      <SyncedSession site={site} boot={boot} store={store} />
     </EditorStoreProvider>
   );
 }
@@ -755,13 +817,18 @@ export function EditorFrame() {
   const { timing } = useConfig();
   const user = session.data?.user;
   const site = useSite(user ? id : undefined, { pollMs: timing.pollMs });
-  const content = useSiteDocument(site.data?.id, { enabled: site.data?.status !== "building" });
+  // The draft loads from the room (or this device's copy); offline, the cached site is used.
+  const content = useDraftBootstrap(
+    user ? id : undefined,
+    site.data ? site.data.status !== "building" : site.isError,
+  );
   const navigate = useNavigate();
+  const siteData = site.data ?? (content.data?.offline ? content.data.site : undefined);
 
   const loading =
     session.isPending ||
     (user && site.isPending) ||
-    (site.data && site.data.status !== "building" && content.isPending);
+    ((siteData ? siteData.status !== "building" : site.isError) && content.isPending);
   if (loading) {
     return (
       <div className="st-center">
@@ -770,7 +837,7 @@ export function EditorFrame() {
     );
   }
   if (!user) return <Navigate to={`/signin?next=${encodeURIComponent(`/sites/${id}`)}`} replace />;
-  if (site.isError || !site.data || content.isError) {
+  if (!siteData || content.isError) {
     return (
       <div className="st-center">
         <EmptyState
@@ -789,13 +856,14 @@ export function EditorFrame() {
       </div>
     );
   }
-  const doc = content.data?.document ?? PENDING_DOC;
+  const boot = content.data ?? PENDING_BOOT;
   return (
     <EditorSession
-      // Per-site state (store, checklist, welcome toast, sheets) starts fresh when the site changes.
-      key={site.data.id}
-      site={site.data}
-      document={doc}
+      // Per-site state (store, room, checklist, sheets) starts fresh when the site changes, and
+      // once more when a site that was being set up has its content.
+      key={`${siteData.id}:${content.data ? "ready" : "pending"}`}
+      site={siteData}
+      boot={boot}
       actor={`user:${user.id}`}
     />
   );

@@ -1,4 +1,6 @@
 import { createContext, type ReactNode, useContext } from "react";
+import type { DraftCache } from "../features/sync/cache";
+import type { RoomClientTiming } from "../features/sync/RoomClient";
 
 /** Runtime knobs; tests shrink the timings so flows run instantly. */
 export interface StudioConfig {
@@ -13,6 +15,10 @@ export interface StudioConfig {
   /** Show the /kit route (dev builds and tests). */
   showKit: boolean;
   marketingUrl?: string;
+  /** Draft room reconnect / offline timings (defaults in RoomClient). */
+  sync?: Partial<RoomClientTiming>;
+  /** Where drafts are kept on this device (default: IndexedDB). */
+  draftCache?: DraftCache;
 }
 
 export const defaultConfig: StudioConfig = {
