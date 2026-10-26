@@ -344,7 +344,6 @@ function EditorChrome({ site }: { site: Site }) {
   const ui = useEditorUi();
   const narrow = useIsNarrow();
   const checklist = useChecklist(site.id);
-  const [sheet, setSheet] = useState<LeftPanel | "inspector" | null>(null);
   const [frameDoc, setFrameDoc] = useState<Document | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const store = useDocStoreApi();
@@ -392,7 +391,9 @@ function EditorChrome({ site }: { site: Site }) {
     [store, complete],
   );
 
-  const openPanel = (id: LeftPanel) => (narrow ? setSheet(id) : ui.toggleLeftPanel(id));
+  // On phones the phone layout opens the requested panel as a sheet (it watches `leftPanel`).
+  const openPanel = (id: LeftPanel) =>
+    narrow ? useEditorUi.setState({ leftPanel: id }) : ui.toggleLeftPanel(id);
 
   useEditorInput(
     {
@@ -595,8 +596,8 @@ function EditorChrome({ site }: { site: Site }) {
     },
   ]);
 
-  const showLeft = !narrow && !ui.chromeHidden && ui.leftPanel;
-  const showRight = !narrow && !ui.chromeHidden && ui.inspectorOpen;
+  const showLeft = !ui.chromeHidden && ui.leftPanel;
+  const showRight = !ui.chromeHidden && ui.inspectorOpen;
   const leftMeta = PANELS.find((p) => p.id === ui.leftPanel);
 
   // Phones get their own layout (arch §5.7): pages → sections → edit in a sheet.
@@ -707,11 +708,7 @@ function EditorChrome({ site }: { site: Site }) {
           {site.status !== "building" && <SyncStatus />}
           {site.status !== "building" && (
             <DesignCheckBadge
-              onOpen={() =>
-                narrow
-                  ? setSheet("check")
-                  : useEditorUi.setState({ leftPanel: "check", chromeHidden: false })
-              }
+              onOpen={() => useEditorUi.setState({ leftPanel: "check", chromeHidden: false })}
             />
           )}
           <span className="st-ed-top__sep" aria-hidden="true" />
@@ -735,7 +732,7 @@ function EditorChrome({ site }: { site: Site }) {
             label={ui.inspectorOpen ? "Hide inspector" : "Show inspector"}
             icon={<PanelRight />}
             active={showRight ? true : undefined}
-            onClick={() => (narrow ? setSheet("inspector") : ui.toggleInspector())}
+            onClick={ui.toggleInspector}
           />
           <Tooltip content="Open the live site in a new tab">
             <Button
@@ -775,7 +772,7 @@ function EditorChrome({ site }: { site: Site }) {
             icon={p.icon}
             shortcut={p.shortcut}
             tooltipSide="right"
-            active={narrow ? sheet === p.id : showLeft ? ui.leftPanel === p.id : false}
+            active={showLeft ? ui.leftPanel === p.id : false}
             onClick={() => openPanel(p.id)}
           />
         ))}
@@ -831,7 +828,7 @@ function EditorChrome({ site }: { site: Site }) {
         </div>
         {trying && (
           <Suspense fallback={null}>
-            <LookStage narrow={narrow} />
+            <LookStage />
           </Suspense>
         )}
         <div className="st-ed-main__overlay">
@@ -845,15 +842,6 @@ function EditorChrome({ site }: { site: Site }) {
         </aside>
       )}
 
-      <Sheet
-        open={narrow && sheet !== null}
-        onOpenChange={(open) => !open && setSheet(null)}
-        title={
-          sheet === "inspector" ? "Inspector" : (PANELS.find((p) => p.id === sheet)?.label ?? "")
-        }
-      >
-        {sheet === "inspector" ? <Inspector /> : sheet ? <LeftPanelBody panel={sheet} /> : null}
-      </Sheet>
       <ShortcutsSheet />
       <InspectorRuntime />
       <SiteManagementHost site={site} />

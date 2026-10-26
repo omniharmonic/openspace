@@ -1,87 +1,52 @@
+import type { SiteDocument } from "@openspace/schema";
 import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { blockText } from "@openspace/lint";
-import type { Section, SiteDocument } from "@openspace/schema";
-import {
-  ArrowDown,
   ArrowLeft,
-  ArrowUp,
-  Camera,
   ChevronRight,
-  Copy,
   Ellipsis,
   Eye,
-  EyeOff,
-  FilePlus2,
   FileText,
-  GripVertical,
   History,
   Image as ImageIcon,
   Inbox,
-  LayoutGrid,
-  ListOrdered,
-  Lock,
   Newspaper,
   Palette,
   PanelTop,
   Pencil,
-  Plus,
   Redo2,
   Rows3,
   SearchCheck,
   Settings,
-  Trash2,
   Undo2,
   WandSparkles,
 } from "lucide-react";
-import { lazy, type ReactNode, Suspense, useRef, useState } from "react";
+import { lazy, type ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Site } from "../../api/types";
-import { Button, cx, IconButton, Sheet, Spinner, toast } from "../../ui";
-import { useAddSection, useBlockMenu } from "../add-section/blockMenuStore";
+import { Button, cx, IconButton, Sheet, Spinner } from "../../ui";
+import { useAddSection } from "../add-section/blockMenuStore";
 import { DesignCheckPanel } from "../design-check/DesignCheckPanel";
 import type { CheckedIssue } from "../design-check/model";
 import { useDesignCheck } from "../design-check/store";
-import { BlockIcon } from "../editor/blockIcons";
 import { Canvas } from "../editor/canvas/Canvas";
 import { type LeftPanel, useEditorUi } from "../editor/editor-store";
-import { gridCaps } from "../editor/grid/caps";
-import { isGridSection } from "../editor/grid/model";
-import { PhoneReorder } from "../editor/grid/PhoneReorder";
-import { deleteItems, duplicateItems, moveSectionTo, toggleHidden } from "../editor/model/actions";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
-import { blockName, sectionLabel } from "../editor/model/selection";
+import { sectionLabel } from "../editor/model/selection";
 import { useCanvasDocument } from "../inspector/canvasDoc";
-import { useInspectorRole } from "../inspector/env";
-import { Inspector } from "../inspector/Inspector";
-import { capabilities } from "../inspector/model/permissions";
 import { useLookTrial } from "../looks/trial";
 import { MediaLibrary } from "../media/MediaLibrary";
-import { useUploader } from "../media/useUploader";
 import { PagesManager } from "../pages/PagesManager";
 import { SiteChromePanel } from "../site-chrome/SiteChromePanel";
-import { useManageUi } from "../site-mgmt/manage-ui";
 import { PublishButton, PublishPill } from "../sync/PublishFlow";
 import { SyncBanners, SyncStatus } from "../sync/SyncChrome";
 import { UpdateBanner } from "../updates/UpdateBanner";
 import { workspacePath } from "../workspace/routes";
-import { imageFieldOf, setBlockImage, waitForMedia } from "./replaceImage";
 import "./mobile.css";
+
+import { PageList } from "./PageList";
+import { SectionList } from "./SectionList";
+import { SectionSheetBody } from "./SectionSheet";
+
+export { pagesInOrder, sectionSummary } from "./helpers";
 
 const SiteStylesPanel = lazy(() =>
   import("../styles/SiteStylesPanel").then((m) => ({ default: m.SiteStylesPanel })),
@@ -98,417 +63,6 @@ type SheetState =
   | { kind: "panel"; panel: LeftPanel }
   | { kind: "more" }
   | null;
-
-/** Pages in navigation order (folders flattened), then pages not in the navigation. */
-export function pagesInOrder(
-  doc: SiteDocument,
-): SiteDocument["pages"][keyof SiteDocument["pages"]][] {
-  const ids: string[] = [];
-  for (const item of doc.site.nav) {
-    if (item.type === "page") ids.push(item.page);
-    if (item.type === "folder") {
-      if (item.page) ids.push(item.page);
-      for (const child of item.items) if (child.type === "page") ids.push(child.page);
-    }
-  }
-  const all = Object.values(doc.pages);
-  const home = all.find((p) => p.slug === "");
-  const ordered = [...(home ? [home.id as string] : []), ...ids, ...all.map((p) => p.id as string)];
-  const seen = new Set<string>();
-  const out = [];
-  for (const id of ordered) {
-    if (seen.has(id)) continue;
-    seen.add(id);
-    const p = doc.pages[id as keyof SiteDocument["pages"]];
-    if (p) out.push(p);
-  }
-  return out;
-}
-
-/** The words a section starts with (its first heading or text), for the section list. */
-export function sectionSummary(section: Section): string {
-  for (const b of section.blocks) {
-    const text = blockText(b).replace(/\s+/g, " ").trim();
-    if (text) return text.length > 80 ? `${text.slice(0, 79)}…` : text;
-  }
-  return section.blocks.length ? `${section.blocks.length} blocks` : "Empty section";
-}
-
-// --- pages --------------------------------------------------------------------------------------
-
-function PageList({ onOpen }: { onOpen: (pageId: string) => void }) {
-  const doc = useDocStore((s) => s.doc);
-  const current = useDocStore((s) => s.pageId);
-  const pages = pagesInOrder(doc);
-  return (
-    <div className="st-mob__screen" data-testid="mobile-pages">
-      <h1 className="st-mob__h1">Pages</h1>
-      <ul className="st-mob__list" aria-label="Pages">
-        {pages.map((p) => (
-          <li key={p.id}>
-            <button
-              type="button"
-              className={cx("st-mob__row", p.id === current && "is-current")}
-              onClick={() => onOpen(p.id)}
-            >
-              <FileText aria-hidden="true" className="st-mob__row-icon" />
-              <span className="st-mob__row-text">
-                <span className="st-mob__row-title">{p.title}</span>
-                <span className="st-mob__row-sub">
-                  /{p.slug}
-                  {p.hidden ? " · hidden" : ""} · {p.sections.length}{" "}
-                  {p.sections.length === 1 ? "section" : "sections"}
-                </span>
-              </span>
-              <ChevronRight aria-hidden="true" className="st-mob__chev" />
-            </button>
-          </li>
-        ))}
-      </ul>
-      <div className="st-mob__actions">
-        <Button
-          variant="secondary"
-          icon={<FilePlus2 />}
-          onClick={() => useManageUi.getState().openAddPage()}
-        >
-          Add page
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-// --- sections -----------------------------------------------------------------------------------
-
-function SortableSection({
-  section,
-  index,
-  doc,
-  canReorder,
-  onOpen,
-}: {
-  section: Section;
-  index: number;
-  doc: SiteDocument;
-  canReorder: boolean;
-  onOpen: () => void;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section.id, disabled: !canReorder });
-  const name = sectionLabel(doc, section, index);
-  return (
-    <li
-      ref={setNodeRef}
-      className={cx("st-mob__srow", isDragging && "is-dragging")}
-      style={{ transform: CSS.Translate.toString(transform), transition }}
-    >
-      <button
-        type="button"
-        ref={setActivatorNodeRef}
-        className="st-mob__grip"
-        aria-label={`Reorder ${name}`}
-        disabled={!canReorder}
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical aria-hidden="true" />
-      </button>
-      <button type="button" className="st-mob__row st-mob__row--section" onClick={onOpen}>
-        <span className="st-mob__row-text">
-          <span className="st-mob__row-title">
-            {name}
-            {section.hidden && <EyeOff aria-label="Hidden" className="st-mob__flag" />}
-            {section.locked && <Lock aria-label="Locked" className="st-mob__flag" />}
-            {section.layout.mode === "grid" && (
-              <LayoutGrid aria-label="Grid section" className="st-mob__flag" />
-            )}
-          </span>
-          <span className="st-mob__row-sub">{sectionSummary(section)}</span>
-        </span>
-        <Pencil aria-hidden="true" className="st-mob__chev" />
-      </button>
-    </li>
-  );
-}
-
-function SectionList({ onOpen }: { onOpen: (sectionId: string) => void }) {
-  const api = useDocStoreApi();
-  const doc = useDocStore((s) => s.doc);
-  const pageId = useDocStore((s) => s.pageId);
-  const role = useInspectorRole();
-  const page = doc.pages[pageId as keyof SiteDocument["pages"]];
-  const caps = capabilities(role);
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 120, tolerance: 6 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
-  if (!page) return null;
-  const ids = page.sections.map((s) => s.id as string);
-  const onDragEnd = (e: DragEndEvent) => {
-    if (!e.over || e.active.id === e.over.id) return;
-    const to = ids.indexOf(String(e.over.id));
-    if (to < 0) return;
-    api.getState().run(moveSectionTo(pageId, String(e.active.id), to));
-  };
-  return (
-    <div className="st-mob__screen" data-testid="mobile-sections">
-      <h1 className="st-mob__h1">{page.title}</h1>
-      <p className="st-mob__lede">
-        Tap a section to edit its words and photos. Drag the handle to reorder.
-      </p>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-          <ol className="st-mob__list" aria-label={`Sections on ${page.title}`}>
-            {page.sections.map((s, i) => (
-              <SortableSection
-                key={s.id}
-                section={s}
-                index={i}
-                doc={doc}
-                canReorder={caps.structure}
-                onOpen={() => onOpen(s.id)}
-              />
-            ))}
-          </ol>
-        </SortableContext>
-      </DndContext>
-      <ul className="st-mob__list st-mob__list--footer" aria-label="On every page">
-        <li>
-          <button type="button" className="st-mob__row" onClick={() => onOpen(doc.site.footer.id)}>
-            <PanelTop aria-hidden="true" className="st-mob__row-icon st-mob__flip" />
-            <span className="st-mob__row-text">
-              <span className="st-mob__row-title">Footer</span>
-              <span className="st-mob__row-sub">On every page</span>
-            </span>
-            <Pencil aria-hidden="true" className="st-mob__chev" />
-          </button>
-        </li>
-      </ul>
-      {caps.structure && (
-        <div className="st-mob__actions">
-          <Button
-            variant="primary"
-            icon={<Plus />}
-            onClick={() => useAddSection.getState().openAt("end")}
-          >
-            Add section
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// --- the section sheet --------------------------------------------------------------------------
-
-function ReplacePhoto({
-  site,
-  container,
-  blockId,
-}: {
-  site: Site;
-  container: string;
-  blockId: string;
-}) {
-  const api = useDocStoreApi();
-  const uploader = useUploader(site);
-  const input = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
-  const onFile = async (file: File | undefined) => {
-    if (!file || !uploader) return;
-    setBusy(true);
-    try {
-      const [res] = await uploader.add([file]);
-      if (!res) return;
-      const meta = await waitForMedia(api, res.path);
-      if (!meta) {
-        toast({
-          title: "Your photo is still uploading",
-          description: "It will be in Media when it’s done; choose it from there.",
-        });
-        return;
-      }
-      const err = setBlockImage(api, container, blockId, res.path);
-      if (err) toast({ tone: "danger", title: "Couldn’t use that photo", description: err });
-      else toast({ tone: "success", title: "Photo replaced" });
-    } finally {
-      setBusy(false);
-      if (input.current) input.current.value = "";
-    }
-  };
-  return (
-    <>
-      <Button
-        size="sm"
-        variant="secondary"
-        icon={busy ? <Spinner size={12} /> : <Camera />}
-        disabled={busy || !uploader}
-        onClick={() => input.current?.click()}
-      >
-        {busy ? "Adding…" : "Replace photo"}
-      </Button>
-      <input
-        ref={input}
-        type="file"
-        accept="image/*"
-        hidden
-        data-testid={`replace-photo-${blockId}`}
-        onChange={(e) => void onFile(e.target.files?.[0])}
-      />
-    </>
-  );
-}
-
-function SectionSheetBody({
-  site,
-  sectionId,
-  blockId,
-  onBlock,
-  onClose,
-}: {
-  site: Site;
-  sectionId: string;
-  blockId: string | undefined;
-  onBlock: (id: string | undefined) => void;
-  onClose: () => void;
-}) {
-  const api = useDocStoreApi();
-  const doc = useDocStore((s) => s.doc);
-  const pageId = useDocStore((s) => s.pageId);
-  const role = useInspectorRole();
-  const [reorder, setReorder] = useState(false);
-  const page = doc.pages[pageId as keyof SiteDocument["pages"]];
-  const footer = doc.site.footer.id === sectionId;
-  const index = page?.sections.findIndex((s) => s.id === sectionId) ?? -1;
-  const section = footer ? doc.site.footer : page?.sections[index];
-  if (!section) return <p className="st-mob__lede">This section was removed.</p>;
-  const container = footer ? "footer" : pageId;
-  const caps = capabilities(role, section);
-  const s = () => api.getState();
-
-  if (blockId && section.blocks.some((b) => b.id === blockId)) {
-    return (
-      <div className="st-mob__blockedit">
-        <button type="button" className="st-mob__back" onClick={() => onBlock(undefined)}>
-          <ArrowLeft aria-hidden="true" /> {sectionLabel(doc, section, index)}
-        </button>
-        <Inspector />
-      </div>
-    );
-  }
-
-  const count = page?.sections.length ?? 0;
-  const sel = [{ kind: "section" as const, id: section.id as string }];
-  return (
-    <div className="st-mob__sectionedit">
-      {!footer && caps.structure && (
-        <div className="st-mob__toolbar" role="toolbar" aria-label="Section">
-          <IconButton
-            label="Move up"
-            icon={<ArrowUp />}
-            tooltip={false}
-            disabled={index <= 0}
-            onClick={() => s().run(moveSectionTo(pageId, section.id, index - 1))}
-          />
-          <IconButton
-            label="Move down"
-            icon={<ArrowDown />}
-            tooltip={false}
-            disabled={index >= count - 1}
-            onClick={() => s().run(moveSectionTo(pageId, section.id, index + 1))}
-          />
-          <IconButton
-            label="Duplicate"
-            icon={<Copy />}
-            tooltip={false}
-            onClick={() => s().run(duplicateItems(s().doc, pageId, sel))}
-          />
-          <IconButton
-            label={section.hidden ? "Show on the site" : "Hide on the site"}
-            icon={section.hidden ? <Eye /> : <EyeOff />}
-            tooltip={false}
-            disabled={!caps.sectionDesign}
-            onClick={() => s().run(toggleHidden(s().doc, pageId, section))}
-          />
-          <IconButton
-            label="Delete section"
-            icon={<Trash2 />}
-            tooltip={false}
-            onClick={() => {
-              s().run(deleteItems(s().doc, pageId, sel));
-              onClose();
-              toast({
-                title: "Section deleted",
-                action: { label: "Undo", onClick: () => api.getState().undo() },
-              });
-            }}
-          />
-        </div>
-      )}
-      <ul className="st-mob__list" aria-label="Blocks in this section">
-        {section.blocks.map((b) => {
-          const text = blockText(b).replace(/\s+/g, " ").trim();
-          const photo = imageFieldOf(b);
-          return (
-            <li key={b.id} className="st-mob__brow">
-              <button
-                type="button"
-                className="st-mob__row"
-                onClick={() => {
-                  s().select({ kind: "block", id: b.id });
-                  onBlock(b.id);
-                }}
-              >
-                <BlockIcon type={b.type} />
-                <span className="st-mob__row-text">
-                  <span className="st-mob__row-title">{blockName(b)}</span>
-                  {text && <span className="st-mob__row-sub">{text}</span>}
-                </span>
-                <ChevronRight aria-hidden="true" className="st-mob__chev" />
-              </button>
-              {photo && caps.field("image") && (
-                <div className="st-mob__rowaction">
-                  <ImageIcon aria-hidden="true" />
-                  <ReplacePhoto site={site} container={container} blockId={b.id} />
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-      <div className="st-mob__actions">
-        {caps.structure && (
-          <Button
-            variant="secondary"
-            icon={<Plus />}
-            onClick={() => useBlockMenu.getState().openFor({ section: section.id })}
-          >
-            Add block
-          </Button>
-        )}
-        {isGridSection(section) && (
-          <>
-            <Button variant="secondary" icon={<ListOrdered />} onClick={() => setReorder(true)}>
-              Order on phones
-            </Button>
-            <PhoneReorder section={section} open={reorder} onOpenChange={setReorder} />
-          </>
-        )}
-      </div>
-      {isGridSection(section) && !gridCaps(role, section).edit && (
-        <p className="st-mob__lede">{gridCaps(role, section).reason}</p>
-      )}
-    </div>
-  );
-}
 
 // --- the shell ----------------------------------------------------------------------------------
 
@@ -568,11 +122,24 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
   const [screen, setScreen] = useState<MobileScreen>("sections");
   const [sheet, setSheet] = useState<SheetState>(null);
   // Panels opened from elsewhere (the publish dialog's "Review issues") open as sheets here.
-  const [seenRequest, setSeenRequest] = useState(requested);
-  if (requested !== seenRequest) {
-    setSeenRequest(requested);
-    if (requested === "check") setSheet({ kind: "panel", panel: "check" });
-  }
+  // The desktop's open panel (Pages by default) isn't a request: start clean.
+  const started = useRef(false);
+  useEffect(() => {
+    if (!started.current) {
+      started.current = true;
+      if (requested) useEditorUi.setState({ leftPanel: null });
+      return;
+    }
+    if (!requested) return;
+    // Panels asked for from elsewhere (⌘K, the publish dialog's "Review issues", shortcuts)
+    // open the phone way; the request is consumed so asking again works.
+    if (requested === "add") useAddSection.getState().openAt("end");
+    else if (requested === "layers") {
+      setSheet(null);
+      setScreen("sections");
+    } else if (PANEL_TITLE[requested]) setSheet({ kind: "panel", panel: requested });
+    useEditorUi.setState({ leftPanel: null });
+  }, [requested]);
   // Trying a look takes over the screen: close the gallery sheet behind it.
   const [wasTrying, setWasTrying] = useState(trying);
   if (trying !== wasTrying) {
@@ -589,7 +156,12 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
   };
 
   const jump = (issue: CheckedIssue) => {
-    if (issue.page && issue.page !== "footer") s().setPage(issue.page);
+    // Site-wide issues (colors, typefaces) live in Site Styles.
+    if (!issue.page) {
+      setSheet({ kind: "panel", panel: "styles" });
+      return;
+    }
+    if (issue.page !== "footer") s().setPage(issue.page);
     setScreen("sections");
     const section = issue.page === "footer" ? s().doc.site.footer.id : issue.section;
     if (section) openSection(section, issue.block);
@@ -872,7 +444,6 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
         onOpenChange={(open) => {
           if (open) return;
           setSheet(null);
-          if (requested) useEditorUi.setState({ leftPanel: null });
         }}
         title={sheetTitle}
         className="st-mob__sheet"

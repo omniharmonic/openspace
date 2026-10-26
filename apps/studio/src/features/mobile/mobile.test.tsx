@@ -16,6 +16,7 @@ import { type FakeImage, fakeCodec, fakePhoto } from "../media/testing";
 import { useUploads } from "../media/uploader";
 import { mediaTestHooks } from "../media/useUploader";
 import { pagesInOrder, sectionSummary } from "./MobileStudio";
+import { dropIndex } from "./SectionList";
 
 const sites = demoSites(SAM.login, Date.UTC(2026, 9, 1));
 const willow = sites[0] as Site;
@@ -143,10 +144,60 @@ describe("mobile Studio at 390px", () => {
     expect(handles[0]).toHaveAttribute("aria-roledescription", "sortable");
   });
 
+  it("drags a section to a new place with the handle's keyboard controls", async () => {
+    const { user } = await openOnPhone();
+    const order = () => store().doc.pages[I.home]?.sections.map((s) => s.id) ?? [];
+    const before = order();
+    // jsdom has no layout: give each row a place in a 60px-high list so dnd-kit can measure.
+    const rect = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function (this: Element) {
+      const row = this.closest(".st-mob__srow");
+      const rows = row ? [...document.querySelectorAll(".st-mob__srow")] : [];
+      const i = row ? rows.indexOf(row) : -1;
+      if (i < 0) return rect.call(this);
+      const top = i * 60;
+      return {
+        x: 0,
+        y: top,
+        top,
+        left: 0,
+        right: 340,
+        bottom: top + 56,
+        width: 340,
+        height: 56,
+        toJSON() {},
+      } as DOMRect;
+    };
+    try {
+      const handle = screen.getAllByRole("button", { name: /^Reorder / })[0] as HTMLElement;
+      handle.focus();
+      await user.keyboard(" ");
+      await user.keyboard("{ArrowDown}");
+      await user.keyboard(" ");
+      await waitFor(() => expect(order()).toEqual([before[1], before[0], ...before.slice(2)]));
+      expect(store().undoStack.at(-1)?.label).toBe("Move section");
+    } finally {
+      Element.prototype.getBoundingClientRect = rect;
+    }
+  });
+
   it("adds a section from the presets", async () => {
     const { user } = await openOnPhone();
+    const count = store().doc.pages[I.home]?.sections.length ?? 0;
     await user.click(screen.getByRole("button", { name: "Add section" }));
-    expect(await screen.findByRole("dialog", { name: /Add a section/i })).toBeInTheDocument();
+    const dialog = await screen.findByRole("dialog", { name: /Add a section/i });
+    const cats = within(dialog).getByRole("navigation", { name: "Section categories" });
+    await user.click(within(cats).getByRole("button", { name: /^FAQ/ }));
+    const cards = await within(dialog).findAllByRole("button", { name: /:/ });
+    await user.click(cards[0] as HTMLElement);
+    await waitFor(() => expect(store().doc.pages[I.home]?.sections.length).toBe(count + 1));
+    expect(store().doc.pages[I.home]?.sections.at(-1)?.preset).toMatch(/^faq\//);
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: /Add a section/i })).toBeNull(),
+    );
+    expect(
+      within(screen.getByRole("list", { name: "Sections on Home" })).getAllByRole("listitem"),
+    ).toHaveLength(count + 1);
   });
 
   it("replaces a photo from the camera roll through the media pipeline", async () => {
@@ -198,16 +249,30 @@ describe("mobile Studio at 390px", () => {
   });
 
   it("publishes from the phone", async () => {
-    const { user } = await openOnPhone();
+    const { user, hub } = await openOnPhone();
     act(() => {
       store().commit([{ op: "page.update", page: I.about, set: { title: "About us" } }] as never);
     });
     await user.click(screen.getByRole("button", { name: "Publish" }));
-    expect(await screen.findByRole("dialog", { name: "Publish changes" })).toBeInTheDocument();
+    const dialog = await screen.findByRole("dialog", { name: "Publish changes" });
+    const now = within(dialog).getByRole("button", { name: "Publish now" });
+    await waitFor(() => expect(now).toBeEnabled());
+    await user.click(now);
+    expect(await screen.findByText("Live", {}, { timeout: 8000 })).toBeInTheDocument();
+    expect(hub.calls.some((c) => c.method === "publish")).toBe(true);
   });
 });
 
 describe("mobile helpers", () => {
+  it("works out where a dragged section lands", () => {
+    const ids = ["a", "b", "c"];
+    expect(dropIndex(ids, "a", "c")).toBe(2);
+    expect(dropIndex(ids, "c", "a")).toBe(0);
+    expect(dropIndex(ids, "a", "a")).toBeNull();
+    expect(dropIndex(ids, "a", null)).toBeNull();
+    expect(dropIndex(ids, "x", "a")).toBeNull();
+  });
+
   it("orders pages like the navigation, home first", async () => {
     phone();
     const { devSiteDocument } = await import("../editor/model/dev-site");
