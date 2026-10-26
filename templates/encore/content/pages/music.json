@@ -1,0 +1,297 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_4czb9an2pn",
+  "title": "Music",
+  "slug": "music",
+  "seo": {
+    "description": "Listen to Juno Vale's albums Afterglow and Paper Moons, singles and live sessions, on every streaming service or on vinyl."
+  },
+  "sections": [
+    {
+      "id": "sec_ne0a1fh7fa",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_0hjnt817t3",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h1",
+            "size": "display",
+            "text": "Music",
+            "eyebrow": "Albums, singles & sessions",
+            "subheading": "Stream everything below, or buy vinyl and downloads on Bandcamp, where most of the money reaches the artist."
+          },
+          "variant": "plain"
+        }
+      ]
+    },
+    {
+      "id": "sec_zn4eg9z4y5",
+      "label": "Tracks",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content"
+      },
+      "style": {
+        "colorTheme": "dark-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_ngrt84ywec",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "From Afterglow",
+            "eyebrow": "Listen"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7b29gcgnsk",
+          "type": "audio",
+          "v": 1,
+          "fields": {
+            "audio": {
+              "kind": "audio",
+              "src": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Synth_pop_with_4_on_the_floor.ogg",
+              "title": "Neon Tide"
+            },
+            "title": "Neon Tide",
+            "show": "Afterglow (2026)",
+            "episode": 1,
+            "description": "The opening track and first single. Stepped pads, a four-on-the-floor kick and a melody written on a hotel keyboard.",
+            "cover": {
+              "src": "https://images.unsplash.com/photo-1669459868647-4c2f1c564052?w=960&q=80",
+              "alt": "Afterglow album cover",
+              "width": 960,
+              "height": 640
+            },
+            "links": [
+              {
+                "platform": "spotify",
+                "link": {
+                  "type": "url",
+                  "url": "https://open.spotify.com/artist/junovale-example"
+                }
+              },
+              {
+                "platform": "other",
+                "label": "Apple Music",
+                "link": {
+                  "type": "url",
+                  "url": "https://music.apple.com/artist/junovale-example"
+                }
+              },
+              {
+                "platform": "other",
+                "label": "Bandcamp",
+                "link": {
+                  "type": "url",
+                  "url": "https://junovale.bandcamp.example"
+                }
+              }
+            ]
+          },
+          "variant": "episode"
+        },
+        {
+          "id": "blk_k4jqp17t75",
+          "type": "audio",
+          "v": 1,
+          "fields": {
+            "audio": {
+              "kind": "audio",
+              "src": "https://upload.wikimedia.org/wikipedia/commons/1/10/Friendly_Evil_Gangsta_Synth_Hip_Hop.ogg",
+              "title": "Slow Static"
+            },
+            "title": "Slow Static",
+            "show": "Afterglow (2026)",
+            "episode": 7,
+            "description": "A slow, heavy instrumental built around a broken drum machine and a borrowed Juno-60.",
+            "cover": {
+              "src": "https://images.unsplash.com/photo-1669459868647-4c2f1c564052?w=960&q=80",
+              "alt": "Afterglow album cover",
+              "width": 960,
+              "height": 640
+            },
+            "links": [
+              {
+                "platform": "spotify",
+                "link": {
+                  "type": "url",
+                  "url": "https://open.spotify.com/artist/junovale-example"
+                }
+              },
+              {
+                "platform": "other",
+                "label": "Apple Music",
+                "link": {
+                  "type": "url",
+                  "url": "https://music.apple.com/artist/junovale-example"
+                }
+              },
+              {
+                "platform": "other",
+                "label": "Bandcamp",
+                "link": {
+                  "type": "url",
+                  "url": "https://junovale.bandcamp.example"
+                }
+              }
+            ]
+          },
+          "variant": "episode"
+        }
+      ]
+    },
+    {
+      "id": "sec_pr7bzkefps",
+      "preset": "gallery/project-cards@1",
+      "label": "Project index",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_mnav1t4xk2",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Records",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Discography"
+          },
+          "variant": "underline"
+        },
+        {
+          "id": "blk_prjfs37637",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1669459868647-4c2f1c564052?w=1560&q=80",
+                  "alt": "Afterglow album artwork",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Afterglow",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Album, 2026. Ten songs recorded over one Chicago winter."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://junovale.bandcamp.example/album/afterglow"
+                },
+                "linkLabel": "Buy on Bandcamp"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1560&q=80",
+                  "alt": "Paper Moons album artwork: a vintage microphone",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Paper Moons",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Album, 2023. The debut, made in a bedroom on Kedzie Avenue."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://junovale.bandcamp.example/album/paper-moons"
+                },
+                "linkLabel": "Buy on Bandcamp"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1560&q=80",
+                  "alt": "Night Shift EP artwork: headphones on yellow",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Night Shift EP",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "EP, 2021. Four songs and a cover of a song you'd never guess."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://junovale.bandcamp.example/album/night-shift"
+                },
+                "linkLabel": "Buy on Bandcamp"
+              }
+            ],
+            "columns": "3",
+            "aspect": "4:5"
+          },
+          "variant": "plain"
+        }
+      ]
+    }
+  ]
+}

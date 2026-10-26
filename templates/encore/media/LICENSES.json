@@ -1,0 +1,97 @@
+{
+  "$comment": "Licenses for the demo media in the Encore template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a",
+      "title": "A crowd cheering with raised hands at a live show",
+      "author": "Nicholas Green",
+      "authorUrl": "https://unsplash.com/@nickxshotz",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/excited-crowd-cheering-at-concert-or-event-nPz8akkUmDI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
+      "title": "Black over-ear headphones on a bright yellow background",
+      "author": "C D-X",
+      "authorUrl": "https://unsplash.com/@cdx2",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/flatlay-photography-of-wireless-headphones-PDX_a_82obo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4",
+      "title": "A vintage microphone in warm stage light",
+      "author": "israel palacio",
+      "authorUrl": "https://unsplash.com/@othentikisra",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/bokeh-photography-of-condenser-microphone-Y20JJ_ddy9M",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "title": "Portrait of a woman in a black top against a soft violet wall",
+      "author": "Aiony Haust",
+      "authorUrl": "https://unsplash.com/@aiony",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-wearing-black-crew-neck-shirt-3TLl_97HNJo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1540575467063-178a50c2df87",
+      "title": "An audience in a dark hall facing a lit stage",
+      "author": "Headway",
+      "authorUrl": "https://unsplash.com/@headwayio",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/crowd-of-people-sitting-on-chairs-inside-room-F2KRf_QfCqw",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1669459868647-4c2f1c564052",
+      "title": "A crowd facing a lit stage at a small music venue",
+      "author": "Leon Rockel",
+      "authorUrl": "https://unsplash.com/@lonski",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-crowd-of-people-in-a-room-with-a-stage-and-a-stage-T3L72nHQ6aQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "audio",
+      "src": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Synth_pop_with_4_on_the_floor.ogg",
+      "title": "Synth pop with 4 on the floor",
+      "author": "Mesostic",
+      "authorUrl": "https://commons.wikimedia.org/wiki/User:Mesostic",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Synth_pop_with_4_on_the_floor.ogg",
+      "license": "CC0 1.0 (public domain dedication)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "kind": "audio",
+      "src": "https://upload.wikimedia.org/wikipedia/commons/1/10/Friendly_Evil_Gangsta_Synth_Hip_Hop.ogg",
+      "title": "Friendly Evil Gangsta Synth Hip Hop",
+      "author": "Mesostic",
+      "authorUrl": "https://commons.wikimedia.org/wiki/User:Mesostic",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Friendly_Evil_Gangsta_Synth_Hip_Hop.ogg",
+      "license": "CC0 1.0 (public domain dedication)",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ]
+}

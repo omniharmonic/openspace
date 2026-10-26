@@ -1,0 +1,13 @@
+{
+  "kind": "events",
+  "label": "Tour",
+  "itemLabel": "Show",
+  "list": {
+    "layout": "list",
+    "pageSize": 30,
+    "sort": "date-asc"
+  },
+  "itemPage": {
+    "layout": "split"
+  }
+}

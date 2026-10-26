@@ -1,0 +1,122 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_h63an1absw",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Booking, press and licensing contacts for Juno Vale, plus a form for promoters, venues, journalists and music supervisors."
+  },
+  "sections": [
+    {
+      "id": "sec_3rfjwyq1rt",
+      "preset": "contact/form-split@1",
+      "label": "Contact form with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_qwjyw8s24r",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Booking, press and licensing",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact",
+            "subheading": "For shows, interviews and sync requests. Fan mail is welcome too; it all gets read."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_21y02cmcx6",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Management · Lakefront Artists",
+            "address": "Chicago, Illinois",
+            "email": "team@junovale.example",
+            "directions": true
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_95snhaw3cm",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_b5yaxxk2fz",
+              "name": "Booking enquiry",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "type",
+                  "label": "Enquiry",
+                  "width": "half",
+                  "options": [
+                    "Live booking",
+                    "Press & interviews",
+                    "Sync & licensing",
+                    "Something else"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "name": "organisation",
+                  "label": "Venue or publication",
+                  "width": "half"
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Details",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send enquiry",
+              "success": {
+                "type": "message",
+                "message": "Thanks! The team replies within three working days."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

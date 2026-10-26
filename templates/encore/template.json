@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "encore",
+  "name": "Encore",
+  "description": "An expressive, nocturnal site for musicians, performers and podcasters, with an audio player, tour dates, a press kit and an episode list.",
+  "persona": "Musicians, performers, podcasters",
+  "mood": "Expressive, nocturnal",
+  "version": "1.0.0",
+  "tags": [
+    "music",
+    "band",
+    "podcast",
+    "tour",
+    "press kit",
+    "audio"
+  ],
+  "sample": {
+    "name": "Juno Vale",
+    "tagline": "Songs for driving home after midnight."
+  },
+  "thumbnailPage": "pg_a2aw835bvy",
+  "looks": [
+    {
+      "id": "night-plum",
+      "name": "Night Plum",
+      "description": "Dark plum with a vivid magenta edge and wide Syne headings.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.45 0.14 330)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "syne-dm-sans",
+        "density": "comfortable",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "expressive",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "afterglow",
+      "name": "Afterglow",
+      "description": "Hot coral on warm black with Unbounded headings and pill buttons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.65 0.2 25)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "unbounded-figtree",
+        "density": "comfortable",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "expressive",
+        "imageTreatment": "grain"
+      }
+    },
+    {
+      "id": "chrome",
+      "name": "Chrome",
+      "description": "Monochrome with electric cyan and Archivo, for a colder, club-night feel.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.62 0.13 210)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "archivo",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "outline",
+        "motion": "subtle",
+        "imageTreatment": "duotone"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_a2aw835bvy",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_4czb9an2pn",
+      "title": "Music",
+      "slug": "music"
+    },
+    {
+      "id": "pg_awra08n6jh",
+      "title": "About & press",
+      "slug": "about"
+    },
+    {
+      "id": "pg_h63an1absw",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

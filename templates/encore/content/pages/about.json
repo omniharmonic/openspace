@@ -1,0 +1,251 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_awra08n6jh",
+  "title": "About & press",
+  "slug": "about",
+  "seo": {
+    "description": "Juno Vale biography, press photos, quotes and contacts for promoters and journalists. Download the electronic press kit."
+  },
+  "sections": [
+    {
+      "id": "sec_y271bhc7b6",
+      "preset": "about/story-split@1",
+      "label": "Story with portrait",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_h01fhnb62s",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1040&q=80",
+              "alt": "Portrait of Juno Vale against a violet wall",
+              "width": 1040,
+              "height": 1300
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_756898jp4m",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Juno Vale",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_mnfbe816f4",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Juno Vale grew up in Rockford, Illinois, playing church organ on Sundays and her brother's synthesizers the rest of the week. She moved to Chicago at nineteen and spent five years playing keys in other people's bands before releasing the Night Shift EP in 2021."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Her debut album Paper Moons (2023) was made in a bedroom on Kedzie Avenue and found its way onto late-night radio across the Midwest. Afterglow, her second album, was recorded live to tape with a four-piece band and has taken her on her first headline tour of North America and Europe."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_3v7jbhtey4",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Download the press kit",
+            "link": {
+              "type": "url",
+              "url": "https://junovale.example/press-kit.zip"
+            },
+            "role": "secondary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_dxydfjh7sx",
+      "preset": "testimonials/carousel@1",
+      "label": "Testimonial slides",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "dark-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_e0mbvvpx23",
+          "type": "quote-carousel",
+          "v": 1,
+          "fields": {
+            "label": "Press",
+            "quotes": [
+              {
+                "quote": "Afterglow sounds like the last train home: tired, glowing and quietly euphoric.",
+                "name": "Northside Sound",
+                "role": "Album review"
+              },
+              {
+                "quote": "The rare live synth act that makes a room of strangers dance like they know each other.",
+                "name": "The Lakeshore Reader",
+                "role": "Live review, Thalia Hall"
+              },
+              {
+                "quote": "One of the twenty Midwest artists to watch this year.",
+                "name": "Prairie Radio",
+                "role": "Feature, 2026"
+              }
+            ]
+          },
+          "variant": "slides"
+        }
+      ]
+    },
+    {
+      "id": "sec_fe67mt4h1h",
+      "preset": "gallery/grid@1",
+      "label": "Photo grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_ty2c5t5r3s",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Photos for press",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Press photos",
+            "subheading": "High-resolution images for editorial use. Please credit Lena Ortiz."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_z923tzc5qb",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "images": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80",
+                  "alt": "Juno Vale portrait, violet background",
+                  "width": 800,
+                  "height": 1000
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1200&q=80",
+                  "alt": "Juno Vale live, crowd with hands raised",
+                  "width": 1200,
+                  "height": 800
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1669459868647-4c2f1c564052?w=1200&q=80",
+                  "alt": "A lit stage before a Juno Vale show",
+                  "width": 1200,
+                  "height": 800
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200&q=80",
+                  "alt": "A vintage microphone under warm stage light",
+                  "width": 1200,
+                  "height": 800
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&q=80",
+                  "alt": "Headphones on a yellow background, Night Shift EP",
+                  "width": 1200,
+                  "height": 800
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=80",
+                  "alt": "The audience facing the stage at a sold-out show",
+                  "width": 1200,
+                  "height": 800
+                }
+              }
+            ],
+            "aspect": "1:1",
+            "columns": "3",
+            "lightbox": true,
+            "showCaptions": false
+          },
+          "variant": "grid"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,293 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Juno Vale",
+  "tagline": "Songs for driving home after midnight.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_4czb9an2pn",
+      "label": "Music"
+    },
+    {
+      "type": "collection",
+      "collection": "tour",
+      "label": "Tour"
+    },
+    {
+      "type": "collection",
+      "collection": "sessions",
+      "label": "Podcast"
+    },
+    {
+      "type": "page",
+      "page": "pg_awra08n6jh",
+      "label": "Press"
+    },
+    {
+      "type": "page",
+      "page": "pg_h63an1absw",
+      "label": "Contact"
+    },
+    {
+      "type": "button",
+      "label": "Tickets",
+      "link": {
+        "type": "url",
+        "url": "/tour/"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "transparent-overlay",
+    "sticky": true,
+    "transparentOnHero": true,
+    "mobileMenu": "fullscreen",
+    "colorTheme": "dark"
+  },
+  "footer": {
+    "id": "sec_6p31833fmp",
+    "preset": "footer/big-name@1",
+    "label": "Big name footer",
+    "layout": {
+      "mode": "grid",
+      "rows": {
+        "d": 11,
+        "m": 15
+      },
+      "items": {
+        "blk_3nv2vxxer2": {
+          "d": {
+            "x": 1,
+            "y": 1,
+            "w": 24,
+            "h": 3
+          },
+          "m": {
+            "x": 1,
+            "y": 1,
+            "w": 8,
+            "h": 3
+          }
+        },
+        "blk_g7630xva7w": {
+          "d": {
+            "x": 1,
+            "y": 5,
+            "w": 24,
+            "h": 1
+          },
+          "m": {
+            "x": 1,
+            "y": 5,
+            "w": 8,
+            "h": 1
+          }
+        },
+        "blk_gt20tjk8cj": {
+          "d": {
+            "x": 1,
+            "y": 7,
+            "w": 8,
+            "h": 5
+          },
+          "m": {
+            "x": 1,
+            "y": 7,
+            "w": 4,
+            "h": 5
+          }
+        },
+        "blk_cq1d15tqmr": {
+          "d": {
+            "x": 9,
+            "y": 7,
+            "w": 8,
+            "h": 3
+          },
+          "m": {
+            "x": 5,
+            "y": 7,
+            "w": 4,
+            "h": 3
+          }
+        },
+        "blk_0ge2trexqw": {
+          "d": {
+            "x": 17,
+            "y": 7,
+            "w": 8,
+            "h": 3
+          },
+          "m": {
+            "x": 1,
+            "y": 13,
+            "w": 8,
+            "h": 3
+          }
+        }
+      }
+    },
+    "style": {
+      "colorTheme": "dark-accent",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_3nv2vxxer2",
+        "type": "heading",
+        "v": 1,
+        "fields": {
+          "text": "Juno Vale",
+          "level": "h2",
+          "size": "display"
+        },
+        "variant": "plain"
+      },
+      {
+        "id": "blk_g7630xva7w",
+        "type": "line",
+        "v": 1,
+        "fields": {
+          "thickness": "hairline",
+          "length": "full",
+          "color": "text"
+        },
+        "variant": "solid"
+      },
+      {
+        "id": "blk_gt20tjk8cj",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Music",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/music/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Tour",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/tour/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Press kit",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/about/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default"
+      },
+      {
+        "id": "blk_cq1d15tqmr",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "variant": "icons"
+      },
+      {
+        "id": "blk_0ge2trexqw",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Juno Vale · Management: Lakefront Artists, Chicago"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "end",
+            "m": "start"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/junovale.example"
+    },
+    {
+      "network": "youtube",
+      "url": "https://youtube.com/@junovale.example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:team@junovale.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Juno Vale",
+    "description": "Late-night synth-pop from Chicago. New album Afterglow out now.",
+    "image": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}
