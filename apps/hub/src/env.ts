@@ -18,6 +18,8 @@ export interface HubSecrets {
   TOKEN_ENC_KEY?: string;
   /** Owner of template repositories when generating from GitHub templates (optional). */
   GITHUB_TEMPLATE_OWNER?: string;
+  /** GitHub App webhook secret: `/webhooks/github` verifies `X-Hub-Signature-256` with it. */
+  GITHUB_WEBHOOK_SECRET?: string;
   /** "true" to allow DEV_MODE on an https Hub (e.g. a public demo). Refused otherwise. */
   ALLOW_DEV_MODE?: string;
 }
@@ -32,7 +34,7 @@ export interface GitHubAppConfig {
   slug: string;
 }
 
-export type LogLevel = "debug" | "info" | "warn" | "error";
+export type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
 
 export interface HubConfig {
   /** DEV_MODE=true: DevGitHubAccess, /auth/dev/login, relaxed cookies on http. */
@@ -48,6 +50,8 @@ export interface HubConfig {
   /** Use the D1-backed GitHub emulation (dev mode or no credentials). */
   useDevGitHub: boolean;
   tokenEncKey: string | null;
+  /** Webhook HMAC secret; webhooks are refused when it is missing. */
+  webhookSecret: string | null;
   logLevel: LogLevel;
   /** Session cookies get `Secure` when the Hub is served over https. */
   secureCookies: boolean;
@@ -86,7 +90,10 @@ export function readConfig(env: HubBindings): HubConfig {
     github,
     useDevGitHub: devMode || github === null,
     tokenEncKey: env.TOKEN_ENC_KEY || null,
-    logLevel: (["debug", "info", "warn", "error"].includes(level) ? level : "info") as LogLevel,
+    webhookSecret: env.GITHUB_WEBHOOK_SECRET || null,
+    logLevel: (["debug", "info", "warn", "error", "silent"].includes(level)
+      ? level
+      : "info") as LogLevel,
     secureCookies: hubUrl.startsWith("https://"),
   };
 }

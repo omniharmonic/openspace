@@ -4,6 +4,7 @@ import { readJson } from "../lib/validate";
 import {
   archiveSite,
   CreateSiteSchema,
+  cancelTransfer,
   createSite,
   DeleteSiteSchema,
   getSiteView,
@@ -45,10 +46,13 @@ siteRoutes.patch("/:id", async (c) => {
   return c.json(await patchSite(c.var.services, c.req.param("id"), user, patch));
 });
 
-/** POST /api/sites/:id/publish — (re)publish; Task 15 turns this into squash-publish of the draft. */
+/**
+ * POST /api/sites/:id/publish — flush the draft room and squash-publish the draft (editor+);
+ * a site whose setup didn't finish resumes setup instead. Returns the site plus `publish`.
+ */
 siteRoutes.post("/:id/publish", async (c) => {
   const user = requireUser(c);
-  return c.json(await publishSite(c.var.services, c.req.param("id"), user, c.var.log));
+  return c.json(await publishSite(c.var.services, c.env, c.req.param("id"), user, c.var.log));
 });
 
 /** DELETE /api/sites/:id { confirmName: "<site name>" } — archive with 30-day retention. */
@@ -63,6 +67,12 @@ siteRoutes.post("/:id/transfer", async (c) => {
   const user = requireUser(c);
   const { to } = await readJson(c, TransferSiteSchema);
   return c.json(await transferSite(c.var.services, c.req.param("id"), user, to));
+});
+
+/** DELETE /api/sites/:id/transfer — withdraw a pending ownership transfer (owner). */
+siteRoutes.delete("/:id/transfer", async (c) => {
+  const user = requireUser(c);
+  return c.json(await cancelTransfer(c.var.services, c.req.param("id"), user));
 });
 
 /** GET /api/sites/:id/document[?ref=published] — the full SiteDocument at the draft head. */

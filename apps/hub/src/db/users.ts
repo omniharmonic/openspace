@@ -23,6 +23,9 @@ export interface UserRow {
   refresh_token_expires_at: number | null;
   access_token_enc: string | null;
   access_token_expires_at: number | null;
+  /** Refresh in progress (see auth/github-tokens.ts). */
+  refresh_claim: string | null;
+  refresh_claim_at: number | null;
   created_at: number;
   updated_at: number;
 }

@@ -185,7 +185,7 @@ describe("GitHub sign-in (real flow, mocked GitHub)", () => {
   });
 
   /** A fake GitHub OAuth server with real refresh-token rotation semantics. */
-  function fakeGitHub(opts: { revoked?: boolean } = {}) {
+  function fakeGitHub(opts: { revoked?: boolean; delayMs?: number } = {}) {
     let current = "ghr_0";
     let n = 0;
     const refreshes: string[] = [];
@@ -204,12 +204,16 @@ describe("GitHub sign-in (real flow, mocked GitHub)", () => {
               };
             n++;
             current = `ghr_${n}`;
-            return {
+            const issued = {
               access_token: `ghu_${n}`,
               expires_in: 28800,
               refresh_token: current,
               refresh_token_expires_in: 15811200,
             };
+            // GitHub has rotated the token already; the answer is just slow to arrive.
+            if (opts.delayMs)
+              return new Promise((resolve) => setTimeout(() => resolve(issued), opts.delayMs));
+            return issued;
           }
           expect(body).toMatchObject({
             code: "the-code",
@@ -389,10 +393,34 @@ describe("GitHub sign-in (real flow, mocked GitHub)", () => {
     expect(results.map((r) => r.status)).toEqual([200, 200, 200, 200]);
     expect(new Set(bodies.map((b) => b.token))).toEqual(new Set(["ghu_1"]));
     expect(gh.current()).toBe("ghr_1"); // rotated exactly once
+    expect(gh.refreshes).toEqual(["ghr_0"]); // only the claim holder spent the refresh token
     const row = await env.HUB_DB.prepare(
       "SELECT id, refresh_token_enc FROM users WHERE github_id = 9001",
     ).first<Record<string, string>>();
     expect(await decryptSecret(encKey, row?.refresh_token_enc as string, row?.id)).toBe("ghr_1");
+  });
+
+  it("never lets a request that lost the refresh race clear the winner's rotated token", async () => {
+    // The winner's refresh is slow; before the claim, a concurrent request spent the same
+    // (already rotated) refresh token, got it rejected and wiped the stored tokens.
+    const gh = fakeGitHub({ delayMs: 800 });
+    let now = Date.UTC(2026, 9, 26, 9);
+    const app = createApp({ services: { fetch: gh.mock.fetch, now: () => now } });
+    const cookie = await signIn(app);
+    now += 9 * HOUR;
+    const [a, b] = await Promise.all([
+      call(app, "/auth/token", { method: "POST", cookie }, githubEnv),
+      call(app, "/auth/token", { method: "POST", cookie }, githubEnv),
+    ]);
+    expect([a?.status, b?.status]).toEqual([200, 200]);
+    expect(gh.refreshes).toEqual(["ghr_0"]);
+    const row = await env.HUB_DB.prepare(
+      "SELECT id, refresh_token_enc, refresh_claim FROM users WHERE github_id = 9001",
+    ).first<Record<string, string | null>>();
+    expect(row?.refresh_claim).toBeNull();
+    expect(await decryptSecret(encKey, row?.refresh_token_enc as string, row?.id as string)).toBe(
+      "ghr_1",
+    );
   });
 
   it("maps a revoked refresh token to 401 github_reauth_required and forgets the tokens", async () => {

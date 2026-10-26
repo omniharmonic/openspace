@@ -353,3 +353,22 @@ describe("dev outbox on a public https Hub", () => {
     expect((await call(app, "/dev/outbox.json", { cookie }, bindings)).status).toBe(200);
   });
 });
+
+describe("Task 15 invitation emails", () => {
+  it("go through the Hub EmailSender and count against the email quota", async () => {
+    const f = await siteWithForm(makePublicApp(), { form: null });
+    const res = await call(f.app, `/api/sites/${f.siteId}/collaborators`, {
+      method: "POST",
+      cookie: f.cookie,
+      json: { email: "helper@example.com", role: "editor" },
+    });
+    expect(res.status).toBeLessThan(300);
+    const [mail] = await outbox(f.app, "?kind=invitation");
+    expect(mail).toMatchObject({ to: "helper@example.com", siteId: f.siteId });
+    expect(mail?.links.some((l) => l.includes("/invite/"))).toBe(true);
+    const quotas = (await (
+      await call(f.app, `/api/sites/${f.siteId}/quotas`, { cookie: f.cookie })
+    ).json()) as { quotas: Array<{ resource: string; used: number }> };
+    expect(quotas.quotas.find((q) => q.resource === "transactionalEmails")?.used).toBe(1);
+  });
+});

@@ -256,43 +256,8 @@ export async function runRetentionPurge(services: Services): Promise<Record<stri
       "DELETE FROM quota_usage WHERE period < ?",
       new Date(now - 400 * DAY).toISOString().slice(0, 7),
     ),
-    archivedSites: 0,
     expiredDomainClaims: await expireDomainClaims(db, now),
   };
   await rotateSalts(db, now);
-  // Archived sites past their 30-day retention: remove everything the Hub holds for them.
-  const expired = (
-    await db
-      .prepare(
-        "SELECT id FROM sites WHERE archived_at IS NOT NULL AND purge_at IS NOT NULL AND purge_at < ?",
-      )
-      .bind(now)
-      .all<{ id: string }>()
-  ).results;
-  for (const { id } of expired) {
-    await db.batch(
-      [
-        "submissions",
-        "subscribers",
-        "analytics_events",
-        "forms",
-        "campaigns",
-        "members",
-        "member_tokens",
-        "orders",
-        "products",
-        "inventory",
-        "schedules",
-        "domains",
-        "invitations",
-        "mcp_grants",
-        "service_settings",
-        "quota_usage",
-        "site_roles",
-      ].map((t) => db.prepare(`DELETE FROM ${t} WHERE site_id = ?`).bind(id)),
-    );
-    await db.prepare("DELETE FROM sites WHERE id = ?").bind(id).run();
-    counts.archivedSites = (counts.archivedSites ?? 0) + 1;
-  }
   return counts;
 }

@@ -437,6 +437,15 @@ export class DevGitHubAccess implements GitHubAccess {
     await this.setRef(repo, ref, target);
   }
 
+  async listTags(repo: RepoRef, prefix = ""): Promise<Array<{ name: string; sha: string }>> {
+    await this.requireRepo(repo);
+    const res = await this.db
+      .prepare("SELECT ref, sha FROM dev_refs WHERE repo = ? AND ref LIKE ? ORDER BY ref")
+      .bind(key(repo), `refs/tags/${prefix.replace(/[%_]/g, "")}%`)
+      .all<{ ref: string; sha: string }>();
+    return res.results.map((r) => ({ name: r.ref.slice("refs/tags/".length), sha: r.sha }));
+  }
+
   async listCommits(
     repo: RepoRef,
     options: { ref: string; limit?: number; path?: string },
@@ -652,6 +661,27 @@ export class DevGitHubAccess implements GitHubAccess {
       )
       .bind(key(repo), login, permission)
       .run();
+  }
+
+  async removeCollaborator(repo: RepoRef, login: string): Promise<void> {
+    await this.requireRepo(repo);
+    await this.db
+      .prepare("DELETE FROM dev_collaborators WHERE repo = ? AND login = ? COLLATE NOCASE")
+      .bind(key(repo), login)
+      .run();
+  }
+
+  async failedSteps(_repo: RepoRef, runId: number): Promise<string[]> {
+    const row = await this.db
+      .prepare("SELECT inputs_json FROM dev_workflow_runs WHERE id = ?")
+      .bind(runId)
+      .first<{ inputs_json: string | null }>();
+    try {
+      const inputs = JSON.parse(row?.inputs_json ?? "{}") as { failedStep?: string };
+      return inputs.failedStep ? [inputs.failedStep] : [];
+    } catch {
+      return [];
+    }
   }
 
   async openPullRequest(

@@ -5,6 +5,7 @@
 # GITHUB_CLIENT_ID=
 # GITHUB_CLIENT_SECRET=
 # TOKEN_ENC_KEY=   # 32 random bytes, base64: openssl rand -base64 32
+# GITHUB_WEBHOOK_SECRET=   # the GitHub App webhook secret; /webhooks/github rejects unsigned events without it
 
 # Public services (Task 16). All optional; without them (or in DEV_MODE) email goes to the dev
 # outbox at /dev/outbox, Turnstile is bypassed and analytics are stored in D1.

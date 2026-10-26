@@ -141,7 +141,7 @@ describe("quotas", () => {
 });
 
 describe("retention purge and scheduled handler", () => {
-  it("purges expired entries, stale signups, old salts and archived sites", async () => {
+  it("purges expired entries, stale signups and old salts; archived sites via the minute job", async () => {
     const f = await siteWithForm(makePublicApp());
     await postForm(f, VALID, { json: true });
     const old = Date.now() - 400 * 86_400_000;
@@ -179,10 +179,14 @@ describe("retention purge and scheduled handler", () => {
     expect(await n("SELECT COUNT(*) AS n FROM submissions WHERE site_id = ?", f.siteId)).toBe(0);
     expect(await n("SELECT COUNT(*) AS n FROM subscribers WHERE id = 'sub_stale'")).toBe(0);
     expect(await n("SELECT COUNT(*) AS n FROM analytics_salts WHERE day = '2020-01-01'")).toBe(0);
-    expect(await n("SELECT COUNT(*) AS n FROM sites WHERE id = ?", g.siteId)).toBe(0);
-    expect(await n("SELECT COUNT(*) AS n FROM submissions WHERE site_id = ?", g.siteId)).toBe(0);
     expect(await n("SELECT COUNT(*) AS n FROM sites WHERE id = ?", f.siteId)).toBe(1);
-    // Other crons (e.g. Task 15's every-minute publish scheduler) are not handled here.
+    // Archived sites are purged by Task 15's every-minute job (dispatched by cron string),
+    // which also clears the Task 16 tables.
+    await env.HUB_DB.prepare(
+      "INSERT INTO service_settings (site_id, settings_json, updated_at) VALUES (?, '{}', 0)",
+    )
+      .bind(g.siteId)
+      .run();
     const ctx2 = createExecutionContext();
     await worker.scheduled(
       { cron: "* * * * *", scheduledTime: Date.now(), noRetry() {} } as ScheduledController,
@@ -190,6 +194,11 @@ describe("retention purge and scheduled handler", () => {
       ctx2,
     );
     await waitOnExecutionContext(ctx2);
+    expect(await n("SELECT COUNT(*) AS n FROM sites WHERE id = ?", g.siteId)).toBe(0);
+    expect(await n("SELECT COUNT(*) AS n FROM submissions WHERE site_id = ?", g.siteId)).toBe(0);
+    expect(await n("SELECT COUNT(*) AS n FROM service_settings WHERE site_id = ?", g.siteId)).toBe(
+      0,
+    );
   });
 });
 
