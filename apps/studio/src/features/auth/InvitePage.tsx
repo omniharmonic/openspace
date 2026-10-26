@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { HubError, queryKeys, useHub, useSession } from "../../api";
 import { Wordmark } from "../../app/Wordmark";
 import { Button, EmptyState, Spinner } from "../../ui";
-import { ROLE_INFO } from "../settings/CollaboratorsSettings";
+import { ROLE_INFO } from "../site-mgmt/roles";
 import { SignInPanel } from "./SignInPanel";
 import "./SignInPage.css";
 
