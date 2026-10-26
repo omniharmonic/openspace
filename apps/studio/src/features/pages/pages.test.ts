@@ -311,9 +311,9 @@ describe("page commands (ops)", () => {
       pages: { ...doc.pages, [target.id]: { ...target, headInjection: "<meta name=x>" } },
     } as typeof doc;
     const page = (cmd: ReturnType<typeof duplicatePage>) =>
-      (cmd?.bodies[0] as { page: { headInjection?: string } }).page;
-    expect(page(duplicatePage(withCode, target.id)).headInjection).toBe("<meta name=x>");
-    expect(page(duplicatePage(withCode, target.id, { keepCode: false })).headInjection).toBe(
+      (cmd?.bodies[0] as { page: { headInjection?: string } } | undefined)?.page;
+    expect(page(duplicatePage(withCode, target.id))?.headInjection).toBe("<meta name=x>");
+    expect(page(duplicatePage(withCode, target.id, { keepCode: false }))?.headInjection).toBe(
       undefined,
     );
   });
