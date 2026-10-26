@@ -121,7 +121,11 @@ export async function unsubscribeUrl(services: Services, subscriberId: string): 
 
 /** RFC 8058 headers when the Hub is on https (the standard requires an https URL). */
 export function listUnsubscribeHeaders(url: string): Record<string, string> | undefined {
-  return url.startsWith("https://") ? unsubscribeHeaders(url) : undefined;
+  if (url.startsWith("https://")) return unsubscribeHeaders(url);
+  // RFC 2369's List-Unsubscribe takes any URL; only RFC 8058 one-click (List-Unsubscribe-Post)
+  // needs https. A local http Hub (dev) still gets the link header, so the dev outbox shows it.
+  if (url.startsWith("http://") && !/[<>\s,]/.test(url)) return { "List-Unsubscribe": `<${url}>` };
+  return undefined;
 }
 
 // ---- subscribe / confirm / unsubscribe -------------------------------------------------------------
