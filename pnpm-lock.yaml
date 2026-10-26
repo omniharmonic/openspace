@@ -57,6 +57,9 @@ importers:
 
   apps/studio:
     dependencies:
+      '@openspace/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
       '@tanstack/react-query':
         specifier: ^5.104.5
         version: 5.104.5(@types/react@19.3.0)(react@19.3.1)
