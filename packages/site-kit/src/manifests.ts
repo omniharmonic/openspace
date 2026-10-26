@@ -7,7 +7,14 @@
  *   never trusted from the browser (arch §9.5, GC12).
  * Both are deterministic (no timestamps) so unchanged content yields byte-identical files.
  */
-import type { Block, Form, Money, Page, SiteDocument } from "@openspace/schema";
+import {
+  type Block,
+  type Form,
+  formRedirectHref,
+  type Money,
+  type Page,
+  type SiteDocument,
+} from "@openspace/schema";
 import { contentHash } from "./ids";
 import type { SitePlan } from "./routes";
 
@@ -40,23 +47,6 @@ function blocksOf(doc: SiteDocument): { block: Block; page: string | undefined }
   return out;
 }
 
-function redirectHref(form: Form, doc: SiteDocument): string | null {
-  if (form.success.type !== "redirect") return null;
-  const l = form.success.link;
-  switch (l.type) {
-    case "url":
-      return l.url;
-    case "page": {
-      const page = doc.pages[l.page];
-      return page ? `${pagePath(page)}${l.anchor ? `#${l.anchor}` : ""}` : null;
-    }
-    case "item":
-      return `/${l.collection}/${l.slug}/`;
-    default:
-      return null;
-  }
-}
-
 export function formsManifest(plan: SitePlan): FormsManifest {
   const forms: Record<string, Form> = {};
   const pages: Record<string, string[]> = {};
@@ -82,7 +72,7 @@ export function formsManifest(plan: SitePlan): FormsManifest {
   const sorted = Object.fromEntries(
     ids.map((id) => [
       id,
-      { ...(forms[id] as Form), redirectHref: redirectHref(forms[id] as Form, plan.doc) },
+      { ...(forms[id] as Form), redirectHref: formRedirectHref(forms[id] as Form, plan.doc.pages) },
     ]),
   );
   return {

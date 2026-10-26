@@ -13,7 +13,7 @@
  *   `{ "version": 1, "hash"?: string, "forms": Form[] | Record<formId, Form> }`, where each form
  *   may carry an extra `"redirectHref"` (the resolved success-redirect URL or path).
  */
-import { type Form, FormSchema, type SiteDocument } from "@openspace/schema";
+import { type Form, FormSchema, formRedirectHref, type SiteDocument } from "@openspace/schema";
 import type { SiteRow } from "../db/sites";
 import { MAIN_BRANCH, parseRepo } from "../github/types";
 import { sha256Hex } from "../lib/crypto";
@@ -32,7 +32,6 @@ export interface ManifestForm {
 /** Every form defined anywhere in a document (deep scan for `FormSchema`-shaped values). */
 export function formsInDocument(doc: SiteDocument): ManifestForm[] {
   const found = new Map<string, ManifestForm>();
-  const slugOf = (pageId: string) => doc.pages[pageId as keyof typeof doc.pages]?.slug;
   const visit = (v: unknown, depth: number) => {
     if (depth > 40 || !v || typeof v !== "object") return;
     if (Array.isArray(v)) {
@@ -43,16 +42,7 @@ export function formsInDocument(doc: SiteDocument): ManifestForm[] {
     if (typeof o.id === "string" && o.id.startsWith("frm_") && Array.isArray(o.fields)) {
       const parsed = FormSchema.safeParse(o);
       if (parsed.success && !found.has(parsed.data.id)) {
-        const s = parsed.data.success;
-        let redirectHref: string | null = null;
-        if (s.type === "redirect") {
-          const l = s.link;
-          if (l.type === "url") redirectHref = l.url;
-          else if (l.type === "page") {
-            const slug = slugOf(l.page);
-            if (slug !== undefined) redirectHref = `/${slug}${l.anchor ? `#${l.anchor}` : ""}`;
-          }
-        }
+        const redirectHref = formRedirectHref(parsed.data, doc.pages);
         found.set(parsed.data.id, { form: parsed.data, redirectHref });
       }
       return;

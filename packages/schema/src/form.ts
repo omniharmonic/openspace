@@ -147,3 +147,29 @@ export const FormSchema = named(
     }),
 );
 export type Form = z.infer<typeof FormSchema>;
+
+/**
+ * Where a no-JS submission of `form` goes on success: an absolute URL or a site path (without the
+ * deploy base path), or null when the form shows a message instead. Shared by site-kit's published
+ * `/_os/forms.json` and the Hub's dev manifest so both always agree.
+ */
+export function formRedirectHref(
+  form: Form,
+  pages: Readonly<Record<string, { slug: string } | undefined>>,
+): string | null {
+  if (form.success.type !== "redirect") return null;
+  const l = form.success.link;
+  switch (l.type) {
+    case "url":
+      return l.url;
+    case "page": {
+      const page = pages[l.page];
+      if (!page) return null;
+      return `${page.slug ? `/${page.slug}/` : "/"}${l.anchor ? `#${l.anchor}` : ""}`;
+    }
+    case "item":
+      return `/${l.collection}/${l.slug}/`;
+    default:
+      return null;
+  }
+}
