@@ -373,6 +373,13 @@ export class GridController {
         this.schedule();
       }
     };
+    // Images and links would start a native drag (and cancel the pointer stream).
+    const noNativeDrag = (ev: Event) => ev.preventDefault();
+    for (const d of [ctx.frameDoc, doc]) {
+      if (!d) continue;
+      d.addEventListener("dragstart", noNativeDrag, true);
+      session.cleanup.push(() => d.removeEventListener("dragstart", noNativeDrag, true));
+    }
     const targets: Array<Document | Window> = [];
     if (win) targets.push(win);
     if (ctx.frameDoc?.defaultView && ctx.frameDoc.defaultView !== win)
@@ -678,3 +685,7 @@ export class GridController {
 
 /** The one controller for the canvas (there is one canvas per Studio window). */
 export const gridController = new GridController();
+
+// Dev builds expose the controller for profiling the drag loop from the console.
+if (import.meta.env?.DEV && typeof window !== "undefined")
+  (window as unknown as { __osGrid?: GridController }).__osGrid = gridController;
