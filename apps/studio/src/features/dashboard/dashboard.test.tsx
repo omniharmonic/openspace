@@ -91,4 +91,60 @@ describe("dashboard", () => {
     ).not.toBeInTheDocument();
     expect(within(menu).getByRole("menuitem", { name: /Open editor/ })).toBeInTheDocument();
   });
+
+  it("deletes a site after typing its name, explaining what happens to its data", async () => {
+    const { user, hub } = renderStudio("/sites", { user: SAM, sites });
+    const willow = await screen.findByRole("article", { name: "Willow Street Yoga" });
+    await user.click(within(willow).getByRole("button", { name: /More actions/ }));
+    await user.click(await screen.findByRole("menuitem", { name: /Delete site/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Delete Willow Street Yoga?" });
+    expect(dialog).toHaveAccessibleDescription(/archived in your GitHub account/);
+    expect(dialog).toHaveAccessibleDescription(/30 days/);
+    const submit = within(dialog).getByRole("button", { name: "Delete site" });
+    expect(submit).toBeDisabled();
+    await user.type(within(dialog).getByLabelText(/to confirm/), "Willow Street Yog");
+    expect(submit).toBeDisabled();
+    await user.type(within(dialog).getByLabelText(/to confirm/), "a");
+    await user.click(submit);
+    expect(await screen.findByText("Deleted Willow Street Yoga")).toBeInTheDocument();
+    expect(hub.calls.find((c) => c.method === "deleteSite")?.args).toEqual([
+      (sites[0] as Site).id,
+      "Willow Street Yoga",
+    ]);
+    await waitFor(() =>
+      expect(screen.queryByRole("article", { name: "Willow Street Yoga" })).not.toBeInTheDocument(),
+    );
+    expect(hub.state.sites.some((s) => s.name === "Willow Street Yoga")).toBe(false);
+  });
+
+  it("retries publishing from a failed site's card", async () => {
+    const { user, hub } = renderStudio("/sites", { user: SAM, sites, buildMs: 60_000 });
+    const pan = await screen.findByRole("article", { name: "Pan & Crumb" });
+    await user.click(within(pan).getByRole("button", { name: "Try again" }));
+    expect(await within(pan).findByText("Setting up")).toBeInTheDocument();
+    expect(hub.calls.find((c) => c.method === "retryPublish")?.args).toEqual([
+      (sites[2] as Site).id,
+    ]);
+    expect(hub.calls.some((c) => c.method === "createSite")).toBe(false);
+  });
+
+  it("clears the transfer form whichever way the dialog is closed", async () => {
+    const { user } = renderStudio("/sites", { user: SAM, sites });
+    const willow = await screen.findByRole("article", { name: "Willow Street Yoga" });
+    const open = async () => {
+      await user.click(within(willow).getByRole("button", { name: /More actions/ }));
+      await user.click(await screen.findByRole("menuitem", { name: /Transfer ownership/ }));
+      return screen.findByRole("dialog");
+    };
+    let dialog = await open();
+    await user.type(within(dialog).getByLabelText("New owner"), "someone");
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    dialog = await open();
+    expect(within(dialog).getByLabelText("New owner")).toHaveValue("");
+    await user.type(within(dialog).getByLabelText("New owner"), "someone");
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    dialog = await open();
+    expect(within(dialog).getByLabelText("New owner")).toHaveValue("");
+  });
 });

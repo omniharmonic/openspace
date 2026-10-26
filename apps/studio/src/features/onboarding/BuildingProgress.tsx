@@ -1,7 +1,7 @@
 import { Check, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useSite } from "../../api";
+import { useRetryPublish, useSite } from "../../api";
 import type { TemplateLook, TemplateSummary } from "../../api/types";
 import { useConfig } from "../../app/config";
 import { Wordmark } from "../../app/Wordmark";
@@ -20,27 +20,19 @@ export interface BuildingProgressProps {
   look: TemplateLook;
   draft: SiteDraft;
   onDone: () => void;
-  onRetry: () => void;
-  retrying?: boolean;
 }
 
 /**
- * "Building your site…" — the one orchestrated moment in onboarding.
+ * "Setting up your site…" — the one orchestrated moment in onboarding.
  * Steps advance on a gentle clock, the page sketch assembles alongside, and
  * the last step waits for the Hub to report the site live.
  */
-export function BuildingProgress({
-  siteId,
-  template,
-  look,
-  draft,
-  onDone,
-  onRetry,
-  retrying,
-}: BuildingProgressProps) {
+export function BuildingProgress({ siteId, template, look, draft, onDone }: BuildingProgressProps) {
   const { timing } = useConfig();
   const navigate = useNavigate();
-  const site = useSite(siteId, { pollMs: timing.pollMs });
+  // A failed poll (flaky network) keeps polling with backoff; only a "failed" status is a failure.
+  const site = useSite(siteId, { pollMs: timing.pollMs, pollOnError: true });
+  const retry = useRetryPublish();
   const status = site.data?.status;
   const [step, setStep] = useState(0);
 
@@ -71,7 +63,13 @@ export function BuildingProgress({
     }
   }, [step, status, finished, steps.length, timing, navigate, siteId, onDone]);
 
-  const failed = status === "failed" || site.isError;
+  const failed = status === "failed";
+  const reconnecting = site.isError && !failed;
+  const onRetry = () =>
+    retry.mutate(siteId, {
+      // Earlier steps are done; pick up at publishing.
+      onSuccess: () => setStep(steps.length - 1),
+    });
   const url = site.data?.url;
 
   return (
@@ -86,24 +84,34 @@ export function BuildingProgress({
               takes a minute.
             </p>
             <div className="st-building__actions">
-              <Button variant="primary" onClick={onRetry} loading={retrying}>
+              <Button variant="primary" onClick={onRetry} loading={retry.isPending}>
                 Try again
               </Button>
               <Button variant="ghost" onClick={() => navigate("/sites")}>
                 Go to your sites
               </Button>
             </div>
+            {retry.error && (
+              <p className="st-building__error" role="alert">
+                {retry.error.message}
+              </p>
+            )}
           </>
         ) : (
           <>
             <h1 className="st-building__title" aria-live="polite">
-              {finished ? "Your site is live" : "Building your site…"}
+              {finished ? "Your site is live" : "Setting up your site…"}
             </h1>
             <p className="st-building__lede">
               {finished
                 ? "Opening the editor…"
                 : "This usually takes about a minute. Keep this tab open and we’ll open the editor when it’s ready."}
             </p>
+            {reconnecting && (
+              <p className="st-building__note" role="status">
+                Having trouble reaching OpenSpace. Still trying…
+              </p>
+            )}
           </>
         )}
         <ol className="st-building__steps" aria-label="Progress">

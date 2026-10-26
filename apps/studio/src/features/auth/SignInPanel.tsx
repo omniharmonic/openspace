@@ -22,16 +22,24 @@ export function SignInPanel({ github, onSignedIn, beforeRedirect }: SignInPanelP
   const [devName, setDevName] = useState("");
   const devAvailable = session.data?.auth.dev ?? false;
 
+  // Failures surface through `gh.error` / `dev.error` below, so rejections are handled here.
   const startGitHub = async () => {
     beforeRedirect?.();
-    const user = await gh.mutateAsync(github);
-    if (user) onSignedIn(user);
+    try {
+      const user = await gh.mutateAsync(github);
+      if (user) onSignedIn(user);
+    } catch {
+      // shown via gh.error
+    }
   };
 
   const submitDev = async (e: FormEvent) => {
     e.preventDefault();
-    const user = await dev.mutateAsync(devName);
-    onSignedIn(user);
+    try {
+      onSignedIn(await dev.mutateAsync(devName));
+    } catch {
+      // shown via dev.error
+    }
   };
 
   const error = gh.error ?? dev.error;

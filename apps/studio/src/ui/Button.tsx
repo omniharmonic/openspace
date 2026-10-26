@@ -1,6 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
 import "./Button.css";
 import { cx } from "./cx";
+import { focusableDisabledProps } from "./focusableDisabled";
 import { Spinner } from "./Spinner";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
@@ -15,6 +16,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   trailing?: ReactNode;
   loading?: boolean;
   block?: boolean;
+  /**
+   * When disabled, stay focusable (aria-disabled) so a wrapping Tooltip can
+   * explain why. Use whenever a disabled button has a tooltip.
+   */
+  focusableWhenDisabled?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -28,11 +34,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     className,
     children,
     disabled,
+    focusableWhenDisabled = false,
     type = "button",
     ...rest
   },
   ref,
 ) {
+  const soft = focusableWhenDisabled && disabled && !loading;
   return (
     <button
       ref={ref}
@@ -45,9 +53,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         loading && "st-button--loading",
         className,
       )}
-      disabled={disabled || loading}
+      disabled={soft ? undefined : disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
+      {...(soft ? focusableDisabledProps() : {})}
     >
       {loading ? (
         <Spinner size={12} />

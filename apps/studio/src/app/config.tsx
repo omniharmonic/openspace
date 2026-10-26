@@ -3,7 +3,7 @@ import { createContext, type ReactNode, useContext } from "react";
 /** Runtime knobs; tests shrink the timings so flows run instantly. */
 export interface StudioConfig {
   timing: {
-    /** Time each "Building your site…" step holds before the next one starts. */
+    /** Time each "Setting up your site…" step holds before the next one starts. */
     stepMs: number;
     /** Pause on the finished progress screen before opening the editor. */
     settleMs: number;

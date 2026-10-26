@@ -468,17 +468,16 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
               size="sm"
               icon={<Eye />}
               disabled={!live}
+              focusableWhenDisabled
               onClick={() => window.open(site.url, "_blank", "noopener")}
             >
               <span className="st-ed-hide-narrow">Preview</span>
             </Button>
           </Tooltip>
           <Tooltip content="No changes to publish yet">
-            <span>
-              <Button variant="primary" size="sm" disabled>
-                Publish
-              </Button>
-            </span>
+            <Button variant="primary" size="sm" disabled focusableWhenDisabled>
+              Publish
+            </Button>
           </Tooltip>
         </div>
       </header>
@@ -579,6 +578,8 @@ export function EditorFrame() {
   }
   return (
     <EditorChrome
+      // Per-site state (checklist, welcome toast, sheets) starts fresh when the site changes.
+      key={site.data.id}
       site={site.data}
       template={templates.data?.find((t) => t.id === site.data.template)}
     />

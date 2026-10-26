@@ -127,6 +127,13 @@ export interface HubApi {
   getSite(id: string): Promise<Site>;
   createSite(input: CreateSiteInput): Promise<Site>;
   transferSite(id: string, to: string): Promise<TransferResult>;
+  /** Re-runs publishing for a site whose first version didn't go live (`POST /api/sites/:id/publish`). */
+  retryPublish(id: string): Promise<Site>;
+  /**
+   * Deletes a site (FR-4): its files are archived, Hub data is kept 30 days then purged.
+   * `confirmName` must equal the site's name (`DELETE /api/sites/:id`, body `{ confirm }`).
+   */
+  deleteSite(id: string, confirmName: string): Promise<void>;
 }
 
 /** Error raised for non-2xx Hub responses. */

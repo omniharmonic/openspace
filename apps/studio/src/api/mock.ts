@@ -18,8 +18,10 @@ export interface MockHubOptions {
   templates?: TemplateSummary[];
   /** How long a new site stays "building" before it goes live (ms). */
   buildMs?: number;
-  /** Template ids whose first publish fails (to exercise the failed state). */
+  /** Template ids whose first publish fails (to exercise the failed state); a retry succeeds. */
   failTemplates?: string[];
+  /** Refuse to create more than this many sites (exercises create errors). */
+  maxSites?: number;
   /** Simulated network latency (ms). */
   latencyMs?: number;
   /** Offer the dev sign-in (Hub DEV_MODE). Default true. */
@@ -35,6 +37,8 @@ interface MockState {
   sites: Site[];
   /** When each building site goes live/fails. */
   readyAt: Record<string, number>;
+  /** Publish attempts per site. */
+  attempts: Record<string, number>;
   seededFor: string[];
 }
 
@@ -78,6 +82,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     user: options.user ?? null,
     sites: Array.isArray(options.sites) ? clone(options.sites) : [],
     readyAt: {},
+    attempts: {},
     seededFor: [],
   };
 
@@ -85,7 +90,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     if (!options.persistKey || typeof localStorage === "undefined") return initial;
     try {
       const raw = localStorage.getItem(options.persistKey);
-      return raw ? (JSON.parse(raw) as MockState) : initial;
+      return raw ? { ...initial, ...(JSON.parse(raw) as Partial<MockState>) } : initial;
     } catch {
       return initial;
     }
@@ -124,7 +129,8 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     for (const site of state.sites) {
       const ready = state.readyAt[site.id];
       if (site.status === "building" && ready !== undefined && t >= ready) {
-        site.status = fail.has(site.template) ? "failed" : "live";
+        const attempt = state.attempts[site.id] ?? 1;
+        site.status = fail.has(site.template) && attempt === 1 ? "failed" : "live";
         delete state.readyAt[site.id];
       }
     }
@@ -212,6 +218,8 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
           `There's no template called "${input.template}".`,
         );
       if (!input.name.trim()) throw new HubError(400, "invalid_name", "Give your site a name.");
+      if (options.maxSites !== undefined && state.sites.length >= options.maxSites)
+        throw new HubError(429, "site_limit", `You can have up to ${options.maxSites} sites.`);
       const slug = slugify(input.name);
       const taken = state.sites.some((s) => s.repo === `${user.login}/${slug}`);
       const finalSlug = taken ? `${slug}-${state.sites.length + 1}` : slug;
@@ -232,8 +240,37 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       };
       state.sites.push(site);
       state.readyAt[site.id] = now() + buildMs;
+      state.attempts[site.id] = 1;
       save();
       return clone(site);
+    },
+
+    async retryPublish(id) {
+      calls.push({ method: "retryPublish", args: [id] });
+      await wait();
+      requireUser();
+      const site = findSite(id);
+      if (site.status === "building") return clone(site);
+      site.status = "building";
+      state.attempts[site.id] = (state.attempts[site.id] ?? 1) + 1;
+      state.readyAt[site.id] = now() + buildMs;
+      save();
+      return clone(site);
+    },
+
+    async deleteSite(id, confirmName) {
+      calls.push({ method: "deleteSite", args: [id, confirmName] });
+      await wait();
+      const user = requireUser();
+      const site = findSite(id);
+      if (site.owner !== user.login)
+        throw new HubError(403, "forbidden", "Only the owner can delete this site.");
+      if (confirmName.trim() !== site.name)
+        throw new HubError(400, "confirm_mismatch", `Type “${site.name}” exactly to confirm.`);
+      state.sites = state.sites.filter((s) => s.id !== id);
+      delete state.readyAt[id];
+      delete state.attempts[id];
+      save();
     },
 
     async transferSite(id, to) {

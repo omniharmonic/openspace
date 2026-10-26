@@ -29,6 +29,16 @@
   line-height: 1.5;
 }
 
+.st-building__note {
+  color: var(--st-pending);
+  font-size: var(--st-fs-sm);
+}
+
+.st-building__error {
+  color: var(--st-danger);
+  font-size: var(--st-fs-sm);
+}
+
 .st-building__actions {
   display: flex;
   gap: 8px;

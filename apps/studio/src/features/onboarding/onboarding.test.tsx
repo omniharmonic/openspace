@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { HubError } from "../../api/types";
 import { renderStudio, SAM } from "../../test/render";
 import { loadDraft, saveDraft } from "./draft";
 
@@ -65,7 +66,9 @@ describe("onboarding: template → details → sign in → building → editor",
     await user.type(screen.getByLabelText("Your name"), "Sam Rivera");
     await user.click(screen.getByRole("button", { name: "Sign in" }));
 
-    expect(await screen.findByRole("heading", { name: "Building your site…" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Setting up your site…" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Progress" })).toHaveTextContent(
       "Copying the Meadow template",
     );
@@ -111,7 +114,9 @@ describe("onboarding: template → details → sign in → building → editor",
     const { user } = renderStudio("/new/signal?look=volt", { user: SAM });
     await user.type(await screen.findByLabelText("Site name"), "Tidewater");
     await user.click(screen.getByRole("button", { name: "Create my site" }));
-    expect(await screen.findByRole("heading", { name: "Building your site…" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Setting up your site…" }),
+    ).toBeInTheDocument();
   });
 
   it("resumes after returning from GitHub sign-in", async () => {
@@ -135,7 +140,44 @@ describe("onboarding: template → details → sign in → building → editor",
       await screen.findByRole("heading", { name: "Pan & Crumb isn’t online yet" }),
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Try again" }));
-    await waitFor(() => expect(hub.calls.filter((c) => c.method === "createSite")).toHaveLength(2));
+    // Retries publishing the same site instead of creating a duplicate.
+    expect(
+      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(hub.calls.filter((c) => c.method === "createSite")).toHaveLength(1);
+    const created = hub.state.sites[0];
+    expect(hub.calls.find((c) => c.method === "retryPublish")?.args).toEqual([created?.id]);
+    expect(hub.state.sites).toHaveLength(1);
+  });
+
+  it("keeps polling through a flaky connection instead of showing a failure", async () => {
+    const { user, hub } = renderStudio("/new/meadow", { user: SAM, buildMs: 30 });
+    const realGetSite = hub.getSite.bind(hub);
+    let failures = 0;
+    hub.getSite = async (id) => {
+      if (failures < 2) {
+        failures++;
+        throw new HubError(0, "network", "Can't reach OpenSpace.");
+      }
+      return realGetSite(id);
+    };
+    await user.type(await screen.findByLabelText("Site name"), "Juniper");
+    await user.click(screen.getByRole("button", { name: "Create my site" }));
+    expect(await screen.findByText(/Having trouble reaching OpenSpace/)).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /isn’t online yet/ })).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(failures).toBe(2);
+  });
+
+  it("returns to the details form when creating fails after GitHub sign-in", async () => {
+    saveDraft({ template: "ledger", look: "ink", name: "Okafor Advisory", tagline: "Clear plans" });
+    const { router } = renderStudio("/new/ledger?look=ink&resume=1", { user: SAM, maxSites: 0 });
+    expect(await screen.findByText("Your site wasn’t created")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Site name")).toHaveValue("Okafor Advisory");
+    expect(router.state.location.search).not.toContain("resume");
+    expect(screen.queryByRole("status", { name: "Starting your site" })).not.toBeInTheDocument();
   });
 
   it("explains when a template doesn't exist", async () => {

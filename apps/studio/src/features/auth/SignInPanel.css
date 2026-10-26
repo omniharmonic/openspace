@@ -19,7 +19,7 @@
 }
 
 .st-signin__public {
-  color: var(--st-text-3);
+  color: var(--st-text-2);
   font-size: var(--st-fs-sm);
   line-height: 1.5;
 }

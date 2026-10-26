@@ -53,7 +53,10 @@ describe("editor frame", () => {
       "Nothing selected",
     );
     expect(screen.getByRole("img", { name: "Preview of Willow Street Yoga" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Publish" })).toBeDisabled();
+    // Disabled but still focusable, so its tooltip explains why.
+    const publish = screen.getByRole("button", { name: "Publish" });
+    expect(publish).toHaveAttribute("aria-disabled", "true");
+    expect(publish).not.toHaveAttribute("disabled");
     expect(screen.getByRole("list", { name: "Editing now" })).toBeInTheDocument();
   });
 

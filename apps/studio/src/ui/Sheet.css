@@ -42,8 +42,16 @@
   background: var(--st-line-strong);
 }
 
+.st-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px 4px 16px;
+}
+
 .st-sheet__title {
-  padding: 10px 16px 8px;
+  padding: 4px 0;
   font-size: var(--st-fs-md);
   font-weight: 600;
 }

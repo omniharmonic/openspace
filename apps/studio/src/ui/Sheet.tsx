@@ -1,6 +1,8 @@
+import { X } from "lucide-react";
 import { Dialog as RDialog } from "radix-ui";
 import type { ReactElement, ReactNode } from "react";
 import { cx } from "./cx";
+import { IconButton } from "./IconButton";
 import "./Sheet.css";
 
 export interface SheetProps {
@@ -34,7 +36,12 @@ export function Sheet({
           aria-describedby={undefined}
         >
           {side === "bottom" && <div className="st-sheet__grip" aria-hidden="true" />}
-          <RDialog.Title className="st-sheet__title">{title}</RDialog.Title>
+          <div className="st-sheet__head">
+            <RDialog.Title className="st-sheet__title">{title}</RDialog.Title>
+            <RDialog.Close asChild>
+              <IconButton label="Close" icon={<X />} size="sm" tooltip={false} />
+            </RDialog.Close>
+          </div>
           <div className="st-sheet__body">{children}</div>
         </RDialog.Content>
       </RDialog.Portal>

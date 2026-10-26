@@ -1,10 +1,30 @@
 import { useEffect, useRef } from "react";
 import { matchesShortcut } from "./shortcuts";
 
-function isTyping(target: EventTarget | null): boolean {
+/** Input types that take keystrokes as text; checkboxes, radios, buttons etc. don't. */
+const TEXT_INPUT_TYPES = new Set([
+  "text",
+  "search",
+  "email",
+  "url",
+  "tel",
+  "password",
+  "number",
+  "date",
+  "datetime-local",
+  "month",
+  "time",
+  "week",
+]);
+
+export function isTyping(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName;
-  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable;
+  if (target instanceof HTMLInputElement) return TEXT_INPUT_TYPES.has(target.type);
+  return (
+    target.tagName === "TEXTAREA" ||
+    target.tagName === "SELECT" ||
+    target.isContentEditable === true
+  );
 }
 
 /**

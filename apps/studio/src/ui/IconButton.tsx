@@ -1,6 +1,7 @@
 import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
 import { cx } from "./cx";
 import "./IconButton.css";
+import { focusableDisabledProps } from "./focusableDisabled";
 import { Tooltip } from "./Tooltip";
 
 export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
@@ -26,10 +27,13 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
     tooltipSide,
     className,
     type = "button",
+    disabled,
     ...rest
   },
   ref,
 ) {
+  // A disabled icon button with a tooltip stays focusable so the tooltip can still be read.
+  const soft = Boolean(disabled) && tooltip;
   const button = (
     <button
       ref={ref}
@@ -37,7 +41,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
       aria-label={label}
       aria-pressed={active}
       className={cx("st-icon-button", `st-icon-button--${size}`, className)}
+      disabled={soft ? undefined : disabled}
       {...rest}
+      {...(soft ? focusableDisabledProps() : {})}
     >
       {icon}
     </button>

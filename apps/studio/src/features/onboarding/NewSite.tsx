@@ -211,8 +211,18 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
         },
         {
           onSuccess: (site) => setParams({ look: d.look, site: site.id }, { replace: true }),
-          onError: (err) =>
-            toast({ tone: "danger", title: "Your site wasn’t created", description: err.message }),
+          onError: (err) => {
+            toast({ tone: "danger", title: "Your site wasn’t created", description: err.message });
+            // Back from GitHub: drop `resume` so the details form returns with the saved draft.
+            setParams(
+              (p) => {
+                const next = new URLSearchParams(p);
+                next.delete("resume");
+                return next;
+              },
+              { replace: true },
+            );
+          },
         },
       );
     },
@@ -242,8 +252,6 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
         look={look}
         draft={loadDraft(template.id) ?? draft}
         onDone={onDone}
-        onRetry={() => startCreate(loadDraft(template.id) ?? draft)}
-        retrying={create.isPending}
       />
     );
   }

@@ -18,15 +18,18 @@ import {
   Menu,
   NumberScrubInput,
   Segmented,
+  Sheet,
   Tabs,
   Toaster,
   Toggle,
+  Tooltip,
   TooltipProvider,
   toast,
   useCommandStore,
   useRegisterCommands,
   useToastStore,
 } from "./index";
+import { isTyping } from "./useShortcut";
 
 function wrap(ui: React.ReactNode) {
   return render(<TooltipProvider>{ui}</TooltipProvider>);
@@ -407,5 +410,58 @@ describe("Feedback and people", () => {
     expect(within(stack).getAllByRole("listitem")).toHaveLength(3);
     expect(within(stack).getByText("+2")).toBeInTheDocument();
     expect(await within(stack).findByText("SR")).toBeInTheDocument();
+  });
+});
+
+describe("review fixes", () => {
+  it("keeps disabled icon buttons with tooltips focusable and inert", async () => {
+    const onClick = vi.fn();
+    wrap(<IconButton label="Undo" icon={<svg />} shortcut="mod+z" disabled onClick={onClick} />);
+    const btn = screen.getByRole("button", { name: "Undo" });
+    expect(btn).toHaveAttribute("aria-disabled", "true");
+    expect(btn).not.toBeDisabled();
+    await userEvent.click(btn);
+    expect(onClick).not.toHaveBeenCalled();
+    await act(async () => btn.focus());
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Undo");
+  });
+
+  it("lets a focusable-disabled Button show its tooltip but not act", async () => {
+    const onClick = vi.fn();
+    wrap(
+      <Tooltip content="No changes to publish yet">
+        <Button disabled focusableWhenDisabled onClick={onClick}>
+          Publish
+        </Button>
+      </Tooltip>,
+    );
+    const btn = screen.getByRole("button", { name: "Publish" });
+    await userEvent.click(btn);
+    expect(onClick).not.toHaveBeenCalled();
+    await act(async () => btn.focus());
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("No changes to publish yet");
+  });
+
+  it("gives sheets a visible close button", async () => {
+    const onOpenChange = vi.fn();
+    wrap(
+      <Sheet open onOpenChange={onOpenChange} title="Layers">
+        <p>Sections</p>
+      </Sheet>,
+    );
+    const sheet = await screen.findByRole("dialog", { name: "Layers" });
+    await userEvent.click(within(sheet).getByRole("button", { name: "Close" }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("only treats text-like fields as typing for shortcuts", () => {
+    const make = (type: string) => Object.assign(document.createElement("input"), { type });
+    expect(isTyping(make("text"))).toBe(true);
+    expect(isTyping(make("search"))).toBe(true);
+    expect(isTyping(make("checkbox"))).toBe(false);
+    expect(isTyping(make("radio"))).toBe(false);
+    expect(isTyping(make("button"))).toBe(false);
+    expect(isTyping(document.createElement("textarea"))).toBe(true);
+    expect(isTyping(document.createElement("button"))).toBe(false);
   });
 });

@@ -119,6 +119,21 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
       return "site" in res ? res.site : res;
     },
 
+    async retryPublish(id) {
+      const res = await request<{ site: Site } | Site>(
+        "POST",
+        `/api/sites/${encodeURIComponent(id)}/publish`,
+        {},
+      );
+      return "site" in res ? res.site : res;
+    },
+
+    async deleteSite(id, confirmName) {
+      await request<void>("DELETE", `/api/sites/${encodeURIComponent(id)}`, {
+        confirm: confirmName,
+      });
+    },
+
     async transferSite(id, to) {
       return request<TransferResult>("POST", `/api/sites/${encodeURIComponent(id)}/transfer`, {
         to,

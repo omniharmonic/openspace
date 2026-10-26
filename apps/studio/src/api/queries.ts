@@ -39,15 +39,30 @@ export function useSites(options: { enabled?: boolean; pollMs?: number } = {}) {
   });
 }
 
-/** Polls while the site is still being set up. */
-export function useSite(id: string | undefined, options: { pollMs?: number } = {}) {
+/** Longest wait between polls after repeated errors. */
+const MAX_BACKOFF_MS = 30_000;
+
+/**
+ * Polls while the site is still being set up. With `pollOnError`, a failed
+ * poll doesn't end polling: it backs off (doubling, capped) and tries again.
+ */
+export function useSite(
+  id: string | undefined,
+  options: { pollMs?: number; pollOnError?: boolean } = {},
+) {
   const hub = useHub();
+  const pollMs = options.pollMs ?? 1500;
   return useQuery({
     queryKey: queryKeys.site(id ?? ""),
     queryFn: () => hub.getSite(id as string),
     enabled: Boolean(id),
-    refetchInterval: (q) =>
-      q.state.data?.status === "building" ? (options.pollMs ?? 1500) : false,
+    retry: false,
+    refetchInterval: (q) => {
+      if (q.state.status === "error" && options.pollOnError) {
+        return Math.min(pollMs * 2 ** Math.min(q.state.errorUpdateCount, 8), MAX_BACKOFF_MS);
+      }
+      return q.state.data?.status === "building" ? pollMs : false;
+    },
   });
 }
 
@@ -91,6 +106,33 @@ export function useCreateSite() {
     onSuccess: (site) => {
       qc.setQueryData(queryKeys.site(site.id), site);
       qc.setQueryData<Site[]>(queryKeys.sites, (prev) => (prev ? [site, ...prev] : prev));
+    },
+  });
+}
+
+export function useRetryPublish() {
+  const hub = useHub();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hub.retryPublish(id),
+    onSuccess: (site) => {
+      qc.setQueryData(queryKeys.site(site.id), site);
+      qc.setQueryData<Site[]>(queryKeys.sites, (prev) =>
+        prev?.map((s) => (s.id === site.id ? site : s)),
+      );
+    },
+  });
+}
+
+export function useDeleteSite() {
+  const hub = useHub();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, confirmName }: { id: string; confirmName: string }) =>
+      hub.deleteSite(id, confirmName),
+    onSuccess: (_void, { id }) => {
+      qc.removeQueries({ queryKey: queryKeys.site(id), exact: true });
+      qc.setQueryData<Site[]>(queryKeys.sites, (prev) => prev?.filter((s) => s.id !== id));
     },
   });
 }

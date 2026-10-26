@@ -14,7 +14,7 @@ export interface SiteSketchProps {
   accent?: string | null;
   /**
    * How many parts are drawn, top to bottom: navigation, hero, features, footer.
-   * Used by the "Building your site…" screen to assemble the page. Default: all.
+   * Used by the "Setting up your site…" screen to assemble the page. Default: all.
    */
   reveal?: number;
   /** "page" draws a taller, full-page sketch (editor canvas). */

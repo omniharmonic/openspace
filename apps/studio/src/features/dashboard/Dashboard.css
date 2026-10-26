@@ -113,6 +113,14 @@
   margin-top: 8px;
 }
 
+.st-sitecard__problem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
 .st-sitecard__note {
   margin-top: 6px;
   color: var(--st-text-2);
@@ -218,4 +226,8 @@
   .st-dash__tools {
     justify-content: space-between;
   }
+}
+
+.st-sitecard__problem .st-sitecard__note {
+  margin-top: 0;
 }

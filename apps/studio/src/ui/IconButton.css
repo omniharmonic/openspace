@@ -41,12 +41,12 @@
   height: 18px;
 }
 
-.st-icon-button:hover:not(:disabled) {
+.st-icon-button:hover:not(:disabled):not([aria-disabled="true"]) {
   background: var(--st-hover);
   color: var(--st-text);
 }
 
-.st-icon-button:active:not(:disabled) {
+.st-icon-button:active:not(:disabled):not([aria-disabled="true"]) {
   background: var(--st-pressed);
 }
 
@@ -55,6 +55,7 @@
   color: var(--st-accent-text);
 }
 
-.st-icon-button:disabled {
+.st-icon-button:disabled,
+.st-icon-button[aria-disabled="true"] {
   opacity: 0.4;
 }

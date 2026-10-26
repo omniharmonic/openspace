@@ -5,8 +5,17 @@ import { Spinner } from "../../ui";
 import { SignInPanel } from "./SignInPanel";
 import "./SignInPage.css";
 
-function safeNext(next: string | null) {
-  return next?.startsWith("/") && !next.startsWith("//") ? next : "/sites";
+/** Only same-origin paths are allowed as a post-sign-in destination (no open redirects). */
+export function safeNext(next: string | null, origin = window.location.origin): string {
+  const fallback = "/sites";
+  if (!next?.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback;
+  try {
+    const url = new URL(next, origin);
+    if (url.origin !== origin) return fallback;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return fallback;
+  }
 }
 
 export function SignInPage() {

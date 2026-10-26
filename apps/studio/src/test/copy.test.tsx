@@ -6,11 +6,10 @@ import type { Site } from "../api/types";
 import { renderStudio, SAM } from "./render";
 
 /**
- * Global Constraint 9: no Git/infra vocabulary in non-Advanced Studio copy.
- * "Building your site…" is the PRD's own name for the progress screen (§4.1 step 5).
+ * Global Constraint 9: no Git/infra vocabulary in non-Advanced Studio copy. No exceptions:
+ * the PRD's "Building your site…" screen ships as "Setting up your site…".
  */
 const FORBIDDEN = /\b(repo|repository|repositories|commit\w*|branch\w*|build\w*|deploy\w*)\b/gi;
-const ALLOWED = ["Building your site…"];
 
 function visibleCopy(): string {
   let text = `${document.body.textContent ?? ""} `;
@@ -20,7 +19,6 @@ function visibleCopy(): string {
       if (v) text += ` ${v}`;
     }
   }
-  for (const ok of ALLOWED) text = text.replaceAll(ok, "");
   return text;
 }
 
@@ -50,7 +48,7 @@ describe("UI copy avoids Git vocabulary", () => {
     const { user } = renderStudio("/new/meadow", { user: SAM, buildMs: 60_000 });
     await user.type(await screen.findByLabelText("Site name"), "Willow");
     await user.click(screen.getByRole("button", { name: "Create my site" }));
-    await screen.findByRole("heading", { name: "Building your site…" });
+    await screen.findByRole("heading", { name: "Setting up your site…" });
     expectCleanCopy();
   });
 

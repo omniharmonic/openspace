@@ -8,11 +8,20 @@ import {
   PenLine,
   Plus,
   RefreshCw,
+  RotateCcw,
   Rows3,
+  Trash2,
 } from "lucide-react";
 import { type FormEvent, useMemo, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
-import { useSession, useSites, useTemplates, useTransferSite } from "../../api";
+import {
+  useDeleteSite,
+  useRetryPublish,
+  useSession,
+  useSites,
+  useTemplates,
+  useTransferSite,
+} from "../../api";
 import type { Site, TemplateSummary } from "../../api/types";
 import { AppHeader } from "../../app/AppHeader";
 import { useConfig } from "../../app/config";
@@ -73,7 +82,7 @@ async function copyLink(url: string) {
 
 function siteMenu(
   site: Site,
-  actions: { open: () => void; transfer: () => void },
+  actions: { open: () => void; transfer: () => void; remove: () => void; retry: () => void },
   myLogin?: string,
 ): MenuEntry[] {
   const items: MenuEntry[] = [
@@ -86,10 +95,14 @@ function siteMenu(
     },
     { label: "Copy link", icon: <Copy />, onSelect: () => void copyLink(site.url) },
   ];
+  if (site.status === "failed") {
+    items.push({ label: "Try publishing again", icon: <RotateCcw />, onSelect: actions.retry });
+  }
   if (site.owner === myLogin) {
     items.push(
       { type: "separator" },
       { label: "Transfer ownership…", icon: <ArrowRightLeft />, onSelect: actions.transfer },
+      { label: "Delete site…", icon: <Trash2 />, danger: true, onSelect: actions.remove },
     );
   }
   return items;
@@ -100,6 +113,14 @@ function TransferDialog({ site, onClose }: { site: Site | null; onClose: () => v
   const [to, setTo] = useState("");
   const [confirm, setConfirm] = useState("");
   const ready = to.trim().length > 0 && confirm.trim() === site?.name;
+
+  /** Every way out (Cancel, Esc, overlay, ×, success) clears the form and the last error. */
+  const close = () => {
+    setTo("");
+    setConfirm("");
+    transfer.reset();
+    onClose();
+  };
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -119,9 +140,7 @@ function TransferDialog({ site, onClose }: { site: Site | null; onClose: () => v
                 ? "You’re still on the site as a designer."
                 : "It completes when they accept the invitation.",
           });
-          setTo("");
-          setConfirm("");
-          onClose();
+          close();
         },
       },
     );
@@ -130,12 +149,7 @@ function TransferDialog({ site, onClose }: { site: Site | null; onClose: () => v
   return (
     <Dialog
       open={Boolean(site)}
-      onOpenChange={(open) => {
-        if (!open) {
-          transfer.reset();
-          onClose();
-        }
-      }}
+      onOpenChange={(open) => !open && close()}
       title={`Transfer ${site?.name ?? "site"}`}
       description="The site and its files move to the new owner’s GitHub account. You stay on as a designer so you can keep helping, and they can remove you any time."
       width={460}
@@ -158,7 +172,7 @@ function TransferDialog({ site, onClose }: { site: Site | null; onClose: () => v
           </p>
         )}
         <div className="st-transfer__actions">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={close}>
             Cancel
           </Button>
           <Button type="submit" variant="danger" disabled={!ready} loading={transfer.isPending}>
@@ -170,14 +184,82 @@ function TransferDialog({ site, onClose }: { site: Site | null; onClose: () => v
   );
 }
 
+function DeleteDialog({ site, onClose }: { site: Site | null; onClose: () => void }) {
+  const remove = useDeleteSite();
+  const [confirm, setConfirm] = useState("");
+  const ready = Boolean(site) && confirm.trim() === site?.name;
+
+  const close = () => {
+    setConfirm("");
+    remove.reset();
+    onClose();
+  };
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!site || !ready) return;
+    remove.mutate(
+      { id: site.id, confirmName: confirm.trim() },
+      {
+        onSuccess: () => {
+          toast({
+            tone: "success",
+            title: `Deleted ${site.name}`,
+            description: "Its form entries and subscribers can be exported for 30 days.",
+          });
+          close();
+        },
+      },
+    );
+  };
+
+  return (
+    <Dialog
+      open={Boolean(site)}
+      onOpenChange={(open) => !open && close()}
+      title={`Delete ${site?.name ?? "site"}?`}
+      description="The site goes offline. Its files are archived in your GitHub account, not erased. Form entries, subscribers and other data kept by OpenSpace stay available to export for 30 days, then they’re permanently removed."
+      width={460}
+    >
+      <form className="st-transfer" onSubmit={submit}>
+        <Field label={`Type “${site?.name ?? ""}” to confirm`}>
+          <Input
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            autoComplete="off"
+            data-autofocus
+          />
+        </Field>
+        {remove.error && (
+          <p className="st-transfer__error" role="alert">
+            {remove.error.message}
+          </p>
+        )}
+        <div className="st-transfer__actions">
+          <Button variant="ghost" onClick={close}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="danger" disabled={!ready} loading={remove.isPending}>
+            Delete site
+          </Button>
+        </div>
+      </form>
+    </Dialog>
+  );
+}
+
 function SiteCard({
   site,
   template,
   menu,
+  onRetry,
+  retrying,
 }: {
   site: Site;
   template: TemplateSummary | undefined;
   menu: MenuEntry[];
+  onRetry: () => void;
+  retrying: boolean;
 }) {
   const look = template?.looks.find((l) => l.id === site.look) ?? template?.looks[0];
   return (
@@ -232,9 +314,12 @@ function SiteCard({
           )}
         </div>
         {site.status === "failed" && (
-          <p className="st-sitecard__note">
-            Publishing didn’t finish. Open the editor to try again.
-          </p>
+          <div className="st-sitecard__problem">
+            <p className="st-sitecard__note">The first version didn’t finish publishing.</p>
+            <Button size="sm" icon={<RotateCcw />} onClick={onRetry} loading={retrying}>
+              Try again
+            </Button>
+          </div>
         )}
       </div>
     </article>
@@ -344,6 +429,22 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [view, setViewState] = useState<View>(readView);
   const [transferring, setTransferring] = useState<Site | null>(null);
+  const [deleting, setDeleting] = useState<Site | null>(null);
+  const retry = useRetryPublish();
+  const retryPublish = (s: Site) =>
+    retry.mutate(s.id, {
+      onSuccess: () =>
+        toast({
+          title: `Publishing ${s.name} again`,
+          description: "This usually takes about a minute.",
+        }),
+      onError: (err) =>
+        toast({
+          tone: "danger",
+          title: `${s.name} couldn’t be published`,
+          description: err.message,
+        }),
+    });
   const setView = (v: View) => {
     setViewState(v);
     try {
@@ -360,7 +461,12 @@ export function Dashboard() {
   const menuFor = (s: Site) =>
     siteMenu(
       s,
-      { open: () => navigate(`/sites/${s.id}`), transfer: () => setTransferring(s) },
+      {
+        open: () => navigate(`/sites/${s.id}`),
+        transfer: () => setTransferring(s),
+        remove: () => setDeleting(s),
+        retry: () => retryPublish(s),
+      },
       user?.login,
     );
 
@@ -492,6 +598,8 @@ export function Dashboard() {
                 site={s}
                 template={templateById.get(s.template)}
                 menu={menuFor(s)}
+                onRetry={() => retryPublish(s)}
+                retrying={retry.isPending && retry.variables === s.id}
               />
             ))}
           </div>
@@ -500,6 +608,7 @@ export function Dashboard() {
         )}
       </main>
       <TransferDialog site={transferring} onClose={() => setTransferring(null)} />
+      <DeleteDialog site={deleting} onClose={() => setDeleting(null)} />
     </div>
   );
 }

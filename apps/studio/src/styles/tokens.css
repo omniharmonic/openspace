@@ -27,8 +27,9 @@
 
   /* Text */
   --st-text: #1b1c1f;
-  --st-text-2: #5c5e64;
-  --st-text-3: #8c8e94;
+  --st-text-2: #4e5056;
+  /* ≥4.5:1 on bg, panel and field (WCAG AA for small text). */
+  --st-text-3: #686a70;
   --st-text-inverse: #ffffff;
 
   /* Accent — ultramarine */
@@ -118,8 +119,9 @@
   --st-scrim: rgb(0 0 0 / 0.55);
 
   --st-text: #ededeb;
-  --st-text-2: #a4a6ac;
-  --st-text-3: #74767c;
+  --st-text-2: #b0b2b7;
+  /* ≥4.5:1 on bg, panel, raised and field. */
+  --st-text-3: #8b8d93;
   --st-text-inverse: #151618;
 
   --st-accent: #5b6cff;
