@@ -12,7 +12,8 @@
     "test": "vitest run",
     "icons": "node scripts/pwa-icons.mjs",
     "preview": "vite preview",
-    "check:phone": "node scripts/phone-check.mjs"
+    "check:phone": "node scripts/phone-check.mjs",
+    "tour": "node scripts/visual-tour.mjs"
   },
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",
