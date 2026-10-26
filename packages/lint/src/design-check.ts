@@ -33,6 +33,7 @@ import {
 } from "./content";
 import { type CheckOptions, type Issue, issue, opMeta, sortIssues } from "./issue";
 import { autoMobileLayout } from "./mobile";
+import { photoContrast } from "./photo-contrast";
 
 /**
  * Studio's Design check (doc 04 §9): contrast failures, more than two typefaces, headings out of
@@ -642,7 +643,9 @@ class Ctx {
             ],
           },
         });
+        return;
       }
+      this.photoText(page, section, bg.overlay);
       return;
     }
     const theme = themeOf(section);
@@ -662,6 +665,62 @@ class Ctx {
         key: stop,
         message: `The section background (${stop}) leaves body text at ${ratio.toFixed(2)}:1 contrast; it needs 4.5:1.`,
         fix: `Use a color theme instead of a custom background, or a background close to ${nearestAccessible(color, colors.text)}.`,
+      });
+    }
+  }
+
+  /**
+   * Text over a photo/video background must pass WCAG against the scrim blended over both the
+   * darkest and the brightest possible photo (the photo itself can be anything).
+   */
+  photoText(page: string, section: Section, overlay: { color: string; opacity: number }) {
+    const theme = themeOf(section);
+    const roles = this.tokens.themes[theme] as unknown as Record<string, string>;
+    const color = this.resolveColor(overlay.color, theme);
+    if (!color) return;
+    const { failures, minOpacity } = photoContrast(
+      section,
+      roles,
+      color,
+      overlay.opacity,
+      this.doc.styles.choices.buttons,
+    );
+    const worst = new Map<string, (typeof failures)[number]>();
+    for (const f of failures) {
+      const key = `${f.blockId}:${f.label}`;
+      const prev = worst.get(key);
+      if (!prev || f.ratio < prev.ratio) worst.set(key, f);
+    }
+    for (const f of worst.values()) {
+      this.add({
+        rule: "text-over-photo-contrast",
+        severity: "error",
+        page,
+        section: section.id,
+        block: f.blockId,
+        key: f.label,
+        message: `${f.label} over the background photo can drop to ${f.ratio.toFixed(2)}:1 contrast on bright or dark parts of the photo; it needs ${f.min}:1.`,
+        fix: minOpacity
+          ? `Raise the photo overlay to ${Math.round(minOpacity * 100)}%, or put the text on a panel.`
+          : "Put the text on a panel (a block color theme), or use a plain background.",
+        ...(minOpacity
+          ? {
+              autofix: {
+                label: `Raise the overlay to ${Math.round(minOpacity * 100)}%`,
+                ops: [
+                  {
+                    op: "section.update",
+                    ...this.meta(),
+                    page: page as never,
+                    section: section.id,
+                    set: {
+                      "style.background.overlay": { color: overlay.color, opacity: minOpacity },
+                    },
+                  } as Op,
+                ],
+              },
+            }
+          : {}),
       });
     }
   }
