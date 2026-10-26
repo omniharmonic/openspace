@@ -70,6 +70,6 @@ describe("openspace.dev site document", () => {
 
   it("passes `openspace check` (schema, links, images, secrets)", async () => {
     const report = await runCheck(WWW_ROOT);
-    expect(report.findings.filter((f) => f.severity !== "info")).toEqual([]);
+    expect(report.findings).toEqual([]);
   });
 });
