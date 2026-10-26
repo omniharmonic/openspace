@@ -251,9 +251,9 @@ export function rectBox(m: GridMetrics, r: GridRect): Box {
   return { x: left, y: top, w: right - left, h: bottom - top };
 }
 
-/** How far past the content edge a media edge must go to bleed (half a column or gutter). */
+/** How far past the content edge a media edge must go to bleed (¾ column, or most of the gutter). */
 export const bleedThreshold = (m: GridMetrics) =>
-  Math.max(4, Math.min(pitch(m) / 2, (colStart(m, 1) - m.fullStart) / 2));
+  Math.max(24, Math.min(pitch(m) * 0.75, (colStart(m, 1) - m.fullStart) * 0.6));
 
 /** The index in `[lo, hi]` whose `at(i)` is closest to `target` (ties go to the lower index). */
 function nearest(lo: number, hi: number, at: (i: number) => number, target: number): number {

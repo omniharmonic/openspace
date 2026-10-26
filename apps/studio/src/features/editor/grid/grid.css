@@ -29,10 +29,10 @@
 
 /* Column guides: soft stripes over the live rows. */
 .st-grid__col {
-  background: color-mix(in srgb, var(--st-accent) 7%, transparent);
+  background: color-mix(in srgb, var(--st-accent) 5%, transparent);
   box-shadow:
-    inset 1px 0 0 color-mix(in srgb, var(--st-accent) 22%, transparent),
-    inset -1px 0 0 color-mix(in srgb, var(--st-accent) 22%, transparent);
+    inset 1px 0 0 color-mix(in srgb, var(--st-accent) 18%, transparent),
+    inset -1px 0 0 color-mix(in srgb, var(--st-accent) 18%, transparent);
 }
 
 /* Bleed tracks (full-start / full-end): hatched. */
@@ -47,7 +47,7 @@
 /* Row unit lines; the dashed ones below show where rows grow to. */
 .st-grid__row {
   height: 0;
-  border-top: 1px solid color-mix(in srgb, var(--st-accent) 16%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--st-accent) 11%, transparent);
 }
 
 .st-grid__row.is-extra {
