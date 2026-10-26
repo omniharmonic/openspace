@@ -301,10 +301,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
     }
   }
 
-  members(): Member[] {
+  members(gone?: WebSocket): Member[] {
     const now = Date.now();
     const out: Member[] = [];
     for (const ws of this.sockets()) {
+      if (ws === gone || ws.readyState === WebSocket.CLOSED) continue;
       const a = this.attachment(ws);
       if (!a) continue;
       out.push({
@@ -328,8 +329,8 @@ export class DraftRoom extends DurableObject<HubBindings> {
     return out;
   }
 
-  private broadcastPresence(): void {
-    this.broadcast({ type: "presence", members: this.members() });
+  private broadcastPresence(gone?: WebSocket): void {
+    this.broadcast({ type: "presence", members: this.members(gone) });
   }
 
   /** Deliver accepted ops and conflict notices; schedule the flush. */
@@ -585,11 +586,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
     } catch {
       /* already closed */
     }
-    this.broadcastPresence();
+    this.broadcastPresence(ws);
   }
 
-  override async webSocketError(): Promise<void> {
-    this.broadcastPresence();
+  override async webSocketError(ws: WebSocket): Promise<void> {
+    this.broadcastPresence(ws);
   }
 
   // --- RPC: reading and submitting (Studio HTTP fallback, MCP) -------------------------------

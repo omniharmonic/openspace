@@ -102,8 +102,15 @@ describe("DraftRoom", () => {
     expect(textOf(document, T.heroTitle)).toBe("From Maya");
     expect(textOf(document, T.heroLead)).toBe("From Ana");
     expect(textOf(document, T.offerTitle)).toBe("From Claude");
-    a.close();
+    // Leaving updates everyone's presence.
     b.close();
+    await a.waitFor(
+      (m) =>
+        m.type === "presence" &&
+        m.members.every((x) => x.actor !== "ana-ruiz") &&
+        m.members.some((x) => x.actor === "maya-lin"),
+    );
+    a.close();
   });
 
   it("resolves same-field edits last-writer-wins with 'X changed this too' and a restore op", async () => {
