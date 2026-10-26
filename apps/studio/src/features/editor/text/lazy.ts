@@ -16,7 +16,8 @@ export const LazyTextToolbar = lazy(() =>
 let preloaded = false;
 /** Warm the text-editing chunks when the browser is idle (first edit then feels instant). */
 export function preloadTextEditing() {
-  if (preloaded) return;
+  // Tests load chunks on demand: a background preload would only compete with the test.
+  if (preloaded || import.meta.env.MODE === "test") return;
   preloaded = true;
   const run = () => {
     void loadInlineText();
