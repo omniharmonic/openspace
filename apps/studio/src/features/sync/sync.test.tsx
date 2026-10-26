@@ -278,7 +278,7 @@ describe("live collaboration", () => {
   beforeEach(() => useEditorUi.getState().reset());
 
   it("shows “Claude is editing Home…” live, then Accept / Undo all", async () => {
-    const { user, hub } = await openEditor({ agentPresenceMs: 120 });
+    const { user, hub } = await openEditor({ agentPresenceMs: 1000 });
     const agent = hub.room(willow.id).startAgent({ userId: SAM.id, name: SAM.name }, "Claude");
     act(() => {
       agent.edit([setLabel("Written by Claude"), setLabel("Bring a mat", "secondaryLabel")]);
