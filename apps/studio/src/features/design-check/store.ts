@@ -2,7 +2,13 @@ import type { SiteDocument } from "@openspace/schema";
 import { useEffect } from "react";
 import { create } from "zustand";
 import type { EditorStore } from "../editor/model/store";
-import { type CheckedIssue, countIssues, type IssueCounts, runChecks } from "./model";
+import {
+  type CheckedIssue,
+  type CheckFailure,
+  checkSite,
+  countIssues,
+  type IssueCounts,
+} from "./model";
 
 /**
  * The open editor's latest Design check results, shared by the panel, the top-bar badge and
@@ -10,12 +16,14 @@ import { type CheckedIssue, countIssues, type IssueCounts, runChecks } from "./m
  */
 interface DesignCheckState {
   issues: CheckedIssue[];
+  /** Checks that couldn't run on this document (never shown as "looks good"). */
+  failures: CheckFailure[];
   counts: IssueCounts;
   /** The document the results are for (null until the first run). */
   checked: SiteDocument | null;
   /** A run is scheduled (the document changed since the last results). */
   stale: boolean;
-  set: (doc: SiteDocument, issues: CheckedIssue[]) => void;
+  set: (doc: SiteDocument, issues: CheckedIssue[], failures?: CheckFailure[]) => void;
   reset: () => void;
 }
 
@@ -23,11 +31,13 @@ const EMPTY = countIssues([]);
 
 export const useDesignCheck = create<DesignCheckState>((set) => ({
   issues: [],
+  failures: [],
   counts: EMPTY,
   checked: null,
   stale: true,
-  set: (doc, issues) => set({ issues, counts: countIssues(issues), checked: doc, stale: false }),
-  reset: () => set({ issues: [], counts: EMPTY, checked: null, stale: true }),
+  set: (doc, issues, failures = []) =>
+    set({ issues, failures, counts: countIssues(issues), checked: doc, stale: false }),
+  reset: () => set({ issues: [], failures: [], counts: EMPTY, checked: null, stale: true }),
 }));
 
 /** Debounce between the last edit and a re-check. */
@@ -37,8 +47,8 @@ export const CHECK_DEBOUNCE_MS = 450;
 export function checkNow(doc: SiteDocument): CheckedIssue[] {
   const s = useDesignCheck.getState();
   if (s.checked === doc && !s.stale) return s.issues;
-  const issues = runChecks(doc);
-  useDesignCheck.getState().set(doc, issues);
+  const { issues, failures } = checkSite(doc);
+  useDesignCheck.getState().set(doc, issues, failures);
   return issues;
 }
 

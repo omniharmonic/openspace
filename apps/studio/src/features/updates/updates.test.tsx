@@ -27,6 +27,7 @@ describe("update available", () => {
     );
     await user.click(within(dialog).getByRole("button", { name: "Update now" }));
     expect(await screen.findByText("Updated to OpenSpace 1.1.0")).toBeInTheDocument();
+    expect(screen.getByText(/being republished with the new version/)).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByText("OpenSpace 1.1.0 is ready")).toBeNull());
     expect(hub.calls.some((c) => c.method === "applyUpdate")).toBe(true);
     expect(hub.state.sites.find((s) => s.id === willow.id)?.updateAvailable).toBe(false);
@@ -40,9 +41,24 @@ describe("update available", () => {
     await user.click(screen.getByRole("button", { name: "See what’s new" }));
     const dialog = await screen.findByRole("dialog");
     await user.click(within(dialog).getByRole("button", { name: "Update now" }));
-    expect(await within(dialog).findByRole("alert")).toHaveTextContent(/didn’t finish/);
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(/couldn.t be combined/);
     await user.click(within(dialog).getByRole("button", { name: "Try again" }));
     expect(await screen.findByText("Updated to OpenSpace 1.1.0")).toBeInTheDocument();
+  });
+
+  it("never shows the Hub's raw failure text", async () => {
+    const { user, hub } = renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
+    // A failed update recorded by the Hub, with a host's merge output as its error.
+    const raw = "Merge conflict: CONFLICT (content): Merge conflict in package.json at 3f2a9c1";
+    const list = await hub.listUpdates(willow.id);
+    hub.catalog.updates[willow.id] = list.map((u) => ({ ...u, status: "failed", error: raw }));
+    expect(await screen.findByText("The last update didn’t finish")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "See what’s new" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).getByRole("alert")).toHaveTextContent(
+      "The update didn’t finish, and your site wasn’t changed.",
+    );
+    expect(document.body.textContent).not.toContain("CONFLICT");
   });
 
   it("lets a designer skip an update; editors see it but can't apply it", async () => {

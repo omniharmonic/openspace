@@ -7,9 +7,13 @@ import {
   useDismissUpdate,
   useSiteUpdates,
 } from "../../api";
-import type { Site } from "../../api/types";
+import { HubError, type Site } from "../../api/types";
 import { Badge, Button, Dialog, IconButton, Spinner, toast } from "../../ui";
 import "./updates.css";
+
+/** Plain words for a failed update (the Hub's raw error is never shown). */
+export const UPDATE_FAILED =
+  "The update didn’t finish, and your site wasn’t changed. Try again in a moment.";
 
 const DESIGNERS = new Set(["owner", "designer"]);
 const READERS = new Set(["owner", "designer", "editor"]);
@@ -36,7 +40,12 @@ function UpdateDialog({
   const canApply = DESIGNERS.has(site.role ?? "");
   const busy = apply.isPending || dismiss.isPending;
   const failed = update.status === "failed" || apply.isError;
-  const error = (apply.error instanceof Error ? apply.error.message : null) ?? update.error ?? null;
+  // Never show the Hub's raw failure text (it can be a host's merge error): a HubError carries
+  // a message written for people; anything else gets plain words.
+  const error =
+    apply.error instanceof HubError && apply.error.status !== 0
+      ? apply.error.message
+      : UPDATE_FAILED;
 
   const doApply = () =>
     apply.mutate(update.id, {
@@ -46,7 +55,7 @@ function UpdateDialog({
           tone: "success",
           title: `Updated to OpenSpace ${u.to}`,
           description:
-            "Your site uses the new version from its next publish. Your content didn’t change.",
+            "Your site is being republished with the new version. Your words, photos and pages didn’t change.",
         });
       },
     });
@@ -128,9 +137,9 @@ function UpdateDialog({
             <Spinner size={12} /> Updating your site…
           </p>
         )}
-        {failed && error && !apply.isPending && (
+        {failed && !apply.isPending && (
           <p className="st-upd__error" role="alert">
-            The update didn’t finish: {error}
+            {error}
           </p>
         )}
         {!canApply && (

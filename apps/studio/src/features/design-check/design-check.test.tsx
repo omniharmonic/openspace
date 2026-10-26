@@ -2,14 +2,23 @@ import type { SiteDocument } from "@openspace/schema";
 import { loadTemplate } from "@openspace/templates";
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { TooltipProvider } from "../../ui";
 import { useToastStore } from "../../ui/toast-store";
 import { EditorStoreProvider } from "../editor/model/context";
 import { createEditorStore, type EditorStore } from "../editor/model/store";
 import { InspectorEnvProvider } from "../inspector/env";
-import { DesignCheckBadge, DesignCheckPanel } from "./DesignCheckPanel";
-import { canFix, countIssues, fixAllSafe, groupIssues, isSafeFix, runChecks } from "./model";
+import { applyIssueFix, DesignCheckBadge, DesignCheckPanel } from "./DesignCheckPanel";
+import {
+  bulkEligible,
+  canFix,
+  checkSite,
+  countIssues,
+  fixAllSafe,
+  groupIssues,
+  isSafeFix,
+  runChecks,
+} from "./model";
 import { PublishGate } from "./PublishGate";
 import { checkNow, useDesignCheck, useDesignCheckRunner } from "./store";
 
@@ -111,19 +120,45 @@ describe("Design check: model", () => {
     expect(aboutGroup.sections.map((s) => s.section)).toEqual(["", "sec_0000000000"]);
   });
 
-  it("fixes everything safe in one pass, never deleting anything", () => {
+  it("fixes everything safe in one pass: never deleting, never suggestions, never un-hiding a page", () => {
     const doc = brokenSite();
     const before = runChecks(doc, 1);
-    expect(isSafeFix(must(before.find((i) => i.rule === "empty-section")))).toBe(false);
+    const rule = (r: string) => must(before.find((i) => i.rule === r));
+    expect(isSafeFix(rule("empty-section"))).toBe(false);
+    // Showing a hidden page in search results is the owner's decision, one at a time.
+    expect(isSafeFix(rule("seo-noindex"))).toBe(false);
+    // Suggestions (info) have fixes but are never bulk-fixed.
+    expect(isSafeFix(rule("seo-description-missing"))).toBe(true);
+    expect(bulkEligible(rule("seo-description-missing"))).toBe(false);
     const { bodies, fixed, doc: after } = fixAllSafe(doc, "owner", 1);
-    expect(fixed.map((i) => i.rule).sort()).toEqual(
-      ["contrast-override", "seo-description-missing", "seo-noindex"].sort(),
-    );
+    expect(fixed.map((i) => i.rule)).toEqual(["contrast-override"]);
     expect(bodies.some((b) => b.op.endsWith(".delete"))).toBe(false);
     const left = runChecks(after, 1).map((i) => i.rule);
-    expect(left).toContain("empty-section");
-    expect(left).not.toContain("seo-noindex");
+    expect(left).toEqual(
+      expect.arrayContaining(["empty-section", "seo-noindex", "seo-description-missing"]),
+    );
     expect(left).not.toContain("contrast-override");
+  });
+
+  it("bulk-fixes only the issues the panel is showing", () => {
+    const doc = brokenSite();
+    const seoOnly = fixAllSafe(doc, "owner", 1, (i) => i.kind === "seo");
+    expect(seoOnly.fixed).toEqual([]);
+    const designOnly = fixAllSafe(doc, "owner", 1, (i) => i.kind === "design");
+    expect(designOnly.fixed.map((i) => i.rule)).toEqual(["contrast-override"]);
+  });
+
+  it("records checks that fail instead of reporting a clean site", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const doc = must(loadTemplate("meadow")).doc;
+    const boom = () => {
+      throw new Error("rule crashed");
+    };
+    const r = checkSite(doc, 1, { design: boom, seo: boom });
+    expect(r.issues).toEqual([]);
+    expect(r.failures[0]).toMatchObject({ check: "design", message: "rule crashed" });
+    expect(r.failures.filter((f) => f.check === "seo")).toHaveLength(Object.keys(doc.pages).length);
+    expect(warn).toHaveBeenCalled();
   });
 
   it("only offers fixes the person's role may make", () => {
@@ -173,13 +208,52 @@ describe("Design check: panel", () => {
 
   it("fixes all safe issues as one undo step", async () => {
     const { store, user } = setup();
-    await user.click(screen.getByRole("button", { name: /Fix all safe \(3\)/ }));
+    await user.click(screen.getByRole("button", { name: /Fix all safe \(1\)/ }));
     expect(store.getState().undoStack).toHaveLength(1);
-    expect(store.getState().undoStack[0]?.label).toBe("Fix 3 design issues");
+    expect(store.getState().undoStack[0]?.label).toBe("Fix 1 design issue");
+    // Hidden suggestions stayed as they were: the About page is still out of search.
+    const about = ids(store.getState().doc).about;
+    expect(store.getState().doc.pages[about as never]?.seo?.noindex).toBe(true);
     await settle();
     // The empty section is left for the owner to decide.
     expect(screen.getByRole("region", { name: "About" })).toHaveTextContent(/empty|nothing/i);
     expect(screen.getByRole("button", { name: /Design check: 2 issues/ })).toBeInTheDocument();
+  });
+
+  it("says a check couldn't run instead of “Looks good”, and so does the publish gate", () => {
+    const doc = must(loadTemplate("meadow")).doc;
+    const store = createEditorStore({ doc, actor: "user:test" });
+    useDesignCheck.getState().set(doc, [], [{ check: "design", message: "rule crashed" }]);
+    render(
+      <TooltipProvider>
+        <EditorStoreProvider store={store}>
+          <InspectorEnvProvider role="owner">
+            <DesignCheckBadge onOpen={() => {}} />
+            <DesignCheckPanel />
+            <PublishGate doc={doc} onReview={() => {}} />
+          </InspectorEnvProvider>
+        </EditorStoreProvider>
+      </TooltipProvider>,
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent("Couldn’t check your site");
+    expect(screen.queryByText("Looks good")).toBeNull();
+    expect(screen.getByRole("button", { name: /couldn’t check everything/ })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Design check" })).toHaveTextContent(
+      "Design check couldn’t check everything",
+    );
+  });
+
+  it("says “Already fixed” when the issue is gone by the time its fix is clicked", () => {
+    const doc = brokenSite();
+    const store = createEditorStore({ doc, actor: "user:test" });
+    const stale = must(runChecks(doc).find((i) => i.rule === "seo-noindex"));
+    // Fixed elsewhere (another tab, Claude…) before the panel re-checked.
+    store
+      .getState()
+      .commit([{ op: "page.update", page: ids(doc).about, unset: ["seo.noindex"] }] as never);
+    expect(applyIssueFix(store, stale)).toBe(false);
+    expect(useToastStore.getState().toasts.at(-1)?.title).toBe("Already fixed");
+    expect(store.getState().undoStack).toHaveLength(1);
   });
 
   it("jumps to the issue: switches page and selects the block", async () => {

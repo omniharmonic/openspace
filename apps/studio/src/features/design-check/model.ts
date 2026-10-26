@@ -25,27 +25,69 @@ export interface CheckedIssue extends Issue {
 export const kindOf = (issue: Issue): CheckKind =>
   issue.rule.startsWith("seo-") ? "seo" : "design";
 
-/** Run both checks on every page (and the footer). Never throws: a rule failure is skipped. */
-export function runChecks(doc: SiteDocument, now = Date.now()): CheckedIssue[] {
+/** A check that couldn't run (a rule threw on this document). */
+export interface CheckFailure {
+  check: CheckKind;
+  /** Page id; absent when the whole-site design check failed. */
+  page?: string;
+  message: string;
+}
+
+export interface CheckResult {
+  issues: CheckedIssue[];
+  failures: CheckFailure[];
+}
+
+/** The checkers (injectable for tests). */
+export interface Checkers {
+  design: typeof designCheck;
+  seo: typeof seoCheck;
+}
+
+const LINT: Checkers = { design: designCheck, seo: seoCheck };
+
+/**
+ * Run both checks on every page (and the footer). Never throws: a check that fails is
+ * recorded in `failures` (and logged), so Studio can say "couldn't check" instead of
+ * reporting a clean bill of health.
+ */
+export function checkSite(doc: SiteDocument, now = Date.now(), checkers = LINT): CheckResult {
   const options = { actor: "design-check", now };
   const out: Issue[] = [];
+  const failures: CheckFailure[] = [];
+  const fail = (check: CheckKind, err: unknown, page?: string) => {
+    const message = err instanceof Error ? err.message : String(err);
+    failures.push({ check, ...(page ? { page } : {}), message });
+    console.warn(`Design check: the ${check} check failed${page ? ` on ${page}` : ""}`, err);
+  };
   try {
-    out.push(...designCheck(doc, undefined, options));
-  } catch {
-    // A rule that can't read this document must not take the panel down.
+    out.push(...checkers.design(doc, undefined, options));
+  } catch (err) {
+    fail("design", err);
   }
   for (const page of Object.values(doc.pages)) {
     try {
-      out.push(...seoCheck(page, doc, options));
-    } catch {
-      // As above.
+      out.push(...checkers.seo(page, doc, options));
+    } catch (err) {
+      fail("seo", err, page.id);
     }
   }
   // Missing alt text is reported by both checks; show it once (the design check's, which
   // points at each image).
   const altPages = new Set(out.filter((i) => i.rule === "missing-alt").map((i) => i.page));
   const deduped = out.filter((i) => !(i.rule === "seo-image-alt" && altPages.has(i.page)));
-  return sortIssues(deduped).map((i) => ({ ...i, kind: kindOf(i) }));
+  return { issues: sortIssues(deduped).map((i) => ({ ...i, kind: kindOf(i) })), failures };
+}
+
+/** Where a failed check applies, in words. */
+export function failureWhere(doc: SiteDocument, f: CheckFailure): string {
+  if (!f.page) return "your site";
+  return doc.pages[f.page as keyof SiteDocument["pages"]]?.title ?? "a page";
+}
+
+/** The issues of {@link checkSite}. */
+export function runChecks(doc: SiteDocument, now = Date.now()): CheckedIssue[] {
+  return checkSite(doc, now).issues;
 }
 
 export interface IssueCounts {
@@ -171,6 +213,8 @@ export function canFix(doc: SiteDocument, issue: Issue, role: string): boolean {
   );
 }
 
+const NEVER_BULK = new Set(["seo-noindex"]);
+
 const DESTRUCTIVE = new Set(["section.delete", "block.delete", "page.delete", "media.remove"]);
 
 /**
@@ -180,6 +224,8 @@ const DESTRUCTIVE = new Set(["section.delete", "block.delete", "page.delete", "m
 export function isSafeFix(issue: Issue): boolean {
   const fix = issue.autofix;
   if (!fix?.ops.length) return false;
+  // Putting a page back into search results is the owner's call, never a bulk fix.
+  if (NEVER_BULK.has(issue.rule)) return false;
   return fix.ops.every((op) => !DESTRUCTIVE.has(op.op));
 }
 
@@ -197,7 +243,20 @@ export interface FixAllResult {
  * resolve or change other issues, and ids stay valid against the changing document — the same
  * loop as MCP `apply_fix: "all"`). Returns the combined ops for a single undoable commit.
  */
-export function fixAllSafe(doc: SiteDocument, role: string, now = Date.now()): FixAllResult {
+/**
+ * Which issues "Fix all safe" may touch: never suggestions (info), and only the ones the
+ * person can currently see (the panel passes its filter).
+ */
+export function bulkEligible(issue: CheckedIssue, shown?: (i: CheckedIssue) => boolean): boolean {
+  return issue.severity !== "info" && isSafeFix(issue) && (shown ? shown(issue) : true);
+}
+
+export function fixAllSafe(
+  doc: SiteDocument,
+  role: string,
+  now = Date.now(),
+  shown?: (i: CheckedIssue) => boolean,
+): FixAllResult {
   const registry = blocksRegistry();
   let cur = doc;
   const bodies: OpBody[] = [];
@@ -205,7 +264,7 @@ export function fixAllSafe(doc: SiteDocument, role: string, now = Date.now()): F
   const tried = new Set<string>();
   for (let guard = 0; guard < 200; guard++) {
     const next = runChecks(cur, now).find(
-      (i) => !tried.has(i.id) && isSafeFix(i) && canFix(cur, i, role),
+      (i) => !tried.has(i.id) && bulkEligible(i, shown) && canFix(cur, i, role),
     );
     if (!next?.autofix) break;
     tried.add(next.id);

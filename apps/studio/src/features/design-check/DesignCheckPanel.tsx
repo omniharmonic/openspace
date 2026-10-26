@@ -1,4 +1,5 @@
 import type { OpBody } from "@openspace/ops";
+import type { SiteDocument } from "@openspace/schema";
 import {
   CircleAlert,
   CircleCheck,
@@ -15,12 +16,14 @@ import type { EditorStore } from "../editor/model/store";
 import { useCanvasDocument } from "../inspector/canvasDoc";
 import { useInspectorRole } from "../inspector/env";
 import {
+  bulkEligible,
   type CheckedIssue,
+  type CheckFailure,
   type CheckKind,
   canFix,
+  failureWhere,
   fixAllSafe,
   groupIssues,
-  isSafeFix,
   issueTarget,
   runChecks,
 } from "./model";
@@ -63,7 +66,13 @@ export function jumpToIssue(store: EditorStore, issue: CheckedIssue) {
  */
 export function applyIssueFix(store: EditorStore, issue: CheckedIssue): boolean {
   const doc = store.getState().doc;
-  const fresh = runChecks(doc).find((i) => i.id === issue.id) ?? issue;
+  const fresh = runChecks(doc).find((i) => i.id === issue.id);
+  if (!fresh) {
+    // Someone (or another fix) already took care of it.
+    toast({ title: "Already fixed", description: "This issue is gone after checking again." });
+    checkNow(doc);
+    return false;
+  }
   const fix = fresh.autofix;
   if (!fix) return false;
   const r = store.getState().commit(fix.ops.map(stripMeta), { label: fix.label });
@@ -85,8 +94,12 @@ export function applyIssueFix(store: EditorStore, issue: CheckedIssue): boolean 
 }
 
 /** Apply every safe fix the person may make, as one undo step. Returns how many issues. */
-export function applyAllSafe(store: EditorStore, role: string): number {
-  const { bodies, fixed } = fixAllSafe(store.getState().doc, role);
+export function applyAllSafe(
+  store: EditorStore,
+  role: string,
+  shown?: (i: CheckedIssue) => boolean,
+): number {
+  const { bodies, fixed } = fixAllSafe(store.getState().doc, role, Date.now(), shown);
   if (!bodies.length) return 0;
   const label = `Fix ${fixed.length} design ${fixed.length === 1 ? "issue" : "issues"}`;
   const r = store.getState().commit(bodies, { label });
@@ -148,6 +161,21 @@ function IssueRow({
   );
 }
 
+function CheckFailures({ failures, doc }: { failures: CheckFailure[]; doc: SiteDocument }) {
+  return (
+    <div className="st-dc__failed" role="alert">
+      {failures.map((f) => (
+        <p key={`${f.check}:${f.page ?? ""}`}>
+          <TriangleAlert aria-hidden="true" />
+          Couldn’t check {failureWhere(doc, f)}
+          {f.check === "seo" ? " for search" : ""}. Some issues may not be listed; try again after
+          your next change.
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export interface DesignCheckPanelProps {
   /** Where "Show" goes (default: select it and scroll the canvas to it). */
   onJump?: (issue: CheckedIssue) => void;
@@ -161,20 +189,21 @@ export function DesignCheckPanel({ onJump }: DesignCheckPanelProps) {
   const issues = useDesignCheck((s) => s.issues);
   const checked = useDesignCheck((s) => s.checked);
   const stale = useDesignCheck((s) => s.stale);
+  const failures = useDesignCheck((s) => s.failures);
   const [kind, setKind] = useState<CheckKind | "all">("all");
   const [showInfo, setShowInfo] = useState(false);
 
-  const shown = useMemo(
-    () =>
-      issues.filter(
-        (i) => (kind === "all" || i.kind === kind) && (showInfo || i.severity !== "info"),
-      ),
-    [issues, kind, showInfo],
+  const visible = useMemo(
+    () => (i: CheckedIssue) =>
+      (kind === "all" || i.kind === kind) && (showInfo || i.severity !== "info"),
+    [kind, showInfo],
   );
+  const shown = useMemo(() => issues.filter(visible), [issues, visible]);
   const groups = useMemo(() => groupIssues(doc, shown), [doc, shown]);
+  // Bulk fixes touch only what's on screen, never suggestions.
   const fixable = useMemo(
-    () => issues.filter((i) => isSafeFix(i) && canFix(doc, i, role)).length,
-    [issues, doc, role],
+    () => issues.filter((i) => bulkEligible(i, visible) && canFix(doc, i, role)).length,
+    [issues, visible, doc, role],
   );
   const infoCount = issues.filter((i) => i.severity === "info").length;
   const jump = onJump ?? ((i: CheckedIssue) => jumpToIssue(api, i));
@@ -214,13 +243,14 @@ export function DesignCheckPanel({ onJump }: DesignCheckPanelProps) {
             variant="primary"
             icon={<WandSparkles />}
             disabled={fixable === 0}
-            onClick={() => applyAllSafe(api, role)}
+            onClick={() => applyAllSafe(api, role, visible)}
           >
             Fix all safe{fixable ? ` (${fixable})` : ""}
           </Button>
         </div>
       </div>
-      {groups.length === 0 ? (
+      {failures.length > 0 && <CheckFailures failures={failures} doc={doc} />}
+      {groups.length === 0 && failures.length > 0 ? null : groups.length === 0 ? (
         <EmptyState
           size="sm"
           icon={issues.length ? <SearchCheck /> : <CircleCheck />}
@@ -274,13 +304,16 @@ export function DesignCheckBadge({
 }) {
   const counts = useDesignCheck((s) => s.counts);
   const checked = useDesignCheck((s) => s.checked);
+  const failed = useDesignCheck((s) => s.failures.length > 0);
   const n = counts.attention;
-  const tone = counts.error ? "error" : counts.warning ? "warning" : "ok";
+  const tone = counts.error ? "error" : counts.warning || failed ? "warning" : "ok";
   const label = !checked
     ? "Design check"
-    : n === 0
-      ? "Design check: no issues"
-      : `Design check: ${n} ${n === 1 ? "issue" : "issues"}`;
+    : failed
+      ? `Design check couldn’t check everything${n ? `; ${n} ${n === 1 ? "issue" : "issues"}` : ""}`
+      : n === 0
+        ? "Design check: no issues"
+        : `Design check: ${n} ${n === 1 ? "issue" : "issues"}`;
   return (
     <button
       type="button"
@@ -290,7 +323,9 @@ export function DesignCheckBadge({
       title={label}
     >
       <SearchCheck aria-hidden="true" />
-      {checked && n > 0 && <span className="st-dc-badge__n st-num">{n}</span>}
+      {checked && (n > 0 || failed) && (
+        <span className="st-dc-badge__n st-num">{n > 0 ? n : "!"}</span>
+      )}
     </button>
   );
 }

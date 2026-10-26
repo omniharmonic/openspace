@@ -262,3 +262,32 @@
     justify-content: center;
   }
 }
+
+.st-dc__failed {
+  display: grid;
+  gap: 4px;
+  margin: 8px 12px 0;
+  padding: 8px 10px;
+  border-radius: var(--st-r-sm);
+  background: var(--st-pending-soft);
+}
+
+.st-dc__failed p {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.st-dc__failed svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  color: var(--st-pending);
+}
+
+.st-dc-gate__note {
+  margin: 0;
+  color: var(--st-text-2);
+}
