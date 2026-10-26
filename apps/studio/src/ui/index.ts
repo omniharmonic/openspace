@@ -32,3 +32,4 @@ export { Toaster } from "./Toast";
 export { toast, useToastStore } from "./toast-store";
 export { Toggle } from "./Toggle";
 export { Tooltip, TooltipProvider } from "./Tooltip";
+export { useShortcuts } from "./useShortcut";

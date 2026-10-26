@@ -69,6 +69,8 @@ export function formatShortcut(shortcut: string, platform: Platform = detectPlat
 
 interface KeyLike {
   key: string;
+  /** Physical key; lets ⌥1 match on macOS where `key` becomes "¡". */
+  code?: string;
   metaKey: boolean;
   ctrlKey: boolean;
   altKey: boolean;
@@ -93,7 +95,12 @@ export function matchesShortcut(
   if (mods.has("shift") && !event.shiftKey) return false;
   if (!mods.has("shift") && event.shiftKey && key && /^[a-z0-9]$/.test(key)) return false;
   const pressed = event.key.toLowerCase();
-  if (key === "backslash") return pressed === "\\";
+  if (key === "backslash") return pressed === "\\" || event.code === "Backslash";
   if (key === "space") return pressed === " ";
-  return pressed === key;
+  if (pressed === key) return true;
+  if (key && event.code) {
+    if (/^[a-z]$/.test(key)) return event.code === `Key${key.toUpperCase()}`;
+    if (/^[0-9]$/.test(key)) return event.code === `Digit${key}`;
+  }
+  return false;
 }

@@ -1,0 +1,192 @@
+.st-sketch {
+  container-type: inline-size;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--k-bg);
+  color: var(--k-text);
+  font-family: var(--k-body);
+  isolation: isolate;
+  text-align: left;
+  user-select: none;
+}
+
+.st-sketch--page {
+  aspect-ratio: auto;
+  min-height: 100%;
+}
+
+.st-sketch__part {
+  transition: opacity 420ms var(--st-ease-out), transform 520ms var(--st-ease-out);
+}
+
+.st-sketch__part[data-shown="false"] {
+  opacity: 0;
+  transform: translateY(2.5cqw);
+}
+
+.st-sketch i {
+  display: block;
+  height: 1.1cqw;
+  border-radius: 1cqw;
+  background: currentColor;
+  opacity: 0.18;
+}
+
+.st-sketch__nav {
+  display: flex;
+  align-items: center;
+  gap: 4cqw;
+  padding: 3.4cqw 5.5cqw;
+}
+
+.st-sketch__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.5cqw;
+  font-family: var(--k-heading);
+  font-size: 2.6cqw;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40cqw;
+}
+
+.st-sketch__logo {
+  height: 3.4cqw;
+  width: auto;
+  max-width: 10cqw;
+  object-fit: contain;
+}
+
+.st-sketch__links {
+  display: flex;
+  gap: 2.4cqw;
+  margin-left: auto;
+}
+
+.st-sketch__links i {
+  width: 6cqw;
+  opacity: 0.32;
+}
+
+.st-sketch__btn {
+  display: block;
+  width: 15cqw;
+  height: 5cqw;
+  border-radius: min(var(--k-radius), 2.5cqw);
+  background: var(--k-accent);
+}
+
+.st-sketch__btn--sm {
+  width: 10cqw;
+  height: 3.8cqw;
+  border-radius: min(var(--k-radius), 1.9cqw);
+}
+
+.st-sketch__hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: 5cqw;
+  padding: 3cqw 5.5cqw 5cqw;
+}
+
+.st-sketch__copy {
+  display: grid;
+  gap: 2.4cqw;
+  min-width: 0;
+}
+
+.st-sketch__title {
+  font-family: var(--k-heading);
+  font-size: 6.6cqw;
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.st-sketch__tagline {
+  font-size: 2.3cqw;
+  line-height: 1.35;
+  color: var(--k-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.st-sketch__image {
+  aspect-ratio: 4 / 5;
+  background:
+    radial-gradient(120% 90% at 30% 20%, color-mix(in srgb, var(--k-accent) 55%, transparent), transparent 70%),
+    linear-gradient(160deg, var(--k-surface), color-mix(in srgb, var(--k-surface), var(--k-text) 18%));
+  border-radius: min(var(--k-radius), 3cqw);
+}
+
+.st-sketch__image--arch {
+  border-radius: 50cqw 50cqw min(var(--k-radius), 2cqw) min(var(--k-radius), 2cqw);
+}
+
+.st-sketch__image--circle {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.st-sketch__row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3cqw;
+  padding: 4cqw 5.5cqw;
+  background: var(--k-surface);
+}
+
+.st-sketch__card {
+  display: grid;
+  gap: 1.4cqw;
+}
+
+.st-sketch__card i:last-child {
+  width: 70%;
+}
+
+.st-sketch__thumb {
+  display: block;
+  aspect-ratio: 3 / 2;
+  margin-bottom: 0.6cqw;
+  border-radius: min(var(--k-radius), 1.6cqw);
+  background: color-mix(in srgb, var(--k-bg), var(--k-text) 9%);
+}
+
+.st-sketch__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 4cqw;
+  margin-top: auto;
+  padding: 4cqw 5.5cqw;
+}
+
+.st-sketch__foot i {
+  width: 18cqw;
+}
+
+.st-sketch__foot i:last-child {
+  width: 10cqw;
+}
+
+.st-sketch--page .st-sketch__row {
+  margin-top: 2cqw;
+}
+
+.st-sketch--page .st-sketch__image {
+  aspect-ratio: 1;
+}

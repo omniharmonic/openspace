@@ -71,15 +71,22 @@ export function NumberScrubInput({
     null,
   );
   const inputRef = useRef<HTMLInputElement>(null);
+  /** Set by Escape so the blur that follows doesn't commit the abandoned draft. */
+  const cancelled = useRef(false);
 
   useEffect(() => {
     if (!editing) setDraft(format(value, decimals, mixedLabel));
   }, [value, editing, decimals, mixedLabel]);
 
-  const normalize = (v: number) => roundTo(clamp(v, min, max), decimals + 1 > 4 ? 4 : decimals + 1);
+  // One extra decimal so ⌥-scrubbing (×0.1) is visible.
+  const normalize = (v: number) => roundTo(clamp(v, min, max), Math.min(decimals + 1, 4));
 
   const commitDraft = () => {
     setEditing(false);
+    if (cancelled.current) {
+      cancelled.current = false;
+      return;
+    }
     const parsed = evaluateExpression(draft);
     if (parsed == null) {
       setDraft(format(value, decimals, mixedLabel));
@@ -106,6 +113,7 @@ export function NumberScrubInput({
       commitDraft();
       inputRef.current?.select();
     } else if (e.key === "Escape") {
+      cancelled.current = true;
       setEditing(false);
       setDraft(format(value, decimals, mixedLabel));
       inputRef.current?.blur();

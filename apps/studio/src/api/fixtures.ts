@@ -23,6 +23,7 @@ function look(
 export const TEMPLATE_FIXTURES: TemplateSummary[] = [
   {
     id: "meadow",
+    sample: { name: "Willow Street Yoga", tagline: "Slow classes for busy people" },
     name: "Meadow",
     description: "Calm pages for a practice: class schedule, booking and a welcoming about page.",
     persona: "Yoga, therapy, bodywork, wellness",
@@ -56,6 +57,7 @@ export const TEMPLATE_FIXTURES: TemplateSummary[] = [
   },
   {
     id: "harbor",
+    sample: { name: "Riverbend Food Share", tagline: "Groceries for every neighbour, every week" },
     name: "Harbor",
     description: "Programs, events and an impact band for organisations people rely on.",
     persona: "Nonprofits, community orgs",
@@ -86,6 +88,7 @@ export const TEMPLATE_FIXTURES: TemplateSummary[] = [
   },
   {
     id: "atelier",
+    sample: { name: "Noor Haddad", tagline: "Photographs of quiet places" },
     name: "Atelier",
     description: "A gallery-first portfolio with full-bleed slideshows and a quiet project index.",
     persona: "Photographers, visual artists",
@@ -116,6 +119,7 @@ export const TEMPLATE_FIXTURES: TemplateSummary[] = [
   },
   {
     id: "ledger",
+    sample: { name: "Okafor Advisory", tagline: "Clear plans for growing nonprofits" },
     name: "Ledger",
     description: "Case studies, services with outcomes and a clear booking call for independent experts.",
     persona: "Consultants, coaches, freelancers",
@@ -146,6 +150,7 @@ export const TEMPLATE_FIXTURES: TemplateSummary[] = [
   },
   {
     id: "hearth",
+    sample: { name: "Pan & Crumb", tagline: "Sourdough, every morning at seven" },
     name: "Hearth",
     description: "Menu, hours, map and reservations for places people come back to.",
     persona: "Restaurants, cafés, bakeries",
@@ -176,6 +181,7 @@ export const TEMPLATE_FIXTURES: TemplateSummary[] = [
   },
   {
     id: "signal",
+    sample: { name: "Tidewater", tagline: "Scheduling that respects your weekends" },
     name: "Signal",
     description: "Feature grids, pricing, FAQ and a changelog for launching something new.",
     persona: "Products, startups, launches",

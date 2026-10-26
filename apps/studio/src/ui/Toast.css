@@ -133,3 +133,18 @@
     transform: translateY(6px);
   }
 }
+
+/* In the editor, toasts sit at the bottom-right of the canvas, clear of the checklist. */
+:root[data-toast-anchor="canvas"] .st-toast-viewport {
+  left: auto;
+  right: calc(var(--st-inspector-w) + 16px);
+  width: min(400px, calc(100vw - 32px));
+  transform: none;
+}
+
+@media (max-width: 767px) {
+  :root[data-toast-anchor="canvas"] .st-toast-viewport {
+    right: 16px;
+    bottom: 64px;
+  }
+}

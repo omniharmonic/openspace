@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { Dialog as RDialog } from "radix-ui";
-import type { ReactElement, ReactNode } from "react";
+import { type ReactElement, type ReactNode, useRef } from "react";
 import { cx } from "./cx";
 import "./Dialog.css";
 import { IconButton } from "./IconButton";
@@ -32,13 +32,23 @@ export function Dialog({
   width = 440,
   className,
 }: DialogProps) {
+  const content = useRef<HTMLDivElement>(null);
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       {trigger && <RDialog.Trigger asChild>{trigger}</RDialog.Trigger>}
       <RDialog.Portal>
         <RDialog.Overlay className="st-dialog__overlay" />
         <RDialog.Content
+          ref={content}
           className={cx("st-dialog", className)}
+          onOpenAutoFocus={(e) => {
+            // Prefer a field marked data-autofocus over the close button.
+            const target = content.current?.querySelector<HTMLElement>("[data-autofocus]");
+            if (target) {
+              e.preventDefault();
+              target.focus();
+            }
+          }}
           style={{ width: `min(${width}px, calc(100vw - 32px))` }}
           {...(description ? {} : NO_DESCRIPTION)}
         >

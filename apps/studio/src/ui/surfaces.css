@@ -57,7 +57,7 @@
   opacity: 0.85;
 }
 
-.st-menu__item[data-disabled] {
+.st-menu__item[data-disabled]:not([data-disabled="false"]) {
   opacity: 0.4;
 }
 

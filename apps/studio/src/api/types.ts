@@ -55,6 +55,8 @@ export interface TemplateSummary {
   persona: string;
   mood: string;
   looks: TemplateLook[];
+  /** Demo owner the template's sample content is written for. */
+  sample?: { name: string; tagline: string };
   thumbnailUrl?: string | null;
   /** Live preview page; `?look=<id>` selects a look. */
   previewUrl?: string | null;
