@@ -106,4 +106,8 @@ What moved out of the first load:
   (Add section, Site styles, Looks, Settings, Advanced/CodeMirror and libsodium already were).
 
 The inspector's text fields commit 60 ms after the last keystroke (was 250 ms), so the canvas
-follows typing within the 100 ms target; a burst still merges into one undo step.
+follows typing within the 100 ms target; a burst still merges into one undo step. The network
+doesn't pay for it: within a typing burst the room client sends the first keystroke at once,
+then replaces the burst's unsent update of the same fields and sends at most every 400 ms
+(`COALESCE_MS`). A 23-keystroke burst reaches the room as at most 3 ops instead of 23
+(`RoomClient.test.ts`).
