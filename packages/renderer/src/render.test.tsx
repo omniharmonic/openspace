@@ -91,6 +91,27 @@ describe("SectionView", () => {
     expect(order).toEqual([IDS.c1, IDS.c3, IDS.c2]);
   });
 
+  it("pins grid items to the first or last row (negative lines from the bottom)", () => {
+    const g = grid.layout as Extract<typeof grid.layout, { mode: "grid" }>;
+    const pinned = {
+      ...grid,
+      layout: {
+        ...g,
+        items: {
+          ...g.items,
+          [IDS.c1]: {
+            d: { x: 1, y: 13, w: 10, h: 4, pin: "bottom" as const },
+            m: { x: 1, y: 1, w: 8, h: 3, pin: "top" as const },
+          },
+        },
+      },
+    };
+    const out = html(<SectionView section={pinned} />);
+    expect(out).toMatch(
+      /data-os-item="blk_c1c1c1c1c1" style="--x:1;--y:13;--w:10;--h:4;--rs:span 4;--re:-1;--tx:1;--ty:13;--tw:10;--th:4;--trs:span 4;--tre:-1;--mx:1;--my:1;--mw:8;--mh:3;--mrs:1"/,
+    );
+  });
+
   it("wraps sections in their color theme with data-os-id, background and reveal", () => {
     const out = html(<SectionView section={grid} />);
     expect(out).toContain('class="os-section os-theme-dark os-section--grid has-bg-image"');

@@ -612,9 +612,15 @@ export const signal: TemplateSpec = {
     {
       id: "electric",
       name: "Electric",
-      description: "Near-black chrome with an electric violet accent and Bricolage Grotesque headings.",
+      description:
+        "Near-black chrome with an electric violet accent and Bricolage Grotesque headings.",
       choices: {
-        palette: { brand: "oklch(0.55 0.25 285)", neutral: "cool", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.55 0.25 285)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "bricolage-geist",
         density: "comfortable",
         shape: "soft",
@@ -626,9 +632,15 @@ export const signal: TemplateSpec = {
     {
       id: "terminal",
       name: "Terminal",
-      description: "Near-black with a phosphor-green accent and IBM Plex Mono headings, for developer tools.",
+      description:
+        "Near-black with a phosphor-green accent and IBM Plex Mono headings, for developer tools.",
       choices: {
-        palette: { brand: "oklch(0.6 0.17 150)", neutral: "cool", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.6 0.17 150)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "plex-mono-plex-sans",
         density: "compact",
         shape: "sharp",
@@ -640,9 +652,15 @@ export const signal: TemplateSpec = {
     {
       id: "volt",
       name: "Volt",
-      description: "Near-black with an electric cyan accent, Space Grotesk headings and pill buttons.",
+      description:
+        "Near-black with an electric cyan accent, Space Grotesk headings and pill buttons.",
       choices: {
-        palette: { brand: "oklch(0.62 0.14 215)", neutral: "cool", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.62 0.14 215)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "space-grotesk-inter",
         density: "comfortable",
         shape: "round",
@@ -668,7 +686,7 @@ export const signal: TemplateSpec = {
         ],
         header: headerFrom("header/centered-nav@1", { sticky: true, colorTheme: "dark" }),
         footer: fromPreset("footer/columns@1", {
-        theme: "dark",
+          theme: "dark",
           edit: {
             "text:1": {
               content: rt.doc(

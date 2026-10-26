@@ -26,3 +26,16 @@ export function fallbackMobileRects(layout: GridLayout): Record<string, GridRect
   }
   return out;
 }
+
+/**
+ * Where a placement actually sits given its breakpoint's row count: pinned placements derive
+ * their row from the edge they are pinned to (`top` → row 1, `bottom` → the last `h` rows).
+ */
+export function pinnedRect(rect: GridRect, rows: number): GridRect {
+  if (rect.pin === "top") return rect.y === 1 ? rect : { ...rect, y: 1 };
+  if (rect.pin === "bottom") {
+    const y = Math.max(1, rows - rect.h + 1);
+    return rect.y === y ? rect : { ...rect, y };
+  }
+  return rect;
+}

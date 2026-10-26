@@ -97,6 +97,9 @@ export function matchesShortcut(
   const pressed = event.key.toLowerCase();
   if (key === "backslash") return pressed === "\\" || event.code === "Backslash";
   if (key === "space") return pressed === " ";
+  // ⌥ changes the character brackets type on macOS; match the physical key.
+  if (key === "]") return pressed === "]" || event.code === "BracketRight";
+  if (key === "[") return pressed === "[" || event.code === "BracketLeft";
   if (pressed === key) return true;
   if (key && event.code) {
     if (/^[a-z]$/.test(key)) return event.code === `Key${key.toUpperCase()}`;

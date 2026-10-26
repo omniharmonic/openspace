@@ -6,6 +6,7 @@ import { CollectionConfigSchema, CollectionItemSchema } from "./collections";
 import { SiteConfigSchema } from "./config";
 import { SiteDocumentSchema } from "./document";
 import { FormSchema } from "./form";
+import { pinnedRect } from "./grid-fallback";
 import { MediaMetaSchema } from "./media";
 import { PageSchema } from "./page";
 import { ImageValueSchema, LinkSchema, MediaSrcSchema } from "./primitives";
@@ -387,6 +388,13 @@ describe("Section", () => {
       "past the last row",
     );
     expectValid(SectionSchema, withItem({ d: { x: 1, y: 1, w: 24, h: 2, bleed: "both", z: 3 } }));
+    // Pinned placements (top/bottom), per breakpoint.
+    expectValid(SectionSchema, withItem({ d: { x: 1, y: 1, w: 10, h: 2, pin: "bottom" } }));
+    expectValid(
+      SectionSchema,
+      withItem({ d: { x: 1, y: 1, w: 10, h: 2 }, m: { x: 1, y: 1, w: 8, h: 2, pin: "top" } }),
+    );
+    expectInvalid(SectionSchema, withItem({ d: { x: 1, y: 1, w: 10, h: 2, pin: "middle" } }));
     expectInvalid(
       SectionSchema,
       { ...grid, blocks: grid.blocks.slice(0, 1) },
@@ -397,6 +405,14 @@ describe("Section", () => {
       { ...grid, layout: { ...g, items: { [IDS.c1]: g.items[IDS.c1] } } },
       "has no grid placement",
     );
+  });
+  it("derives the row of pinned placements from the row count", () => {
+    const r = { x: 3, y: 2, w: 6, h: 3 };
+    expect(pinnedRect(r, 12)).toBe(r);
+    expect(pinnedRect({ ...r, pin: "top" }, 12)).toEqual({ ...r, y: 1, pin: "top" });
+    expect(pinnedRect({ ...r, pin: "bottom" }, 12)).toEqual({ ...r, y: 10, pin: "bottom" });
+    // Taller than the grid: clamped to the first row.
+    expect(pinnedRect({ ...r, h: 20, pin: "bottom" }, 12).y).toBe(1);
   });
   it("validates style and background", () => {
     expectInvalid(SectionSchema, { ...hero, style: { colorTheme: "neon" } });

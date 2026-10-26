@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cx } from "../../../ui";
 import { DEVICE_HEIGHTS, DEVICE_WIDTHS, effectiveZoom, useEditorUi } from "../editor-store";
+import { gridController } from "../grid/controller";
 import { useDocStore, useDocStoreApi } from "../model/context";
 import { locate, type SelItem } from "../model/selection";
 import { fieldAtPoint, plainTextTargets } from "../text/fields";
@@ -160,7 +161,7 @@ export function Canvas({
       zoomAt.current(scale * Math.exp(-e.deltaY * 0.01), p.x, p.y);
     };
     const onMove = (e: PointerEvent) => {
-      if (useEditorUi.getState().panning) return;
+      if (useEditorUi.getState().panning || gridController.active) return;
       api.getState().setHover(itemAt(e.target));
     };
     let leaveTimer: ReturnType<typeof setTimeout> | undefined;
@@ -183,6 +184,11 @@ export function Canvas({
       return true;
     };
     const onClick = (e: MouseEvent) => {
+      if (gridController.consumeClick()) {
+        // The click that ends a grid drag or marquee.
+        e.preventDefault();
+        return;
+      }
       const s = api.getState();
       const inField = (e.target as Element).closest?.("[data-os-editing-field]");
       if (inField) {
@@ -208,12 +214,15 @@ export function Canvas({
       if (editAt(item.id, e)) e.preventDefault();
     };
     const stop = (e: Event) => e.preventDefault();
+    // Grid sections: drag blocks to move them, or drag on empty grid space to marquee-select.
+    const onDown = (e: PointerEvent) => gridController.pointerDownInFrame(e);
     win.addEventListener("wheel", onWheel, { passive: false });
     const offGestures = listenSafariPinch(win, scale, (z, x, y) => {
       const p = toClient(x, y);
       zoomAt.current(z, p.x, p.y);
     });
     frameDoc.addEventListener("pointermove", onMove);
+    frameDoc.addEventListener("pointerdown", onDown);
     frameDoc.documentElement.addEventListener("pointerleave", onLeave);
     frameDoc.addEventListener("click", onClick, true);
     frameDoc.addEventListener("dblclick", onDblClick, true);
@@ -222,6 +231,7 @@ export function Canvas({
       win.removeEventListener("wheel", onWheel);
       offGestures();
       frameDoc.removeEventListener("pointermove", onMove);
+      frameDoc.removeEventListener("pointerdown", onDown);
       frameDoc.documentElement.removeEventListener("pointerleave", onLeave);
       frameDoc.removeEventListener("click", onClick, true);
       frameDoc.removeEventListener("dblclick", onDblClick, true);

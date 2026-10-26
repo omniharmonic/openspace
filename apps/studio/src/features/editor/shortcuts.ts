@@ -1,4 +1,5 @@
 import { matchesShortcut } from "../../ui/shortcuts";
+import { gridNudge, gridZOrder } from "./grid/keys";
 import { deleteItems, duplicateItems, moveItems } from "./model/actions";
 import { firstChildOf, locate, parentOf, siblingOf } from "./model/selection";
 import type { EditorStore } from "./model/store";
@@ -21,7 +22,7 @@ export interface ShortcutEnv {
 export interface ShortcutDef {
   keys: string[];
   label: string;
-  group: "Edit" | "Select" | "View" | "Panels";
+  group: "Edit" | "Select" | "Grid" | "View" | "Panels";
   /** Return `false` to let the key through (nothing to act on). */
   run: (env: ShortcutEnv) => unknown;
 }
@@ -77,6 +78,50 @@ export const EDITOR_SHORTCUTS: ShortcutDef[] = [
   { keys: ["mod+c"], label: "Copy", group: "Edit", run: () => false },
   { keys: ["mod+x"], label: "Cut", group: "Edit", run: () => false },
   { keys: ["mod+v"], label: "Paste (on any page)", group: "Edit", run: () => false },
+  // Grid blocks: arrows nudge (⇧ four cells) and brackets restack; otherwise they fall through.
+  ...(
+    [
+      ["shift+arrowleft", -4, 0, "Nudge four cells"],
+      ["shift+arrowright", 4, 0, "Nudge four cells"],
+      ["shift+arrowup", 0, -4, "Nudge four cells"],
+      ["shift+arrowdown", 0, 4, "Nudge four cells"],
+      ["arrowleft", -1, 0, "Nudge one cell"],
+      ["arrowright", 1, 0, "Nudge one cell"],
+      ["arrowup", 0, -1, "Nudge one cell"],
+      ["arrowdown", 0, 1, "Nudge one cell"],
+    ] as const
+  ).map(
+    ([key, dc, dr, label]): ShortcutDef => ({
+      keys: [key],
+      label,
+      group: "Grid",
+      run: (e) => gridNudge(e.store, dc, dr),
+    }),
+  ),
+  {
+    keys: ["alt+mod+]"],
+    label: "Bring to front",
+    group: "Grid",
+    run: (e) => gridZOrder(e.store, "front"),
+  },
+  {
+    keys: ["alt+mod+["],
+    label: "Send to back",
+    group: "Grid",
+    run: (e) => gridZOrder(e.store, "back"),
+  },
+  {
+    keys: ["mod+]"],
+    label: "Bring forward",
+    group: "Grid",
+    run: (e) => gridZOrder(e.store, "forward"),
+  },
+  {
+    keys: ["mod+["],
+    label: "Send backward",
+    group: "Grid",
+    run: (e) => gridZOrder(e.store, "backward"),
+  },
   {
     keys: ["arrowup", "arrowleft"],
     label: "Select previous",
@@ -232,7 +277,8 @@ export function handleEditorKey(env: ShortcutEnv, event: KeyboardEvent): boolean
     if (typing && !WHILE_TYPING.has(key)) return false;
     if (SURFACE_KEYS.has(key.split("+").at(-1) ?? "") && !onSurface(event.target)) return false;
     const handled = def.run(env);
-    if (handled === false) return false;
+    // Not applicable: let a later definition for the same key (e.g. arrows) have it.
+    if (handled === false) continue;
     event.preventDefault();
     return true;
   }

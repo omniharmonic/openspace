@@ -95,13 +95,24 @@ function rectVars(rect: GridRect, bp: Breakpoint): CssVars {
   if (rect.z !== undefined) out[`--${p}z`] = rect.z;
   if (rect.bleed === "left" || rect.bleed === "both") out[`--${p}cs`] = "full-start";
   if (rect.bleed === "right" || rect.bleed === "both") out[`--${p}ce`] = "full-end";
+  // Pinned rows are drawn from their edge: the first line, or counted back from the last line
+  // (negative grid lines), so a bottom-pinned item stays on the last row however many rows
+  // there are.
+  if (rect.pin === "top") out[`--${p}rs`] = 1;
+  if (rect.pin === "bottom") {
+    out[`--${p}rs`] = `span ${rect.h}`;
+    out[`--${p}re`] = -1;
+  }
   return out;
 }
 
 /** Moved to `@openspace/schema` (pure, shared with `@openspace/lint`); re-exported here. */
 export { fallbackMobileRects } from "@openspace/schema";
 
-/** Inline vars for one grid item: `--x/--y/--w/--h/--z`, `--tx…`, `--mx…`, bleed lines. */
+/**
+ * Inline vars for one grid item: `--x/--y/--w/--h/--z`, `--tx…`, `--mx…`, bleed lines
+ * (`--cs/--ce`) and pinned row lines (`--rs/--re`).
+ */
 export function gridItemVars(
   layout: GridLayout,
   id: string,

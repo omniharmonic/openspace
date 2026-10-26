@@ -270,19 +270,24 @@ export type Placed = [block: Block, d: GridRect, m: GridRect];
 export const r = (x: number, y: number, w: number, h: number, extra: Partial<GridRect> = {}) =>
   ({ x, y, w, h, ...extra }) as GridRect;
 
-/** Rows a grid needs to hold its items at each breakpoint. */
+/** Rows a grid needs to hold its items at each breakpoint (tablet rows only when items set them). */
 export function gridRows(items: Record<string, { d: GridRect; t?: GridRect; m?: GridRect }>) {
+  const bottom = (r: GridRect) => r.y + r.h - 1;
   let d = 1;
+  let t = 1;
   let m = 1;
+  let hasT = false;
   let hasM = false;
   for (const it of Object.values(items)) {
-    d = Math.max(d, it.d.y + it.d.h - 1, it.t ? it.t.y + it.t.h - 1 : 1);
+    d = Math.max(d, bottom(it.d));
+    t = Math.max(t, bottom(it.t ?? it.d));
+    if (it.t) hasT = true;
     if (it.m) {
       hasM = true;
-      m = Math.max(m, it.m.y + it.m.h - 1);
+      m = Math.max(m, bottom(it.m));
     }
   }
-  return hasM ? { d, m } : { d };
+  return { d, ...(hasT ? { t } : {}), ...(hasM ? { m } : {}) };
 }
 
 export function grid(

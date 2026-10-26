@@ -36,6 +36,11 @@ describe("os.css", () => {
     expect(BASE_CSS).toContain("[content-start] repeat(24,");
     expect(BASE_CSS).toContain("repeat(8,minmax(0,1fr))");
     expect(BASE_CSS).toContain("grid-auto-rows:minmax(var(--row-unit),auto)");
+    // Pinned rows (`--rs/--re`) override the row placement at every breakpoint.
+    for (const p of ["m", "t", ""])
+      expect(BASE_CSS).toContain(
+        `grid-row:var(--${p}rs,var(--${p}y))/var(--${p}re,span var(--${p}h))`,
+      );
     expect(BASE_CSS).toContain("@media (min-width:768px)");
     expect(BASE_CSS).toContain("@media (min-width:1200px)");
     expect(BASE_CSS).toContain("container-type:inline-size");

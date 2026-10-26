@@ -2,7 +2,7 @@ import { Dialog, Kbd } from "../../../ui";
 import { useEditorUi } from "../editor-store";
 import { EDITOR_SHORTCUTS } from "../shortcuts";
 
-const GROUPS = ["Edit", "Select", "View", "Panels"] as const;
+const GROUPS = ["Edit", "Select", "Grid", "View", "Panels"] as const;
 
 /** The `?` sheet: every editor shortcut, grouped. */
 export function ShortcutsSheet() {
@@ -19,7 +19,9 @@ export function ShortcutsSheet() {
           <section key={g} className="st-keys__group" aria-label={g}>
             <h3>{g}</h3>
             <dl>
-              {EDITOR_SHORTCUTS.filter((d) => d.group === g).map((d) => (
+              {EDITOR_SHORTCUTS.filter(
+                (d, i, all) => d.group === g && all.findIndex((o) => o.label === d.label) === i,
+              ).map((d) => (
                 <div key={d.label} className="st-keys__row">
                   <dt>{d.label}</dt>
                   <dd>

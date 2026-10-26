@@ -66,6 +66,13 @@ export const GridRectSchema = z.strictObject({
   z: z.int().min(0).max(100).optional(),
   /** Bleed to the viewport edge via the full-bleed tracks (uses full-start/full-end lines). */
   bleed: z.enum(["left", "right", "both"]).optional(),
+  /**
+   * Pin to the section's first (`top`) or last (`bottom`) row at this breakpoint. A pinned
+   * placement keeps `h`; its `y` is derived (`top` → 1, `bottom` → rows − h + 1) and rendered
+   * with grid lines counted from that edge, so a bottom-pinned block stays on the last row when
+   * rows are added. `y` is still stored (kept in range) for tools that ignore pins.
+   */
+  pin: z.enum(["top", "bottom"]).optional(),
 });
 export type GridRect = z.infer<typeof GridRectSchema>;
 

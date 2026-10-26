@@ -119,7 +119,7 @@ ${typeClasses}
 
 /* Grid mode (arch §3.3): 8 columns on mobile, 24 from tablet up; rows grow to fit content */
 .os-grid{--row-unit:1.25rem;--grid-gap:${v(T.space["2xs"])};display:grid;grid-template-columns:[full-start] ${v(T.section.gutter)} [content-start] repeat(8,minmax(0,1fr)) [content-end] ${v(T.section.gutter)} [full-end];grid-template-rows:repeat(var(--mrows,1),minmax(var(--row-unit),auto));grid-auto-rows:minmax(var(--row-unit),auto);column-gap:var(--grid-gap)}
-.os-grid__item{grid-column:var(--mcs,calc(var(--mx) + 1))/var(--mce,calc(var(--mx) + 1 + var(--mw)));grid-row:var(--my)/span var(--mh);z-index:var(--mz,1);min-width:0;display:flex;flex-direction:column}
+.os-grid__item{grid-column:var(--mcs,calc(var(--mx) + 1))/var(--mce,calc(var(--mx) + 1 + var(--mw)));grid-row:var(--mrs,var(--my))/var(--mre,span var(--mh));z-index:var(--mz,1);min-width:0;display:flex;flex-direction:column}
 .os-grid__item>.os-block{flex:1}
 .os-grid__item.os-grid__item--unplaced{grid-column:content-start/content-end;grid-row:auto}
 
@@ -129,7 +129,7 @@ ${typeClasses}
 .os-stack{grid-template-columns:var(--tcols,minmax(0,1fr))}
 .os-col{order:var(--to,0)}
 .os-grid{--row-unit:1.5rem;grid-template-columns:[full-start] minmax(${v(T.section.gutter)},1fr) [content-start] repeat(24,minmax(0,calc((var(--content-max) - 23 * var(--grid-gap)) / 24))) [content-end] minmax(${v(T.section.gutter)},1fr) [full-end];grid-template-rows:repeat(var(--trows,1),minmax(var(--row-unit),auto))}
-.os-grid__item{grid-column:var(--tcs,calc(var(--tx) + 1))/var(--tce,calc(var(--tx) + 1 + var(--tw)));grid-row:var(--ty)/span var(--th);z-index:var(--tz,1)}
+.os-grid__item{grid-column:var(--tcs,calc(var(--tx) + 1))/var(--tce,calc(var(--tx) + 1 + var(--tw)));grid-row:var(--trs,var(--ty))/var(--tre,span var(--th));z-index:var(--tz,1)}
 }
 @media (min-width:1200px){
 .os-page{--bar-h:calc(max(var(--logo-h,2.5rem),2.75rem) + 2rem)}
@@ -137,7 +137,7 @@ ${typeClasses}
 .os-stack{grid-template-columns:var(--cols,minmax(0,1fr))}
 .os-col{order:0}
 .os-grid{grid-template-rows:repeat(var(--rows,1),minmax(var(--row-unit),auto))}
-.os-grid__item{grid-column:var(--cs,calc(var(--x) + 1))/var(--ce,calc(var(--x) + 1 + var(--w)));grid-row:var(--y)/span var(--h);z-index:var(--z,1)}
+.os-grid__item{grid-column:var(--cs,calc(var(--x) + 1))/var(--ce,calc(var(--x) + 1 + var(--w)));grid-row:var(--rs,var(--y))/var(--re,span var(--h));z-index:var(--z,1)}
 }
 
 /* Blocks: container-query context + token style overrides */
