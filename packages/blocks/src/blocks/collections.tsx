@@ -195,7 +195,9 @@ export const summaryBlock = defineBlock({
   },
   render: ({ id, fields, variant, style }) => {
     const HTag = fields.headingLevel;
-    const ITag = childLevel(fields.headingLevel);
+    // Item titles sit one level under the list's own heading; without one they take its level
+    // (so a section heading h2 is followed by h3 items, never a skipped level).
+    const ITag = fields.heading ? childLevel(fields.headingLevel) : fields.headingLevel;
     const { basePath } = useRenderContext();
     const locale = useLocale();
     const items = useCollectionQuery(fields.source);
@@ -426,7 +428,9 @@ export const eventsBlock = defineBlock({
   },
   render: ({ id, fields, variant, style }) => {
     const HTag = fields.headingLevel;
-    const ITag = childLevel(fields.headingLevel);
+    // Item titles sit one level under the list's own heading; without one they take its level
+    // (so a section heading h2 is followed by h3 items, never a skipped level).
+    const ITag = fields.heading ? childLevel(fields.headingLevel) : fields.headingLevel;
     const { basePath, doc } = useRenderContext();
     const locale = useLocale();
     const events = useCollectionQuery(fields.source).filter(
