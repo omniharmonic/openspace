@@ -7,7 +7,7 @@ import type { HubBindings } from "../env";
 import { DRAFT_BRANCH, MAIN_BRANCH, parseRepo } from "../github/types";
 import { randomId } from "../lib/crypto";
 import { HttpError, notFound } from "../lib/errors";
-import { roomStub } from "../room";
+import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
 import { buildErrorByCode } from "./build-errors";
 import type { Services } from "./index";
@@ -129,7 +129,7 @@ export async function restoreSnapshot(
   if (!sha) throw notFound("We couldn't find that snapshot.");
   const files = await gh.readFiles(repo, sha, { textOnly: true });
   const doc = loadSiteDocument(files);
-  const result = await roomStub(env, site.id).restoreDocument(site.id, user.id, doc);
+  const result = await unwrapRoom(roomStub(env, site.id).restoreDocument(site.id, user.id, doc));
   await audit(services.db, {
     siteId: site.id,
     actor: user.id,
@@ -270,10 +270,12 @@ export async function runDueSchedules(
         .bind(s.site_id)
         .first<{ archived_at: number | null }>();
       if (!site || site.archived_at) throw new Error("Site no longer exists");
-      const result: PublishResult = await roomStub(env, s.site_id).publish(s.site_id, {
-        userId: s.created_by,
-        actor: `schedule:${s.id}`,
-      });
+      const result: PublishResult = await unwrapRoom(
+        roomStub(env, s.site_id).publish(s.site_id, {
+          userId: s.created_by,
+          actor: `schedule:${s.id}`,
+        }),
+      );
       await services.db
         .prepare("UPDATE schedules SET status = 'done', finished_at = ?, payload = ? WHERE id = ?")
         .bind(services.now(), JSON.stringify(result), s.id)

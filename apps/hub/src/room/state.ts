@@ -48,7 +48,7 @@ CREATE INDEX IF NOT EXISTS ops_actor ON ops(actor, seq);
 CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, content TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS actors (
   actor TEXT PRIMARY KEY, user_id TEXT NOT NULL, name TEXT NOT NULL, email TEXT,
-  kind TEXT NOT NULL, label TEXT
+  kind TEXT NOT NULL, label TEXT, for_name TEXT
 );
 CREATE TABLE IF NOT EXISTS members (user_id TEXT PRIMARY KEY, role TEXT NOT NULL, locked TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS agent_sessions (
@@ -69,9 +69,10 @@ export interface ActorInfo {
   name: string;
   email: string | null;
   kind: ActorKind;
-  /** Agents: the MCP client label ("Claude") and session id. */
+  /** Agents: the MCP client label ("Claude"), session id and the person it works for. */
   label?: string;
   session?: string;
+  onBehalfOf?: string;
 }
 
 export interface SubmitInput {
@@ -331,14 +332,16 @@ export class RoomState {
 
   rememberActor(a: ActorInfo): void {
     this.sql.exec(
-      `INSERT INTO actors (actor, user_id, name, email, kind, label) VALUES (?, ?, ?, ?, ?, ?)
-       ON CONFLICT (actor) DO UPDATE SET name = excluded.name, email = excluded.email, label = excluded.label`,
+      `INSERT INTO actors (actor, user_id, name, email, kind, label, for_name) VALUES (?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT (actor) DO UPDATE SET name = excluded.name, email = excluded.email,
+         label = excluded.label, for_name = excluded.for_name`,
       a.actor,
       a.userId,
       a.name,
       a.email,
       a.kind,
       a.label ?? null,
+      a.onBehalfOf ?? null,
     );
   }
 
@@ -349,6 +352,7 @@ export class RoomState {
     email: string | null;
     kind: ActorKind;
     label: string | null;
+    forName: string | null;
   } | null {
     const r = this.sql
       .exec<{
@@ -358,6 +362,7 @@ export class RoomState {
         email: string | null;
         kind: string;
         label: string | null;
+        for_name: string | null;
       }>("SELECT * FROM actors WHERE actor = ?", actor)
       .toArray()[0];
     return r
@@ -368,6 +373,7 @@ export class RoomState {
           email: r.email,
           kind: r.kind as ActorKind,
           label: r.label,
+          forName: r.for_name,
         }
       : null;
   }

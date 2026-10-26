@@ -5,7 +5,7 @@ import { audit } from "../db/audit";
 import type { User } from "../db/users";
 import type { HubBindings } from "../env";
 import { HttpError, notFound } from "../lib/errors";
-import { roomStub, type SubmitResult } from "../room";
+import { roomStub, type SubmitResult, unwrapRoom } from "../room";
 import type { Services } from "./index";
 import { requireRole, siteForUser } from "./sites";
 
@@ -108,7 +108,7 @@ export async function approveSubmission(
   requireRole(site, "editor");
   const row = await pending(services, id, approvalId);
   const room = roomStub(env, id);
-  const { doc, seq } = await room.getDocument(id);
+  const { doc, seq } = await unwrapRoom(room.getDocument(id));
   const item = (doc as SiteDocument).collections[row.collection]?.[row.slug];
   if (!item) throw new HttpError(409, "item_missing", "That item was deleted from the draft.");
   const op = {
@@ -119,11 +119,13 @@ export async function approveSubmission(
     actor: user.login,
     ts: services.now(),
   } as unknown as Op;
-  const { results } = await room.submit(id, {
-    ops: [op],
-    baseSeq: seq,
-    actor: { userId: user.id, kind: "human" },
-  });
+  const { results } = await unwrapRoom(
+    room.submit(id, {
+      ops: [op],
+      baseSeq: seq,
+      actor: { userId: user.id, kind: "human" },
+    }),
+  );
   const r = results[0] as SubmitResult | undefined;
   if (r?.status !== "accepted")
     throw new HttpError(

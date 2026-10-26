@@ -4,7 +4,7 @@ import { requireUser } from "../auth/session";
 import { studioOrigins } from "../lib/cors";
 import { errorBody, HttpError } from "../lib/errors";
 import { readJson } from "../lib/validate";
-import { roomStub } from "../room";
+import { roomStub, unwrapRoom } from "../room";
 import { siteForUser } from "../services/sites";
 import type { AppEnv } from "../types";
 
@@ -59,7 +59,7 @@ roomRoutes.get("/:id/room", async (c) => {
 roomRoutes.get("/:id/room/document", async (c) => {
   const user = requireUser(c);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
-  const { doc, seq, head } = await roomStub(c.env, site.id).getDocument(site.id);
+  const { doc, seq, head } = await unwrapRoom(roomStub(c.env, site.id).getDocument(site.id));
   return c.json({ document: doc, seq, head });
 });
 
@@ -67,25 +67,27 @@ roomRoutes.post("/:id/room/ops", async (c) => {
   const user = requireUser(c);
   const input = await readJson(c, SubmitSchema);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
-  const result = await roomStub(c.env, site.id).submit(site.id, {
-    ops: input.ops,
-    ...(input.baseSeq !== undefined ? { baseSeq: input.baseSeq } : {}),
-    actor: input.session
-      ? {
-          userId: user.id,
-          kind: "agent",
-          session: input.session,
-          ...(input.label ? { label: input.label } : {}),
-        }
-      : { userId: user.id, kind: "human" },
-  });
+  const result = await unwrapRoom(
+    roomStub(c.env, site.id).submit(site.id, {
+      ops: input.ops,
+      ...(input.baseSeq !== undefined ? { baseSeq: input.baseSeq } : {}),
+      actor: input.session
+        ? {
+            userId: user.id,
+            kind: "agent",
+            session: input.session,
+            ...(input.label ? { label: input.label } : {}),
+          }
+        : { userId: user.id, kind: "human" },
+    }),
+  );
   return c.json(result);
 });
 
 roomRoutes.post("/:id/room/flush", async (c) => {
   const user = requireUser(c);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
-  return c.json(await roomStub(c.env, site.id).flush(site.id));
+  return c.json(await unwrapRoom(roomStub(c.env, site.id).flush(site.id)));
 });
 
 roomRoutes.post("/:id/room/agent-sessions", async (c) => {
@@ -94,18 +96,20 @@ roomRoutes.post("/:id/room/agent-sessions", async (c) => {
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
   if (site.role === "contributor")
     throw new HttpError(403, "forbidden", "Contributors can't connect an AI to this site.");
-  const result = await roomStub(c.env, site.id).startAgentSession(site.id, {
-    userId: user.id,
-    ...(input.label ? { label: input.label } : {}),
-    ...(input.sessionId ? { sessionId: input.sessionId } : {}),
-  });
+  const result = await unwrapRoom(
+    roomStub(c.env, site.id).startAgentSession(site.id, {
+      userId: user.id,
+      ...(input.label ? { label: input.label } : {}),
+      ...(input.sessionId ? { sessionId: input.sessionId } : {}),
+    }),
+  );
   return c.json(result, 201);
 });
 
 roomRoutes.post("/:id/room/agent-sessions/:sid/end", async (c) => {
   const user = requireUser(c);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
-  await roomStub(c.env, site.id).endAgentSession(site.id, c.req.param("sid"));
+  await unwrapRoom(roomStub(c.env, site.id).endAgentSession(site.id, c.req.param("sid")));
   return c.json({ ok: true });
 });
 
@@ -116,9 +120,11 @@ roomRoutes.post("/:id/room/agent-sessions/:sid/undo", async (c) => {
     throw new HttpError(403, "forbidden", "You don't have access to this.");
   const sid = c.req.param("sid");
   return c.json(
-    await roomStub(c.env, site.id).undoAgentSession(site.id, {
-      userId: user.id,
-      ...(sid === "latest" ? {} : { sessionId: sid }),
-    }),
+    await unwrapRoom(
+      roomStub(c.env, site.id).undoAgentSession(site.id, {
+        userId: user.id,
+        ...(sid === "latest" ? {} : { sessionId: sid }),
+      }),
+    ),
   );
 });

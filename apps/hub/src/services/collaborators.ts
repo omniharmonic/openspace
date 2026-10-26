@@ -8,7 +8,7 @@ import { parseRepo } from "../github/types";
 import { randomId, randomToken, sha256Hex } from "../lib/crypto";
 import { forbidden, HttpError, notFound } from "../lib/errors";
 import type { Logger } from "../lib/log";
-import { roomStub } from "../room";
+import { roomStub, unwrapRoom } from "../room";
 import type { Services } from "./index";
 import { ownerOf, requireRole, siteForUser } from "./sites";
 
@@ -101,7 +101,7 @@ function requireManage(site: SiteWithRole, role?: Role): void {
 
 async function notifyRoom(env: HubBindings, siteId: string, userId: string, log?: Logger) {
   try {
-    await roomStub(env, siteId).refreshMember(siteId, userId);
+    await unwrapRoom(roomStub(env, siteId).refreshMember(siteId, userId));
   } catch (err) {
     log?.warn("room refresh failed", { siteId, userId, err });
   }

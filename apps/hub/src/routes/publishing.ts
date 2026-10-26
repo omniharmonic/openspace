@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { requireUser } from "../auth/session";
 import { readJson } from "../lib/validate";
-import { roomStub } from "../room";
+import { roomStub, unwrapRoom } from "../room";
 import {
   cancelSchedule,
   listSchedules,
@@ -38,7 +38,9 @@ publishingRoutes.post("/:id/rollback", async (c) => {
   const { sha } = await readJson(c, RollbackSchema);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
   requireRole(site, ROLLBACK_ROLE);
-  const result = await roomStub(c.env, site.id).rollback(site.id, { userId: user.id, sha });
+  const result = await unwrapRoom(
+    roomStub(c.env, site.id).rollback(site.id, { userId: user.id, sha }),
+  );
   return c.json({ ...result, site: await getSiteView(c.var.services, site.id, user) });
 });
 
@@ -47,7 +49,9 @@ publishingRoutes.post("/:id/fix", async (c) => {
   const user = requireUser(c);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
   requireRole(site, PUBLISH_ROLE);
-  const result = await roomStub(c.env, site.id).fixLastPublish(site.id, { userId: user.id });
+  const result = await unwrapRoom(
+    roomStub(c.env, site.id).fixLastPublish(site.id, { userId: user.id }),
+  );
   return c.json({ ...result, site: await getSiteView(c.var.services, site.id, user) });
 });
 
@@ -65,7 +69,7 @@ publishingRoutes.post("/:id/snapshots", async (c) => {
   const { name } = await readJson(c, SnapshotNameSchema);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
   requireRole(site, "editor");
-  return c.json(await roomStub(c.env, site.id).snapshot(site.id, name), 201);
+  return c.json(await unwrapRoom(roomStub(c.env, site.id).snapshot(site.id, name)), 201);
 });
 
 /** POST /api/sites/:id/snapshots/:name/restore — make the draft match the snapshot (as ops). */

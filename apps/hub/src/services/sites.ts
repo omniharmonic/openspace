@@ -38,7 +38,7 @@ import { base64ToBytes, bytesToBase64 } from "../lib/crypto";
 import { forbidden, HttpError, notFound } from "../lib/errors";
 import { type DecodedImage, decodeImageDataUrl } from "../lib/image";
 import type { Logger } from "../lib/log";
-import { roomStub } from "../room";
+import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
@@ -603,7 +603,7 @@ export async function publishSite(
     });
     return { ...(await getSiteView(services, id, user, log)), publish: null };
   }
-  const result = await roomStub(env, id).publish(id, { userId: user.id });
+  const result = await unwrapRoom(roomStub(env, id).publish(id, { userId: user.id }));
   return { ...(await getSiteView(services, id, user, log)), publish: result };
 }
 

@@ -18,7 +18,7 @@ import {
   type WorkflowRun,
 } from "../github/types";
 import { randomId } from "../lib/crypto";
-import { encodeRpcError, HttpError } from "../lib/errors";
+import { HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
 import { createServices, type Services } from "../services/index";
@@ -41,6 +41,11 @@ export const FLUSH_MAX_OPS = 50;
 const FLUSH_RETRY_MS = 30_000;
 /** How long an agent's "Claude is editing Home…" presence lasts after its last op. */
 const AGENT_PRESENCE_MS = 30_000;
+
+/** RPC result: a value, or a client-facing error (see `rpc`). */
+export type RoomResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: { status: number; code: string; message: string } };
 
 /** Who is submitting, as the Worker authenticated them. The room resolves names and roles. */
 export interface RoomActorInput {
@@ -104,23 +109,30 @@ export class DraftRoom extends DurableObject<HubBindings> {
 
   // --- plumbing -----------------------------------------------------------------------------
 
-  /** Run an RPC method; client-facing errors are encoded so they survive the RPC boundary. */
-  private async rpc<T>(fn: () => Promise<T>): Promise<T> {
+  /**
+   * Run an RPC method. Client-facing failures come back as values (`{ ok: false, error }`), not
+   * exceptions: errors thrown across Durable Object RPC lose their class, and a thrown error
+   * leaves the object in a state the test runner can't clean up. `unwrapRoom` re-throws them in
+   * the Worker as `HttpError`s.
+   */
+  private async rpc<T>(fn: () => Promise<T>): Promise<RoomResult<T>> {
     try {
-      return await fn();
+      return { ok: true, value: await fn() };
     } catch (err) {
-      if (err instanceof HttpError) throw encodeRpcError(err);
-      if (err instanceof GitHubConflictError)
-        throw encodeRpcError(
-          new HttpError(
-            409,
-            "conflict",
-            "Someone else changed this site at the same moment. Try again.",
-          ),
-        );
-      if (err instanceof GitHubNotFoundError)
-        throw encodeRpcError(new HttpError(404, "not_found", "We couldn't find that."));
-      throw err;
+      const http =
+        err instanceof HttpError
+          ? err
+          : err instanceof GitHubConflictError
+            ? new HttpError(
+                409,
+                "conflict",
+                "Someone else changed this site at the same moment. Try again.",
+              )
+            : err instanceof GitHubNotFoundError
+              ? new HttpError(404, "not_found", "We couldn't find that.")
+              : null;
+      if (!http) throw err;
+      return { ok: false, error: { status: http.status, code: http.code, message: http.message } };
     }
   }
 
@@ -215,6 +227,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         kind: "agent",
         label: input.label ?? "Claude",
         session,
+        onBehalfOf: name,
       };
     }
     return {
@@ -581,7 +594,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
 
   // --- RPC: reading and submitting (Studio HTTP fallback, MCP) -------------------------------
 
-  async getDocument(siteId: string): Promise<{ doc: SiteDocument; seq: number; head: string }> {
+  async getDocument(
+    siteId: string,
+  ): Promise<RoomResult<{ doc: SiteDocument; seq: number; head: string }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       return { doc: this.state.doc as SiteDocument, seq: this.state.seq, head: this.state.head };
@@ -596,7 +611,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
   async submit(
     siteId: string,
     input: { ops: unknown[]; baseSeq?: number; client?: string; actor: RoomActorInput },
-  ): Promise<{ results: SubmitResult[]; seq: number }> {
+  ): Promise<RoomResult<{ results: SubmitResult[]; seq: number }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       const services = this.services();
@@ -623,19 +638,23 @@ export class DraftRoom extends DurableObject<HubBindings> {
     siteId: string,
     userId: string,
     ops: Op[],
+  ): Promise<RoomResult<{ results: SubmitResult[]; seq: number }>> {
+    return this.rpc(() => this.applyTrustedOps(siteId, userId, ops));
+  }
+
+  private async applyTrustedOps(
+    siteId: string,
+    userId: string,
+    ops: Op[],
   ): Promise<{ results: SubmitResult[]; seq: number }> {
-    return this.rpc(async () => {
-      await this.ensureLoaded(siteId);
-      const services = this.services();
-      const role = (await this.roleOf(services, siteId, userId)) ?? "owner";
-      const actor = await this.resolveActor(services, { userId, kind: "human" });
-      const client = `server:${actor.actor}`;
-      const results = ops.map((op) =>
-        this.state.submit({ op, client, actor, role, trusted: true }),
-      );
-      await this.afterSubmit(services, siteId, actor, role, client, results);
-      return { results, seq: this.state.seq };
-    });
+    await this.ensureLoaded(siteId);
+    const services = this.services();
+    const role = (await this.roleOf(services, siteId, userId)) ?? "owner";
+    const actor = await this.resolveActor(services, { userId, kind: "human" });
+    const client = `server:${actor.actor}`;
+    const results = ops.map((op) => this.state.submit({ op, client, actor, role, trusted: true }));
+    await this.afterSubmit(services, siteId, actor, role, client, results);
+    return { results, seq: this.state.seq };
   }
 
   /** Ops that turn the draft into `target` (e.g. a snapshot), applied as `userId`. */
@@ -643,7 +662,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
     siteId: string,
     userId: string,
     target: SiteDocument,
-  ): Promise<{ applied: number; failed: number; seq: number }> {
+  ): Promise<RoomResult<{ applied: number; failed: number; seq: number }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       const ops = diff(this.state.doc as SiteDocument, target, {
@@ -651,7 +670,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         ts: Date.now(),
         idPrefix: `restore-${Date.now().toString(36)}-`,
       });
-      const { results, seq } = await this.applyTrusted(siteId, userId, ops);
+      const { results, seq } = await this.applyTrustedOps(siteId, userId, ops);
       return {
         applied: results.filter((r) => r.status === "accepted").length,
         failed: results.filter((r) => r.status !== "accepted").length,
@@ -661,7 +680,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
   }
 
   /** Re-read a member's role (after invites, role changes, removal) and update live sockets. */
-  async refreshMember(siteId: string, userId: string): Promise<void> {
+  async refreshMember(siteId: string, userId: string): Promise<RoomResult<void>> {
     return this.rpc(async () => {
       this.siteId(siteId);
       const access = await this.refreshRole(this.services(), siteId, userId);
@@ -692,7 +711,8 @@ export class DraftRoom extends DurableObject<HubBindings> {
     const siteId = this.state.getMeta("site_id");
     if (!siteId) return;
     try {
-      await this.flush(siteId);
+      await this.ensureLoaded(siteId);
+      await this.exclusive(() => this.flushLocked(siteId));
     } catch (err) {
       this.log.error("draft flush failed", { siteId, err });
       await this.ctx.storage.setAlarm(Date.now() + FLUSH_RETRY_MS);
@@ -700,7 +720,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
   }
 
   /** Commit unflushed ops to `os/draft` now. Returns the draft head. */
-  async flush(siteId: string): Promise<{ head: string; seq: number; committed: boolean }> {
+  async flush(
+    siteId: string,
+  ): Promise<RoomResult<{ head: string; seq: number; committed: boolean }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       return this.exclusive(() => this.flushLocked(siteId));
@@ -713,29 +735,16 @@ export class DraftRoom extends DurableObject<HubBindings> {
       if (seen.has(o.actor)) continue;
       const a = this.state.actor(o.actor);
       if (!a) continue;
-      const human = a.kind === "agent" ? this.ownerName(a.userId) : null;
       seen.set(o.actor, {
         name: a.name,
         email: a.email,
         kind: a.kind,
         label: a.label,
-        onBehalfOf: human,
+        onBehalfOf: a.forName,
         session: o.session,
       });
     }
     return [...seen.values()];
-  }
-
-  private ownerName(userId: string): string | null {
-    const row = this.state.actor(
-      this.ctx.storage.sql
-        .exec<{ actor: string }>(
-          "SELECT actor FROM actors WHERE user_id = ? AND kind = 'human' LIMIT 1",
-          userId,
-        )
-        .toArray()[0]?.actor ?? "",
-    );
-    return row?.name ?? null;
   }
 
   private async flushLocked(
@@ -896,7 +905,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
   async publish(
     siteId: string,
     input: { userId: string | null; actor?: string },
-  ): Promise<PublishResult> {
+  ): Promise<RoomResult<PublishResult>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       return this.exclusive(async () => {
@@ -976,7 +985,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
   async rollback(
     siteId: string,
     input: { userId: string; sha: string },
-  ): Promise<{ sha: string; summary: string; snapshot: string | null }> {
+  ): Promise<RoomResult<{ sha: string; summary: string; snapshot: string | null }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       return this.exclusive(async () => {
@@ -1040,7 +1049,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
   async fixLastPublish(
     siteId: string,
     input: { userId: string },
-  ): Promise<{ fix: string; sha: string | null }> {
+  ): Promise<RoomResult<{ fix: string; sha: string | null }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       return this.exclusive(async () => {
@@ -1142,7 +1151,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
   async snapshot(
     siteId: string,
     name: string,
-  ): Promise<{ name: string; tag: string; sha: string }> {
+  ): Promise<RoomResult<{ name: string; tag: string; sha: string }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       return this.exclusive(async () => {
@@ -1164,7 +1173,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
   async startAgentSession(
     siteId: string,
     input: { userId: string; label?: string; sessionId?: string },
-  ): Promise<{ sessionId: string; actor: string; tag: string; startSeq: number }> {
+  ): Promise<RoomResult<{ sessionId: string; actor: string; tag: string; startSeq: number }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       const services = this.services();
@@ -1214,7 +1223,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
     });
   }
 
-  async endAgentSession(siteId: string, sessionId: string): Promise<void> {
+  async endAgentSession(siteId: string, sessionId: string): Promise<RoomResult<void>> {
     return this.rpc(async () => {
       this.siteId(siteId);
       this.state.endAgentSession(sessionId);
@@ -1230,7 +1239,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
   async undoAgentSession(
     siteId: string,
     input: { userId: string; sessionId?: string },
-  ): Promise<{ sessionId: string | null; reverted: number; skipped: number; seq: number }> {
+  ): Promise<
+    RoomResult<{ sessionId: string | null; reverted: number; skipped: number; seq: number }>
+  > {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
       const sessionId = input.sessionId ?? this.state.latestAgentSession();
@@ -1281,15 +1292,13 @@ export class DraftRoom extends DurableObject<HubBindings> {
     head: string;
     members: Member[];
   }> {
-    return this.rpc(async () => {
-      await this.ensureLoaded(siteId);
-      return {
-        seq: this.state.seq,
-        flushedSeq: this.state.flushedSeq,
-        unflushed: this.state.unflushedCount(),
-        head: this.state.head,
-        members: this.members(),
-      };
-    });
+    await this.ensureLoaded(siteId);
+    return {
+      seq: this.state.seq,
+      flushedSeq: this.state.flushedSeq,
+      unflushed: this.state.unflushedCount(),
+      head: this.state.head,
+      members: this.members(),
+    };
   }
 }
