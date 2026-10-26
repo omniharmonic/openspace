@@ -257,7 +257,12 @@ export function diff(before: SiteDocument, after: SiteDocument, options: DiffOpt
     const keep = after.collections[name];
     const gone = Object.keys(items).filter((slug) => !keep || !Object.hasOwn(keep, slug));
     for (const slug of gone)
-      emit({ op: "collection.delete", collection: name, slug, ...(keep ? { keepEmpty: true } : {}) });
+      emit({
+        op: "collection.delete",
+        collection: name,
+        slug,
+        ...(keep ? { keepEmpty: true } : {}),
+      });
   }
   for (const [name, items] of Object.entries(after.collections))
     for (const [slug, item] of Object.entries(items))

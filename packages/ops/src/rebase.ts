@@ -327,9 +327,9 @@ export function rebase(
         if (dependent) deletedHits.push(rt.path);
       }
       if (deletedHits.length) {
-        const bothDelete = lfp.touches.every(
-          (lt) => lt.kind === "delete" && deletedHits.some((d) => isPrefix(d, lt.path)),
-        );
+        const bothDelete = lfp.touches
+          .filter((lt) => lt.kind !== "order")
+          .every((lt) => lt.kind === "delete" && deletedHits.some((d) => isPrefix(d, lt.path)));
         if (!bothDelete)
           conflicts.push({
             local,
