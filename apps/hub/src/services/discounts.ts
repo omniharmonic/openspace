@@ -4,7 +4,7 @@
  * computes discounted prices itself.
  */
 import { z } from "zod";
-import { randomId } from "../lib/crypto";
+import { randomId, sha256Hex } from "../lib/crypto";
 import { conflict, HttpError, notFound } from "../lib/errors";
 import { stripeForSite } from "./commerce";
 import type { Services } from "./index";
@@ -93,7 +93,18 @@ export async function createDiscount(
   const { api } = await stripeForSite(services, siteId);
   // Idempotency keys: a retried or concurrent create of the same code makes one coupon and one
   // promotion code at Stripe.
-  const key = `discount-${siteId}-${code}`;
+  // The key covers the parameters too, so re-creating a code with different terms (after the
+  // first was deactivated, say) never gets the old coupon back from Stripe's idempotency cache.
+  const terms = await sha256Hex(
+    JSON.stringify([
+      input.percentOff,
+      input.amountOff,
+      input.currency,
+      input.maxRedemptions,
+      expiresAt,
+    ]),
+  );
+  const key = `discount-${siteId}-${code}-${terms.slice(0, 16)}`;
   const coupon = await api.createCoupon({
     name: code,
     idempotencyKey: `${key}-coupon`,

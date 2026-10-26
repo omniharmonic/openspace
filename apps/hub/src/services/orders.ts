@@ -70,6 +70,9 @@ export interface OrderRow {
   updated_at: number | null;
   followups_at: number | null;
   restocked: number;
+  followups_claim: number | null;
+  followup_attempts: number;
+  followup_error: string | null;
 }
 
 const parse = <T>(json: string | null, fallback: T): T => {
@@ -105,6 +108,8 @@ export interface OrderView {
   createdAt: string;
   paidAt: string | null;
   fulfilledAt: string | null;
+  /** Something the owner must resolve (failed delivery or refund after retries), else null. */
+  problem: { message: string; attempts: number; gaveUp: boolean } | null;
 }
 
 export function toOrderView(o: OrderRow): OrderView {
@@ -129,6 +134,13 @@ export function toOrderView(o: OrderRow): OrderView {
     createdAt: new Date(o.created_at).toISOString(),
     paidAt: iso(o.paid_at),
     fulfilledAt: iso(o.fulfilled_at),
+    problem: o.followup_error
+      ? {
+          message: o.followup_error,
+          attempts: o.followup_attempts,
+          gaveUp: o.followup_attempts >= MAX_FOLLOWUP_ATTEMPTS,
+        }
+      : null,
   };
 }
 
@@ -260,6 +272,7 @@ async function processEvent(
           status:
             event.type === "customer.subscription.deleted" ? "canceled" : String(obj.status ?? ""),
           tier: (obj.metadata as Record<string, string> | undefined)?.os_tier ?? null,
+          order: (obj.metadata as Record<string, string> | undefined)?.os_order ?? null,
         }),
       };
     default:
@@ -411,39 +424,86 @@ export async function completeSession(
  * After payment: low-stock alerts (best effort, alerted once per restock), the member tier for
  * memberships, and digital delivery. Marks `followups_at` only when everything succeeded.
  */
+export const FOLLOWUP_LEASE_MS = 5 * 60 * 1000;
+/** Retries (webhook redeliveries + cron) before an order is left for the owner to resolve. */
+export const MAX_FOLLOWUP_ATTEMPTS = 7;
+
+/**
+ * After payment: low-stock alerts (best effort, alerted once per restock), the member tier for
+ * memberships, and digital delivery. One worker at a time (a lease on `followups_claim`); marks
+ * `followups_at` only when everything succeeded. A failure releases the lease, counts an attempt
+ * and records the error the dashboard shows, then rethrows.
+ */
 export async function runFollowups(
   services: Services,
   site: SiteRow,
   order: OrderRow,
   opts: { customer?: string | null; log?: Logger } = {},
 ): Promise<Record<string, unknown>> {
-  const out: Record<string, unknown> = {};
-  const items = orderItems(order);
-  const tracked = order.kind === "order" ? items : [];
-  out.lowStock = await lowStockAlerts(
-    services,
-    site,
-    tracked.map((i) => i.sku),
-    new Map(items.map((i) => [i.sku, i.title])),
-  ).catch((err) => {
-    opts.log?.warn("low-stock alert failed", { err, siteId: site.id });
-    return [];
-  });
-  if (order.kind === "membership" && order.email)
-    out.member = await applyMembershipPayment(services, site, {
-      email: order.email,
-      name: order.customer_name,
-      tier: parse<{ tier?: string }>(order.meta_json, {}).tier ?? null,
-      customer: opts.customer ?? null,
-      subscription: order.subscription_id,
-    });
-  if (order.email && order.kind === "order" && items.some((i) => i.digital))
-    out.delivered = await sendDigitalDelivery(services, site, order);
-  await services.db
-    .prepare("UPDATE orders SET followups_at = ? WHERE id = ? AND followups_at IS NULL")
-    .bind(services.now(), order.id)
+  const db = services.db;
+  const now = services.now();
+  const lease = await db
+    .prepare(
+      `UPDATE orders SET followups_claim = ? WHERE id = ? AND followups_at IS NULL
+         AND (followups_claim IS NULL OR followups_claim < ?)`,
+    )
+    .bind(now, order.id, now - FOLLOWUP_LEASE_MS)
     .run();
-  return out;
+  if ((lease.meta.changes ?? 0) !== 1) return { inProgress: true };
+  const out: Record<string, unknown> = {};
+  try {
+    const items = orderItems(order);
+    const tracked = order.kind === "order" ? items : [];
+    out.lowStock = await lowStockAlerts(
+      services,
+      site,
+      tracked.map((i) => i.sku),
+      new Map(items.map((i) => [i.sku, i.title])),
+    ).catch((err) => {
+      opts.log?.warn("low-stock alert failed", { err, siteId: site.id });
+      return [];
+    });
+    const meta = parse<{ tier?: string; subscriptionEnded?: boolean }>(
+      (await getOrder(db, site.id, order.id))?.meta_json ?? order.meta_json,
+      {},
+    );
+    if (order.kind === "membership" && order.email) {
+      // The subscription may already have been cancelled (events can arrive out of order):
+      // never grant a tier for a subscription that has ended.
+      if (meta.subscriptionEnded) out.member = "subscription_ended";
+      else
+        out.member = await applyMembershipPayment(services, site, {
+          email: order.email,
+          name: order.customer_name,
+          tier: meta.tier ?? null,
+          customer: opts.customer ?? null,
+          subscription: order.subscription_id,
+        });
+    }
+    if (order.email && order.kind === "order" && items.some((i) => i.digital))
+      out.delivered = await sendDigitalDelivery(services, site, order);
+    await db
+      .prepare(
+        "UPDATE orders SET followups_at = ?, followups_claim = NULL, followup_error = NULL WHERE id = ?",
+      )
+      .bind(services.now(), order.id)
+      .run();
+    return out;
+  } catch (err) {
+    await db
+      .prepare(
+        `UPDATE orders SET followups_claim = NULL, followup_attempts = followup_attempts + 1,
+           followup_error = ? WHERE id = ?`,
+      )
+      .bind(failureNote("Delivery after payment failed", err), order.id)
+      .run();
+    throw err;
+  }
+}
+
+function failureNote(what: string, err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  return `${what}: ${msg}`.slice(0, 300);
 }
 
 async function outOfStock(
@@ -495,14 +555,22 @@ export async function autoRefund(
   if (order?.status !== "out_of_stock" || !order.payment_intent) return false;
   try {
     const { api } = await stripeForSite(services, site.id);
+    // No amount: Stripe refunds whatever is left (an external partial refund may have happened).
+    // The key includes what is already refunded, so it reflects those external refunds.
     const r = await api.createRefund({
       paymentIntent: order.payment_intent,
-      idempotencyKey: `oos-${order.id}`,
+      idempotencyKey: `oos-${order.id}-${order.refunded}`,
     });
     await recordRefund(services, order, r.id, r.amount || order.total - order.refunded, false);
     return true;
   } catch (err) {
     log?.error("automatic refund for a sold-out order failed", { err, order: order.id });
+    await services.db
+      .prepare(
+        "UPDATE orders SET followup_attempts = followup_attempts + 1, followup_error = ? WHERE id = ?",
+      )
+      .bind(failureNote("Automatic refund failed", err), order.id)
+      .run();
     return false;
   }
 }
@@ -567,10 +635,12 @@ export async function retryOrderFollowups(services: Services, log?: Logger) {
   const now = services.now();
   const stuck = await services.db
     .prepare(
-      `SELECT * FROM orders WHERE (status = 'paid' AND followups_at IS NULL AND paid_at < ?)
-         OR (status = 'out_of_stock' AND payment_intent IS NOT NULL) LIMIT 100`,
+      `SELECT * FROM orders WHERE followup_attempts < ? AND (
+           (status = 'paid' AND followups_at IS NULL AND paid_at < ?)
+           OR (status = 'out_of_stock' AND payment_intent IS NOT NULL))
+       ORDER BY COALESCE(paid_at, created_at) LIMIT 100`,
     )
-    .bind(now - 10 * 60 * 1000)
+    .bind(MAX_FOLLOWUP_ATTEMPTS, now - 10 * 60 * 1000)
     .all<OrderRow>();
   let followups = 0;
   let refunds = 0;
@@ -594,21 +664,45 @@ export async function retryOrderFollowups(services: Services, log?: Logger) {
   return { followups, refunds, failed };
 }
 
+/**
+ * `charge.refunded` (refunds made in Stripe's dashboard, or ours echoed back). Each refund is
+ * recorded once — by its Stripe id when the event lists them, else under a synthetic id for the
+ * not-yet-recorded difference — so `orders.refunded` and our idempotency keys reflect external
+ * refunds. A sold-out order stays `out_of_stock` until fully refunded (the cron finishes it).
+ */
 async function refundedCharge(services: Services, siteId: string, charge: Record<string, unknown>) {
   const pi = typeof charge.payment_intent === "string" ? charge.payment_intent : null;
-  const amount = typeof charge.amount_refunded === "number" ? charge.amount_refunded : null;
-  if (!pi || amount === null) return { order: null };
-  await services.db
+  const total = typeof charge.amount_refunded === "number" ? charge.amount_refunded : null;
+  if (!pi || total === null) return { order: null };
+  const order = await services.db
     .prepare(
-      `UPDATE orders SET refunded = MAX(refunded, ?),
-         status = CASE WHEN MAX(refunded, ?) >= total THEN 'refunded' ELSE 'partially_refunded' END,
-         updated_at = ?
-       WHERE site_id = ? AND payment_intent = ?
+      `SELECT * FROM orders WHERE site_id = ? AND payment_intent = ?
          AND status IN ('paid', 'partially_refunded', 'refunded', 'out_of_stock')`,
     )
-    .bind(amount, amount, services.now(), siteId, pi)
-    .run();
-  return { refundedPaymentIntent: pi };
+    .bind(siteId, pi)
+    .first<OrderRow>();
+  if (!order) return { order: null };
+  const listed = (
+    ((charge.refunds as { data?: unknown[] } | undefined)?.data ?? []) as Array<{
+      id?: unknown;
+      amount?: unknown;
+    }>
+  ).filter(
+    (r): r is { id: string; amount: number } =>
+      typeof r.id === "string" && typeof r.amount === "number",
+  );
+  if (listed.length) {
+    for (const r of listed) await recordRefund(services, order, r.id, r.amount, false);
+  } else {
+    const known = await services.db
+      .prepare("SELECT COALESCE(SUM(amount), 0) AS n FROM order_refunds WHERE order_id = ?")
+      .bind(order.id)
+      .first<{ n: number }>();
+    const delta = total - (known?.n ?? 0);
+    if (delta > 0)
+      await recordRefund(services, order, `ext:${String(charge.id ?? pi)}:${total}`, delta, false);
+  }
+  return { order: order.id, refundedPaymentIntent: pi };
 }
 
 // ---- digital delivery ---------------------------------------------------------------------------
@@ -735,6 +829,8 @@ export interface OrderQuery {
   status?: OrderStatus;
   kind?: OrderRow["kind"];
   fulfillment?: OrderRow["fulfillment"];
+  /** Only orders with a delivery/refund problem the owner should look at. */
+  problem?: boolean;
   q?: string;
   from?: number;
   to?: number;
@@ -758,6 +854,8 @@ export async function listOrders(db: D1Database, siteId: string, q: OrderQuery) 
     where.push("fulfillment = ?");
     args.push(q.fulfillment);
   }
+  if (q.problem)
+    where.push("followup_error IS NOT NULL AND followups_at IS NULL AND status != 'refunded'");
   if (q.q) {
     const num = Number(q.q.replace(/^#/, ""));
     if (Number.isInteger(num) && num > 0) {

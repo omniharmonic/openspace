@@ -175,6 +175,9 @@ ALTER TABLE orders ADD COLUMN paid_at INTEGER;
 ALTER TABLE orders ADD COLUMN updated_at INTEGER;
 ALTER TABLE orders ADD COLUMN followups_at INTEGER;         -- member tier / delivery done (re-run until set)
 ALTER TABLE orders ADD COLUMN restocked INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE orders ADD COLUMN followups_claim INTEGER;      -- a worker is running follow-ups (lease)
+ALTER TABLE orders ADD COLUMN followup_attempts INTEGER NOT NULL DEFAULT 0;  -- retries (follow-ups or sold-out refund)
+ALTER TABLE orders ADD COLUMN followup_error TEXT;          -- last failure, shown to the owner
 CREATE UNIQUE INDEX orders_stripe_session ON orders(stripe_session) WHERE stripe_session IS NOT NULL;
 CREATE UNIQUE INDEX orders_number ON orders(site_id, number) WHERE number IS NOT NULL;
 CREATE INDEX orders_site_status ON orders(site_id, status, created_at);

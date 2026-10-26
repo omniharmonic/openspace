@@ -466,37 +466,41 @@ export async function startCampaign(
   await campaignSender(services, site, r);
   if (!body(r).blocks.length) throw new HttpError(422, "empty_campaign", "Add some content first.");
   const now = services.now();
-  const claim = await services.db
-    .prepare(
-      "UPDATE campaigns SET status = 'sending', started_at = ?, updated_at = ?, error = NULL WHERE id = ? AND status IN ('draft', 'scheduled')",
-    )
-    .bind(now, now, id)
-    .run();
-  if ((claim.meta.changes ?? 0) !== 1)
-    throw conflict("already_sent", "This campaign is already sending.");
   const rendered = renderCampaign(services, site, r, {
     track: true,
     trackOpens: !!body(r).trackOpens,
   });
   const w = segmentWhere(segment(r));
-  await services.db.batch([
+  // One transaction: claim (draft|scheduled → sending), freeze links and recipients, count them.
+  // Nobody (e.g. the minute cron's "finish empty campaigns") can see a `sending` campaign without
+  // its recipients, and if any statement fails nothing changes (it stays draft/scheduled).
+  const claimToken = randomId("claim", 12);
+  const mine =
+    "EXISTS (SELECT 1 FROM campaigns WHERE id = ? AND status = 'sending' AND stats_json = ?)";
+  const results = await services.db.batch([
     services.db
-      .prepare("UPDATE campaigns SET links_json = ? WHERE id = ?")
-      .bind(JSON.stringify(rendered.links), id),
+      .prepare(
+        `UPDATE campaigns SET status = 'sending', started_at = ?, updated_at = ?, error = NULL,
+           links_json = ?, stats_json = ? WHERE id = ? AND status IN ('draft', 'scheduled')`,
+      )
+      .bind(now, now, JSON.stringify(rendered.links), claimToken, id),
     services.db
       .prepare(
         `INSERT INTO campaign_recipients (id, campaign_id, site_id, subscriber_id, email, status)
          SELECT 'rcp_' || lower(hex(randomblob(10))), ?, s.site_id, s.id, s.email, 'queued'
-         FROM subscribers s WHERE s.site_id = ? AND s.status = 'confirmed'${w.sql}
+         FROM subscribers s WHERE s.site_id = ? AND s.status = 'confirmed'${w.sql} AND ${mine}
          ON CONFLICT (campaign_id, subscriber_id) DO NOTHING`,
       )
-      .bind(id, site.id, ...w.args),
+      .bind(id, site.id, ...w.args, id, claimToken),
     services.db
       .prepare(
-        "UPDATE campaigns SET recipients = (SELECT COUNT(*) FROM campaign_recipients WHERE campaign_id = ?) WHERE id = ?",
+        `UPDATE campaigns SET recipients = (SELECT COUNT(*) FROM campaign_recipients WHERE campaign_id = ?)
+         WHERE id = ? AND status = 'sending' AND stats_json = ?`,
       )
-      .bind(id, id),
+      .bind(id, id, claimToken),
   ]);
+  if ((results[0]?.meta.changes ?? 0) !== 1)
+    throw conflict("already_sent", "This campaign is already sending.");
   if (services.growth.queue) {
     const total = (await row(services.db, site.id, id))?.recipients ?? 0;
     const jobs = Math.max(1, Math.ceil(total / BATCH_SIZE));
@@ -674,10 +678,11 @@ export async function runDueCampaigns(services: Services, now: number, log?: Log
   const finished = await services.db
     .prepare(
       `UPDATE campaigns SET status = 'sent', finished_at = ?, updated_at = ? WHERE status = 'sending'
+         AND started_at < ?
          AND NOT EXISTS (SELECT 1 FROM campaign_recipients r WHERE r.campaign_id = campaigns.id
                          AND r.status IN ('queued', 'sending'))`,
     )
-    .bind(now, now)
+    .bind(now, now, now - 60_000)
     .run();
   let continued = 0;
   if (!services.growth.queue) {

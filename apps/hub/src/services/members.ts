@@ -560,16 +560,26 @@ export async function applyMembershipPayment(
 export async function applySubscriptionChange(
   services: Services,
   siteId: string,
-  sub: { id: string; status: string; tier: string | null },
+  sub: { id: string; status: string; tier: string | null; order?: string | null },
 ): Promise<string | null> {
   if (!sub.id) return null;
+  const ended = sub.status === "canceled" || sub.status === "incomplete_expired";
+  if (ended)
+    // Remember it on the order too: if its follow-ups haven't run yet (events out of order), the
+    // tier must not be granted afterwards.
+    await services.db
+      .prepare(
+        `UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.subscriptionEnded', json('true'))
+         WHERE site_id = ? AND (subscription_id = ? OR id = ?)`,
+      )
+      .bind(siteId, sub.id, sub.order ?? "")
+      .run();
   const m = await services.db
     .prepare("SELECT * FROM members WHERE site_id = ? AND subscription_id = ?")
     .bind(siteId, sub.id)
     .first<MemberRow>();
   if (!m) return null;
   const keep = sub.status === "active" || sub.status === "trialing";
-  const ended = sub.status === "canceled" || sub.status === "incomplete_expired";
   await services.db
     .prepare(
       "UPDATE members SET tier = ?, subscription_id = CASE WHEN ? THEN NULL ELSE subscription_id END, updated_at = ? WHERE id = ?",

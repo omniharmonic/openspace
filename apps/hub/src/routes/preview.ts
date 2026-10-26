@@ -101,7 +101,7 @@ async function render(
 }
 
 const PASSWORD_RULE = { name: "page-password", limit: 10, windowSec: 600 };
-const PASSWORD_PAGE_RULE = { name: "page-password-page", limit: 100, windowSec: 600 };
+const PASSWORD_PAGE_RULE = { name: "page-password-page", limit: 300, windowSec: 600 };
 
 // ---- dev preview gating (Task 18) -------------------------------------------------------------
 
@@ -189,14 +189,23 @@ previewRoutes.post("/s/:siteId/_os/auth/password", async (c) => {
   const f = await parseFields(c);
   const pageId = single(f.page) ?? "";
   const back = previewReturn(basePath, single(f.return));
-  // Password guessing: per visitor (IPv4 / IPv6 /64) and a ceiling per page.
+  // Password guessing: per visitor (IPv4 / IPv6 /64), plus a ceiling per real protected page
+  // (only once the page id is known to have a password, so junk ids can't burn a real page's
+  // budget or create limiter state).
   const who = (
     await sha256Hex(`${requireHmacKey(c.var.services.pub.config)}|${rateKeyIp(clientIp(c))}`)
   ).slice(0, 24);
-  for (const [key, rule] of [
+  const hasPage =
+    /^pg_[0-9a-z]{10}$/.test(pageId) &&
+    !!(await c.var.services.db
+      .prepare("SELECT 1 AS x FROM page_passwords WHERE site_id = ? AND page_id = ?")
+      .bind(siteId, pageId)
+      .first());
+  const rules: Array<readonly [string, typeof PASSWORD_RULE]> = [
     [`${siteId}|${who}`, PASSWORD_RULE],
-    [`${siteId}|${pageId}|*`, PASSWORD_PAGE_RULE],
-  ] as const) {
+  ];
+  if (hasPage) rules.push([`${siteId}|${pageId}|*`, PASSWORD_PAGE_RULE]);
+  for (const [key, rule] of rules) {
     const rate = await c.var.services.pub.rateLimit.hit(key, rule);
     if (!rate.ok) {
       c.header("Retry-After", String(rate.retryAfter));

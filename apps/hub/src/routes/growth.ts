@@ -303,6 +303,10 @@ growthRoutes.get("/:id/orders", async (c) => {
       status: z.enum(ORDER_STATUSES).optional(),
       kind: z.enum(["order", "donation", "membership"]).optional(),
       fulfillment: z.enum(["unfulfilled", "fulfilled"]).optional(),
+      problem: z
+        .enum(["1", "true"])
+        .transform(() => true)
+        .optional(),
       q: z.string().max(100).optional(),
       from: z.iso.date().optional(),
       to: z.iso.date().optional(),
