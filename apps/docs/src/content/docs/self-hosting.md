@@ -46,7 +46,7 @@ In GitHub → Settings → Developer settings → **GitHub Apps → New GitHub A
 
 - **Callback URL**: `https://<your-hub>/auth/github/callback`; turn on "Request user authorization (OAuth) during installation" and expiring user tokens.
 - **Webhook URL**: `https://<your-hub>/webhooks/github`, with a secret.
-- **Repository permissions**: Contents, Workflows, Pages, Administration, Secrets and Pull requests — read & write; Actions and Metadata — read. **Account permissions**: Email addresses — read.
+- **Repository permissions**: Contents, Workflows, Pages, Administration, Secrets, Variables and Pull requests — read & write; Actions and Metadata — read. (Variables carry the public Turnstile site key to site builds.) **Account permissions**: Email addresses — read.
 - **Events**: installation, installation repositories, GitHub app authorization, workflow run, push.
 
 Note the App ID, client id and secret, and generate a private key.

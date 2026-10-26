@@ -44,6 +44,7 @@ import { gatedContext as gatedContextFor, loadOpenedDocument, sealFiles } from "
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
 import { draftReady } from "./publishing";
+import { syncTurnstileVariable } from "./site-automation";
 import { CONFIG_PATH, isDocumentPath, loadSiteDocument, siteDocumentToFiles } from "./site-files";
 import type { TemplateMeta } from "./templates";
 
@@ -326,6 +327,14 @@ async function buildSiteFiles(
       issues: (err as { issues?: unknown }).issues,
     });
   }
+  // The public Turnstile key also lives in openspace.json (site-kit's fallback when the
+  // repository variable is missing).
+  const turnstileSiteKey = services.pub.config.turnstile.siteKey;
+  if (turnstileSiteKey)
+    doc = {
+      ...doc,
+      config: { ...doc.config, integrations: { ...doc.config.integrations, turnstileSiteKey } },
+    };
   const secrets = scanValueForSecrets(doc);
   if (secrets.length)
     throw new HttpError(
@@ -415,6 +424,14 @@ async function runSetup(
     }
     // The content is on main: the setup logo in R2 is no longer needed.
     await deleteSetupAssets(services, site.id, opts.log);
+    stage = "variables";
+    // Forms, sign-up and sign-in on the built site load Turnstile with the Hub's public key.
+    try {
+      await syncTurnstileVariable(services, site, gh);
+    } catch (err) {
+      // The minute cron backfills it; a missing variable must not block the first publish.
+      opts.log?.warn("turnstile variable not set", { siteId: site.id, err });
+    }
     stage = "draft";
     if (!(await gh.getRef(repo, DRAFT_BRANCH))) await gh.createBranch(repo, DRAFT_BRANCH, head);
     stage = "pages";

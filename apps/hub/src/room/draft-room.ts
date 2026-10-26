@@ -24,6 +24,7 @@ import { buildErrorByCode } from "../services/build-errors";
 import { gatedContext, readOpenedDocumentFiles, sealChanges } from "../services/gated-content";
 import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
+import { recordNextScheduled } from "../services/site-automation";
 import { diffSiteFiles, loadSiteDocument } from "../services/site-files";
 import { syncWorkerSecretsSafely } from "../services/worker-secrets";
 import { commitMessage, type TrailerActor, trailerEmail } from "./commit";
@@ -1156,6 +1157,15 @@ export class DraftRoom extends DurableObject<HubBindings> {
 
   // --- publishing ---------------------------------------------------------------------------
 
+  /** Remember when the next scheduled post/event of what just went live is due (cron rebuild). */
+  private async noteScheduled(services: Services, siteId: string, doc: SiteDocument) {
+    try {
+      await recordNextScheduled(services, siteId, doc);
+    } catch (err) {
+      this.log.warn("recording scheduled items failed", { siteId, err });
+    }
+  }
+
   private async sameTree(gh: GitHubAccess, repo: RepoRef, a: string, b: string): Promise<boolean> {
     if (a === b) return true;
     const [ta, tb] = await Promise.all([gh.readTree(repo, a), gh.readTree(repo, b)]);
@@ -1315,6 +1325,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
           author: { name: publisher?.name ?? publisher?.login ?? "OpenSpace" },
         });
         this.state.markPublished(this.state.flushedSeq);
+        await this.noteScheduled(services, siteId, this.state.doc as SiteDocument);
         if (await this.resetDraftIfAt(gh, repo, draftHead, commit.sha))
           this.state.setMeta("head", commit.sha);
         // Someone committed to the draft while we published: keep their work.
@@ -1412,6 +1423,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         // on the rolled-back draft.
         this.state.markPublished(this.state.flushedSeq);
         await this.reloadFromHead(gh, repo, "The site went back to an earlier version.");
+        await this.noteScheduled(services, siteId, this.state.doc as SiteDocument);
         await this.recordPublish(services, gh, site, {
           kind: "rollback",
           sha: commit.sha,

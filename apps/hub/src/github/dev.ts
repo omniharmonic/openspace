@@ -209,6 +209,7 @@ export class DevGitHubAccess implements GitHubAccess {
       this.db.prepare("UPDATE dev_refs SET repo = ? WHERE repo = ?").bind(dest, from),
       this.db.prepare("UPDATE dev_workflow_runs SET repo = ? WHERE repo = ?").bind(dest, from),
       this.db.prepare("UPDATE dev_secrets SET repo = ? WHERE repo = ?").bind(dest, from),
+      this.db.prepare("UPDATE dev_variables SET repo = ? WHERE repo = ?").bind(dest, from),
       this.db.prepare("UPDATE dev_collaborators SET repo = ? WHERE repo = ?").bind(dest, from),
       this.db.prepare("UPDATE dev_pull_requests SET repo = ? WHERE repo = ?").bind(dest, from),
     ]);
@@ -688,6 +689,25 @@ export class DevGitHubAccess implements GitHubAccess {
       .bind(key(repo))
       .all<{ name: string }>();
     return res.results.map((r) => r.name);
+  }
+
+  async setVariable(repo: RepoRef, name: string, value: string): Promise<void> {
+    await this.requireRepo(repo);
+    await this.db
+      .prepare(
+        "INSERT INTO dev_variables (repo, name, value, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT (repo, name) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+      )
+      .bind(key(repo), name, value, this.now())
+      .run();
+  }
+
+  async getVariable(repo: RepoRef, name: string): Promise<string | null> {
+    await this.requireRepo(repo);
+    const row = await this.db
+      .prepare("SELECT value FROM dev_variables WHERE repo = ? AND name = ?")
+      .bind(key(repo), name)
+      .first<{ value: string }>();
+    return row?.value ?? null;
   }
 
   async addCollaborator(

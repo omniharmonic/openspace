@@ -8,6 +8,7 @@ import { expireInvitations } from "./services/collaborators";
 import { purgeGatedContent } from "./services/gated-content";
 import { createServices, type Services } from "./services/index";
 import { runDueSchedules } from "./services/publishing";
+import { backfillTurnstileVariables, runDueScheduledItems } from "./services/site-automation";
 import { deleteSetupAssets, expireTransfers } from "./services/sites";
 
 /** Per-site Hub data deleted when an archived site's retention ends (arch §8.3, FR-4). */
@@ -38,6 +39,7 @@ const SITE_TABLES = [
   "discount_codes",
   "site_updates",
   "stripe_events",
+  "site_automation",
 ];
 
 /** Purge archived sites past `purge_at`: setup uploads in R2, room storage, Hub rows. */
@@ -86,6 +88,10 @@ export async function runScheduled(env: HubBindings, scheduledTime = Date.now())
   const services = createServices(env, config);
   const jobs: Array<[string, () => Promise<unknown>]> = [
     ["schedules", () => runDueSchedules(env, services, scheduledTime, log)],
+    // Scheduled posts/events: rebuild the live site when the next one is due.
+    ["scheduled-items", () => runDueScheduledItems(services, log, scheduledTime)],
+    // Turnstile site key → repository variable for sites that don't have it yet.
+    ["turnstile-variables", () => backfillTurnstileVariables(services, log)],
     ["transfers", () => expireTransfers(services, scheduledTime)],
     ["invitations", () => expireInvitations(services, scheduledTime)],
     ["purge", () => purgeArchivedSites(env, services, scheduledTime)],

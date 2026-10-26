@@ -637,6 +637,28 @@ export class GitHubAppAccess implements GitHubAccess {
     return (res?.secrets ?? []).map((s) => s.name);
   }
 
+  async getVariable(repo: RepoRef, name: string): Promise<string | null> {
+    const res = await this.rest<{ name: string; value: string }>(
+      `${this.repoPath(repo)}/actions/variables/${enc(name)}`,
+      { allow404: true },
+    );
+    return res?.value ?? null;
+  }
+
+  async setVariable(repo: RepoRef, name: string, value: string): Promise<void> {
+    // REST: PATCH updates an existing variable, POST creates one.
+    if ((await this.getVariable(repo, name)) !== null)
+      await this.rest(`${this.repoPath(repo)}/actions/variables/${enc(name)}`, {
+        method: "PATCH",
+        body: { name, value },
+      });
+    else
+      await this.rest(`${this.repoPath(repo)}/actions/variables`, {
+        method: "POST",
+        body: { name, value },
+      });
+  }
+
   async addCollaborator(
     repo: RepoRef,
     login: string,
