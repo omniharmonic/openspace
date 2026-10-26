@@ -1,7 +1,9 @@
+import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { promisify } from "node:util";
 import { siteMigrationRegistry } from "@openspace/schema";
 import { loadSiteDocument } from "@openspace/site-kit/content";
 import { afterAll, describe, expect, it } from "vitest";
@@ -10,9 +12,10 @@ import { captureIo } from "./io";
 import { runMigrate } from "./migrate";
 import { run } from "./program";
 import { compareVersions } from "./semver";
-import { cleanup, cli, MEADOW, tmpDir } from "./test-helpers";
+import { CLI_DIR, cleanup, cli, MEADOW, tmpDir } from "./test-helpers";
 
 const made: string[] = [];
+const exec = promisify(execFile);
 afterAll(async () => {
   await cleanup();
   for (const d of made) await rm(d, { recursive: true, force: true });
@@ -102,6 +105,19 @@ describe("openspace new", () => {
       expect(r.err).toContain("Invalid template id");
     }
     expect(existsSync(join(parent, "x"))).toBe(false);
+  });
+
+  it("removes parent folders it created when scaffolding fails", async () => {
+    const tdir = join(await tmpDir(), "templates");
+    await mkdir(join(tdir, "bad", "content"), { recursive: true });
+    await writeFile(join(tdir, "bad", "openspace.json"), "{}");
+    await writeFile(join(tdir, "bad", "content", "site.json"), "{ nope");
+    const parent = await tmpDir();
+    await mkdir(join(parent, "existing"));
+    const r = await cli(parent, ["new", "bad", "existing/deep/site", "--templates-dir", tdir]);
+    expect(r.code).toBe(1);
+    expect(existsSync(join(parent, "existing"))).toBe(true);
+    expect(existsSync(join(parent, "existing/deep"))).toBe(false);
   });
 
   it("removes a half-scaffolded folder when the template is broken", async () => {
@@ -397,10 +413,107 @@ describe("openspace eject safety", () => {
     expect(existsSync(join(dir, "src/openspace-kit"))).toBe(false);
   });
 
+  const ENTRIES = `export const ENTRYPOINTS = {\n  a: "@openspace/site-kit/route",\n} as const;\n`;
+  const packedPkg = () =>
+    pkg({
+      exports: {
+        ".": { default: "./dist/index.js" },
+        "./route": { default: "./dist/runtime/route.js" },
+      },
+    });
+
+  it("ejects a packed layout (exports point at dist, src ships alongside)", async () => {
+    const dir = await fakeSite({
+      "package.json": packedPkg(),
+      "dist/index.js": "export {};\n",
+      "src/index.ts": "export {};\n",
+      "src/runtime/route.ts": "export {};\n",
+      "src/entrypoints.ts": ENTRIES,
+    });
+    await writeFile(
+      join(dir, "src/pages/[...slug].astro"),
+      'import { x } from "@openspace/site-kit/route";\n',
+    );
+    const r = await cli(dir, ["eject", "--yes"]);
+    expect(r.code, r.err).toBe(0);
+    expect(await readFile(join(dir, "astro.config.mjs"), "utf8")).toContain(
+      '"./src/openspace-kit/index.ts"',
+    );
+    expect(await readFile(join(dir, "src/pages/[...slug].astro"), "utf8")).toContain(
+      '"../openspace-kit/runtime/route.ts"',
+    );
+    expect(await readFile(join(dir, "src/openspace-kit/entrypoints.ts"), "utf8")).toContain(
+      '"./src/openspace-kit/runtime/route.ts"',
+    );
+    // Every rewritten target exists.
+    expect(existsSync(join(dir, "src/openspace-kit/runtime/route.ts"))).toBe(true);
+  });
+
+  it("fails before writing when an exported file has no source", async () => {
+    const dir = await fakeSite({
+      "package.json": packedPkg(),
+      "src/index.ts": "export {};\n",
+      "src/entrypoints.ts": ENTRIES, // src/runtime/route.ts is missing
+    });
+    const before = await readFile(join(dir, "package.json"), "utf8");
+    const r = await cli(dir, ["eject", "--yes"]);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain("source file src/runtime/route.ts is not in the package");
+    expect(existsSync(join(dir, "src/openspace-kit"))).toBe(false);
+    expect(await readFile(join(dir, "package.json"), "utf8")).toBe(before);
+  });
+
+  it("rolls everything back if applying the changes fails midway", async () => {
+    const dir = await fakeSite({
+      "package.json": pkg(),
+      "src/index.ts": "export {};\n",
+      "src/route.ts": "export {};\n",
+      "src/entrypoints.ts": ENTRIES.replace("/route", "/route"),
+    });
+    const config = await readFile(join(dir, "astro.config.mjs"), "utf8");
+    await chmod(join(dir, "package.json"), 0o444); // the last write will fail
+    const r = await cli(dir, ["eject", "--yes"]);
+    await chmod(join(dir, "package.json"), 0o644);
+    expect(r.code, r.err).toBe(1);
+    expect(existsSync(join(dir, "src/openspace-kit"))).toBe(false);
+    expect(await readFile(join(dir, "astro.config.mjs"), "utf8")).toBe(config);
+  });
+
+  it("ejects a real `pnpm pack` of site-kit", async () => {
+    const out = await mkdtemp(join(tmpdir(), "os-pack-"));
+    made.push(out);
+    const kitDir = join(CLI_DIR, "..", "site-kit");
+    await exec("pnpm", ["pack", "--pack-destination", out], { cwd: kitDir });
+    const tgz = (await readdir(out)).find((f) => f.endsWith(".tgz")) as string;
+    const dir = await fakeSite({});
+    const kit = join(dir, "node_modules/@openspace/site-kit");
+    await mkdir(kit, { recursive: true });
+    await exec("tar", ["-xzf", join(out, tgz), "-C", kit, "--strip-components=1"]);
+    const packed = JSON.parse(await readFile(join(kit, "package.json"), "utf8"));
+    expect(packed.exports["."].default ?? packed.exports["."]).toMatch(/dist/);
+    await writeFile(
+      join(dir, "src/pages/[...slug].astro"),
+      'import { renderPage } from "@openspace/site-kit/route";\n',
+    );
+    const r = await cli(dir, ["eject", "--yes"]);
+    expect(r.code, r.err).toBe(0);
+    const ep = await readFile(join(dir, "src/openspace-kit/entrypoints.ts"), "utf8");
+    const targets = [...ep.matchAll(/"(\.\/src\/openspace-kit\/[^"]+)"/g)].map(
+      (m) => m[1] as string,
+    );
+    expect(targets.length).toBeGreaterThanOrEqual(4);
+    for (const t of targets) expect(existsSync(join(dir, t)), t).toBe(true);
+    const route = await readFile(join(dir, "src/pages/[...slug].astro"), "utf8");
+    expect(existsSync(join(dir, "src/pages", route.match(/"(\.\.[^"]+)"/)?.[1] ?? "nope"))).toBe(
+      true,
+    );
+  }, 120_000);
+
   it("fails when the kit has no entrypoints table", async () => {
     const dir = await fakeSite({
       "package.json": pkg(),
       "src/index.ts": "export {};\n",
+      "src/route.ts": "export {};\n",
     });
     const r = await cli(dir, ["eject", "--yes"]);
     expect(r.code).toBe(1);

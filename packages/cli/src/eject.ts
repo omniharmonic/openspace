@@ -1,6 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import { dirname, join, posix, relative, sep } from "node:path";
 import { CliError, type Io } from "./io";
 
@@ -26,32 +25,32 @@ interface KitPackage {
 }
 
 function locateKit(cwd: string): KitPackage {
-  let entry: string;
-  try {
-    entry = createRequire(join(cwd, "package.json")).resolve(KIT_PACKAGE);
-  } catch {
+  // Find node_modules/@openspace/site-kit by walking up; resolving the entry would fail for a
+  // published layout whose exports point at dist files that are not installed.
+  let pkgRoot: string | undefined;
+  for (let dir = cwd; ; ) {
+    const candidate = join(dir, "node_modules", "@openspace", "site-kit");
+    if (existsSync(join(candidate, "package.json"))) {
+      pkgRoot = candidate;
+      break;
+    }
+    const up = dirname(dir);
+    if (up === dir) break;
+    dir = up;
+  }
+  if (!pkgRoot)
     throw new CliError(
       `${KIT_PACKAGE} is not installed in this site, so there is nothing to eject.`,
     );
-  }
-  let dir = dirname(entry);
-  for (;;) {
-    const pj = join(dir, "package.json");
-    if (existsSync(pj)) {
-      const json = JSON.parse(readFileSync(pj, "utf8")) as KitPackage["json"] & { name?: string };
-      if (json.name === KIT_PACKAGE) {
-        const sourceDir = join(dir, "src");
-        if (!existsSync(join(sourceDir, "index.ts")))
-          throw new CliError(
-            `The installed ${KIT_PACKAGE}${json.version ? ` ${json.version}` : ""} ships only built output (dist/), and ejecting built JavaScript would give you code nobody can maintain.\nInstall a version that ships its source (${KIT_PACKAGE} with a src/ folder) and run "openspace eject" again. Nothing was changed.`,
-          );
-        return { root: dir, json, sourceDir };
-      }
-    }
-    const up = dirname(dir);
-    if (up === dir) throw new CliError(`Could not find the ${KIT_PACKAGE} package folder.`);
-    dir = up;
-  }
+  const json = JSON.parse(
+    readFileSync(join(pkgRoot, "package.json"), "utf8"),
+  ) as KitPackage["json"];
+  const sourceDir = join(pkgRoot, "src");
+  if (!existsSync(join(sourceDir, "index.ts")))
+    throw new CliError(
+      `The installed ${KIT_PACKAGE}${json.version ? ` ${json.version}` : ""} ships only built output (dist/), and ejecting built JavaScript would give you code nobody can maintain.\nInstall a version that ships its source (${KIT_PACKAGE} with a src/ folder) and run "openspace eject" again. Nothing was changed.`,
+    );
+  return { root: pkgRoot, json, sourceDir };
 }
 
 async function walk(dir: string): Promise<string[]> {
@@ -64,15 +63,34 @@ async function walk(dir: string): Promise<string[]> {
   return out;
 }
 
-/** Map each `@openspace/site-kit[/sub]` specifier to the file it resolves to inside the kit. */
+/**
+ * Source file (relative to the kit's `src/`) behind an export target. A published package's
+ * exports point at `./dist/x.js` while `src/x.ts` ships alongside; the workspace's point at
+ * `./src/x.ts` directly.
+ */
+export function sourceFor(target: string): string | undefined {
+  const t = target.replace(/^\.\//, "");
+  if (t.startsWith("src/")) return t.slice(4);
+  if (t.startsWith("dist/")) return t.slice(5).replace(/\.(?:m?js|d\.ts)$/, ".ts");
+  return undefined;
+}
+
+/**
+ * Map each `@openspace/site-kit[/sub]` specifier to the ejected file it will resolve to.
+ * Every mapped file must exist in the kit's source; otherwise eject fails before writing.
+ */
 function specifierMap(kit: KitPackage): Map<string, string> {
   const map = new Map<string, string>();
   for (const [key, value] of Object.entries(kit.json.exports ?? {})) {
     const target = typeof value === "string" ? value : value.default;
     if (!target) continue;
     const spec = key === "." ? KIT_PACKAGE : `${KIT_PACKAGE}/${key.slice(2)}`;
-    const inKit = relative(kit.sourceDir, join(kit.root, target)).split(sep).join("/");
-    map.set(spec, `${EJECT_DIR}/${inKit}`);
+    const inSrc = sourceFor(target);
+    if (!inSrc || !existsSync(join(kit.sourceDir, inSrc)))
+      throw new CliError(
+        `Cannot eject: ${spec} is exported as ${target}, but its source file${inSrc ? ` src/${inSrc}` : ""} is not in the package. Nothing was changed.`,
+      );
+    map.set(spec, `${EJECT_DIR}/${inSrc}`);
   }
   return map;
 }
@@ -132,20 +150,6 @@ export async function runEject(io: Io): Promise<EjectResult> {
   const patchedEntrypoints = rewriteEntrypoints(await readFile(entrypointsFile, "utf8"), specs);
 
   const dest = join(root, EJECT_DIR);
-  let files: number;
-  try {
-    await mkdir(dest, { recursive: true });
-    await cp(kit.sourceDir, dest, {
-      recursive: true,
-      filter: (src) => !/\.(?:test|spec)\.[tj]sx?$/.test(src) && !src.endsWith(".map"),
-    });
-    await writeFile(join(dest, "entrypoints.ts"), patchedEntrypoints);
-    files = (await walk(dest)).length;
-  } catch (e) {
-    await rm(dest, { recursive: true, force: true });
-    throw e;
-  }
-
   // Rewrite the site's own imports.
   const rewritten: string[] = [];
   const edits: { abs: string; next: string }[] = [];
@@ -184,8 +188,32 @@ export async function runEject(io: Io): Promise<EjectResult> {
   const out = { ...pkg, dependencies: sortKeys(deps) } as Record<string, unknown>;
   if (Object.keys(dev).length) out.devDependencies = sortKeys(dev);
   else delete out.devDependencies;
-  for (const e of edits) await writeFile(e.abs, e.next);
-  await writeFile(pkgPath, `${JSON.stringify(out, null, 2)}\n`);
+  const pkgText = `${JSON.stringify(out, null, 2)}\n`;
+
+  // Apply: copy, rewrite, then update the site. Any failure rolls everything back.
+  const originals = new Map<string, string>();
+  let files: number;
+  try {
+    await mkdir(dest, { recursive: true });
+    await cp(kit.sourceDir, dest, {
+      recursive: true,
+      filter: (src) => !/\.(?:test|spec)\.[tj]sx?$/.test(src) && !src.endsWith(".map"),
+    });
+    await writeFile(join(dest, "entrypoints.ts"), patchedEntrypoints);
+    files = (await walk(dest)).length;
+    for (const e of [...edits, { abs: pkgPath, next: pkgText }]) {
+      const original = await readFile(e.abs, "utf8");
+      await writeFile(e.abs, e.next);
+      originals.set(e.abs, original); // only files actually changed are restored
+    }
+  } catch (e) {
+    try {
+      for (const [abs, text] of originals) await writeFile(abs, text);
+    } finally {
+      await rm(dest, { recursive: true, force: true });
+    }
+    throw e;
+  }
 
   return { copiedFrom: kit.sourceDir, files, rewritten, addedDependencies: added.sort() };
 }

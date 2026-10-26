@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { build } from "tsup";
@@ -32,6 +32,7 @@ describe("built openspace binary (real process)", () => {
 
   it("is a runnable file with a shebang", () => {
     expect(existsSync(BIN)).toBe(true);
+    expect(readFileSync(BIN, "utf8").startsWith("#!/usr/bin/env node")).toBe(true);
   });
 
   it("checks the Meadow fixture", async () => {

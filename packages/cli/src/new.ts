@@ -109,13 +109,16 @@ export async function runNew(
   if (!(await isEmptyDir(dir)))
     throw new CliError(`${dir} already exists and is not empty. Choose a new folder.`);
   const tpl = await resolveTemplate(templateId, io, opts);
-  const existed = existsSync(dir);
+  // mkdir returns the first directory it had to create (undefined if `dir` already existed),
+  // so cleanup removes exactly what this command made.
+  const createdRoot = await mkdir(dir, { recursive: true });
   try {
     return await scaffold(templateId, dir, tpl, opts);
   } catch (e) {
-    // Never leave a half-scaffolded site behind.
-    await rm(dir, { recursive: true, force: true });
-    if (existed) await mkdir(dir, { recursive: true });
+    if (createdRoot) await rm(createdRoot, { recursive: true, force: true });
+    else
+      for (const entry of await readdir(dir))
+        await rm(join(dir, entry), { recursive: true, force: true });
     throw e;
   }
 }
