@@ -207,6 +207,7 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
       <button
         type="button"
         className={cx("st-mob__tab", active && "is-active")}
+        aria-label={badgeLabel ? `${label}${badgeLabel}` : undefined}
         aria-current={active ? "page" : undefined}
         onClick={() => {
           if (id === "check") setSheet({ kind: "panel", panel: "check" });
@@ -226,7 +227,6 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
           ) : null}
         </span>
         <span className="st-mob__tab-label">{label}</span>
-        {badgeLabel && <span className="st-visually-hidden">{badgeLabel}</span>}
       </button>
     );
   };
