@@ -26,7 +26,7 @@
         "gap": "2xl"
       },
       "style": {
-        "colorTheme": "light"
+        "colorTheme": "dark"
       },
       "blocks": [
         {
@@ -122,7 +122,7 @@
         "gap": "xl"
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "dark-accent"
       },
       "blocks": [
         {
@@ -185,7 +185,7 @@
         "gap": "xl"
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "dark"
       },
       "blocks": [
         {

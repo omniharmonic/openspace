@@ -22,7 +22,7 @@
         "gap": "xl"
       },
       "style": {
-        "colorTheme": "brand",
+        "colorTheme": "dark",
         "padding": {
           "d": "xl",
           "m": "lg"
@@ -114,7 +114,7 @@
         }
       },
       "style": {
-        "colorTheme": "light",
+        "colorTheme": "dark",
         "padding": {
           "d": "md",
           "m": "md"
@@ -234,7 +234,7 @@
         }
       },
       "style": {
-        "colorTheme": "light"
+        "colorTheme": "dark-accent"
       },
       "blocks": [
         {
@@ -275,7 +275,7 @@
           "column": 0,
           "variant": "minimal",
           "style": {
-            "colorTheme": "dark-accent"
+            "colorTheme": "brand"
           }
         },
         {
@@ -320,7 +320,7 @@
           "column": 0,
           "variant": "minimal",
           "style": {
-            "colorTheme": "light-accent"
+            "colorTheme": "dark"
           }
         },
         {
@@ -349,7 +349,7 @@
           "column": 0,
           "variant": "minimal",
           "style": {
-            "colorTheme": "light-accent"
+            "colorTheme": "dark"
           }
         }
       ]
@@ -440,7 +440,7 @@
         }
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "dark"
       },
       "blocks": [
         {
@@ -477,7 +477,7 @@
           },
           "variant": "row",
           "style": {
-            "colorTheme": "dark",
+            "colorTheme": "brand",
             "padding": {
               "d": "md",
               "m": "sm"
@@ -604,7 +604,7 @@
         }
       },
       "style": {
-        "colorTheme": "light"
+        "colorTheme": "dark"
       },
       "blocks": [
         {
@@ -733,7 +733,7 @@
         "gap": "xl"
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "dark-accent"
       },
       "blocks": [
         {
@@ -855,7 +855,7 @@
         "gap": "2xl"
       },
       "style": {
-        "colorTheme": "light"
+        "colorTheme": "dark"
       },
       "blocks": [
         {
@@ -1008,7 +1008,7 @@
         "gap": "lg"
       },
       "style": {
-        "colorTheme": "dark-accent",
+        "colorTheme": "brand",
         "padding": {
           "d": "xl",
           "m": "lg"

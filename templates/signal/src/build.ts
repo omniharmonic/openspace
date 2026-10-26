@@ -91,6 +91,7 @@ function home() {
     "Tidewire routes alerts, runs on-call schedules and writes the postmortem for you. Incident response for small engineering teams.",
     [
       fromPreset("hero/marquee-launch@1", {
+        theme: "dark",
         edit: {
           heading: {
             eyebrow: "New · Status pages that update themselves",
@@ -116,6 +117,7 @@ function home() {
         },
       }),
       fromPreset("logos/row@1", {
+        theme: "dark",
         edit: {
           "logo-strip": {
             label: "On call with Tidewire",
@@ -130,6 +132,7 @@ function home() {
         },
       }),
       fromPreset("features/bento@1", {
+        theme: "dark-accent",
         edit: {
           heading: { eyebrow: "Product", text: "Everything between the alert and the fix" },
           "card:1": {
@@ -138,6 +141,7 @@ function home() {
               "Route by service, severity and time of day. Escalate automatically if nobody acknowledges in five minutes.",
             ),
             icon: "zap",
+            style: { colorTheme: "brand" },
           },
           image: {
             image: photo(
@@ -153,6 +157,7 @@ function home() {
               "Rotas, overrides and swaps in two clicks, with a weekly report on who got woken up.",
             ),
             icon: "calendar",
+            style: { colorTheme: "dark" },
           },
           "card:3": {
             heading: "Postmortems drafted for you",
@@ -160,11 +165,12 @@ function home() {
               "Tidewire turns the incident timeline into a first draft you can edit and share.",
             ),
             icon: "book-open",
+            style: { colorTheme: "dark" },
           },
         },
       }),
       fromPreset("features/screenshot-callout@1", {
-        theme: "light-accent",
+        theme: "dark",
         edit: {
           image: {
             image: photo(
@@ -175,6 +181,7 @@ function home() {
             ),
           },
           stats: {
+            style: { colorTheme: "brand" },
             items: [
               { value: "3 s", label: "Median alert delivery" },
               { value: "41%", label: "Faster resolution" },
@@ -192,7 +199,7 @@ function home() {
         },
       }),
       fromPreset("testimonials/three-cards@1", {
-        theme: "light",
+        theme: "dark",
         edit: {
           heading: { eyebrow: "Customers", text: "Quieter nights, faster fixes" },
           "testimonial:1": {
@@ -231,7 +238,7 @@ function home() {
         },
       }),
       fromPreset("pricing/three-plans@1", {
-        theme: "light-accent",
+        theme: "dark-accent",
         edit: {
           heading: {
             eyebrow: "Pricing",
@@ -246,6 +253,7 @@ function home() {
         },
       }),
       fromPreset("faq/split@1", {
+        theme: "dark",
         edit: {
           heading: { eyebrow: "FAQ", text: "Questions engineers ask" },
           text: {
@@ -285,7 +293,7 @@ function home() {
         },
       }),
       fromPreset("cta/banner@1", {
-        theme: "dark-accent",
+        theme: "brand",
         edit: {
           heading: {
             text: "Sleep through the night again",
@@ -312,6 +320,7 @@ function pricing() {
     "Tidewire pricing: free for up to five responders, then $19 or $39 per responder each month. Fourteen-day trial, no card needed.",
     [
       fromPreset("hero/centered@1", {
+        theme: "dark",
         edit: {
           heading: {
             eyebrow: "Pricing",
@@ -328,7 +337,7 @@ function pricing() {
         },
       }),
       fromPreset("pricing/three-plans@1", {
-        theme: "light-accent",
+        theme: "dark-accent",
         edit: {
           heading: {
             eyebrow: "Plans",
@@ -340,6 +349,7 @@ function pricing() {
         },
       }),
       fromPreset("features/icon-row@1", {
+        theme: "dark",
         edit: {
           heading: {
             eyebrow: "Every plan",
@@ -373,7 +383,7 @@ function pricing() {
         },
       }),
       fromPreset("faq/by-topic@1", {
-        theme: "light-accent",
+        theme: "dark-accent",
         edit: {
           heading: { eyebrow: "FAQ", text: "Billing questions" },
           tabs: {
@@ -426,6 +436,7 @@ function about() {
     "Tidewire is a small, remote company of engineers who have carried the pager for twenty years. Meet the team and what we believe.",
     [
       fromPreset("about/story-split@1", {
+        theme: "dark",
         edit: {
           image: {
             image: photo(
@@ -455,6 +466,7 @@ function about() {
         },
       }),
       fromPreset("about/values@1", {
+        theme: "dark-accent",
         edit: {
           heading: {
             eyebrow: "How we work",
@@ -483,7 +495,7 @@ function about() {
         },
       }),
       fromPreset("team/grid@1", {
-        theme: "light-accent",
+        theme: "dark",
         edit: {
           heading: {
             eyebrow: "Team",
@@ -528,6 +540,7 @@ function contact() {
     "Talk to the Tidewire team about a demo, migrating from another tool, security reviews or a plan for a larger organization.",
     [
       fromPreset("contact/form-split@1", {
+        theme: "dark",
         edit: {
           heading: {
             eyebrow: "Contact",
@@ -599,15 +612,9 @@ export const signal: TemplateSpec = {
     {
       id: "electric",
       name: "Electric",
-      description:
-        "Near-black chrome with an electric violet accent and Bricolage Grotesque headings.",
+      description: "Near-black chrome with an electric violet accent and Bricolage Grotesque headings.",
       choices: {
-        palette: {
-          brand: "oklch(0.55 0.25 285)",
-          neutral: "cool",
-          contrast: "standard",
-          source: "curated",
-        },
+        palette: { brand: "oklch(0.55 0.25 285)", neutral: "cool", contrast: "standard", source: "curated" },
         pairing: "bricolage-geist",
         density: "comfortable",
         shape: "soft",
@@ -619,35 +626,24 @@ export const signal: TemplateSpec = {
     {
       id: "terminal",
       name: "Terminal",
-      description: "IBM Plex Mono headings and a signal-green accent for developer tools.",
+      description: "Near-black with a phosphor-green accent and IBM Plex Mono headings, for developer tools.",
       choices: {
-        palette: {
-          brand: "oklch(0.55 0.15 150)",
-          neutral: "cool",
-          contrast: "standard",
-          source: "brand",
-        },
+        palette: { brand: "oklch(0.6 0.17 150)", neutral: "cool", contrast: "standard", source: "brand" },
         pairing: "plex-mono-plex-sans",
         density: "compact",
         shape: "sharp",
-        buttons: "outline",
+        buttons: "solid",
         motion: "subtle",
         imageTreatment: "none",
       },
     },
     {
-      id: "sunrise",
-      name: "Sunrise",
-      description:
-        "A warm coral accent with Unbounded headings and pill buttons, for consumer launches.",
+      id: "volt",
+      name: "Volt",
+      description: "Near-black with an electric cyan accent, Space Grotesk headings and pill buttons.",
       choices: {
-        palette: {
-          brand: "oklch(0.65 0.18 30)",
-          neutral: "warm",
-          contrast: "standard",
-          source: "brand",
-        },
-        pairing: "unbounded-figtree",
+        palette: { brand: "oklch(0.62 0.14 215)", neutral: "cool", contrast: "standard", source: "brand" },
+        pairing: "space-grotesk-inter",
         density: "comfortable",
         shape: "round",
         buttons: "pill-solid",
@@ -670,8 +666,9 @@ export const signal: TemplateSpec = {
           { type: "link", label: "Sign in", href: "https://app.tidewire.example/login" },
           { type: "button", label: "Start free", link: url(SIGNUP), style: "primary" },
         ],
-        header: headerFrom("header/centered-nav@1", { sticky: true }),
+        header: headerFrom("header/centered-nav@1", { sticky: true, colorTheme: "dark" }),
         footer: fromPreset("footer/columns@1", {
+        theme: "dark",
           edit: {
             "text:1": {
               content: rt.doc(

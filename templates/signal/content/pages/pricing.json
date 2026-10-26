@@ -20,7 +20,7 @@
         }
       },
       "style": {
-        "colorTheme": "light",
+        "colorTheme": "dark",
         "padding": {
           "d": "2xl",
           "m": "xl"
@@ -85,7 +85,7 @@
         "gap": "xl"
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "dark-accent"
       },
       "blocks": [
         {
@@ -203,7 +203,7 @@
         "gap": "xl"
       },
       "style": {
-        "colorTheme": "light"
+        "colorTheme": "dark"
       },
       "blocks": [
         {
@@ -272,7 +272,7 @@
         "gap": "lg"
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "dark-accent"
       },
       "blocks": [
         {

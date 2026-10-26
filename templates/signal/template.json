@@ -42,10 +42,10 @@
     {
       "id": "terminal",
       "name": "Terminal",
-      "description": "IBM Plex Mono headings and a signal-green accent for developer tools.",
+      "description": "Near-black with a phosphor-green accent and IBM Plex Mono headings, for developer tools.",
       "choices": {
         "palette": {
-          "brand": "oklch(0.55 0.15 150)",
+          "brand": "oklch(0.6 0.17 150)",
           "neutral": "cool",
           "contrast": "standard",
           "source": "brand"
@@ -53,23 +53,23 @@
         "pairing": "plex-mono-plex-sans",
         "density": "compact",
         "shape": "sharp",
-        "buttons": "outline",
+        "buttons": "solid",
         "motion": "subtle",
         "imageTreatment": "none"
       }
     },
     {
-      "id": "sunrise",
-      "name": "Sunrise",
-      "description": "A warm coral accent with Unbounded headings and pill buttons, for consumer launches.",
+      "id": "volt",
+      "name": "Volt",
+      "description": "Near-black with an electric cyan accent, Space Grotesk headings and pill buttons.",
       "choices": {
         "palette": {
-          "brand": "oklch(0.65 0.18 30)",
-          "neutral": "warm",
+          "brand": "oklch(0.62 0.14 215)",
+          "neutral": "cool",
           "contrast": "standard",
           "source": "brand"
         },
-        "pairing": "unbounded-figtree",
+        "pairing": "space-grotesk-inter",
         "density": "comfortable",
         "shape": "round",
         "buttons": "pill-solid",
