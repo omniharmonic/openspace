@@ -51,6 +51,7 @@ export class TabPresence {
   }
 
   start() {
+    clearInterval(this.timer);
     this.post("hello");
     this.timer = setInterval(() => this.post("here"), HEARTBEAT_MS);
   }
@@ -84,8 +85,8 @@ interface PwaState {
   installed: boolean;
   /** Activate the waiting version (and reload). */
   update: (() => Promise<void>) | null;
-  /** The update is waiting for other Studio tabs to close. */
-  otherTabs: boolean;
+  /** Times an update has waited for other Studio tabs to close (each attempt tells again). */
+  otherTabs: number;
 }
 
 export const usePwa = create<PwaState>(() => ({
@@ -94,7 +95,7 @@ export const usePwa = create<PwaState>(() => ({
   installEvent: null,
   installed: false,
   update: null,
-  otherTabs: false,
+  otherTabs: 0,
 }));
 
 export interface RegisterEnv {
@@ -169,13 +170,17 @@ export function registerServiceWorker(env: RegisterEnv = import.meta.env): boole
     usePwa.setState({
       update: async () => {
         if (presence.alone()) return update(true);
-        usePwa.setState({ otherTabs: true });
+        usePwa.setState((s) => ({ otherTabs: s.otherTabs + 1 }));
       },
     });
     // Update on reload: a waiting version takes over as the last Studio tab goes away.
     window.addEventListener("pagehide", () => {
       presence.stop();
       if (usePwa.getState().needRefresh && presence.alone()) void update(false);
+    });
+    // Back from the back/forward cache: this tab is open again, so say so.
+    window.addEventListener("pageshow", (e) => {
+      if (e.persisted) presence.start();
     });
   });
   return true;

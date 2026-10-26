@@ -136,7 +136,7 @@ describe("install prompt", () => {
       installed: false,
       needRefresh: false,
       update: null,
-      otherTabs: false,
+      otherTabs: 0,
     }),
   );
 

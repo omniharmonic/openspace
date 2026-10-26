@@ -124,10 +124,14 @@ export function withOfflineCache(
       }
     },
     // Signing out forgets this device's copies of the account's session and sites.
+    // Even when the sign-out request fails (offline), this device forgets the account.
     logout: async () => {
-      await hub.logout();
-      kv.clear(PREFIX);
-      online();
+      try {
+        await hub.logout();
+        online();
+      } finally {
+        kv.clear(PREFIX);
+      }
     },
     listTemplates: () =>
       cached<TemplateSummary[]>(
