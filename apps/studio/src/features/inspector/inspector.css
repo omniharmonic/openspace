@@ -1006,3 +1006,68 @@
   background: var(--st-accent-soft);
   color: var(--st-accent-text);
 }
+
+/* Never scroll sideways: long labels truncate instead. */
+.st-ip__tabs > .st-tabs__panel,
+.st-ip__scroll,
+.st-ss {
+  overflow-x: hidden;
+}
+
+.st-ip .st-seg__item,
+.st-ss .st-seg__item {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-ip-sec__body,
+.st-ip-list,
+.st-ip-item__body,
+.st-ip-imgfield,
+.st-ip-listfield,
+.st-ip-ref,
+.st-ip-embed,
+.st-ip-link,
+.st-ip-link__editor,
+.st-ip-text {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.st-ip-item {
+  min-width: 0;
+}
+
+/* Row actions appear on hover or keyboard focus, so titles get the room. */
+.st-ip-item__head > .st-ip-icon-btn,
+.st-ip-item__head > [data-state] > .st-ip-icon-btn {
+  display: none;
+}
+
+.st-ip-item:hover > .st-ip-item__head > .st-ip-icon-btn,
+.st-ip-item:focus-within > .st-ip-item__head > .st-ip-icon-btn {
+  display: inline-grid;
+}
+
+.st-ip-item__title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.st-ip-item__title .st-ip-form-type {
+  flex: none;
+}
+
+@media (hover: none), (max-width: 767px) {
+  .st-ip-item__head > .st-ip-icon-btn {
+    display: inline-grid;
+  }
+}
+
+.st-ip-item__label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

@@ -84,7 +84,7 @@ function Row({
             style={{ transform: open ? "rotate(90deg)" : undefined, marginRight: 4 }}
           />
           {row.badge}
-          {row.title}
+          <span className="st-ip-item__label">{row.title}</span>
         </button>
         <Tooltip content="Move up">
           <button

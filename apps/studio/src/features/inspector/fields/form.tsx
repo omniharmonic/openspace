@@ -367,8 +367,8 @@ export function FormBuilder({ id, value, onChange, disabled }: ControlProps<Form
               )
             }
             options={[
-              { value: "message", label: "Show a message" },
-              { value: "redirect", label: "Go to a page" },
+              { value: "message", label: "Message" },
+              { value: "redirect", label: "Redirect" },
             ]}
           />
         </PropRow>
