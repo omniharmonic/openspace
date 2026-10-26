@@ -148,27 +148,30 @@ export const bookingBlock = defineBlock({
     return (
       <div className={cx("os-booking", `os-booking--${variant}`)}>
         {intro}
-        <div
-          className="os-booking__frame"
-          style={{ "--bk-h": `${fields.height}px` }}
-          data-os-behavior="video-lite"
-          data-os-embed={booking.embed}
-          data-os-title={`${fields.heading || "Booking calendar"} (${name})`}
-        >
-          <div className="os-booking__placeholder">
-            <Icon name="calendar" size={36} />
-            <p className="os-booking__note">
-              Times are shown by {name}. Loading the calendar shares your visit with {name}.
-            </p>
-            <Button className="os-booking__load" attrs={{ "data-os-load": "" }}>
-              {fields.buttonLabel}
-            </Button>
+        {/* The calendar and its fallback link stay together (side by side with the intro in split). */}
+        <div className="os-booking__main">
+          <div
+            className="os-booking__frame"
+            style={{ "--bk-h": `${fields.height}px` }}
+            data-os-behavior="video-lite"
+            data-os-embed={booking.embed}
+            data-os-title={`${fields.heading || "Booking calendar"} (${name})`}
+          >
+            <div className="os-booking__placeholder">
+              <Icon name="calendar" size={36} />
+              <p className="os-booking__note">
+                Times are shown by {name}. Loading the calendar shares your visit with {name}.
+              </p>
+              <Button className="os-booking__load" attrs={{ "data-os-load": "" }}>
+                {fields.buttonLabel}
+              </Button>
+            </div>
           </div>
+          <a className="os-booking__fallback" href={booking.page} target="_blank" rel="noopener">
+            Open the booking page
+            <span className="os-visually-hidden"> on {name} (opens in a new tab)</span>
+          </a>
         </div>
-        <a className="os-booking__fallback" href={booking.page} target="_blank" rel="noopener">
-          Open the booking page
-          <span className="os-visually-hidden"> on {name} (opens in a new tab)</span>
-        </a>
       </div>
     );
   },
@@ -180,6 +183,7 @@ export const bookingCss = `
 .os-booking__heading{margin:0;color:var(--os-color-heading)}
 .os-booking__text{margin:0;color:var(--os-color-text);max-inline-size:var(--os-measure)}
 @container block (min-width:56rem){.os-booking--split{grid-template-columns:minmax(0,0.8fr) minmax(0,1.2fr);gap:var(--os-space-lg);align-items:start}}
+.os-booking__main{display:grid;gap:var(--os-space-xs);min-width:0}
 .os-booking__frame{position:relative;min-height:22rem;border-radius:var(--os-radius-card);background:var(--os-color-surface);overflow:hidden}
 .os-block.has-radius .os-booking__frame{border-radius:var(--radius)}
 .os-booking__frame>iframe{display:block;width:100%;height:var(--bk-h,760px);max-height:85vh;border:0;background:var(--os-color-background)}

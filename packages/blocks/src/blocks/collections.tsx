@@ -87,7 +87,10 @@ export function PriceText({ price }: { price: { text: string; was?: string } }) 
           <span className="os-price__sep" aria-hidden="true">
             {" · "}
           </span>
-          <span className="os-visually-hidden">now </span>
+          {/* "now From $40" reads badly: prices that start with a word get a label instead. */}
+          <span className="os-visually-hidden">
+            {/^\p{L}/u.test(price.text) ? ", sale price: " : "now "}
+          </span>
         </>
       ) : null}
       <span>{price.text}</span>

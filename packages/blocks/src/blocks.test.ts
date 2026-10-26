@@ -205,7 +205,10 @@ describe("BLOCKS_CSS", () => {
     for (const m of BLOCKS_CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
       const [, selector = "", body = ""] = m;
       if (!/(?:^|;)color:var\(--os-color-accent\)/.test(body)) continue;
-      if (SMALL.test(body) || !ALLOWED.test(selector)) offenders.push(selector.trim());
+      // Every selector in a list must be allowed (`.os-x__icon, .os-y__title` is not).
+      const parts = selector.split(",").map((p) => p.trim());
+      if (SMALL.test(body) || !parts.every((p) => ALLOWED.test(p)))
+        offenders.push(selector.trim());
     }
     expect(offenders).toEqual([]);
   });

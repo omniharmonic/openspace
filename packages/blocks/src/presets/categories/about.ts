@@ -143,7 +143,7 @@ export const aboutPresets = [
         heading("Forty years of fixing bikes", {
           col: 0,
           eyebrow: "Our history",
-          sub: "Three generations, two shop moves and more inner tubes than we can count.",
+          sub: "Two shop moves, nine mechanics and more inner tubes than we can count.",
         }),
         make(
           timelineBlock,
@@ -152,7 +152,7 @@ export const aboutPresets = [
               {
                 date: "1985",
                 title: "A garage on Elm Street",
-                text: "Walt opens a one-bench repair shop and fixes the neighbourhood's bikes for cash and coffee.",
+                text: "Marion opens a one-bench repair shop and fixes the neighbourhood's bikes for cash and coffee.",
               },
               {
                 date: "1998",
@@ -162,7 +162,7 @@ export const aboutPresets = [
               {
                 date: "2012",
                 title: "Cargo bikes arrive",
-                text: "Jo takes over and becomes the county's first cargo and e-bike specialist.",
+                text: "Jo joins as a partner, and we become the county's first cargo and e-bike specialist.",
               },
               {
                 date: "Today",

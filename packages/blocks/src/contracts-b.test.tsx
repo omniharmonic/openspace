@@ -541,7 +541,7 @@ describe("summary", () => {
 
   it("shows products with prices", () => {
     mount([withFields(summaryBlock, { source: { collection: "shop" } })]);
-    expect($(".os-summary__price").textContent).toBe("Was $80 · now From $68");
+    expect($(".os-summary__price").textContent).toBe("Was $80 · , sale price: From $68");
     expect($(".os-summary__price .os-price__sep").getAttribute("aria-hidden")).toBe("true");
   });
 
@@ -689,7 +689,7 @@ describe("product", () => {
   it("emits the cart contract (SKU + qty only) with a variant picker", () => {
     mount([create(productBlock)]);
     expect($(".os-product__title a").getAttribute("href")).toBe("/shop/cork-yoga-mat/");
-    expect($(".os-product__price").textContent).toBe("Was $80 · now From $68");
+    expect($(".os-product__price").textContent).toBe("Was $80 · , sale price: From $68");
     const add = $<HTMLButtonElement>("button[data-os-add]");
     expect(add.dataset.osBehavior).toBe("cart");
     expect(add.dataset.osSku).toBe("MAT-CORK-STD");

@@ -153,11 +153,11 @@ function FieldShell({
     >
       {children}
       {field.help ? (
-        <p className="os-field__help" id={`${id}-help`}>
+        <p className="os-field__help" id={sub(id, "help")}>
           {field.help}
         </p>
       ) : null}
-      <p className="os-field__error" id={`${id}-error`} aria-live="polite" />
+      <p className="os-field__error" id={sub(id, "error")} aria-live="polite" />
     </Tag>
   );
 }
@@ -177,7 +177,7 @@ function Label({ field, htmlFor }: { field: FormField; htmlFor: string }) {
 
 function FieldView({ field, base }: { field: FormField; base: string }) {
   const id = sub(base, field.name);
-  const describedBy = [field.help && `${id}-help`, `${id}-error`].filter(Boolean).join(" ");
+  const describedBy = [field.help && sub(id, "help"), sub(id, "error")].filter(Boolean).join(" ");
   const common = {
     id,
     name: field.name,
