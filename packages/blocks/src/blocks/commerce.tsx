@@ -3,7 +3,9 @@ import {
   cx,
   Img,
   itemPath,
+  resolveImage,
   useCollectionQuery,
+  useImageMap,
   useRenderContext,
 } from "@openspace/renderer";
 import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
@@ -28,6 +30,8 @@ export interface ProductOption {
   label: string;
   price: number;
   available: boolean;
+  /** The variant's own photo (media path or URL), shown when it's chosen. */
+  image?: string;
 }
 
 export const productBlock = defineBlock({
@@ -68,6 +72,7 @@ export const productBlock = defineBlock({
   },
   render: ({ id, fields, variant, style }) => {
     const { basePath, doc } = useRenderContext();
+    const imageMap = useImageMap();
     const locale = useLocale();
     const [item] = useCollectionQuery({ ...fields.product, limit: 1 });
     if (item?.kind !== "products")
@@ -79,7 +84,6 @@ export const productBlock = defineBlock({
       );
     const fm = item.frontmatter;
     const currency = fm.price.currency;
-    const image = itemImage(item);
     const price = productPrice(item, locale);
     const href = itemPath(fields.product.collection, item.slug, basePath);
 
@@ -91,6 +95,7 @@ export const productBlock = defineBlock({
         label: Object.values(v.options).join(" / "),
         price: v.price?.amount ?? fm.price.amount,
         available: v.available !== false && fm.available !== false,
+        ...(v.image ? { image: v.image } : {}),
       }));
     if (!options.length && fm.sku)
       options.push({
@@ -100,6 +105,14 @@ export const productBlock = defineBlock({
         available: fm.available !== false,
       });
     const firstAvailable = options.find((o) => o.available);
+    // The chosen variant's photo leads; otherwise the product's own.
+    const base = itemImage(item);
+    const baseSrc = typeof base === "string" ? base : base?.src;
+    const image = firstAvailable?.image ?? base ?? options.find((o) => o.image)?.image;
+    const swaps = options.length > 1 && options.some((o) => o.image);
+    const imageClass = swaps ? sub(id, "photo") : undefined;
+    const photoUrl = (src: string | undefined) =>
+      src ? resolveImage(src, { imageMap, doc, basePath }).src : undefined;
     const pickId = sub(id, "option");
     const qtyId = sub(id, "qty");
     const notCloudflare = doc && doc.config.deploy.target !== "cloudflare";
@@ -115,7 +128,7 @@ export const productBlock = defineBlock({
                 ? "(min-width: 768px) 50vw, 100vw"
                 : "(min-width: 768px) 40vw, 100vw"
             }
-            className="os-product__image"
+            className={cx("os-product__image", imageClass)}
           />
         ) : null}
         <div className="os-product__body">
@@ -152,6 +165,7 @@ export const productBlock = defineBlock({
                         disabled={!o.available || undefined}
                         data-os-name={`${fm.title} — ${o.label}`}
                         data-os-price={o.price}
+                        data-os-image={swaps ? photoUrl(o.image ?? baseSrc) : undefined}
                       >
                         {o.label}
                         {o.price !== fm.price.amount
@@ -192,6 +206,7 @@ export const productBlock = defineBlock({
                     "data-os-currency": currency,
                     "data-os-qty-input": fields.quantity ? `#${qtyId}` : undefined,
                     "data-os-sku-input": options.length > 1 ? `#${pickId}` : undefined,
+                    "data-os-image-target": imageClass ? `.${imageClass}` : undefined,
                   }}
                 >
                   {fields.buttonLabel}

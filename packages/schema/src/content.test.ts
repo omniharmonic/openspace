@@ -510,6 +510,31 @@ describe("primitives", () => {
 
 describe("CollectionItem", () => {
   const blog = doc.collections.journal?.["2026-10-26-opening-day"];
+  it("accepts a repeat rule on events and a photo per product variant", () => {
+    const event = (recurrence: string) => ({
+      kind: "events",
+      slug: "tuesday-flow",
+      frontmatter: { title: "Tuesday flow", status: "published", start: "2026-11-03", recurrence },
+      body: "",
+    });
+    expectValid(CollectionItemSchema, event("FREQ=WEEKLY;BYDAY=TU,TH;COUNT=10"));
+    expectValid(CollectionItemSchema, event("FREQ=MONTHLY;BYDAY=1MO;UNTIL=20271231T000000Z"));
+    expect(CollectionItemSchema.safeParse(event("RRULE:FREQ=WEEKLY")).success).toBe(false);
+    expect(CollectionItemSchema.safeParse(event("FREQ=HOURLY")).success).toBe(false);
+    expectValid(CollectionItemSchema, {
+      kind: "products",
+      slug: "tee",
+      frontmatter: {
+        title: "Tee",
+        status: "published",
+        price: { amount: 2500, currency: "USD" },
+        options: [{ name: "Color", values: ["Sage"] }],
+        variants: [{ options: { Color: "Sage" }, image: "media/2026/10/tee-sage-0a1b2c3d.jpg" }],
+      },
+      body: "",
+    });
+  });
+
   it("accepts every kind", () => {
     expectValid(CollectionItemSchema, blog);
     expectValid(CollectionItemSchema, {

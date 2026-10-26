@@ -6,6 +6,7 @@ import type {
 } from "@openspace/schema";
 import { createContext, useContext } from "react";
 import { useRenderContext } from "./context";
+import { eventLengthDays, eventOn, expandOccurrences, occurrenceDates } from "./recurrence";
 
 /**
  * Collection data for blocks that list items (summary, events, product, social feed).
@@ -121,6 +122,37 @@ const time = (item: CollectionItem) => {
   return d ? Date.parse(d) : 0;
 };
 
+const isoDay = (d: Date) => d.toISOString().slice(0, 10);
+const plusDays = (d: Date, n: number) => isoDay(new Date(d.getTime() + n * 86_400_000));
+
+/** How far ahead (and back, for past events) repeating events are listed. */
+export const RECURRENCE_HORIZON_DAYS = 366;
+
+/** A repeating event shown at its next date (or its last one, once the series is over). */
+export function nextOccurrence(item: CollectionItem, now: Date): CollectionItem {
+  if (item.kind !== "events" || !item.frontmatter.recurrence) return item;
+  const rule = item.frontmatter.recurrence;
+  const start = item.frontmatter.start;
+  // From as far back as the event lasts (an occurrence may still be running), the next few dates.
+  const soon = occurrenceDates(rule, start, {
+    from: plusDays(now, -(eventLengthDays(item) + 1)),
+    through: plusDays(now, RECURRENCE_HORIZON_DAYS),
+    max: 4,
+  });
+  const upcoming = soon.map((d) => eventOn(item, d)).find((e) => isUpcoming(e, now));
+  if (upcoming) return upcoming;
+  // The series is over: show its last date (searching back from today, a year at a time).
+  for (let back = 1; back <= 50; back++) {
+    const past = occurrenceDates(rule, start, {
+      from: plusDays(now, -RECURRENCE_HORIZON_DAYS * back),
+      through: isoDay(now),
+    });
+    if (past.length) return eventOn(item, past[past.length - 1] as string);
+    if (plusDays(now, -RECURRENCE_HORIZON_DAYS * back) < start.slice(0, 10)) break;
+  }
+  return item;
+}
+
 export interface QueryOptions {
   now?: Date;
   includeDrafts?: boolean;
@@ -143,23 +175,40 @@ export function queryCollection(
 
   let items: CollectionItem[];
   if (ref.items) {
-    items = ref.items.map((slug) => all[slug]).filter(visible);
+    items = ref.items
+      .map((slug) => all[slug])
+      .filter(visible)
+      .map((item) => nextOccurrence(item, now));
   } else {
     const f = ref.filter;
-    items = Object.values(all)
-      .filter(visible)
-      .filter((item) => {
-        const fm = item.frontmatter;
-        if (f?.categories?.length && !f.categories.some((c) => fm.categories?.includes(c)))
-          return false;
-        if (f?.tags?.length) {
-          const tags = (fm.tags ?? []).map((t) => t.toLowerCase());
-          if (!f.tags.some((t) => tags.includes(t.toLowerCase()))) return false;
-        }
-        if (f?.featured !== undefined && (fm.featured === true) !== f.featured) return false;
-        if (f?.upcoming !== undefined && isUpcoming(item, now) !== f.upcoming) return false;
-        return true;
-      });
+    const live = Object.values(all).filter(visible);
+    // Repeating events list once per date: upcoming ones for the next year, past ones for the last
+    // year; without a date filter each series shows at its next date.
+    const expanded =
+      f?.upcoming === true
+        ? expandOccurrences(live, {
+            from: isoDay(now),
+            through: plusDays(now, RECURRENCE_HORIZON_DAYS),
+          })
+        : f?.upcoming === false
+          ? expandOccurrences(live, {
+              from: plusDays(now, -RECURRENCE_HORIZON_DAYS),
+              through: isoDay(now),
+              newest: true,
+            })
+          : live.map((item) => nextOccurrence(item, now));
+    items = expanded.filter((item) => {
+      const fm = item.frontmatter;
+      if (f?.categories?.length && !f.categories.some((c) => fm.categories?.includes(c)))
+        return false;
+      if (f?.tags?.length) {
+        const tags = (fm.tags ?? []).map((t) => t.toLowerCase());
+        if (!f.tags.some((t) => tags.includes(t.toLowerCase()))) return false;
+      }
+      if (f?.featured !== undefined && (fm.featured === true) !== f.featured) return false;
+      if (f?.upcoming !== undefined && isUpcoming(item, now) !== f.upcoming) return false;
+      return true;
+    });
   }
 
   const sort = ref.sort ?? (ref.items ? "manual" : ref.filter?.upcoming ? "date-asc" : "date-desc");

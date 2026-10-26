@@ -711,6 +711,40 @@ describe("product", () => {
     ]);
   });
 
+  it("shows each variant's own photo and swaps it when the option changes", () => {
+    const doc = siteWith([page("Shop", "shop", [])]);
+    const mat = doc.collections.shop?.["cork-yoga-mat"];
+    if (mat?.kind !== "products") throw new Error("fixture");
+    const variants = mat.frontmatter.variants ?? [];
+    (variants[0] as { image?: string }).image = "https://images.example.com/std.jpg";
+    (variants[1] as { image?: string }).image = "https://images.example.com/long.jpg";
+    mount([create(productBlock)], { doc });
+    const add = $<HTMLButtonElement>("button[data-os-add]");
+    const target = add.dataset.osImageTarget ?? "";
+    expect(target).toMatch(/^\./);
+    const img = $<HTMLImageElement>(`${target} img`);
+    expect(img.getAttribute("src")).toContain("std.jpg");
+    const select = $<HTMLSelectElement>(add.dataset.osSkuInput ?? "");
+    expect([...select.options].map((o) => o.dataset.osImage)).toEqual([
+      expect.stringContaining("std.jpg"),
+      expect.stringContaining("long.jpg"),
+    ]);
+    behavior("cart")(add);
+    select.value = "MAT-CORK-LONG";
+    select.dispatchEvent(new Event("change"));
+    expect(img.getAttribute("src")).toContain("long.jpg");
+    expect(img.hasAttribute("srcset")).toBe(false);
+    for (const source of document.querySelectorAll(`${target} source`))
+      expect(source.getAttribute("srcset")).toContain("long.jpg");
+  });
+
+  it("products without variant photos keep the plain markup", () => {
+    mount([create(productBlock)]);
+    const add = $<HTMLButtonElement>("button[data-os-add]");
+    expect(add.dataset.osImageTarget).toBeUndefined();
+    expect($$("option[data-os-image]")).toHaveLength(0);
+  });
+
   it("sold out, missing products and notices", () => {
     const doc = siteWith([page("Shop", "shop", [])]);
     const mat = doc.collections.shop?.["cork-yoga-mat"];
