@@ -1,0 +1,76 @@
+import { z } from "zod";
+
+/**
+ * Stable ids (Global Constraint 6): `<prefix>_` + 10 lowercase Crockford base32 characters.
+ * Ids are generated once and preserved by every edit; they make merges, agent targeting
+ * and comments reliable.
+ */
+
+/** Crockford base32 alphabet, lowercase (no i, l, o, u). */
+export const CROCKFORD_ALPHABET = "0123456789abcdefghjkmnpqrstvwxyz";
+
+/** Number of random characters after the prefix. 10 chars × 5 bits = 50 bits of entropy. */
+export const ID_LENGTH = 10;
+
+/** All id prefixes used by the content model. */
+export const ID_PREFIXES = {
+  page: "pg",
+  section: "sec",
+  block: "blk",
+  media: "med",
+  form: "frm",
+  site: "st",
+} as const;
+
+export type IdKind = keyof typeof ID_PREFIXES;
+export type IdPrefix = (typeof ID_PREFIXES)[IdKind];
+
+export type PageId = `pg_${string}`;
+export type SectionId = `sec_${string}`;
+export type BlockId = `blk_${string}`;
+export type MediaId = `med_${string}`;
+export type FormId = `frm_${string}`;
+export type SiteId = `st_${string}`;
+
+export type IdOf<P extends IdPrefix> = `${P}_${string}`;
+
+const ID_BODY = `[${CROCKFORD_ALPHABET}]{${ID_LENGTH}}`;
+const ANY_ID_RE = new RegExp(`^(?:${Object.values(ID_PREFIXES).join("|")})_${ID_BODY}$`);
+const idPattern = (prefix: IdPrefix): RegExp => new RegExp(`^${prefix}_${ID_BODY}$`);
+
+/** Generate a new random id with the given prefix, e.g. `newId("blk")` → `blk_7hq2k3f9mz`. */
+export function newId<P extends IdPrefix>(prefix: P): IdOf<P> {
+  const bytes = new Uint8Array(ID_LENGTH);
+  globalThis.crypto.getRandomValues(bytes);
+  let body = "";
+  for (const byte of bytes) body += CROCKFORD_ALPHABET[byte & 31];
+  return `${prefix}_${body}` as IdOf<P>;
+}
+
+/** True if `value` is a well-formed id. With `prefix`, also checks the id kind. */
+export function isId<P extends IdPrefix>(value: unknown, prefix: P): value is IdOf<P>;
+export function isId(value: unknown): value is string;
+export function isId(value: unknown, prefix?: IdPrefix): boolean {
+  if (typeof value !== "string") return false;
+  return prefix ? idPattern(prefix).test(value) : ANY_ID_RE.test(value);
+}
+
+/** The prefix of a well-formed id, or `undefined`. */
+export function idPrefix(value: string): IdPrefix | undefined {
+  if (!isId(value)) return undefined;
+  return value.slice(0, value.indexOf("_")) as IdPrefix;
+}
+
+// Plain regex-checked strings (no transform, so JSON Schema export stays faithful).
+// The branded template-literal type is applied via the cast on each export.
+const idString = <P extends IdPrefix>(prefix: P) =>
+  z.string().regex(idPattern(prefix), {
+    message: `Expected an id like "${prefix}_" followed by 10 lowercase base32 characters`,
+  }) as unknown as z.ZodType<IdOf<P>, IdOf<P>>;
+
+export const PageIdSchema = idString("pg");
+export const SectionIdSchema = idString("sec");
+export const BlockIdSchema = idString("blk");
+export const MediaIdSchema = idString("med");
+export const FormIdSchema = idString("frm");
+export const SiteIdSchema = idString("st");
