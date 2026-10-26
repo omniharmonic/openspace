@@ -1,0 +1,460 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_m6t2wx7vce",
+  "title": "Pricing",
+  "slug": "pricing",
+  "seo": {
+    "description": "Tidewire pricing: free for up to five responders, then $19 or $39 per responder each month. Fourteen-day trial, no card needed."
+  },
+  "sections": [
+    {
+      "id": "sec_h79tfjqtx6",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_9atbhrhvs5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Simple pricing that grows with your team",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Pricing",
+            "subheading": "Pay for the people who carry the pager, not for alerts, integrations or status page subscribers. Change plans whenever you like."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_mywc01mvs1",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start free",
+            "link": {
+              "type": "url",
+              "url": "https://app.tidewire.example/signup"
+            },
+            "role": "primary",
+            "secondaryLabel": "Talk to sales",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_khh7x3t3zt"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_myt0gj9ntr",
+      "preset": "pricing/three-plans@1",
+      "label": "Three plans",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_8h0pt7eezs",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Choose a plan",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Plans",
+            "subheading": "All plans include unlimited alerts, integrations and status page subscribers."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_dbaz2naz81",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Starter",
+                "price": "$0",
+                "period": "up to 5 responders",
+                "description": "For side projects and the first on-call rota.",
+                "features": [
+                  {
+                    "text": "Alerts by push, SMS and Slack"
+                  },
+                  {
+                    "text": "One on-call schedule"
+                  },
+                  {
+                    "text": "Public status page"
+                  }
+                ],
+                "buttonLabel": "Start free",
+                "link": {
+                  "type": "url",
+                  "url": "https://app.tidewire.example/signup"
+                },
+                "featured": false
+              },
+              {
+                "name": "Team",
+                "price": "$19",
+                "period": "per responder / month",
+                "description": "For engineering teams who share the pager every week.",
+                "features": [
+                  {
+                    "text": "Unlimited schedules and escalations"
+                  },
+                  {
+                    "text": "Incident timelines and postmortems"
+                  },
+                  {
+                    "text": "Phone-call alerts in 40 countries"
+                  }
+                ],
+                "buttonLabel": "Try Team free for 14 days",
+                "link": {
+                  "type": "url",
+                  "url": "https://app.tidewire.example/signup"
+                },
+                "featured": true,
+                "badge": "Most teams"
+              },
+              {
+                "name": "Scale",
+                "price": "$39",
+                "period": "per responder / month",
+                "description": "For companies with several teams and audit needs.",
+                "features": [
+                  {
+                    "text": "SSO and SCIM provisioning"
+                  },
+                  {
+                    "text": "Audit log and data residency"
+                  },
+                  {
+                    "text": "A named support engineer"
+                  }
+                ],
+                "buttonLabel": "Talk to us",
+                "link": {
+                  "type": "url",
+                  "url": "/contact/"
+                },
+                "featured": false
+              }
+            ],
+            "note": "Non-profits and open-source projects get Team free. Ask us."
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_92bxjvg8bn",
+      "preset": "features/icon-row@1",
+      "label": "Four benefits with icons",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_34bwsbqg8b",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Included, whatever you pay",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Every plan",
+            "subheading": "The basics of a good incident process shouldn't be an upsell."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_af15r8kztd",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "zap",
+                "title": "Unlimited alerts",
+                "text": "No per-alert or per-integration fees, ever."
+              },
+              {
+                "icon": "globe",
+                "title": "Status page",
+                "text": "A public page on your own domain, updated from Slack."
+              },
+              {
+                "icon": "shield-check",
+                "title": "SOC 2 Type II",
+                "text": "Audited yearly, with the report available on request."
+              },
+              {
+                "icon": "message-circle",
+                "title": "Human support",
+                "text": "Engineers answer email within four business hours."
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_q6wbhxt5nx",
+      "preset": "faq/by-topic@1",
+      "label": "Questions by topic",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_r220qyhbbk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Billing questions",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "FAQ"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_dy4yrxcjhe",
+          "type": "tabs",
+          "v": 1,
+          "fields": {
+            "label": "Question topics",
+            "items": [
+              {
+                "label": "Billing",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Who counts as a responder?"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Anyone who can be paged. Stakeholders who only read incidents and status pages are free."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Can I pay annually?"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Annual plans get two months free and can be paid by invoice."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Trials",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Do I need a card to start a trial?"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "No. You'll move to the Starter plan automatically if you don't upgrade."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Can I extend my trial?"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Just ask. Most migrations finish within the first week anyway."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Security",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Do you support single sign-on?"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "SAML and OIDC single sign-on with SCIM provisioning are included on the Scale plan."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Can we sign a DPA?"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes, on every paid plan. Download it from your account settings."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "pills"
+        }
+      ]
+    }
+  ]
+}

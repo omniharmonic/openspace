@@ -1,0 +1,97 @@
+{
+  "$comment": "Licenses for the demo media in the Signal template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1497215728101-856f4ea42174",
+      "title": "Standing desks by tall windows with a palm in the corner",
+      "author": "Alesia Kazantceva",
+      "authorUrl": "https://unsplash.com/@alesiaskaz",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/turned-off-laptop-computer-on-top-of-brown-wooden-table-VWcPlbHglYc",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+      "title": "Portrait of a man in a grey sweater, smiling softly",
+      "author": "Jurica Koletić",
+      "authorUrl": "https://unsplash.com/@juricakoletic",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-henley-top-portrait-7YVZYZeITc8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+      "title": "Portrait of a smiling man in a white t-shirt",
+      "author": "Joseph Gonzalez",
+      "authorUrl": "https://unsplash.com/@miracletwentyone",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-white-v-neck-shirt-iFgRcqHznqg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+      "title": "Three colleagues laughing around laptops at a shared table",
+      "author": "Brooke Cagle",
+      "authorUrl": "https://unsplash.com/@brookecagle",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/three-people-sitting-in-front-of-table-laughing-together-g1Kr4Ozfoac",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "title": "Portrait of a woman in a black top against a soft violet wall",
+      "author": "Aiony Haust",
+      "authorUrl": "https://unsplash.com/@aiony",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-wearing-black-crew-neck-shirt-3TLl_97HNJo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6",
+      "title": "Portrait of a young man in a black hat, smiling",
+      "author": "ian dooley",
+      "authorUrl": "https://unsplash.com/@sadswim",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-near-white-wall-d1UPkiFd04A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+      "title": "A monitor showing charts and a dashboard in a dark room",
+      "author": "Luke Chesser",
+      "authorUrl": "https://unsplash.com/@lukechesser",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/graphs-of-performance-analytics-on-a-laptop-screen-JKUTrJ4vK00",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

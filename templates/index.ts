@@ -21,6 +21,7 @@ import { harbor } from "./harbor/src/build";
 import { hearth } from "./hearth/src/build";
 import { ledger } from "./ledger/src/build";
 import { meadow } from "./meadow/src/build";
+import { signal } from "./signal/src/build";
 
 export type {
   LicenseEntry,
@@ -35,7 +36,7 @@ export { documentFiles, templateFolderFiles, templateJson } from "./lib/files";
 export const name = "@openspace/templates";
 
 /** Template specs in gallery order (the six MVP templates first, doc 04 §7). */
-export const templateSpecs: readonly TemplateSpec[] = [meadow, harbor, atelier, ledger, hearth];
+export const templateSpecs: readonly TemplateSpec[] = [meadow, harbor, atelier, ledger, hearth, signal];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);
 

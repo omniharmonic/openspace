@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "signal",
+  "name": "Signal",
+  "description": "A bold, technical site for products, startups and launches, with feature grids, a logo strip, pricing, FAQ and a changelog.",
+  "persona": "Products, startups, launches",
+  "mood": "Bold, modern, technical",
+  "version": "1.0.0",
+  "tags": [
+    "startup",
+    "saas",
+    "product",
+    "launch",
+    "pricing",
+    "changelog"
+  ],
+  "sample": {
+    "name": "Tidewire",
+    "tagline": "Incident response for small engineering teams."
+  },
+  "thumbnailPage": "pg_36n915vc00",
+  "looks": [
+    {
+      "id": "electric",
+      "name": "Electric",
+      "description": "Near-black chrome with an electric violet accent and Bricolage Grotesque headings.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.55 0.25 285)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "bricolage-geist",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "expressive",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "terminal",
+      "name": "Terminal",
+      "description": "IBM Plex Mono headings and a signal-green accent for developer tools.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.55 0.15 150)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "plex-mono-plex-sans",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "outline",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "sunrise",
+      "name": "Sunrise",
+      "description": "A warm coral accent with Unbounded headings and pill buttons, for consumer launches.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.65 0.18 30)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "unbounded-figtree",
+        "density": "comfortable",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "expressive",
+        "imageTreatment": "rounded"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_36n915vc00",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_m6t2wx7vce",
+      "title": "Pricing",
+      "slug": "pricing"
+    },
+    {
+      "id": "pg_0sbf72xqnm",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_khh7x3t3zt",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}
