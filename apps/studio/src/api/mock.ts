@@ -3,6 +3,7 @@ import { newId, type SiteDocument } from "@openspace/schema";
 import { devSiteDocument } from "../features/editor/model/dev-site";
 import type { BuildNotice, PublishError } from "../features/sync/protocol";
 import { demoSites, TEMPLATE_FIXTURES } from "./fixtures";
+import { createManageMock, type ManageMockState } from "./manage-mock";
 import { MockRoom } from "./mockRoom";
 import {
   type CreateSiteInput,
@@ -98,6 +99,8 @@ export interface MockHub extends HubApi {
   readonly state: MockState;
   /** Calls received, newest last (tests). */
   readonly calls: Array<{ method: keyof HubApi; args: unknown[] }>;
+  /** Site-management state (domains, collaborators, uploads, hosting…; Task 24). */
+  readonly manage: ManageMockState;
   /** The site's in-memory draft room (created on first use). */
   room(siteId: string): MockRoom;
   /** Make the next publish of a site fail with one of {@link MOCK_PUBLISH_ERRORS}. */
@@ -206,6 +209,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     return site;
   };
 
+  const manage = createManageMock({ calls, wait, requireUser, findSite, now });
   // --- draft rooms, publishing and history --------------------------------------------------
 
   const rooms = new Map<string, MockRoom>();
@@ -390,9 +394,11 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   };
 
   const hub: MockHub = {
+    ...manage.api,
     kind: "mock",
     state,
     calls,
+    manage: manage.state,
 
     room(siteId) {
       const site = state.sites.find((s) => s.id === siteId);

@@ -1,6 +1,6 @@
 import type { Page, SiteDocument } from "@openspace/schema";
 import type { ReactNode } from "react";
-import { AnnouncementBar, Footer } from "./chrome";
+import { AnnouncementBar, Footer, SitePopup } from "./chrome";
 import {
   EditorContext,
   type EditorHooks,
@@ -76,6 +76,7 @@ export function PageView(props: PageViewProps) {
             ))}
           </main>
           <Footer site={doc.site} />
+          {mode !== "editor" ? <SitePopup popup={doc.site.popup} /> : null}
           {extras}
         </div>
       </ImageResolverContext.Provider>

@@ -18,9 +18,11 @@ import {
   Palette,
   PanelLeft,
   PanelRight,
+  PanelTop,
   Plus,
   Redo2,
   Send,
+  Settings,
   Smartphone,
   Tablet,
   Trash,
@@ -66,6 +68,10 @@ import {
   useEditorUi,
 } from "./editor-store";
 import "./EditorFrame.css";
+import { MediaLibrary } from "../media/MediaLibrary";
+import { PagesManager } from "../pages/PagesManager";
+import { SiteChromePanel } from "../site-chrome/SiteChromePanel";
+import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
 import { FirstRunChecklist, useChecklist } from "./FirstRunChecklist";
 import {
   type ClipPayload,
@@ -83,7 +89,6 @@ import { STARTERS } from "./model/starters";
 import { createEditorStore, type EditorStore } from "./model/store";
 import { Inspector } from "./panels/Inspector";
 import { LayersPanel } from "./panels/LayersPanel";
-import { PagesPanel } from "./panels/PagesPanel";
 import { ShortcutsSheet } from "./panels/ShortcutsSheet";
 import { handleEditorKey, isTypingTarget, onSurface, type ShortcutEnv } from "./shortcuts";
 
@@ -93,6 +98,7 @@ const PANELS: Array<{ id: LeftPanel; label: string; icon: ReactNode; shortcut: s
   { id: "add", label: "Add section", icon: <Plus />, shortcut: "alt+3" },
   { id: "styles", label: "Site styles", icon: <Palette />, shortcut: "alt+4" },
   { id: "media", label: "Media", icon: <Image />, shortcut: "alt+5" },
+  { id: "chrome", label: "Header & footer", icon: <PanelTop />, shortcut: "alt+6" },
 ];
 
 const DEVICE_LABEL: Record<Breakpoint, string> = {
@@ -166,7 +172,9 @@ function AddSectionPanel() {
 }
 
 function LeftPanelBody({ panel }: { panel: LeftPanel }) {
-  if (panel === "pages") return <PagesPanel />;
+  if (panel === "pages") return <PagesManager />;
+  if (panel === "media") return <MediaLibrary />;
+  if (panel === "chrome") return <SiteChromePanel />;
   if (panel === "layers") return <LayersPanel />;
   if (panel === "add") return <AddSectionPanel />;
   const label = PANELS.find((p) => p.id === panel)?.label ?? "";
@@ -586,6 +594,11 @@ function EditorChrome({ site }: { site: Site }) {
                 icon: <History />,
                 onSelect: () => setHistoryOpen(true),
               },
+              {
+                label: "Settings",
+                icon: <Settings />,
+                onSelect: () => navigate(`/sites/${site.id}/settings`),
+              },
               { type: "separator" },
               { label: "Your sites", icon: <LayoutGrid />, onSelect: () => navigate("/sites") },
             ]}
@@ -695,6 +708,12 @@ function EditorChrome({ site }: { site: Site }) {
         ))}
         <span className="st-ed-rail__spacer" />
         <IconButton
+          label="Settings"
+          icon={<Settings />}
+          tooltipSide="right"
+          onClick={() => navigate(`/sites/${site.id}/settings`)}
+        />
+        <IconButton
           label={ui.chromeHidden ? "Show panels" : "Hide panels"}
           icon={<PanelLeft />}
           shortcut="mod+backslash"
@@ -750,6 +769,7 @@ function EditorChrome({ site }: { site: Site }) {
         {sheet === "inspector" ? <Inspector /> : sheet ? <LeftPanelBody panel={sheet} /> : null}
       </Sheet>
       <ShortcutsSheet />
+      <SiteManagementHost site={site} />
       <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
     </div>
   );

@@ -20,6 +20,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { useCanvasImageMap } from "../../media/sources";
 import { useDocStore } from "../model/context";
 import { InlineText } from "../text/InlineText";
 
@@ -69,8 +70,10 @@ const CanvasPage = memo(function CanvasPage({
   doc: SiteDocument;
   pageId: string;
 }) {
+  // Library files and fresh uploads resolve to viewable URLs (media/ paths aren't served here).
+  const imageMap = useCanvasImageMap(doc.media);
   if (!doc.pages[pageId as keyof SiteDocument["pages"]]) return null;
-  return <PageView doc={doc} page={pageId} mode="editor" editor={hooks} />;
+  return <PageView doc={doc} page={pageId} mode="editor" editor={hooks} imageMap={imageMap} />;
 });
 
 function el(d: Document, tag: string, attrs: Record<string, string>) {
