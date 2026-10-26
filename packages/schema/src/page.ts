@@ -22,18 +22,20 @@ export type PageSeo = z.infer<typeof PageSeoSchema>;
  * Gating flags. Passwords and member lists live in the Hub, never in content; these flags
  * only say which gate applies.
  */
-export const PageAccessSchema = z.strictObject({
-  password: z.boolean().optional(),
-  members: z.boolean().optional(),
-  /**
-   * Members-only pages: the membership tiers (Hub tier ids) that may open the page. Absent or
-   * empty = every signed-in member, including free sign-ups when sign-up is open.
-   */
-  tiers: z.array(z.string().min(1).max(64)).max(20).optional(),
-}).refine((a) => !a.tiers?.length || a.members === true, {
-  message: "Membership plans only apply to members-only pages",
-  path: ["tiers"],
-});
+export const PageAccessSchema = z
+  .strictObject({
+    password: z.boolean().optional(),
+    members: z.boolean().optional(),
+    /**
+     * Members-only pages: the membership tiers (Hub tier ids) that may open the page. Absent or
+     * empty = every signed-in member, including free sign-ups when sign-up is open.
+     */
+    tiers: z.array(z.string().min(1).max(64)).max(20).optional(),
+  })
+  .refine((a) => !a.tiers?.length || a.members === true, {
+    message: "Membership plans only apply to members-only pages",
+    path: ["tiers"],
+  });
 export type PageAccess = z.infer<typeof PageAccessSchema>;
 
 /** A page document (`content/pages/**.json`, arch §3.2). */
