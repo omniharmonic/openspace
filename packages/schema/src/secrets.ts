@@ -51,7 +51,7 @@ function looksRandom(value: string): boolean {
 }
 
 const KEY_NAME =
-  "(?:api[_-]?key|apikey|secret(?:[_-]?key)?|client[_-]?secret|access[_-]?(?:key|token)|auth[_-]?token|private[_-]?key|bearer|token|password|passwd|pwd)";
+  "(?:api[_-]?key|apikey|secret(?:[_-]?key)?|client[_-]?secret|access[_-]?(?:key|token)|auth[_-]?token|private[_-]?key|bearer|token|password|passwd|pwd|key)";
 
 export const SECRET_RULES: readonly Rule[] = [
   {

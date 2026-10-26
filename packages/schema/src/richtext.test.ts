@@ -155,9 +155,45 @@ describe("markdown → doc", () => {
     ]);
   });
 
-  it("rejects javascript: links at the schema level", () => {
-    const doc = fromMarkdown("[x](javascript:alert(1))");
-    expect(RichTextDocSchema.safeParse(doc).success).toBe(false);
+  it("always returns schema-valid documents: unsafe links and unknown colors are dropped", () => {
+    const cases: Array<[string, RichTextDoc["content"]]> = [
+      ["[x](javascript:alert(1))", [{ type: "paragraph", content: [t("x")] }]],
+      [
+        "[**b**](data:text/html,hi) tail",
+        [{ type: "paragraph", content: [t("b", { type: "bold" }), t(" tail")] }],
+      ],
+      ["[x](<a b>)", [{ type: "paragraph", content: [t("x")] }]],
+      [
+        '<mark data-color="hotpink">hi</mark> <mark data-color="accent">ok</mark>',
+        [
+          {
+            type: "paragraph",
+            content: [
+              t("hi", { type: "highlight" }),
+              t(" "),
+              t("ok", { type: "highlight", attrs: { color: "accent" } }),
+            ],
+          },
+        ],
+      ],
+      [
+        `[x](/a "${"t".repeat(300)}")`,
+        [
+          {
+            type: "paragraph",
+            content: [t("x", { type: "link", attrs: { href: "/a", title: "t".repeat(200) } })],
+          },
+        ],
+      ],
+    ];
+    for (const [md, content] of cases) {
+      const doc = fromMarkdown(md);
+      expect(RichTextDocSchema.safeParse(doc).success, md).toBe(true);
+      expect(doc.content, md).toEqual(content);
+    }
+    // An unsafe inner link inside a valid outer link keeps the outer link.
+    const nested = fromMarkdown("[a [b](javascript:x)](/ok)");
+    expect(RichTextDocSchema.safeParse(nested).success).toBe(true);
   });
 });
 

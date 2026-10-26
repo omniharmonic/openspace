@@ -73,6 +73,40 @@ describe("SiteDocument", () => {
     );
   });
 
+  it("accepts documents without collectionConfigs", () => {
+    expectValid(
+      SiteDocumentSchema,
+      mutate(doc, (d) => {
+        delete d.collectionConfigs;
+      }),
+    );
+  });
+
+  it("rejects items whose kind differs from their collection config", () => {
+    expectInvalid(
+      SiteDocumentSchema,
+      mutate(doc, (d) => {
+        const c = d.collectionConfigs?.journal;
+        if (c) c.kind = "events";
+      }),
+      "is a events collection",
+    );
+    expectValid(
+      SiteDocumentSchema,
+      mutate(doc, (d) => {
+        const c = d.collectionConfigs?.journal;
+        if (c) c.kind = "custom";
+      }),
+    );
+    expectInvalid(
+      SiteDocumentSchema,
+      mutate(doc, (d) => {
+        if (d.collectionConfigs)
+          d.collectionConfigs["Not A Name"] = d.collectionConfigs.journal as never;
+      }),
+    );
+  });
+
   it("rejects mismatched collection and media keys", () => {
     expectInvalid(
       SiteDocumentSchema,
@@ -129,7 +163,7 @@ describe("Site", () => {
       title: "Hearth",
       nav: [],
       header: {
-        variant: "minimal",
+        variant: "minimal-burger",
         sticky: false,
         transparentOnHero: false,
         mobileMenu: "fullscreen",
@@ -143,6 +177,34 @@ describe("Site", () => {
       locale: "en",
     });
   });
+  it("accepts every header variant and mobile menu style", () => {
+    for (const variant of [
+      "classic-left",
+      "classic-center",
+      "split-nav",
+      "logo-center-nav-below",
+      "minimal-burger",
+      "stacked",
+      "sidebar-drawer",
+      "transparent-overlay",
+    ]) {
+      for (const mobileMenu of ["slide", "fullscreen", "dropdown"]) {
+        expectValid(SiteSchema, {
+          ...doc.site,
+          header: { ...doc.site.header, variant, mobileMenu },
+        });
+      }
+    }
+    expectInvalid(SiteSchema, {
+      ...doc.site,
+      header: { ...doc.site.header, mobileMenu: "drawer-right" },
+    });
+    expectInvalid(SiteSchema, {
+      ...doc.site,
+      header: { ...doc.site.header, variant: "logo-left" },
+    });
+  });
+
   it("rejects invalid nav, header and redirects", () => {
     expectInvalid(
       SiteSchema,
@@ -231,6 +293,12 @@ describe("Page", () => {
     expectValid(PageSchema, { ...home, slug: "services/yoga-therapy" });
     expectInvalid(PageSchema, { ...home, seo: { description: "x".repeat(400) } });
     expectInvalid(PageSchema, { ...home, access: { password: "hunter2" } });
+    expectValid(PageSchema, {
+      ...home,
+      header: { variant: "transparent-overlay", transparentOnHero: true, hidden: false },
+    });
+    expectInvalid(PageSchema, { ...home, header: { variant: "transparent-on-hero" } });
+    expectInvalid(PageSchema, { ...home, header: { sticky: false } });
     expectValid(PageSchema, { ...home, access: { members: true }, hidden: true });
   });
   it("rejects duplicate section ids and block ids across sections", () => {
@@ -267,6 +335,16 @@ describe("Section", () => {
       { ...hero, layout: { mode: "stack", columns: { d: [12] } } },
       "Column 1 does not exist",
     );
+    // `column` is checked against desktop columns only, even if mobile has more.
+    expectInvalid(
+      SectionSchema,
+      { ...hero, layout: { mode: "stack", columns: { d: [12], m: [6, 6] } } },
+      "1 desktop column(s)",
+    );
+    expectValid(SectionSchema, {
+      ...hero,
+      layout: { mode: "stack", columns: { d: [6, 6], m: [12] } },
+    });
     expectValid(SectionSchema, { ...hero, layout: { ...hero.layout, order: { m: [1, 0] } } });
     expectInvalid(
       SectionSchema,
@@ -506,18 +584,27 @@ describe("CollectionItem", () => {
     );
   });
   it("validates _collection.json", () => {
+    const config = doc.collectionConfigs?.journal;
+    expectValid(CollectionConfigSchema, config);
     expectValid(CollectionConfigSchema, {
-      kind: "blog",
-      label: "Journal",
-      list: { layout: "cards", pageSize: 12, sort: "date-desc" },
-      categories: [{ slug: "news", label: "News" }],
-      feed: { enabled: true },
+      kind: "custom",
+      label: "Recipes",
+      list: { layout: "grid", pageSize: 24, sort: "title" },
     });
     expectInvalid(CollectionConfigSchema, {
-      kind: "blog",
-      label: "J",
+      ...config,
       list: { layout: "cards", pageSize: 0, sort: "date-desc" },
     });
+    expectInvalid(CollectionConfigSchema, { ...config, kind: "recipes" });
+    expectInvalid(
+      CollectionConfigSchema,
+      { ...config, slugPattern: "{date}" },
+      "{title} or {slug}",
+    );
+    expectInvalid(CollectionConfigSchema, { ...config, slugPattern: "{when}-{title}" });
+    expectInvalid(CollectionConfigSchema, { ...config, itemPage: { layout: "poster" } });
+    expectInvalid(CollectionConfigSchema, { ...config, feed: { enabled: true, format: "json" } });
+    expectInvalid(CollectionConfigSchema, { ...config, categories: [] });
   });
 });
 

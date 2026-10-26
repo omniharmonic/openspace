@@ -227,27 +227,60 @@ export const FRONTMATTER_SCHEMAS = {
   products: ProductFrontmatterSchema,
 } as const satisfies Record<CollectionKind, z.ZodType>;
 
-/** `_collection.json`: list settings, taxonomy and feed for a collection. */
+/** Kinds a `_collection.json` may declare: the typed kinds plus `custom` (untyped frontmatter). */
+export const COLLECTION_CONFIG_KINDS = [...COLLECTION_KINDS, "custom"] as const;
+export type CollectionConfigKind = (typeof COLLECTION_CONFIG_KINDS)[number];
+
+/**
+ * Slug pattern for new items, built from literal slug characters and placeholders, e.g.
+ * `{date}-{title}` → `2026-10-26-opening-day`. Must contain `{title}` or `{slug}`.
+ */
+export const SlugPatternSchema = z
+  .string()
+  .regex(/^(?:\{(?:date|year|month|day|title|slug)\}|[a-z0-9-])+$/, {
+    message: "Expected a pattern like {date}-{title}",
+  })
+  .refine((p) => p.includes("{title}") || p.includes("{slug}"), {
+    message: "Slug pattern must include {title} or {slug}",
+  });
+
+/** `_collection.json`: kind, labels, list + item page layout, taxonomies, feed and slug pattern. */
 export const CollectionConfigSchema = named(
   "CollectionConfig",
-  "_collection.json: collection kind, labels, list layout, taxonomy and feed settings.",
+  "_collection.json: collection kind, labels, list layout, item page layout, taxonomies, feed and slug pattern.",
   z.strictObject({
     $schema: z.string().optional(),
-    kind: z.enum(COLLECTION_KINDS),
+    kind: z.enum(COLLECTION_CONFIG_KINDS),
     label: z.string().min(1).max(60),
     itemLabel: z.string().min(1).max(60).optional(),
+    slugPattern: SlugPatternSchema.optional(),
     list: z.strictObject({
       layout: z.enum(["grid", "list", "cards", "masonry", "calendar", "compact"]),
       pageSize: z.int().min(1).max(100),
       sort: z.enum(["date-desc", "date-asc", "title", "manual"]),
     }),
-    categories: z
-      .array(z.strictObject({ slug: SlugSchema, label: z.string().min(1).max(60) }))
-      .max(100)
+    /** The item page: a page template whose content slot holds the item body. */
+    itemPage: z
+      .strictObject({
+        layout: z.enum(["article", "wide", "split", "gallery", "minimal"]),
+        showDate: z.boolean().optional(),
+        showAuthor: z.boolean().optional(),
+        showRelated: z.boolean().optional(),
+      })
+      .optional(),
+    taxonomies: z
+      .strictObject({
+        categories: z
+          .array(z.strictObject({ slug: SlugSchema, label: z.string().min(1).max(60) }))
+          .max(100)
+          .optional(),
+        tags: z.boolean().optional(),
+      })
       .optional(),
     feed: z
       .strictObject({
         enabled: z.boolean(),
+        format: z.enum(["rss", "atom", "ical", "podcast"]).optional(),
         title: z.string().max(120).optional(),
         description: z.string().max(500).optional(),
       })

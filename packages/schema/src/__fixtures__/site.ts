@@ -59,10 +59,10 @@ export function siteFixture(): SiteDocument {
         { type: "page", page: IDS.about, label: "Old about", hidden: true },
       ],
       header: {
-        variant: "logo-left",
+        variant: "classic-left",
         sticky: true,
         transparentOnHero: true,
-        mobileMenu: "drawer-right",
+        mobileMenu: "slide",
       },
       footer: {
         id: IDS.footer,
@@ -290,6 +290,17 @@ export function siteFixture(): SiteDocument {
           },
           body: "We're finally in the new space on Pearl Street.\n",
         },
+      },
+    },
+    collectionConfigs: {
+      journal: {
+        kind: "blog",
+        label: "Journal",
+        slugPattern: "{date}-{title}",
+        list: { layout: "cards", pageSize: 12, sort: "date-desc" },
+        itemPage: { layout: "article", showDate: true, showAuthor: true },
+        taxonomies: { categories: [{ slug: "news", label: "News" }], tags: true },
+        feed: { enabled: true, format: "rss" },
       },
     },
     media: {

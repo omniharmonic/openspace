@@ -207,17 +207,14 @@ export function checkSectionIntegrity(
   });
   const layout = section.layout;
   if (layout.mode === "stack") {
-    const maxCols = Math.max(
-      layout.columns.d.length,
-      layout.columns.t?.length ?? 0,
-      layout.columns.m?.length ?? 0,
-    );
+    // `column` indexes the desktop columns; tablet/mobile stack them (see `order`).
+    const maxCols = layout.columns.d.length;
     section.blocks.forEach((b, i) => {
       if (b.column !== undefined && b.column >= maxCols) {
         ctx.addIssue({
           code: "custom",
           path: ["blocks", i, "column"],
-          message: `Column ${b.column} does not exist; the layout has ${maxCols} column(s)`,
+          message: `Column ${b.column} does not exist; the layout has ${maxCols} desktop column(s)`,
         });
       }
     });

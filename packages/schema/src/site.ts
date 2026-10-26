@@ -13,33 +13,29 @@ import { SectionSchema } from "./section";
 import { ColorThemeSchema } from "./tokens";
 
 /** The eight header layouts (PRD: "Header layouts (8 presets)"). */
+/** The eight header layouts (renderer contract; PRD "Header layouts (8 presets)"). */
 export const HEADER_VARIANTS = [
   /** Logo left, navigation right. */
-  "logo-left",
-  /** Logo left, navigation centered, actions right. */
-  "logo-left-nav-center",
-  /** Logo centered, navigation in a row below. */
-  "logo-center",
+  "classic-left",
+  /** Logo left, navigation centered. */
+  "classic-center",
   /** Navigation split either side of a centered logo. */
-  "logo-center-split",
-  /** Navigation left, logo right. */
-  "logo-right",
-  /** Logo above navigation, both left-aligned. */
-  "stacked-left",
-  /** Centered logo, menu button left, actions right. */
-  "logo-center-menu",
-  /** Logo and a menu button at every width. */
-  "minimal",
+  "split-nav",
+  /** Logo centered, navigation in a row below. */
+  "logo-center-nav-below",
+  /** Logo and a menu (burger) button at every width. */
+  "minimal-burger",
+  /** Logo above navigation, stacked. */
+  "stacked",
+  /** Navigation lives in a side drawer opened from the header. */
+  "sidebar-drawer",
+  /** Header overlays the first section (transparent until scrolled). */
+  "transparent-overlay",
 ] as const;
 export const HeaderVariantSchema = z.enum(HEADER_VARIANTS);
 export type HeaderVariant = z.infer<typeof HeaderVariantSchema>;
 
-export const MOBILE_MENU_STYLES = [
-  "drawer-right",
-  "drawer-left",
-  "fullscreen",
-  "dropdown",
-] as const;
+export const MOBILE_MENU_STYLES = ["slide", "fullscreen", "dropdown"] as const;
 
 export const ButtonStyleRoleSchema = z.enum(["primary", "secondary", "tertiary"]);
 
@@ -59,12 +55,13 @@ export const HeaderSchema = named(
 );
 export type Header = z.infer<typeof HeaderSchema>;
 
-/** Per-page header override: any subset of the site header options, plus hiding it. */
+/**
+ * Per-page header override. The architecture's page example `{ "variant": "transparent-on-hero" }`
+ * is expressed as `{ transparentOnHero: true }`.
+ */
 export const HeaderOverrideSchema = z.strictObject({
   variant: HeaderVariantSchema.optional(),
-  sticky: z.boolean().optional(),
   transparentOnHero: z.boolean().optional(),
-  colorTheme: ColorThemeSchema.optional(),
   hidden: z.boolean().optional(),
 });
 export type HeaderOverride = z.infer<typeof HeaderOverrideSchema>;

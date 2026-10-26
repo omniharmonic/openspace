@@ -32,6 +32,11 @@ describe("scanForSecrets", () => {
       fake("https://api.example.com/v1?api_key=", "Q2w9E8r7T6y5U4i3O2p1"),
     ],
     ["generic-secret-assignment", fake("password: ", "Tr0ub4dor!3xyzABC12")],
+    ["generic-secret-assignment", fake("key=", "n3Kq8ZpL0xW5vT2rY7aB")],
+    ["generic-secret-assignment", fake('"key": "', 'n3Kq8ZpL0xW5vT2rY7aB"')],
+    ["generic-secret-assignment", fake("STRIPE_KEY=", "Hk29dLq0Zm4Xw8Pn3Rt6")],
+    ["generic-secret-assignment", fake('"stripeKey": "', 'Hk29dLq0Zm4Xw8Pn3Rt6"')],
+    ["generic-secret-assignment", fake("https://maps.example.com/js?key=", "Q7mZ2xK9pL4wT8vR1nB5")],
   ])("detects %s", (rule, text) => {
     const findings = scanForSecrets(`some content\n  ${text}\nmore`);
     expect(findings.map((f) => f.rule)).toEqual([rule]);
@@ -49,6 +54,8 @@ describe("scanForSecrets", () => {
     ["low-entropy value", "api_key=aaaaaaaaaaaaaaaaaaaaaaaa"],
     ["short value", "secret: abc123"],
     ["media path", '"key": "media/2026/10/hero-k3f9-2400w.jpg"'],
+    ["key with word value", '"key": "primary-button-color"'],
+    ["monkey business", "monkey: bananas-and-more-bananas"],
     [
       "unsplash url",
       "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2400&q=80",

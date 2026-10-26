@@ -41,9 +41,12 @@ export function resolve<T>(value: Responsive<T> | undefined, bp: Breakpoint): T 
   return value.d;
 }
 
-/** True if `bp` has its own value (rather than inheriting). Studio shows a dot for these. */
+/**
+ * True if `bp` overrides the inherited value (Studio shows a dot for these). Desktop is the base
+ * value, never an override.
+ */
 export function isOverridden<T>(value: Responsive<T> | undefined, bp: Breakpoint): boolean {
-  return value !== undefined && value[bp] !== undefined;
+  return bp !== "d" && value !== undefined && value[bp] !== undefined;
 }
 
 /** Resolve all three breakpoints at once. */

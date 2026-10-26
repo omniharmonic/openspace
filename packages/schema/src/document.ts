@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CollectionItemSchema } from "./collections";
+import { CollectionConfigSchema, CollectionItemSchema } from "./collections";
 import { SiteConfigSchema } from "./config";
 import { PageIdSchema } from "./ids";
 import { MediaMetaSchema } from "./media";
@@ -16,7 +16,7 @@ import { StylesSchema } from "./styles";
  */
 export const SiteDocumentSchema = named(
   "SiteDocument",
-  "All site content: config, site, styles, pages by id, collection items by collection/slug, media by path.",
+  "All site content: config, site, styles, pages by id, collection items by collection/slug, collection configs, media by path.",
   z
     .strictObject({
       config: SiteConfigSchema,
@@ -24,6 +24,8 @@ export const SiteDocumentSchema = named(
       styles: StylesSchema,
       pages: z.record(PageIdSchema, PageSchema),
       collections: z.record(CollectionNameSchema, z.record(SlugSchema, CollectionItemSchema)),
+      /** `_collection.json` per collection name (optional; collections may rely on defaults). */
+      collectionConfigs: z.record(CollectionNameSchema, CollectionConfigSchema).optional(),
       media: z.record(MediaPathSchema, MediaMetaSchema),
     })
     .superRefine((doc, ctx) => {
@@ -91,6 +93,18 @@ export const SiteDocumentSchema = named(
               path: ["collections", name, slug, "slug"],
               message: `Item slug ${item.slug} does not match its key ${slug}`,
             });
+          }
+        }
+        const configKind = doc.collectionConfigs?.[name]?.kind;
+        if (configKind && configKind !== "custom") {
+          for (const [slug, item] of Object.entries(items)) {
+            if (item.kind !== configKind) {
+              ctx.addIssue({
+                code: "custom",
+                path: ["collections", name, slug, "kind"],
+                message: `Collection ${name} is a ${configKind} collection but ${slug} is ${item.kind}`,
+              });
+            }
           }
         }
         if (kinds.size > 1) {

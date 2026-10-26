@@ -19,6 +19,7 @@ describe("responsive", () => {
   it("reports overrides", () => {
     expect(isOverridden({ d: 1, m: 2 }, "m")).toBe(true);
     expect(isOverridden({ d: 1, m: 2 }, "t")).toBe(false);
+    expect(isOverridden({ d: 1, m: 2 }, "d")).toBe(false); // desktop is the base, never an override
   });
 
   it("builds a zod schema requiring desktop", () => {

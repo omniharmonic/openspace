@@ -75,13 +75,15 @@ export type RichTextDoc = { type: "doc"; content: BlockNode[] };
 export const RICH_LINK_HREF_RE =
   /^(?:https?:\/\/[^\s]+|mailto:[^\s]+|tel:[+0-9 ()\-.]+|\/[^\s]*|#[A-Za-z][\w-]*)$/;
 
+export const MAX_LINK_TITLE = 200;
+
 export const MarkSchema: z.ZodType<Mark> = z.discriminatedUnion("type", [
   z.strictObject({ type: z.enum(["bold", "italic", "underline", "strike", "code"]) }),
   z.strictObject({
     type: z.literal("link"),
     attrs: z.strictObject({
       href: z.string().regex(RICH_LINK_HREF_RE, { message: "Unsupported link href" }),
-      title: z.string().max(200).optional(),
+      title: z.string().max(MAX_LINK_TITLE).optional(),
       newTab: z.boolean().optional(),
     }),
   }),

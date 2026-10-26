@@ -28,14 +28,17 @@ import {
   type HeadingPreset,
   type InlineNode,
   type ListItemNode,
+  MAX_LINK_TITLE,
   type Mark,
   type MarkType,
   PARAGRAPH_PRESETS,
   type ParagraphNode,
   type ParagraphPreset,
+  RICH_LINK_HREF_RE,
   type RichTextDoc,
   type TextNode,
 } from "./richtext-schema";
+import { ColorTokenSchema } from "./tokens";
 
 // ---------------------------------------------------------------------------------------------
 // Normalization
@@ -934,18 +937,21 @@ function buildInline(
         if (t.open) {
           active.set(
             t.mark,
-            t.mark === "highlight" && t.color
+            t.mark === "highlight" && t.color && ColorTokenSchema.safeParse(t.color).success
               ? { type: "highlight", attrs: { color: t.color } }
               : ({ type: t.mark } as Mark),
           );
         } else active.delete(t.mark);
         break;
       case "link": {
+        // Links with unsupported hrefs (e.g. `javascript:`) keep their text but lose the link.
         const inner = new Map(active);
-        const attrs: { href: string; title?: string; newTab?: boolean } = { href: t.href };
-        if (t.title) attrs.title = t.title;
-        if (t.newTab) attrs.newTab = true;
-        inner.set("link", { type: "link", attrs });
+        if (RICH_LINK_HREF_RE.test(t.href)) {
+          const attrs: { href: string; title?: string; newTab?: boolean } = { href: t.href };
+          if (t.title) attrs.title = t.title.slice(0, MAX_LINK_TITLE);
+          if (t.newTab) attrs.newTab = true;
+          inner.set("link", { type: "link", attrs });
+        }
         buildInline(t.children, inner, out);
         break;
       }
