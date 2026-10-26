@@ -112,8 +112,13 @@ function checkCss(css: string): void {
   const s = squash(css);
   if (/javascript:|vbscript:|data:/.test(s)) throw new Refuse("it contains a script URL");
   if (s.includes("\\")) throw new Refuse("it contains escaped CSS");
-  if (/@import|expression\(|behavior:|-moz-binding/.test(s))
+  // Anything that can make the browser fetch: imports, fonts, image-set()/src() and any
+  // absolute or scheme-relative address, besides url() pointing outside the document.
+  if (
+    /@import|@font-face|expression\(|behavior:|-moz-binding|image-set\(|(?:^|[^a-z-])src\(/.test(s)
+  )
     throw new Refuse("it refers to outside content");
+  if (/https?:|\/\/|ftp:|file:/.test(s)) throw new Refuse("it refers to outside content");
   if (/url\((?!['"]?#)/.test(s)) throw new Refuse("it refers to outside content");
 }
 

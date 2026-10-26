@@ -47,6 +47,15 @@ describe("SVG allowlist re-serializer (adversarial corpus)", () => {
       `<svg ${NS}><rect style="background:url( 'https://e.example/t' )"/></svg>`,
     ],
     ["style escape", `<svg ${NS}><rect style="fill:u\\72l(https://e.example)"/></svg>`],
+    ["style image-set()", `<svg ${NS}><rect style="background:image-set('a.png' 1x)"/></svg>`],
+    [
+      "style -webkit-image-set()",
+      `<svg ${NS}><rect style="background:-webkit-image-set(x 1x)"/></svg>`,
+    ],
+    ["style src()", `<svg ${NS}><rect style="background:src('x.png')"/></svg>`],
+    ["style @import", `<svg ${NS}><rect style="@import 'x.css'"/></svg>`],
+    ["style https address", `<svg ${NS}><rect style="cursor:https://e.example/c.cur"/></svg>`],
+    ["style scheme-relative", `<svg ${NS}><rect style="mask: //e.example/m.svg"/></svg>`],
     ["presentation url(external)", `<svg ${NS}><rect fill="url(https://e.example/p#g)"/></svg>`],
     [
       "animate attributeName href",
