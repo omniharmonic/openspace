@@ -56,6 +56,8 @@ const EXT_MIME: Record<string, string> = {
   m4a: "audio/mp4",
   ogg: "audio/ogg",
   wav: "audio/wav",
+  flac: "audio/flac",
+  heic: "image/heic",
 };
 
 /** Active content in an SVG (Studio sanitizes; this refuses anything it missed). */
@@ -70,7 +72,9 @@ function sniffDocument(b: Uint8Array): string | null {
     return "audio/mpeg";
   if (ascii(0, 4) === "OggS") return "audio/ogg";
   if (ascii(0, 4) === "RIFF" && ascii(8, 4) === "WAVE") return "audio/wav";
+  if (ascii(0, 4) === "fLaC") return "audio/flac";
   if (ascii(4, 4) === "ftyp" && ascii(8, 3) === "M4A") return "audio/mp4";
+  if (ascii(4, 4) === "ftyp" && /^(heic|heix|hevc|mif1|msf1)$/.test(ascii(8, 4))) return "image/heic";
   return null;
 }
 
@@ -168,14 +172,7 @@ mediaRoutes.post("/:id/media", async (c) => {
   );
 });
 
-const SERVE_TYPES: Record<string, string> = {
-  ...EXT_MIME,
-  pdf: "application/pdf",
-  mp3: "audio/mpeg",
-  m4a: "audio/mp4",
-  ogg: "audio/ogg",
-  wav: "audio/wav",
-};
+const SERVE_TYPES: Record<string, string> = EXT_MIME;
 
 /**
  * `GET /api/sites/:id/media/*` — a draft media file for people working on the site (private
