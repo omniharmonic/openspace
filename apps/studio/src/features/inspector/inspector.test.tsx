@@ -506,3 +506,12 @@ describe("copy", () => {
     expect(copy().match(FORBIDDEN)).toBeNull();
   });
 });
+
+describe("media kind on pick", () => {
+  it("tells audio from video by the file name", async () => {
+    const { mediaKindOf } = await import("./fields/media");
+    expect(mediaKindOf("media/2026/10/song.mp3")).toBe("audio");
+    expect(mediaKindOf("https://cdn.example.com/clip.MP4?x=1")).toBe("video");
+    expect(mediaKindOf("media/2026/10/thing")).toBeNull();
+  });
+});

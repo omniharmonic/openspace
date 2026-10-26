@@ -122,6 +122,10 @@ describe("update only when Studio is open in one tab", () => {
       expect(a.alone()).toBe(false);
       t += STALE_MS + 1;
       expect(a.alone()).toBe(true);
+      // Back from the back/forward cache: a tab that said goodbye says hello again.
+      b.start();
+      expect(a.alone()).toBe(false);
+      b.stop();
       a.stop();
     } finally {
       vi.useRealTimers();
@@ -229,6 +233,22 @@ describe("opening offline", () => {
     expect(store.data.size).toBe(0);
     online = false;
     await expect(wrapped.listSites()).rejects.toBeInstanceOf(HubError);
+  });
+
+  it("forgets this device's copies on sign-out even when the sign-out request fails", async () => {
+    const store = memory();
+    const mock = createMockHub({
+      user: { id: "u1", login: "sam", name: "Sam", avatarUrl: null },
+      sites: "demo",
+    });
+    await mock.devLogin("Sam");
+    const hub: HubApi = Object.create(mock);
+    hub.logout = async () => down();
+    const wrapped = withOfflineCache(hub, { store, now: () => 1000 });
+    await wrapped.listSites();
+    expect(store.data.size).toBeGreaterThan(0);
+    await expect(wrapped.logout()).rejects.toBeInstanceOf(HubError);
+    expect(store.data.size).toBe(0);
   });
 
   it("passes refusals through instead of hiding them behind the saved copy", async () => {
