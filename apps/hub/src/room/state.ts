@@ -504,6 +504,8 @@ export class RoomState {
   readonly itemAuthor = (collection: string, slug: string): string | undefined => {
     const known = this.getMeta(itemAuthorKey(collection, slug));
     if (known) return known;
+    // Only items that exist can be legacy drafts (a new item has no author yet: no log scan).
+    if (!this.doc?.collections[collection]?.[slug]) return undefined;
     // Drafts started before authors were recorded: whoever first saved the item in the op log.
     const first = this.sql
       .exec<{ user_id: string }>(

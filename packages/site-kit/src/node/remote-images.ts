@@ -86,6 +86,18 @@ const variant = (src: string, w: number, fm: string) => {
   return u.toString();
 };
 
+const DOWNLOAD_TIMEOUT_MS = 20_000;
+
+/** AVIF (`ftyp` box with an AVIF brand) or JPEG magic bytes, matching the file's extension. */
+export function looksLikeImage(b: Uint8Array, file: string): boolean {
+  if (file.endsWith(".jpg")) return b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
+  if (file.endsWith(".avif")) {
+    const tag = String.fromCharCode(...b.subarray(4, 12));
+    return tag.startsWith("ftyp") && /^ftyp(avif|avis|mif1)/.test(tag);
+  }
+  return false;
+}
+
 const cache = new Map<string, Promise<RemoteImagePlan>>();
 
 export function selfHostRemoteImages(
@@ -112,12 +124,18 @@ async function plan(
   const get = async (url: string, file: string): Promise<Uint8Array | null> => {
     const path = join(opts.cacheDir, file);
     const cached = await readFile(path).catch(() => null);
-    if (cached?.length) return new Uint8Array(cached);
+    if (cached?.length && looksLikeImage(new Uint8Array(cached), file))
+      return new Uint8Array(cached);
     try {
-      const res = await f(url, { headers: { Accept: "image/avif,image/*" } });
-      if (!res.ok) return null;
+      const res = await f(url, {
+        headers: { Accept: "image/avif,image/*" },
+        redirect: "error",
+        signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
+      });
+      if (!res.ok || !/^image\//.test(res.headers.get("content-type") ?? "image/")) return null;
       const bytes = new Uint8Array(await res.arrayBuffer());
-      if (!bytes.length) return null;
+      // Only real images are cached and published (never an HTML error page).
+      if (!looksLikeImage(bytes, file)) return null;
       await writeFile(path, bytes);
       return bytes;
     } catch {

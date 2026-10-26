@@ -3,13 +3,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { SiteDocument } from "@openspace/schema";
 import { describe, expect, it } from "vitest";
-import { jpegSize, remoteImages, selfHostRemoteImages } from "./remote-images";
+import { jpegSize, looksLikeImage, remoteImages, selfHostRemoteImages } from "./remote-images";
 
 /** A minimal JPEG header with an SOF0 marker for 800×600. */
 const jpeg = () =>
   new Uint8Array([
     0xff, 0xd8, 0xff, 0xc0, 0x00, 0x11, 0x08, 0x02, 0x58, 0x03, 0x20, 0, 0, 0, 0, 0, 0,
   ]);
+
+/** The start of an AVIF file: an `ftyp` box with the `avif` brand. */
+const avif = () =>
+  new Uint8Array([0, 0, 0, 0x1c, 0x66, 0x74, 0x79, 0x70, 0x61, 0x76, 0x69, 0x66, 0, 0]);
 
 const PHOTO = "https://images.unsplash.com/photo-1?w=960&q=80";
 const doc = {
@@ -35,7 +39,9 @@ describe("self-hosted demo photos", () => {
     const urls: string[] = [];
     const fakeFetch = (async (url: string) => {
       urls.push(url);
-      return new Response(url.includes("fm=jpg") ? jpeg() : new Uint8Array([1, 2, 3]));
+      return new Response(url.includes("fm=jpg") ? jpeg() : avif(), {
+        headers: { "content-type": url.includes("fm=jpg") ? "image/jpeg" : "image/avif" },
+      });
     }) as unknown as typeof fetch;
     const cacheDir = await mkdtemp(join(tmpdir(), "os-remote-"));
     const plan = await selfHostRemoteImages(doc, { cacheDir, basePath: "/site", fetch: fakeFetch });
@@ -59,5 +65,18 @@ describe("self-hosted demo photos", () => {
     });
     expect(plan.map).toEqual({});
     expect(plan.files).toEqual([]);
+  });
+
+  it("never caches or publishes a non-image (an HTML error page with status 200)", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "os-remote-"));
+    const html = (async () =>
+      new Response("<html>rate limited</html>", {
+        headers: { "content-type": "image/jpeg" },
+      })) as unknown as typeof fetch;
+    const plan = await selfHostRemoteImages(doc, { cacheDir, basePath: "/x", fetch: html });
+    expect(plan.map).toEqual({});
+    expect(looksLikeImage(avif(), "a.avif")).toBe(true);
+    expect(looksLikeImage(jpeg(), "a.jpg")).toBe(true);
+    expect(looksLikeImage(new TextEncoder().encode("<html>"), "a.jpg")).toBe(false);
   });
 });
