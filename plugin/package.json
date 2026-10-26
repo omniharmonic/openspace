@@ -2,7 +2,7 @@
   "name": "@openspace/claude-plugin",
   "version": "0.1.0",
   "private": true,
-  "description": "OpenSpace Claude Code plugin.",
+  "description": "OpenSpace plugin for Claude Code: local MCP server, web-design skills, commands and a design-review agent.",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -10,9 +10,17 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "validate": "vitest run src/plugin.test.ts"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "@openspace/blocks": "workspace:*",
+    "@openspace/mcp-tools": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
+    "@openspace/templates": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

@@ -282,6 +282,15 @@ describe("feeds", () => {
     expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true);
   });
 
+  it("writes the repeat rule of recurring events", () => {
+    const events = plan.items.events ?? [];
+    const weekly = {
+      ...events[0],
+      frontmatter: { ...events[0]?.frontmatter, recurrence: "FREQ=WEEKLY;BYDAY=TU;COUNT=8" },
+    } as CollectionItem;
+    expect(icalFeed(ctx(), "events", [weekly])).toContain("RRULE:FREQ=WEEKLY;BYDAY=TU;COUNT=8\r\n");
+  });
+
   it("escapes enclosure types and writes whole-second durations", () => {
     const ep = structuredClone(plan.items.podcast?.[0]) as CollectionItem & { kind: "podcast" };
     (ep.frontmatter.audio as { duration: number }).duration = 1519.6;

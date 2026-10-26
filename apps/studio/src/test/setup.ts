@@ -2,9 +2,10 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, configure } from "@testing-library/react";
 import { afterEach } from "vitest";
 
-// The editor is a lazy route: the first test in a file waits for its (cold) module graph to
-// load, which can take longer than Testing Library's default 1s on a busy machine.
-configure({ asyncUtilTimeout: 3000 });
+// Heavy editor renders in jsdom exceed RTL's 1s default when the whole workspace runs in parallel
+// (CPU contention), so findBy*/waitFor time out on slow-but-correct renders. Polling returns as
+// soon as the condition holds, so a generous ceiling costs nothing when the machine is idle.
+configure({ asyncUtilTimeout: 10_000 });
 
 // jsdom lacks a few browser APIs that Radix primitives and our scrub input rely on.
 class ResizeObserverStub {

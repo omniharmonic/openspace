@@ -86,6 +86,17 @@ export const EventFrontmatterSchema = named(
       location: EventLocationSchema.optional(),
       registrationUrl: HttpsUrlSchema.optional(),
       price: z.string().max(60).optional(),
+      /**
+       * Repeat rule (RFC 5545 RRULE body, without the `RRULE:` prefix), e.g.
+       * `FREQ=WEEKLY;BYDAY=TU,TH;COUNT=10`. `start` is the first occurrence.
+       */
+      recurrence: z
+        .string()
+        .max(300)
+        .regex(/^FREQ=(?:DAILY|WEEKLY|MONTHLY|YEARLY)(?:;[A-Z]+=[A-Za-z0-9,+-]+)*$/, {
+          message: "Expected a repeat rule like FREQ=WEEKLY;BYDAY=TU",
+        })
+        .optional(),
     })
     .superRefine((fm, ctx) => {
       checkScheduled(fm, ctx);
@@ -170,6 +181,8 @@ export const ProductFrontmatterSchema = named(
             options: z.record(z.string(), z.string()),
             price: MoneySchema.optional(),
             available: z.boolean().optional(),
+            /** Photo shown when this variant is chosen. */
+            image: MediaSrcSchema.optional(),
           }),
         )
         .max(100)

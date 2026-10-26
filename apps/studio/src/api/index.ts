@@ -1,6 +1,8 @@
 export * from "./catalog-queries";
 export * from "./catalog-types";
 export { HubProvider, useHub } from "./context";
+export * from "./growth-queries";
+export * from "./growth-types";
 export { createHttpHub, DEFAULT_HUB_URL, githubStartUrl } from "./http";
 export * from "./manage-queries";
 export * from "./manage-types";

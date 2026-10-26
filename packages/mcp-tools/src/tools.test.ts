@@ -449,6 +449,43 @@ describe("editing tools", () => {
     ).toMatch(/date/);
   });
 
+  it("create_post passes date to every kind whose frontmatter has one (podcast, events without)", async () => {
+    const { rpc } = await setup();
+    const ep = (
+      await rpc.call("create_post", {
+        collection: "podcast",
+        title: "Episode two: breathing out",
+        body: "A short practice for evenings.",
+        date: "2026-11-02",
+        frontmatter: {
+          audio: { src: "media/podcast/slow-mornings-01.mp3", duration: 900, mime: "audio/mpeg" },
+        },
+      })
+    ).data;
+    expect(ep.item.date).toBe("2026-11-02");
+    const ev = (
+      await rpc.call("create_post", {
+        collection: "events",
+        title: "Equinox restorative workshop",
+        body: "Two slow hours.",
+        date: "2026-11-21",
+        frontmatter: { start: "2026-11-21T14:00:00-08:00", end: "2026-11-21T16:00:00-08:00" },
+      })
+    ).data;
+    expect(ev.item.date).toBeUndefined();
+    expect(ev.item.slug).toMatch(/^2026-11-21-/);
+    expect(
+      (
+        await rpc.callError("create_post", {
+          collection: "events",
+          title: "No offset",
+          body: "x",
+          frontmatter: { start: "2026-11-21T14:00:00" },
+        })
+      ).text,
+    ).toMatch(/start/);
+  });
+
   it("uploads images (strips metadata, records size) and refuses oversized ones without a resizer", async () => {
     const { rpc, store, siteId } = await setup();
     const r = (
@@ -581,8 +618,8 @@ describe("resources and prompts", () => {
 
 describe("fetchImage", () => {
   const png = base64ToBytes(tinyPng(2, 2));
-  const respond = (body: ConstructorParameters<typeof Response>[0], init: ResponseInit) =>
-    new Response(body, init);
+  const respond = (body: BodyInit | null, init: ResponseInit) =>
+    new Response(body instanceof Uint8Array ? new Blob([new Uint8Array(body)]) : body, init);
 
   it("downloads https images and follows https redirects", async () => {
     const calls: string[] = [];
@@ -593,7 +630,7 @@ describe("fetchImage", () => {
           status: 302,
           headers: { location: "https://cdn.example/final.png" },
         });
-      return respond(png, { status: 200 });
+      return respond(png as unknown as BodyInit, { status: 200 });
     }) as unknown as typeof fetch;
     const r = await fetchImage("https://img.example/start", f);
     expect(r.name).toBe("final.png");

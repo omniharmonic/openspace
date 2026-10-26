@@ -1,0 +1,454 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_b4zcc63qw7",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "OpenSpace is open source: MIT-licensed templates and blocks, an AGPL editor and Hub, and CC BY documentation. Anyone can run their own."
+  },
+  "sections": [
+    {
+      "id": "sec_71qavhdh4s",
+      "preset": "hero/big-type@1",
+      "label": "Big type with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_n5j8wy1x7k",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Websites as a commons",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "About OpenSpace"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_ghvbae9rxf",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "OpenSpace is an open-source website builder with the polish of Squarespace and none of the lock-in. It's built in the open, and anyone can run their own copy."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_d8w5bmxd6q",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "View on GitHub",
+            "link": {
+              "type": "url",
+              "url": "https://github.com/omniharmonic/openspace"
+            },
+            "role": "primary",
+            "secondaryLabel": "Read the docs",
+            "secondaryLink": {
+              "type": "url",
+              "url": "https://docs.openspace.dev"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_5vmt0tewm4",
+      "preset": "about/two-column-text@1",
+      "label": "Heading with reading columns",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_f4anx1wkb4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Builders charge rent on commodities",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Why we built it",
+            "subheading": "Hosting, a CDN, an editor and AI help used to justify a monthly bill. Today they're free or open source. What was missing was the integration and the design quality."
+          },
+          "variant": "split"
+        },
+        {
+          "id": "blk_h4zknahfpx",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A small nonprofit with a newsletter and a donate button can easily pay hundreds a year, indefinitely, for what is mostly static hosting and a form. Stop paying and the site disappears, along with the design work and the audience list."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "OpenSpace takes the other path. Every site is a normal project in its owner's GitHub account, built with Astro and served free. The editor renders the same components as the published site, so what you see is what visitors get, and the shared Hub only does what static sites can't: forms, newsletters, analytics, members and checkout."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The result is a website builder that costs the project almost nothing per site, which is what makes free forever a property of the design rather than a promotion."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "columns"
+        }
+      ]
+    },
+    {
+      "id": "sec_ng1qpjqmfe",
+      "preset": "about/values@1",
+      "label": "Values",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_bnh7xxp2y6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What we hold to",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Principles",
+            "subheading": "Seven principles shape every decision; these three come up most."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_w3n80vym7q",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "home",
+                "title": "You own it",
+                "text": "Your site lives in your account, in open formats. Leave any time, with everything, working."
+              },
+              {
+                "icon": "lightbulb",
+                "title": "As easy as Squarespace",
+                "text": "Someone who has never heard of Git should succeed without ever seeing the word."
+              },
+              {
+                "icon": "heart-handshake",
+                "title": "Open and forkable",
+                "text": "All code is open source. Anyone can run the editor and Hub, so there's no single point of failure."
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_6ang1epcpv",
+      "preset": "faq/split@1",
+      "label": "Questions beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_wc9nm80nbb",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Licenses, in plain words",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Open source"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_w0w4m8tgby",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Contributions of code, templates and documentation are welcome."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_59ymbpgt55",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "How to contribute",
+            "link": {
+              "type": "url",
+              "url": "https://github.com/omniharmonic/openspace/blob/main/CONTRIBUTING.md"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_apae16fmfw",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Templates, blocks and the site starter",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "MIT. Sites must be freely forkable, so everything a published site depends on is under the most permissive license."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "The Studio editor and the Hub",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "AGPL-3.0. If someone runs a modified copy for others, their improvements come back to the commons."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Documentation and template designs",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "CC BY 4.0. Remix them freely with attribution."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I run my own Hub?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. It's one Cloudflare Workers project with a Deploy to Cloudflare button, and any site can point at it."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_a83qjnwmzn",
+      "preset": "cta/banner@1",
+      "label": "Centred banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_4zemq3hd7a",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Build with us",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Make a site, design a template, or help steward the commons."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_93ka7gbhke",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Make your site — free",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.dev/templates"
+            },
+            "role": "primary",
+            "secondaryLabel": "Star on GitHub",
+            "secondaryLink": {
+              "type": "url",
+              "url": "https://github.com/omniharmonic/openspace"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

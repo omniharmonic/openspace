@@ -1,0 +1,170 @@
+/* Chart tokens: one series hue with light and dark steps (validated against the panel surfaces). */
+.st-analytics {
+  --st-viz-1: #2a78d6;
+  --st-viz-1-wash: rgb(42 120 214 / 0.1);
+  --st-viz-grid: #ebebe7;
+  --st-viz-axis: #c9c8c1;
+  --st-viz-tick: var(--st-text-3);
+}
+
+:root[data-theme="dark"] .st-analytics {
+  --st-viz-1: #3987e5;
+  --st-viz-1-wash: rgb(57 135 229 / 0.12);
+  --st-viz-grid: #2c2d31;
+  --st-viz-axis: #3b3c41;
+}
+
+.st-analytics__range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-analytics__custom {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.st-analytics__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .st-analytics__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.st-analytics__table {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.st-analytics__conv td {
+  padding-inline: 0;
+}
+
+.st-analytics__conv th {
+  padding-inline: 0;
+}
+
+/* ---------- Trend chart ---------- */
+
+.st-viz {
+  position: relative;
+  min-width: 0;
+}
+
+.st-viz svg {
+  display: block;
+  max-width: 100%;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+.st-viz__grid {
+  stroke: var(--st-viz-grid);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.st-viz__axis {
+  stroke: var(--st-viz-axis);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.st-viz__tick {
+  fill: var(--st-viz-tick);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-viz__line {
+  fill: none;
+  stroke: var(--st-viz-1);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.st-viz__area {
+  fill: var(--st-viz-1-wash);
+}
+
+.st-viz__dot {
+  fill: var(--st-viz-1);
+  stroke: var(--st-panel);
+  stroke-width: 2;
+}
+
+.st-viz__cross {
+  stroke: var(--st-viz-axis);
+  stroke-width: 1;
+}
+
+.st-viz__tip {
+  position: absolute;
+  display: grid;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: var(--st-r);
+  background: var(--st-panel-raised);
+  box-shadow: var(--st-shadow-pop);
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.st-viz__tip strong {
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Bar list ---------- */
+
+.st-barlist {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-barlist li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+
+.st-barlist__label {
+  overflow: hidden;
+  color: var(--st-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-barlist__value {
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-barlist__track {
+  grid-column: 1 / -1;
+  height: 6px;
+}
+
+.st-barlist__bar {
+  display: block;
+  height: 100%;
+  border-radius: 0 3px 3px 0;
+  background: var(--st-viz-1);
+}

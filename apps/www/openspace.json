@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site-config.json",
+  "siteId": "st_7kj225jvm3",
+  "schemaVersion": 1,
+  "template": {
+    "id": "openspace-www",
+    "version": "1.0.0"
+  },
+  "hub": "https://hub.openspace.dev",
+  "deploy": {
+    "target": "github-pages",
+    "url": "https://openspace.dev",
+    "customDomain": "openspace.dev"
+  },
+  "features": {
+    "forms": false,
+    "newsletter": false,
+    "analytics": true,
+    "search": false
+  }
+}

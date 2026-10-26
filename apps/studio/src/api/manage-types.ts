@@ -246,6 +246,8 @@ export interface ManageApi {
     approvalId: string,
     decision: "approve" | "reject",
     note?: string,
+    /** The version the reviewer saw; the Hub refuses with 409 `changed_since_review` if it moved on. */
+    contentHash?: string,
   ): Promise<Approval>;
 
   getHosting(siteId: string): Promise<HostingInfo>;

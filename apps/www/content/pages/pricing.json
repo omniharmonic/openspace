@@ -1,0 +1,427 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_22tsa0d98d",
+  "title": "Pricing",
+  "slug": "pricing",
+  "seo": {
+    "description": "OpenSpace is free forever, by architecture: your site runs on free accounts you own, and you bring your own AI. No plans, no transaction fees."
+  },
+  "sections": [
+    {
+      "id": "sec_570c67ypgg",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_dymr0a23rk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Free, forever — by architecture",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Pricing",
+            "subheading": "There's no plan to upgrade to. Hosting, builds and storage run on free accounts you own, so one more site costs the project almost nothing."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_59c1t6gh7v",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Make your site — free",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.dev/templates"
+            },
+            "role": "primary",
+            "secondaryLabel": "Read how it works",
+            "secondaryLink": {
+              "type": "url",
+              "url": "https://docs.openspace.dev/architecture/"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_xyzg0cm5hg",
+      "preset": "pricing/single-offer@1",
+      "label": "Single offer",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_rnzdszs884",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Everything, for everyone",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "One plan",
+            "subheading": "The same features for a yoga teacher, a food co-op or a pottery shop. No tiers, no trials, no surprises at renewal."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_b8cdagdqqg",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "check",
+                "title": "All twelve templates and every section preset"
+              },
+              {
+                "icon": "check",
+                "title": "Forms, newsletter signups and analytics"
+              },
+              {
+                "icon": "check",
+                "title": "Blog, events, members and a store"
+              },
+              {
+                "icon": "check",
+                "title": "Custom domains with free HTTPS"
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "checklist"
+        },
+        {
+          "id": "blk_x6nxzkay2q",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "OpenSpace",
+                "price": "$0",
+                "period": "forever",
+                "description": "Every feature, on a site that belongs to you.",
+                "features": [
+                  {
+                    "text": "No transaction fees"
+                  },
+                  {
+                    "text": "No add-on subscriptions"
+                  },
+                  {
+                    "text": "Export everything, any time"
+                  }
+                ],
+                "buttonLabel": "Make your site",
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.dev/templates"
+                },
+                "featured": true
+              }
+            ],
+            "note": "Optional costs are paid to others, never to OpenSpace: a domain name, and Stripe's card fees if you sell."
+          },
+          "column": 1,
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_kj9xgg1hcs",
+      "preset": "features/icon-row@1",
+      "label": "Four benefits with icons",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_h9xe14vtp8",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Why free can stay free",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Where the costs go",
+            "subheading": "Each part runs where it is already free, so no one has to pay for your site to stay online."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_zy96ewcrt3",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "globe",
+                "title": "Hosting",
+                "text": "GitHub Pages serves content sites free; stores use your own free Cloudflare plan."
+              },
+              {
+                "icon": "rocket",
+                "title": "Publishing",
+                "text": "GitHub Actions builds public sites free, in about a minute."
+              },
+              {
+                "icon": "message-circle",
+                "title": "AI",
+                "text": "You bring your own AI, so there is no metered model to pay for."
+              },
+              {
+                "icon": "users",
+                "title": "The shared Hub",
+                "text": "Forms and newsletters run on one small service built to cost cents per thousand sites."
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_b503a97td1",
+      "preset": "faq/centered@1",
+      "label": "Centred questions",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_nbywmzxdmk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Honest answers about money",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Fine print"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_nzq1vwc4fc",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Who pays for the shared Hub?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "A small stewarding group, funded by voluntary contributions and grants. Anyone can also run their own Hub."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do you take a cut of sales or donations?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Never. Payments go to your own Stripe account with no platform fee. Stripe charges its usual card fees."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What about email newsletters?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Campaigns send through your own email provider, whose free tiers cover most small lists. Signups and opt-in emails are included."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Are there limits?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Generous fair-use limits on the public Hub keep it free, such as 1,000 form entries a month per site. Self-hosted Hubs set their own."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_jmsrjr4bbw",
+      "preset": "cta/banner@1",
+      "label": "Centred banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_b1vrfygygd",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Keep the money you'd spend on rent",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Start from a template and publish today. Upgrade nothing, ever."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_88ph3d1rhr",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Make your site — free",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.dev/templates"
+            },
+            "role": "primary",
+            "secondaryLabel": "See the templates",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_8gvvjp3ezj"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

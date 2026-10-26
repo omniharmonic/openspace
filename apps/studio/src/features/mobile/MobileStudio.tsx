@@ -32,9 +32,11 @@ import {
   GripVertical,
   History,
   Image as ImageIcon,
+  Inbox,
   LayoutGrid,
   ListOrdered,
   Lock,
+  Newspaper,
   Palette,
   PanelTop,
   Pencil,
@@ -77,6 +79,7 @@ import { useManageUi } from "../site-mgmt/manage-ui";
 import { PublishButton, PublishPill } from "../sync/PublishFlow";
 import { SyncBanners, SyncStatus } from "../sync/SyncChrome";
 import { UpdateBanner } from "../updates/UpdateBanner";
+import { workspacePath } from "../workspace/routes";
 import { imageFieldOf, setBlockImage, waitForMedia } from "./replaceImage";
 import "./mobile.css";
 
@@ -715,6 +718,42 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
             </span>
             <span className="st-mob__row-text">
               <span className="st-mob__row-title">History and versions</span>
+            </span>
+            <ChevronRight aria-hidden="true" className="st-mob__chev" />
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            className="st-mob__row"
+            onClick={() => {
+              setSheet(null);
+              navigate(workspacePath(site.id, "content"));
+            }}
+          >
+            <span className="st-mob__row-icon">
+              <Newspaper />
+            </span>
+            <span className="st-mob__row-text">
+              <span className="st-mob__row-title">Blog, events and store</span>
+            </span>
+            <ChevronRight aria-hidden="true" className="st-mob__chev" />
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            className="st-mob__row"
+            onClick={() => {
+              setSheet(null);
+              navigate(workspacePath(site.id, "inbox"));
+            }}
+          >
+            <span className="st-mob__row-icon">
+              <Inbox />
+            </span>
+            <span className="st-mob__row-text">
+              <span className="st-mob__row-title">Form inbox</span>
             </span>
             <ChevronRight aria-hidden="true" className="st-mob__chev" />
           </button>

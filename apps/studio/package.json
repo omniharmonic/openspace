@@ -22,10 +22,12 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@openspace/blocks": "workspace:*",
+    "@openspace/email-render": "workspace:*",
     "@openspace/lint": "workspace:*",
     "@openspace/ops": "workspace:*",
     "@openspace/renderer": "workspace:*",
     "@openspace/schema": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
     "@openspace/templates": "workspace:*",
     "@openspace/theme": "workspace:*",
     "@tanstack/react-query": "^5.104.5",
@@ -41,6 +43,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.18.4",
+    "zod": "^4.6.7",
     "zustand": "^5.0.16"
   },
   "devDependencies": {

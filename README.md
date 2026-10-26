@@ -37,6 +37,17 @@ Other commands: `pnpm build`, `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm 
 
 Product docs live in [docs/product](docs/product/README.md): PRD, architecture, implementation plan, and templates and design system.
 
+## Claude Code plugin
+
+Design and edit OpenSpace sites with Claude Code (local MCP server, web-design skills, screenshot iteration):
+
+```
+/plugin marketplace add omniharmonic/openspace
+/plugin install openspace
+```
+
+See [`plugin/README.md`](plugin/README.md).
+
 ## Licenses
 
 MIT for packages and templates ([LICENSE](LICENSE)), AGPL-3.0-only for `apps/studio` and `apps/hub` ([LICENSE-AGPL](LICENSE-AGPL)), CC-BY-4.0 for documentation and template designs.

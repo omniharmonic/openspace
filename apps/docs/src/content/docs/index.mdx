@@ -1,0 +1,46 @@
+---
+title: OpenSpace documentation
+description: Beautiful websites you own, free forever. Learn to make, edit, publish and grow an OpenSpace site — by hand or with your own AI.
+template: splash
+hero:
+  tagline: Beautiful websites you own, free forever. Make one in three minutes, edit it on any device, or ask your own AI to.
+  actions:
+    - text: Live in three minutes
+      link: /getting-started/
+      icon: right-arrow
+    - text: Connect your AI
+      link: /connect-your-ai/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+<CardGrid>
+  <Card title="You own it" icon="star">
+    Your site lives in your own GitHub account, in open formats. Leave any time, with everything,
+    working.
+  </Card>
+  <Card title="Free by architecture" icon="rocket">
+    Hosting, publishing and storage run on free accounts you control. There's no plan to upgrade
+    to.
+  </Card>
+  <Card title="Beautiful by default" icon="seti:image">
+    Twelve finished templates, curated type pairings and an accessible color system that keeps
+    every combination readable.
+  </Card>
+  <Card title="AI-native, AI-optional" icon="puzzle">
+    Edit everything by hand in Studio, or let Claude make changes through safe, typed tools that
+    you approve.
+  </Card>
+</CardGrid>
+
+## Popular guides
+
+<CardGrid>
+  <LinkCard title="Editing your site" href="/guides/editing/" description="The canvas, sections, blocks, the grid and mobile layouts." />
+  <LinkCard title="Site Styles" href="/guides/site-styles/" description="Fonts, colors, buttons, spacing and looks for the whole site." />
+  <LinkCard title="Connect a domain" href="/guides/domains/" description="Use your own address, with HTTPS, in a guided wizard." />
+  <LinkCard title="Claude Code plugin" href="/connect-your-ai/claude-code/" description="Rapid design iteration with screenshots, on a local copy." />
+  <LinkCard title="Forms & newsletter" href="/grow/forms-and-newsletter/" description="Collect messages and subscribers without a server." />
+  <LinkCard title="Self-hosting the Hub" href="/self-hosting/" description="Run your own OpenSpace Hub on Cloudflare." />
+</CardGrid>

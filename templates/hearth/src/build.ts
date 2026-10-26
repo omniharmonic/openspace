@@ -720,7 +720,8 @@ export const hearth: TemplateSpec = {
     {
       id: "tomato",
       name: "Tomato",
-      description: "Ripe tomato red on cream with olive-green buttons and links, and Young Serif headings.",
+      description:
+        "Ripe tomato red on cream with olive-green buttons and links, and Young Serif headings.",
       choices: {
         palette: {
           brand: "oklch(0.6 0.2 30)",

@@ -894,7 +894,8 @@ export const meadow: TemplateSpec = {
         ],
         seo: {
           titleTemplate: "%s · Fernwood Yoga",
-          description: "Sage on oat paper with clay-coloured buttons and links, Fraunces headings and arched photographs.",
+          description:
+            "Sage on oat paper with clay-coloured buttons and links, Fraunces headings and arched photographs.",
           image: photoUrl("yogaDeck", 1200),
         },
         locale: "en-US",
