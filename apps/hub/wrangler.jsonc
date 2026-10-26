@@ -26,6 +26,14 @@
   ],
   "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
   "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }],
+  // Task 16: per-IP+site rate limiter for public endpoints (forms, newsletter).
+  "durable_objects": {
+    "bindings": [{ "name": "RATE_LIMITER", "class_name": "RateLimiter" }]
+  },
+  "migrations": [{ "tag": "rate-limiter-v1", "new_sqlite_classes": ["RateLimiter"] }],
+  // Task 16: retention purge + daily form digests (03:00 UTC) and weekly analytics digests
+  // (Mondays 08:00 UTC). The `scheduled` handler dispatches by cron string.
+  "triggers": { "crons": ["0 3 * * *", "0 8 * * 1"] },
   // Production: real GitHub App, no dev sign-in. Bindings are not inherited by environments,
   // so they are repeated here (replace the ids with your own resources).
   "env": {
@@ -46,7 +54,17 @@
         }
       ],
       "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
-      "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }]
+      "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }],
+      "durable_objects": {
+        "bindings": [{ "name": "RATE_LIMITER", "class_name": "RateLimiter" }]
+      },
+      "triggers": { "crons": ["0 3 * * *", "0 8 * * 1"] },
+      // Task 16: Hub-domain transactional mail (Cloudflare Email Service; onboard the sending
+      // domain with `wrangler email sending enable`) and Analytics Engine for pageviews.
+      // Secrets: EMAIL_FROM, TURNSTILE_SECRET, CF_ACCOUNT_ID, CF_ANALYTICS_TOKEN, HUB_SECRET
+      // (or RESEND_API_KEY / POSTMARK_TOKEN with EMAIL_PROVIDER).
+      "send_email": [{ "name": "EMAIL" }],
+      "analytics_engine_datasets": [{ "binding": "ANALYTICS", "dataset": "openspace_analytics" }]
     }
   }
 }

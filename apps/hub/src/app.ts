@@ -8,6 +8,11 @@ import { createLogger } from "./lib/log";
 import { authRoutes } from "./routes/auth";
 import { meRoutes } from "./routes/me";
 import { previewRoutes } from "./routes/preview";
+import { publicAnalyticsRoutes } from "./routes/public/analytics";
+import { devOutboxRoutes } from "./routes/public/dev-outbox";
+import { publicFormRoutes } from "./routes/public/forms";
+import { publicNewsletterRoutes } from "./routes/public/newsletter";
+import { domainInfoRoutes, siteServiceRoutes } from "./routes/site-services";
 import { siteRoutes } from "./routes/sites";
 import { templateRoutes } from "./routes/templates";
 import { createServices, type ServiceOverrides } from "./services";
@@ -66,6 +71,14 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api", meRoutes);
   app.route("/api/templates", templateRoutes);
   app.route("/api/sites", siteRoutes);
+  // Task 16: Studio APIs for forms, newsletter, analytics, domains, quotas, audit, export.
+  app.route("/api/sites", siteServiceRoutes);
+  app.route("/api/domains", domainInfoRoutes);
+  // Task 16: public endpoints called from published sites, and the dev outbox.
+  app.route("/", publicFormRoutes);
+  app.route("/", publicNewsletterRoutes);
+  app.route("/", publicAnalyticsRoutes);
+  app.route("/", devOutboxRoutes);
   app.route("/", previewRoutes);
 
   app.notFound((c) => c.json(errorBody("not_found", "Not found."), 404));
