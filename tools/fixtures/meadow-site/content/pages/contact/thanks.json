@@ -1,0 +1,60 @@
+{
+  "id": "pg_qgyp9mjgre",
+  "title": "Thank you",
+  "slug": "contact/thanks",
+  "hidden": true,
+  "seo": {
+    "noindex": true
+  },
+  "sections": [
+    {
+      "id": "sec_9q5fbx6y9j",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_2jykc83908",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Thank you"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Your message is on its way. We'll be in touch soon."
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

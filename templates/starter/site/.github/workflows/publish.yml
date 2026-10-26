@@ -1,0 +1,35 @@
+# .github/workflows/publish.yml (generated; managed by site-kit updates)
+name: Publish
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+concurrency: { group: publish, cancel-in-progress: true }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        # package.json keys the npm cache: Hub-created sites have no lockfile at first.
+        with: { node-version: 22, cache: npm, cache-dependency-path: package.json }
+      - uses: actions/cache@v6
+        with:
+          path: node_modules/.astro
+          key: os-assets-${{ hashFiles('media/**') }}
+          restore-keys: os-assets-
+      # Sites created by the Hub start without a lockfile.
+      - run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - run: npx openspace check --ci # schema, links, budgets, secret scan
+      - run: npm run build # astro build (+ pagefind, og images)
+        env:
+          OPENSPACE_TURNSTILE_SITE_KEY: ${{ vars.OPENSPACE_TURNSTILE_SITE_KEY }}
+      - uses: actions/upload-pages-artifact@v5
+        with: { path: dist }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: "${{ steps.d.outputs.page_url }}" }
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v5

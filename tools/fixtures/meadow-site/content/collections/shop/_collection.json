@@ -1,0 +1,9 @@
+{
+  "kind": "products",
+  "label": "Shop",
+  "list": {
+    "layout": "grid",
+    "pageSize": 24,
+    "sort": "title"
+  }
+}

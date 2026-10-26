@@ -1,0 +1,128 @@
+{
+  "title": "Meadow Yoga",
+  "tagline": "Small, unhurried yoga classes in Boulder.",
+  "logo": {
+    "src": "media/brand/logo.png",
+    "alt": "Meadow Yoga",
+    "width": 480,
+    "height": 144
+  },
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_f7jcnz65me"
+    },
+    {
+      "type": "collection",
+      "collection": "events",
+      "label": "Events"
+    },
+    {
+      "type": "collection",
+      "collection": "journal",
+      "label": "Journal"
+    },
+    {
+      "type": "collection",
+      "collection": "shop",
+      "label": "Shop"
+    },
+    {
+      "type": "page",
+      "page": "pg_sat2c09jw4"
+    },
+    {
+      "type": "button",
+      "label": "Get in touch",
+      "link": {
+        "type": "page",
+        "page": "pg_av2p7shq0g"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-left",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "slide"
+  },
+  "footer": {
+    "id": "sec_y144k03hh9",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          12
+        ]
+      }
+    },
+    "style": {
+      "colorTheme": "dark"
+    },
+    "blocks": [
+      {
+        "id": "blk_0eqgd6qzz7",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Meadow Yoga · 1420 Pearl Street, Boulder"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Open daily from 7am."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/meadowyoga.example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:hello@meadowyoga.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Meadow Yoga",
+    "description": "Small, unhurried yoga classes in Boulder."
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": false,
+    "bookingUrl": null,
+    "stripeConnected": false
+  },
+  "redirects": [
+    {
+      "from": "/schedule",
+      "to": "/classes/",
+      "status": 301
+    },
+    {
+      "from": "/old/blog",
+      "to": "/journal/",
+      "status": 301
+    }
+  ]
+}

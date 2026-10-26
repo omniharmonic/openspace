@@ -197,7 +197,10 @@ export type Integrations = z.infer<typeof IntegrationsSchema>;
 
 const SitePathSchema = z
   .string()
-  .regex(/^\/(?!\/)[^\s?#]*$/, { message: "Expected a site path starting with /" });
+  .regex(/^\/(?!\/)[^\s?#]*$/, { message: "Expected a site path starting with /" })
+  .refine((p) => !p.split("/").some((seg) => seg === "." || seg === ".." || seg.includes("\\")), {
+    message: "Site paths can't contain . or .. segments or backslashes",
+  });
 
 export const RedirectSchema = z.strictObject({
   from: SitePathSchema,

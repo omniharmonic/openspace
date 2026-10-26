@@ -101,6 +101,10 @@ export const BlockUpdateOpSchema = op("block.update", {
   style: BlockStyleSchema.nullable().optional(),
   /** Stack column; `null` removes it. */
   column: z.int().min(0).max(3).nullable().optional(),
+  /** Layers label; `null` removes it. */
+  label: z.string().max(80).nullable().optional(),
+  /** Hide the block on the published site; `null` (or `false`) shows it again. */
+  hidden: z.boolean().nullable().optional(),
 });
 
 export const BlockInsertOpSchema = op("block.insert", {

@@ -1,7 +1,7 @@
 import type { BlockNode, InlineNode, Mark, RichTextDoc, TypePreset } from "@openspace/schema";
 import { colorVar } from "@openspace/theme";
-import { Fragment, type ReactNode } from "react";
-import { useRenderContext } from "./context";
+import { Fragment, type ReactNode, useContext } from "react";
+import { BlockFieldsContext, fieldPathOf, useEditor, useRenderContext } from "./context";
 import { cx } from "./cx";
 import { withBase } from "./link";
 
@@ -134,10 +134,29 @@ export interface RichTextProps {
  */
 export function RichText({ doc, className, as: Tag = "div" }: RichTextProps) {
   const { basePath } = useRenderContext();
-  if (!doc || doc.content.length === 0) return null;
-  return (
-    <Tag className={cx("os-rich", className)}>
-      {doc.content.map((node, i) => renderBlock(node, i, basePath))}
-    </Tag>
-  );
+  const editor = useEditor();
+  const owner = useContext(BlockFieldsContext);
+  const out =
+    !doc || doc.content.length === 0 ? null : (
+      <Tag className={cx("os-rich", className)}>
+        {doc.content.map((node, i) => renderBlock(node, i, basePath))}
+      </Tag>
+    );
+  if (editor?.renderRichText && owner && doc) {
+    const fieldPath = fieldPathOf(owner.fields, doc);
+    if (fieldPath)
+      return (
+        <>
+          {editor.renderRichText({
+            block: owner.block,
+            fieldPath,
+            doc,
+            className,
+            as: Tag,
+            children: out,
+          })}
+        </>
+      );
+  }
+  return out;
 }

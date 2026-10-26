@@ -184,7 +184,13 @@ export function transformForRole(
     case "block.update": {
       const section = sectionOfBlock(op.page, op.block);
       if (!isLocked(section)) return allow;
-      if (op.variant !== undefined || op.style !== undefined || op.column !== undefined)
+      if (
+        op.variant !== undefined ||
+        op.style !== undefined ||
+        op.column !== undefined ||
+        op.label !== undefined ||
+        op.hidden !== undefined
+      )
         return deny("This section is locked: only its text and images can change");
       if (op.unset?.length) return deny("This section is locked: fields can't be removed");
       const block = doc ? findBlock(doc, op.page, op.block)?.block : undefined;

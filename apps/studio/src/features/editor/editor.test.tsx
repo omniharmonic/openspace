@@ -52,7 +52,10 @@ describe("editor frame", () => {
     expect(screen.getByRole("complementary", { name: "Inspector" })).toHaveTextContent(
       "Nothing selected",
     );
-    expect(screen.getByRole("img", { name: "Preview of Willow Street Yoga" })).toBeInTheDocument();
+    const frame = (await screen.findByTitle("Page canvas")) as HTMLIFrameElement;
+    await waitFor(() =>
+      expect(frame.contentDocument?.querySelector("[data-os-page]")).toBeTruthy(),
+    );
     // Disabled but still focusable, so its tooltip explains why.
     const publish = screen.getByRole("button", { name: "Publish" });
     expect(publish).toHaveAttribute("aria-disabled", "true");

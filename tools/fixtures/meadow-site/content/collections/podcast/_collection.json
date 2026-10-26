@@ -1,0 +1,13 @@
+{
+  "kind": "podcast",
+  "label": "Slow Mornings",
+  "list": {
+    "layout": "list",
+    "pageSize": 20,
+    "sort": "date-desc"
+  },
+  "feed": {
+    "enabled": true,
+    "description": "Conversations about practice, teaching and slowing down."
+  }
+}

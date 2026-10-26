@@ -1,16 +1,19 @@
+import type { SiteDocument } from "@openspace/schema";
 import {
   ArrowLeft,
   ArrowUpRight,
   ChevronDown,
   Copy,
+  CopyPlus,
+  CornerLeftUp,
   Eye,
   FileText,
   Image,
+  Keyboard,
   Layers,
   LayoutGrid,
   ListChecks,
   Monitor,
-  MousePointer2,
   Palette,
   PanelLeft,
   PanelRight,
@@ -18,13 +21,14 @@ import {
   Redo2,
   Smartphone,
   Tablet,
+  Trash,
   Undo2,
   ZoomIn,
 } from "lucide-react";
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router";
-import { useSession, useSite, useTemplates } from "../../api";
-import type { Site, TemplateSummary } from "../../api/types";
+import { useSession, useSite, useSiteDocument } from "../../api";
+import type { Site } from "../../api/types";
 import { useConfig } from "../../app/config";
 import { Mark } from "../../app/Wordmark";
 import {
@@ -40,17 +44,16 @@ import {
   Sheet,
   Skeleton,
   Spinner,
-  Tabs,
   Tooltip,
   toast,
+  useCommandStore,
   useRegisterCommands,
-  useShortcuts,
 } from "../../ui";
 import { displayUrl } from "../onboarding/BuildingProgress";
-import { SiteSketch } from "../templates/SiteSketch";
+import { Canvas } from "./canvas/Canvas";
+import "./canvas/canvas.css";
 import {
   type Breakpoint,
-  DEVICE_HEIGHTS,
   DEVICE_WIDTHS,
   effectiveZoom,
   type LeftPanel,
@@ -58,6 +61,25 @@ import {
 } from "./editor-store";
 import "./EditorFrame.css";
 import { FirstRunChecklist, useChecklist } from "./FirstRunChecklist";
+import {
+  type ClipPayload,
+  copyItems,
+  deleteItems,
+  duplicateItems,
+  insertSection,
+  parseClip,
+  pasteItems,
+} from "./model/actions";
+import { EditorStoreProvider, useDocStore, useDocStoreApi } from "./model/context";
+import { placeholderDocument } from "./model/placeholder";
+import { locate, parentOf } from "./model/selection";
+import { STARTERS } from "./model/starters";
+import { createEditorStore, type EditorStore } from "./model/store";
+import { Inspector } from "./panels/Inspector";
+import { LayersPanel } from "./panels/LayersPanel";
+import { PagesPanel } from "./panels/PagesPanel";
+import { ShortcutsSheet } from "./panels/ShortcutsSheet";
+import { handleEditorKey, isTypingTarget, onSurface, type ShortcutEnv } from "./shortcuts";
 
 const PANELS: Array<{ id: LeftPanel; label: string; icon: ReactNode; shortcut: string }> = [
   { id: "pages", label: "Pages", icon: <FileText />, shortcut: "alt+1" },
@@ -111,92 +133,38 @@ function PanelSkeleton({ rows = 5, label }: { rows?: number; label: string }) {
   );
 }
 
+function AddSectionPanel() {
+  const api = useDocStoreApi();
+  return (
+    <ul className="st-ed-starters" aria-label="Section starters">
+      {STARTERS.map((st) => (
+        <li key={st.id}>
+          <button
+            type="button"
+            onClick={() => {
+              const s = api.getState();
+              const sel = s.selection.at(-1);
+              const loc = sel ? locate(s.doc, s.pageId, sel) : undefined;
+              const at =
+                loc && loc.container !== "footer" ? { after: loc.section.id } : ("end" as const);
+              s.run(insertSection(s.pageId, st.build(), at));
+            }}
+          >
+            <strong>{st.label}</strong>
+            <span>{st.description}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function LeftPanelBody({ panel }: { panel: LeftPanel }) {
+  if (panel === "pages") return <PagesPanel />;
+  if (panel === "layers") return <LayersPanel />;
+  if (panel === "add") return <AddSectionPanel />;
   const label = PANELS.find((p) => p.id === panel)?.label ?? "";
-  return (
-    <PanelSkeleton
-      label={`Loading ${label.toLowerCase()}`}
-      rows={panel === "add" || panel === "media" ? 6 : 4}
-    />
-  );
-}
-
-function Inspector() {
-  return (
-    <Tabs
-      aria-label="Inspector"
-      items={[
-        {
-          value: "design",
-          label: "Design",
-          content: (
-            <EmptyState
-              size="sm"
-              icon={<MousePointer2 />}
-              title="Nothing selected"
-              description="Click anything on the page to change its words, images or style."
-            />
-          ),
-        },
-        {
-          value: "page",
-          label: "Page",
-          content: <PanelSkeleton label="Loading page settings" rows={3} />,
-        },
-      ]}
-    />
-  );
-}
-
-function Canvas({ site, template }: { site: Site; template: TemplateSummary | undefined }) {
-  const breakpoint = useEditorUi((s) => s.breakpoint);
-  const zoom = useEditorUi((s) => s.zoom);
-  const fitScale = useEditorUi((s) => s.fitScale);
-  const setFitScale = useEditorUi((s) => s.setFitScale);
-  const ref = useRef<HTMLElement>(null);
-  const device = DEVICE_WIDTHS[breakpoint];
-
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const measure = () => {
-      const avail = el.clientWidth - (el.clientWidth < 768 ? 24 : 96);
-      if (avail > 0) setFitScale(Math.min(1, avail / device));
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [device, setFitScale]);
-
-  const scale = zoom === "fit" ? fitScale : zoom;
-  const look = template?.looks.find((l) => l.id === site.look) ?? template?.looks[0];
-
-  return (
-    <section ref={ref} className="st-ed-canvas" aria-label="Canvas">
-      <div
-        className={cx("st-ed-canvas__frame", `st-ed-canvas__frame--${breakpoint}`)}
-        style={{
-          width: Math.round(device * scale),
-          height: Math.round(DEVICE_HEIGHTS[breakpoint] * scale),
-        }}
-      >
-        <span className="st-ed-canvas__label">
-          {site.name} <span className="st-num">{device}</span>
-        </span>
-        {site.status === "building" ? (
-          <div className="st-ed-canvas__state">
-            <Spinner size={16} />
-            <p>Your site is still being set up. It opens here in a moment.</p>
-          </div>
-        ) : look ? (
-          <SiteSketch variant="page" styles={look.styles} name={site.name} tagline={site.tagline} />
-        ) : (
-          <PanelSkeleton label="Loading page" rows={8} />
-        )}
-      </div>
-    </section>
-  );
+  return <PanelSkeleton label={`Loading ${label.toLowerCase()}`} rows={6} />;
 }
 
 function ZoomMenu() {
@@ -252,13 +220,114 @@ function WelcomeToast({ site }: { site: Site }) {
   return null;
 }
 
-function EditorChrome({ site, template }: { site: Site; template: TemplateSummary | undefined }) {
+/** In-memory clipboard, used when the system clipboard is unavailable (and across pages). */
+let memoryClip: ClipPayload | null = null;
+
+/**
+ * Binds editor shortcuts and copy/paste on the Studio window and on the canvas document
+ * (keystrokes inside the iframe never reach the Studio window).
+ */
+function useEditorInput(env: ShortcutEnv, frameDoc: Document | null) {
+  const envRef = useRef(env);
+  envRef.current = env;
+  useEffect(() => {
+    const targets: Array<Window | Document> = [window];
+    const frameWin = frameDoc?.defaultView;
+    if (frameWin && frameWin !== window) targets.push(frameWin);
+    const docs: Document[] = [document];
+    if (frameDoc && frameDoc !== document) docs.push(frameDoc);
+    const onKeyDown = (e: Event) => {
+      const ke = e as KeyboardEvent;
+      if (
+        ke.key === " " &&
+        !ke.repeat &&
+        !isTypingTarget(ke.target) &&
+        !envRef.current.store.getState().editing &&
+        onSurface(ke.target)
+      ) {
+        // Space pans only when focus is on the page or canvas, never on a control.
+        ke.preventDefault();
+        useEditorUi.getState().setPanning(true);
+        return;
+      }
+      if (useEditorUi.getState().shortcutsOpen && ke.key !== "?") return;
+      handleEditorKey(envRef.current, ke);
+    };
+    const onKeyUp = (e: Event) => {
+      if ((e as KeyboardEvent).key === " ") useEditorUi.getState().setPanning(false);
+    };
+    const onBlur = () => useEditorUi.getState().setPanning(false);
+    const blocked = (e: Event) => {
+      const s = envRef.current.store.getState();
+      if (s.editing !== null || isTypingTarget(e.target) || !s.selection.length) return true;
+      // Selected words in a panel copy as words, not as blocks.
+      const textSel = (e.target as Node | null)?.ownerDocument?.getSelection?.();
+      return Boolean(textSel && !textSel.isCollapsed && textSel.toString().trim());
+    };
+    const onCopy = (e: Event, cut = false) => {
+      if (blocked(e)) return;
+      const s = envRef.current.store.getState();
+      const clip = copyItems(s.doc, s.pageId, s.selection);
+      if (!clip) return;
+      memoryClip = clip;
+      const ce = e as ClipboardEvent;
+      ce.clipboardData?.setData("text/plain", JSON.stringify(clip));
+      e.preventDefault();
+      if (cut) s.run(deleteItems(s.doc, s.pageId, s.selection));
+      toast({ title: cut ? "Cut" : "Copied", description: "Paste on any page with ⌘V." });
+    };
+    const onCut = (e: Event) => onCopy(e, true);
+    const onPaste = (e: Event) => {
+      const s = envRef.current.store.getState();
+      if (s.editing !== null || isTypingTarget(e.target)) return;
+      const ce = e as ClipboardEvent;
+      const text = ce.clipboardData?.getData("text/plain");
+      const clip = parseClip(text) ?? (text ? null : memoryClip);
+      if (!clip) return;
+      e.preventDefault();
+      s.run(pasteItems(s.doc, s.pageId, s.selection, clip));
+    };
+    for (const t of targets) {
+      t.addEventListener("keydown", onKeyDown);
+      t.addEventListener("keyup", onKeyUp);
+      t.addEventListener("blur", onBlur);
+    }
+    for (const d of docs) {
+      d.addEventListener("copy", onCopy);
+      d.addEventListener("cut", onCut);
+      d.addEventListener("paste", onPaste);
+    }
+    return () => {
+      for (const t of targets) {
+        t.removeEventListener("keydown", onKeyDown);
+        t.removeEventListener("keyup", onKeyUp);
+        t.removeEventListener("blur", onBlur);
+      }
+      for (const d of docs) {
+        d.removeEventListener("copy", onCopy);
+        d.removeEventListener("cut", onCut);
+        d.removeEventListener("paste", onPaste);
+      }
+    };
+  }, [frameDoc]);
+}
+
+function EditorChrome({ site }: { site: Site }) {
   const navigate = useNavigate();
   const session = useSession();
   const ui = useEditorUi();
   const narrow = useIsNarrow();
   const checklist = useChecklist(site.id);
   const [sheet, setSheet] = useState<LeftPanel | "inspector" | null>(null);
+  const [frameDoc, setFrameDoc] = useState<Document | null>(null);
+  const store = useDocStoreApi();
+  const pageTitle = useDocStore(
+    (s) => s.doc.pages[s.pageId as keyof SiteDocument["pages"]]?.title ?? "",
+  );
+  const pages = useDocStore((s) => s.doc.pages);
+  const canUndo = useDocStore((s) => s.undoStack.length > 0);
+  const canRedo = useDocStore((s) => s.redoStack.length > 0);
+  const hasSelection = useDocStore((s) => s.selection.length > 0);
   const user = session.data?.user;
   const live = site.status === "live";
 
@@ -275,16 +344,116 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
     if (narrow) useEditorUi.getState().setBreakpoint("mobile");
   }, [narrow]);
 
+  // The first-run checklist ticks itself when the home page's opening words or photo change.
+  const complete = checklist.complete;
+  useEffect(
+    () =>
+      store.getState().onLocalOps((ops) => {
+        const s = store.getState();
+        const home = Object.values(s.doc.pages).find((p) => p.slug === "");
+        const first = home?.sections[0];
+        for (const op of ops) {
+          if (op.op !== "block.update" || !first) continue;
+          const block = first.blocks.find((b) => b.id === op.block);
+          if (block?.type === "text") complete("headline");
+          if (block?.type === "image") complete("photo");
+        }
+      }),
+    [store, complete],
+  );
+
   const openPanel = (id: LeftPanel) => (narrow ? setSheet(id) : ui.toggleLeftPanel(id));
 
-  useShortcuts({
-    "mod+backslash": ui.toggleChrome,
-    "mod+=": ui.zoomIn,
-    "mod+-": ui.zoomOut,
-    "mod+0": () => ui.setZoom(1),
-    "shift+1": () => ui.setZoom("fit"),
-    ...Object.fromEntries(PANELS.map((p) => [p.shortcut, () => openPanel(p.id)])),
-  });
+  useEditorInput(
+    {
+      store,
+      zoomIn: ui.zoomIn,
+      zoomOut: ui.zoomOut,
+      zoomTo: (z) => ui.setZoom(z),
+      togglePalette: () => useCommandStore.getState().toggle(),
+      toggleShortcutsSheet: () => ui.setShortcutsOpen(!useEditorUi.getState().shortcutsOpen),
+      toggleChrome: ui.toggleChrome,
+      openPanel: (i) => {
+        const p = PANELS[i];
+        if (p) openPanel(p.id);
+      },
+    },
+    frameDoc,
+  );
+
+  const s = () => store.getState();
+  useRegisterCommands("editor-edit", [
+    {
+      id: "undo",
+      label: "Undo",
+      group: "Edit",
+      icon: <Undo2 />,
+      shortcut: "mod+z",
+      run: () => s().undo(),
+    },
+    {
+      id: "redo",
+      label: "Redo",
+      group: "Edit",
+      icon: <Redo2 />,
+      shortcut: "shift+mod+z",
+      run: () => s().redo(),
+    },
+    ...(hasSelection
+      ? [
+          {
+            id: "duplicate",
+            label: "Duplicate selection",
+            group: "Edit",
+            icon: <CopyPlus />,
+            shortcut: "mod+d",
+            run: () => s().run(duplicateItems(s().doc, s().pageId, s().selection)),
+          },
+          {
+            id: "delete",
+            label: "Delete selection",
+            group: "Edit",
+            icon: <Trash />,
+            shortcut: "backspace",
+            run: () => s().run(deleteItems(s().doc, s().pageId, s().selection)),
+          },
+          {
+            id: "select-parent",
+            label: "Select parent",
+            group: "Edit",
+            icon: <CornerLeftUp />,
+            shortcut: "escape",
+            run: () => {
+              const item = s().selection.at(-1);
+              if (item) s().select(parentOf(s().doc, s().pageId, item) ?? null);
+            },
+          },
+        ]
+      : []),
+    ...STARTERS.map((st) => ({
+      id: `add-${st.id}`,
+      label: `Add section: ${st.label}`,
+      group: "Add",
+      icon: <Plus />,
+      run: () => s().run(insertSection(s().pageId, st.build(), "end")),
+    })),
+    ...Object.values(pages).map((p) => ({
+      id: `page-${p.id}`,
+      label: `Go to ${p.title}`,
+      group: "Pages",
+      icon: <FileText />,
+      keywords: [p.slug],
+      run: () => s().setPage(p.id),
+    })),
+    {
+      id: "shortcuts",
+      label: "Keyboard shortcuts",
+      group: "Help",
+      icon: <Keyboard />,
+      shortcut: "?",
+      run: () => ui.setShortcutsOpen(true),
+    },
+  ]);
 
   useRegisterCommands("editor", [
     ...(["desktop", "tablet", "mobile"] as const).map((bp) => ({
@@ -402,7 +571,7 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
             ]}
           />
           <span className="st-ed-top__sep" aria-hidden="true" />
-          <span className="st-ed-page">Home</span>
+          <span className="st-ed-page">{pageTitle}</span>
         </div>
 
         <div className="st-ed-top__center">
@@ -446,14 +615,16 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
             label="Undo"
             icon={<Undo2 />}
             shortcut="mod+z"
-            disabled
+            disabled={!canUndo}
+            onClick={() => s().undo()}
             className="st-ed-hide-narrow"
           />
           <IconButton
             label="Redo"
             icon={<Redo2 />}
             shortcut="shift+mod+z"
-            disabled
+            disabled={!canRedo}
+            onClick={() => s().redo()}
             className="st-ed-hide-narrow"
           />
           <IconButton
@@ -516,7 +687,16 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
       )}
 
       <main className="st-ed-main">
-        <Canvas site={site} template={template} />
+        {site.status === "building" ? (
+          <section className="st-ed-canvas" aria-label="Canvas">
+            <div className="st-ed-canvas__state">
+              <Spinner size={16} />
+              <p>Your site is still being set up. It opens here in a moment.</p>
+            </div>
+          </section>
+        ) : (
+          <Canvas siteName={site.name} onFrameDocument={setFrameDoc} />
+        )}
         <div className="st-ed-main__overlay">
           <FirstRunChecklist checklist={checklist} />
         </div>
@@ -537,35 +717,68 @@ function EditorChrome({ site, template }: { site: Site; template: TemplateSummar
       >
         {sheet === "inspector" ? <Inspector /> : sheet ? <LeftPanelBody panel={sheet} /> : null}
       </Sheet>
+      <ShortcutsSheet />
     </div>
   );
 }
 
-/** `/sites/:id/*` — the editor frame. Task 20 fills the canvas and panels. */
+const PENDING_DOC = placeholderDocument();
+
+/** Holds the per-site document store once the content has loaded. */
+function EditorSession({
+  site,
+  document: content,
+  actor,
+}: {
+  site: Site;
+  document: SiteDocument;
+  actor: string;
+}) {
+  const store = useMemo<EditorStore>(
+    () => createEditorStore({ doc: content, actor }),
+    [content, actor],
+  );
+  // Tests drive the store directly (removed from production builds).
+  if (import.meta.env.MODE === "test")
+    (window as unknown as { __osEditorStore?: EditorStore }).__osEditorStore = store;
+  return (
+    <EditorStoreProvider store={store}>
+      <EditorChrome site={site} />
+    </EditorStoreProvider>
+  );
+}
+
+/** `/sites/:id/*` — the editor. */
 export function EditorFrame() {
   const { id } = useParams();
   const session = useSession();
   const { timing } = useConfig();
-  const site = useSite(session.data?.user ? id : undefined, { pollMs: timing.pollMs });
-  const templates = useTemplates();
+  const user = session.data?.user;
+  const site = useSite(user ? id : undefined, { pollMs: timing.pollMs });
+  const content = useSiteDocument(site.data?.id, { enabled: site.data?.status !== "building" });
   const navigate = useNavigate();
 
-  if (session.isPending || (session.data?.user && site.isPending)) {
+  const loading =
+    session.isPending ||
+    (user && site.isPending) ||
+    (site.data && site.data.status !== "building" && content.isPending);
+  if (loading) {
     return (
       <div className="st-center">
         <Spinner size={18} label="Opening the editor" />
       </div>
     );
   }
-  if (!session.data?.user)
-    return <Navigate to={`/signin?next=${encodeURIComponent(`/sites/${id}`)}`} replace />;
-  if (site.isError || !site.data) {
+  if (!user) return <Navigate to={`/signin?next=${encodeURIComponent(`/sites/${id}`)}`} replace />;
+  if (site.isError || !site.data || content.isError) {
     return (
       <div className="st-center">
         <EmptyState
           title="This site can’t be opened"
           description={
-            site.error?.message ?? "It may have been deleted or moved to another account."
+            site.error?.message ??
+            content.error?.message ??
+            "It may have been deleted or moved to another account."
           }
           action={
             <Button variant="primary" onClick={() => navigate("/sites")}>
@@ -576,12 +789,14 @@ export function EditorFrame() {
       </div>
     );
   }
+  const doc = content.data?.document ?? PENDING_DOC;
   return (
-    <EditorChrome
-      // Per-site state (checklist, welcome toast, sheets) starts fresh when the site changes.
+    <EditorSession
+      // Per-site state (store, checklist, welcome toast, sheets) starts fresh when the site changes.
       key={site.data.id}
       site={site.data}
-      template={templates.data?.find((t) => t.id === site.data.template)}
+      document={doc}
+      actor={`user:${user.id}`}
     />
   );
 }

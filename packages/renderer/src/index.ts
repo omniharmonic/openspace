@@ -37,13 +37,16 @@ export {
   useCollections,
 } from "./collections";
 export {
+  BlockFieldsContext,
   BlockRegistryContext,
   EditorContext,
   type EditorHooks,
+  fieldPathOf,
   ImageResolverContext,
   RenderContext,
   type RenderContextValue,
   type RenderMode,
+  type RichTextHookArgs,
   SectionContext,
   useEditor,
   useImageMap,

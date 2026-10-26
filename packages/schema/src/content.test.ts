@@ -237,6 +237,17 @@ describe("Site", () => {
       mutate(doc.site, (s) => s.redirects?.push({ from: "/classes", to: "/other", status: 302 })),
       "Duplicate redirect",
     );
+    for (const from of ["/../../etc/x", "/a/./b", "/a/..", "/a\\..\\b"]) {
+      expectInvalid(
+        SiteSchema,
+        mutate(doc.site, (s) => s.redirects?.push({ from, to: "/ok", status: 301 })),
+        "segments",
+      );
+    }
+    expectInvalid(
+      SiteSchema,
+      mutate(doc.site, (s) => s.redirects?.push({ from: "/fine", to: "/../up", status: 301 })),
+    );
     expectInvalid(
       SiteSchema,
       mutate(doc.site, (s) => {
@@ -428,6 +439,11 @@ describe("Section", () => {
 describe("Block", () => {
   const block = hero.blocks[2];
   it("accepts block instances", () => expectValid(BlockSchema, block));
+  it("accepts an optional layers label and hidden flag", () => {
+    expectValid(BlockSchema, { ...block, label: "Studio photo", hidden: true });
+    expectInvalid(BlockSchema, { ...block, label: "x".repeat(81) });
+    expectInvalid(BlockSchema, { ...block, hidden: "yes" });
+  });
   it("rejects malformed instances", () => {
     expectInvalid(BlockSchema, { ...block, id: "blk_a3" });
     expectInvalid(BlockSchema, { ...block, type: "Image" });

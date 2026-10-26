@@ -93,6 +93,10 @@ export const BlockSchema = named(
     v: z.int().min(1),
     /** Stack-mode column index (0-based, desktop columns). Ignored in grid mode. */
     column: z.int().min(0).max(3).optional(),
+    /** Name shown in Studio's layers panel (defaults to the block type's label). */
+    label: z.string().max(80).optional(),
+    /** Hidden blocks are skipped on the published site and shown ghosted in Studio. */
+    hidden: z.boolean().optional(),
     fields: z.record(z.string(), z.unknown()),
     variant: VariantNameSchema.optional(),
     style: BlockStyleSchema.optional(),
