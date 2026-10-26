@@ -1,4 +1,10 @@
-import { type GridLayout, newId, type SiteDocument } from "@openspace/schema";
+import {
+  type GridLayout,
+  type GridRect,
+  newId,
+  pinnedRect,
+  type SiteDocument,
+} from "@openspace/schema";
 import { describe, expect, it } from "vitest";
 import { stackSection, stampOp, textBlock } from "./__fixtures__/arbitrary";
 import { IDS, siteFixture } from "./__fixtures__/site";
@@ -233,6 +239,41 @@ describe("apply / invert / validate", () => {
       rect: null,
     });
     expect(gridLayout(t2).items[IDS.c1 as `blk_${string}`]?.t).toBeUndefined();
+  });
+
+  it("grid.place accepts pinned placements, inverts them, and rejects unknown pins", () => {
+    const doc = siteFixture();
+    const { doc: next } = ok(doc, {
+      op: "grid.place",
+      page: home,
+      section: grid,
+      block: IDS.c1,
+      bp: "d",
+      rect: { x: 1, y: 13, w: 10, h: 4, pin: "bottom" },
+    });
+    const placed = gridLayout(next).items[IDS.c1 as `blk_${string}`]?.d;
+    expect(placed).toEqual({ x: 1, y: 13, w: 10, h: 4, pin: "bottom" });
+    // Rows added later: the pinned placement still derives the last rows.
+    const { doc: grown } = ok(next, {
+      op: "grid.place",
+      page: home,
+      section: grid,
+      block: IDS.c2,
+      bp: "d",
+      rect: { x: 12, y: 20, w: 4, h: 4 },
+    });
+    expect(gridLayout(grown).rows.d).toBe(23);
+    expect(pinnedRect(placed as GridRect, gridLayout(grown).rows.d).y).toBe(20);
+    expect(
+      errors(doc, {
+        op: "grid.place",
+        page: home,
+        section: grid,
+        block: IDS.c1,
+        bp: "d",
+        rect: { x: 1, y: 1, w: 10, h: 4, pin: "middle" },
+      }).length,
+    ).toBeGreaterThan(0);
   });
 
   it("grid.place rejects overflowing columns, stack sections and removing desktop", () => {

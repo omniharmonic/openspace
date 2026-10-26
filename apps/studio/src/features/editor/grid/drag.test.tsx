@@ -9,9 +9,10 @@ import { setLayoutMode } from "../model/actions";
 import { EditorStoreProvider } from "../model/context";
 import { devSiteDocument, DEV_IDS as I } from "../model/dev-site";
 import { createEditorStore } from "../model/store";
+import { placeCommand } from "./commands";
 import { gridController, useGridDrag } from "./controller";
 import { GridLayer, gridLayerRenders } from "./GridLayer";
-import { type GridSection, uniformMetrics } from "./model";
+import { type GridSection, isMobileAuto, uniformMetrics } from "./model";
 
 /**
  * The drag loop against a real (jsdom) canvas document. jsdom can't lay out, so geometry comes
@@ -56,10 +57,20 @@ function pointer(
   return e;
 }
 
-function setup(role = "designer") {
+function setup(role = "designer", opts: { customPhone?: boolean } = {}) {
   const store = createEditorStore({ doc: devSiteDocument(), actor: "user:test" });
   const s = () => store.getState();
   s().run(setLayoutMode(s().doc, I.home, I.hero, "grid", () => 96));
+  if (opts.customPhone)
+    s().run(
+      placeCommand(
+        s().doc,
+        I.home,
+        I.hero,
+        [{ id: I.heroImage, rect: { x: 1, y: 40, w: 8, h: 6 } }],
+        "m",
+      ),
+    );
   const hero = () =>
     s().doc.pages[I.home as keyof SiteDocument["pages"]]?.sections.find(
       (x) => x.id === I.hero,
@@ -108,6 +119,8 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   gridController.cancel();
+  gridController.reminded.clear();
+  useToastStore.getState().clear();
   useGridDrag.setState({ active: null });
   useEditorUi.getState().reset();
   document.body.innerHTML = "";
@@ -115,7 +128,7 @@ afterEach(() => {
 
 describe("grid drag loop", () => {
   it("moves a block with snapping, without re-rendering React on every pointer move, and commits one undo step", () => {
-    const { s, frameDoc, blockEl, d, container } = setup();
+    const { s, hero, frameDoc, blockEl, d, container } = setup();
     const undo0 = s().undoStack.length;
     const img = blockEl(I.heroImage);
     act(() => {
@@ -144,13 +157,28 @@ describe("grid drag loop", () => {
     });
     expect(d(I.heroImage)).toMatchObject({ x: 9, y: 3, w: 10, h: 4 });
     expect(s().undoStack.length).toBe(undo0 + 1);
-    // The hero keeps its own phone order, so the person is reminded to review it (doc 04 §9.9).
-    expect(useToastStore.getState().toasts.map((t) => t.title)).toContain("Check the phone layout");
+    // The phone layout is automatic: it followed the desktop move, so no reminder.
+    expect(isMobileAuto(hero())).toBe(true);
+    expect(useToastStore.getState().toasts.map((t) => t.title)).not.toContain(
+      "Check the phone layout",
+    );
     expect(useGridDrag.getState().active).toBeNull();
     // The click that ends the drag doesn't select or start editing.
     expect(gridController.consumeClick()).toBe(true);
     s().undo();
     expect(d(I.heroImage)).toMatchObject({ x: 15, y: 1 });
+  });
+
+  it("reminds once to review a hand-made phone layout after a desktop drop (doc 04 §9.9)", () => {
+    const { frameDoc, blockEl } = setup("designer", { customPhone: true });
+    act(() => {
+      pointer("pointerdown", blockEl(I.heroImage), 900, 40);
+      pointer("pointermove", frameDoc.body, 800, 40);
+      flushFrames();
+      pointer("pointerup", frameDoc.body, 800, 40);
+    });
+    expect(useToastStore.getState().toasts.map((t) => t.title)).toContain("Check the phone layout");
+    gridController.consumeClick();
   });
 
   it("a press without movement is a click (no drag, no op)", () => {
@@ -289,14 +317,14 @@ describe("grid drag loop", () => {
 
   it("the grid bar offers Customize tablet and Reset mobile layout per device", async () => {
     const user = userEvent.setup();
-    const { s, hero } = setup();
+    const { s, hero } = setup("designer", { customPhone: true });
     act(() => s().select({ kind: "section", id: I.hero }));
     expect(screen.getByRole("toolbar", { name: "Grid" })).toBeTruthy();
     act(() => useEditorUi.getState().setBreakpoint("tablet"));
     await user.click(screen.getByRole("switch"));
     expect(Object.values(hero().layout.items).every((i) => i.t)).toBe(true);
     act(() => useEditorUi.getState().setBreakpoint("mobile"));
-    // The converted hero keeps its stack's phone order, which differs from the automatic one.
+    expect(screen.getByText(/custom/)).toBeTruthy();
     const reset = screen.getByRole("button", { name: /Reset mobile layout/ });
     await user.click(reset);
     expect(screen.getByText(/automatic/)).toBeTruthy();

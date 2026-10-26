@@ -7,6 +7,8 @@ import {
   type GridLayout,
   type GridRect,
   MAX_GRID_ROWS,
+  pinnedRect,
+  resolve,
   type Section,
 } from "@openspace/schema";
 
@@ -44,15 +46,42 @@ export function editBp(device: Device, layout: GridLayout): GridBp {
   return "d";
 }
 
-/** Placements as the canvas draws them at `view` (tablet inherits desktop; phone falls back). */
+/** Explicit rows at `view` as the renderer counts them (phones include fallback rows). */
+export function rowsAt(layout: GridLayout, view: GridBp): number {
+  const rows = resolve(layout.rows, view);
+  if (view !== "m") return rows;
+  let out = rows;
+  for (const r of Object.values(fallbackMobileRects(layout))) out = Math.max(out, r.y + r.h - 1);
+  return out;
+}
+
+/**
+ * Placements as the canvas draws them at `view`: tablet inherits desktop, phones fall back,
+ * and pinned placements sit on the first/last row (`pinnedRect`).
+ */
 export function displayRects(layout: GridLayout, view: GridBp): Map<string, GridRect> {
   const out = new Map<string, GridRect>();
   const fallback = view === "m" ? fallbackMobileRects(layout) : {};
+  const rows = rowsAt(layout, view);
   for (const [id, item] of Object.entries(layout.items)) {
     const r = view === "d" ? item.d : view === "t" ? (item.t ?? item.d) : (item.m ?? fallback[id]);
-    if (r) out.set(id, view === "m" ? clampRect(r, GRID_COLUMNS.m) : r);
+    if (r) out.set(id, pinnedRect(view === "m" ? clampRect(r, GRID_COLUMNS.m) : r, rows));
   }
   return out;
+}
+
+/** The section with every stored pinned placement moved to the row it is drawn on. */
+export function resolvePins(section: GridSection): GridSection {
+  const layout = section.layout;
+  if (!Object.values(layout.items).some((i) => i.d.pin || i.t?.pin || i.m?.pin)) return section;
+  const items: GridLayout["items"] = {};
+  for (const [id, item] of Object.entries(layout.items)) {
+    const next: GridItem = { d: pinnedRect(item.d, resolve(layout.rows, "d")) };
+    if (item.t) next.t = pinnedRect(item.t, resolve(layout.rows, "t"));
+    if (item.m) next.m = pinnedRect(item.m, rowsAt(layout, "m"));
+    items[id as keyof GridLayout["items"]] = next;
+  }
+  return { ...section, layout: { ...layout, items } };
 }
 
 /** The current placement an edit at `bp` starts from (what the person sees). */
@@ -75,14 +104,32 @@ export const sameRect = (a: GridRect | undefined, b: GridRect | undefined) =>
   a?.w === b?.w &&
   a?.h === b?.h &&
   (a?.z ?? undefined) === (b?.z ?? undefined) &&
-  (a?.bleed ?? undefined) === (b?.bleed ?? undefined);
+  (a?.bleed ?? undefined) === (b?.bleed ?? undefined) &&
+  (a?.pin ?? undefined) === (b?.pin ?? undefined);
 
-/** Rows needed to hold every rect. */
+/** Rows needed to hold every rect (as placed). */
 export const rowsNeeded = (rects: Iterable<GridRect>) => {
   let rows = 1;
   for (const r of rects) rows = Math.max(rows, r.y + r.h - 1);
   return rows;
 };
+
+/**
+ * Rows a section needs once empty rows are trimmed, given placements as drawn. Bottom-pinned
+ * items move with the last row: one that sits below the content it shares columns with stays
+ * below it; one layered over content (a caption pinned to a photo's foot) only needs its height.
+ */
+export function rowsToKeep(rects: ReadonlyMap<string, GridRect>): number {
+  const free = [...rects.values()].filter((r) => r.pin !== "bottom");
+  let need = rowsNeeded(free);
+  for (const p of rects.values()) {
+    if (p.pin !== "bottom") continue;
+    const under = free.filter((r) => r.x < p.x + p.w && p.x < r.x + r.w);
+    const above = under.length ? Math.max(...under.map((r) => r.y + r.h - 1)) : 0;
+    need = Math.max(need, p.h, p.y > above ? above + p.h : 0);
+  }
+  return need;
+}
 
 /** Media and decoration may bleed to the viewport edge; text never does. */
 export const canBleed = (block: Block | undefined) => Boolean(block && !isTextBlock(block));
@@ -95,7 +142,7 @@ export const canBleed = (block: Block | undefined) => Boolean(block && !isTextBl
 export function isMobileAuto(section: GridSection): boolean {
   const items = Object.values(section.layout.items);
   if (!items.some((i) => i.m)) return true;
-  const auto = autoMobileLayout(section, { reset: true });
+  const auto = autoMobileLayout(resolvePins(section), { reset: true });
   if (!auto) return false;
   return Object.entries(section.layout.items).every(([id, item]) => sameRect(item.m, auto[id]?.m));
 }
@@ -304,18 +351,21 @@ export function planMove(
   const box = rectBox(m, p);
   const left = box.x + dx;
   const top = box.y + dy;
+  // Pinned items keep their row (they stay on the edge they're pinned to); the rest move.
+  const free = rects.filter((r) => !r.pin);
   const minX = Math.min(...rects.map((r) => r.x));
   const maxRight = Math.max(...rects.map((r) => r.x + r.w - 1));
-  const minY = Math.min(...rects.map((r) => r.y));
-  const maxBottom = Math.max(...rects.map((r) => r.y + r.h - 1));
+  const minY = free.length ? Math.min(...free.map((r) => r.y)) : 1;
+  const maxBottom = free.length ? Math.max(...free.map((r) => r.y + r.h - 1)) : 1;
   const x = nearest(1, m.cols, (i) => colStart(m, i), left);
   const y = nearest(1, MAX_GRID_ROWS, (i) => rowStart(m, i), top);
   const dc = Math.min(Math.max(x - p.x, 1 - minX), m.cols - maxRight);
-  const dr = Math.min(Math.max(y - p.y, 1 - minY), MAX_GRID_ROWS - maxBottom);
+  // Grabbing a pinned item moves the group sideways only.
+  const dr = p.pin ? 0 : Math.min(Math.max(y - p.y, 1 - minY), MAX_GRID_ROWS - maxBottom);
   const half = bleedThreshold(m);
   const single = rects.length === 1 && options.bleed?.[0];
   const out = rects.map((r) => {
-    const moved = { ...r, x: r.x + dc, y: r.y + dr };
+    const moved = { ...r, x: r.x + dc, y: r.pin ? r.y : r.y + dr };
     if (!single) return withBleed(moved, dc === 0 ? r.bleed : undefined);
     const bl = moved.x === 1 && left < colStart(m, 1) - half;
     const br = moved.x + moved.w - 1 === m.cols && left + box.w > colEnd(m, m.cols) + half;
@@ -345,9 +395,18 @@ export function resizeRect(
   handle: Handle,
   dx: number,
   dy: number,
-  options: { bleed?: boolean } = {},
+  options: { bleed?: boolean; keepAspect?: boolean } = {},
 ): GridRect {
   const box = rectBox(m, r);
+  // A pinned edge doesn't move: bottom-pinned keeps its bottom, top-pinned its top.
+  const lockS = r.pin === "bottom";
+  const lockN = r.pin === "top";
+  if (options.keepAspect && box.w > 0 && box.h > 0) {
+    ({ handle, dx, dy } = aspectDrag(box, handle, dx, dy, lockS ? "n" : "s"));
+  }
+  if (lockS) handle = handle.replace("s", "") as Handle;
+  if (lockN) handle = handle.replace("n", "") as Handle;
+  if (!handle) return r;
   let x1 = r.x;
   let x2 = r.x + r.w - 1;
   let y1 = r.y;
@@ -382,6 +441,31 @@ export function resizeRect(
     y1 = nearest(1, y2, (i) => rowStart(m, i), box.y + dy);
   }
   return withBleed({ ...r, x: x1, y: y1, w: x2 - x1 + 1, h: y2 - y1 + 1 }, bleedOf(bl, br));
+}
+
+/**
+ * ⇧ on a resize handle: keep the box's proportions. Corners scale by the larger relative
+ * change; side handles also move the perpendicular edge (`vertical` says which one).
+ */
+function aspectDrag(
+  box: Box,
+  handle: Handle,
+  dx: number,
+  dy: number,
+  vertical: "n" | "s",
+): { handle: Handle; dx: number; dy: number } {
+  const sx = handle.includes("e") ? 1 : handle.includes("w") ? -1 : 0;
+  const sy = handle.includes("s") ? 1 : handle.includes("n") ? -1 : 0;
+  const kx = sx ? (box.w + sx * dx) / box.w : 1;
+  const ky = sy ? (box.h + sy * dy) / box.h : 1;
+  const k = Math.max(0.01, !sy ? kx : !sx ? ky : Math.abs(kx - 1) >= Math.abs(ky - 1) ? kx : ky);
+  const ex = sx || 1;
+  const ey = sy || (vertical === "s" ? 1 : -1);
+  const h = (sy ? "" : vertical) + handle + (sx ? "" : "e");
+  const name =
+    (h.includes("n") ? "n" : h.includes("s") ? "s" : "") +
+    (h.includes("e") ? "e" : h.includes("w") ? "w" : "");
+  return { handle: name as Handle, dx: ex * (box.w * k - box.w), dy: ey * (box.h * k - box.h) };
 }
 
 // --- smart guides --------------------------------------------------------------------------

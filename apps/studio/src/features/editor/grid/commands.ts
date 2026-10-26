@@ -6,6 +6,8 @@ import {
   type GridItem,
   type GridLayout,
   type GridRect,
+  MAX_GRID_ROWS,
+  pinnedRect,
   type SiteDocument,
 } from "@openspace/schema";
 import { type Command, cloneBlock, OpBuilder } from "../model/actions";
@@ -19,7 +21,10 @@ import {
   type GridSection,
   isGridSection,
   isMobileAuto,
+  resolvePins,
+  rowsAt,
   rowsNeeded,
+  rowsToKeep,
   sameRect,
   type ZAction,
   zOrderPlan,
@@ -77,7 +82,7 @@ function regenerateMobile(b: OpBuilder, pageId: string, loc: Located, wasAuto: b
   if (!wasAuto) return;
   const after = sectionNow(b, pageId, loc.section.id);
   if (!after) return;
-  const auto = autoMobileLayout(after, { reset: true });
+  const auto = autoMobileLayout(resolvePins(after), { reset: true });
   if (!auto) return;
   for (const [id, item] of Object.entries(auto)) {
     if (!item.m) continue;
@@ -137,21 +142,32 @@ export function duplicateCommand(
   if (bp === "m") materializeMobile(b, loc, new Set());
   const cols = columnsFor(bp);
   const copies: string[] = [];
-  let mobileBottom = rowsNeeded(displayRects(layout, "m").values());
+  // At the breakpoints not being edited, a copy goes below everything (never on its original).
+  const bottom: Record<GridBp, number> = {
+    d: rowsNeeded(displayRects(layout, "d").values()),
+    t: rowsNeeded(displayRects(layout, "t").values()),
+    m: rowsNeeded(displayRects(layout, "m").values()),
+  };
+  const below = (r: GridRect, at: GridBp): GridRect => {
+    const { pin: _pin, ...rest } = r;
+    const out = { ...rest, y: bottom[at] + 2 };
+    bottom[at] = out.y + out.h - 1;
+    return out;
+  };
   for (const e of edits) {
     const block = loc.section.blocks.find((x) => x.id === e.id);
     const item = layout.items[e.id as keyof GridLayout["items"]];
     if (!block || !item) continue;
     const copy: Block = cloneBlock(block);
-    const rect = clampRect(e.rect, cols);
     const next: GridItem = structuredClone(item);
-    next[bp] = rect;
-    if (bp !== "m" && !wasAuto && next.m) {
-      // A hand-made phone layout gets the copy below everything.
-      next.m = { ...next.m, y: mobileBottom + 2 };
-      mobileBottom = next.m.y + next.m.h - 1;
+    next[bp] = clampRect(e.rect, cols);
+    if (bp !== "d") next.d = below(item.d, "d");
+    if (bp !== "t" && item.t) next.t = below(item.t, "t");
+    if (bp !== "m") {
+      // An automatic phone layout is regenerated below; a hand-made one gets the copy last.
+      if (wasAuto) delete next.m;
+      else if (item.m) next.m = below(item.m, "m");
     }
-    if (bp === "d" && wasAuto) delete next.m;
     b.push({
       op: "block.insert",
       page: loc.container,
@@ -163,7 +179,7 @@ export function duplicateCommand(
     copies.push(copy.id);
   }
   if (!copies.length) return null;
-  if (bp === "d") regenerateMobile(b, pageId, loc, wasAuto);
+  if (bp !== "m") regenerateMobile(b, pageId, loc, wasAuto);
   return {
     bodies: b.bodies,
     label: copies.length > 1 ? "Duplicate blocks" : "Duplicate block",
@@ -207,14 +223,17 @@ export function nudgeCommand(
   const cols = columnsFor(bp);
   const minX = Math.min(...moving.map((r) => r.x));
   const maxRight = Math.max(...moving.map((r) => r.x + r.w - 1));
-  const minY = Math.min(...moving.map((r) => r.y));
+  // Pinned blocks keep their row; rows never pass the schema's maximum.
+  const free = moving.filter((r) => !r.pin);
+  const minY = free.length ? Math.min(...free.map((r) => r.y)) : 1;
+  const maxBottom = free.length ? Math.max(...free.map((r) => r.y + r.h - 1)) : 1;
   const cdc = Math.min(Math.max(dc, 1 - minX), cols - maxRight);
-  const cdr = Math.max(dr, 1 - minY);
+  const cdr = free.length ? Math.min(Math.max(dr, 1 - minY), MAX_GRID_ROWS - maxBottom) : 0;
   if (!cdc && !cdr) return null;
   const edits = sel.ids.flatMap((id) => {
     const r = rects.get(id);
     if (!r) return [];
-    const next: GridRect = { ...r, x: r.x + cdc, y: r.y + cdr };
+    const next: GridRect = { ...r, x: r.x + cdc, y: r.pin ? r.y : r.y + cdr };
     if (cdc) delete next.bleed;
     return [{ id, rect: next }];
   });
@@ -267,7 +286,7 @@ export function resetMobileCommand(
 ): Command | null {
   const loc = gridSectionOf(doc, pageId, { kind: "section", id: sectionId });
   if (!loc) return null;
-  const auto = autoMobileLayout(loc.section, { reset: true });
+  const auto = autoMobileLayout(resolvePins(loc.section), { reset: true });
   if (!auto) return null;
   const b = new OpBuilder(doc);
   for (const [id, item] of Object.entries(auto)) {
@@ -325,7 +344,10 @@ export function customizeTabletCommand(
   };
 }
 
-/** Remove empty rows below the last block at every breakpoint. */
+/**
+ * Remove empty rows below the last block at every breakpoint. Bottom-pinned blocks move up
+ * with the last row (`rowsToKeep`), so their stored rows are rewritten first.
+ */
 export function trimRowsCommand(
   doc: SiteDocument,
   pageId: string,
@@ -335,25 +357,58 @@ export function trimRowsCommand(
   if (!loc) return null;
   const layout = loc.section.layout;
   const rows = layout.rows;
-  const next: GridLayout["rows"] = { d: rowsNeeded(displayRects(layout, "d").values()) };
-  if (rows.t !== undefined) next.t = rowsNeeded(displayRects(layout, "t").values());
-  if (rows.m !== undefined) next.m = rowsNeeded(displayRects(layout, "m").values());
+  const items = Object.values(layout.items);
+  const keep = (bp: GridBp) => rowsToKeep(displayRects(layout, bp));
+  const next: GridLayout["rows"] = { d: keep("d") };
+  if (rows.t !== undefined || items.some((i) => i.t)) next.t = keep("t");
+  if (rows.m !== undefined || items.some((i) => i.m)) next.m = keep("m");
   if (next.d === rows.d && next.t === rows.t && next.m === rows.m) return null;
-  return {
-    bodies: [rowsPatch(loc.container, sectionId, next)],
-    label: "Trim empty rows",
-  };
+  const b = new OpBuilder(doc);
+  for (const [id, item] of Object.entries(layout.items)) {
+    for (const bp of ["d", "t", "m"] as const) {
+      const r = item[bp];
+      const n = next[bp];
+      if (r?.pin !== "bottom" || n === undefined) continue;
+      const y = Math.max(1, n - r.h + 1);
+      if (y !== r.y) b.push(place(loc.container, sectionId, id, bp, { ...r, y }));
+    }
+  }
+  b.push(rowsPatch(loc.container, sectionId, next));
+  return { bodies: b.bodies, label: "Trim empty rows" };
 }
 
 /** Empty trailing rows at `bp` (for the "Trim" affordance). */
 export function emptyTrailingRows(layout: GridLayout, bp: GridBp): number {
-  const rows =
-    bp === "d"
-      ? layout.rows.d
-      : bp === "t"
-        ? (layout.rows.t ?? layout.rows.d)
-        : (layout.rows.m ?? layout.rows.t ?? layout.rows.d);
-  return Math.max(0, rows - rowsNeeded(displayRects(layout, bp).values()));
+  return Math.max(0, rowsAt(layout, bp) - rowsToKeep(displayRects(layout, bp)));
+}
+
+/**
+ * Pin the selected grid blocks to the section's top or bottom row at `bp` (or unpin them with
+ * `null`). The stored row is set to where the pin draws it.
+ */
+export function pinCommand(
+  doc: SiteDocument,
+  pageId: string,
+  selection: readonly SelItem[],
+  pin: "top" | "bottom" | null,
+  bp: GridBp,
+): Command | null {
+  const sel = gridSelection(doc, pageId, selection);
+  if (!sel) return null;
+  const rects = displayRects(sel.section.layout, bp);
+  const rows = rowsAt(sel.section.layout, bp);
+  const edits = sel.ids.flatMap((id) => {
+    const r = rects.get(id);
+    if (!r) return [];
+    if (!pin) {
+      const { pin: _p, ...rest } = r;
+      return [{ id, rect: rest }];
+    }
+    return [{ id, rect: pinnedRect({ ...r, pin }, rows) }];
+  });
+  const label = pin === "top" ? "Pin to top" : pin === "bottom" ? "Pin to bottom" : "Unpin";
+  const cmd = placeCommand(doc, pageId, sel.section.id, edits, bp, label);
+  return cmd ? { ...cmd, select: sel.ids.map((id) => ({ kind: "block", id })) } : null;
 }
 
 /**
@@ -374,7 +429,8 @@ export function mobileReorderCommand(
   for (const id of order) {
     const r = rects.get(id);
     if (!r) continue;
-    edits.push({ id, rect: { ...r, y } });
+    const { pin: _pin, ...rest } = r;
+    edits.push({ id, rect: { ...rest, y } });
     y += r.h + 1;
   }
   const cmd = placeCommand(doc, pageId, sectionId, edits, "m", "Reorder on phones");

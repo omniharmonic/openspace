@@ -648,7 +648,7 @@ export class GridController {
     if (r.ok && s.bp === "d" && s.kind !== "marquee") this.remindPhone(s.section);
   }
 
-  private reminded = new Set<string>();
+  readonly reminded = new Set<string>();
 
   /**
    * Doc 04 §9 rule 9 ("after any grid change, review the mobile placement"): a section with its

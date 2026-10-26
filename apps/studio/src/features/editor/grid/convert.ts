@@ -1,4 +1,4 @@
-import { mobileHeight, readingOrder } from "@openspace/lint";
+import { autoMobileLayout, mobileHeight, mobileRowCount, readingOrder } from "@openspace/lint";
 import {
   type Block,
   GRID_COLUMNS,
@@ -13,9 +13,10 @@ import { ROW_PX } from "./model";
  * Stack ⇄ grid conversion that keeps what people see in the same order.
  *
  * - Stack → grid: each stack column becomes a band of grid columns (twelfths → 24ths), blocks
- *   keep their order top to bottom with heights from the canvas; the phone layout stacks the
- *   columns in the section's phone stacking order (`layout.order.m`, else tablet's, else left
- *   to right), sized like `autoMobileLayout` sizes them.
+ *   keep their order top to bottom with heights from the canvas. The phone layout is
+ *   `autoMobileLayout` (so it stays automatic), unless the stack had its own phone stacking
+ *   order (`layout.order.m`, else tablet's, which phones inherit) — then the columns stack in
+ *   that order, sized like `autoMobileLayout` sizes them.
  * - Grid → stack: one column in visual reading order (`@openspace/lint` `readingOrder`: bands,
  *   then columns left to right), not insertion order.
  */
@@ -50,8 +51,21 @@ export function stackToGrid(
       maxY = Math.max(maxY, y - 1);
     }
   });
-  // Phone: stack the columns in their phone stacking order, one row apart.
+  // Phone, no stacking order set: the automatic layout (so phones stay "automatic" and follow
+  // later desktop edits).
   const stacking = layout.order?.m ?? layout.order?.t ?? [];
+  if (!stacking.length) {
+    const grid: GridLayout = {
+      mode: "grid",
+      rows: { d: Math.max(maxY, 1) },
+      items,
+      ...(layout.width ? { width: layout.width } : {}),
+    };
+    const auto = autoMobileLayout({ ...section, layout: grid }, { reset: true }) ?? items;
+    return { ...grid, rows: { d: grid.rows.d, m: mobileRowCount(auto) }, items: auto };
+  }
+  // Phone, with a stacking order (`order.m`, else tablet's, which phones inherit): stack the
+  // columns in that order, one row apart.
   const order = [
     ...stacking.filter((i) => i < cols.length),
     ...cols.map((_, i) => i).filter((i) => !stacking.includes(i)),

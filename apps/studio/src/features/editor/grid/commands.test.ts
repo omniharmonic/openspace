@@ -51,14 +51,15 @@ afterEach(() => {
 });
 
 describe("stack ⇄ grid conversion", () => {
-  it("keeps columns side by side and the phone stacking order", () => {
+  it("keeps columns side by side; with no phone stacking order the phone layout is automatic", () => {
     const { hero } = setup();
     const h = hero();
     expect(item(h, I.heroHeading).d).toEqual({ x: 1, y: 1, w: 14, h: 4 });
     expect(item(h, I.heroButton).d).toEqual({ x: 1, y: 5, w: 14, h: 4 });
     expect(item(h, I.heroImage).d).toEqual({ x: 15, y: 1, w: 10, h: 4 });
-    // Phones keep the stack's order: column 0 then column 1.
-    expect(mobileOrder(h)).toEqual([I.heroHeading, I.heroButton, I.heroImage]);
+    // No `layout.order.m`: autoMobileLayout (reading order: heading and image share a band).
+    expect(isMobileAuto(h)).toBe(true);
+    expect(mobileOrder(h)).toEqual([I.heroHeading, I.heroImage, I.heroButton]);
   });
 
   it("follows the section's phone stacking order (layout.order.m)", () => {
