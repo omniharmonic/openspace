@@ -1,0 +1,7 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "openspace-hub",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-01",
+  "vars": { "DEV_MODE": "true" }
+}

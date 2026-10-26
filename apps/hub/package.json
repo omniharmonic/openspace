@@ -1,0 +1,23 @@
+{
+  "name": "@openspace/hub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenSpace Hub: the API worker.",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "hono": "^4.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "wrangler": "^4.40.0"
+  }
+}

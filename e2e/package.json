@@ -1,0 +1,16 @@
+{
+  "name": "@openspace/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}
