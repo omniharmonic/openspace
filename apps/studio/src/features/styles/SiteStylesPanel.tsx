@@ -626,7 +626,7 @@ export function SiteStylesPanel() {
         <Pairings styles={styles} commit={commit} disabled={disabled} />
       </PanelSection>
       <PanelSection title="Spacing & shape">
-        <PropRow label="Spacing">
+        <PropRow label="Spacing" stacked>
           <Segmented
             aria-label="Spacing density"
             size="sm"
@@ -639,7 +639,7 @@ export function SiteStylesPanel() {
             }))}
           />
         </PropRow>
-        <PropRow label="Corners">
+        <PropRow label="Corners" stacked>
           <Segmented
             aria-label="Corner shape"
             size="sm"
