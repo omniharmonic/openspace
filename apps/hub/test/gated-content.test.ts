@@ -3,6 +3,7 @@ import type { Page, SiteDocument } from "@openspace/schema";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { DevGitHubAccess } from "../src/github/dev";
+import { resetActionsKeyCache } from "../src/services/actions-oidc";
 import { unwrapRoom } from "../src/room";
 import {
   gatedBundle,
@@ -186,5 +187,93 @@ describe("the repository never contains gated content", () => {
       await call(app, `/api/sites/${site.id}/room/document`, { cookie: owner })
     ).json()) as { document: SiteDocument };
     expect(JSON.stringify(live.document)).toContain(SECRET_TEXT);
+  });
+});
+
+describe("the Cloudflare publish workflow downloads gated content with its OIDC identity", () => {
+  async function oidc() {
+    const keys = (await crypto.subtle.generateKey(
+      {
+        name: "RSASSA-PKCS1-v1_5",
+        modulusLength: 2048,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+      },
+      true,
+      ["sign", "verify"],
+    )) as CryptoKeyPair;
+    const pub = (await crypto.subtle.exportKey("jwk", keys.publicKey)) as JsonWebKey;
+    const b64u = (bytes: Uint8Array) =>
+      btoa(String.fromCharCode(...bytes))
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+    const enc = (v: unknown) => b64u(new TextEncoder().encode(JSON.stringify(v)));
+    const sign = async (claims: Record<string, unknown>) => {
+      const h = enc({ alg: "RS256", typ: "JWT", kid: "gh1" });
+      const p = enc(claims);
+      const sig = await crypto.subtle.sign(
+        "RSASSA-PKCS1-v1_5",
+        keys.privateKey,
+        new TextEncoder().encode(`${h}.${p}`),
+      );
+      return `${h}.${p}.${b64u(new Uint8Array(sig))}`;
+    };
+    const fetch = async (input: string | Request | URL) => {
+      const url = String(input instanceof Request ? input.url : input);
+      if (url === "https://token.actions.githubusercontent.com/.well-known/jwks")
+        return Response.json({ keys: [{ ...pub, kid: "gh1", use: "sig" }] });
+      return new Response("not found", { status: 404 });
+    };
+    return { sign, fetch };
+  }
+
+  it("serves exactly the versions the run's commit names, only to that repository's main", async () => {
+    resetActionsKeyCache();
+    const { sign, fetch } = await oidc();
+    const app = createApp({ services: { fetch } });
+    const owner = await devLogin(app, "Lea Park");
+    const site = await createSite(app, owner, "Gated Ci");
+    await call(app, `/api/sites/${site.id}/room/ops`, {
+      method: "POST",
+      cookie: owner,
+      json: { ops: [op({ op: "page.create", page: gatedPage() })] },
+    });
+    await call(app, `/api/sites/${site.id}/publish`, { method: "POST", cookie: owner });
+    const gh = new DevGitHubAccess(env.HUB_DB);
+    const repo = { owner: "lea-park", name: "gated-ci" };
+    const sha = (await gh.getRef(repo, "main")) as string;
+    const now = Math.floor(Date.now() / 1000);
+    const claims = {
+      iss: "https://token.actions.githubusercontent.com",
+      aud: "http://localhost:8787",
+      repository: "lea-park/gated-ci",
+      ref: "refs/heads/main",
+      sha,
+      exp: now + 300,
+      nbf: now - 5,
+    };
+    const get = (token?: string) =>
+      call(app, `/ci/sites/${site.id}/gated`, {
+        headers: token ? { authorization: `Bearer ${token}` } : {},
+      });
+    const ok = await get(await sign(claims));
+    expect(ok.status).toBe(200);
+    const body = (await ok.json()) as { sha: string; pages: Array<{ id: string; ref: string }> };
+    expect(body.sha).toBe(sha);
+    expect(body.pages.map((p) => p.id)).toEqual(["pg_gatedpage1"]);
+    expect(JSON.stringify(body)).toContain(SECRET_TEXT);
+
+    expect((await get()).status).toBe(401);
+    expect((await get(await sign({ ...claims, aud: "https://elsewhere.example" }))).status).toBe(
+      401,
+    );
+    expect((await get(await sign({ ...claims, exp: now - 600 }))).status).toBe(401);
+    expect((await get(await sign({ ...claims, repository: "mallory/gated-ci" }))).status).toBe(
+      403,
+    );
+    expect((await get(await sign({ ...claims, ref: "refs/heads/feature" }))).status).toBe(403);
+    const tampered = (await sign(claims)).replace(/\.[^.]+$/, ".AAAA");
+    expect((await get(tampered)).status).toBe(401);
   });
 });

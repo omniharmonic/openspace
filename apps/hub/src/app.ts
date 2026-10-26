@@ -8,6 +8,7 @@ import { createLogger, redactSecrets } from "./lib/log";
 import { authRoutes } from "./routes/auth";
 import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
 import { growthRoutes } from "./routes/growth";
+import { ciRoutes } from "./routes/ci";
 import { hostingRoutes } from "./routes/hosting";
 import { mcpGrantRoutes, mcpRoutes, mcpTokenRoutes } from "./routes/mcp";
 import { meRoutes } from "./routes/me";
@@ -108,6 +109,8 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api/sites", mediaRoutes);
   app.route("/api/sites", hostingRoutes);
   app.route("/", mcpRoutes);
+  // The site's own publish workflow (GitHub Actions OIDC): gated content for Cloudflare deploys.
+  app.route("/ci", ciRoutes);
   app.route("/", previewRoutes);
 
   app.notFound((c) => c.json(errorBody("not_found", "Not found."), 404));
