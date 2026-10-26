@@ -242,6 +242,9 @@ describe("starter site shell", () => {
         await expect(script.main({ cwd: dir, fetch, log: () => {}, env: {} })).rejects.toThrow(
           /must use https/,
         );
+        // Sites without gated pages never need the Hub here.
+        await rm(join(dir, "content/pages/members"), { recursive: true });
+        expect(await script.main({ cwd: dir, fetch, log: () => {}, env: {} })).toBe(0);
       } finally {
         await rm(dir, { recursive: true, force: true });
       }

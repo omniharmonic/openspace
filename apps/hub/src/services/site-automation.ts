@@ -157,28 +157,6 @@ export interface RepoIdentity {
   ownerId: string | null;
 }
 
-/** Record the repository's numeric ids (GitHub's, stable across renames). */
-export async function recordRepoIdentity(
-  services: Pick<Services, "db" | "now">,
-  siteId: string,
-  info: { id?: number; ownerId?: number } | null,
-): Promise<RepoIdentity | null> {
-  if (!info || typeof info.id !== "number") return null;
-  const identity = {
-    repoId: String(info.id),
-    ownerId: typeof info.ownerId === "number" ? String(info.ownerId) : null,
-  };
-  await services.db
-    .prepare(
-      `INSERT INTO site_automation (site_id, repo_id, repo_owner_id, updated_at) VALUES (?, ?, ?, ?)
-       ON CONFLICT (site_id) DO UPDATE SET repo_id = excluded.repo_id,
-         repo_owner_id = excluded.repo_owner_id, updated_at = excluded.updated_at`,
-    )
-    .bind(siteId, identity.repoId, identity.ownerId, services.now())
-    .run();
-  return identity;
-}
-
 export async function repoIdentity(db: D1Database, siteId: string): Promise<RepoIdentity | null> {
   const row = await db
     .prepare("SELECT repo_id, repo_owner_id FROM site_automation WHERE site_id = ?")
@@ -218,7 +196,8 @@ export async function adoptRepoIdentity(
       .prepare(
         `INSERT INTO site_automation (site_id, repo_id, repo_owner_id, updated_at) VALUES (?1, ?2, ?3, ?4)
          ON CONFLICT (site_id) DO UPDATE SET repo_id = excluded.repo_id,
-           repo_owner_id = excluded.repo_owner_id, updated_at = excluded.updated_at
+           repo_owner_id = COALESCE(excluded.repo_owner_id, site_automation.repo_owner_id),
+           updated_at = excluded.updated_at
          WHERE site_automation.repo_id IS NULL OR site_automation.repo_id = excluded.repo_id`,
       )
       .bind(siteId, live.repoId, live.ownerId, now),

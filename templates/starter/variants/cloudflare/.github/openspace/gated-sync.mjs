@@ -52,7 +52,6 @@ export async function main({
   log = console.log,
 } = {}) {
   const config = JSON.parse(await readFile(join(cwd, "openspace.json"), "utf8"));
-  const hub = hubOrigin(config.hub);
   const stubs = [];
   for (const file of await pageFiles(join(cwd, "content/pages"))) {
     const page = JSON.parse(await readFile(file, "utf8"));
@@ -63,6 +62,7 @@ export async function main({
     log("No members-only or password pages to upload.");
     return 0;
   }
+  const hub = hubOrigin(config.hub);
   const bucket = bucketName(await readFile(join(cwd, "wrangler.jsonc"), "utf8"));
   if (!bucket) throw new Error('wrangler.jsonc has no "bucket_name" for the OS_GATED binding.');
   const { CLOUDFLARE_API_TOKEN: cfToken, CLOUDFLARE_ACCOUNT_ID: account } = env;
