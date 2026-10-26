@@ -25,7 +25,10 @@ async function seriousViolations(page: Page, opts: { exclude?: string[] } = {}) 
       (v) =>
         `${v.id} (${v.impact}): ${v.nodes
           .slice(0, 3)
-          .map((n) => `${n.target.join(" ")} ${n.html.slice(0, 140)} — ${(n.failureSummary ?? "").replace(/\s+/g, " ").slice(0, 160)}`)
+          .map(
+            (n) =>
+              `${n.target.join(" ")} ${n.html.slice(0, 140)} — ${(n.failureSummary ?? "").replace(/\s+/g, " ").slice(0, 160)}`,
+          )
           .join(" | ")}`,
     );
 }

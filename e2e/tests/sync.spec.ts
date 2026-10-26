@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { STUDIO_URL } from "../support/env";
 import { editPlainText, heroHeading, secondHeading } from "../support/edit";
+import { STUDIO_URL } from "../support/env";
 import { Hub, homePage, textOf, unique } from "../support/hub";
 import { canvas, closeChecklist, openEditor, signIn } from "../support/studio";
 

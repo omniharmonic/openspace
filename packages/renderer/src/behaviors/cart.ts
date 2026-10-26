@@ -28,7 +28,17 @@ const key = () => `os-cart:${info().site}`;
  * cart and checking out still work within the page.
  */
 let memory: Line[] = [];
-const read = (): Line[] => load<Line[]>(key(), memory).filter((l) => l?.sku && l.qty > 0);
+const canStore = (): boolean => {
+  try {
+    localStorage.setItem("os-probe", "1");
+    localStorage.removeItem("os-probe");
+    return true;
+  } catch {
+    return false;
+  }
+};
+const read = (): Line[] =>
+  (canStore() ? load<Line[]>(key(), []) : memory).filter((l) => l?.sku && l.qty > 0);
 const write = (lines: Line[]) => {
   memory = lines;
   save(key(), lines);
