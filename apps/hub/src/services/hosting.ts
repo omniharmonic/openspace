@@ -6,7 +6,7 @@
  */
 import type { DeployTarget, SiteConfig } from "@openspace/schema";
 import type { FileChange } from "../github/types";
-import { CLOUDFLARE_PACKAGE_ADDITIONS, STARTER_HOSTING_FILES } from "../templates/starter-hosting";
+import { CLOUDFLARE_PACKAGE_ADDITIONS, STARTER_HOSTING_FILES } from "../templates/starter-files";
 import { CONFIG_PATH } from "./site-files";
 
 /** Secrets a Cloudflare-hosted site's publish workflow needs. */

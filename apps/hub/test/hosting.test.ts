@@ -5,7 +5,8 @@ import { hostingChanges } from "../src/services/hosting";
 import {
   CLOUDFLARE_PACKAGE_ADDITIONS,
   STARTER_HOSTING_FILES,
-} from "../src/templates/starter-hosting";
+  STARTER_SITE_FILES,
+} from "../src/templates/starter-files";
 import { call, devLogin } from "./helpers";
 import { STUDIO_ORIGIN } from "./mcp-helpers";
 import { addMember, createSite, RoomClient, userId } from "./room-helpers";
@@ -14,6 +15,12 @@ const starter = JSON.parse(env.STARTER_FILES) as Record<string, string>;
 
 describe("starter hosting files", () => {
   it("match templates/starter", () => {
+    const shell = Object.fromEntries(
+      Object.entries(starter)
+        .filter(([p]) => p.startsWith("site/"))
+        .map(([p, c]) => [p.slice("site/".length), c]),
+    );
+    expect(STARTER_SITE_FILES).toEqual(shell);
     for (const p of [".github/workflows/publish.yml", "astro.config.mjs"]) {
       expect(
         STARTER_HOSTING_FILES["github-pages"][

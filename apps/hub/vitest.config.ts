@@ -1,23 +1,22 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { defineWorkersConfig, readD1Migrations } from "@cloudflare/vitest-pool-workers/config";
 
 export default defineWorkersConfig(async () => {
   const migrations = await readD1Migrations(path.join(__dirname, "migrations"));
-  // The starter's hosting files, so a test can check the Hub's embedded copies still match.
+  // The starter shell, so a test can check the Hub's embedded copy (src/templates/starter-files.ts).
   const starter = path.join(__dirname, "../../templates/starter");
-  const read = (p: string) => readFileSync(path.join(starter, p), "utf8");
-  const STARTER_FILES = JSON.stringify({
-    "site/.github/workflows/publish.yml": read("site/.github/workflows/publish.yml"),
-    "site/astro.config.mjs": read("site/astro.config.mjs"),
-    "site/package.json": read("site/package.json"),
-    "variants/cloudflare/.github/workflows/publish.yml": read(
-      "variants/cloudflare/.github/workflows/publish.yml",
-    ),
-    "variants/cloudflare/astro.config.mjs": read("variants/cloudflare/astro.config.mjs"),
-    "variants/cloudflare/wrangler.jsonc": read("variants/cloudflare/wrangler.jsonc"),
-    "variants/cloudflare/package.json": read("variants/cloudflare/package.json"),
-  });
+  const walk = (dir: string, base = dir): string[] =>
+    readdirSync(dir).flatMap((name) => {
+      const abs = path.join(dir, name);
+      if (statSync(abs).isDirectory()) return walk(abs, base);
+      return name === ".gitkeep" ? [] : [path.relative(base, abs).split(path.sep).join("/")];
+    });
+  const files: Record<string, string> = {};
+  for (const dir of ["site", "variants/cloudflare"])
+    for (const rel of walk(path.join(starter, dir)))
+      files[`${dir}/${rel}`] = readFileSync(path.join(starter, dir, rel), "utf8");
+  const STARTER_FILES = JSON.stringify(files);
   return {
     test: {
       include: ["src/**/*.test.ts", "test/**/*.test.ts"],
