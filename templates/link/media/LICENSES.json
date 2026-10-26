@@ -1,0 +1,86 @@
+{
+  "$comment": "Licenses for the demo media in the Link template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e",
+      "title": "Chocolate chip cookies scattered on a pale linen cloth",
+      "author": "Food Photographer | Jennifer Pallian",
+      "authorUrl": "https://unsplash.com/@foodess",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/close-up-photo-of-baked-cookies-OfdDiqx8Cz8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+      "title": "Seared steak, herbs and dipping sauces shared across the table",
+      "author": "Lily Banse",
+      "authorUrl": "https://unsplash.com/@lvnatikk",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/three-plates-of-asian-food-on-wood-table--YHSwy6uqvk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+      "title": "Portrait of a smiling man in a white t-shirt",
+      "author": "Joseph Gonzalez",
+      "authorUrl": "https://unsplash.com/@miracletwentyone",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-white-v-neck-shirt-iFgRcqHznqg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd",
+      "title": "A bowl of greens, avocado, chickpeas and roasted vegetables",
+      "author": "Anna Pelzer",
+      "authorUrl": "https://unsplash.com/@annapelzer",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/bowl-of-vegetable-salads-IGfIGP5ONV0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1513104890138-7c749659a591",
+      "title": "A wood-fired pizza cut into slices on a dark table",
+      "author": "Ivan Torres",
+      "authorUrl": "https://unsplash.com/@iavnt",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/cheese-pizza-with-tomatoes-and-rosemary-MQUqbmszGGM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1549931319-a545dcf3bc73",
+      "title": "A seeded loaf cut into thick slices on a wooden board",
+      "author": "Jude Infantini",
+      "authorUrl": "https://unsplash.com/@judowoodo_",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/selective-focus-photography-of-sliced-bread-rYOqbTcGp1c",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1650134973809-d8c3a2da59ba",
+      "title": "A tall stack of pancakes with blueberries and syrup",
+      "author": "Amber Fisher",
+      "authorUrl": "https://unsplash.com/@lindsaysworld",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-stack-of-pancakes-covered-in-blueberries-and-syrup-krqTbKwuFgw",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

@@ -24,6 +24,7 @@ import { harbor } from "./harbor/src/build";
 import { hearth } from "./hearth/src/build";
 import { kiln } from "./kiln/src/build";
 import { ledger } from "./ledger/src/build";
+import { link } from "./link/src/build";
 import { meadow } from "./meadow/src/build";
 import { signal } from "./signal/src/build";
 import { vow } from "./vow/src/build";
@@ -53,6 +54,7 @@ export const templateSpecs: readonly TemplateSpec[] = [
   kiln,
   commons,
   vow,
+  link,
 ];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);
