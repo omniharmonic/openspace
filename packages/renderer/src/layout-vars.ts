@@ -108,7 +108,9 @@ export function fallbackMobileRects(layout: GridLayout): Record<string, GridRect
     ([, a], [, b]) => a.d.y - b.d.y || a.d.x - b.d.x,
   );
   const out: Record<string, GridRect> = {};
+  // Items without a stored mobile rect go below every item that has one.
   let y = 1;
+  for (const item of Object.values(layout.items)) if (item.m) y = Math.max(y, item.m.y + item.m.h);
   for (const [id, item] of entries) {
     if (item.m) continue;
     const h = Math.max(1, item.d.h);

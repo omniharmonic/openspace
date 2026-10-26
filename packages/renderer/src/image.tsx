@@ -32,6 +32,11 @@ export interface ImgProps {
    */
   treatment?: ImageTreatment;
   fit?: "cover" | "contain";
+  /**
+   * Fill the parent's height, cropping at the focal point (grid-mode cells: the cell's rows set
+   * the height, the image never stretches the row).
+   */
+  fill?: boolean;
   /** Above-the-fold image: eager load + high fetch priority. */
   priority?: boolean;
   className?: string;
@@ -132,7 +137,7 @@ export function Img(props: ImgProps) {
     height: props.height ?? value?.height,
   });
   const sizes = props.sizes ?? "100vw";
-  const aspect = ratio(props.aspect);
+  const aspect = props.fill ? undefined : ratio(props.aspect);
   const style: CssVars = {};
   if (aspect) style["--aspect"] = aspect;
   if (focal) style["--focal"] = `${pct(focal[0])} ${pct(focal[1])}`;
@@ -144,6 +149,7 @@ export function Img(props: ImgProps) {
         props.treatment && imageTreatmentClass(props.treatment),
         aspect && "has-aspect",
         props.fit === "contain" && "is-contain",
+        props.fill && "is-fill",
         props.className,
       )}
       style={Object.keys(style).length ? style : undefined}

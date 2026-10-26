@@ -70,8 +70,8 @@ describe("SectionView", () => {
       'data-os-item="blk_c1c1c1c1c1" style="--x:1;--y:1;--w:10;--h:8;--cs:full-start;--tx:1;--ty:1;--tw:10;--th:8;--tcs:full-start;--mx:1;--my:1;--mw:8;--mh:9"',
     );
     expect(out).toContain("--x:9;--y:5;--w:14;--h:10;--z:2;--tx:7;--ty:5;--tw:18;--th:10");
-    // c3 has no m rect: falls back to reading-order stacking at full mobile width
-    expect(out).toMatch(/data-os-item="blk_c3c3c3c3c3" style="[^"]*--mx:1;--my:1;--mw:8;--mh:3"/);
+    // c3 has no m rect: stacked full width below the stored mobile placements
+    expect(out).toMatch(/data-os-item="blk_c3c3c3c3c3" style="[^"]*--mx:1;--my:18;--mw:8;--mh:3"/);
     expect(out).toContain("--rows:16;--trows:16;--mrows:22");
     // DOM order follows desktop reading order: c1 (1,1), c3 (1,12), c2 (5,9)
     const order = [...out.matchAll(/data-os-item="(blk_\w+)"/g)].map((m) => m[1]);

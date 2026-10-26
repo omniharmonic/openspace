@@ -1,4 +1,6 @@
 import { defineBlock, f, type ImageValue, type Link, type RichTextDoc } from "@openspace/schema";
+import { useContext } from "react";
+import { SectionContext } from "../context";
 import { Img } from "../image";
 import { Button } from "../primitives";
 import { RichText } from "../richtext";
@@ -41,6 +43,16 @@ export const buttonBlock = defineBlock({
   ),
 });
 
+/** Grid cells fill their placement; stack columns keep a 4:5 crop. */
+function ImageInSection({ image }: { image: ImageValue }) {
+  const grid = useContext(SectionContext)?.layout.mode === "grid";
+  return grid ? (
+    <Img src={image} sizes="(min-width: 1200px) 40vw, 100vw" fill />
+  ) : (
+    <Img src={image} sizes="(min-width: 1200px) 40vw, 100vw" aspect="4:5" />
+  );
+}
+
 export const imageBlock = defineBlock({
   type: "image",
   version: 2,
@@ -52,8 +64,8 @@ export const imageBlock = defineBlock({
   migrate: { 1: (v1) => ({ ...v1 }) },
   ai: { purpose: "A photograph.", whenToUse: "Show the place, people or product." },
   render: ({ fields }) => (
-    <figure>
-      <Img src={fields.image as ImageValue} sizes="(min-width: 1200px) 40vw, 100vw" aspect="4:5" />
+    <figure className="os-image-figure">
+      <ImageInSection image={fields.image as ImageValue} />
       {fields.caption ? <figcaption>{fields.caption as string}</figcaption> : null}
     </figure>
   ),
