@@ -142,6 +142,7 @@ export const hoursBlock = defineBlock({
         >
           <tbody>
             {groups.map((g, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: a day can be listed twice; position disambiguates
               <tr key={`${g.from}-${i}`} className={cx(g.row.closed && "is-closed")}>
                 <th scope="row">{days(g)}</th>
                 <td>{hours(g.row)}</td>

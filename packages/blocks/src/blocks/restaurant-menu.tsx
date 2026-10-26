@@ -159,6 +159,7 @@ export const restaurantMenuBlock = defineBlock({
                       {item.dietary.length ? (
                         <span className="os-menu-card__diet">
                           {item.dietary.map((d, k) => (
+                            // biome-ignore lint/suspicious/noArrayIndexKey: a mark can repeat; position disambiguates
                             <abbr key={`${d.tag}-${k}`} title={DIETARY[d.tag].name}>
                               {DIETARY[d.tag].code}
                             </abbr>
