@@ -79,7 +79,7 @@ interface OAuthIntent {
   returnTo?: string;
 }
 
-/** GET /auth/github/start?template=&name=&look=&tagline=&brandColor=&returnTo= */
+/** GET /auth/github/start?template=&name=&look=&tagline=&brandColor=&return_to= */
 authRoutes.get("/github/start", async (c) => {
   const { config, services } = c.var;
   if (!config.github)
@@ -94,7 +94,8 @@ authRoutes.get("/github/start", async (c) => {
   const intent: OAuthIntent = {};
   for (const key of ["template", "look", "name", "tagline", "brandColor"] as const)
     if (q[key]) intent[key] = q[key].slice(0, 200);
-  if (q.returnTo?.startsWith(`${config.studioOrigin}/`)) intent.returnTo = q.returnTo;
+  const returnTo = q.return_to ?? q.returnTo;
+  if (returnTo?.startsWith(`${config.studioOrigin}/`)) intent.returnTo = returnTo;
   const state = randomToken(24);
   const now = services.now();
   await services.db

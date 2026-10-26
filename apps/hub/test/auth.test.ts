@@ -28,6 +28,7 @@ describe("dev sign-in and sessions", () => {
     const meBody = (await me.json()) as { user: { id: string } };
     expect(meBody).toEqual({
       user: expect.objectContaining({ login: "maya-lin", name: "Maya Lin" }),
+      auth: { github: false, dev: true },
       devMode: true,
       github: { configured: false, emulated: true },
     });
@@ -49,12 +50,16 @@ describe("dev sign-in and sessions", () => {
 
   it("rejects missing sessions, bad bodies and logs out", async () => {
     const app = createApp();
-    const anon = await call(app, "/api/me");
+    // Signed out is not an error for /api/me: it still reports the sign-in methods.
+    const me = await call(app, "/api/me");
+    expect(me.status).toBe(200);
+    expect(await me.json()).toMatchObject({ user: null, auth: { github: false, dev: true } });
+    const anon = await call(app, "/api/sites");
     expect(anon.status).toBe(401);
     expect(await anon.json()).toEqual({
       error: { code: "unauthenticated", message: "Please sign in." },
     });
-    expect((await call(app, "/api/me", { cookie: "os_session=bogus" })).status).toBe(401);
+    expect((await call(app, "/api/sites", { cookie: "os_session=bogus" })).status).toBe(401);
 
     const bad = await call(app, "/auth/dev/login", { method: "POST", json: { name: "" } });
     expect(bad.status).toBe(400);
@@ -66,7 +71,7 @@ describe("dev sign-in and sessions", () => {
     const out = await call(app, "/auth/logout", { method: "POST", cookie });
     expect(out.status).toBe(200);
     expect(out.headers.get("set-cookie")).toMatch(/os_session=;.*Max-Age=0/);
-    expect((await call(app, "/api/me", { cookie })).status).toBe(401);
+    expect((await call(app, "/api/sites", { cookie })).status).toBe(401);
   });
 
   it("expires sessions after 30 days and slides active ones", async () => {
@@ -78,7 +83,7 @@ describe("dev sign-in and sessions", () => {
     expect(renewed.status).toBe(200);
     expect(renewed.headers.get("set-cookie")).toContain("os_session=");
     now += 31 * 24 * 60 * 60 * 1000;
-    expect((await call(app, "/api/me", { cookie })).status).toBe(401);
+    expect((await call(app, "/api/sites", { cookie })).status).toBe(401);
   });
 
   it("disables dev sign-in outside DEV_MODE; /auth/token reports dev mode", async () => {
@@ -259,6 +264,7 @@ describe("GitHub sign-in (real flow, mocked GitHub)", () => {
 
     const me = await call(app, "/api/me", { cookie }, githubEnv);
     expect(await me.json()).toMatchObject({
+      auth: { github: true, dev: false },
       devMode: false,
       github: { configured: true, emulated: false },
     });

@@ -6,6 +6,7 @@ export interface SiteRow {
   id: string;
   owner_id: string;
   name: string;
+  tagline: string | null;
   repo: string;
   installation_id: number | null;
   deploy_target: string;
@@ -26,13 +27,15 @@ export interface SiteRow {
 export interface SiteWithRole extends SiteRow {
   role: Role;
   inbox_count: number;
+  owner_login: string;
+  owner_name: string | null;
 }
 
 export const RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
-const WITH_ROLE = `SELECT s.*, r.role AS role,
+const WITH_ROLE = `SELECT s.*, r.role AS role, o.login AS owner_login, o.name AS owner_name,
   (SELECT COUNT(*) FROM submissions sub WHERE sub.site_id = s.id AND sub.read_at IS NULL) AS inbox_count
-  FROM sites s JOIN site_roles r ON r.site_id = s.id`;
+  FROM sites s JOIN site_roles r ON r.site_id = s.id JOIN users o ON o.id = s.owner_id`;
 
 export async function insertSite(
   db: D1Database,
@@ -43,14 +46,15 @@ export async function insertSite(
   await db.batch([
     db
       .prepare(
-        `INSERT INTO sites (id, owner_id, name, repo, installation_id, deploy_target, domain, url,
-          template_id, template_version, look, status, plan_flags, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO sites (id, owner_id, name, tagline, repo, installation_id, deploy_target, domain,
+          url, template_id, template_version, look, status, plan_flags, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         site.id,
         site.owner_id,
         site.name,
+        site.tagline,
         site.repo,
         site.installation_id,
         site.deploy_target,
@@ -111,6 +115,7 @@ type Patch = Partial<
   Pick<
     SiteRow,
     | "name"
+    | "tagline"
     | "repo"
     | "url"
     | "status"

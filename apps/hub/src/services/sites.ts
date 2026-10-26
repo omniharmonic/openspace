@@ -1,6 +1,7 @@
 import type { Role } from "@openspace/ops";
 import {
   CssColorSchema,
+  type MediaId,
   newId,
   type Page,
   type SiteDocument,
@@ -24,6 +25,7 @@ import {
 import { getUserByLogin, type User } from "../db/users";
 import {
   DRAFT_BRANCH,
+  type FileContent,
   type GitHubAccess,
   MAIN_BRANCH,
   PUBLISH_WORKFLOW,
@@ -31,6 +33,7 @@ import {
   repoFullName,
 } from "../github/types";
 import { forbidden, HttpError, notFound } from "../lib/errors";
+import { type DecodedImage, decodeImageDataUrl } from "../lib/image";
 import type { Logger } from "../lib/log";
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
@@ -43,7 +46,11 @@ import type { TemplateMeta } from "./templates";
 export interface SiteView {
   id: string;
   name: string;
+  tagline: string | null;
   repo: string;
+  /** Login of the owning account. */
+  owner: string;
+  ownerName: string | null;
   status: SiteStatus;
   statusDetail: string | null;
   url: string | null;
@@ -65,6 +72,8 @@ export const CreateSiteSchema = z.strictObject({
   name: z.string().trim().min(1, "Give your site a name").max(80),
   tagline: z.string().trim().max(200).optional(),
   brandColor: CssColorSchema.optional().nullable(),
+  /** Optional logo as a `data:image/…;base64,` URL (PNG, JPEG, WebP or GIF; ≤ 1 MB). */
+  logo: z.string().max(1_500_000).optional().nullable(),
 });
 export type CreateSiteInput = z.infer<typeof CreateSiteSchema>;
 
@@ -96,7 +105,10 @@ export function toSiteView(row: SiteWithRole, templates: TemplateMeta[] = []): S
   return {
     id: row.id,
     name: row.name,
+    tagline: row.tagline,
     repo: row.repo,
+    owner: row.owner_login,
+    ownerName: row.owner_name,
     status: row.status,
     statusDetail: row.status_detail,
     url: row.url,
@@ -142,6 +154,8 @@ async function uniqueRepoName(
   }
   throw new HttpError(409, "name_taken", "Too many sites with that name; try another name.");
 }
+
+export const MAX_LOGO_BYTES = 1024 * 1024;
 
 export function previewUrl(hubUrl: string, siteId: string): string {
   return `${hubUrl}/s/${siteId}/`;
@@ -236,9 +250,35 @@ export async function createSite(
       ? previewUrl(services.config.hubUrl, siteId)
       : githubPagesUrl(owner, repoName);
 
+  let logo: (DecodedImage & { path: string; mediaId: MediaId }) | undefined;
+  if (input.logo) {
+    try {
+      const img = decodeImageDataUrl(input.logo, MAX_LOGO_BYTES);
+      const d = new Date(now);
+      const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const mediaId = newId("med") as MediaId;
+      const path = `media/${d.getUTCFullYear()}/${month}/logo-${mediaId.slice(4, 10)}.${img.ext}`;
+      logo = { ...img, path, mediaId };
+    } catch (err) {
+      throw new HttpError(400, "invalid_logo", (err as Error).message);
+    }
+  }
+
   let doc: SiteDocument;
   try {
     doc = personalizeDocument(loadSiteDocument(template.files), {
+      ...(logo
+        ? {
+            logo: {
+              path: logo.path,
+              mediaId: logo.mediaId,
+              mime: logo.mime,
+              bytes: logo.bytes,
+              width: logo.width,
+              height: logo.height,
+            },
+          }
+        : {}),
       siteId,
       name: input.name,
       tagline: input.tagline,
@@ -265,16 +305,18 @@ export async function createSite(
       { findings: secrets.map((s) => ({ rule: s.rule, preview: s.preview })) },
     );
 
-  const files: Record<string, string> = {};
+  const files: Record<string, string | FileContent> = {};
   for (const [path, content] of Object.entries(template.files))
     if (!isDocumentPath(path)) files[path] = content;
   Object.assign(files, siteDocumentToFiles(doc));
+  if (logo) files[logo.path] = { content: logo.base64, encoding: "base64" };
 
   const repo = { owner, name: repoName };
   await insertSite(services.db, {
     id: siteId,
     owner_id: user.id,
     name: input.name.trim(),
+    tagline: input.tagline?.trim() || null,
     repo: repoFullName(repo),
     installation_id: opts.installationId ?? null,
     deploy_target: "github-pages",
@@ -375,7 +417,7 @@ export async function transferSite(
   id: string,
   user: User,
   to: string,
-): Promise<SiteView> {
+): Promise<{ site: SiteView; status: "complete" | "pending" }> {
   const site = await siteForUser(services, id, user);
   requireRole(site, "owner");
   const target = await getUserByLogin(services.db, to);
@@ -398,7 +440,7 @@ export async function transferSite(
     action: "site.transfer",
     meta: { from: site.repo, to: moved.fullName, newOwner: target.id },
   });
-  return getSiteView(services, id, user);
+  return { site: await getSiteView(services, id, user), status: "complete" };
 }
 
 // --- reading content -----------------------------------------------------------------------------

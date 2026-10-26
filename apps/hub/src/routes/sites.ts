@@ -22,7 +22,7 @@ export const siteRoutes = new Hono<AppEnv>();
 /** GET /api/sites — sites the person owns or collaborates on. */
 siteRoutes.get("/", async (c) => {
   const user = requireUser(c);
-  return c.json({ items: await listSites(c.var.services, user) });
+  return c.json({ sites: await listSites(c.var.services, user) });
 });
 
 /** POST /api/sites { template, look?, name, tagline?, brandColor? } */

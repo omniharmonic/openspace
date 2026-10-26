@@ -327,6 +327,7 @@ export const basicTemplate: BuiltinTemplate = {
       { id: "warm", name: "Warm", styles: warm },
     ],
     thumbnailUrl: null,
+    sample: { name: "Juniper & Co.", tagline: "Thoughtful work, done at a steady pace" },
     slots: {
       title: { page: IDS.home, block: IDS.heroTitle },
       tagline: { page: IDS.home, block: IDS.heroLead },

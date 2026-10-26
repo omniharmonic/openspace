@@ -30,6 +30,8 @@ export interface TemplateMeta {
   version: string;
   looks: TemplateLook[];
   thumbnailUrl: string | null;
+  /** Demo owner the template's sample content is written for (gallery placeholder values). */
+  sample?: { name: string; tagline: string };
   slots?: TemplateSlots;
 }
 

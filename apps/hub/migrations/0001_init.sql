@@ -48,6 +48,7 @@ CREATE TABLE sites (
   id               TEXT PRIMARY KEY,                     -- st_<10 base32>
   owner_id         TEXT NOT NULL REFERENCES users(id),
   name             TEXT NOT NULL,
+  tagline          TEXT,                                 -- dashboard copy; content lives in the repo
   repo             TEXT NOT NULL,                        -- owner/name
   installation_id  INTEGER,
   deploy_target    TEXT NOT NULL DEFAULT 'github-pages', -- github-pages | cloudflare

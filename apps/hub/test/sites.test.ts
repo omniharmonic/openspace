@@ -11,6 +11,11 @@ import { call, cookieFrom, devLogin } from "./helpers";
 import { generateAppKey, pem } from "./keys";
 import { mockFetch, type RecordedCall, status } from "./mock-fetch";
 
+interface LookJson {
+  styles: Record<string, unknown>;
+  siteStyles: { choices: { pairing: string } };
+}
+
 interface SiteJson {
   id: string;
   name: string;
@@ -40,7 +45,9 @@ describe("templates API", () => {
     const app = createApp();
     const res = await call(app, "/api/templates");
     expect(res.status).toBe(200);
-    const { items } = (await res.json()) as { items: Array<Record<string, unknown>> };
+    const { templates: items } = (await res.json()) as {
+      templates: Array<Record<string, unknown>>;
+    };
     expect(items[0]).toMatchObject({
       id: "basic",
       name: "Basic",
@@ -48,7 +55,24 @@ describe("templates API", () => {
       mood: "Calm",
       thumbnailUrl: null,
       previewUrl: "http://localhost:8787/t/basic/",
+      sample: { name: expect.any(String), tagline: expect.any(String) },
     });
+    // Studio's compact look preview (solved colors, font stacks, radius, image shape).
+    const calm = ((items[0] as Record<string, unknown>).looks as LookJson[])[0];
+    expect(calm?.styles).toMatchObject({
+      colors: {
+        background: expect.stringMatching(/^#[0-9a-f]{6}$/),
+        accent: expect.stringMatching(/^#[0-9a-f]{6}$/),
+        onAccent: expect.stringMatching(/^#[0-9a-f]{6}$/),
+      },
+      fonts: {
+        heading: expect.stringContaining('"Fraunces"'),
+        body: expect.stringContaining('"Hanken Grotesk"'),
+      },
+      radius: 999,
+      imageShape: "rect",
+    });
+    expect(calm?.siteStyles.choices.pairing).toBe("fraunces-hanken");
     expect(
       ((items[0] as Record<string, unknown>).looks as Array<{ id: string }>).map((l) => l.id),
     ).toEqual(["calm", "bold", "warm"]);
@@ -84,6 +108,9 @@ describe("sites API (dev GitHub)", () => {
       template: "basic",
       look: "warm",
       role: "owner",
+      tagline: "Slow, grounded yoga in Boulder.",
+      owner: "maya-lin",
+      ownerName: "Maya Lin",
       inboxCount: 0,
       updateAvailable: false,
       statusDetail: null,
@@ -182,12 +209,12 @@ describe("sites API (dev GitHub)", () => {
     expect(a.look).toBe("calm"); // first look by default
 
     const list = await call(app, "/api/sites", { cookie });
-    const { items } = (await list.json()) as { items: SiteJson[] };
+    const { sites: items } = (await list.json()) as { sites: SiteJson[] };
     expect(items.map((s) => s.id).sort()).toEqual([a.id, b.id].sort());
     const other = await devLogin(app, "Other");
     expect(
-      ((await (await call(app, "/api/sites", { cookie: other })).json()) as { items: unknown[] })
-        .items,
+      ((await (await call(app, "/api/sites", { cookie: other })).json()) as { sites: unknown[] })
+        .sites,
     ).toEqual([]);
 
     const got = await call(app, `/api/sites/${a.id}`, { cookie });
@@ -203,6 +230,52 @@ describe("sites API (dev GitHub)", () => {
         .status,
     ).toBe(400);
     expect((await call(app, "/api/sites")).status).toBe(401);
+  });
+
+  it("stores an uploaded logo as site media", async () => {
+    const app = createApp();
+    const cookie = await devLogin(app, "Logo Owner");
+    // A 3x2 PNG header is enough for the size sniffer; content is opaque to the Hub.
+    const png = new Uint8Array([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52, 0, 0, 0,
+      3, 0, 0, 0, 2, 8, 6, 0, 0, 0,
+    ]);
+    const logo = `data:image/png;base64,${bytesToBase64(png)}`;
+    const { res, site } = await create(app, cookie, { template: "basic", name: "Logo Co", logo });
+    expect(res.status).toBe(201);
+    const doc = (
+      (await (await call(app, `/api/sites/${site.id}/document`, { cookie })).json()) as {
+        document: SiteDocument;
+      }
+    ).document;
+    const src = doc.site.logo?.src as string;
+    expect(src).toMatch(/^media\/\d{4}\/\d{2}\/logo-[0-9a-z]{6}\.png$/);
+    expect(doc.site.logo).toMatchObject({ alt: "Logo Co", width: 3, height: 2 });
+    expect(doc.media[src as keyof typeof doc.media]).toMatchObject({
+      kind: "image",
+      mime: "image/png",
+      bytes: png.length,
+      width: 3,
+      height: 2,
+    });
+    const files = await new DevGitHubAccess(env.HUB_DB).readFiles(
+      { owner: "logo-owner", name: "logo-co" },
+      "main",
+    );
+    expect(files[src]).toBe(bytesToBase64(png));
+
+    for (const bad of [
+      "data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=",
+      `data:image/jpeg;base64,${bytesToBase64(png)}`, // declared type doesn't match bytes
+      `data:image/png;base64,${bytesToBase64(new Uint8Array(1024 * 1024 + 1))}`,
+      "not a data url",
+    ]) {
+      const r = await create(app, cookie, { template: "basic", name: "Bad Logo", logo: bad });
+      expect(r.res.status).toBe(400);
+      expect((r.site as unknown as { error: { code: string } }).error.code).toMatch(
+        /invalid_logo|invalid_request/,
+      );
+    }
   });
 
   it("validates input and refuses secrets in content", async () => {
@@ -289,7 +362,10 @@ describe("sites API (dev GitHub)", () => {
       json: { to: "client-co" },
     });
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ repo: "client-co/client-site", role: "designer" });
+    expect(await res.json()).toMatchObject({
+      status: "complete",
+      site: { repo: "client-co/client-site", role: "designer", owner: "client-co" },
+    });
     const clientView = (await (
       await call(app, `/api/sites/${site.id}`, { cookie: client })
     ).json()) as SiteJson;
@@ -337,8 +413,8 @@ describe("sites API (dev GitHub)", () => {
     expect(res.status).toBe(201);
     expect(site.status).toBe("failed");
     expect(site.statusDetail).toMatch(/couldn't finish/);
-    const { items } = (await (await call(app, "/api/sites", { cookie })).json()) as {
-      items: SiteJson[];
+    const { sites: items } = (await (await call(app, "/api/sites", { cookie })).json()) as {
+      sites: SiteJson[];
     };
     expect(items[0]?.status).toBe("failed");
   });

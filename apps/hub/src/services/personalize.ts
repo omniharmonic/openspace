@@ -1,5 +1,5 @@
 import { type Op, type OpBody, validateAll, validateDocument } from "@openspace/ops";
-import type { SiteConfig, SiteDocument, SiteId } from "@openspace/schema";
+import type { MediaId, SiteConfig, SiteDocument, SiteId } from "@openspace/schema";
 import type { TemplateLook, TemplateMeta } from "./templates";
 
 /**
@@ -18,6 +18,15 @@ export interface PersonalizeInput {
   template: TemplateMeta;
   actor: string;
   now: number;
+  /** An uploaded logo already placed at `path` in the repo. */
+  logo?: {
+    path: string;
+    mediaId: MediaId;
+    mime: string;
+    bytes: number;
+    width: number;
+    height: number;
+  };
 }
 
 export class PersonalizeError extends Error {
@@ -104,6 +113,26 @@ export function personalizeDocument(base: SiteDocument, input: PersonalizeInput)
     const home = Object.values(doc.pages).find((p) => p.slug === "");
     if (home)
       bodies.push({ op: "page.update", page: home.id, set: { "seo.description": tagline } });
+  }
+
+  if (input.logo) {
+    const { path, mediaId, mime, bytes, width, height } = input.logo;
+    bodies.push({
+      op: "media.add",
+      path,
+      meta: {
+        id: mediaId,
+        path,
+        kind: "image",
+        mime,
+        bytes,
+        width,
+        height,
+        alt: name,
+        createdAt: new Date(input.now).toISOString(),
+      },
+    });
+    bodies.push({ op: "site.update", set: { logo: { src: path, alt: name, width, height } } });
   }
 
   const styleSet: Record<string, unknown> = { choices: input.look.styles.choices };
