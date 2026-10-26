@@ -1,0 +1,47 @@
+{
+  "name": "@openspace/templates",
+  "version": "1.0.0",
+  "description": "OpenSpace launch templates: twelve complete sites (content, styles, media credits) with three looks each, and a typed registry.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "index.ts",
+    "lib",
+    "*/src",
+    "*/openspace.json",
+    "*/template.json",
+    "*/content",
+    "*/media",
+    "!starter"
+  ],
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "default": "./index.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "generate": "UPDATE_TEMPLATES=1 vitest run test/generate.test.ts"
+  },
+  "dependencies": {
+    "@openspace/blocks": "workspace:*",
+    "@openspace/schema": "workspace:*",
+    "@openspace/theme": "workspace:*",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@openspace/cli": "workspace:*",
+    "@openspace/lint": "workspace:*",
+    "@openspace/renderer": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

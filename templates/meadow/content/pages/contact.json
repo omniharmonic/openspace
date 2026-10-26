@@ -1,0 +1,240 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_av2p7shq0g",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Find Fernwood Yoga & Bodywork at 2418 SE Division Street, Portland. Opening hours, directions and a contact form for questions."
+  },
+  "sections": [
+    {
+      "id": "sec_641x11bs66",
+      "preset": "contact/form-split@1",
+      "label": "Contact form with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_b26gw7mna4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Questions? We'd love to hear from you",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact",
+            "subheading": "The front desk answers messages within a day, usually sooner. For bookings, the online calendar is quickest."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_63zdk9ygc7",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Fernwood Yoga & Bodywork",
+            "address": "2418 SE Division Street\nPortland, OR 97202",
+            "phone": "+1 (503) 555-0142",
+            "email": "hello@fernwoodyoga.example",
+            "directions": true
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_py6s4p147t",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_vts7jn22wa",
+              "name": "Contact",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "topic",
+                  "label": "What's it about?",
+                  "width": "full",
+                  "options": [
+                    "Classes & memberships",
+                    "Massage & bodywork",
+                    "Workshops & retreats",
+                    "Gift cards",
+                    "Something else"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Message",
+                  "required": true,
+                  "maxLength": 2000
+                }
+              ],
+              "submitLabel": "Send message",
+              "success": {
+                "type": "message",
+                "message": "Thank you — we'll reply within a day."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_ccd3dd5yfn",
+      "preset": "contact/location@1",
+      "label": "Map, hours and address",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_dnvxgb1phy",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Fernwood Yoga & Bodywork",
+            "address": "2418 SE Division Street, Portland, OR 97202",
+            "latitude": 45.5048,
+            "longitude": -122.6406,
+            "zoom": 15,
+            "linkLabel": "Open in Maps",
+            "aspect": "4:3"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7beffmzc7j",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Find the studio",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Visit"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xsd0e7zhcs",
+          "type": "hours",
+          "v": 1,
+          "fields": {
+            "heading": "Opening hours",
+            "headingLevel": "h3",
+            "rows": [
+              {
+                "day": "mon",
+                "opens": "06:30",
+                "closes": "20:30",
+                "closed": false
+              },
+              {
+                "day": "tue",
+                "opens": "06:30",
+                "closes": "20:30",
+                "closed": false
+              },
+              {
+                "day": "wed",
+                "opens": "06:30",
+                "closes": "20:30",
+                "closed": false
+              },
+              {
+                "day": "thu",
+                "opens": "06:30",
+                "closes": "20:30",
+                "closed": false
+              },
+              {
+                "day": "fri",
+                "opens": "06:30",
+                "closes": "18:00",
+                "closed": false
+              },
+              {
+                "day": "sat",
+                "opens": "08:00",
+                "closes": "14:00",
+                "closed": false
+              },
+              {
+                "day": "sun",
+                "opens": "09:00",
+                "closes": "13:00",
+                "closed": false
+              }
+            ],
+            "note": "Front desk hours. Bike racks out front; street parking on 24th and 25th."
+          },
+          "column": 1,
+          "variant": "compact"
+        },
+        {
+          "id": "blk_48a8rfqtj4",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "address": "2418 SE Division Street\nPortland, OR 97202",
+            "phone": "+1 (503) 555-0142",
+            "email": "hello@fernwoodyoga.example",
+            "directions": true
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    }
+  ]
+}

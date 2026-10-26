@@ -1,0 +1,353 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_sat2c09jw4",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Fernwood Yoga & Bodywork opened on SE Division Street in 2016. Meet founder Hana Moreau, our teachers and the story of the studio.",
+    "image": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&q=80"
+  },
+  "sections": [
+    {
+      "id": "sec_vhz0rz1bc8",
+      "preset": "about/story-split@1",
+      "label": "Story with portrait",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_yrtasmmz8b",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1040&q=80",
+              "alt": "Portrait of Hana Moreau, founder of Fernwood",
+              "width": 1040,
+              "height": 1560
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default",
+          "style": {
+            "imageTreatment": "arch"
+          }
+        },
+        {
+          "id": "blk_6zj8w38bqt",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A studio built around slowing down",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Our story"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_rxmb2keqm4",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Hana Moreau taught her first class in 2012, in a borrowed church hall with eight mats and a space heater. She had spent ten years as a nurse and had seen how rarely people are given time to notice their own bodies."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Fernwood opened in 2016 with one room, one teacher and a kettle. Today there are six teachers, two massage therapists and thirty classes a week, but the rules are the same: small classes, patient teaching, and tea afterwards for anyone who wants to stay."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_785q7y2qyd",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Meet the teachers",
+            "link": {
+              "type": "page",
+              "page": "pg_sat2c09jw4",
+              "anchor": "teachers"
+            },
+            "role": "secondary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_79hdc5jn26",
+      "preset": "about/milestones@1",
+      "label": "Milestones timeline",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_dez47te4mn",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "How Fernwood grew",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Ten years on Division Street",
+            "subheading": "One room became two, and a weekly class became a small community."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_3jvaqz9es2",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "2016",
+                "title": "The first room",
+                "text": "Hana signs the lease on a former florist's shop and teaches every class herself."
+              },
+              {
+                "date": "2018",
+                "title": "Teachers join",
+                "text": "Theo and Iris arrive, and the schedule grows from eight classes to twenty."
+              },
+              {
+                "date": "2021",
+                "title": "Bodywork upstairs",
+                "text": "Two treatment rooms open above the studio for massage and yoga therapy."
+              },
+              {
+                "date": "Today",
+                "title": "Thirty classes a week",
+                "text": "Still twelve mats per class, still tea afterwards, still on Division Street."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "vertical"
+        }
+      ]
+    },
+    {
+      "id": "sec_8fpcaawn87",
+      "preset": "team/circles@1",
+      "label": "Team in circles",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_aq5ts3a72g",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Your teachers",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Meet us"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_hhea1cjm83",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Hana Moreau",
+                "role": "Founder · Slow flow",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=560&q=80",
+                  "alt": "Portrait of Hana Moreau",
+                  "width": 560,
+                  "height": 840
+                }
+              },
+              {
+                "name": "Theo Nakamura",
+                "role": "Foundations & strength",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=560&q=80",
+                  "alt": "Portrait of Theo Nakamura",
+                  "width": 560,
+                  "height": 840
+                }
+              },
+              {
+                "name": "Iris Okonjo",
+                "role": "Prenatal & yin",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=560&q=80",
+                  "alt": "Portrait of Iris Okonjo",
+                  "width": 560,
+                  "height": 700
+                }
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "circles"
+        }
+      ],
+      "anchor": "teachers"
+    },
+    {
+      "id": "sec_3zr1z0h61j",
+      "preset": "gallery/carousel@1",
+      "label": "Scrolling carousel",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_30k1rgzwc1",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A look around",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The studio"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_4kytphve4j",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "images": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1560&q=80",
+                  "alt": "Students stretching in the main studio",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "caption": "The main studio, mid-morning"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1767605523281-8b54b3692078?w=840&q=80",
+                  "alt": "Rolled mats in a woven basket by a plant",
+                  "width": 840,
+                  "height": 1260
+                },
+                "caption": "Mats and props for everyone"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=840&q=80",
+                  "alt": "Two warm drinks on a small table with herbs",
+                  "width": 840,
+                  "height": 1260
+                },
+                "caption": "Tea on the window bench"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1560&q=80",
+                  "alt": "A treatment room prepared for a massage",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "caption": "The upstairs treatment room"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1560&q=80",
+                  "alt": "A small group practising tree pose on the beach",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "caption": "Summer retreat at Manzanita"
+              }
+            ],
+            "aspect": "4:5",
+            "columns": "3",
+            "lightbox": true,
+            "showCaptions": true
+          },
+          "variant": "carousel"
+        }
+      ]
+    }
+  ]
+}
