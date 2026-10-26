@@ -27,7 +27,7 @@ import {
   Undo2,
   ZoomIn,
 } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, type ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router";
 import { useSession, useSite } from "../../api";
 import type { Site } from "../../api/types";
@@ -66,10 +66,17 @@ import {
   useEditorUi,
 } from "./editor-store";
 import "./EditorFrame.css";
-import { AddSectionPanel } from "../add-section/AddSection";
 import { useBlockMenu } from "../add-section/blockMenuStore";
 import { InspectorRuntime } from "../inspector/Runtime";
-import { SiteStylesPanel } from "../styles/SiteStylesPanel";
+
+// The preset gallery and Site Styles load on first open (presets, pairings and palettes).
+const AddSectionPanel = lazy(() =>
+  import("../add-section/AddSection").then((m) => ({ default: m.AddSectionPanel })),
+);
+const SiteStylesPanel = lazy(() =>
+  import("../styles/SiteStylesPanel").then((m) => ({ default: m.SiteStylesPanel })),
+);
+
 import { FirstRunChecklist, useChecklist } from "./FirstRunChecklist";
 import {
   type ClipPayload,
@@ -146,8 +153,12 @@ function PanelSkeleton({ rows = 5, label }: { rows?: number; label: string }) {
 function LeftPanelBody({ panel }: { panel: LeftPanel }) {
   if (panel === "pages") return <PagesPanel />;
   if (panel === "layers") return <LayersPanel />;
-  if (panel === "add") return <AddSectionPanel />;
-  if (panel === "styles") return <SiteStylesPanel />;
+  if (panel === "add" || panel === "styles")
+    return (
+      <Suspense fallback={<PanelSkeleton label="Loading" rows={6} />}>
+        {panel === "add" ? <AddSectionPanel /> : <SiteStylesPanel />}
+      </Suspense>
+    );
   const label = PANELS.find((p) => p.id === panel)?.label ?? "";
   return <PanelSkeleton label={`Loading ${label.toLowerCase()}`} rows={6} />;
 }

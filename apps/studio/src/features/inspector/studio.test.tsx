@@ -49,7 +49,7 @@ describe("inspector in the editor", () => {
     });
     const styles = await screen.findByRole("complementary", { name: "Site styles" });
     const before = doc.querySelector('style[data-os="tokens"]')?.textContent;
-    await user.click(within(styles).getByRole("radio", { name: "Compact" }));
+    await user.click(await within(styles).findByRole("radio", { name: "Compact" }));
     expect(store().doc.styles.choices.density).toBe("compact");
     await waitFor(() =>
       expect(doc.querySelector('style[data-os="tokens"]')?.textContent).not.toBe(before),

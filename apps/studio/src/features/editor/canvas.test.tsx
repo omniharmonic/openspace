@@ -245,7 +245,7 @@ describe("canvas", () => {
       fireEvent.keyDown(window, { key: "£", code: "Digit3", altKey: true });
     });
     const add = await screen.findByRole("complementary", { name: "Add section" });
-    await user.click(within(add).getByRole("button", { name: /^Story with portrait/ }));
+    await user.click(await within(add).findByRole("button", { name: /^Story with portrait/ }));
     expect(doc.querySelectorAll("main [data-os-section]").length).toBe(before + 1);
 
     act(() => {

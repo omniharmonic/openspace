@@ -1,4 +1,3 @@
-import { autoMobileLayoutOps } from "@openspace/lint";
 import type { OpBody } from "@openspace/ops";
 import { compiledStylesFor } from "@openspace/renderer";
 import {
@@ -635,7 +634,8 @@ export function SectionDesign({
               variant="secondary"
               icon={<Smartphone />}
               disabled={disabled}
-              onClick={() => {
+              onClick={async () => {
+                const { autoMobileLayoutOps } = await import("@openspace/lint");
                 const s = api.getState();
                 const ops = autoMobileLayoutOps(s.doc, container, section.id, { reset: true });
                 if (ops.length)
