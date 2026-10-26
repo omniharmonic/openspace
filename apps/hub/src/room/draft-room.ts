@@ -720,13 +720,21 @@ export class DraftRoom extends DurableObject<HubBindings> {
     siteId: string,
     userId: string,
     ops: Op[],
+    agentSession?: string,
   ): Promise<{ results: SubmitResult[]; seq: number }> {
     await this.ensureLoaded(siteId);
     const services = this.services();
     const role = await this.roleOf(services, siteId, userId);
     if (!role) throw new HttpError(403, "forbidden", "You don't have access to this site.");
-    const actor = await this.resolveActor(services, { userId, kind: "human" });
-    const client = `server:${actor.actor}`;
+    // Server-made ops on behalf of an AI session are that session's ops ("Undo all of Claude's").
+    const session = agentSession ? this.requireOwnSession(agentSession, userId) : null;
+    const actor = await this.resolveActor(
+      services,
+      session
+        ? { userId, kind: "agent", session: session.id, label: session.label }
+        : { userId, kind: "human" },
+    );
+    const client = session ? actor.actor : `server:${actor.actor}`;
     const results = ops.map((op) => this.state.submit({ op, client, actor, role, trusted: true }));
     await this.afterSubmit(services, siteId, actor, role, client, results);
     return { results, seq: this.state.seq };
@@ -760,7 +768,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
    */
   async discardDraft(
     siteId: string,
-    input: { userId: string },
+    input: { userId: string; agentSession?: string },
   ): Promise<RoomResult<{ applied: number; failed: number; seq: number; hadChanges: boolean }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
@@ -788,11 +796,16 @@ export class DraftRoom extends DurableObject<HubBindings> {
         idPrefix: `discard-${Date.now().toString(36)}-`,
       });
       if (!ops.length) return { applied: 0, failed: 0, seq: this.state.seq, hadChanges: false };
-      const { results, seq } = await this.applyTrustedOps(siteId, input.userId, ops);
+      const { results, seq } = await this.applyTrustedOps(
+        siteId,
+        input.userId,
+        ops,
+        input.agentSession,
+      );
       const applied = results.filter((r) => r.status === "accepted").length;
       await audit(services.db, {
         siteId,
-        actor: input.userId,
+        actor: input.agentSession ? `agent:${input.agentSession}` : input.userId,
         action: "site.discard",
         meta: { ops: ops.length, applied },
       });
@@ -818,7 +831,12 @@ export class DraftRoom extends DurableObject<HubBindings> {
         throw new HttpError(400, "bad_request", "That file name isn't allowed.");
       const services = this.services();
       const role = await this.roleOf(services, siteId, input.userId);
-      if (!role) throw new HttpError(403, "forbidden", "You don't have access to this site.");
+      if (!role || ROLE_RANK[role] < ROLE_RANK.editor)
+        throw new HttpError(
+          403,
+          "forbidden",
+          "Adding files needs an editor, designer or the owner.",
+        );
       const user = await this.userFor(services, input.userId);
       return this.exclusive(async () => {
         await this.flushLocked(siteId);
@@ -886,30 +904,20 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const label = input.target === "cloudflare" ? "Cloudflare" : "GitHub Pages";
         const message = `Switched hosting to ${label}`;
         const author = { name: user?.name ?? user?.login ?? "OpenSpace" };
-        const draftChanges = await hostingChanges(
-          (path) => gh.readFile(repo, path, this.state.head),
-          input.target,
-          repo.name,
-        );
-        if (draftChanges.length) {
-          await gh.commitFiles(repo, {
-            branch: DRAFT_BRANCH,
-            files: draftChanges,
-            message,
-            expectedHead: this.state.head,
-            author,
-          });
-          await this.reloadFromHead(gh, repo, "Hosting changed.");
-        }
+        // Main first (what's live), then the draft. Each step recomputes its changes from the
+        // branch's current files and retries once on a concurrent commit, so a repeated switch
+        // finishes whatever an interrupted one left (the changes are idempotent).
         let sha: string | null = null;
-        const mainHead = await gh.getRef(repo, MAIN_BRANCH);
-        if (mainHead) {
+        for (let attempt = 0; ; attempt++) {
+          const mainHead = await gh.getRef(repo, MAIN_BRANCH);
+          if (!mainHead) break;
           const mainChanges = await hostingChanges(
             (path) => gh.readFile(repo, path, mainHead),
             input.target,
             repo.name,
           );
-          if (mainChanges.length) {
+          if (!mainChanges.length) break;
+          try {
             const commit = await gh.commitFiles(repo, {
               branch: MAIN_BRANCH,
               files: mainChanges,
@@ -926,6 +934,38 @@ export class DraftRoom extends DurableObject<HubBindings> {
               actor: input.userId,
               by: this.publishActor(user),
             });
+            break;
+          } catch (err) {
+            if (!(err instanceof GitHubConflictError) || attempt > 0) throw err;
+          }
+        }
+        let draftChanged = false;
+        for (let attempt = 0; ; attempt++) {
+          const draftChanges = await hostingChanges(
+            (path) => gh.readFile(repo, path, this.state.head),
+            input.target,
+            repo.name,
+          );
+          if (!draftChanges.length) break;
+          try {
+            await gh.commitFiles(repo, {
+              branch: DRAFT_BRANCH,
+              files: draftChanges,
+              message,
+              expectedHead: this.state.head,
+              author,
+            });
+            draftChanged = true;
+            await this.reloadFromHead(gh, repo, "Hosting changed.");
+            break;
+          } catch (err) {
+            if (!(err instanceof GitHubConflictError) || attempt > 0) throw err;
+            await this.reloadFromHead(
+              gh,
+              repo,
+              "The draft changed elsewhere; merged the latest version.",
+            );
+            await this.flushLocked(siteId);
           }
         }
         await updateSite(services.db, siteId, { deploy_target: input.target }, services.now());
@@ -935,7 +975,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
           action: "site.hosting",
           meta: { target: input.target, sha },
         });
-        return { sha, changed: draftChanges.length > 0 || sha !== null };
+        return { sha, changed: draftChanged || sha !== null };
       });
     });
   }

@@ -17,6 +17,7 @@ import { createMcpServer } from "@openspace/mcp-tools";
 import type { Role } from "@openspace/ops";
 import type { Context } from "hono";
 import type { User } from "../db/users";
+import type { HubConfig } from "../env";
 import type { AppEnv } from "../types";
 import {
   agentSessionsOf,
@@ -25,6 +26,7 @@ import {
   createMcpSession,
   getMcpSession,
   grantSites,
+  sessionsBeyond,
   touchConnection,
   touchMcpSession,
 } from "./db";
@@ -35,6 +37,56 @@ import { HubSiteStore, imagesResizer } from "./store";
 export const MCP_DAILY_OPS = 2_000;
 /** Burst limit per connection (RateLimiter DO). */
 export const MCP_BURST = { name: "mcp-burst", limit: 120, windowSec: 60 };
+/** New sessions per connection (RateLimiter DO) and live sessions kept per connection. */
+export const MCP_INIT_RATE = { name: "mcp-init", limit: 30, windowSec: 600 };
+export const MCP_MAX_SESSIONS = 20;
+
+/** Origins a browser-based MCP client may call from (bearer auth; no cookies are used). */
+function allowedOrigin(origin: string, config: HubConfig, extra: string | undefined): boolean {
+  let u: URL;
+  try {
+    u = new URL(origin);
+  } catch {
+    return false;
+  }
+  const loopback = ["localhost", "127.0.0.1", "[::1]"].includes(u.hostname);
+  const allow = new Set([
+    new URL(config.hubUrl).origin,
+    config.studioOrigin,
+    "https://claude.ai",
+    ...(extra ?? "")
+      .split(",")
+      .map((o) => o.trim())
+      .filter(Boolean),
+  ]);
+  return allow.has(u.origin) || (loopback && (u.protocol === "http:" || u.protocol === "https:"));
+}
+
+/** The request body as text, or null when it is larger than `max` bytes. */
+async function readCapped(req: Request, max: number): Promise<string | null> {
+  if (!req.body) return "";
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.length;
+    if (total > max) {
+      await reader.cancel().catch(() => undefined);
+      return null;
+    }
+    chunks.push(value);
+  }
+  const all = new Uint8Array(total);
+  let at = 0;
+  for (const ch of chunks) {
+    all.set(ch, at);
+    at += ch.length;
+  }
+  return new TextDecoder().decode(all);
+}
+
 /** Request body cap: base64 image uploads (15 MB) plus JSON. */
 const MAX_BODY_BYTES = 24 * 1024 * 1024;
 
@@ -102,6 +154,11 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
   const now = services.now();
   const sid = c.req.header("mcp-session-id") ?? null;
 
+  // MCP transport security: a browser-sent Origin must be one we expect (DNS-rebinding defence).
+  const origin = c.req.header("origin");
+  if (origin && !allowedOrigin(origin, c.var.config, c.env.MCP_ALLOWED_ORIGINS))
+    return c.json(rpcError(null, -32000, "Requests from this origin are not allowed."), 403);
+
   if (c.req.method === "GET")
     return c.json(
       rpcError(null, -32000, "This server doesn't open a server-to-client stream."),
@@ -130,11 +187,11 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
     return c.json(rpcError(null, -32700, "Content-Type must be application/json"), 415);
   const declared = Number(c.req.header("content-length") ?? "0");
   if (declared > MAX_BODY_BYTES) return c.json(rpcError(null, -32600, "Request too large"), 413);
+  // Read with a cap whatever Content-Length says (chunked bodies have none).
+  const text = await readCapped(c.req.raw, MAX_BODY_BYTES);
+  if (text === null) return c.json(rpcError(null, -32600, "Request too large"), 413);
   let body: unknown;
   try {
-    const text = await c.req.text();
-    if (text.length > MAX_BODY_BYTES)
-      return c.json(rpcError(null, -32600, "Request too large"), 413);
     body = JSON.parse(text);
   } catch {
     return respond(c, rpcError(null, -32700, "Parse error"), 400);
@@ -152,6 +209,18 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
   if (init) {
     if (Array.isArray(body))
       return respond(c, rpcError(null, -32600, "initialize can't be batched"), 400);
+    // New sessions are cheap for a client but not for us: limit their rate per connection.
+    const initRate = await services.pub.rateLimit.hit(
+      `mcp-init|${auth.connection.id}`,
+      MCP_INIT_RATE,
+    );
+    if (!initRate.ok)
+      return c.json(rpcError(init.id, -32000, "Too many new sessions; try again shortly."), 429, {
+        "Retry-After": String(initRate.retryAfter),
+      });
+    // At most MCP_MAX_SESSIONS live sessions per connection: the least recently used one ends.
+    for (const old of await sessionsBeyond(db, auth.connection.id, MCP_MAX_SESSIONS - 1))
+      await endSession(c.env, old, "ended", now, log);
     const params = isRecord(init.params) ? init.params : {};
     const requested = typeof params.protocolVersion === "string" ? params.protocolVersion : null;
     const info = isRecord(params.clientInfo) ? params.clientInfo : {};
@@ -180,6 +249,17 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
       await endSession(c.env, sid, "idle", now, log);
       return respond(c, rpcError(null, -32001, "Session expired"), 404);
     }
+    // After initialize, the client must keep using the version that was negotiated.
+    if (version && row.protocol_version && version !== row.protocol_version)
+      return respond(
+        c,
+        rpcError(
+          null,
+          -32000,
+          `MCP-Protocol-Version ${version} doesn't match this session (${row.protocol_version})`,
+        ),
+        400,
+      );
     await touchMcpSession(db, sid, now);
     sessionId = row.id;
     protocolVersion = row.protocol_version;

@@ -28,7 +28,9 @@ import { getSiteForUser } from "../db/sites";
 import { getUserRow, toUser } from "../db/users";
 import type { HubBindings } from "../env";
 import { MAIN_BRANCH, parseRepo } from "../github/types";
+import { base64url } from "../lib/crypto";
 import { HttpError } from "../lib/errors";
+import { requireHmacKey } from "../public-env";
 import { roomStub, unwrapRoom } from "../room";
 import type { Services } from "../services";
 import { listVersions, ROLLBACK_ROLE } from "../services/publishing";
@@ -83,9 +85,30 @@ async function wrap<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-/** Agent session id for (MCP session, site): stable, so a retried start never forks a session. */
-export function agentSessionIdFor(mcpSessionId: string, siteId: string): string {
-  return `${mcpSessionId.slice(-24)}-${siteId.replace(/^st_/, "")}`;
+/**
+ * Agent session id for (MCP session, site): stable, so a retried start never forks a session,
+ * and keyed (HMAC with the Hub secret) so it can't be derived from the visible MCP session id.
+ */
+export async function agentSessionIdFor(
+  key: string,
+  mcpSessionId: string,
+  siteId: string,
+): Promise<string> {
+  const k = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(key),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const mac = new Uint8Array(
+    await crypto.subtle.sign(
+      "HMAC",
+      k,
+      new TextEncoder().encode(`agent|${mcpSessionId}|${siteId}`),
+    ),
+  );
+  return `mcp-${base64url(mac).slice(0, 32)}`;
 }
 
 const ROLE_RANK = { contributor: 1, editor: 2, designer: 3, owner: 4 } as const;
@@ -234,13 +257,18 @@ export class HubSiteStore implements SiteStore {
     });
   }
 
-  async discardDraft(siteId: string, _ctx: ApplyContext): Promise<DraftDiff> {
+  async discardDraft(siteId: string, ctx: ApplyContext): Promise<DraftDiff> {
     this.site(siteId);
     await this.countOperation(siteId);
     return wrap(async () => {
       const before = await this.getDraftDiff(siteId);
       if (!before.hasChanges) return before;
-      await unwrapRoom(this.room(siteId).discardDraft(siteId, { userId: this.o.userId }));
+      await unwrapRoom(
+        this.room(siteId).discardDraft(siteId, {
+          userId: this.o.userId,
+          ...(ctx.session ? { agentSession: ctx.session } : {}),
+        }),
+      );
       return before;
     });
   }
@@ -347,6 +375,7 @@ export class HubSiteStore implements SiteStore {
 
   async snapshot(siteId: string, name: string): Promise<string | null> {
     this.site(siteId);
+    await this.countOperation(siteId);
     return wrap(async () => (await unwrapRoom(this.room(siteId).snapshot(siteId, name))).tag);
   }
 
@@ -362,7 +391,11 @@ export class HubSiteStore implements SiteStore {
         this.room(siteId).startAgentSession(siteId, {
           userId: this.o.userId,
           label: opts.label.slice(0, 40) || "Claude",
-          sessionId: agentSessionIdFor(this.o.mcpSessionId, siteId),
+          sessionId: await agentSessionIdFor(
+            requireHmacKey(this.o.services.pub.config),
+            this.o.mcpSessionId,
+            siteId,
+          ),
         }),
       );
       const ref: AgentSessionRef = {
@@ -377,6 +410,7 @@ export class HubSiteStore implements SiteStore {
   }
 
   async endSession(siteId: string, sessionId: string): Promise<void> {
+    this.site(siteId);
     await wrap(() =>
       unwrapRoom(this.room(siteId).endAgentSession(siteId, { userId: this.o.userId, sessionId })),
     );

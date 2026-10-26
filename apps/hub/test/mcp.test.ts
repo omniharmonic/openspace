@@ -3,7 +3,8 @@ import type { SiteDocument } from "@openspace/schema";
 import { describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app";
 import { redactSecrets } from "../src/lib/log";
-import { MCP_BURST, MCP_DAILY_OPS } from "../src/mcp/transport";
+import { isPrivateAddress } from "../src/mcp/ssrf";
+import { MCP_BURST, MCP_DAILY_OPS, MCP_INIT_RATE, MCP_MAX_SESSIONS } from "../src/mcp/transport";
 import { runScheduled } from "../src/scheduled";
 import { MemoryRateLimiter } from "../src/services/rate-limit";
 import { call, devLogin } from "./helpers";
@@ -591,5 +592,154 @@ describe("fix round 1", () => {
     expect(redactSecrets(`GET /mcp/t/${secret}?x=1`)).toBe(
       `GET /mcp/t/osmcp_…${secret.slice(-4)}?x=1`,
     );
+  });
+});
+
+describe("fix round 1 minors", () => {
+  it("validates Origin, keeps the negotiated version, caps sessions and limits initialize", async () => {
+    const { app, owner, site, limiter } = await setupMcp();
+    const conn = await oauthConnect(app, owner, { sites: [site.id] });
+    const mcp = new McpTestClient(app, `${HUB}/mcp`, conn.accessToken);
+    await mcp.initialize();
+    expect(
+      (
+        await mcp.post(
+          { jsonrpc: "2.0", id: 1, method: "ping" },
+          { Origin: "https://evil.example" },
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      (await mcp.post({ jsonrpc: "2.0", id: 2, method: "ping" }, { Origin: "https://claude.ai" }))
+        .status,
+    ).toBe(200);
+    expect(
+      (
+        await mcp.post(
+          { jsonrpc: "2.0", id: 3, method: "ping" },
+          { Origin: "http://localhost:6274" },
+        )
+      ).status,
+    ).toBe(200);
+    const mismatch = await mcp.post(
+      { jsonrpc: "2.0", id: 4, method: "ping" },
+      { "MCP-Protocol-Version": "2025-03-26" },
+    );
+    expect(mismatch.status).toBe(400);
+    expect(
+      (
+        await mcp.post(
+          { jsonrpc: "2.0", id: 5, method: "ping" },
+          { "MCP-Protocol-Version": "2025-06-18" },
+        )
+      ).status,
+    ).toBe(200);
+
+    // A body without Content-Length is still capped.
+    const big = new ReadableStream<Uint8Array>({
+      start(ctrl) {
+        const chunk = new Uint8Array(1024 * 1024).fill(32);
+        for (let i = 0; i < 26; i++) ctrl.enqueue(chunk);
+        ctrl.close();
+      },
+    });
+    const huge = await app.request(
+      `${HUB}/mcp`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${conn.accessToken}`,
+          "Mcp-Session-Id": mcp.sessionId as string,
+        },
+        body: big,
+        // @ts-expect-error workerd needs half-duplex for streamed bodies
+        duplex: "half",
+      },
+      env,
+    );
+    expect(huge.status).toBe(413);
+
+    // At most MCP_MAX_SESSIONS live sessions: the least recently used one ends.
+    const first = mcp.sessionId;
+    for (let i = 0; i < MCP_MAX_SESSIONS; i++) {
+      const extra = new McpTestClient(app, `${HUB}/mcp`, conn.accessToken);
+      await extra.initialize();
+    }
+    const live = await env.HUB_DB.prepare(
+      "SELECT COUNT(*) AS n FROM mcp_sessions WHERE connection_id = ? AND ended_at IS NULL",
+    )
+      .bind(conn.connectionId)
+      .first<{ n: number }>();
+    expect(live?.n).toBe(MCP_MAX_SESSIONS);
+    const ended = await env.HUB_DB.prepare("SELECT ended_at FROM mcp_sessions WHERE id = ?")
+      .bind(first)
+      .first<{ ended_at: number | null }>();
+    expect(ended?.ended_at).not.toBeNull();
+
+    for (let i = 0; i < MCP_INIT_RATE.limit; i++)
+      await limiter.hit(`mcp-init|${conn.connectionId}`, MCP_INIT_RATE);
+    const limited = new McpTestClient(app, `${HUB}/mcp`, conn.accessToken);
+    expect(await limited.initialize().catch((e: Error) => e.message)).toContain("429");
+  });
+
+  it("pre-checks a site only when there is one, and allows the client's redirect in form-action", async () => {
+    const { app, owner, site } = await setupMcp();
+    const reg = await call(app, `${HUB}/register`, {
+      method: "POST",
+      json: {
+        client_name: "Claude",
+        redirect_uris: [REDIRECT],
+        token_endpoint_auth_method: "none",
+      },
+    });
+    const { client_id } = (await reg.json()) as { client_id: string };
+    const q = new URLSearchParams({
+      response_type: "code",
+      client_id,
+      redirect_uri: REDIRECT,
+      code_challenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+      code_challenge_method: "S256",
+      state: "s",
+    });
+    const one = await call(app, `${HUB}/authorize?${q}`, { cookie: owner });
+    expect(await one.text()).toContain(`value="${site.id}" checked`);
+    expect(one.headers.get("content-security-policy")).toContain("http://localhost:6274");
+    await createSite(app, owner, "Second");
+    const two = await (await call(app, `${HUB}/authorize?${q}`, { cookie: owner })).text();
+    expect(two).not.toMatch(/name="site" value="[^"]+" checked/);
+  });
+
+  it("applies an MCP discard as the agent session, with a keyed session id", async () => {
+    const { app, owner, site } = await setupMcp();
+    const conn = await oauthConnect(app, owner, { sites: [site.id] });
+    const studio = await RoomClient.connect(app, site.id, owner);
+    const mcp = new McpTestClient(app, `${HUB}/mcp`, conn.accessToken);
+    await mcp.initialize();
+    await mcp.tool("update_block", {
+      page: T.home,
+      block: T.heroTitle,
+      set: { content: "Gone soon" },
+    });
+    const r = await mcp.tool("discard_draft", { confirm: true });
+    expect(r.result?.isError, toolText(r)).toBeFalsy();
+    await studio.waitFor((m) => studio.of("op").length >= 2 && m.type === "op");
+    const ops = studio.of("op");
+    expect(ops.every((o) => o.kind === "agent")).toBe(true);
+    expect(ops[0]?.actor).not.toContain(String(mcp.sessionId).slice(-12));
+    studio.close();
+  });
+
+  it("classifies 6to4, Teredo, discard-only and local NAT64 as private", () => {
+    for (const a of [
+      "2002:7f00:1::1",
+      "2002:c0a8:101::1",
+      "2001:0:4136:e378::1",
+      "100::1",
+      "64:ff9b:1::a00:1",
+    ])
+      expect(isPrivateAddress(a), a).toBe(true);
+    expect(isPrivateAddress("2002:5db8:d822::1")).toBe(false);
+    expect(isPrivateAddress("64:ff9b::5db8:d822")).toBe(false);
   });
 });

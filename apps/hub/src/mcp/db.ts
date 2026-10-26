@@ -358,3 +358,18 @@ export async function liveSessionsOfConnection(
     .all<{ id: string }>();
   return res.results.map((r) => r.id);
 }
+
+/** Live sessions of a connection beyond the newest `keep` (least recently used first). */
+export async function sessionsBeyond(
+  db: D1Database,
+  connectionId: string,
+  keep: number,
+): Promise<string[]> {
+  const res = await db
+    .prepare(
+      "SELECT id FROM mcp_sessions WHERE connection_id = ? AND ended_at IS NULL ORDER BY last_seen_at DESC LIMIT -1 OFFSET ?",
+    )
+    .bind(connectionId, keep)
+    .all<{ id: string }>();
+  return res.results.map((r) => r.id);
+}

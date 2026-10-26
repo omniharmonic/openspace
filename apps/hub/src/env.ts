@@ -21,6 +21,8 @@ export interface HubSecrets {
   GITHUB_TEMPLATE_OWNER?: string;
   /** GitHub App webhook secret: `/webhooks/github` verifies `X-Hub-Signature-256` with it. */
   GITHUB_WEBHOOK_SECRET?: string;
+  /** Extra browser origins allowed to call `/mcp` (comma-separated), e.g. an MCP inspector. */
+  MCP_ALLOWED_ORIGINS?: string;
   /** "true" to allow DEV_MODE on an https Hub (e.g. a public demo). Refused otherwise. */
   ALLOW_DEV_MODE?: string;
 }

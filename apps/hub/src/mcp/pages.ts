@@ -23,15 +23,40 @@ button.primary,.button.primary{background:var(--accent);border-color:var(--accen
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 `;
 
-export const PAGE_HEADERS = {
-  "Content-Type": "text/html; charset=utf-8",
-  "Cache-Control": "no-store",
-  "X-Frame-Options": "DENY",
-  "Content-Security-Policy":
-    "default-src 'none'; style-src 'unsafe-inline'; form-action 'self' https: http://localhost:* http://127.0.0.1:*; frame-ancestors 'none'; base-uri 'none'",
-  "Referrer-Policy": "no-referrer",
-  "X-Content-Type-Options": "nosniff",
-} as const;
+/**
+ * Headers for the flow's pages. `form-action` also governs where the consent form's redirect may
+ * go, so the page allows the client's registered redirect target (`formTargets`): its origin, or
+ * its scheme for a native app's private-use URI.
+ */
+export function pageHeaders(formTargets: string[] = []): Record<string, string> {
+  const formAction = [
+    "'self'",
+    "https:",
+    "http://localhost:*",
+    "http://127.0.0.1:*",
+    "http://[::1]:*",
+    ...formTargets,
+  ].join(" ");
+  return {
+    "Content-Type": "text/html; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Frame-Options": "DENY",
+    "Content-Security-Policy": `default-src 'none'; style-src 'unsafe-inline'; form-action ${formAction}; frame-ancestors 'none'; base-uri 'none'`,
+    "Referrer-Policy": "no-referrer",
+    "X-Content-Type-Options": "nosniff",
+  };
+}
+
+/** A redirect URI as a CSP source: `https://host:port` / `http://localhost:1234`, or `scheme:`. */
+export function formTargetFor(redirectUri: string): string | null {
+  try {
+    const u = new URL(redirectUri);
+    if (u.protocol === "https:" || u.protocol === "http:") return u.origin;
+    return /^[a-z][a-z0-9+.-]*:$/i.test(u.protocol) ? u.protocol : null;
+  } catch {
+    return null;
+  }
+}
 
 export function page(title: string, body: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${STYLE}</style></head><body><main><div class="card"><div class="brand">OpenSpace</div>${body}</div></main></body></html>`;
@@ -76,9 +101,10 @@ export function consentPage(input: {
 }): string {
   const sites = input.sites
     .map(
-      (s, i) =>
+      (s) =>
+        // Pre-checked only when there is nothing to choose; otherwise the person picks.
         `<label class="row"><input type="checkbox" name="site" value="${esc(s.id)}"${
-          input.sites.length === 1 || i === 0 ? " checked" : ""
+          input.sites.length === 1 ? " checked" : ""
         }><span>${esc(s.name)}<small>You're ${esc(s.role === "owner" ? "the owner" : `a ${s.role}`)}</small></span></label>`,
     )
     .join("");

@@ -7,7 +7,7 @@
  *
  * → 201 `{ media: { path, bytes, existed, mime, sha256, width?, height? } }`
  */
-import { imageSize, MAX_IMAGE_BYTES, sniffImage, stripMetadata } from "@openspace/mcp-tools";
+import { imageSize, sniffImage, stripMetadata } from "@openspace/mcp-tools";
 import { Hono } from "hono";
 import { z } from "zod";
 import { requireUser } from "../auth/session";
@@ -21,8 +21,11 @@ import type { AppEnv } from "../types";
 
 export const mediaRoutes = new Hono<AppEnv>();
 
-/** Videos are only for Cloudflare-hosted sites; keep them modest (repo storage). */
-const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+/**
+ * Studio's limit for every file it sends (`MAX_PASSTHROUGH_BYTES`: documents, audio, GIFs and
+ * videos as-is; photos are re-encoded well below it). GitHub refuses files over 100 MB.
+ */
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 const MetaSchema = z.object({
   path: z
@@ -60,9 +63,44 @@ const EXT_MIME: Record<string, string> = {
   heic: "image/heic",
 };
 
-/** Active content in an SVG (Studio sanitizes; this refuses anything it missed). */
-const SVG_ACTIVE =
-  /<script|<foreignObject|\son[a-z]+\s*=|javascript:|<iframe|<embed|<object|xlink:href\s*=\s*["']\s*(?!#)/i;
+/** SVG elements Studio's sanitizer (DOMPurify SVG profile) keeps; anything else is refused. */
+const SVG_ELEMENTS = new Set(
+  (
+    "svg g defs symbol use path rect circle ellipse line polyline polygon text tspan textPath " +
+    "title desc metadata clipPath mask pattern marker linearGradient radialGradient stop filter " +
+    "feBlend feColorMatrix feComponentTransfer feComposite feConvolveMatrix feDiffuseLighting " +
+    "feDisplacementMap feDistantLight feDropShadow feFlood feFuncA feFuncB feFuncG feFuncR " +
+    "feGaussianBlur feImage feMerge feMergeNode feMorphology feOffset fePointLight " +
+    "feSpecularLighting feSpotLight feTile feTurbulence switch view"
+  )
+    .split(" ")
+    .map((n) => n.toLowerCase()),
+);
+
+/**
+ * Structural check for an uploaded SVG (Studio sanitizes with DOMPurify; the Hub re-checks):
+ * only allowlisted elements, no event handlers, no references outside the document, no
+ * scripts/styles/entities. Returns the problem, or null when the SVG is safe to serve.
+ */
+export function svgProblem(text: string): string | null {
+  const body = text.replace(/^\uFEFF/, "");
+  if (!/<svg[\s>]/i.test(body)) return "it isn't an SVG image";
+  if (/<!ENTITY|<!DOCTYPE[^>]*\[/i.test(body)) return "it declares entities";
+  if (/<\?xml-stylesheet/i.test(body)) return "it links a stylesheet";
+  for (const m of body.matchAll(/<([A-Za-z][\w:.-]*)([^>]*)>/g)) {
+    const name = (m[1] ?? "").toLowerCase();
+    if (!SVG_ELEMENTS.has(name)) return `it contains <${m[1]}>`;
+    const attrs = m[2] ?? "";
+    if (/\son[a-z]+\s*=/i.test(attrs)) return "it has event handlers";
+    for (const a of attrs.matchAll(/\s((?:xlink:)?href|src)\s*=\s*("([^"]*)"|'([^']*)')/gi)) {
+      const value = (a[3] ?? a[4] ?? "").trim();
+      if (!value.startsWith("#")) return "it refers to outside content";
+    }
+    if (/url\(\s*['"]?(?!#)/i.test(attrs)) return "it refers to outside content";
+    if (/javascript:|data:/i.test(attrs)) return "it contains a script URL";
+  }
+  return null;
+}
 
 /** PDF and audio by their magic bytes. */
 function sniffDocument(b: Uint8Array): string | null {
@@ -92,7 +130,7 @@ mediaRoutes.post("/:id/media", async (c) => {
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
   requireRole(site, "editor");
   const declared = Number(c.req.header("content-length") ?? "0");
-  if (declared > MAX_VIDEO_BYTES + 1024 * 1024)
+  if (declared > MAX_UPLOAD_BYTES + 64 * 1024)
     throw new HttpError(413, "too_large", "That file is too large to upload.");
   let form: Record<string, string | File>;
   try {
@@ -108,6 +146,8 @@ mediaRoutes.post("/:id/media", async (c) => {
   } catch {
     throw new HttpError(400, "bad_request", "The file details are missing or invalid.");
   }
+  if (file.size > MAX_UPLOAD_BYTES)
+    throw new HttpError(413, "too_large", "Files must be under 25 MB.");
   let bytes: Uint8Array = new Uint8Array(await file.arrayBuffer());
   const sha = toHex(await crypto.subtle.digest("SHA-256", bytes));
   if (sha !== meta.sha256 || bytes.length !== meta.bytes)
@@ -124,22 +164,23 @@ mediaRoutes.post("/:id/media", async (c) => {
   let size: { width: number; height: number } | null = null;
   const fmt = sniffImage(bytes);
   if (fmt) {
-    if (bytes.length > MAX_IMAGE_BYTES)
-      throw new HttpError(413, "too_large", "Images can be at most 15 MB.");
     mime = IMAGE_MIME[fmt] as string;
     bytes = stripMetadata(bytes);
     size = imageSize(bytes);
   } else if (extMime === "image/svg+xml") {
-    const text = new TextDecoder().decode(bytes);
-    if (!/<svg[\s>]/i.test(text) || SVG_ACTIVE.test(text))
-      throw new HttpError(415, "unsupported_media_type", "That SVG contains active content.");
-    if (bytes.length > 1024 * 1024)
-      throw new HttpError(413, "too_large", "SVGs can be at most 1 MB.");
+    const problem = svgProblem(new TextDecoder().decode(bytes));
+    if (problem)
+      throw new HttpError(415, "unsupported_media_type", `That SVG can't be used: ${problem}.`);
     mime = extMime;
   } else if (sniffDocument(bytes)) {
     mime = sniffDocument(bytes) as string;
-    if (bytes.length > 25 * 1024 * 1024)
-      throw new HttpError(413, "too_large", "Files can be at most 25 MB.");
+    // Studio converts HEIC photos to JPEG/WebP; a raw HEIC would keep its location metadata.
+    if (mime === "image/heic")
+      throw new HttpError(
+        415,
+        "unsupported_media_type",
+        "HEIC photos must be converted first. Upload it from Studio, or as a JPEG.",
+      );
   } else {
     const video = sniffVideo(bytes);
     if (!video)

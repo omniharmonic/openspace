@@ -58,7 +58,7 @@ import {
   mcpResource,
   protectedResourceMetadata,
 } from "../mcp/oauth";
-import { consentPage, errorPage, PAGE_HEADERS, signInPage } from "../mcp/pages";
+import { consentPage, errorPage, formTargetFor, pageHeaders, signInPage } from "../mcp/pages";
 import { endConnectionSessions } from "../mcp/sessions";
 import { handleMcp, type McpAuth } from "../mcp/transport";
 import { requireRole, siteForUser } from "../services/sites";
@@ -72,8 +72,8 @@ export const mcpTokenRoutes = new Hono<AppEnv>();
 const CONSENT_TTL_MS = 10 * 60 * 1000;
 const TOKEN_PREFIX = "osmcp_";
 
-const html = (body: string, status: 200 | 400 | 403 | 404 = 200) =>
-  new Response(body, { status, headers: PAGE_HEADERS });
+const html = (body: string, status: 200 | 400 | 403 | 404 = 200, formTargets: string[] = []) =>
+  new Response(body, { status, headers: pageHeaders(formTargets) });
 
 // --- MCP endpoint --------------------------------------------------------------------------------
 
@@ -179,7 +179,12 @@ async function connectableSites(c: Context<AppEnv>, user: User) {
     .map((s) => ({ id: s.id, name: s.name, role: s.role as Role }));
 }
 
-/** Same-origin check for the consent forms (SameSite=Lax cookies + this). */
+/**
+ * CSRF defence for the consent forms, on top of SameSite=Lax session cookies and the single-use
+ * handle bound to the signed-in person: a form posted from another origin carries that origin
+ * and is refused. A missing Origin is accepted — browsers send one on cross-origin POSTs, so its
+ * absence means a same-origin (or non-browser) request, and the handle still has to match.
+ */
 function checkFormOrigin(c: Context<AppEnv>): void {
   const origin = c.req.header("origin");
   if (origin && origin !== new URL(c.var.config.hubUrl).origin)
@@ -241,6 +246,7 @@ mcpRoutes.get("/authorize", async (c) => {
         now + CONSENT_TTL_MS,
       ),
   ]);
+  const target = formTargetFor(authReq.redirectUri);
   return html(
     consentPage({
       handle,
@@ -250,6 +256,8 @@ mcpRoutes.get("/authorize", async (c) => {
       userName: user.name ?? user.login,
       sites,
     }),
+    200,
+    target ? [target] : [],
   );
 });
 

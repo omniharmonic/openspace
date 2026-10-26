@@ -7,7 +7,7 @@ import { isPrivateAddress } from "../src/mcp/ssrf";
 import { MemoryRateLimiter } from "../src/services/rate-limit";
 import { call, devLogin, type TestApp } from "./helpers";
 import { HUB, McpTestClient, oauthConnect, PNG_1PX, STUDIO_ORIGIN, toolText } from "./mcp-helpers";
-import { addMember, createSite, RoomClient, setText, T, userId } from "./room-helpers";
+import { addMember, createSite, RoomClient, room, setText, T, userId } from "./room-helpers";
 
 const fakeFetch: FetchLike = async (input) => {
   const url = String(input instanceof Request ? input.url : input);
@@ -275,5 +275,78 @@ describe("Studio follow-ups", () => {
     expect(proxied.status).toBe(200);
     expect((await call(app, `/api/sites/${site.id}/${path}`)).status).toBe(401);
     expect(env.HUB_DB).toBeTruthy();
+  });
+});
+
+describe("media upload rules (fix round 1)", () => {
+  async function sha(bytes: Uint8Array) {
+    return [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))]
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+  async function upload(
+    app: TestApp,
+    cookie: string,
+    siteId: string,
+    bytes: Uint8Array,
+    ext: string,
+    mime: string,
+  ) {
+    const h = await sha(bytes);
+    const form = new FormData();
+    form.set(
+      "meta",
+      JSON.stringify({
+        path: `media/f-${h.slice(0, 8)}.${ext}`,
+        mime,
+        bytes: bytes.length,
+        sha256: h,
+      }),
+    );
+    form.set("file", new Blob([bytes], { type: mime }), `f.${ext}`);
+    return call(app, `/api/sites/${siteId}/media`, {
+      method: "POST",
+      cookie,
+      headers: { Origin: STUDIO_ORIGIN },
+      body: form,
+    });
+  }
+  const enc = (t: string) => new TextEncoder().encode(t);
+
+  it("accepts clean SVGs, refuses active or outside-referencing ones and raw HEIC", async () => {
+    const { app, owner, site } = await setup();
+    const ok = enc(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><defs><linearGradient id="g"><stop offset="0"/></linearGradient></defs><rect width="10" height="10" fill="url(#g)"/><use href="#g"/></svg>',
+    );
+    expect((await upload(app, owner, site.id, ok, "svg", "image/svg+xml")).status).toBe(201);
+    for (const bad of [
+      '<svg xmlns="http://www.w3.org/2000/svg"><image href="https://evil.example/x.png"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg"><a href="javascript:alert(1)"><rect/></a></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg"><rect onclick="x()"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg"><style>rect{}</style></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg"><rect style="fill:url(https://e.example/a)"/></svg>',
+      '<!DOCTYPE svg [<!ENTITY x "y">]><svg xmlns="http://www.w3.org/2000/svg"/>',
+    ])
+      expect(
+        (await upload(app, owner, site.id, enc(bad), "svg", "image/svg+xml")).status,
+        bad,
+      ).toBe(415);
+    const heic = new Uint8Array(64);
+    heic.set(enc("\0\0\0\x18ftypheic"), 0);
+    expect((await upload(app, owner, site.id, heic, "heic", "image/heic")).status).toBe(415);
+  });
+
+  it("needs an editor (Studio route and room)", async () => {
+    const { app, site } = await setup();
+    const ana = await devLogin(app, "Ana Ruiz");
+    const anaId = await userId(app, ana);
+    await addMember(site.id, anaId, "contributor");
+    expect((await upload(app, ana, site.id, PNG_1PX, "png", "image/png")).status).toBe(403);
+    const r = await room(site.id).storeMedia(site.id, {
+      userId: anaId,
+      path: "media/x.png",
+      bytes: PNG_1PX,
+    });
+    expect(r).toMatchObject({ ok: false, error: { status: 403 } });
   });
 });

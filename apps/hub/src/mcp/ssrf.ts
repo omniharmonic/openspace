@@ -73,9 +73,14 @@ export function isPrivateIPv6(host: string): boolean {
     return isPrivateIPv4(v4);
   }
   // NAT64 (64:ff9b::/96) embeds an IPv4 address.
-  if (g0 === 0x64 && g1 === 0xff9b)
+  if (g0 === 0x64 && g1 === 0xff9b && g2 === 0 && g3 === 0 && g4 === 0 && g5 === 0)
     return isPrivateIPv4(`${g6 >> 8}.${g6 & 255}.${g7 >> 8}.${g7 & 255}`);
+  // 6to4 (2002::/16) embeds an IPv4 address in the next 32 bits.
+  if (g0 === 0x2002) return isPrivateIPv4(`${g1 >> 8}.${g1 & 255}.${g2 >> 8}.${g2 & 255}`);
   return (
+    (g0 === 0x2001 && g1 === 0) || // Teredo 2001::/32 (tunnels to arbitrary IPv4 hosts)
+    (g0 === 0x0100 && g1 === 0 && g2 === 0 && g3 === 0) || // discard-only 100::/64
+    (g0 === 0x64 && g1 === 0xff9b && g2 === 1) || // local-use NAT64 64:ff9b:1::/48
     (g0 & 0xfe00) === 0xfc00 || // unique local fc00::/7
     (g0 & 0xffc0) === 0xfe80 || // link-local fe80::/10
     (g0 & 0xffc0) === 0xfec0 || // site-local (deprecated)
