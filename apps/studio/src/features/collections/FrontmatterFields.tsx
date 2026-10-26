@@ -24,6 +24,7 @@ import { IntField, MediaField, MoneyField } from "./fields";
 import { fromInputDateTime, localDate, toInputDateTime } from "./itemOps";
 import { RepeatEditor } from "./RepeatEditor";
 import { suggestSku, syncVariants, variantLabel } from "./variants";
+import "./collections.css";
 
 type FM = Record<string, any>;
 

@@ -14,6 +14,7 @@ import {
   WEEKDAY_NAMES,
   WEEKDAYS,
 } from "./rrule";
+import "./collections.css";
 
 const FREQ_LABEL: Record<Freq, string> = {
   DAILY: "Days",

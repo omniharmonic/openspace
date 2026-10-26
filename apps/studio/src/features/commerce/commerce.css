@@ -84,7 +84,14 @@
   padding: 12px;
   border: 0;
   border-radius: var(--st-r);
-  background: var(--st-field);
+  background: var(--st-panel);
+  box-shadow: 0 0 0 1px var(--st-line);
+}
+
+.st-ship > .st-seg {
+  justify-self: start;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .st-ship__fields {

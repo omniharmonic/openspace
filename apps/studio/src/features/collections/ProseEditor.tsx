@@ -17,6 +17,7 @@ import { Button, IconButton, Input, Popover } from "../../ui";
 import { fromTiptap, restrictDoc, richKey, toTiptap } from "../editor/text/convert";
 import { richTextExtensions } from "../editor/text/schema";
 import { normaliseHref } from "../editor/text/TextToolbar";
+import "./collections.css";
 
 /** What survives the Markdown in a post body (and so what the toolbar offers). */
 export const PROSE_ALLOW = {

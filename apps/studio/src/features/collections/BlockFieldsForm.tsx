@@ -1,9 +1,11 @@
 import type { FieldMeta, ImageValue, Link, RichTextDoc } from "@openspace/schema";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Field, IconButton, Input, Select, TextArea } from "../../ui";
 import { SwitchRow } from "../workspace/ui";
 import { MediaField } from "./fields";
 import { ProseEditor } from "./ProseEditor";
+import "./collections.css";
 
 /**
  * A plain form for a block's fields, driven by the block's field metadata: text, rich text,
@@ -143,14 +145,10 @@ export function FieldControl({
           label={text}
           hint={meta.help ?? "A web address, an email, or a page path like /about"}
         >
-          <Input
-            value={linkToText(value)}
-            placeholder="https://…"
-            onChange={(e) =>
-              onChange(
-                textToLink(e.target.value, meta.allow) ?? (meta.optional ? undefined : value),
-              )
-            }
+          <LinkInput
+            value={value}
+            allow={meta.allow}
+            onChange={(link) => onChange(link ?? (meta.optional ? undefined : value))}
           />
         </Field>
       );
@@ -262,6 +260,42 @@ export function FieldControl({
     default:
       return null;
   }
+}
+
+/** Link text box: shows what was typed, stores the parsed link. */
+function LinkInput({
+  value,
+  allow,
+  onChange,
+  ...rest
+}: {
+  value: unknown;
+  allow: string[];
+  onChange: (link: Link | undefined) => void;
+  id?: string;
+}) {
+  const [text, setText] = useState(() => linkToText(value));
+  const last = useRef(linkToText(value));
+  useEffect(() => {
+    const t = linkToText(value);
+    if (t !== last.current) {
+      last.current = t;
+      setText(t);
+    }
+  }, [value]);
+  return (
+    <Input
+      {...rest}
+      value={text}
+      placeholder="https://…"
+      onChange={(e) => {
+        setText(e.target.value);
+        const link = textToLink(e.target.value, allow);
+        last.current = link ? linkToText(link) : "";
+        onChange(link);
+      }}
+    />
+  );
 }
 
 export function FieldsForm({

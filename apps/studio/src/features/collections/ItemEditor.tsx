@@ -83,6 +83,9 @@ function itemWithBody(d: Draft): CollectionItem {
 }
 
 const key = (item: CollectionItem | undefined) => (item ? canonicalJson(item) : "");
+/** Key of a saved item as the editor would write it back (bodies are normalised by the block round-trip). */
+const savedKeyOf = (item: CollectionItem | undefined) =>
+  item ? key(itemWithBody(draftFrom(item))) : "";
 
 const FORMS: Record<CollectionItem["kind"], (p: FrontmatterProps) => React.ReactNode> = {
   blog: (p) => <BlogFields {...p} />,
@@ -122,7 +125,7 @@ export function ItemEditor({
   const [draft, setDraft] = useState<Draft | null>(() =>
     saved ? draftFrom(saved) : slug ? null : draftFrom(newItem(doc, info.name, info.kind)),
   );
-  const [savedKey, setSavedKey] = useState(() => key(saved));
+  const [savedKey, setSavedKey] = useState(() => savedKeyOf(saved));
   const [slugTouched, setSlugTouched] = useState(Boolean(saved));
   const [preview, setPreview] = useState<null | "desktop" | "phone">(null);
   const [confirm, setConfirm] = useState<null | "delete" | "leave">(null);
@@ -140,9 +143,9 @@ export function ItemEditor({
     if (k === lastSaved.current) return;
     lastSaved.current = k;
     if (!saved) return;
-    if (!dirty || key(current) === k) {
+    if (!dirty || key(current) === savedKeyOf(saved)) {
       setDraft(draftFrom(saved));
-      setSavedKey(k);
+      setSavedKey(savedKeyOf(saved));
     } else setElsewhere(true);
   }, [saved]);
 
@@ -252,7 +255,7 @@ export function ItemEditor({
         ? "An editor will look at it before it goes on your site."
         : next.frontmatter.status === "draft"
           ? "Only people working on the site can see drafts."
-          : "It's on your site the next time you publish.",
+          : "It goes live the next time you publish your site.",
     });
     if (next.slug !== slug)
       navigate(workspacePath(site.id, "content", info.name, next.slug), { replace: true });
@@ -302,8 +305,8 @@ export function ItemEditor({
     ? "Submit for review"
     : status === "published"
       ? saved?.frontmatter.status === "published"
-        ? "Update"
-        : "Publish"
+        ? `Update ${info.itemLabel.toLowerCase()}`
+        : `Publish ${info.itemLabel.toLowerCase()}`
       : status === "scheduled"
         ? "Schedule"
         : "Save draft";
@@ -402,7 +405,7 @@ export function ItemEditor({
               className="st-linklike"
               onClick={() => {
                 if (saved) setDraft(draftFrom(saved));
-                setSavedKey(key(saved));
+                setSavedKey(savedKeyOf(saved));
                 setElsewhere(false);
               }}
             >

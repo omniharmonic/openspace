@@ -5,6 +5,7 @@ import { googleFontsUrl } from "@openspace/theme";
 import { Component, type ReactNode, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCanvasImageMap } from "../media/sources";
+import "./collections.css";
 
 registerAll();
 

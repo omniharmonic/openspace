@@ -4,6 +4,7 @@ import { Button, Field, IconButton, Input, Select } from "../../ui";
 import { useMediaPreviewUrl } from "../media/sources";
 import { useManageUi } from "../site-mgmt/manage-ui";
 import { moneyInput, parseMoney } from "../workspace/format";
+import "./collections.css";
 
 export const CURRENCIES = [
   "USD",

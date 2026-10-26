@@ -880,3 +880,27 @@
   gap: 8px;
   padding: 10px 0;
 }
+
+/* Toolbars: controls keep their natural size; search takes the slack. */
+.st-ws-toolbar > .st-seg {
+  flex: none;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.st-ws-toolbar > .st-select,
+.st-ws-toolbar > button.st-select {
+  flex: 0 1 220px;
+  width: auto;
+}
+
+.st-ws-section > .st-select,
+.st-ws-section > button.st-select {
+  max-width: 280px;
+}
+
+/* Segmented controls with words keep each option at its natural width. */
+.st-ws .st-seg:not(.st-seg--block) .st-seg__item {
+  flex: none;
+}

@@ -16,6 +16,7 @@ import { useMediaPreviewUrl } from "../media/sources";
 import { FieldsForm } from "./BlockFieldsForm";
 import { freshBlock } from "./markdoc";
 import { ProseEditor } from "./ProseEditor";
+import "./collections.css";
 
 /** Blocks a post body offers (prose first). */
 export const BODY_BLOCKS = [

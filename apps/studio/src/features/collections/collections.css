@@ -304,7 +304,6 @@
   transition: opacity var(--st-fast) var(--st-ease);
 }
 
-.st-body-block--text:hover > .st-body-block__bar,
 .st-body-block--text:focus-within > .st-body-block__bar {
   opacity: 1;
 }
@@ -687,4 +686,55 @@
 
 .st-dialog-left {
   margin-right: auto;
+}
+
+/* Prose in a body reads like a page; its toolbar and outline appear while you write. */
+.st-body-block--text > .st-prose {
+  background: transparent;
+  box-shadow: none;
+}
+
+.st-body-block--text > .st-prose:hover {
+  box-shadow: 0 0 0 1px var(--st-line);
+}
+
+.st-body-block--text > .st-prose:focus-within {
+  background: var(--st-panel);
+  box-shadow: 0 0 0 1px var(--st-accent);
+}
+
+.st-body-block--text > .st-prose > .st-prose__toolbar {
+  display: none;
+}
+
+.st-body-block--text > .st-prose:focus-within > .st-prose__toolbar {
+  display: flex;
+}
+
+@media (hover: none) {
+  .st-body-block--text > .st-prose > .st-prose__toolbar {
+    display: flex;
+  }
+}
+
+/* The details column is narrow: one field per row. */
+.st-item__aside .st-ws-cols,
+.st-item__aside .st-ws-cols--3 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.st-ws-cols > *,
+.st-item__card > * {
+  min-width: 0;
+}
+
+.st-item__card input[type="date"],
+.st-item__card input[type="datetime-local"] {
+  width: 100%;
+  min-width: 0;
+}
+
+.st-moneyfield > .st-select {
+  flex: none;
+  width: 84px;
 }
