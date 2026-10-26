@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { HUB_URL } from "../support/env";
 import { unique } from "../support/hub";
-import { canvasReady, siteIdFrom } from "../support/studio";
+import { editorReady, siteIdFrom } from "../support/studio";
 
 // PRD §4.1 onboarding (FR-1, FR-2, FR-3): browse without an account → template + look → name and
 // tagline → dev sign-in → "Setting up your site…" → editor; the live site renders the real template.
@@ -30,7 +30,7 @@ test("gallery → new site → dev sign-in → setting up → editor → live si
 
   await expect(page.getByRole("heading", { name: "Setting up your site…" })).toBeVisible();
   await page.waitForURL(/\/sites\/st_[0-9a-z]+/, { timeout: 60_000 });
-  await canvasReady(page);
+  await editorReady(page);
   await expect(page.getByText("Your site is live", { exact: true })).toBeVisible();
 
   const siteId = siteIdFrom(page);

@@ -4,7 +4,7 @@ import { McpClient } from "../support/mcp";
 import { closeChecklist, openEditor, signIn } from "../support/studio";
 
 // PRD §4.2 Design check (FR-18): issues are found and autofix works. The Hub side (the same lint
-// rules through MCP design_check / apply_fix) runs today; the Studio panel is Task 26.
+// rules through MCP design_check / apply_fix) and Studio's Design check panel (Task 26).
 type Issue = { id: string; rule: string; severity: string; autofix: string | null };
 
 async function setup() {
@@ -59,28 +59,33 @@ test("design check finds issues and autofix resolves them (Hub / MCP)", async ()
   await owner.dispose();
 });
 
-test("Studio design check panel shows issues and autofix works", async ({ page, context }) => {
+test("Studio design check panel shows the issue and its autofix works", async ({
+  page,
+  context,
+}) => {
   const { owner, site } = await setup();
   await signIn(context, owner.user.name);
   await openEditor(page, site.id);
   await closeChecklist(page);
-  const open = page.getByRole("button", { name: /Design check/i }).first();
-  // TODO(Task 26): the Design check panel isn't merged yet; this runs once it is.
-  test.skip(
-    !(await open.isVisible().catch(() => false)),
-    "Design check panel (Task 26) not in Studio yet",
-  );
-  await open.click();
-  const panel = page
-    .getByRole("region", { name: /Design check/i })
-    .or(page.getByRole("complementary", { name: /Design check/i }))
-    .first();
+  await page
+    .getByRole("navigation", { name: "Panels" })
+    .getByRole("button", { name: "Design check" })
+    .click();
+  const panel = page.getByTestId("design-check");
   await expect(panel).toBeVisible();
-  const fix = panel.getByRole("button", { name: /^Fix/ }).first();
-  await expect(fix).toBeVisible();
-  const issues = panel.getByRole("listitem");
-  const n = await issues.count();
+  await expect(panel).toContainText("second Heading 1");
+  const fix = panel.getByRole("button", { name: "Change to Heading 2" });
   await fix.click();
-  await expect.poll(() => issues.count()).toBeLessThan(n);
+  await expect(fix).toHaveCount(0);
+  await expect(panel).not.toContainText("second Heading 1");
+  // The fix is an ordinary edit: it reached the draft (and can be undone).
+  const levels = async () =>
+    homePage((await owner.draft(site.id)).document)
+      .sections.flatMap((s) => s.blocks)
+      .filter((b) => b.type === "heading")
+      .map((b) => b.fields.level);
+  await expect.poll(async () => (await levels()).filter((l) => l === "h1").length).toBe(1);
+  await page.getByRole("banner").getByRole("button", { name: "Undo", exact: true }).click();
+  await expect.poll(async () => (await levels()).filter((l) => l === "h1").length).toBe(2);
   await owner.dispose();
 });

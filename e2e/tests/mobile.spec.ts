@@ -1,10 +1,10 @@
 import { expect, type Page, test } from "@playwright/test";
 import { HUB_URL } from "../support/env";
 import { Hub, homePage, textOf, unique } from "../support/hub";
-import { canvas, closeChecklist, openEditor, signIn } from "../support/studio";
+import { signIn } from "../support/studio";
 
-// PRD §4.2 / FR-22 phone editing at 390 px: inspector as a bottom sheet, reorder sections,
-// publish from the phone. Runs on the `mobile` (Chromium) and `webkit-mobile` projects.
+// PRD §4.2 / FR-22 phone editing at 390 px through the phone Studio (Task 26): page list →
+// section list → bottom-sheet editing, reorder sections, publish from the phone. Runs on the `mobile` (Chromium) and `webkit-mobile` projects.
 let owner: Hub;
 let siteId: string;
 
@@ -26,66 +26,74 @@ async function noSidewaysScroll(page: Page) {
   expect(overflow, "nothing in Studio's chrome sticks out sideways").toBe(false);
 }
 
-test("phone: edit text in the bottom sheet, reorder sections, publish", async ({
+test("phone: page list → section list → edit in the bottom sheet, reorder, publish", async ({
   page,
   context,
 }) => {
   await signIn(context, owner.user.name);
-  await openEditor(page, siteId);
-  await closeChecklist(page);
+  await page.goto(`/sites/${siteId}`);
+  await expect(page.getByTestId("mobile-studio")).toBeVisible();
   await noSidewaysScroll(page);
-  const frame = canvas(page);
   const draft = async () => homePage((await owner.draft(siteId)).document);
   const order = (await draft()).sections.map((s) => s.id);
 
-  // 1. Tap the headline, open the inspector sheet, edit the Text field.
-  await frame.locator("h1").first().tap();
-  await page.getByRole("button", { name: /inspector/i }).click();
-  const sheet = page.getByRole("dialog", { name: "Inspector" });
-  await expect(sheet).toBeVisible();
+  // Pages → Home → its sections.
+  await page
+    .getByRole("navigation", { name: "Studio" })
+    .getByRole("button", { name: "Pages" })
+    .click();
+  await page.getByRole("list", { name: "Pages" }).getByRole("button", { name: /^Home/ }).click();
+  const sections = page.getByRole("list", { name: "Sections on Home" });
+  await expect(sections.getByRole("listitem")).toHaveCount(order.length);
+
+  // Tap the hero → bottom sheet → its heading → edit the Text field.
+  const hero = sections
+    .getByRole("listitem")
+    .first()
+    .getByRole("button")
+    .filter({ hasNotText: /^$/ })
+    .last();
+  await hero.click();
+  const sheet = page.getByRole("dialog");
+  await sheet
+    .getByRole("list", { name: "Blocks in this section" })
+    .getByRole("button")
+    .first()
+    .click();
+  await expect(sheet.getByTestId("inspector")).toBeVisible();
   const text = sheet.getByRole("textbox", { name: "Text", exact: true });
   await text.fill("Bread worth getting up for");
   await text.blur();
-  await expect(frame.locator("h1").first()).toHaveText("Bread worth getting up for");
   await expect
     .poll(async () => textOf((await draft()).sections[0]))
     .toContain("Bread worth getting up for");
-  await sheet.getByRole("button", { name: "Close" }).click();
-  await expect(sheet).toBeHidden();
 
-  // 2. Layers sheet: pick the hero section and move it down one place (⌥↓ on the tree row).
-  await page
-    .getByRole("navigation", { name: "Panels" })
-    .getByRole("button", { name: "Layers" })
+  // Close the sheet, reopen the hero section, move it down one place.
+  if (await sheet.isVisible()) await page.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
+  await sections.getByRole("listitem").first().getByRole("button").last().click();
+  await sheet
+    .getByRole("toolbar", { name: "Section" })
+    .getByRole("button", { name: "Move down" })
     .click();
-  const heroRow = page.getByRole("tree").locator('[role="treeitem"][aria-level="1"]').first();
-  // The section's treeitem contains its block rows: click its own row (top edge), not a child.
-  await heroRow.click({ position: { x: 60, y: 12 } });
-  await page.keyboard.press("Alt+ArrowDown");
   await expect
     .poll(async () => (await draft()).sections.map((s) => s.id).slice(0, 2))
     .toEqual([order[1], order[0]]);
+  await page.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
   await noSidewaysScroll(page);
 
-  await page.getByRole("dialog", { name: "Layers" }).getByRole("button", { name: "Close" }).click();
-
-  // 3. Publish from the phone.
+  // Publish from the phone.
   await page.getByRole("button", { name: "Publish", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Publish changes" });
   await dialog.getByRole("button", { name: "Publish now" }).click();
   await expect(dialog).toBeHidden();
+  const live = async () => (await page.request.get(`${HUB_URL}/s/${siteId}/`)).text();
   await expect
-    .poll(
-      async () =>
-        (await (await page.request.get(`${HUB_URL}/s/${siteId}/`)).text()).includes(
-          "Bread worth getting up for",
-        ),
-      { timeout: 30_000 },
-    )
+    .poll(async () => (await live()).includes("Bread worth getting up for"), { timeout: 30_000 })
     .toBe(true);
-  const html = await (await page.request.get(`${HUB_URL}/s/${siteId}/`)).text();
+  const html = await live();
   const first = html.indexOf(`data-os-id="${order[1]}"`);
-  const second = html.indexOf(`data-os-id="${order[0]}"`);
   expect(first).toBeGreaterThan(-1);
-  expect(first).toBeLessThan(second);
+  expect(first).toBeLessThan(html.indexOf(`data-os-id="${order[0]}"`));
 });

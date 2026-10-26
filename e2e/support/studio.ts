@@ -50,3 +50,14 @@ export async function closeChecklist(page: Page) {
   const hide = page.getByRole("button", { name: "Hide checklist" });
   if (await hide.isVisible().catch(() => false)) await hide.click();
 }
+
+/** The editor is up: the desktop canvas shows the page, or (phones) the phone Studio is shown. */
+export async function editorReady(page: Page) {
+  const desktop = canvas(page).locator("[data-os-section]").first();
+  const phone = page.getByTestId("mobile-studio");
+  await expect
+    .poll(async () => (await phone.isVisible()) || (await desktop.isVisible().catch(() => false)), {
+      timeout: 30_000,
+    })
+    .toBe(true);
+}
