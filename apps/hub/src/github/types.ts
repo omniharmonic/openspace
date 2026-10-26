@@ -131,6 +131,8 @@ export interface GitHubAccess {
   getRef(repo: RepoRef, ref: string): Promise<string | null>;
   readTree(repo: RepoRef, ref: string): Promise<TreeEntry[]>;
   readFile(repo: RepoRef, path: string, ref: string): Promise<string | null>;
+  /** A file's bytes at `ref` (binary-safe; media), or null if missing. */
+  readFileBytes(repo: RepoRef, path: string, ref: string): Promise<Uint8Array | null>;
   /** All files at `ref` (optionally under `prefix`), as text (binary files come back base64). */
   readFiles(
     repo: RepoRef,
@@ -165,6 +167,17 @@ export interface GitHubAccess {
   workflowStatus(repo: RepoRef, input: { workflow: string; ref?: string }): Promise<WorkflowRun>;
 
   setSecret(repo: RepoRef, name: string, value: string): Promise<void>;
+  /** The repo's Actions public key: browsers seal secret values with it (Task 17 hosting). */
+  secretsPublicKey(repo: RepoRef): Promise<{ keyId: string; key: string }>;
+  /** Store an Actions secret the caller already sealed (the Hub never sees the value). */
+  putSealedSecret(
+    repo: RepoRef,
+    name: string,
+    encryptedValue: string,
+    keyId: string,
+  ): Promise<void>;
+  /** Names of the repo's Actions secrets (values are never readable). */
+  listSecretNames(repo: RepoRef): Promise<string[]>;
   addCollaborator(repo: RepoRef, login: string, permission?: CollaboratorPermission): Promise<void>;
   removeCollaborator(repo: RepoRef, login: string): Promise<void>;
   /** Names of the failed jobs/steps of a workflow run (for plain-language build errors). */

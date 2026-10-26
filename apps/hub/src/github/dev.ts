@@ -492,6 +492,16 @@ export class DevGitHubAccess implements GitHubAccess {
     return (await this.blob(sha))?.content ?? null;
   }
 
+  async readFileBytes(repo: RepoRef, path: string, ref: string): Promise<Uint8Array | null> {
+    const tree = await this.treeAt(repo, ref);
+    const sha = tree[path];
+    const blob = sha ? await this.blob(sha) : null;
+    if (!blob) return null;
+    if (blob.encoding === "base64")
+      return Uint8Array.from(atob(blob.content), (ch) => ch.charCodeAt(0));
+    return new TextEncoder().encode(blob.content);
+  }
+
   async readFiles(
     repo: RepoRef,
     ref: string,
@@ -647,6 +657,37 @@ export class DevGitHubAccess implements GitHubAccess {
       )
       .bind(key(repo), name, this.now())
       .run();
+  }
+
+  /** A stable per-repo 32-byte "public key" (dev values are never decrypted or kept). */
+  async secretsPublicKey(repo: RepoRef): Promise<{ keyId: string; key: string }> {
+    await this.requireRepo(repo);
+    const digest = new Uint8Array(
+      await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`dev-secrets:${key(repo)}`)),
+    );
+    let bin = "";
+    for (const b of digest) bin += String.fromCharCode(b);
+    return { keyId: `dev-${key(repo).length}${digest[0]}`, key: btoa(bin) };
+  }
+
+  async putSealedSecret(
+    repo: RepoRef,
+    name: string,
+    _encryptedValue: string,
+    keyId: string,
+  ): Promise<void> {
+    if (keyId !== (await this.secretsPublicKey(repo)).keyId)
+      throw new GitHubConflictError("The secrets key changed");
+    await this.setSecret(repo, name, "");
+  }
+
+  async listSecretNames(repo: RepoRef): Promise<string[]> {
+    await this.requireRepo(repo);
+    const res = await this.db
+      .prepare("SELECT name FROM dev_secrets WHERE repo = ? ORDER BY name")
+      .bind(key(repo))
+      .all<{ name: string }>();
+    return res.results.map((r) => r.name);
   }
 
   async addCollaborator(

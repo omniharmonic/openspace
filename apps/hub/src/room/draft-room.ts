@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import { diff, type Op, type OpIssue, type Role } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import type { DeployTarget, SiteDocument } from "@openspace/schema";
 import { audit } from "../db/audit";
 import { insertPublish, latestPublish, type PublishRow, updatePublish } from "../db/publishes";
 import { getSite, type SiteRow, type SiteStatus, updateSite } from "../db/sites";
@@ -21,6 +21,7 @@ import { bytesToBase64, canonicalJson, randomId, sha1Hex, sha256Hex } from "../l
 import { HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
+import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
 import { diffSiteFiles, isDocumentPath, loadSiteDocument } from "../services/site-files";
 import { commitMessage, type TrailerActor, trailerEmail } from "./commit";
@@ -857,6 +858,84 @@ export class DraftRoom extends DurableObject<HubBindings> {
         this.state.setMeta("head", commit.sha);
         this.broadcast({ type: "flushed", seq: this.state.flushedSeq, head: commit.sha });
         return { head: commit.sha, existed: false };
+      });
+    });
+  }
+
+  /**
+   * Switch hosting (owner): the hosting files change on the draft and on main in two commits
+   * (unpublished content stays unpublished), the room reloads its config, and the live site is
+   * rebuilt with the new target.
+   */
+  async switchHosting(
+    siteId: string,
+    input: { userId: string; target: DeployTarget },
+  ): Promise<RoomResult<{ sha: string | null; changed: boolean }>> {
+    return this.rpc(async () => {
+      await this.ensureLoaded(siteId);
+      const services = this.services();
+      const role = await this.roleOf(services, siteId, input.userId);
+      if (role !== "owner")
+        throw new HttpError(403, "forbidden", "Only the owner can change hosting.");
+      return this.exclusive(async () => {
+        await this.flushLocked(siteId);
+        const site = await this.site(services, siteId);
+        const gh = await this.github(services, site);
+        const repo = parseRepo(site.repo);
+        const user = await this.userFor(services, input.userId);
+        const label = input.target === "cloudflare" ? "Cloudflare" : "GitHub Pages";
+        const message = `Switched hosting to ${label}`;
+        const author = { name: user?.name ?? user?.login ?? "OpenSpace" };
+        const draftChanges = await hostingChanges(
+          (path) => gh.readFile(repo, path, this.state.head),
+          input.target,
+          repo.name,
+        );
+        if (draftChanges.length) {
+          await gh.commitFiles(repo, {
+            branch: DRAFT_BRANCH,
+            files: draftChanges,
+            message,
+            expectedHead: this.state.head,
+            author,
+          });
+          await this.reloadFromHead(gh, repo, "Hosting changed.");
+        }
+        let sha: string | null = null;
+        const mainHead = await gh.getRef(repo, MAIN_BRANCH);
+        if (mainHead) {
+          const mainChanges = await hostingChanges(
+            (path) => gh.readFile(repo, path, mainHead),
+            input.target,
+            repo.name,
+          );
+          if (mainChanges.length) {
+            const commit = await gh.commitFiles(repo, {
+              branch: MAIN_BRANCH,
+              files: mainChanges,
+              message,
+              expectedHead: mainHead,
+              author,
+            });
+            sha = commit.sha;
+            await this.recordPublish(services, gh, site, {
+              kind: "publish",
+              sha,
+              prev: mainHead,
+              summary: message,
+              actor: input.userId,
+              by: this.publishActor(user),
+            });
+          }
+        }
+        await updateSite(services.db, siteId, { deploy_target: input.target }, services.now());
+        await audit(services.db, {
+          siteId,
+          actor: input.userId,
+          action: "site.hosting",
+          meta: { target: input.target, sha },
+        });
+        return { sha, changed: draftChanges.length > 0 || sha !== null };
       });
     });
   }
