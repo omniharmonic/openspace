@@ -187,12 +187,51 @@ export async function repoIdentity(db: D1Database, siteId: string): Promise<Repo
   return row?.repo_id ? { repoId: row.repo_id, ownerId: row.repo_owner_id } : null;
 }
 
-/** Fetch the repository's ids from GitHub and record them (creation, backfill, transfers). */
-export async function refreshRepoIdentity(
+/** The repository's current ids from GitHub (nothing is written). */
+export async function liveRepoIdentity(
   services: Services,
   site: SiteRow,
   gh?: GitHubAccess,
 ): Promise<RepoIdentity | null> {
   const access = gh ?? (await ownerGitHub(services, site));
-  return recordRepoIdentity(services, site.id, await access.getRepo(parseRepo(site.repo)));
+  const info = await access.getRepo(parseRepo(site.repo));
+  if (!info || typeof info.id !== "number") return null;
+  return {
+    repoId: String(info.id),
+    ownerId: typeof info.ownerId === "number" ? String(info.ownerId) : null,
+  };
+}
+
+/**
+ * Record `live` only where it can't replace a binding: when nothing is recorded yet, or for the
+ * same repository id (a transfer changes only the owner id). Conditional in SQL, so concurrent
+ * requests can't interleave a different repository's ids. Returns what is recorded afterwards.
+ */
+export async function adoptRepoIdentity(
+  services: Pick<Services, "db" | "now">,
+  siteId: string,
+  live: RepoIdentity,
+): Promise<RepoIdentity | null> {
+  const now = services.now();
+  await services.db.batch([
+    services.db
+      .prepare(
+        `INSERT INTO site_automation (site_id, repo_id, repo_owner_id, updated_at) VALUES (?1, ?2, ?3, ?4)
+         ON CONFLICT (site_id) DO UPDATE SET repo_id = excluded.repo_id,
+           repo_owner_id = excluded.repo_owner_id, updated_at = excluded.updated_at
+         WHERE site_automation.repo_id IS NULL OR site_automation.repo_id = excluded.repo_id`,
+      )
+      .bind(siteId, live.repoId, live.ownerId, now),
+  ]);
+  return repoIdentity(services.db, siteId);
+}
+
+/** Fetch the repository's ids from GitHub and record them if allowed (setup, backfill). */
+export async function refreshRepoIdentity(
+  services: Services,
+  site: SiteRow,
+  gh?: GitHubAccess,
+): Promise<RepoIdentity | null> {
+  const live = await liveRepoIdentity(services, site, gh);
+  return live ? adoptRepoIdentity(services, site.id, live) : null;
 }

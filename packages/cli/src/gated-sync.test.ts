@@ -106,6 +106,12 @@ describe("openspace gated-sync", () => {
       runGatedSync(captureIo(dir, env).io, {}, { fetch, wrangler: async () => 0 }),
     ).rejects.toThrow(/missing private page content/);
     await expect(runGatedSync(captureIo(dir).io, {}, { fetch })).rejects.toThrow(/id-token/);
+    await editJson(join(dir, "openspace.json"), (c) => {
+      c.hub = "http://hub.example";
+    });
+    await expect(runGatedSync(captureIo(dir, env).io, {}, { fetch })).rejects.toThrow(
+      /must use https/,
+    );
   });
 
   it("sealed stubs pass `openspace check`", async () => {

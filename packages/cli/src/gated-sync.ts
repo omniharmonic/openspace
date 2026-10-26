@@ -148,6 +148,10 @@ export async function runGatedSync(
   if (!bucket)
     throw new CliError('wrangler.jsonc has no "bucket_name" for the OS_GATED R2 binding.');
   const fetchFn = deps.fetch ?? ((input, init) => fetch(input, init));
+  const hubUrl = new URL(config.hub);
+  const local = ["localhost", "127.0.0.1", "[::1]"].includes(hubUrl.hostname);
+  if (hubUrl.protocol !== "https:" && !(hubUrl.protocol === "http:" && local))
+    throw new CliError(`The Hub address must use https (got ${hubUrl.origin}).`);
   const hub = config.hub.replace(/\/+$/, "");
   const token = await actionsToken(io, fetchFn, hub);
   const res = await fetchFn(`${hub}/ci/sites/${encodeURIComponent(config.siteId)}/gated`, {

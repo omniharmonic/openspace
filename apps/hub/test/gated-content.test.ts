@@ -333,6 +333,56 @@ describe("the Cloudflare publish workflow downloads gated content with its OIDC 
     expect((await get(tampered)).status).toBe(401);
   });
 
+  it("a replacement repository with the same name is always refused, even concurrently", async () => {
+    resetActionsKeyCache();
+    const { sign, fetch } = await oidc();
+    const app = createApp({ services: { fetch } });
+    const owner = await devLogin(app, "Noa Vale");
+    const site = await createSite(app, owner, "Swap Repo");
+    const gh = new DevGitHubAccess(env.HUB_DB);
+    const repo = { owner: "noa-vale", name: "swap-repo" };
+    const sha = (await gh.getRef(repo, "main")) as string;
+    const original = await gh.getRepo(repo);
+    const recorded = await env.HUB_DB.prepare(
+      "SELECT repo_id FROM site_automation WHERE site_id = ?",
+    )
+      .bind(site.id)
+      .first<{ repo_id: string }>();
+    expect(recorded?.repo_id).toBe(String(original?.id));
+    // The repository is deleted and recreated under the same name: a new numeric id.
+    await env.HUB_DB.prepare("UPDATE dev_repos SET rowid = rowid + 1000 WHERE full_name = ?")
+      .bind("noa-vale/swap-repo")
+      .run();
+    const replacement = await gh.getRepo(repo);
+    expect(replacement?.id).not.toBe(original?.id);
+    const now = Math.floor(Date.now() / 1000);
+    const token = await sign({
+      iss: "https://token.actions.githubusercontent.com",
+      aud: "http://localhost:8787",
+      repository: "noa-vale/swap-repo",
+      repository_id: String(replacement?.id),
+      repository_owner_id: String(replacement?.ownerId),
+      ref: "refs/heads/main",
+      workflow_ref: "noa-vale/swap-repo/.github/workflows/publish.yml@refs/heads/main",
+      sha,
+      exp: now + 300,
+    });
+    const statuses = await Promise.all(
+      Array.from({ length: 8 }, async () => {
+        const r = await call(app, `/ci/sites/${site.id}/gated`, {
+          headers: { authorization: `Bearer ${token}` },
+        });
+        return r.status;
+      }),
+    );
+    expect(statuses).toEqual(Array(8).fill(403));
+    // The binding never moved to the replacement.
+    const after = await env.HUB_DB.prepare("SELECT repo_id FROM site_automation WHERE site_id = ?")
+      .bind(site.id)
+      .first<{ repo_id: string }>();
+    expect(after?.repo_id).toBe(String(original?.id));
+  });
+
   it("unknown key ids refresh GitHub's keys at most once a minute; malformed keys are a 401", async () => {
     resetActionsKeyCache();
     const { sign, fetch, jwks } = await oidc();

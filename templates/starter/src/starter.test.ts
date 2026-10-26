@@ -234,6 +234,14 @@ describe("starter site shell", () => {
             },
           }),
         ).rejects.toThrow(/Missing private page content/);
+        // The identity token and private pages only travel over https (or to a local Hub).
+        await wf(
+          join(dir, "openspace.json"),
+          JSON.stringify({ siteId: "st_meadw00001", hub: "http://hub.example" }),
+        );
+        await expect(script.main({ cwd: dir, fetch, log: () => {}, env: {} })).rejects.toThrow(
+          /must use https/,
+        );
       } finally {
         await rm(dir, { recursive: true, force: true });
       }

@@ -42,11 +42,18 @@ publishingRoutes.post("/:id/rollback", async (c) => {
   const result = await unwrapRoom(
     roomStub(c.env, site.id).rollback(site.id, { userId: user.id, sha }),
   );
-  // Studio asks for a password when the restored version protects a page that has none.
-  const { doc } = await unwrapRoom(roomStub(c.env, site.id).getDocument(site.id));
+  // Studio asks for a password when the restored version protects a page that has none. The
+  // rollback already happened: a failure here is logged and the hint left out, never a 500.
+  let missing: Awaited<ReturnType<typeof pagesWithoutPassword>> | undefined;
+  try {
+    const { doc } = await unwrapRoom(roomStub(c.env, site.id).getDocument(site.id));
+    missing = await pagesWithoutPassword(c.var.services.db, site.id, doc);
+  } catch (err) {
+    c.var.log.warn("password check after rollback failed", { siteId: site.id, err });
+  }
   return c.json({
     ...result,
-    pagesWithoutPassword: await pagesWithoutPassword(c.var.services.db, site.id, doc),
+    ...(missing ? { pagesWithoutPassword: missing } : {}),
     site: await getSiteView(c.var.services, site.id, user),
   });
 });

@@ -16,9 +16,9 @@ import { HttpError } from "../lib/errors";
 import { OidcError, verifyActionsToken } from "../services/actions-oidc";
 import { gatedBundle, gatedContext } from "../services/gated-content";
 import {
+  adoptRepoIdentity,
+  liveRepoIdentity,
   type RepoIdentity,
-  recordRepoIdentity,
-  refreshRepoIdentity,
   repoIdentity,
 } from "../services/site-automation";
 import type { AppEnv } from "../types";
@@ -67,16 +67,10 @@ ciRoutes.get("/sites/:id/gated", async (c) => {
     (id.ownerId === null || String(claims.repository_owner_id ?? "") === id.ownerId);
   const recorded = await repoIdentity(services.db, site.id);
   if (!matches(recorded)) {
-    const live = await refreshRepoIdentity(services, site, gh);
-    if (!live || (recorded && live.repoId !== recorded.repoId) || !matches(live)) {
-      // Keep what was recorded: a replaced repository must not take over the binding.
-      if (recorded && live && live.repoId !== recorded.repoId)
-        await recordRepoIdentity(services, site.id, {
-          id: Number(recorded.repoId),
-          ...(recorded.ownerId ? { ownerId: Number(recorded.ownerId) } : {}),
-        });
-      throw forbidden();
-    }
+    // Read GitHub without writing; adopt only for a first record or the same repository id.
+    const live = await liveRepoIdentity(services, site, gh);
+    if (!live || (recorded && live.repoId !== recorded.repoId) || !matches(live)) throw forbidden();
+    if (!matches(await adoptRepoIdentity(services, site.id, live))) throw forbidden();
   }
   const bundle = await gatedBundle(
     gatedContext(services, site.id),

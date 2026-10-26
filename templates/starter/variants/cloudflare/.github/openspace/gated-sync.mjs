@@ -36,6 +36,15 @@ function bucketName(text) {
   return JSON.parse(json).r2_buckets?.find((b) => b.binding === "OS_GATED")?.bucket_name;
 }
 
+/** The Hub must be https (plain http only for a local Hub). */
+function hubOrigin(raw) {
+  const url = new URL(String(raw));
+  const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  if (url.protocol !== "https:" && !(url.protocol === "http:" && local))
+    throw new Error(`The Hub address must use https (got ${url.origin}).`);
+  return String(raw).replace(/\/+$/, "");
+}
+
 export async function main({
   cwd = process.cwd(),
   env = process.env,
@@ -43,6 +52,7 @@ export async function main({
   log = console.log,
 } = {}) {
   const config = JSON.parse(await readFile(join(cwd, "openspace.json"), "utf8"));
+  const hub = hubOrigin(config.hub);
   const stubs = [];
   for (const file of await pageFiles(join(cwd, "content/pages"))) {
     const page = JSON.parse(await readFile(file, "utf8"));
@@ -60,7 +70,6 @@ export async function main({
     throw new Error("CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID are needed.");
   if (!env.ACTIONS_ID_TOKEN_REQUEST_URL || !env.ACTIONS_ID_TOKEN_REQUEST_TOKEN)
     throw new Error("This job needs `permissions: id-token: write`.");
-  const hub = String(config.hub).replace(/\/+$/, "");
   const tokenUrl = new URL(env.ACTIONS_ID_TOKEN_REQUEST_URL);
   tokenUrl.searchParams.set("audience", hub);
   const idRes = await fetch(tokenUrl.toString(), {
