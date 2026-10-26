@@ -1,6 +1,7 @@
 /* ---------- Site Styles panel ---------- */
 .st-ss {
   overflow: auto;
+  overflow-x: hidden;
   height: 100%;
   font-size: var(--st-fs);
   scrollbar-width: thin;
