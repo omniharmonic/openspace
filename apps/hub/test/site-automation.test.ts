@@ -25,10 +25,7 @@ describe("Turnstile site key reaches site builds", () => {
   it("new sites get the repository variable and openspace.json integrations.turnstileSiteKey", async () => {
     const app = createApp();
     const bindings = { ...env, TURNSTILE_SITE_KEY: KEY };
-    const owner = await call(app, "/auth/dev/login", {
-      method: "POST",
-      json: { name: "Tara Quinn" },
-    }).then((r) => r.headers.getSetCookie()[0]?.split(";")[0] ?? "");
+    const owner = await devLogin(app, "Tara Quinn");
     const res = await call(
       app,
       "/api/sites",
