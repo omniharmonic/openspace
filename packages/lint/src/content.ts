@@ -127,7 +127,7 @@ export function blockText(block: Block): string {
     if (typeof v === "string") {
       if (
         key &&
-        /^(?:src|url|href|link|id|type|variant|icon|level|size|aspect|network|day|opens|closes|currency|source|provider|mode|frequency|target|tileServer|headingLevel|placeholder|columns|separator|speed|color|shape|thickness|length|height)$/.test(
+        /^(?:src|url|href|link|id|type|variant|icon|level|size|aspect|network|day|opens|closes|currency|source|provider|mode|frequency|target|tileServer|headingLevel|placeholder|columns|separator|speed|color|shape|thickness|length|height|role|align|alignment|layout|fit|theme|kind)$/.test(
           key,
         )
       )
