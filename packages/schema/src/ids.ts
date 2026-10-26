@@ -51,7 +51,12 @@ export function withScratchIds<T>(fn: () => T): T {
   const outer = scratchCounter;
   scratchCounter = outer ?? 0;
   try {
-    return fn();
+    const out = fn();
+    if (out && typeof (out as { then?: unknown }).then === "function")
+      throw new TypeError(
+        "withScratchIds needs a synchronous function: ids made after an await would be random.",
+      );
+    return out;
   } finally {
     scratchCounter = outer;
   }

@@ -65,4 +65,10 @@ describe("ids", () => {
     expect(spy).toHaveBeenCalledTimes(1);
     spy.mockRestore();
   });
+
+  it("withScratchIds refuses async functions", () => {
+    expect(() => withScratchIds(async () => newId("sec"))).toThrow(/synchronous/);
+    // Randomness is back afterwards.
+    expect(newId("sec")).not.toBe("sec_0000000000");
+  });
 });
