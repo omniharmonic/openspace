@@ -100,6 +100,13 @@ export interface StripeApi {
     idempotencyKey?: string;
   }): Promise<{ id: string }>;
   setPromotionCodeActive(id: string, active: boolean): Promise<void>;
+  /**
+   * A subscription invoice's payment (subscription-mode sessions have no payment intent of
+   * their own): what refunds and `charge.refunded` events are matched by.
+   */
+  retrieveInvoice(id: string): Promise<{ paymentIntent: string | null; charge: string | null }>;
+  /** Cancel a subscription now (refunded or sold-out subscription orders). */
+  cancelSubscription(id: string, idempotencyKey?: string): Promise<void>;
 }
 
 export class StripeError extends HttpError {
@@ -141,7 +148,7 @@ export class HttpStripe implements StripeApi {
   ) {}
 
   private async request<T>(
-    method: "GET" | "POST",
+    method: "GET" | "POST" | "DELETE",
     path: string,
     params?: Record<string, unknown>,
     opts: { idempotencyKey?: string; platform?: boolean } = {},
@@ -183,6 +190,35 @@ export class HttpStripe implements StripeApi {
       idempotencyKey ? { idempotencyKey } : {},
     );
     return { id: s.id, url: s.url };
+  }
+
+  async retrieveInvoice(id: string) {
+    const inv = await this.request<{ payment_intent?: unknown; charge?: unknown }>(
+      "GET",
+      `/v1/invoices/${encodeURIComponent(id)}`,
+    );
+    const ref = (v: unknown) =>
+      typeof v === "string"
+        ? v
+        : v && typeof v === "object"
+          ? String((v as { id?: unknown }).id ?? "") || null
+          : null;
+    return { paymentIntent: ref(inv.payment_intent), charge: ref(inv.charge) };
+  }
+
+  async cancelSubscription(id: string, idempotencyKey?: string) {
+    try {
+      await this.request(
+        "DELETE",
+        `/v1/subscriptions/${encodeURIComponent(id)}`,
+        undefined,
+        idempotencyKey ? { idempotencyKey } : {},
+      );
+    } catch (err) {
+      // Already canceled: nothing left to do.
+      if (err instanceof StripeError && err.status === 404) return;
+      throw err;
+    }
   }
 
   async createRefund(input: { paymentIntent: string; amount?: number; idempotencyKey?: string }) {
@@ -394,6 +430,27 @@ export class DevStripe implements StripeApi {
     const id = await this.keyedId("promo_dev", input.idempotencyKey);
     await this.put("promotion_code", id, "active", input);
     return { id };
+  }
+
+  async retrieveInvoice(id: string) {
+    const row = await this.db
+      .prepare("SELECT data_json FROM dev_stripe_objects WHERE id = ? AND kind = 'invoice'")
+      .bind(id)
+      .first<{ data_json: string }>();
+    if (!row) throw new StripeError(404, "resource_missing", "No such invoice.");
+    const d = JSON.parse(row.data_json) as { payment_intent?: string; charge?: string };
+    return { paymentIntent: d.payment_intent ?? null, charge: d.charge ?? null };
+  }
+
+  async cancelSubscription(id: string) {
+    await this.db
+      .prepare(
+        `INSERT INTO dev_stripe_objects (id, kind, account, status, data_json, created_at)
+         VALUES (?, 'subscription', ?, 'canceled', '{}', ?)
+         ON CONFLICT (id) DO UPDATE SET status = 'canceled'`,
+      )
+      .bind(id, this.account, this.now())
+      .run();
   }
 
   async setPromotionCodeActive(id: string, active: boolean) {

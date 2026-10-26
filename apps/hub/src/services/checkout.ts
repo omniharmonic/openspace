@@ -278,7 +278,8 @@ export async function createCheckout(
     if (interval) {
       // Subscription products (Stripe Billing): recurring prices for them, one-time prices for
       // anything else in the cart. Checkout can't offer shipping choices in subscription mode,
-      // so the cheapest rate for the parcel is added as a one-time shipping line.
+      // so the cheapest rate for the parcel is added as a recurring shipping line (each
+      // renewal ships again).
       meta.subscription = interval;
       const shipping = rates.reduce<(typeof rates)[number] | null>(
         (best, r) => (!best || r.amount < best.amount ? r : best),
@@ -304,6 +305,8 @@ export async function createCheckout(
                     currency: currency.toLowerCase(),
                     unit_amount: shipping.amount,
                     product_data: { name: `Shipping: ${shipping.label}` },
+                    // Shipped every period, so shipping is charged every period too.
+                    recurring: { interval },
                   },
                 },
               ]

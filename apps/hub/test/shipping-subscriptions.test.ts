@@ -1,9 +1,12 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
+import { readConfig } from "../src/env";
 import { DevGitHubAccess } from "../src/github/dev";
 import { MAIN_BRANCH, parseRepo } from "../src/github/types";
+import { createServices } from "../src/services";
 import { catalogFromDocument } from "../src/services/catalog";
 import { shippingRatesFor } from "../src/services/commerce";
+import { retryOrderFollowups } from "../src/services/orders";
 import { serializeMdoc } from "../src/services/site-files";
 import {
   devSession,
@@ -11,7 +14,10 @@ import {
   orderRow,
   payDev,
   postCheckout,
+  postWebhook,
+  setStockRow,
   shopSite,
+  WEBHOOK_SECRET,
 } from "./growth-helpers";
 import { call } from "./helpers";
 import type { SiteFixture } from "./public-helpers";
@@ -207,7 +213,7 @@ describe("subscription products (PRD 5.6, Stripe Billing)", () => {
     });
   });
 
-  it("adds the cheapest shipping as a one-time line when pickup isn't offered", async () => {
+  it("adds the cheapest shipping as a recurring line when pickup isn't offered", async () => {
     const { app, f } = await setup();
     await call(app, `/api/sites/${f.siteId}/commerce/settings`, {
       method: "PATCH",
@@ -223,7 +229,7 @@ describe("subscription products (PRD 5.6, Stripe Billing)", () => {
       ]),
     ).toEqual([
       [1500, "month"],
-      [500, null],
+      [500, "month"],
     ]);
   });
 
@@ -264,5 +270,111 @@ describe("subscription products (PRD 5.6, Stripe Billing)", () => {
     expect(c.skus.get("TEA-CLUB")).toMatchObject({ weight: 250, interval: "month" });
     expect(c.skus.get("TEAPOT-BLUE")).toMatchObject({ weight: 1600, interval: null });
     expect(c.skus.get("TEAPOT#2")).toMatchObject({ weight: 1400 });
+  });
+
+  const subscriptionCanceled = async (id: string | null) =>
+    (
+      await env.HUB_DB.prepare(
+        "SELECT status FROM dev_stripe_objects WHERE id = ? AND kind = 'subscription'",
+      )
+        .bind(id)
+        .first<{ status: string }>()
+    )?.status === "canceled";
+  const orderOf = async (id: string) =>
+    (await env.HUB_DB.prepare(
+      "SELECT status, payment_intent, subscription_id, meta_json, refunded, total FROM orders WHERE id = ?",
+    )
+      .bind(id)
+      .first()) as {
+      status: string;
+      payment_intent: string | null;
+      subscription_id: string | null;
+      meta_json: string;
+      refunded: number;
+      total: number;
+    };
+
+  it("refunds a subscription order through its invoice's payment and cancels the subscription", async () => {
+    const { app, f } = await setup();
+    const { url, orderId } = (await (
+      await postCheckout(f, { items: [{ sku: "JOURNAL-YEAR", qty: 1 }] })
+    ).json()) as { url: string; orderId: string };
+    await payDev(app, url);
+    const paid = await orderOf(orderId);
+    expect(paid.status).toBe("paid");
+    expect(paid.payment_intent).toMatch(/^pi_dev/);
+    expect(JSON.parse(paid.meta_json).invoice).toMatch(/^in_dev/);
+    const r = await call(app, `/api/sites/${f.siteId}/orders/${orderId}/refund`, {
+      method: "POST",
+      cookie: f.cookie,
+      json: {},
+    });
+    expect(r.status).toBe(200);
+    const after = await orderOf(orderId);
+    expect(after.status).toBe("refunded");
+    expect(JSON.parse(after.meta_json).subscriptionEnded).toBe(true);
+    expect(await subscriptionCanceled(after.subscription_id)).toBe(true);
+  });
+
+  it("auto-refunds a sold-out subscription order and cancels it", async () => {
+    const { app, f } = await setup();
+    await setStockRow(f.siteId, "TEA-CLUB", 1);
+    const first = (await (
+      await postCheckout(f, { items: [{ sku: "TEA-CLUB", qty: 1 }] })
+    ).json()) as { url: string; orderId: string };
+    const second = (await (
+      await postCheckout(f, { items: [{ sku: "TEA-CLUB", qty: 1 }] })
+    ).json()) as { url: string; orderId: string };
+    await payDev(app, first.url);
+    await payDev(app, second.url);
+    const soldOut = await orderOf(second.orderId);
+    expect(soldOut.status).toBe("refunded");
+    expect(await subscriptionCanceled(soldOut.subscription_id)).toBe(true);
+    expect((await orderOf(first.orderId)).status).toBe("paid");
+  });
+
+  it("matches charge.refunded by invoice and resolves missing payment intents in the cron", async () => {
+    const { app, f } = await setup();
+    const { url, orderId } = (await (
+      await postCheckout(f, { items: [{ sku: "JOURNAL-YEAR", qty: 1 }] })
+    ).json()) as { url: string; orderId: string };
+    await payDev(app, url);
+    const paid = await orderOf(orderId);
+    const invoice = JSON.parse(paid.meta_json).invoice as string;
+    // As if the invoice couldn't be read at payment time: the daily cron finds it.
+    await env.HUB_DB.prepare("UPDATE orders SET payment_intent = NULL WHERE id = ?")
+      .bind(orderId)
+      .run();
+    const services = createServices(env as never, readConfig(env as never));
+    const out = await retryOrderFollowups(services);
+    expect(out.subscriptions).toBeGreaterThanOrEqual(1);
+    expect((await orderOf(orderId)).payment_intent).toBe(paid.payment_intent);
+    // A refund made in Stripe's dashboard, named by the invoice.
+    await env.HUB_DB.prepare("UPDATE orders SET payment_intent = NULL WHERE id = ?")
+      .bind(orderId)
+      .run();
+    const body = JSON.stringify({
+      id: "evt_sub_refund",
+      type: "charge.refunded",
+      data: {
+        object: {
+          id: "ch_sub",
+          invoice,
+          amount_refunded: paid.total,
+          refunds: { data: [{ id: "re_sub_ext", amount: paid.total }] },
+          metadata: { os_site: f.siteId },
+        },
+      },
+    });
+    const { signStripePayload } = await import("../src/services/stripe");
+    const res = await postWebhook(
+      app,
+      body,
+      await signStripePayload(body, WEBHOOK_SECRET, Math.floor(Date.now() / 1000)),
+    );
+    expect(res.status).toBe(200);
+    const after = await orderOf(orderId);
+    expect(after.status).toBe("refunded");
+    expect(await subscriptionCanceled(after.subscription_id)).toBe(true);
   });
 });

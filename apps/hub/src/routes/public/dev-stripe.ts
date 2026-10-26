@@ -109,6 +109,26 @@ devStripeRoutes.post("/dev/stripe/checkout/:id", async (c) => {
   const t = totals(s, discount);
   const subscription = s.params.mode === "subscription";
   const physical = !!s.params.shipping_address_collection;
+  // Subscription sessions are paid through their first invoice (like Stripe).
+  const subscriptionId = subscription ? randomId("sub_dev") : null;
+  const invoice = subscription ? randomId("in_dev") : null;
+  if (invoice)
+    await services.db
+      .prepare(
+        `INSERT INTO dev_stripe_objects (id, kind, account, status, data_json, created_at)
+         VALUES (?, 'invoice', ?, 'paid', ?, ?)`,
+      )
+      .bind(
+        invoice,
+        s.account,
+        JSON.stringify({
+          payment_intent: randomId("pi_dev"),
+          charge: randomId("ch_dev"),
+          subscription: subscriptionId,
+        }),
+        services.now(),
+      )
+      .run();
   const session = {
     id: s.id,
     object: "checkout.session",
@@ -127,7 +147,8 @@ devStripeRoutes.post("/dev/stripe/checkout/:id", async (c) => {
       name: single(f.name) ?? null,
     },
     payment_intent: subscription ? null : randomId("pi_dev"),
-    subscription: subscription ? randomId("sub_dev") : null,
+    subscription: subscriptionId,
+    invoice,
     shipping_details: physical
       ? {
           name: single(f.name) ?? "Test Buyer",
