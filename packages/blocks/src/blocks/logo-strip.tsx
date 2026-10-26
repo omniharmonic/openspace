@@ -105,15 +105,16 @@ export const logoStripCss = `
 .os-logos__word--1{font-family:var(--os-font-body);font-weight:600;letter-spacing:0.18em;text-transform:uppercase;font-size:0.95rem}
 .os-logos__word--2{font-family:var(--os-font-heading);font-weight:400;letter-spacing:-0.01em;font-size:1.5rem}
 .os-logos__word--3{font-family:var(--os-font-body);font-weight:800;letter-spacing:-0.03em;font-size:1.3rem}
+@container block (max-width:30rem){.os-logos__list{gap:var(--os-space-xs) var(--os-space-md)}.os-logos__word{font-size:1rem}.os-logos__word--0,.os-logos__word--2{font-size:1.15rem}.os-logos__word--1{font-size:0.8rem}.os-logos__img{height:1.75rem}}
+.os-logos--grid .os-logos__word{white-space:normal;text-align:center;text-wrap:balance}
 .os-logos.is-mono .os-logos__item{opacity:0.72;transition:opacity var(--os-motion-duration-base) var(--os-motion-ease)}
 .os-logos.is-mono .os-logos__img .os-img__img{filter:grayscale(1)}
 .os-logos.is-mono .os-logos__item:hover{opacity:1}
 .os-logos.is-mono .os-logos__item:hover .os-img__img{filter:none}
-.os-logos--grid .os-logos__list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--os-color-border);border:1px solid var(--os-color-border);border-radius:var(--os-radius-card);overflow:hidden}
+.os-logos--grid .os-logos__list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:1px solid var(--os-color-border);border-inline-start:1px solid var(--os-color-border)}
 @container block (min-width:40rem){.os-logos--grid .os-logos__list{grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))}}
-.os-logos--grid .os-logos__item{min-height:6.5rem;padding:var(--os-space-sm);background:var(--os-color-background)}
+.os-logos--grid .os-logos__item{min-height:6.5rem;padding:var(--os-space-sm);border-bottom:1px solid var(--os-color-border);border-inline-end:1px solid var(--os-color-border)}
 .os-logos--marquee .os-marquee{mask-image:linear-gradient(90deg,transparent,currentColor 8%,currentColor 92%,transparent)}
 .os-logos--marquee .os-marquee__track{justify-content:center}
 .os-logos--marquee .os-marquee.is-running .os-marquee__track{justify-content:flex-start;padding-inline-end:var(--os-space-lg)}
-.os-block.os-themed .os-logos--grid .os-logos__item{background:var(--os-color-background)}
 `;

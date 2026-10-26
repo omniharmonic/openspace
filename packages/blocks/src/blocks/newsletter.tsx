@@ -141,7 +141,7 @@ export const newsletterCss = `
 .os-newsletter__intro{display:grid;gap:var(--os-space-2xs)}
 .os-newsletter__text{color:var(--os-color-text);max-inline-size:var(--os-measure)}
 .os-newsletter__form{display:grid;gap:var(--os-space-2xs)}
-.os-newsletter__row{display:flex;flex-wrap:wrap;gap:var(--os-space-2xs);align-items:end}
+.os-newsletter__row{display:flex;flex-wrap:wrap;gap:var(--os-space-2xs);align-items:stretch}
 .os-newsletter__field{flex:1 1 14rem}
 .os-newsletter__submit{flex:none}
 .os-newsletter__note{font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}

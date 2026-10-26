@@ -7,7 +7,7 @@ import {
   type Link as LinkValue,
 } from "@openspace/schema";
 import { Icon } from "../icons";
-import { aspectField, DEMO, useImageUrl } from "../shared";
+import { ASPECT_OPTIONS, DEMO, useImageUrl } from "../shared";
 
 const COLUMN_OPTIONS = [
   { value: "2", label: "2" },
@@ -42,7 +42,12 @@ export const galleryBlock = defineBlock({
         { image: DEMO.livingRoom, caption: "The quiet room" },
       ],
     }),
-    aspect: aspectField("4:5", "Crop shape for grid, carousel and slideshow"),
+    aspect: f.select({
+      options: [{ value: "auto", label: "Automatic" }, ...ASPECT_OPTIONS],
+      default: "auto",
+      label: "Aspect ratio",
+      help: "Crop for grid, carousel and slideshow. Automatic: portrait tiles, landscape slideshow.",
+    }),
     columns: f.select({
       options: COLUMN_OPTIONS,
       default: "3",
@@ -90,8 +95,14 @@ function Gallery({ id, fields, variant }: { id: string; fields: GalleryFields; v
   const fullUrl = useImageUrl();
   const ratio = useRatio();
   const sizes = SIZES[variant] ?? SIZES.grid;
-  const crop =
-    variant === "masonry" || variant === "strips" ? undefined : (fields.aspect as AspectRatio);
+  const crop: AspectRatio | undefined =
+    variant === "masonry" || variant === "strips"
+      ? undefined
+      : fields.aspect !== "auto"
+        ? fields.aspect
+        : variant === "slideshow"
+          ? "3:2"
+          : "4:5";
   const lightbox = fields.lightbox && fields.images.some((i) => !i.link);
   const carousel = variant === "carousel" || variant === "slideshow";
 
@@ -210,10 +221,11 @@ export const galleryCss = `
 @container block (min-width:64rem){.os-gallery--masonry .os-gallery__items{columns:var(--g-cols,3)}}
 @container block (max-width:24rem){.os-gallery--masonry .os-gallery__items{columns:1}}
 
-.os-gallery--strips .os-gallery__items{--row-h:11rem;display:flex;flex-wrap:wrap;gap:var(--os-space-2xs)}
+.os-gallery--strips .os-gallery__items{--row-h:6.5rem;display:flex;flex-wrap:wrap;gap:var(--os-space-2xs)}
 .os-gallery--strips .os-gallery__items::after{content:"";flex-grow:999}
 .os-gallery--strips .os-gallery__item{flex:var(--ar,1.5) 1 calc(var(--ar,1.5) * var(--row-h));min-width:0}
 .os-gallery--strips .os-img{aspect-ratio:var(--ar,1.5)}
+@container block (min-width:30rem){.os-gallery--strips .os-gallery__items{--row-h:10rem}}
 @container block (min-width:44rem){.os-gallery--strips .os-gallery__items{--row-h:15rem;gap:var(--os-space-xs)}}
 @container block (min-width:72rem){.os-gallery--strips .os-gallery__items{--row-h:19rem}}
 

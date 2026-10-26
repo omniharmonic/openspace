@@ -17,7 +17,7 @@ export interface VideoEmbed {
   /** The page to watch on the provider's site (no-JS fallback). */
   watch: string;
   /** Provider thumbnail when one is available without an API call. */
-  thumbnail?: { src: string; width: number; height: number };
+  thumbnail?: { src: string; srcset?: string; width: number; height: number };
 }
 
 const YT_ID = /^[A-Za-z0-9_-]{11}$/;
@@ -51,7 +51,12 @@ export function parseVideoUrl(input: string | undefined): VideoEmbed | undefined
       provider: "youtube",
       embed: `https://www.youtube-nocookie.com/embed/${yt}?rel=0${q}`,
       watch: `https://www.youtube.com/watch?v=${yt}`,
-      thumbnail: { src: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`, width: 480, height: 360 },
+      thumbnail: {
+        src: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`,
+        srcset: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg 480w, https://i.ytimg.com/vi/${yt}/sddefault.jpg 640w`,
+        width: 480,
+        height: 360,
+      },
     };
   }
 
@@ -236,6 +241,8 @@ function Video({ fields, variant }: { fields: VideoFields; variant: string }) {
       ) : embed.thumbnail ? (
         <img
           src={embed.thumbnail.src}
+          srcSet={embed.thumbnail.srcset}
+          sizes="(min-width: 768px) 60vw, 100vw"
           width={embed.thumbnail.width}
           height={embed.thumbnail.height}
           alt=""
