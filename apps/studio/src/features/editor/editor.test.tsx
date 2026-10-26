@@ -56,11 +56,10 @@ describe("editor frame", () => {
     await waitFor(() =>
       expect(frame.contentDocument?.querySelector("[data-os-page]")).toBeTruthy(),
     );
-    // Disabled but still focusable, so its tooltip explains why.
-    const publish = screen.getByRole("button", { name: "Publish" });
-    expect(publish).toHaveAttribute("aria-disabled", "true");
-    expect(publish).not.toHaveAttribute("disabled");
+    // Publish opens the change summary; the draft room reports the save state and who's here.
+    expect(screen.getByRole("button", { name: "Publish" })).not.toHaveAttribute("aria-disabled");
     expect(screen.getByRole("list", { name: "Editing now" })).toBeInTheDocument();
+    expect(await screen.findByText("Saved")).toBeInTheDocument();
   });
 
   it("switches panels from the rail and hides everything with ⌘\\", async () => {

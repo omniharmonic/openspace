@@ -41,6 +41,21 @@ export interface CommitOptions {
 
 export type CommitResult = { ok: true; ops: Op[] } | { ok: false; errors: OpIssue[] };
 
+/**
+ * The inline text session in progress (rich text or plain text). The sync layer settles it
+ * before applying someone else's change, so what was typed is committed first and React's
+ * DOM is never edited underneath a contenteditable.
+ */
+export interface TextSessionHandle {
+  kind: "rich" | "plain";
+  blockId: string;
+  path: string;
+  /** Commit pending keystrokes now (the session stays open). */
+  flush: () => void;
+  /** End the session, committing (true) or discarding (false) what was typed. */
+  end: (commit: boolean) => void;
+}
+
 export type LocalOpsListener = (
   ops: Op[],
   info: { kind: "edit" | "undo" | "redo"; label: string },
@@ -79,6 +94,18 @@ export interface EditorDocState {
     rejected: Array<{ op: Op; errors: OpIssue[] }>;
   };
   replaceDocument: (doc: SiteDocument) => void;
+  /**
+   * Show a document that came from the draft room (someone else's change merged with this
+   * device's pending edits). Keeps local undo history unless `resetHistory`.
+   */
+  syncDocument: (doc: SiteDocument, options?: { resetHistory?: boolean }) => void;
+  /** Register the inline text session in progress; returns an unregister function. */
+  registerTextSession: (handle: TextSessionHandle) => () => void;
+  /**
+   * Before an external change (`ops`, or `null` for a whole new document): rich text commits
+   * what was typed; a plain-text session touched by the change ends (committing) first.
+   */
+  settleTextEditing: (ops: readonly Op[] | null) => void;
 }
 
 export type EditorStore = StoreApi<EditorDocState>;
@@ -144,6 +171,18 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
   const emit = (ops: Op[], kind: "edit" | "undo" | "redo", label: string) => {
     if (!ops.length) return;
     for (const l of listeners) l(ops, { kind, label });
+  };
+
+  let textSession: TextSessionHandle | null = null;
+
+  /** Does `op` touch the block (or its section/page) an inline session is editing? */
+  const touchesBlock = (op: Op, doc: SiteDocument, pageId: string, blockId: string) => {
+    const loc = locate(doc, pageId, { kind: "block", id: blockId });
+    const o = op as { block?: unknown; section?: unknown; page?: unknown };
+    if (o.block === blockId) return true;
+    if (op.op.startsWith("section.") && loc && o.section === loc.section.id) return true;
+    if (op.op === "page.delete" && o.page === pageId) return true;
+    return false;
   };
 
   const store = createStore<EditorDocState>((set, get) => ({
@@ -356,6 +395,40 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
         });
       }
       return { applied, rejected };
+    },
+
+    syncDocument: (doc, opts = {}) => {
+      const s = get();
+      const pageId = doc.pages[s.pageId as keyof SiteDocument["pages"]]
+        ? s.pageId
+        : homePageId(doc);
+      set({
+        doc,
+        pageId,
+        selection: prune(doc, pageId, s.selection),
+        hover: s.hover && locate(doc, pageId, s.hover) ? s.hover : null,
+        editing:
+          s.editing && locate(doc, pageId, { kind: "block", id: s.editing }) ? s.editing : null,
+        ...(opts.resetHistory ? { undoStack: [], redoStack: [] } : {}),
+        version: s.version + 1,
+      });
+    },
+
+    registerTextSession: (handle) => {
+      textSession = handle;
+      return () => {
+        if (textSession === handle) textSession = null;
+      };
+    },
+
+    settleTextEditing: (ops) => {
+      const h = textSession;
+      if (!h) return;
+      const s = get();
+      const touched =
+        ops === null || ops.some((op) => touchesBlock(op, s.doc, s.pageId, h.blockId));
+      if (h.kind === "plain" && touched) h.end(true);
+      else h.flush();
     },
 
     replaceDocument: (doc) => {
