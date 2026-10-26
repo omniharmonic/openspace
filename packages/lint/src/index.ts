@@ -1,1 +1,29 @@
+/**
+ * @openspace/lint — Studio's Design check and SEO check, and the grid mobile auto-layout
+ * (doc 04 §9, arch §3.3). Pure functions over a `SiteDocument`; fixes are `@openspace/ops`
+ * operations so Studio, MCP and the CLI apply them like any other edit.
+ */
 export const name = "@openspace/lint";
+
+export {
+  blockDisplayWidth,
+  blocksInOrder,
+  blockText,
+  headingsOf,
+  imagesIn,
+  isTextBlock,
+  type OutlineHeading,
+} from "./content";
+export { designCheck } from "./design-check";
+export { type Autofix, type CheckOptions, type Issue, type Severity, sortIssues } from "./issue";
+export {
+  type AutoMobileOptions,
+  autoMobileLayout,
+  autoMobileLayoutOps,
+  MOBILE_WIDTH,
+  mobileHeight,
+  mobileRowCount,
+  ROW_UNIT,
+  readingOrder,
+} from "./mobile";
+export { effectiveTitle, seoCheck } from "./seo";

@@ -15,6 +15,7 @@ export * from "./define-block";
 export * from "./document";
 export * from "./fields";
 export * from "./form";
+export * from "./grid-fallback";
 export * from "./ids";
 export * from "./json-schema";
 export * from "./media";
