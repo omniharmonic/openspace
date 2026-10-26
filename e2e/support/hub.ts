@@ -85,6 +85,24 @@ export class Hub {
     return this.get(`/api/sites/${siteId}/room/document`);
   }
 
+  /** Submit ops without asserting the outcome (role checks etc.). Ops get id/actor/ts here. */
+  async submitOps(siteId: string, bodies: Array<Record<string, unknown>>) {
+    const ops = bodies.map((b, i) => ({
+      id: `e2e-${Date.now().toString(36)}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+      actor: `user:${this.user.id}`,
+      ts: Date.now(),
+      ...b,
+    }));
+    const res = await this.api.post(`/api/sites/${siteId}/room/ops`, { data: { ops } });
+    return {
+      status: res.status(),
+      body: (await res.json()) as {
+        results?: Array<{ status: string; code?: string; message?: string }>;
+        error?: { code: string };
+      },
+    };
+  }
+
   /** Submit ops to the draft room as this person (HTTP fallback path of the room). */
   async ops(siteId: string, ops: unknown[]) {
     const res = await this.post<{ results: { status: string; message?: string }[]; seq: number }>(
