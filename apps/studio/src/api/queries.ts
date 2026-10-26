@@ -7,7 +7,6 @@ export const queryKeys = {
   templates: ["templates"] as const,
   sites: ["sites"] as const,
   site: (id: string) => ["sites", id] as const,
-  document: (id: string) => ["document", id] as const,
 };
 
 export function useSession() {
@@ -149,23 +148,5 @@ export function useTransferSite() {
         prev?.map((s) => (s.id === site.id ? site : s)),
       );
     },
-  });
-}
-
-/**
- * The site's content for the editor. Loaded once per editing session: after that the editor's
- * document store (and, later, the draft room) owns it, so it is never refetched underneath.
- */
-export function useSiteDocument(id: string | undefined, options: { enabled?: boolean } = {}) {
-  const hub = useHub();
-  return useQuery({
-    queryKey: queryKeys.document(id ?? ""),
-    queryFn: () => hub.getDocument(id as string),
-    enabled: Boolean(id) && (options.enabled ?? true),
-    staleTime: Number.POSITIVE_INFINITY,
-    gcTime: 0,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    retry: 1,
   });
 }
