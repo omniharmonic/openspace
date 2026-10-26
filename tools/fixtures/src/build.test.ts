@@ -450,3 +450,20 @@ describe("astro build on the Cloudflare target", () => {
     expect(stdout).toContain("--dry-run: exiting now.");
   }, 120_000);
 });
+
+describe("astro dev", () => {
+  it("serves pages from content/ through the same route", async () => {
+    const root = join(FIXTURES, ".build", "meadow");
+    if (!(await exists(join(root, "openspace.json")))) await assemble("meadow");
+    const { stdout } = await run(
+      process.execPath,
+      [join(FIXTURES, "scripts", "dev-smoke.mjs"), root],
+      {
+        env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1" },
+      },
+    );
+    expect(stdout).toContain("/ 200 true");
+    expect(stdout).toContain("/journal/2026-10-26-opening-day/ 200 true");
+    expect(stdout).toContain("/shop/ 200 true");
+  }, 120_000);
+});

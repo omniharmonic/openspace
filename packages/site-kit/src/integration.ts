@@ -174,7 +174,9 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
                 },
               },
             ],
-            ssr: { noExternal: ["@openspace/site-kit"] },
+            // The route imports virtual modules; OpenSpace packages are always bundled (workspace
+            // checkouts ship TypeScript sources).
+            ssr: { noExternal: [/^@openspace\//] },
           },
         });
       },
