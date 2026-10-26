@@ -42,10 +42,15 @@ const status = (l: number, c = 0.14) => ({
 });
 
 /** Pick the candidate with the highest contrast against `bg`. */
-function bestOn(bg: Oklch, candidates: Oklch[]): Oklch {
+export function bestOn(bg: Oklch, candidates: Oklch[]): Oklch {
   let best = candidates[0] as Oklch;
   for (const c of candidates) if (contrastRatio(c, bg) > contrastRatio(best, bg)) best = c;
   return best;
+}
+
+/** Label color for text sitting on `bg`: white or the darkest neutral, whichever contrasts more. */
+export function onColor(bg: Oklch, palette: Palette): Oklch {
+  return bestOn(bg, [WHITE, palette.neutral[950]]);
 }
 
 const shift = (c: Oklch, dl: number): Oklch => gamutMap({ ...c, l: c.l + dl });
@@ -53,7 +58,7 @@ const shift = (c: Oklch, dl: number): Oklch => gamutMap({ ...c, l: c.l + dl });
 /** The un-solved role sets for each section theme (doc 04 §3.2). */
 export function themeRoles(palette: Palette): Record<ColorTheme, RoleSet> {
   const { accent: a, neutral: n, brand } = palette;
-  const onAccent = (bg: Oklch) => bestOn(bg, [WHITE, n[950]]);
+  const onAccent = (bg: Oklch) => onColor(bg, palette);
 
   const light: RoleSet = {
     background: n[50],

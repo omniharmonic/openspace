@@ -36,6 +36,7 @@ import {
 import {
   buildPalette,
   type ContrastAdjustment,
+  onColor,
   type Palette,
   solveThemes,
   themeRoles,
@@ -209,6 +210,7 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   // --- overrides ---
   const roles = themeRoles(palette);
   const custom = new Map<string, string>();
+  const overriddenRoles = new Set<string>();
   for (const { path, token, type: t } of flattenDtcg(styles.overrides)) {
     const dotted = path.join(".");
     const invalid = (why: string) =>
@@ -222,7 +224,10 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
         const target = theme ?? "light";
         const color = overrideColor(token.$value, palette, roles[target]);
         if (!color) invalid(`"${String(token.$value)}" is not a color.`);
-        else roles[target][role as ColorRole] = color;
+        else {
+          roles[target][role as ColorRole] = color;
+          overriddenRoles.add(`${target}:${role}`);
+        }
         continue;
       }
     }
@@ -261,6 +266,12 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
     }
   }
   for (const name of [...custom.keys()].sort()) root.set(name, custom.get(name) as string);
+  // A new accent gets a fresh label color unless that was overridden too.
+  for (const theme of COLOR_THEMES) {
+    if (overriddenRoles.has(`${theme}:accent`) && !overriddenRoles.has(`${theme}:accent-text`)) {
+      roles[theme]["accent-text"] = onColor(roles[theme].accent, palette);
+    }
+  }
 
   // --- contrast ---
   let themes: ThemeColorSet;
