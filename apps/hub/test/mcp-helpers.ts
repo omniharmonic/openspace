@@ -26,7 +26,7 @@ export async function pkce() {
 export async function oauthConnect(
   app: TestApp,
   cookie: string,
-  opts: { sites: string[]; publish?: boolean; clientName?: string },
+  opts: { sites: string[]; publish?: boolean; clientName?: string; wrongVerifier?: boolean },
 ) {
   const reg = await call(app, `${HUB}/register`, {
     method: "POST",
@@ -76,11 +76,12 @@ export async function oauthConnect(
       code,
       redirect_uri: REDIRECT,
       client_id: client.client_id,
-      code_verifier: verifier,
+      code_verifier: opts.wrongVerifier ? `${verifier}x` : verifier,
       resource: `${HUB}/mcp`,
     }).toString(),
   });
-  if (tok.status !== 200) throw new Error(`token ${tok.status} ${await tok.text()}`);
+  if (tok.status !== 200)
+    throw new Error(`token ${tok.status} ${await tok.text()}`, { cause: tok.status });
   const tokens = (await tok.json()) as { access_token: string; refresh_token?: string };
   const conn = await env.HUB_DB.prepare(
     "SELECT id FROM mcp_connections WHERE client_id = ? AND revoked_at IS NULL",

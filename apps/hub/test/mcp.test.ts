@@ -174,7 +174,21 @@ describe("OAuth authorization server", () => {
       sites: [{ id: site.id }],
     });
 
-    const mcp = new McpTestClient(app, `${HUB}/mcp`, conn.accessToken);
+    // Refresh tokens rotate and keep the same connection.
+    const refreshed = await call(app, `${HUB}/token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: conn.refreshToken as string,
+        client_id: conn.clientId,
+      }).toString(),
+    });
+    expect(refreshed.status).toBe(200);
+    const next = (await refreshed.json()) as { access_token: string };
+    expect(next.access_token).not.toBe(conn.accessToken);
+
+    const mcp = new McpTestClient(app, `${HUB}/mcp`, next.access_token);
     await mcp.initialize();
     const sites = await mcp.tool("list_sites");
     expect(toolText(sites)).toContain(site.id);
@@ -182,7 +196,14 @@ describe("OAuth authorization server", () => {
     const denied = await mcp.tool("get_site", { site: other.id });
     expect(denied.result?.isError).toBe(true);
 
-    // A wrong verifier can't redeem a code.
+    // A wrong PKCE verifier can't redeem the code.
+    const tampered = await oauthConnect(app, owner, {
+      sites: [site.id],
+      wrongVerifier: true,
+    }).catch((e: Error) => e);
+    expect(tampered).toBeInstanceOf(Error);
+    expect((tampered as Error).cause).toBe(400);
+
     const row = await env.HUB_DB.prepare("SELECT role FROM mcp_grants WHERE connection_id = ?")
       .bind(conn.connectionId)
       .first<{ role: string }>();
