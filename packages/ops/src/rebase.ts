@@ -87,6 +87,8 @@ function baseFootprint(op: Op): OpFootprint {
       if (op.variant !== undefined) t.push(edit("block", op.block, "variant"));
       if (op.style !== undefined) t.push(edit("block", op.block, "style"));
       if (op.column !== undefined) t.push(edit("block", op.block, "column"));
+      if (op.label !== undefined) t.push(edit("block", op.block, "label"));
+      if (op.hidden !== undefined) t.push(edit("block", op.block, "hidden"));
       return { touches: t, requires: pageReq(op.page) };
     }
     case "block.insert":
@@ -288,14 +290,16 @@ function strip(op: Op, paths: readonly string[][]): Op | null {
       delete next.unset;
       if (fields?.set) next.set = fields.set;
       if (fields?.unset) next.unset = fields.unset;
-      for (const prop of ["variant", "style", "column"] as const)
+      for (const prop of ["variant", "style", "column", "label", "hidden"] as const)
         if (next[prop] !== undefined && hit([...base, prop])) delete next[prop];
       const empty =
         next.set === undefined &&
         next.unset === undefined &&
         next.variant === undefined &&
         next.style === undefined &&
-        next.column === undefined;
+        next.column === undefined &&
+        next.label === undefined &&
+        next.hidden === undefined;
       return empty ? null : next;
     }
     case "styles.patch": {

@@ -161,6 +161,8 @@ export function diff(before: SiteDocument, after: SiteDocument, options: DiffOpt
       if (!deepEqual(wb.variant, ab.variant)) upd.variant = ab.variant ?? null;
       if (!deepEqual(wb.style, ab.style)) upd.style = ab.style ? clone(ab.style) : null;
       if (!deepEqual(wb.column, ab.column)) upd.column = ab.column ?? null;
+      if (!deepEqual(wb.label, ab.label)) upd.label = ab.label ?? null;
+      if (Boolean(wb.hidden) !== Boolean(ab.hidden)) upd.hidden = ab.hidden ? true : null;
       if (Object.keys(upd).length > 3) emit(upd);
       // Grid placement.
       if (grid) {
