@@ -7,8 +7,10 @@
  *
  * Worker environment:
  * - `OS_SESSION_SECRET` (secret, ≥ 32 chars) signs the site's own session cookies.
- * - `OS_GATED` (R2 bucket) holds gated page JSON at `pages/<slug>.json` — gated content is never
- *   in the public repo.
+ * - `OS_GATED` (R2 bucket) holds gated page JSON at `pages/<pageId>/<contentRef>.json`, uploaded
+ *   by the publish workflow from the Hub before each deploy. Gated content is never in the public
+ *   repo: the committed page is a stub (title, slug, access, `contentRef`) and the Worker reads the
+ *   content only from R2 — the exact version the deployed stub names.
  * - `OS_PAGE_PASSWORDS` (secret) JSON `{ "<pageId>": "pbkdf2$…" }` from `hashPagePassword`.
  * - `ASSETS` (static assets binding) serves `/_os/images.json`, the build-time image map that
  *   gives gated pages' local images the same responsive sources as static pages.
@@ -25,21 +27,23 @@ import { type Page, PageSchema, type SiteDocument } from "@openspace/schema";
 import type { DeployLocation } from "../deploy";
 import { stableId } from "../ids";
 import { collectionsContextValueFor, renderDocument, type SiteAssets } from "../render";
-import { publishableDoc } from "../routes";
+import { isGatedPage, publishableDoc } from "../routes";
 import {
   checkPagePassword,
   GateConfigError,
   GateError,
-  getCookie,
   type Jwk,
   MEMBER_COOKIE,
+  MEMBER_SESSION_TTL,
   PASSWORD_COOKIE,
-  readSigned,
+  readMemberSession,
+  readPasswordPages,
   SESSION_TTL,
   safeReturnPath,
   sessionSecretOk,
   setCookie,
   signValue,
+  tierAllowed,
   verifyHubToken,
 } from "./gate";
 
@@ -71,6 +75,11 @@ export interface GateContext {
   /** Fetch the Hub's JWKS (injected for tests; default `fetch(<hub>/.well-known/jwks.json)`). */
   fetchJwks?: () => Promise<{ keys: Jwk[] }>;
   now?: number;
+  /**
+   * Local `astro dev` only: serve a gated page from the document when R2 has nothing (a site
+   * whose gated content is in the working copy). Never on a deployed Worker.
+   */
+  devFallback?: boolean;
 }
 
 const PRIVATE = { "cache-control": "private, no-store" };
@@ -88,21 +97,43 @@ export function slugFromPath(pathname: string, basePath: string): string {
   return p.replace(/^\/+|\/+$/g, "").replace(/\/index\.html$/, "");
 }
 
-/** The gated page for a slug: R2 first (`pages/<slug>.json`), then the document. */
+const isMembersSlug = (slug: string) => slug === "members" || slug.startsWith("members/");
+
+/** R2 key of a gated page's content version. */
+export const gatedObjectKey = (pageId: string, ref: string) => `pages/${pageId}/${ref}.json`;
+
+/**
+ * The gated page for a slug. The deployed document only has its stub (title, slug, access and
+ * `contentRef`); the content comes from R2 — exactly the version the stub names. `undefined` = no
+ * such gated page (404); throws `GateConfigError` when the content isn't in R2 (503).
+ */
 export async function findGatedPage(
   slug: string,
   env: GateEnv,
   doc: SiteDocument,
+  opts: { devFallback?: boolean } = {},
 ): Promise<Page | undefined> {
-  const obj = await env.OS_GATED?.get(`pages/${slug || "home"}.json`);
-  if (obj) {
-    const parsed = PageSchema.safeParse(JSON.parse(await obj.text()));
-    if (parsed.success) return parsed.data;
+  const stub = Object.values(doc.pages).find((p) => p.slug === slug);
+  if (!stub || !isGatedPage(stub)) return undefined;
+  if (stub.contentRef && env.OS_GATED) {
+    const obj = await env.OS_GATED.get(gatedObjectKey(stub.id, stub.contentRef));
+    if (obj) {
+      let raw: unknown;
+      try {
+        raw = JSON.parse(await obj.text());
+      } catch {
+        raw = null;
+      }
+      const parsed = PageSchema.safeParse(raw);
+      // The stub decides where and to whom the page is served; R2 only supplies its content.
+      if (parsed.success && parsed.data.id === stub.id) {
+        const { contentRef: _ref, ...content } = parsed.data;
+        return { ...content, slug: stub.slug, ...(stub.access ? { access: stub.access } : {}) };
+      }
+    }
   }
-  const page = Object.values(doc.pages).find((p) => p.slug === slug);
-  if (page) return page;
-  // `/members/*` pages that only exist in R2 are members-only by definition.
-  return undefined;
+  if (opts.devFallback && !stub.contentRef) return stub;
+  throw new GateConfigError(`Gated content for ${stub.id} is not in storage`);
 }
 
 function hubOrigin(doc: SiteDocument) {
@@ -160,18 +191,18 @@ export function unavailable(what: string): Response {
   );
 }
 
-async function passwordPages(
-  cookieHeader: string | null,
-  env: GateEnv,
-  ctx: GateContext,
-): Promise<string[]> {
-  const v = await readSigned(
-    getCookie(cookieHeader, PASSWORD_COOKIE),
-    env.OS_SESSION_SECRET ?? "",
-    ctx.now,
-  );
-  return Array.isArray(v?.pages) ? (v.pages as string[]) : [];
+const passwordPages = (cookieHeader: string | null, env: GateEnv, ctx: GateContext) =>
+  readPasswordPages(cookieHeader, env.OS_SESSION_SECRET ?? "", ctx.now);
+
+/** The Hub sign-in for this site, returning to `returnPath` afterwards. */
+function loginRedirect(ctx: GateContext, returnPath: string): Response {
+  const login = new URL(`${hubOrigin(ctx.doc)}/m/${ctx.doc.config.siteId}/login`);
+  login.searchParams.set("return", returnPath);
+  return redirect(login.toString());
 }
+
+/** Marks a return trip through the Hub that refreshed the session (no redirect loops). */
+const REAUTH_PARAM = "os_reauth";
 
 /** Serve a gated page: members need a valid session, password pages a remembered password. */
 export async function handleGatedPage(
@@ -182,21 +213,28 @@ export async function handleGatedPage(
   const url = new URL(request.url);
   if (!sessionSecretOk(env.OS_SESSION_SECRET)) return unavailable("This page");
   const slug = slugFromPath(url.pathname, ctx.location.basePath);
-  const page = await findGatedPage(slug, env, ctx.doc);
-  const membersOnly =
-    !page || page.access?.members || slug === "members" || slug.startsWith("members/");
+  let page: Page | undefined;
+  try {
+    page = await findGatedPage(slug, env, ctx.doc, { devFallback: ctx.devFallback ?? false });
+  } catch (e) {
+    if (e instanceof GateConfigError) return unavailable("This page");
+    throw e;
+  }
   if (!page) return htmlResponse("<!doctype html><title>Not found</title><p>Not found.</p>", 404);
+  const membersOnly = !!page.access?.members || isMembersSlug(slug);
   const cookies = request.headers.get("cookie");
   if (membersOnly) {
-    const session = await readSigned(
-      getCookie(cookies, MEMBER_COOKIE),
-      env.OS_SESSION_SECRET ?? "",
-      ctx.now,
-    );
-    if (!session) {
-      const login = new URL(`${hubOrigin(ctx.doc)}/m/${ctx.doc.config.siteId}/login`);
-      login.searchParams.set("return", url.pathname);
-      return redirect(login.toString());
+    const session = await readMemberSession(cookies, env.OS_SESSION_SECRET ?? "", ctx.now);
+    if (!session) return loginRedirect(ctx, url.pathname);
+    if (!tierAllowed(page.access?.tiers, session.tier)) {
+      // The tier may have changed since this session started (an upgrade): refresh it through
+      // the Hub once, then explain.
+      if (!url.searchParams.has(REAUTH_PARAM))
+        return loginRedirect(ctx, `${url.pathname}?${REAUTH_PARAM}=1`);
+      return htmlResponse(
+        `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="robots" content="noindex"><title>${escapeHtml(page.title)}</title><p>This page is for members on another membership plan.</p></html>`,
+        403,
+      );
     }
     return htmlResponse(renderGated(ctx, page, await imageManifest(request, env, ctx)));
   }
@@ -249,7 +287,7 @@ export async function handlePasswordSubmit(
   const pages = new Set(await passwordPages(request.headers.get("cookie"), env, ctx));
   pages.add(pageId);
   const token = await signValue(
-    { pages: [...pages] },
+    { kind: "pw", pages: [...pages].slice(-50) },
     env.OS_SESSION_SECRET ?? "",
     SESSION_TTL,
     ctx.now,
@@ -297,16 +335,20 @@ export async function handleAuthCallback(
     });
     const session = await signValue(
       {
+        kind: "member",
         sub: claims.sub,
         ...(claims.tier ? { tier: claims.tier } : {}),
         ...(claims.email ? { email: claims.email } : {}),
       },
       env.OS_SESSION_SECRET ?? "",
-      SESSION_TTL,
+      MEMBER_SESSION_TTL,
       ctx.now,
     );
     return redirect(back, [
-      setCookie(MEMBER_COOKIE, session, { maxAge: SESSION_TTL, path: `${ctx.location.basePath}/` }),
+      setCookie(MEMBER_COOKIE, session, {
+        maxAge: MEMBER_SESSION_TTL,
+        path: `${ctx.location.basePath}/`,
+      }),
     ]);
   } catch (e) {
     if (e instanceof GateConfigError) return unavailable("Signing in");

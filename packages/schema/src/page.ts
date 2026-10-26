@@ -25,6 +25,11 @@ export type PageSeo = z.infer<typeof PageSeoSchema>;
 export const PageAccessSchema = z.strictObject({
   password: z.boolean().optional(),
   members: z.boolean().optional(),
+  /**
+   * Members-only pages: the membership tiers (Hub tier ids) that may open the page. Absent or
+   * empty = every signed-in member, including free sign-ups when sign-up is open.
+   */
+  tiers: z.array(z.string().min(1).max(64)).max(20).optional(),
 });
 export type PageAccess = z.infer<typeof PageAccessSchema>;
 
@@ -44,6 +49,15 @@ export const PageSchema = named(
       /** Hidden pages are published but left out of navigation, search and the sitemap. */
       hidden: z.boolean().optional(),
       access: PageAccessSchema.optional(),
+      /**
+       * Only in the repository copy of a members-only / password page: its content is kept by the
+       * Hub (and the site Worker's private storage) under this reference, never in the public
+       * repository, so the committed file has no sections.
+       */
+      contentRef: z
+        .string()
+        .regex(/^[a-z0-9]{16,64}$/)
+        .optional(),
       sections: z.array(SectionSchema),
     })
     .superRefine((page, ctx) => {

@@ -141,22 +141,14 @@ describe("Worker handlers", () => {
     access: { password: true },
     sections: [],
   };
-  beforeAll(async () => {
-    doc = await loadSiteDocument(MEADOW);
-    doc = { ...doc, pages: { ...doc.pages, [secretPage.id]: secretPage } };
-    ctx = {
-      doc,
-      location: deployLocation(doc.config),
-      now: NOW,
-      fetchJwks: async () => ({ keys: [jwk] }),
-    };
-  });
-  const r2 = (pages: Record<string, Page>) => ({
-    get: async (key: string) => {
-      const slug = key.replace(/^pages\/|\.json$/g, "");
-      const page = pages[slug];
-      return page ? { text: async () => JSON.stringify(page) } : null;
-    },
+  // What the deployed document carries for gated pages: stubs naming their R2 content version.
+  const stub = (p: Page, ref = "ref0000000000000001"): Page => ({
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    ...(p.access ? { access: p.access } : {}),
+    contentRef: ref,
+    sections: [],
   });
   const membersPage: Page = {
     id: "pg_membershme",
@@ -164,11 +156,44 @@ describe("Worker handlers", () => {
     slug: "members/library",
     sections: [],
   };
+  const tierPage: Page = {
+    id: "pg_patrnsxx01",
+    title: "Patron sessions",
+    slug: "patrons",
+    access: { members: true, tiers: ["tier_patron"] },
+    sections: [],
+  };
+  const faqStub: Page = { id: "pg_membersfaq", title: "Members FAQ", slug: "members/faq", sections: [] };
+  beforeAll(async () => {
+    doc = await loadSiteDocument(MEADOW);
+    doc = {
+      ...doc,
+      pages: {
+        ...doc.pages,
+        [secretPage.id]: stub(secretPage),
+        [membersPage.id]: stub(membersPage),
+        [tierPage.id]: stub(tierPage),
+        [faqStub.id]: stub(faqStub),
+      },
+    };
+    ctx = {
+      doc,
+      location: deployLocation(doc.config),
+      now: NOW,
+      fetchJwks: async () => ({ keys: [jwk] }),
+    };
+  });
+  const r2 = (pages: Record<string, Page>, ref = "ref0000000000000001") => ({
+    get: async (key: string) => {
+      const page = Object.values(pages).find((p) => key === `pages/${p.id}/${ref}.json`);
+      return page ? { text: async () => JSON.stringify(page) } : null;
+    },
+  });
 
   it("sends visitors without a session to the Hub sign-in", async () => {
     const res = await handleGatedPage(
       new Request("https://meadowyoga.example/members/library/"),
-      { OS_SESSION_SECRET: SECRET, OS_GATED: r2({ "members/library": membersPage }) },
+      { OS_SESSION_SECRET: SECRET, OS_GATED: r2({ membersPage }) },
       ctx,
     );
     expect(res.status).toBe(303);
@@ -178,7 +203,7 @@ describe("Worker handlers", () => {
   });
 
   it("magic link → session cookie → gated page from R2", async () => {
-    const env = { OS_SESSION_SECRET: SECRET, OS_GATED: r2({ "members/library": membersPage }) };
+    const env = { OS_SESSION_SECRET: SECRET, OS_GATED: r2({ membersPage }) };
     const t = await token(claims);
     const cb = await handleAuthCallback(
       new Request(
@@ -258,7 +283,7 @@ describe("Worker handlers", () => {
     let fetched = "";
     const env = {
       OS_SESSION_SECRET: SECRET,
-      OS_GATED: r2({ "members/faq": gated }),
+      OS_GATED: r2({ gated }),
       ASSETS: {
         fetch: async (req: Request | string) => {
           fetched = String(typeof req === "string" ? req : req.url);
@@ -266,7 +291,7 @@ describe("Worker handlers", () => {
         },
       },
     };
-    const session = await signValue({ sub: "mem_1" }, SECRET, 600, NOW);
+    const session = await signValue({ kind: "member", sub: "mem_1" }, SECRET, 600, NOW);
     const res = await handleGatedPage(
       new Request("https://meadowyoga.example/members/faq/", {
         headers: { cookie: `os_member=${session}` },
@@ -328,6 +353,7 @@ describe("Worker handlers", () => {
     const env = {
       OS_SESSION_SECRET: SECRET,
       OS_PAGE_PASSWORDS: JSON.stringify({ [secretPage.id]: hash }),
+      OS_GATED: r2({ secretPage }),
     };
     const prompt = await handleGatedPage(
       new Request("https://meadowyoga.example/teachers/"),
@@ -358,5 +384,110 @@ describe("Worker handlers", () => {
       ctx,
     );
     expect(await unlocked.text()).not.toContain('type="password"');
+  });
+
+  it("a page-password cookie never passes as a member session (purpose-bound cookies)", async () => {
+    const pw = await signValue({ kind: "pw", pages: [secretPage.id] }, SECRET, 600, NOW);
+    const legacy = await signValue({ pages: [secretPage.id] }, SECRET, 600, NOW);
+    const noKind = await signValue({ sub: "mem_1" }, SECRET, 600, NOW);
+    const env = { OS_SESSION_SECRET: SECRET, OS_GATED: r2({ membersPage }) };
+    for (const value of [pw, legacy, noKind]) {
+      const res = await handleGatedPage(
+        new Request("https://meadowyoga.example/members/library/", {
+          headers: { cookie: `os_member=${value}` },
+        }),
+        env,
+        ctx,
+      );
+      expect(res.status).toBe(303);
+      expect(res.headers.get("location")).toContain("/m/st_meadw00001/login");
+    }
+    // …and a member session doesn't unlock password pages.
+    const member = await signValue({ kind: "member", sub: "mem_1" }, SECRET, 600, NOW);
+    const res = await handleGatedPage(
+      new Request("https://meadowyoga.example/teachers/", {
+        headers: { cookie: `os_pw=${member}` },
+      }),
+      {
+        OS_SESSION_SECRET: SECRET,
+        OS_PAGE_PASSWORDS: "{}",
+        OS_GATED: r2({ secretPage }),
+      },
+      ctx,
+    );
+    expect(await res.text()).toContain('type="password"');
+  });
+
+  it("member sessions last a day and carry the tier", async () => {
+    const t = await token(claims);
+    const cb = await handleAuthCallback(
+      new Request(`https://meadowyoga.example/_os/auth/callback?token=${t}&return=/patrons/`),
+      { OS_SESSION_SECRET: SECRET },
+      ctx,
+    );
+    expect(cb.headers.get("set-cookie")).toContain("Max-Age=86400;");
+  });
+
+  it("tier-limited pages: other tiers are refreshed through the Hub once, then refused", async () => {
+    const env = { OS_SESSION_SECRET: SECRET, OS_GATED: r2({ tierPage }) };
+    const open = (tier: string | undefined, query = "") =>
+      signValue(
+        { kind: "member", sub: "mem_1", ...(tier ? { tier } : {}) },
+        SECRET,
+        600,
+        NOW,
+      ).then((v) =>
+        handleGatedPage(
+          new Request(`https://meadowyoga.example/patrons/${query}`, {
+            headers: { cookie: `os_member=${v}` },
+          }),
+          env,
+          ctx,
+        ),
+      );
+    const free = await open(undefined);
+    expect(free.status).toBe(303);
+    expect(free.headers.get("location")).toBe(
+      "https://hub.openspace.dev/m/st_meadw00001/login?return=%2Fpatrons%2F%3Fos_reauth%3D1",
+    );
+    expect((await open("tier_friend", "?os_reauth=1")).status).toBe(403);
+    expect((await open("tier_patron")).status).toBe(200);
+  });
+
+  it("gated content comes only from R2: missing or mismatched content is a 503, never the bundle", async () => {
+    const session = await signValue({ kind: "member", sub: "mem_1" }, SECRET, 600, NOW);
+    const req = () =>
+      new Request("https://meadowyoga.example/members/library/", {
+        headers: { cookie: `os_member=${session}` },
+      });
+    expect((await handleGatedPage(req(), { OS_SESSION_SECRET: SECRET }, ctx)).status).toBe(503);
+    const wrongId = { ...membersPage, id: "pg_otherpage1" };
+    const mismatched = {
+      get: async () => ({ text: async () => JSON.stringify(wrongId) }),
+    };
+    expect(
+      (await handleGatedPage(req(), { OS_SESSION_SECRET: SECRET, OS_GATED: mismatched }, ctx))
+        .status,
+    ).toBe(503);
+    // A stale R2 version (another ref) is not served either.
+    expect(
+      (
+        await handleGatedPage(
+          req(),
+          { OS_SESSION_SECRET: SECRET, OS_GATED: r2({ membersPage }, "ref0000000000000002") },
+          ctx,
+        )
+      ).status,
+    ).toBe(503);
+    // Pages that aren't gated in the deployed document are never served by the Worker.
+    expect(
+      (
+        await handleGatedPage(
+          new Request("https://meadowyoga.example/about/"),
+          { OS_SESSION_SECRET: SECRET, OS_GATED: r2({}) },
+          ctx,
+        )
+      ).status,
+    ).toBe(404);
   });
 });

@@ -73,14 +73,32 @@ export function publishableDoc(doc: SiteDocument, now: Date): SiteDocument {
     );
   }
   const pages = Object.fromEntries(
-    Object.entries(doc.pages).filter(([, p]) => !p.access?.password && !p.access?.members),
+    Object.entries(doc.pages).filter(([, p]) => !isGatedPage(p)),
   ) as SiteDocument["pages"];
   return { ...doc, pages, collections };
 }
 
+/** Behind a password or membership, or under `/members/` (members-only by definition). */
+export function isGatedPage(page: Pick<Page, "slug" | "access">): boolean {
+  return !!(
+    page.access?.password ||
+    page.access?.members ||
+    page.slug === "members" ||
+    page.slug.startsWith("members/")
+  );
+}
+
 /** Pages behind a password or membership: never prerendered (Cloudflare Worker serves them). */
 export function gatedPages(doc: SiteDocument): Page[] {
-  return Object.values(doc.pages).filter((p) => p.access?.password || p.access?.members);
+  return Object.values(doc.pages).filter(isGatedPage);
+}
+
+/** The document with gated pages reduced to their stubs (no sections): what a Worker bundles. */
+export function withoutGatedContent(doc: SiteDocument): SiteDocument {
+  const pages = Object.fromEntries(
+    Object.entries(doc.pages).map(([id, p]) => [id, isGatedPage(p) ? { ...p, sections: [] } : p]),
+  ) as SiteDocument["pages"];
+  return { ...doc, pages };
 }
 
 const pathFor = (slug: string) => (slug ? `/${slug}/` : "/");

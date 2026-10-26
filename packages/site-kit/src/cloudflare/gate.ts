@@ -184,7 +184,58 @@ export function setCookie(
 
 export const MEMBER_COOKIE = "os_member";
 export const PASSWORD_COOKIE = "os_pw";
+/** Remembered page passwords. */
 export const SESSION_TTL = 60 * 60 * 24 * 30;
+/**
+ * Member sessions are short: after a day the Worker sends the visitor back through the Hub,
+ * which signs them in again silently (Hub cookie) with their current tier — or refuses blocked
+ * and deleted members. That bounds how long a revoked member keeps access.
+ */
+export const MEMBER_SESSION_TTL = 60 * 60 * 24;
+
+/**
+ * Cookie purposes. Both cookies are signed with the same secret, so every value names what it is
+ * and readers refuse any other kind (a page-password cookie must never pass as a member session).
+ */
+export type SessionKind = "member" | "pw";
+
+export interface MemberSession {
+  sub: string;
+  tier?: string;
+  email?: string;
+}
+
+/** The visitor's member session (`os_member`), only if it is a signed *member* value. */
+export async function readMemberSession(
+  cookieHeader: string | null | undefined,
+  secret: string,
+  now = Date.now(),
+): Promise<MemberSession | undefined> {
+  const v = await readSigned(getCookie(cookieHeader, MEMBER_COOKIE), secret, now);
+  if (!v || v.kind !== "member" || typeof v.sub !== "string" || !v.sub) return undefined;
+  return {
+    sub: v.sub,
+    ...(typeof v.tier === "string" ? { tier: v.tier } : {}),
+    ...(typeof v.email === "string" ? { email: v.email } : {}),
+  };
+}
+
+/** Page ids unlocked by the shared-password cookie (`os_pw`), only from a signed *pw* value. */
+export async function readPasswordPages(
+  cookieHeader: string | null | undefined,
+  secret: string,
+  now = Date.now(),
+): Promise<string[]> {
+  const v = await readSigned(getCookie(cookieHeader, PASSWORD_COOKIE), secret, now);
+  if (!v || v.kind !== "pw" || !Array.isArray(v.pages)) return [];
+  return v.pages.filter((p): p is string => typeof p === "string");
+}
+
+/** Whether a member on `tier` may open a page limited to `tiers` (none/empty = every member). */
+export function tierAllowed(tiers: readonly string[] | undefined, tier: string | undefined) {
+  if (!tiers?.length) return true;
+  return tier !== undefined && tiers.includes(tier);
+}
 
 // --- page passwords -----------------------------------------------------------------------------
 
