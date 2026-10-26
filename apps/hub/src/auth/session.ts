@@ -1,6 +1,6 @@
 import type { Context, MiddlewareHandler } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import { lookupSession, SESSION_TTL_MS } from "../db/sessions";
+import { lookupSession } from "../db/sessions";
 import type { User } from "../db/users";
 import { unauthenticated } from "../lib/errors";
 import type { AppEnv } from "../types";
@@ -13,8 +13,7 @@ export function setSessionCookie(c: Context<AppEnv>, token: string, expiresAt: n
     secure: c.var.config.secureCookies,
     sameSite: "Lax",
     path: "/",
-    maxAge:
-      Math.max(0, Math.floor((expiresAt - c.var.services.now()) / 1000)) || SESSION_TTL_MS / 1000,
+    maxAge: Math.max(1, Math.round((expiresAt - c.var.services.now()) / 1000)),
   });
 }
 
