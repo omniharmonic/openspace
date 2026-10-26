@@ -33,6 +33,27 @@ export function blocksByCategory(): Array<[BlockCategory, AnyBlockDefinition[]]>
 }
 
 /**
+ * Predictable block search: names first (prefix, then anywhere), then descriptions and
+ * categories, every typed word required. (cmdk's default fuzzy match is too loose for a
+ * 50-item menu: "button" would match "attribution".)
+ */
+export function blockScore(value: string, search: string, keywords: string[] = []): number {
+  const words = search.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return 1;
+  const name = value.toLowerCase();
+  const rest = keywords.join(" ").toLowerCase();
+  let score = 0;
+  for (const w of words) {
+    if (name.startsWith(w)) score += 4;
+    else if (new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(name)) score += 3;
+    else if (name.includes(w)) score += 2;
+    else if (rest.includes(w)) score += 1;
+    else return 0;
+  }
+  return score / (words.length * 4);
+}
+
+/**
  * The block menu (⌘/ or "/" on the canvas): searchable, grouped by category, keyboard
  * navigable. Inserts after the selected block (same column), or at the end of the selected
  * section, with fresh block and form ids; grid sections get a default placement.
@@ -75,7 +96,7 @@ export function BlockMenu() {
         <RDialog.Overlay className="st-palette__overlay" />
         <RDialog.Content className="st-palette st-pop st-blockmenu" aria-describedby={undefined}>
           <RDialog.Title className="st-visually-hidden">Add a block</RDialog.Title>
-          <Command label="Blocks" loop>
+          <Command label="Blocks" loop filter={blockScore}>
             <div className="st-palette__search">
               <Search aria-hidden="true" />
               <Command.Input className="st-palette__input" placeholder="Add a block…" autoFocus />
@@ -94,7 +115,7 @@ export function BlockMenu() {
                     <Command.Item
                       key={d.type}
                       value={`${d.label} ${d.type}`}
-                      keywords={[CATEGORY_LABEL[cat], d.description ?? "", d.ai.purpose]}
+                      keywords={[CATEGORY_LABEL[cat], d.description ?? ""]}
                       onSelect={() => insert(d.type)}
                       className="st-menu__item st-palette__item st-blockmenu__item"
                     >

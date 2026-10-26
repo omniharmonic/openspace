@@ -48,10 +48,8 @@ function initFrame(d: Document): HTMLElement {
 let observer: IntersectionObserver | null = null;
 const callbacks = new WeakMap<Element, () => void>();
 function observe(el: Element, cb: () => void): () => void {
-  if (typeof IntersectionObserver === "undefined") {
-    cb();
-    return () => {};
-  }
+  // Without IntersectionObserver (old browsers, jsdom) thumbnails stay placeholders.
+  if (typeof IntersectionObserver === "undefined") return () => {};
   observer ??= new IntersectionObserver(
     (entries) => {
       for (const e of entries) {

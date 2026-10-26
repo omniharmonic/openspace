@@ -166,7 +166,7 @@ function TextTarget({
     setError(commit(build(draft)));
   };
   return (
-    <PropRow label={label} stacked error={error}>
+    <PropRow label={label} stacked>
       <Input
         size="sm"
         aria-label={label}

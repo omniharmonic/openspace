@@ -71,7 +71,13 @@ function Row({
         >
           <GripVertical aria-hidden="true" />
         </button>
-        <button type="button" className="st-ip-item__title" aria-expanded={open} onClick={onToggle}>
+        <button
+          type="button"
+          className="st-ip-item__title"
+          aria-label={row.title}
+          aria-expanded={open}
+          onClick={onToggle}
+        >
           <ChevronRight
             aria-hidden="true"
             className="st-ip-sec__chev"

@@ -680,7 +680,11 @@ export function SiteStylesPanel() {
           Always off for visitors who ask their device for reduced motion.
         </p>
       </PanelSection>
-      <PanelSection title="Readability" defaultOpen={issues.length > 0}>
+      <PanelSection
+        key={issues.length ? "issues" : "ok"}
+        title="Readability"
+        defaultOpen={issues.length > 0}
+      >
         <ContrastWarnings issues={issues} commit={commit} disabled={disabled} />
       </PanelSection>
       {can && (

@@ -81,17 +81,53 @@ export function contrastIssues(styles: Styles): ContrastIssue[] {
   const touched = overriddenRoles(styles);
   if (!touched.size) return [];
   const raw = compileStyles(styles, { solve: false });
-  const adjustable = new Set(["accent-hover", "accent-pressed"]);
+  const derived = new Set(["accent-hover", "accent-pressed"]);
+  const fixes = new Map<string, { path: string; value: string } | null>();
   return raw.contrast.failures
     .filter((f) => touched.has(`${f.theme}:${f.fg}`) || touched.has(`${f.theme}:${f.bg}`))
     .map((failure) => {
       const pair = CONTRAST_PAIRS.find((p) => p.fg === failure.fg && p.bg === failure.bg);
       const role = pair?.adjust === "bg" ? failure.bg : failure.fg;
-      const fix = adjustable.has(role)
-        ? null
-        : { path: `overrides.color.${failure.theme}.${role}`, value: failure.suggestion };
-      return { failure, fix };
+      const key = `${failure.theme}:${role}`;
+      if (!fixes.has(key))
+        fixes.set(
+          key,
+          derived.has(role) ? null : solveRole(styles, failure.theme, role, failure.suggestion),
+        );
+      return { failure, fix: fixes.get(key) ?? null };
     });
+}
+
+function withOverride(styles: Styles, theme: string, role: string, value: string): Styles {
+  const overrides = structuredClone(styles.overrides ?? {}) as Record<string, unknown>;
+  const color = (overrides.color ?? {}) as Record<string, unknown>;
+  const scope = (color[theme] ?? {}) as Record<string, unknown>;
+  scope[role] = { $value: value, $type: "color" };
+  color[theme] = scope;
+  overrides.color = color;
+  return { ...styles, overrides: overrides as Styles["overrides"] };
+}
+
+/**
+ * The nearest accessible color for `role` in `theme` against every background it sits on:
+ * start from the solver's suggestion for one pair and repeat until no pair with that role fails.
+ */
+function solveRole(
+  styles: Styles,
+  theme: string,
+  role: string,
+  first: string,
+): { path: string; value: string } {
+  let value = first;
+  for (let i = 0; i < 6; i++) {
+    const next = withOverride(styles, theme, role, value);
+    const failing = compileStyles(next, { solve: false }).contrast.failures.find(
+      (f) => f.theme === theme && (f.fg === role || f.bg === role),
+    );
+    if (!failing) break;
+    value = failing.suggestion;
+  }
+  return { path: `overrides.color.${theme}.${role}`, value };
 }
 
 export function fixPatch(issue: ContrastIssue): StylesSet | null {
@@ -161,11 +197,12 @@ export function overridePatch(
   if (!TOKEN_PATH_RE.test(p))
     return { ok: false, message: "Use a token path like color.accent or type.h1.letterSpacing." };
   const value = parseTokenValue(rawValue, type);
-  if (typeof value === "string") {
+  const alias = typeof value === "string" && /^\{[a-zA-Z0-9_.-]+\}$/.test(value);
+  if (typeof value === "string" && !alias) {
     if (!value) return { ok: false, message: "Enter a value." };
     if (!isSafeCssValue(value))
       return { ok: false, message: "That value isn’t allowed in a design token." };
-    if (type === "color" && !isColor(value) && !/^\{[^{}]+\}$/.test(value))
+    if (type === "color" && !isColor(value))
       return {
         ok: false,
         message: "Use a color like #1a2b3c, oklch(…) or an alias like {color.accent-500}.",
