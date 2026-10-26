@@ -59,6 +59,19 @@ export function replaceRichText(content: unknown, text: string): RichDoc {
   return { type: "doc", content: [node] };
 }
 
+/** Replace a phrase inside every text node of a rich-text value (marks and structure kept). */
+export function replaceInRichText(content: unknown, phrase: string, text: string): unknown {
+  const walk = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(walk);
+    if (!node || typeof node !== "object") return node;
+    const n = node as Record<string, unknown>;
+    if (n.type === "text" && typeof n.text === "string")
+      return { ...n, text: n.text.split(phrase).join(text) };
+    return Object.fromEntries(Object.entries(n).map(([k, v]) => [k, walk(v)]));
+  };
+  return walk(content);
+}
+
 function blockFields(
   doc: SiteDocument,
   pageId: string,
@@ -102,11 +115,18 @@ export function personalizeDocument(base: SiteDocument, input: PersonalizeInput)
     if (!target || !text) continue;
     const fields = blockFields(doc, target.page, target.block);
     if (!fields) continue;
+    const field = target.field ?? "content";
+    const current = fields[field];
+    let value: unknown;
+    if (typeof current === "string")
+      value = target.replace ? current.split(target.replace).join(text) : text;
+    else if (target.replace) value = replaceInRichText(current, target.replace, text);
+    else value = replaceRichText(current, text);
     bodies.push({
       op: "block.update",
       page: target.page,
       block: target.block,
-      set: { content: replaceRichText(fields.content, text) },
+      set: { [field]: value },
     });
   }
   if (tagline) {

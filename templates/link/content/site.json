@@ -1,0 +1,168 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Kai Moreno",
+  "tagline": "Weeknight recipes with big flavour and few dishes.",
+  "nav": [],
+  "header": {
+    "variant": "minimal-burger",
+    "sticky": false,
+    "transparentOnHero": false,
+    "mobileMenu": "fullscreen",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_z3fv5p3b0m",
+    "preset": "footer/minimal-row@1",
+    "label": "One-line footer",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          6,
+          6
+        ],
+        "m": [
+          12
+        ]
+      },
+      "align": "center",
+      "gap": "md"
+    },
+    "style": {
+      "colorTheme": "light",
+      "padding": {
+        "d": "md",
+        "m": "md"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_dvw0xgc2f8",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Kai Moreno · Austin, Texas"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_365q45f1pv",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "YouTube",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://youtube.com/@kaimoreno.example"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Instagram",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://instagram.com/kaimoreno.example"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Email",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "mailto:hello@kaimoreno.example"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "end",
+            "m": "start"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/kaimoreno.example"
+    },
+    {
+      "network": "youtube",
+      "url": "https://youtube.com/@kaimoreno.example"
+    },
+    {
+      "network": "tiktok",
+      "url": "https://tiktok.com/@kaimoreno.example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:hello@kaimoreno.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Kai Moreno",
+    "description": "Weeknight recipes with big flavour and few dishes, by Kai Moreno.",
+    "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

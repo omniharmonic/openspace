@@ -1,0 +1,87 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "link",
+  "name": "Link",
+  "description": "A punchy, mobile-first link-in-bio page with stacked link buttons, a pinned social feed, a newsletter signup and all your profiles.",
+  "persona": "Link-in-bio, single page",
+  "mood": "Mobile-first, punchy",
+  "version": "1.0.0",
+  "tags": [
+    "link in bio",
+    "creator",
+    "single page",
+    "social",
+    "newsletter"
+  ],
+  "sample": {
+    "name": "Kai Moreno",
+    "tagline": "Weeknight recipes with big flavour and few dishes."
+  },
+  "thumbnailPage": "pg_m8n27v4m94",
+  "looks": [
+    {
+      "id": "saffron",
+      "name": "Saffron",
+      "description": "Golden saffron with Outfit throughout and round, friendly buttons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.78 0.15 80)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "outfit",
+        "density": "comfortable",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "expressive",
+        "imageTreatment": "circle"
+      }
+    },
+    {
+      "id": "coral",
+      "name": "Coral",
+      "description": "Playful coral with Plus Jakarta Sans and soft corners.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.7 0.15 25)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "plus-jakarta",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "expressive",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "lagoon",
+      "name": "Lagoon",
+      "description": "Clear teal with Sora and Inter, crisp outlined buttons and square corners.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.58 0.1 195)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "sora-inter",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "outline",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_m8n27v4m94",
+      "title": "Home",
+      "slug": ""
+    }
+  ]
+}

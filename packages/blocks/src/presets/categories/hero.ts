@@ -189,7 +189,7 @@ export const heroPresets = [
         type: "image",
         src: photo("cliffs", 1920).src,
         focal: [0.5, 0.55],
-        overlay: scrim(0.55),
+        overlay: scrim(0.75),
       },
       blocks: [
         heading("Five days of silence by the sea", {
@@ -230,7 +230,7 @@ export const heroPresets = [
         type: "image",
         src: photo("modernHouse", 1920).src,
         focal: [0.6, 0.45],
-        overlay: scrim(0.62),
+        overlay: scrim(0.75),
       },
       blocks: [
         heading("Houses that sit lightly on the land", {

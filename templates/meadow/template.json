@@ -1,0 +1,116 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "meadow",
+  "name": "Meadow",
+  "description": "A calm, airy site for yoga studios, therapists and bodyworkers, with a weekly class schedule, treatments and online booking.",
+  "persona": "Yoga, therapy, bodywork, wellness",
+  "mood": "Calm, airy, organic",
+  "version": "1.0.0",
+  "tags": [
+    "wellness",
+    "yoga",
+    "massage",
+    "schedule",
+    "booking",
+    "classes"
+  ],
+  "sample": {
+    "name": "Fernwood Yoga & Bodywork",
+    "tagline": "Slow yoga and bodywork for real bodies."
+  },
+  "thumbnailPage": "pg_13fyssvz8c",
+  "looks": [
+    {
+      "id": "oat-sage",
+      "name": "Oat & Sage",
+      "description": "Sage on oat paper with a clay accent, Fraunces headings and arched photographs.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.62 0.07 145)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "fraunces-hanken",
+        "density": "airy",
+        "shape": "soft",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "grain"
+      },
+      "overrides": {
+        "color": {
+          "accent": {
+            "$value": "oklch(0.55 0.12 40)",
+            "$type": "color"
+          }
+        }
+      }
+    },
+    {
+      "id": "clay-linen",
+      "name": "Clay & Linen",
+      "description": "Sun-baked terracotta with DM Serif headings, rounded corners and outlined buttons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.6 0.11 45)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "dm-serif-dm-sans",
+        "density": "comfortable",
+        "shape": "round",
+        "buttons": "pill-outline",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "dusk",
+      "name": "Dusk",
+      "description": "Soft lavender and cool greys with Libre Caslon, for an evening, restorative feel.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.7 0.1 300)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "libre-caslon-nunito-sans",
+        "density": "airy",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "arch"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_13fyssvz8c",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_f7jcnz65me",
+      "title": "Classes",
+      "slug": "classes"
+    },
+    {
+      "id": "pg_xmmxstbmvf",
+      "title": "Bodywork",
+      "slug": "bodywork"
+    },
+    {
+      "id": "pg_sat2c09jw4",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_av2p7shq0g",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_khh7x3t3zt",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Talk to the Tidewire team about a demo, migrating from another tool, security reviews or a plan for a larger organization."
+  },
+  "sections": [
+    {
+      "id": "sec_xp1kx5j16f",
+      "preset": "contact/form-split@1",
+      "label": "Contact form with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_br9bbtghjk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Talk to an engineer, not a script",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact",
+            "subheading": "Demos, migrations, security questionnaires or pricing for larger teams. We reply within one business day."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_r53bxyyhdc",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Tidewire, Inc.",
+            "address": "Remote · incorporated in Delaware",
+            "email": "hello@tidewire.example",
+            "directions": true
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_8wwax3j1b3",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_f55jx5y178",
+              "name": "Sales enquiry",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Work email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "text",
+                  "name": "company",
+                  "label": "Company",
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "responders",
+                  "label": "Responders",
+                  "width": "half",
+                  "options": [
+                    "1 – 5",
+                    "6 – 25",
+                    "26 – 100",
+                    "More than 100"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "How can we help?",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send",
+              "success": {
+                "type": "message",
+                "message": "Thanks! An engineer will reply within one business day."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

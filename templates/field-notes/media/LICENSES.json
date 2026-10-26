@@ -1,0 +1,119 @@
+{
+  "$comment": "Licenses for the demo media in the Field Notes template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173",
+      "title": "A person writing notes in a notebook beside a mug",
+      "author": "Unseen Studio",
+      "authorUrl": "https://unsplash.com/@uns__nstudio",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/person-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+      "title": "Portrait of a woman with short auburn hair beside a lake",
+      "author": "Christopher Campbell",
+      "authorUrl": "https://unsplash.com/@chrisjoelcampbell",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/shallow-focus-photography-of-woman-outdoor-during-day-rDEOVtE7vOs",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
+      "title": "Sunlight falling through tall trees onto a forest path",
+      "author": "Lukasz Szmigiel",
+      "authorUrl": "https://unsplash.com/@szmigieldesign",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/forest-trees-jFCViYFYcus",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8",
+      "title": "An open book on a table in front of a full bookshelf",
+      "author": "Aaron Burden",
+      "authorUrl": "https://unsplash.com/@aaronburden",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/opened-book-QJDzYT_K8Xg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
+      "title": "Wild red poppies scattered through a summer meadow",
+      "author": "enrico bet",
+      "authorUrl": "https://unsplash.com/@henry_be",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/orange-flowers-IicyiaPYGGI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      "title": "Portrait of a woman in a red sweater, laughing",
+      "author": "Michael Dam",
+      "authorUrl": "https://unsplash.com/@michaeldam",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/closeup-photography-of-woman-smiling-mEZ3PoFGs_k",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1501854140801-50d01698950b",
+      "title": "Rolling green hills seen from above, ridges catching the light",
+      "author": "Qingbao Meng",
+      "authorUrl": "https://unsplash.com/@ideasboom",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/birds-eye-view-photograph-of-green-mountains-01_igFr7hd4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+      "title": "A misty river valley with pine trees and granite cliffs at dawn",
+      "author": "Bailey Zindel",
+      "authorUrl": "https://unsplash.com/@baileyzindel",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/river-in-yosemite-valley-at-low-light-NRQV-hBF10M",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a",
+      "title": "Portrait of a man in a dark suit and glasses",
+      "author": "LinkedIn Sales Solutions",
+      "authorUrl": "https://unsplash.com/@linkedinsalesnavigator",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-beside-wall-pAtA8xe_iVM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Riverbend Neighbors",
+  "tagline": "Neighbors keeping neighbors fed and home.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_5752p2f5ye",
+      "label": "Programs"
+    },
+    {
+      "type": "collection",
+      "collection": "events",
+      "label": "Events"
+    },
+    {
+      "type": "collection",
+      "collection": "news",
+      "label": "News"
+    },
+    {
+      "type": "page",
+      "page": "pg_v4f7w3832h",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_rbmgfshm9y",
+      "label": "Contact"
+    },
+    {
+      "type": "button",
+      "label": "Donate",
+      "link": {
+        "type": "page",
+        "page": "pg_ffqyf65d7j",
+        "anchor": "donate"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-left",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "announcement": {
+    "enabled": true,
+    "message": "Winter coat drive: drop off new or gently used coats at the pantry through December 19.",
+    "link": {
+      "type": "page",
+      "page": "pg_ffqyf65d7j"
+    },
+    "dismissible": true
+  },
+  "footer": {
+    "id": "sec_mp85twvbm7",
+    "preset": "footer/columns@1",
+    "label": "Footer with link columns",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          4,
+          2,
+          2,
+          4
+        ],
+        "m": [
+          6,
+          6
+        ]
+      },
+      "gap": "lg"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_epycmbhsdf",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Riverbend Neighbors"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Food, homework help and home repairs in Lawrenceville since 2004. A 501(c)(3) nonprofit, EIN 25-1234567."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_syztexte7v",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "column": 0,
+        "variant": "icons"
+      },
+      {
+        "id": "blk_007amfthny",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Programs"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Penn Avenue Pantry",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/programs/#pantry"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Homework Harbor",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/programs/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Safe at Home",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/programs/#repairs"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default"
+      },
+      {
+        "id": "blk_znkrvtbqj5",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Organization"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "About",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/about/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "News",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/news/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Events",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/events/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 2,
+        "variant": "default"
+      },
+      {
+        "id": "blk_8xsz2xzfk5",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Visit"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "3120 Penn Avenue, Pittsburgh, PA 15201. "
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Volunteer or donate",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/get-involved/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Riverbend Neighbors"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 3,
+        "variant": "default"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "facebook",
+      "url": "https://facebook.com/riverbendneighbors.example"
+    },
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/riverbendneighbors.example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:hello@riverbendneighbors.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Riverbend Neighbors",
+    "description": "Free groceries, homework help and home repairs in Lawrenceville, Pittsburgh.",
+    "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

@@ -1,0 +1,639 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_5xz5p00ed7",
+  "title": "Services",
+  "slug": "services",
+  "seo": {
+    "description": "Operations resets, leadership hiring and fractional COO support from Calder Advisory, each with a fixed fee and a measurable outcome."
+  },
+  "sections": [
+    {
+      "id": "sec_3a43tc0dem",
+      "preset": "hero/split-image@1",
+      "label": "Split with portrait image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_pdjtsd60qv",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Fixed fees, measurable outcomes",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Services",
+            "subheading": "Before we start, we agree on one result you'll be able to see in a year. Then I scope the smallest piece of work that gets you there."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_2a647jbgcr",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book an intro call",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/calder-advisory/intro"
+            },
+            "role": "primary",
+            "secondaryLabel": "How engagements run",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_5xz5p00ed7",
+              "anchor": "process"
+            },
+            "note": "Taking two new clients for spring 2027."
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_w2h6tnt4s7",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1758876203195-69a51e4145f0?w=2640&q=80",
+              "alt": "Planning a project with sticky notes on a wall",
+              "width": 2640,
+              "height": 1485
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_x46m0kv32b",
+      "preset": "services/tabs@1",
+      "label": "Services in tabs",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_xzgq7ryz0x",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Choose the shape of the work",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Engagements",
+            "subheading": "Most clients start with an operations reset. Some go on to hire, and a few keep me on as a fractional COO."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7p91veg6mv",
+          "type": "tabs",
+          "v": 1,
+          "fields": {
+            "label": "Engagement types",
+            "items": [
+              {
+                "label": "Operations reset",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Twelve weeks · from $28,000"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "bulletList",
+                      "content": [
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Interviews with every team lead and a map of how decisions really get made"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "A new weekly operating rhythm, with three meetings at most"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "One page of metrics the leadership team actually reads"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Outcome: ",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "fewer decisions waiting on the founder, measured monthly."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Leadership hiring",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Four months · from $22,000"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "bulletList",
+                      "content": [
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "A role scorecard written with your board and leadership team"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Shortlist interviews and work samples alongside your recruiter"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "A 90-day onboarding plan for the new leader"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Outcome: ",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "a senior hire in seat, set up to succeed."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Fractional COO",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Six months · $9,500 per month"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "bulletList",
+                      "content": [
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Two days a week with your team, on site or remote"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "Running the operating cadence and quarterly planning"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "listItem",
+                          "content": [
+                            {
+                              "type": "paragraph",
+                              "content": [
+                                {
+                                  "type": "text",
+                                  "text": "A written playbook for your next operations leader"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Outcome: ",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "a calm, predictable quarter while you grow or hire."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "underline"
+        }
+      ]
+    },
+    {
+      "id": "sec_9sxksszgfk",
+      "preset": "services/steps@1",
+      "label": "How it works in three steps",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_e13c29tsae",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "How every engagement runs",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Process"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_w8xszhar6z",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "Diagnose",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Two weeks of interviews, shadowing and reading your numbers. You get a written diagnosis whether or not we go further."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Agree the outcome",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "We choose one measurable result and the smallest scope of work that will reach it, at a fixed fee."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Do the work, then leave",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "I work alongside your team, hand over everything in writing and check in at three and twelve months."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "3",
+            "aspect": "original"
+          },
+          "variant": "steps"
+        },
+        {
+          "id": "blk_914pyxvggk",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book an intro call",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/calder-advisory/intro"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ],
+      "anchor": "process"
+    },
+    {
+      "id": "sec_a95cha8wny",
+      "preset": "faq/split@1",
+      "label": "Questions beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_x1v2ngsh3x",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Good questions to ask",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "FAQ"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_ee1hwz3nfj",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Anything else? Ask on the intro call; there's no obligation to go further."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_wnk1wmd1ra",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a call",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/calder-advisory/intro"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_jq5t61vpxp",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "What size of company do you work with?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Usually 20 to 200 people, founder-led, growing faster than its systems. Industry matters less than stage."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do you work outside Minneapolis?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. About half my clients are elsewhere in the US; I travel for the diagnosis weeks and work remotely otherwise."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "How do fees work?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Fixed fees, half at kickoff and half at the midpoint. No hourly billing and no surprise invoices."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ]
+    }
+  ]
+}

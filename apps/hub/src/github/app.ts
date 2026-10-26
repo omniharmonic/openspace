@@ -463,6 +463,24 @@ export class GitHubAppAccess implements GitHubAccess {
     return res.text();
   }
 
+  async readFileBytes(repo: RepoRef, path: string, ref: string): Promise<Uint8Array | null> {
+    const token = await this.token();
+    const res = await this.fetchFn(
+      `${this.base}${this.repoPath(repo)}/contents/${encPath(path)}?ref=${enc(ref)}`,
+      {
+        headers: {
+          Accept: "application/vnd.github.raw+json",
+          Authorization: `Bearer ${token}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+          "User-Agent": "openspace-hub",
+        },
+      },
+    );
+    if (res.status === 404) return null;
+    if (!res.ok) throw new GitHubApiError(`Reading ${path} failed (${res.status})`, res.status);
+    return new Uint8Array(await res.arrayBuffer());
+  }
+
   async readFiles(
     repo: RepoRef,
     ref: string,
@@ -590,6 +608,33 @@ export class GitHubAppAccess implements GitHubAccess {
       method: "PUT",
       body: { encrypted_value: encryptGitHubSecret(key.key, value), key_id: key.key_id },
     });
+  }
+
+  async secretsPublicKey(repo: RepoRef): Promise<{ keyId: string; key: string }> {
+    const key = await this.rest<{ key_id: string; key: string }>(
+      `${this.repoPath(repo)}/actions/secrets/public-key`,
+    );
+    if (!key) throw new GitHubApiError("No public key for secrets", 502);
+    return { keyId: key.key_id, key: key.key };
+  }
+
+  async putSealedSecret(
+    repo: RepoRef,
+    name: string,
+    encryptedValue: string,
+    keyId: string,
+  ): Promise<void> {
+    await this.rest(`${this.repoPath(repo)}/actions/secrets/${enc(name)}`, {
+      method: "PUT",
+      body: { encrypted_value: encryptedValue, key_id: keyId },
+    });
+  }
+
+  async listSecretNames(repo: RepoRef): Promise<string[]> {
+    const res = await this.rest<{ secrets: Array<{ name: string }> }>(
+      `${this.repoPath(repo)}/actions/secrets?per_page=100`,
+    );
+    return (res?.secrets ?? []).map((s) => s.name);
   }
 
   async addCollaborator(

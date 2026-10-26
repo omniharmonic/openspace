@@ -13,7 +13,7 @@ export * from "./content/index";
 export { type DeployLocation, deployLocation } from "./deploy";
 export * from "./feeds";
 export { type FeedFormat, type FeedPlan, feedsFor } from "./feeds-plan";
-export { contentHash, stableId } from "./ids";
+export { contentHash, type StableIdPrefix, stableId, stableSuffix } from "./ids";
 export { type OpenSpaceOptions, openspace, openspace as default } from "./integration";
 export * from "./manifests";
 export {

@@ -27,6 +27,11 @@ export interface Grant {
    * Every Hub grant must set it.
    */
   role?: "owner" | "designer" | "editor" | "contributor";
+  /**
+   * Per-site roles (a Hub grant spanning sites where the person has different roles). A site
+   * listed here uses its own role instead of `role`.
+   */
+  roles?: Readonly<Record<string, "owner" | "designer" | "editor" | "contributor">>;
   /** Person the agent works for (Hub user id); recorded on sessions. */
   userId?: string;
   /** Agent label shown in Studio ("Claude"). */

@@ -18,6 +18,10 @@
       "types": "./src/content/index.ts",
       "default": "./src/content/index.ts"
     },
+    "./render": {
+      "types": "./src/render-entry.ts",
+      "default": "./src/render-entry.ts"
+    },
     "./route": {
       "types": "./src/runtime/route.ts",
       "default": "./src/runtime/route.ts"
@@ -45,6 +49,10 @@
     "./agents-md": {
       "types": "./src/agents-md.ts",
       "default": "./src/agents-md.ts"
+    },
+    "./ids": {
+      "types": "./src/ids.ts",
+      "default": "./src/ids.ts"
     }
   },
   "publishConfig": {
@@ -57,6 +65,10 @@
       "./content": {
         "types": "./dist/content/index.d.ts",
         "default": "./dist/content/index.js"
+      },
+      "./render": {
+        "types": "./dist/render-entry.d.ts",
+        "default": "./dist/render-entry.js"
       },
       "./route": {
         "types": "./dist/runtime/route.d.ts",
@@ -85,6 +97,10 @@
       "./agents-md": {
         "types": "./dist/agents-md.d.ts",
         "default": "./dist/agents-md.js"
+      },
+      "./ids": {
+        "types": "./dist/ids.d.ts",
+        "default": "./dist/ids.js"
       }
     }
   },

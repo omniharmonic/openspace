@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.45 0.14 330)",
+      "neutral": "cool",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "syne-dm-sans",
+    "density": "comfortable",
+    "shape": "sharp",
+    "buttons": "solid",
+    "motion": "expressive",
+    "imageTreatment": "none"
+  }
+}

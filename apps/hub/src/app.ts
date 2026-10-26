@@ -4,11 +4,14 @@ import { readConfig } from "./env";
 import { studioCors, studioOrigins } from "./lib/cors";
 import { errorBody } from "./lib/errors";
 import { handleError } from "./lib/handle-error";
-import { createLogger } from "./lib/log";
+import { createLogger, redactSecrets } from "./lib/log";
 import { authRoutes } from "./routes/auth";
 import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
 import { growthRoutes } from "./routes/growth";
+import { hostingRoutes } from "./routes/hosting";
+import { mcpGrantRoutes, mcpRoutes, mcpTokenRoutes } from "./routes/mcp";
 import { meRoutes } from "./routes/me";
+import { mediaRoutes } from "./routes/media";
 import { previewRoutes } from "./routes/preview";
 import { publicAnalyticsRoutes } from "./routes/public/analytics";
 import { campaignTrackingRoutes } from "./routes/public/campaign-tracking";
@@ -53,7 +56,7 @@ export function createApp(options: CreateAppOptions = {}) {
     c.header("X-Request-Id", requestId);
     log.info("request", {
       method: c.req.method,
-      path: c.req.path,
+      path: redactSecrets(c.req.path),
       status: c.res.status,
       ms: Date.now() - started,
     });
@@ -99,6 +102,12 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api/sites", collaboratorRoutes);
   app.route("/api/invitations", invitationRoutes);
   app.route("/webhooks", webhookRoutes);
+  // Task 17: remote MCP server, its OAuth authorization server, and Studio's connection APIs.
+  app.route("/api/mcp", mcpGrantRoutes);
+  app.route("/api/sites", mcpTokenRoutes);
+  app.route("/api/sites", mediaRoutes);
+  app.route("/api/sites", hostingRoutes);
+  app.route("/", mcpRoutes);
   app.route("/", previewRoutes);
 
   app.notFound((c) => c.json(errorBody("not_found", "Not found."), 404));

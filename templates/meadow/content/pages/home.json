@@ -1,0 +1,556 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_13fyssvz8c",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Unhurried yoga classes and therapeutic massage on SE Division Street in Portland. Twelve mats per class, and tea afterwards."
+  },
+  "sections": [
+    {
+      "id": "sec_h9tnehxdvb",
+      "preset": "hero/arch-window@1",
+      "label": "Arched image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_vct7gw95n1",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Slow yoga and bodywork for real bodies",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Yoga & bodywork · SE Portland",
+            "subheading": "Small, patient classes for every kind of body, and massage therapists who listen first. Twelve mats a class, tea afterwards, and nobody in a hurry."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_e5hr89w7pd",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "See the class schedule",
+            "link": {
+              "type": "page",
+              "page": "pg_f7jcnz65me"
+            },
+            "role": "primary",
+            "secondaryLabel": "Book a massage",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_xmmxstbmvf"
+            },
+            "note": "New here? Your first week is $25."
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_40we6p1z3t",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1080&q=80",
+              "alt": "A woman meditating cross-legged on a wooden deck in the early light",
+              "width": 1080,
+              "height": 1256
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "imageTreatment": "arch"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_410jh9fyhr",
+      "preset": "about/values@1",
+      "label": "Values",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_7psjscjt6v",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Come exactly as you are",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The Fernwood way",
+            "subheading": "No mirrors, no performance, no perfect poses. Just a warm room and teachers who meet you where you are today."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_mv4z5w22bh",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "users",
+                "title": "Twelve mats, never more",
+                "text": "Small enough that your teacher learns your name, your knees and what helps on a hard day."
+              },
+              {
+                "icon": "clock",
+                "title": "Time to arrive",
+                "text": "Doors open fifteen minutes early so you can settle, stretch and leave the day outside."
+              },
+              {
+                "icon": "leaf",
+                "title": "Tea after every class",
+                "text": "A pot of something warm on the bench by the window, and people worth talking to."
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_fa4k8m8p03",
+      "preset": "services/alternating@1",
+      "label": "Alternating image and text",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 33,
+          "m": 43
+        },
+        "items": {
+          "blk_cb635hcq7q": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_bjf6j96tvq": {
+            "d": {
+              "x": 15,
+              "y": 4,
+              "w": 9,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 12,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_k8k73t543t": {
+            "d": {
+              "x": 13,
+              "y": 18,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 23,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_rh0p0k8tdv": {
+            "d": {
+              "x": 2,
+              "y": 21,
+              "w": 9,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 34,
+              "w": 8,
+              "h": 10
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_cb635hcq7q",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1280&q=80",
+              "alt": "A small group holding tree pose together on a misty morning",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_bjf6j96tvq",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Group classes"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Thirty classes a week"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "From a gentle 6:30am flow to Friday-night restorative with bolsters and blankets. Every class offers options, so beginners and long-time students share the same room happily."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "See this week's schedule →",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "/classes/"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_k8k73t543t",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1280&q=80",
+              "alt": "A therapist warming oil in her hands before a back massage",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_rh0p0k8tdv",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Bodywork"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Massage that listens"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Therapeutic, deep tissue and pregnancy massage with licensed therapists in two quiet rooms upstairs. Sixty or ninety minutes, with evening appointments four nights a week."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Treatments and prices →",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "/bodywork/"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_pc46zd5vz0",
+      "preset": "testimonials/large-single@1",
+      "label": "One big testimonial",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_7tkvwpv9hf",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I walked in with a stiff back and a lot of nerves. A year later I practise three mornings a week, and the people on the mats beside me have become friends."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Rosalind Achebe",
+            "role": "Student since 2025",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Portrait of Rosalind, a Fernwood student",
+              "width": 320,
+              "height": 479
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_p13sa37w5e",
+      "preset": "events/cards@1",
+      "label": "Event cards",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_h18g7jk3by",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "heading": "Workshops & retreats",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "workshops",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 3
+            },
+            "showImage": true,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "Save a place",
+            "emptyMessage": "New workshops are posted at the start of each season — check back soon.",
+            "structuredData": true
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_yz86mmmw5k",
+      "preset": "cta/banner@1",
+      "label": "Centred banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_2pwm6s19me",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "New to Fernwood? Start with a week",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Seven days of unlimited classes for $25, so you can find the teachers and times that feel right."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_9fm50v7anj",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Claim your intro week",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/fernwood-yoga"
+            },
+            "role": "primary",
+            "secondaryLabel": "Gift a class card",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_av2p7shq0g"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

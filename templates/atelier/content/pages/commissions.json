@@ -1,0 +1,307 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_k1vx320q55",
+  "title": "Commissions",
+  "slug": "commissions",
+  "seo": {
+    "description": "Commission Elias Varga for architecture, hospitality and editorial photography, or buy a signed, limited-edition print."
+  },
+  "sections": [
+    {
+      "id": "sec_m67pft6xd9",
+      "preset": "hero/split-landscape@1",
+      "label": "Split with landscape image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            1,
+            0
+          ],
+          "t": [
+            1,
+            0
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_fnza0ezwx9",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1520&q=80",
+              "alt": "A white villa with a pool framed by palms, shot for a hotel commission",
+              "width": 1520,
+              "height": 1013
+            },
+            "aspect": "3:2",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_rsnjdn33hd",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Photographs made for a place",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Commissions & prints",
+            "subheading": "I take on six commissions a year, for architects, hotels and publishers who want their buildings and landscapes seen slowly and honestly."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_aarrsbssgd",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Enquire about a commission",
+            "link": {
+              "type": "page",
+              "page": "pg_h72a8wvyfr"
+            },
+            "role": "primary",
+            "secondaryLabel": "Buy a print",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_k1vx320q55",
+              "anchor": "prints"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_csy0nxe6qs",
+      "preset": "services/steps@1",
+      "label": "How it works in three steps",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_pf3qayteze",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "How a commission runs",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Working together"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_mbajzgknda",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "A walk-through",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "We visit the site together, or talk it through on a call, and agree on the light and the shot list."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Days on location",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "I shoot over two to five days, returning at the hours the building or land looks its best."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Edit and delivery",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Within three weeks you receive a tight, retouched edit and licensed files for print and web."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "3",
+            "aspect": "original"
+          },
+          "variant": "steps"
+        },
+        {
+          "id": "blk_3gxr8nt5t1",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Ask about availability",
+            "link": {
+              "type": "page",
+              "page": "pg_h72a8wvyfr"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_2d9vv8qyc5",
+      "preset": "pricing/compact-list@1",
+      "label": "Compact price list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_66chf4zjmx",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Signed prints",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Editions"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_h7rdfv665y",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Small · 30 × 40 cm",
+                "price": "$340",
+                "period": "edition of 25",
+                "description": "Archival pigment print on cotton rag, signed and numbered.",
+                "features": [],
+                "buttonLabel": "Order a small print",
+                "link": {
+                  "type": "page",
+                  "page": "pg_h72a8wvyfr"
+                },
+                "featured": false
+              },
+              {
+                "name": "Large · 70 × 100 cm",
+                "price": "$1,200",
+                "period": "edition of 10",
+                "description": "Printed by hand in the studio and shipped flat in a crate.",
+                "features": [],
+                "buttonLabel": "Order a large print",
+                "link": {
+                  "type": "page",
+                  "page": "pg_h72a8wvyfr"
+                },
+                "featured": false
+              },
+              {
+                "name": "Framed · 70 × 100 cm",
+                "price": "$1,750",
+                "period": "edition of 10",
+                "description": "Oak frame with museum glass, delivered within the continental US.",
+                "features": [],
+                "buttonLabel": "Order framed",
+                "link": {
+                  "type": "page",
+                  "page": "pg_h72a8wvyfr"
+                },
+                "featured": false
+              }
+            ],
+            "note": "Every print comes with a certificate of authenticity. Prices include shipping in the US."
+          },
+          "variant": "compact"
+        }
+      ],
+      "anchor": "prints"
+    }
+  ]
+}

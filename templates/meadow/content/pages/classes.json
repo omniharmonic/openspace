@@ -1,0 +1,820 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_f7jcnz65me",
+  "title": "Classes",
+  "slug": "classes",
+  "seo": {
+    "description": "The weekly class schedule at Fernwood: slow flow, foundations, yin, prenatal and restorative yoga, plus memberships and class cards."
+  },
+  "sections": [
+    {
+      "id": "sec_f1fz664hep",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_y087v53wfp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h1",
+            "size": "display",
+            "text": "Classes & schedule",
+            "eyebrow": "Thirty classes a week",
+            "subheading": "Every class is 60 or 75 minutes and capped at twelve students. Book ahead online, or drop in if there's a mat free."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_pxtkm0d9nk",
+      "preset": "services/tabs@1",
+      "label": "Weekly schedule",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_88qjn3rq9x",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Find a time that fits",
+            "eyebrow": "Weekly schedule",
+            "subheading": "The schedule runs all year. Holiday changes are posted in the journal and emailed to students a week ahead."
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_rzm2sdzv8b",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Not sure where to start? Foundations and Slow Flow suit complete beginners, and every teacher offers simpler options in every class."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_hsf8kqj1ge",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "secondary",
+            "label": "Book a class",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/fernwood-yoga"
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_j88ee4v2bn",
+          "type": "tabs",
+          "v": 1,
+          "fields": {
+            "label": "Days of the week",
+            "items": [
+              {
+                "label": "Mon",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "6:30am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Slow Morning Flow · Hana"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "12:15pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Lunchtime Stretch (45 min) · Iris"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "6:00pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Foundations · Theo"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "7:30pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Yin & Breath · Iris"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Tue",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "7:00am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Strong & Steady · Theo"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "9:30am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Prenatal Yoga · Iris"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "6:00pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Slow Flow · Hana"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Wed",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "6:30am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Slow Morning Flow · Hana"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "12:15pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Lunchtime Stretch (45 min) · Theo"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "7:30pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Restorative · Hana"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Thu",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "7:00am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Strong & Steady · Theo"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "9:30am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Prenatal Yoga · Iris"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "6:00pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Foundations · Hana"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Fri",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "6:30am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Slow Morning Flow · Iris"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "5:30pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Restorative & Tea · Hana"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Sat",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "8:30am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Foundations · Theo"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "10:15am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Slow Flow · Hana"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "12:00pm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Postnatal & Baby · Iris"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Sun",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "9:30am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Yin & Breath · Iris"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "11:15am",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "  Community Class (by donation) · Theo"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "underline",
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_0nyqvaw41w",
+      "preset": "pricing/three-plans@1",
+      "label": "Three plans",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_nyvbjp4m8r",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Practise as often as you like",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Memberships & passes",
+            "subheading": "No joining fee and no contracts. Pause or cancel with a month's notice."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_eymc8s4vsd",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Drop-in",
+                "price": "$22",
+                "period": "per class",
+                "description": "For an occasional class or a visit from out of town.",
+                "features": [
+                  {
+                    "text": "Any group class"
+                  },
+                  {
+                    "text": "Mats and props provided"
+                  },
+                  {
+                    "text": "Valid for 30 days"
+                  }
+                ],
+                "buttonLabel": "Buy a drop-in",
+                "link": {
+                  "type": "url",
+                  "url": "https://cal.com/fernwood-yoga"
+                },
+                "featured": false
+              },
+              {
+                "name": "Unlimited",
+                "price": "$128",
+                "period": "per month",
+                "description": "For a steady practice, as many classes as you like.",
+                "features": [
+                  {
+                    "text": "Unlimited group classes"
+                  },
+                  {
+                    "text": "A guest pass every month"
+                  },
+                  {
+                    "text": "15% off workshops and massage"
+                  }
+                ],
+                "buttonLabel": "Become a member",
+                "link": {
+                  "type": "url",
+                  "url": "https://cal.com/fernwood-yoga"
+                },
+                "featured": true,
+                "badge": "Most popular"
+              },
+              {
+                "name": "Ten-class card",
+                "price": "$190",
+                "period": "10 classes",
+                "description": "For a practice that comes and goes with the seasons.",
+                "features": [
+                  {
+                    "text": "Shareable with family"
+                  },
+                  {
+                    "text": "Valid for six months"
+                  },
+                  {
+                    "text": "Use for any class"
+                  }
+                ],
+                "buttonLabel": "Buy a card",
+                "link": {
+                  "type": "url",
+                  "url": "https://cal.com/fernwood-yoga"
+                },
+                "featured": false
+              }
+            ],
+            "note": "Students, teachers and healthcare workers save 20% on memberships."
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_vekr7s2zcr",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_z5knwfx55t",
+          "type": "booking",
+          "v": 1,
+          "fields": {
+            "provider": "cal",
+            "headingLevel": "h2",
+            "height": "760",
+            "url": "https://cal.com/fernwood-yoga/class",
+            "heading": "Book your mat online",
+            "description": "Reserve up to two weeks ahead and cancel free until two hours before class. We hold three mats in every class for drop-ins.",
+            "buttonLabel": "Open the booking calendar"
+          },
+          "variant": "split"
+        }
+      ]
+    },
+    {
+      "id": "sec_079zgxntzr",
+      "preset": "faq/centered@1",
+      "label": "Centred questions",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_4v43qnc3dw",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Before you come",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "First class"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_dnxcwdxze7",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "I've never done yoga. Which class should I take?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Foundations or Slow Flow. Both move gently and explain each pose, and your teacher will offer simpler options whenever you need them."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What should I bring?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Comfortable clothes and a water bottle. Mats, blocks, bolsters and blankets are all provided and cleaned between classes."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I come if I'm pregnant or recovering from an injury?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Tell your teacher before class. Prenatal Yoga is ideal from the second trimester, and our massage therapists can suggest classes that suit your recovery."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Is the studio accessible?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "The main studio is on the ground floor with step-free access and an accessible restroom. The bodywork rooms are upstairs; ask us about ground-floor appointments."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "minimal"
+        }
+      ]
+    }
+  ]
+}

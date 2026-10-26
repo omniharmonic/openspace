@@ -26,4 +26,12 @@ export {
   ROW_UNIT,
   readingOrder,
 } from "./mobile";
+export {
+  blendOver,
+  type PhotoContrastFailure,
+  type PhotoTextCheck,
+  photoContrast,
+  photoTextChecks,
+  worstCaseRatio,
+} from "./photo-contrast";
 export { effectiveTitle, seoCheck } from "./seo";
