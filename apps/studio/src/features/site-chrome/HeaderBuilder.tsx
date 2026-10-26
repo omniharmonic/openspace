@@ -215,9 +215,9 @@ export function HeaderBuilder() {
             value={header.mobileMenu}
             onValueChange={(v) => update("Phone menu style", { set: { "header.mobileMenu": v } })}
             options={[
-              { value: "slide", label: "Slide in" },
-              { value: "fullscreen", label: "Full screen" },
-              { value: "dropdown", label: "Drop down" },
+              { value: "slide", label: "Slide", ariaLabel: "Slides in from the side" },
+              { value: "fullscreen", label: "Full", ariaLabel: "Covers the whole screen" },
+              { value: "dropdown", label: "Drop", ariaLabel: "Drops down under the header" },
             ]}
           />
         </Field>

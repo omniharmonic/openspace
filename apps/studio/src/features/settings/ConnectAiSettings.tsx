@@ -224,7 +224,9 @@ export function ConnectAiSettings({ site }: { site: Site }) {
               content: (
                 <ol className="st-steps st-steps--sketch">
                   <li className={first ? "is-done" : undefined}>
-                    <strong>Make your link</strong> above and copy it.
+                    <div>
+                      <strong>Make your link</strong> above and copy it.
+                    </div>
                   </li>
                   <li>
                     <div>

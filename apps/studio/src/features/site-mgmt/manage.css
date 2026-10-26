@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noDescendingSpecificity: component-scoped selectors; later rules target different elements, so order is intentional. */
 /* Shared form primitives for site-management surfaces (pages, header & footer, settings). */
 
 .st-form {
@@ -193,7 +194,8 @@
 }
 
 .st-table td {
-  padding: 8px;
+  padding: 4px 8px;
+  height: 36px;
   border-bottom: 1px solid var(--st-line);
   vertical-align: middle;
 }
@@ -286,4 +288,19 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 8px;
+}
+
+/* Tall dialogs: start near the top so their whole body fits (the body scrolls). */
+.st-media-dialog,
+.st-page-dialog {
+  top: max(16px, 6vh);
+  max-height: calc(100dvh - max(16px, 6vh) - 16px);
+}
+
+@media (max-width: 767px) {
+  .st-media-dialog,
+  .st-page-dialog {
+    top: 8px;
+    max-height: calc(100dvh - 16px);
+  }
 }

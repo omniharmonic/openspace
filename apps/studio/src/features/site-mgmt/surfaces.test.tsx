@@ -154,7 +154,7 @@ describe("header & footer, banner and pop-up", () => {
     const sticky = store().doc.site.header.sticky;
     await user.click(within(panel).getByRole("switch", { name: "Stay at the top when scrolling" }));
     expect(store().doc.site.header.sticky).toBe(!sticky);
-    await user.click(within(panel).getByRole("radio", { name: "Full screen" }));
+    await user.click(within(panel).getByRole("radio", { name: "Covers the whole screen" }));
     expect(store().doc.site.header.mobileMenu).toBe("fullscreen");
     const hadButton = store().doc.site.nav.some((n) => n.type === "button");
     if (!hadButton) {

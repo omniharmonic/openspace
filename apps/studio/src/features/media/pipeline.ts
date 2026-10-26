@@ -8,7 +8,6 @@ import { dominantColor, fitWithin, hasTransparency, suggestFocal } from "./analy
 import { browserCodec, type ImageCodec, type ImageEdit } from "./codec";
 import { stripMetadata } from "./metadata";
 import { findDuplicate, mediaPathFor, sha256Hex } from "./naming";
-import { sanitizeSvg, svgSize } from "./svg";
 
 /**
  * The in-browser media pipeline (arch §5.6): decode → downscale (long edge ≤ 2400) → re-encode
@@ -153,6 +152,8 @@ export async function processMedia(
   let resized = false;
 
   if (mime === "image/svg+xml") {
+    // DOMPurify loads only when an SVG arrives.
+    const { sanitizeSvg, svgSize } = await import("./svg");
     const clean = sanitizeSvg(new TextDecoder().decode(original));
     blob = new Blob([clean], { type: mime });
     ({ width, height } = svgSize(clean));

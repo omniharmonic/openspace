@@ -372,6 +372,10 @@ export function DomainsSettings({ site }: { site: Site }) {
                 loading={actions.connect.isPending}
                 onClick={() =>
                   actions.connect.mutate(lookup.hostname, {
+                    onSuccess: () =>
+                      document
+                        .querySelector(".st-settings__body")
+                        ?.scrollTo?.({ top: 0, behavior: "smooth" }),
                     onError: (err) =>
                       toast({
                         tone: "danger",

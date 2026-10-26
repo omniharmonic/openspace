@@ -251,9 +251,9 @@ export function PopupEditor() {
                 )
               }
               options={[
-                { value: "time", label: "After a delay" },
-                { value: "scroll", label: "On scroll" },
-                { value: "exit-intent", label: "On leaving" },
+                { value: "time", label: "Delay", ariaLabel: "After a delay" },
+                { value: "scroll", label: "Scroll", ariaLabel: "On scroll" },
+                { value: "exit-intent", label: "Leaving", ariaLabel: "When leaving the page" },
               ]}
             />
             {p.trigger === "time" && (

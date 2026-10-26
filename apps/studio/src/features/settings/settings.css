@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noDescendingSpecificity: component-scoped selectors; later rules target different elements, so order is intentional. */
 @import "../site-mgmt/manage.css";
 
 .st-settings-loading {
@@ -519,7 +520,7 @@
   grid-template-columns: 36px minmax(0, 1fr);
   grid-template-rows: 10px minmax(0, 1fr);
   overflow: hidden;
-  height: 96px;
+  height: 112px;
   border-radius: var(--st-r-sm);
   background: var(--st-panel);
   box-shadow: inset 0 0 0 1px var(--st-line);
@@ -584,6 +585,11 @@
 }
 
 .st-sketch__modal i {
+  display: block;
+  overflow: hidden;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding: 2px 4px;
   border-radius: 3px;
   background: var(--st-field);
@@ -851,4 +857,9 @@
   .st-sketch {
     max-width: 240px;
   }
+}
+
+.st-steps .st-row-actions,
+.st-steps .st-host-form {
+  margin-top: 8px;
 }

@@ -133,6 +133,12 @@ export function SettingsView({ site, tab }: { site: Site; tab: SettingsTab | nul
   const base = `/sites/${site.id}/settings`;
   const close = () => navigate(`/sites/${site.id}`);
 
+  // Wide screens show a tab beside the list; phones show the list on its own first.
+  useEffect(() => {
+    if (!active && !window.matchMedia?.("(max-width: 767px)").matches)
+      navigate(`${base}/general`, { replace: true });
+  }, [active, base, navigate]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !document.querySelector("[role='dialog']")) close();
@@ -158,7 +164,7 @@ export function SettingsView({ site, tab }: { site: Site; tab: SettingsTab | nul
                 type="button"
                 className={cx(
                   "st-settings__tab",
-                  (active?.id ?? "general") === t.id && "is-active",
+                  active?.id === t.id && "is-active",
                   t.id === "delete" && "is-danger",
                 )}
                 aria-current={active?.id === t.id ? "page" : undefined}

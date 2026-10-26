@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noDescendingSpecificity: component-scoped selectors; later rules target different elements, so order is intentional. */
 @import "../site-mgmt/manage.css";
 
 /* Media library (panel + picker), details, focal point and image editor. */
@@ -5,8 +6,8 @@
 .st-media {
   position: relative;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: column;
-  min-height: 100%;
 }
 
 .st-media__bar {
@@ -268,10 +269,6 @@
 }
 
 /* ---------- details dialog ---------- */
-.st-media-dialog {
-  max-height: calc(100dvh - 32px);
-  overflow: auto;
-}
 
 .st-media-details {
   display: grid;
@@ -499,6 +496,11 @@
   margin: -4px;
   border: 1px solid var(--st-line);
   border-radius: var(--st-r);
+}
+
+.st-media__tile-badges .st-badge {
+  background: var(--st-panel);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
 }
 
 .st-media-picker .st-media__grid {
