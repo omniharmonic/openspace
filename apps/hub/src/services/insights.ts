@@ -2,11 +2,12 @@
 import { renderEmail } from "@openspace/email-render";
 import type { Block } from "@openspace/schema";
 import type { SiteRow } from "../db/sites";
+import type { Logger } from "../lib/log";
 import { type AnalyticsData, type Range, rangeBounds } from "./analytics";
 import { emailSite, sendTransactional, siteBaseUrl } from "./email";
 import { SPAM_THRESHOLD } from "./forms";
 import type { Services } from "./index";
-import { notifyAddress } from "./notifications";
+import { type CronSummary, errorKind, notifyAddress } from "./notifications";
 import { quotaUsed, siteQuotaLimits } from "./quotas";
 import { getSettings } from "./settings";
 
@@ -66,20 +67,24 @@ export async function analyticsReport(
   };
 }
 
-let blockSeq = 0;
-const blk = (type: string, fields: Record<string, unknown>): Block => ({
-  id: `blk_dg${(++blockSeq).toString(36).padStart(8, "0").slice(-8)}` as Block["id"],
-  type,
-  v: 1,
-  fields,
-});
-const para = (text: string) =>
-  blk("text", {
-    content: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text }] }] },
+/** Block builders for one email; ids are sequential within that email only. */
+function blockBuilder() {
+  let seq = 0;
+  const blk = (type: string, fields: Record<string, unknown>): Block => ({
+    id: `blk_dg${(++seq).toString(36).padStart(8, "0")}` as Block["id"],
+    type,
+    v: 1,
+    fields,
   });
+  const para = (text: string) =>
+    blk("text", {
+      content: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text }] }] },
+    });
+  return { blk, para };
+}
 
 /** Weekly analytics summary for owners who opted in (cron, Mondays). */
-export async function sendWeeklyDigests(services: Services): Promise<number> {
+export async function sendWeeklyDigests(services: Services, log?: Logger): Promise<CronSummary> {
   const { db } = services;
   const rows = (
     await db
@@ -89,44 +94,48 @@ export async function sendWeeklyDigests(services: Services): Promise<number> {
       )
       .all<SiteRow>()
   ).results;
-  let sent = 0;
+  const summary: CronSummary = { sent: 0, failed: 0 };
   for (const site of rows) {
-    const settings = await getSettings(db, site.id);
-    if (!settings.weeklyDigest || !settings.analyticsEnabled) continue;
-    const to = await notifyAddress(services, site, settings);
-    if (!to) continue;
-    const r = await analyticsReport(services, site, "week");
-    const top = r.topPages
-      .slice(0, 5)
-      .map((p) => `${p.key} — ${p.pageviews}`)
-      .join("\n");
-    const sources = r.referrers
-      .slice(0, 5)
-      .map((p) => `${p.key} — ${p.pageviews}`)
-      .join("\n");
-    const entries = r.forms.reduce((n, f) => n + f.submissions, 0);
-    const mail = renderEmail({
-      site: emailSite(site),
-      baseUrl: siteBaseUrl(site, services.config.hubUrl),
-      preheader: `${r.totals.visits} visits this week`,
-      title: `Your week on ${site.name}`,
-      footerNote: "You get this because the weekly summary is on in your site's settings.",
-      blocks: [
-        blk("heading", { text: `Your week on ${site.name}`, level: 1 }),
-        para(
-          `${r.totals.visits} visits · ${r.totals.pageviews} page views · ${entries} form ${entries === 1 ? "entry" : "entries"}${r.sampled ? " (estimated)" : ""}`,
-        ),
-        ...(top ? [blk("heading", { text: "Top pages", level: 2 }), para(top)] : []),
-        ...(sources
-          ? [blk("heading", { text: "Where visitors came from", level: 2 }), para(sources)]
-          : []),
-        blk("button", {
-          label: "Open your dashboard",
-          link: { type: "url", url: `${services.config.studioOrigin}/sites/${site.id}/analytics` },
-        }),
-      ],
-    });
     try {
+      const { blk, para } = blockBuilder();
+      const settings = await getSettings(db, site.id);
+      if (!settings.weeklyDigest || !settings.analyticsEnabled) continue;
+      const to = await notifyAddress(services, site, settings);
+      if (!to) continue;
+      const r = await analyticsReport(services, site, "week");
+      const top = r.topPages
+        .slice(0, 5)
+        .map((p) => `${p.key} — ${p.pageviews}`)
+        .join("\n");
+      const sources = r.referrers
+        .slice(0, 5)
+        .map((p) => `${p.key} — ${p.pageviews}`)
+        .join("\n");
+      const entries = r.forms.reduce((n, f) => n + f.submissions, 0);
+      const mail = renderEmail({
+        site: emailSite(site),
+        baseUrl: siteBaseUrl(site, services.config.hubUrl),
+        preheader: `${r.totals.visits} visits this week`,
+        title: `Your week on ${site.name}`,
+        footerNote: "You get this because the weekly summary is on in your site's settings.",
+        blocks: [
+          blk("heading", { text: `Your week on ${site.name}`, level: 1 }),
+          para(
+            `${r.totals.visits} visits · ${r.totals.pageviews} page views · ${entries} form ${entries === 1 ? "entry" : "entries"}${r.sampled ? " (estimated)" : ""}`,
+          ),
+          ...(top ? [blk("heading", { text: "Top pages", level: 2 }), para(top)] : []),
+          ...(sources
+            ? [blk("heading", { text: "Where visitors came from", level: 2 }), para(sources)]
+            : []),
+          blk("button", {
+            label: "Open your dashboard",
+            link: {
+              type: "url",
+              url: `${services.config.studioOrigin}/sites/${site.id}/analytics`,
+            },
+          }),
+        ],
+      });
       await sendTransactional(services, {
         siteId: site.id,
         to,
@@ -135,10 +144,11 @@ export async function sendWeeklyDigests(services: Services): Promise<number> {
         text: mail.text,
         kind: "analytics-digest",
       });
-      sent++;
-    } catch {
-      /* quota or provider failure: skip this week */
+      summary.sent++;
+    } catch (err) {
+      summary.failed++;
+      log?.warn("weekly digest failed", { siteId: site.id, kind: errorKind(err) });
     }
   }
-  return sent;
+  return summary;
 }

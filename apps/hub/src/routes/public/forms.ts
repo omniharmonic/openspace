@@ -7,12 +7,12 @@
  */
 import type { Context } from "hono";
 import { Hono } from "hono";
-import { randomId, sha256Hex } from "../../lib/crypto";
+import { randomId } from "../../lib/crypto";
 import { HttpError } from "../../lib/errors";
 import {
   allowedOrigins,
   background,
-  clientIp,
+  cleanUrlInput,
   failureBody,
   originAllowed,
   type PublicFailure,
@@ -20,23 +20,25 @@ import {
   publicErrors,
   publicSite,
   publicSiteCors,
+  rememberReturn,
   returnUrl,
   single,
+  sitePath,
   wantsJson,
 } from "../../lib/public";
 import { siteBaseUrl } from "../../services/email";
 import { loadManifest, SPAM_THRESHOLD, spamScore, validateSubmission } from "../../services/forms";
 import { notifyInstant } from "../../services/notifications";
 import { consumeQuota, quotaGuard, siteQuotaLimits } from "../../services/quotas";
-import { RATE_RULES } from "../../services/rate-limit";
 import { getSettings } from "../../services/settings";
 import type { AppEnv } from "../../types";
+import { gate } from "./gate";
 
 export const publicFormRoutes = new Hono<AppEnv>();
 
 const MONTH = 30 * 24 * 60 * 60 * 1000;
 
-publicFormRoutes.use("/f/:siteId/*", publicSiteCors(), publicErrors());
+publicFormRoutes.use("/f/:siteId/*", publicSiteCors(), publicErrors("os_form"));
 
 /** `GET /f/config` — public settings site-kit/blocks need (Turnstile site key). */
 publicFormRoutes.get("/f/config", (c) =>
@@ -70,6 +72,7 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
   const fields = await parseFields(c);
   const source = single(fields._source);
   const anchor = single(fields._anchor);
+  rememberReturn(c, source, anchor);
   const back = (status: "success" | "error") =>
     returnUrl(base, allowed, source, referer, "os_form", status, anchor);
   const fail = (f: PublicFailure): Outcome => ({
@@ -89,25 +92,13 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
         redirect: back("success"),
       };
     }
-    const ip = clientIp(c);
-    const ipHash = (await sha256Hex(`${services.pub.config.hmacKey}|${ip}`)).slice(0, 24);
-    const rate = await services.pub.rateLimit.hit(`${site.id}|${ipHash}`, RATE_RULES.form);
-    if (!rate.ok) {
-      c.header("Retry-After", String(rate.retryAfter));
-      return fail({
-        status: 429,
-        code: "rate_limited",
-        message: "Too many messages from your connection. Please try again in a few minutes.",
-      });
-    }
-    const token = single(fields["cf-turnstile-response"]) ?? single(fields._turnstile);
-    const turnstile = await services.pub.turnstile.verify(token, ip);
-    if (!turnstile.ok)
-      return fail({
-        status: 403,
-        code: "spam_suspected",
-        message: "We couldn't verify you're a person. Please try again.",
-      });
+    const blocked = await gate(
+      c,
+      site,
+      "form",
+      single(fields["cf-turnstile-response"]) ?? single(fields._turnstile),
+    );
+    if (blocked) return fail(blocked);
 
     const manifest = await loadManifest(services, site, base);
     const entry = manifest.find((f) => f.form.id === formId);
@@ -174,8 +165,7 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
 
     const s = entry.form.success;
     const message = s.type === "message" ? s.message : "Thanks — your message was sent.";
-    const redirectTo =
-      s.type === "redirect" ? resolveRedirect(entry.redirectHref, base, allowed) : null;
+    const redirectTo = s.type === "redirect" ? resolveRedirect(entry.redirectHref, base) : null;
     return {
       ok: true,
       status: 200,
@@ -186,15 +176,16 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
   return respond(c, json, outcome);
 });
 
-/** Success-redirect target: a site path (joined to the base) or an absolute http(s) URL. */
-function resolveRedirect(href: string | null, base: string, _allowed: string[]): string | null {
-  if (!href) return null;
+/**
+ * Success-redirect target: a site path (joined below the base path, same origin enforced) or an
+ * absolute http(s) URL the owner chose in the form settings.
+ */
+function resolveRedirect(href: string | null, base: string): string | null {
+  const h = cleanUrlInput(href);
+  if (!h) return null;
+  if (h.startsWith("/")) return sitePath(base, h)?.toString() ?? null;
   try {
-    if (/^\/(?!\/)/.test(href)) {
-      const b = new URL(base);
-      return new URL(`${b.pathname.replace(/\/+$/, "")}${href}`, b.origin).toString();
-    }
-    const u = new URL(href);
+    const u = new URL(h);
     return u.protocol === "https:" || u.protocol === "http:" ? u.toString() : null;
   } catch {
     return null;

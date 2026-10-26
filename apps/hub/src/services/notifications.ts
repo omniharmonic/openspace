@@ -2,6 +2,7 @@
 import { formNotificationEmail } from "@openspace/email-render";
 import type { Form } from "@openspace/schema";
 import type { SiteRow } from "../db/sites";
+import type { Logger } from "../lib/log";
 import { emailSite, sendTransactional, siteBaseUrl } from "./email";
 import {
   displayEntries,
@@ -69,8 +70,29 @@ export async function notifyInstant(
   return true;
 }
 
-/** One digest per site with notifications = "daily" and entries not yet notified. */
-export async function sendDailyDigests(services: Services): Promise<number> {
+export interface CronSummary {
+  sent: number;
+  failed: number;
+}
+
+/** Error kind for logs: provider/HTTP code or the error class, never the message body. */
+export function errorKind(err: unknown): string {
+  if (err && typeof err === "object") {
+    const e = err as { code?: unknown; name?: unknown };
+    if (typeof e.code === "string") return e.code;
+    if (typeof e.name === "string") return e.name;
+  }
+  return "unknown";
+}
+
+/** Entries younger than this are left to the in-flight instant notification. */
+const INSTANT_GRACE_MS = 10 * 60 * 1000;
+
+/**
+ * One digest per site of entries not yet notified: sites on "daily", plus "instant" sites whose
+ * instant email failed (quota, provider outage) — those are retried here.
+ */
+export async function sendDailyDigests(services: Services, log?: Logger): Promise<CronSummary> {
   const { db } = services;
   const candidates = await db
     .prepare(
@@ -79,46 +101,51 @@ export async function sendDailyDigests(services: Services): Promise<number> {
     )
     .bind(SPAM_THRESHOLD)
     .all<{ site_id: string }>();
-  let sent = 0;
+  const summary: CronSummary = { sent: 0, failed: 0 };
   for (const { site_id } of candidates.results) {
-    const settings = await getSettings(db, site_id);
-    if (settings.notifications !== "daily") continue;
-    const site = await db
-      .prepare("SELECT * FROM sites WHERE id = ?")
-      .bind(site_id)
-      .first<SiteRow>();
-    if (!site) continue;
-    const to = await notifyAddress(services, site, settings);
-    const rows = (
-      await db
-        .prepare(
-          `SELECT s.*, f.name AS form_name FROM submissions s
-           LEFT JOIN forms f ON f.site_id = s.site_id AND f.id = s.form_id
-           WHERE s.site_id = ? AND s.notified_at IS NULL AND COALESCE(s.spam_score, 0) < ?
-           ORDER BY s.created_at LIMIT 200`,
-        )
-        .bind(site_id, SPAM_THRESHOLD)
-        .all<SubmissionRow>()
-    ).results;
-    if (!rows.length) continue;
-    if (to) {
-      const entries = rows.map((r) => {
-        const data = JSON.parse(r.data_json) as SubmissionData;
-        return {
-          label: `${r.form_name ?? r.form_id} · ${new Date(r.created_at).toUTCString()}`,
-          value: displayEntries(null, data)
-            .map((e) => `${e.label}: ${e.value}`)
-            .join("\n"),
-        };
-      });
-      const mail = formNotificationEmail({
-        site: emailSite(site),
-        baseUrl: siteBaseUrl(site, services.config.hubUrl),
-        formName: "daily",
-        entries,
-        entryUrl: inboxUrl(services, site.id),
-      });
-      try {
+    try {
+      const settings = await getSettings(db, site_id);
+      if (settings.notifications === "off") continue;
+      const site = await db
+        .prepare("SELECT * FROM sites WHERE id = ?")
+        .bind(site_id)
+        .first<SiteRow>();
+      if (!site) continue;
+      const before =
+        settings.notifications === "instant"
+          ? services.now() - INSTANT_GRACE_MS
+          : services.now() + 1;
+      const rows = (
+        await db
+          .prepare(
+            `SELECT s.*, f.name AS form_name FROM submissions s
+             LEFT JOIN forms f ON f.site_id = s.site_id AND f.id = s.form_id
+             WHERE s.site_id = ? AND s.notified_at IS NULL AND COALESCE(s.spam_score, 0) < ?
+               AND s.created_at < ?
+             ORDER BY s.created_at LIMIT 200`,
+          )
+          .bind(site_id, SPAM_THRESHOLD, before)
+          .all<SubmissionRow>()
+      ).results;
+      if (!rows.length) continue;
+      const to = await notifyAddress(services, site, settings);
+      if (to) {
+        const entries = rows.map((r) => {
+          const data = JSON.parse(r.data_json) as SubmissionData;
+          return {
+            label: `${r.form_name ?? r.form_id} · ${new Date(r.created_at).toUTCString()}`,
+            value: displayEntries(null, data)
+              .map((e) => `${e.label}: ${e.value}`)
+              .join("\n"),
+          };
+        });
+        const mail = formNotificationEmail({
+          site: emailSite(site),
+          baseUrl: siteBaseUrl(site, services.config.hubUrl),
+          formName: "daily",
+          entries,
+          entryUrl: inboxUrl(services, site.id),
+        });
         await sendTransactional(services, {
           siteId: site.id,
           to,
@@ -127,22 +154,24 @@ export async function sendDailyDigests(services: Services): Promise<number> {
           text: mail.text,
           kind: "form-digest",
         });
-        sent++;
-      } catch {
-        continue; // quota or provider failure: leave entries unnotified for the next run
+        summary.sent++;
       }
-    }
-    const now = services.now();
-    const ids = rows.map((r) => r.id);
-    for (let i = 0; i < ids.length; i += 50) {
-      const chunk = ids.slice(i, i + 50);
-      await db
-        .prepare(
-          `UPDATE submissions SET notified_at = ? WHERE id IN (${chunk.map(() => "?").join(",")})`,
-        )
-        .bind(now, ...chunk)
-        .run();
+      const now = services.now();
+      const ids = rows.map((r) => r.id);
+      for (let i = 0; i < ids.length; i += 50) {
+        const chunk = ids.slice(i, i + 50);
+        await db
+          .prepare(
+            `UPDATE submissions SET notified_at = ? WHERE id IN (${chunk.map(() => "?").join(",")})`,
+          )
+          .bind(now, ...chunk)
+          .run();
+      }
+    } catch (err) {
+      // Quota or provider failure: entries stay unnotified and are retried on the next run.
+      summary.failed++;
+      log?.warn("form digest failed", { siteId: site_id, kind: errorKind(err) });
     }
   }
-  return sent;
+  return summary;
 }

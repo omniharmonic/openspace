@@ -238,7 +238,7 @@ describe("analytics query API", () => {
     await beacon(f.app, f.siteId, { p: "/" });
     const { runPublicServicesCron } = await import("../src/cron/public-services");
     const out = await runPublicServicesCron("0 8 * * 1", env as never);
-    expect(out.weeklyDigests).toBe(1);
+    expect(out.weeklyDigests).toEqual({ sent: 1, failed: 0 });
     const res = await call(f.app, "/dev/outbox.json?kind=analytics-digest");
     const { messages } = (await res.json()) as { messages: Array<{ subject: string; to: string }> };
     expect(messages[0]).toMatchObject({

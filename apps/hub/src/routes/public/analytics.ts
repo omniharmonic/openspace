@@ -12,6 +12,7 @@ import {
   publicErrors,
   publicSite,
   publicSiteCors,
+  rateKeyIp,
 } from "../../lib/public";
 import {
   cleanPath,
@@ -40,6 +41,10 @@ publicAnalyticsRoutes.post("/a/:siteId", async (c) => {
   const ua = c.req.header("user-agent") ?? "";
   const noContent = () => c.body(null, 204);
   if (isBot(ua)) return noContent();
+  const limited = await services.pub.beaconLimit
+    .limit({ key: `${site.id}|${rateKeyIp(clientIp(c))}` })
+    .catch(() => ({ success: true }));
+  if (!limited.success) return noContent();
   const settings = await getSettings(services.db, site.id);
   if (!settings.analyticsEnabled) return noContent();
 

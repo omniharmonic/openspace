@@ -21,7 +21,13 @@ import {
   ResendEmailSender,
 } from "./email/providers";
 import type { EmailSender } from "./email/types";
-import { DurableRateLimiter, NoRateLimiter, type RateLimitService } from "./rate-limit";
+import {
+  DurableRateLimiter,
+  NO_BEACON_LIMIT,
+  NoRateLimiter,
+  type RateLimitService,
+  type SimpleRateLimit,
+} from "./rate-limit";
 import { CloudflareTurnstile, DevTurnstile, type TurnstileVerifier } from "./turnstile";
 
 export interface PublicServices {
@@ -29,6 +35,8 @@ export interface PublicServices {
   email: EmailSender;
   turnstile: TurnstileVerifier;
   rateLimit: RateLimitService;
+  /** Cheap per-visitor limit for analytics beacons. */
+  beaconLimit: SimpleRateLimit;
   analytics: AnalyticsStore;
   dns: DnsResolver;
   rdap: RdapClient;
@@ -68,6 +76,7 @@ export function createPublicServices(
     rateLimit:
       overrides.rateLimit ??
       (env.RATE_LIMITER ? new DurableRateLimiter(env.RATE_LIMITER, deps.now) : new NoRateLimiter()),
+    beaconLimit: overrides.beaconLimit ?? env.BEACON_LIMITER ?? NO_BEACON_LIMIT,
     analytics:
       overrides.analytics ??
       (pc.analyticsEngine && env.ANALYTICS && !config.devMode

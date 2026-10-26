@@ -78,6 +78,31 @@ export function clientIp(c: Context): string {
   );
 }
 
+/** Expand an IPv6 address to 8 hextets (no zone, no embedded IPv4). Null if it isn't one. */
+function expandIpv6(ip: string): string[] | null {
+  const addr = ip.split("%")[0]?.toLowerCase() ?? "";
+  if (!addr.includes(":") || !/^[0-9a-f:.]+$/.test(addr)) return null;
+  const [head = "", tail, ...rest] = addr.split("::");
+  if (rest.length) return null;
+  const h = head ? head.split(":") : [];
+  const t = tail ? tail.split(":") : [];
+  if (tail === undefined && h.length !== 8) return null;
+  const fill = 8 - h.length - t.length;
+  if (fill < 0) return null;
+  return [...h, ...Array(tail === undefined ? 0 : fill).fill("0"), ...t].map((x) =>
+    x.replace(/^0+(?=.)/, ""),
+  );
+}
+
+/**
+ * The rate-limit identity of a client: the IPv4 address, or the IPv6 /64 prefix (one household
+ * or device usually controls a whole /64, so per-address keys are trivially evaded).
+ */
+export function rateKeyIp(ip: string): string {
+  const v6 = expandIpv6(ip);
+  return v6 ? `${v6.slice(0, 4).join(":")}::/64` : ip;
+}
+
 /** JSON response wanted (fetch from the behaviors) vs. a no-JS HTML form post (redirect). */
 export function wantsJson(c: Context): boolean {
   const accept = c.req.header("accept") ?? "";
@@ -92,9 +117,34 @@ const MAX_BODY = 256 * 1024;
  * groups, multi-selects) become arrays under `name`. File parts are dropped (no FR-30 field type
  * accepts files; uploads would go to R2 via presigned URLs).
  */
+/** Read at most `max` bytes of the body, failing as soon as the stream exceeds it. */
+export async function readBodyLimited(req: Request, max = MAX_BODY): Promise<Uint8Array> {
+  const tooLarge = () => new HttpError(413, "too_large", "That submission is too large.");
+  if (Number(req.headers.get("content-length") ?? 0) > max) throw tooLarge();
+  if (!req.body) return new Uint8Array();
+  const reader = req.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > max) {
+      await reader.cancel().catch(() => undefined);
+      throw tooLarge();
+    }
+    chunks.push(value);
+  }
+  const out = new Uint8Array(size);
+  let at = 0;
+  for (const ch of chunks) {
+    out.set(ch, at);
+    at += ch.byteLength;
+  }
+  return out;
+}
+
 export async function parseFields(c: Context): Promise<FieldValues> {
-  const len = Number(c.req.header("content-length") ?? 0);
-  if (len > MAX_BODY) throw new HttpError(413, "too_large", "That submission is too large.");
   const type = (c.req.header("content-type") ?? "").toLowerCase();
   const out: FieldValues = {};
   const add = (rawKey: string, value: unknown) => {
@@ -111,10 +161,9 @@ export async function parseFields(c: Context): Promise<FieldValues> {
     } else out[key] = values[0] as string;
   };
   try {
+    const bytes = await readBodyLimited(c.req.raw);
     if (type.includes("application/json") || type.startsWith("text/plain")) {
-      const text = await c.req.text();
-      if (text.length > MAX_BODY)
-        throw new HttpError(413, "too_large", "That submission is too large.");
+      const text = new TextDecoder().decode(bytes);
       const body = text ? (JSON.parse(text) as unknown) : {};
       if (!body || typeof body !== "object" || Array.isArray(body))
         throw new HttpError(400, "invalid_request", "Expected a JSON object.");
@@ -123,7 +172,9 @@ export async function parseFields(c: Context): Promise<FieldValues> {
       type.includes("multipart/form-data") ||
       type.includes("application/x-www-form-urlencoded")
     ) {
-      const form = await c.req.formData();
+      const form = await new Response(bytes, {
+        headers: { "Content-Type": c.req.header("content-type") ?? "" },
+      }).formData();
       for (const [k, v] of form.entries()) if (typeof v === "string") add(k, v);
     } else {
       throw new HttpError(
@@ -149,6 +200,39 @@ export function single(v: string | string[] | undefined): string | null {
  * absolute URL on one of the site's origins), with `?<param>=<status>#<anchor>`. Never redirects
  * to a foreign origin.
  */
+// biome-ignore lint/suspicious/noControlCharactersInRegex: strip control characters
+const CONTROL_RE = /[\u0000-\u001f\u007f]/g;
+
+/** Remove characters URL parsers silently drop (tab, CR, LF and other controls) before checks. */
+export function cleanUrlInput(s: string | null | undefined): string | null {
+  if (!s) return null;
+  const v = s.replace(CONTROL_RE, "").trim();
+  return v || null;
+}
+
+/** A site-relative path joined below the site's base path, or null if it isn't one. */
+export function sitePath(baseUrl: string, raw: string | null): URL | null {
+  const source = cleanUrlInput(raw);
+  if (!source || !/^\/(?![/\\])/.test(source) || source.includes("\\")) return null;
+  const base = new URL(baseUrl);
+  const basePath = base.pathname.replace(/\/+$/, "");
+  const path =
+    basePath && (source === basePath || source.startsWith(`${basePath}/`))
+      ? source
+      : `${basePath}${source}`;
+  try {
+    const u = new URL(path, base.origin);
+    return u.origin === base.origin ? u : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Where a no-JS post returns to: the page it came from (`_source`, a path below the site or an
+ * absolute URL on one of the site's origins), with `?<param>=<status>#<anchor>`. Never redirects
+ * to a foreign origin: the final URL's origin is checked after it is built.
+ */
 export function returnUrl(
   baseUrl: string,
   allowed: string[],
@@ -159,28 +243,35 @@ export function returnUrl(
   anchor?: string | null,
 ): string {
   const base = new URL(baseUrl);
-  const basePath = base.pathname.replace(/\/+$/, "");
-  let target: URL | null = null;
-  const tryAbsolute = (s: string | null) => {
-    if (!s) return null;
+  const ok = (u: URL) =>
+    (u.protocol === "https:" || u.protocol === "http:") &&
+    (u.origin === base.origin || allowed.includes(u.origin));
+  const tryAbsolute = (raw: string | null) => {
+    const s = cleanUrlInput(raw);
+    if (!s || !/^https?:\/\//i.test(s)) return null;
     try {
       const u = new URL(s);
-      return allowed.includes(u.origin) || u.origin === base.origin ? u : null;
+      return ok(u) ? u : null;
     } catch {
       return null;
     }
   };
-  if (source && /^\/(?!\/)/.test(source) && !source.includes("\\")) {
-    const path =
-      basePath && (source === basePath || source.startsWith(`${basePath}/`))
-        ? source
-        : `${basePath}${source}`;
-    target = new URL(path, base.origin);
-  } else target = tryAbsolute(source) ?? tryAbsolute(referer) ?? new URL(base.href);
+  let target = sitePath(baseUrl, source) ?? tryAbsolute(source) ?? tryAbsolute(referer);
+  if (!target || !ok(target)) target = new URL(base.href);
   target.searchParams.set(param, status);
   const a = anchor && /^[A-Za-z][A-Za-z0-9_-]{0,80}$/.test(anchor) ? anchor : null;
   target.hash = a ? a : "";
   return target.toString();
+}
+
+/**
+ * Per-request return info for no-JS posts (set once the body is parsed) so `publicErrors` can
+ * redirect rejections back to the page. Keyed weakly by the request object.
+ */
+const noJsReturn = new WeakMap<Request, { source: string | null; anchor: string | null }>();
+
+export function rememberReturn(c: Context, source: string | null, anchor: string | null) {
+  noJsReturn.set(c.req.raw, { source, anchor });
 }
 
 export interface PublicFailure {
@@ -217,31 +308,83 @@ export function background(c: Context<AppEnv>, p: Promise<unknown>): Promise<voi
  * Re-shape Hub errors on public routes into what the site behaviors read (`message`, `errors`)
  * while keeping the `error` envelope.
  */
-export function publicErrors(): MiddlewareHandler<AppEnv> {
+export function publicErrors(param?: "os_form" | "os_newsletter"): MiddlewareHandler<AppEnv> {
   return async (c, next) => {
     await next();
     const err = c.error;
-    if (err instanceof HttpError && err.status < 500) {
-      const details =
-        err.details && typeof err.details === "object" && !Array.isArray(err.details)
-          ? (err.details as Record<string, string>)
-          : undefined;
-      const res = new Response(
-        JSON.stringify(
-          failureBody({
-            status: err.status as PublicFailure["status"],
-            code: err.code,
-            message: err.message,
-            ...(details ? { errors: details } : {}),
-          }),
-        ),
-        { status: err.status, headers: { "Content-Type": "application/json; charset=UTF-8" } },
-      );
-      for (const [k, v] of c.res.headers)
-        if (k.toLowerCase().startsWith("access-control") || k === "vary" || k === "retry-after")
-          res.headers.set(k, v);
-      c.res = undefined;
-      c.res = res;
+    if (!(err instanceof HttpError) || err.status >= 500) return;
+    if (param && c.req.method === "POST" && !wantsJson(c)) {
+      const siteId = c.req.param("siteId");
+      const site = siteId ? await getSite(c.var.services.db, siteId).catch(() => null) : null;
+      if (site) {
+        let kept = noJsReturn.get(c.req.raw);
+        if (!kept && !c.req.raw.bodyUsed) {
+          // Rejected before the handler read the body (e.g. quota middleware): recover the
+          // return path from the form post itself.
+          const f = await parseFields(c).catch(() => null);
+          if (f)
+            kept = {
+              source: single(f._source) ?? single(f.source),
+              anchor: single(f._anchor),
+            };
+        }
+        const base = siteBaseUrlOf(site, c.var.config.hubUrl);
+        const location = returnUrl(
+          base,
+          allowedOrigins(site, c.var.config),
+          kept?.source ?? null,
+          c.req.header("referer") ?? null,
+          param,
+          "error",
+          kept?.anchor ?? null,
+        );
+        c.res = undefined;
+        c.res = new Response(null, { status: 303, headers: { Location: location } });
+        return;
+      }
     }
+    const details =
+      err.details && typeof err.details === "object" && !Array.isArray(err.details)
+        ? (err.details as Record<string, string>)
+        : undefined;
+    const res = new Response(
+      JSON.stringify(
+        failureBody({
+          status: err.status as PublicFailure["status"],
+          code: err.code,
+          message: err.message,
+          ...(details ? { errors: details } : {}),
+        }),
+      ),
+      { status: err.status, headers: { "Content-Type": "application/json; charset=UTF-8" } },
+    );
+    for (const [k, v] of c.res.headers)
+      if (k.toLowerCase().startsWith("access-control") || k === "vary" || k === "retry-after")
+        res.headers.set(k, v);
+    c.res = undefined;
+    c.res = res;
   };
+}
+
+/** Same as `services/email#siteBaseUrl` (kept here to avoid a lib → services import). */
+function siteBaseUrlOf(site: Pick<SiteRow, "url" | "domain">, hubUrl: string): string {
+  if (site.url) return site.url.endsWith("/") ? site.url : `${site.url}/`;
+  if (site.domain) return `https://${site.domain}/`;
+  return `${hubUrl}/`;
+}
+
+/** Hostnames a site is served from (Turnstile `hostname` must be one of them). */
+export function siteHostnames(site: Pick<SiteRow, "url" | "domain">, config: HubConfig): string[] {
+  return allowedOrigins(site, config).map((o) => new URL(o).hostname);
+}
+
+let turnstileWarned = false;
+
+/** Warn (once per isolate) when a production Hub has no Turnstile secret configured. */
+export function warnMissingTurnstile(c: Context<AppEnv>) {
+  if (turnstileWarned || c.var.config.devMode || c.var.services.pub.config.turnstile.secret) return;
+  turnstileWarned = true;
+  c.var.log.warn(
+    "TURNSTILE_SECRET is not set: public forms and signups rely on the honeypot, rate limits and quotas only",
+  );
 }

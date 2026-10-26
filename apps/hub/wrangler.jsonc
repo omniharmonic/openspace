@@ -31,6 +31,10 @@
     "bindings": [{ "name": "RATE_LIMITER", "class_name": "RateLimiter" }]
   },
   "migrations": [{ "tag": "rate-limiter-v1", "new_sqlite_classes": ["RateLimiter"] }],
+  // Task 16: per-visitor analytics beacon limit (Workers Rate Limiting API; local to each colo).
+  "ratelimits": [
+    { "name": "BEACON_LIMITER", "namespace_id": "1601", "simple": { "limit": 120, "period": 60 } }
+  ],
   // Task 16: retention purge + daily form digests (03:00 UTC) and weekly analytics digests
   // (Mondays 08:00 UTC). The `scheduled` handler dispatches by cron string.
   "triggers": { "crons": ["0 3 * * *", "0 8 * * 1"] },
@@ -59,6 +63,13 @@
         "bindings": [{ "name": "RATE_LIMITER", "class_name": "RateLimiter" }]
       },
       "triggers": { "crons": ["0 3 * * *", "0 8 * * 1"] },
+      "ratelimits": [
+        {
+          "name": "BEACON_LIMITER",
+          "namespace_id": "1601",
+          "simple": { "limit": 120, "period": 60 }
+        }
+      ],
       // Task 16: Hub-domain transactional mail (Cloudflare Email Service; onboard the sending
       // domain with `wrangler email sending enable`) and Analytics Engine for pageviews.
       // Secrets: EMAIL_FROM, TURNSTILE_SECRET, CF_ACCOUNT_ID, CF_ANALYTICS_TOKEN, HUB_SECRET

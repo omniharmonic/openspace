@@ -41,8 +41,12 @@ ALTER TABLE subscribers ADD COLUMN confirm_token_hash TEXT;
 ALTER TABLE subscribers ADD COLUMN confirm_expires_at INTEGER;
 ALTER TABLE subscribers ADD COLUMN unsubscribed_at INTEGER;
 ALTER TABLE subscribers ADD COLUMN updated_at INTEGER;
+ALTER TABLE subscribers ADD COLUMN confirm_sent_at INTEGER;      -- last confirmation email
+ALTER TABLE subscribers ADD COLUMN confirm_send_day TEXT;        -- UTC day of confirm_send_count
+ALTER TABLE subscribers ADD COLUMN confirm_send_count INTEGER NOT NULL DEFAULT 0;
 CREATE INDEX subscribers_confirm ON subscribers(confirm_token_hash);
 CREATE INDEX subscribers_site_status ON subscribers(site_id, status);
+CREATE INDEX subscribers_email_day ON subscribers(email, confirm_send_day);
 
 ALTER TABLE analytics_events ADD COLUMN visitor TEXT;     -- salted daily hash, never the raw IP
 ALTER TABLE analytics_events ADD COLUMN utm_source TEXT;

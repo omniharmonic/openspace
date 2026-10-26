@@ -1,6 +1,6 @@
 /**
  * Dev outbox (Global Constraint 8): every email the Hub "sent" while no provider is configured.
- * DEV_MODE only — 404 otherwise.
+ * DEV_MODE only — 404 otherwise; on an https Hub (ALLOW_DEV_MODE) a signed-in session is required.
  *
  * - `GET /dev/outbox`           HTML list with previews
  * - `GET /dev/outbox.json`      `{ messages: [...] }` (`?to=`, `?kind=`, `?siteId=`, `?limit=`) — for tests/Playwright
@@ -10,7 +10,7 @@
  */
 import { esc } from "@openspace/email-render";
 import { Hono } from "hono";
-import { notFound } from "../../lib/errors";
+import { notFound, unauthenticated } from "../../lib/errors";
 import type { AppEnv } from "../../types";
 
 export const devOutboxRoutes = new Hono<AppEnv>();
@@ -50,6 +50,8 @@ function toJson(r: OutboxRow, full: boolean) {
 
 devOutboxRoutes.use("/dev/*", async (c, next) => {
   if (!c.var.config.devMode) throw notFound();
+  // A public https Hub running DEV_MODE (ALLOW_DEV_MODE=true) must not expose everyone's mail.
+  if (c.var.config.secureCookies && !c.var.user) throw unauthenticated();
   await next();
 });
 

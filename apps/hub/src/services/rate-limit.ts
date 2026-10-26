@@ -7,11 +7,26 @@ export interface RateRule {
   windowSec: number;
 }
 
-/** Defaults for public endpoints (per visitor IP, per site). */
+/**
+ * Defaults for public endpoints: per visitor (IPv4 address or IPv6 /64) and site, plus a
+ * per-site ceiling across all visitors so rotating addresses can't flood one site.
+ */
 export const RATE_RULES = {
   form: { name: "form", limit: 10, windowSec: 600 },
+  formSite: { name: "form-site", limit: 200, windowSec: 600 },
   subscribe: { name: "subscribe", limit: 5, windowSec: 600 },
+  subscribeSite: { name: "subscribe-site", limit: 60, windowSec: 600 },
 } satisfies Record<string, RateRule>;
+
+/** Beacons per visitor per minute (Workers Rate Limiting binding — local, no storage call). */
+export const BEACON_LIMIT_PER_MINUTE = 120;
+
+/** The Workers Rate Limiting API binding shape (`ratelimits` in wrangler.jsonc). */
+export interface SimpleRateLimit {
+  limit(input: { key: string }): Promise<{ success: boolean }>;
+}
+
+export const NO_BEACON_LIMIT: SimpleRateLimit = { limit: async () => ({ success: true }) };
 
 export interface RateLimitService {
   hit(key: string, rule: RateRule): Promise<RateLimitDecision>;

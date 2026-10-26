@@ -60,6 +60,7 @@ describe("data export and deletion", () => {
       subscribers: 1,
       submissions: 1,
       members: 0,
+      emails: 1, // the confirmation email sent to them (dev outbox)
     });
     const wrong = await call(f.app, `/api/sites/${f.siteId}/data/delete`, {
       method: "POST",

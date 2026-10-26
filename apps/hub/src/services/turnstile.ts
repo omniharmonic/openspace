@@ -10,7 +10,8 @@ export interface TurnstileVerifier {
   readonly kind: "cloudflare" | "dev";
   /** Whether forms must carry a token (real verification is configured). */
   readonly required: boolean;
-  verify(token: string | null, ip: string | null): Promise<TurnstileResult>;
+  /** `hostnames`: where the widget may have been solved (the site's hosts); others fail. */
+  verify(token: string | null, ip: string | null, hostnames?: string[]): Promise<TurnstileResult>;
 }
 
 export const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
@@ -23,7 +24,11 @@ export class CloudflareTurnstile implements TurnstileVerifier {
     private readonly fetchFn: FetchLike,
   ) {}
 
-  async verify(token: string | null, ip: string | null): Promise<TurnstileResult> {
+  async verify(
+    token: string | null,
+    ip: string | null,
+    hostnames?: string[],
+  ): Promise<TurnstileResult> {
     if (!token) return { ok: false, codes: ["missing-input-response"] };
     const body = new FormData();
     body.set("secret", this.secret);
@@ -31,7 +36,13 @@ export class CloudflareTurnstile implements TurnstileVerifier {
     if (ip) body.set("remoteip", ip);
     try {
       const res = await this.fetchFn(SITEVERIFY_URL, { method: "POST", body });
-      const data = (await res.json()) as { success?: boolean; "error-codes"?: string[] };
+      const data = (await res.json()) as {
+        success?: boolean;
+        hostname?: string;
+        "error-codes"?: string[];
+      };
+      if (data.success === true && hostnames?.length && !hostnames.includes(data.hostname ?? ""))
+        return { ok: false, codes: ["hostname-mismatch"] };
       return { ok: data.success === true, codes: data["error-codes"] ?? [] };
     } catch {
       // Fail closed: a submission we can't verify isn't accepted (the visitor can retry).

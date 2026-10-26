@@ -10,6 +10,7 @@ import { z } from "zod";
 import type { SiteRow } from "../db/sites";
 import { base64url, randomId, randomToken, sha256Hex, timingSafeEqual } from "../lib/crypto";
 import { badRequest, HttpError } from "../lib/errors";
+import { requireHmacKey } from "../public-env";
 import { emailSite, sendTransactional, siteBaseUrl } from "./email";
 import type { Services } from "./index";
 import { quotaExceeded, siteQuotaLimits } from "./quotas";
@@ -31,6 +32,9 @@ export interface SubscriberRow {
   first_name: string | null;
   confirm_token_hash: string | null;
   confirm_expires_at: number | null;
+  confirm_sent_at: number | null;
+  confirm_send_day: string | null;
+  confirm_send_count: number;
   unsubscribed_at: number | null;
   updated_at: number | null;
 }
@@ -111,7 +115,8 @@ export async function verifyUnsubscribeToken(key: string, token: string): Promis
 }
 
 export async function unsubscribeUrl(services: Services, subscriberId: string): Promise<string> {
-  return `${services.config.hubUrl}/n/unsubscribe/${await unsubscribeToken(services.pub.config.hmacKey, subscriberId)}`;
+  const key = requireHmacKey(services.pub.config);
+  return `${services.config.hubUrl}/n/unsubscribe/${await unsubscribeToken(key, subscriberId)}`;
 }
 
 /** RFC 8058 headers when the Hub is on https (the standard requires an https URL). */
@@ -128,13 +133,24 @@ export async function getSubscriberByEmail(db: D1Database, siteId: string, email
     .first<SubscriberRow>();
 }
 
+/**
+ * Confirmed subscribers — what the §8.4 subscriber cap counts. Pending signups don't count (an
+ * attacker could otherwise fill a list with addresses that never confirm); they expire after
+ * `CONFIRM_TTL_MS` and are purged by the daily cron.
+ */
 export async function activeSubscriberCount(db: D1Database, siteId: string): Promise<number> {
   const row = await db
-    .prepare("SELECT COUNT(*) AS n FROM subscribers WHERE site_id = ? AND status != 'unsubscribed'")
+    .prepare("SELECT COUNT(*) AS n FROM subscribers WHERE site_id = ? AND status = 'confirmed'")
     .bind(siteId)
     .first<{ n: number }>();
   return row?.n ?? 0;
 }
+
+/** No second confirmation email to the same signup within this window. */
+export const CONFIRM_RESEND_COOLDOWN_MS = 60 * 60 * 1000;
+/** Confirmation emails per address per UTC day, for one site / across all sites. */
+export const CONFIRM_MAX_PER_SITE_DAY = 3;
+export const CONFIRM_MAX_PER_ADDRESS_DAY = 5;
 
 export interface SubscribeInput {
   email: string;
@@ -143,9 +159,13 @@ export interface SubscribeInput {
   tags?: string[];
 }
 
-export type SubscribeOutcome = "pending" | "already_confirmed";
+export type SubscribeOutcome = "pending" | "already_confirmed" | "throttled";
 
-/** Create or refresh a pending subscriber and send the confirmation email. */
+/**
+ * Create or refresh a pending subscriber and send the confirmation email — unless one was sent
+ * in the last hour, or the address already got its daily maximum (then nothing is sent and the
+ * visitor sees the same "check your inbox" answer, so the endpoint can't be used to mail-bomb).
+ */
 export async function subscribe(
   services: Services,
   site: SiteRow,
@@ -153,30 +173,51 @@ export async function subscribe(
 ): Promise<SubscribeOutcome> {
   const { db } = services;
   const now = services.now();
+  const today = new Date(now).toISOString().slice(0, 10);
   const email = normalizeEmail(input.email);
   const firstName = input.firstName?.trim().slice(0, 80) || null;
   const existing = await getSubscriberByEmail(db, site.id, email);
   if (existing?.status === "confirmed") return "already_confirmed";
-  if (!existing || existing.status === "unsubscribed") {
-    const limits = await siteQuotaLimits(db, site.id, services.pub.quotaOverrides);
-    if ((await activeSubscriberCount(db, site.id)) >= limits.subscribers)
-      throw quotaExceeded("subscriber");
+  const limits = await siteQuotaLimits(db, site.id, services.pub.quotaOverrides);
+  if ((await activeSubscriberCount(db, site.id)) >= limits.subscribers)
+    throw quotaExceeded("subscriber");
+
+  if (existing?.status === "pending") {
+    const recent =
+      existing.confirm_sent_at !== null &&
+      now - existing.confirm_sent_at < CONFIRM_RESEND_COOLDOWN_MS &&
+      (existing.confirm_expires_at ?? 0) > now;
+    const siteDay = existing.confirm_send_day === today ? existing.confirm_send_count : 0;
+    if (recent || siteDay >= CONFIRM_MAX_PER_SITE_DAY) return "throttled";
   }
+  const sentToday = await db
+    .prepare(
+      "SELECT COALESCE(SUM(confirm_send_count), 0) AS n FROM subscribers WHERE email = ? AND confirm_send_day = ?",
+    )
+    .bind(email, today)
+    .first<{ n: number }>();
+  if ((sentToday?.n ?? 0) >= CONFIRM_MAX_PER_ADDRESS_DAY) return "throttled";
+
   const token = randomToken(24);
   const tokenHash = await sha256Hex(token);
   const id = existing?.id ?? randomId("sub");
   const tags = JSON.stringify([
     ...new Set([...parseTags(existing?.tags ?? null), ...(input.tags ?? [])]),
   ]);
+  const count =
+    existing && existing.confirm_send_day === today ? existing.confirm_send_count + 1 : 1;
   await db
     .prepare(
       `INSERT INTO subscribers (id, site_id, email, status, tags, source, created_at, first_name,
-         confirm_token_hash, confirm_expires_at, updated_at)
-       VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?)
+         confirm_token_hash, confirm_expires_at, updated_at, confirm_sent_at, confirm_send_day,
+         confirm_send_count)
+       VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT (site_id, email) DO UPDATE SET status = 'pending', tags = excluded.tags,
          first_name = COALESCE(excluded.first_name, subscribers.first_name),
          confirm_token_hash = excluded.confirm_token_hash, confirm_expires_at = excluded.confirm_expires_at,
-         unsubscribed_at = NULL, updated_at = excluded.updated_at`,
+         unsubscribed_at = NULL, updated_at = excluded.updated_at,
+         confirm_sent_at = excluded.confirm_sent_at, confirm_send_day = excluded.confirm_send_day,
+         confirm_send_count = excluded.confirm_send_count`,
     )
     .bind(
       id,
@@ -189,6 +230,9 @@ export async function subscribe(
       tokenHash,
       now + CONFIRM_TTL_MS,
       now,
+      now,
+      today,
+      count,
     )
     .run();
   const confirmUrl = `${services.config.hubUrl}/n/confirm/${token}`;
@@ -209,18 +253,43 @@ export async function subscribe(
   return "pending";
 }
 
-export async function confirmSubscription(
+/** The pending signup a confirmation token belongs to (without using it up), or null. */
+export async function peekConfirmation(
   services: Services,
   token: string,
 ): Promise<{ subscriber: SubscriberRow; site: SiteRow } | null> {
   if (!/^[A-Za-z0-9_-]{16,64}$/.test(token)) return null;
   const { db } = services;
-  const now = services.now();
   const row = await db
     .prepare("SELECT * FROM subscribers WHERE confirm_token_hash = ?")
     .bind(await sha256Hex(token))
     .first<SubscriberRow>();
-  if (!row || (row.confirm_expires_at ?? 0) < now) return null;
+  if (!row || (row.confirm_expires_at ?? 0) < services.now()) return null;
+  const site = await db
+    .prepare("SELECT * FROM sites WHERE id = ? AND archived_at IS NULL")
+    .bind(row.site_id)
+    .first<SiteRow>();
+  return site ? { subscriber: row, site } : null;
+}
+
+export type ConfirmResult =
+  | { status: "confirmed"; subscriber: SubscriberRow; site: SiteRow }
+  | { status: "full"; site: SiteRow }
+  | null;
+
+/** Use a confirmation token (POST from the confirm page). */
+export async function confirmSubscription(
+  services: Services,
+  token: string,
+): Promise<ConfirmResult> {
+  const found = await peekConfirmation(services, token);
+  if (!found) return null;
+  const { db } = services;
+  const { subscriber: row, site } = found;
+  const limits = await siteQuotaLimits(db, site.id, services.pub.quotaOverrides);
+  if ((await activeSubscriberCount(db, site.id)) >= limits.subscribers)
+    return { status: "full", site };
+  const now = services.now();
   await db
     .prepare(
       `UPDATE subscribers SET status = 'confirmed', confirmed_at = ?, confirm_token_hash = NULL,
@@ -228,12 +297,11 @@ export async function confirmSubscription(
     )
     .bind(now, now, row.id)
     .run();
-  const site = await db
-    .prepare("SELECT * FROM sites WHERE id = ?")
-    .bind(row.site_id)
-    .first<SiteRow>();
-  if (!site) return null;
-  return { subscriber: { ...row, status: "confirmed", confirmed_at: now }, site };
+  return {
+    status: "confirmed",
+    subscriber: { ...row, status: "confirmed", confirmed_at: now },
+    site,
+  };
 }
 
 export async function unsubscribeByToken(
@@ -241,7 +309,7 @@ export async function unsubscribeByToken(
   token: string,
   apply: boolean,
 ): Promise<{ subscriber: SubscriberRow; site: SiteRow | null } | null> {
-  const id = await verifyUnsubscribeToken(services.pub.config.hmacKey, token);
+  const id = await verifyUnsubscribeToken(requireHmacKey(services.pub.config), token);
   if (!id) return null;
   const { db } = services;
   const row = await db

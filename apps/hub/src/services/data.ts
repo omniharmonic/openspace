@@ -168,7 +168,7 @@ export async function erasePerson(
   db: D1Database,
   siteId: string,
   email: string,
-): Promise<{ subscribers: number; submissions: number; members: number }> {
+): Promise<{ subscribers: number; submissions: number; members: number; emails: number }> {
   const e = email.trim().toLowerCase();
   const subs = await db
     .prepare("DELETE FROM subscribers WHERE site_id = ? AND lower(email) = ?")
@@ -185,14 +185,47 @@ export async function erasePerson(
     .prepare("DELETE FROM members WHERE site_id = ? AND lower(email) = ?")
     .bind(siteId, e)
     .run();
+  // Copies of mail to or about them (confirmations, notifications quoting their entry).
+  const like = `%${e.replace(/[\\%_]/g, (m) => `\\${m}`)}%`;
+  const mail = await db
+    .prepare(
+      `DELETE FROM outbox WHERE site_id = ? AND (lower(to_addr) = ? OR lower(reply_to) = ?
+         OR lower(text) LIKE ? ESCAPE '\\')`,
+    )
+    .bind(siteId, e, e, like)
+    .run();
   return {
     subscribers: subs.meta.changes ?? 0,
     submissions: entries.meta.changes ?? 0,
     members: members.meta.changes ?? 0,
+    emails: mail.meta.changes ?? 0,
   };
 }
 
 // ---- retention ------------------------------------------------------------------------------------
+
+/** Unverified custom-domain claims older than this are released (so nobody can squat a name). */
+export const DOMAIN_CLAIM_TTL_MS = 7 * 86_400_000;
+
+export async function expireDomainClaims(db: D1Database, now: number): Promise<number> {
+  const stale = (
+    await db
+      .prepare("SELECT site_id, hostname FROM domains WHERE status != 'active' AND created_at < ?")
+      .bind(now - DOMAIN_CLAIM_TTL_MS)
+      .all<{ site_id: string; hostname: string }>()
+  ).results;
+  for (const d of stale) {
+    await db.batch([
+      db
+        .prepare("DELETE FROM domains WHERE site_id = ? AND hostname = ?")
+        .bind(d.site_id, d.hostname),
+      db
+        .prepare("UPDATE sites SET domain = NULL, updated_at = ? WHERE id = ? AND domain = ?")
+        .bind(now, d.site_id, d.hostname),
+    ]);
+  }
+  return stale.length;
+}
 
 const DAY = 86_400_000;
 
@@ -212,10 +245,10 @@ export async function runRetentionPurge(services: Services): Promise<Record<stri
       "DELETE FROM submissions WHERE purge_at IS NOT NULL AND purge_at < ?",
       now,
     ),
-    // Never-confirmed signups are forgotten 30 days after their link expired.
+    // Never-confirmed signups are forgotten when their 7-day link expires.
     pendingSubscribers: await n(
       "DELETE FROM subscribers WHERE status = 'pending' AND confirm_expires_at IS NOT NULL AND confirm_expires_at < ?",
-      now - 30 * DAY,
+      now,
     ),
     analyticsEvents: await n("DELETE FROM analytics_events WHERE at < ?", now - 400 * DAY),
     outbox: await n("DELETE FROM outbox WHERE created_at < ?", now - 30 * DAY),
@@ -224,6 +257,7 @@ export async function runRetentionPurge(services: Services): Promise<Record<stri
       new Date(now - 400 * DAY).toISOString().slice(0, 7),
     ),
     archivedSites: 0,
+    expiredDomainClaims: await expireDomainClaims(db, now),
   };
   await rotateSalts(db, now);
   // Archived sites past their 30-day retention: remove everything the Hub holds for them.

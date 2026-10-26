@@ -12,7 +12,7 @@
  * and the draft branch. Once Task 15's DraftRoom owns the draft, this should go through the room
  * (as a config change) so an open editing session doesn't overwrite it.
  */
-import { HostnameSchema, type SiteConfig } from "@openspace/schema";
+import { HostnameSchema, type SiteConfig, SiteConfigSchema } from "@openspace/schema";
 import { audit } from "../db/audit";
 import { type SiteRow, updateSite } from "../db/sites";
 import type { User } from "../db/users";
@@ -25,6 +25,7 @@ import {
   parseRepo,
 } from "../github/types";
 import { badRequest, conflict, HttpError, notFound } from "../lib/errors";
+import { DOMAIN_CLAIM_TTL_MS, expireDomainClaims } from "./data";
 import type { Services } from "./index";
 import { GENERIC_GUIDE, guideFor, publicGuide } from "./registrars";
 import { CONFIG_PATH } from "./site-files";
@@ -436,13 +437,17 @@ export async function connectDomain(
   requirePagesTarget(site);
   const { services } = deps;
   const hostname = normalizeHostname(input);
-  const taken = await services.db
-    .prepare("SELECT site_id FROM domains WHERE hostname = ?")
-    .bind(hostname)
-    .first<{ site_id: string }>();
-  if (taken && taken.site_id !== site.id)
-    throw conflict("domain_taken", "That domain is already connected to another site.");
   const now = services.now();
+  const taken = await services.db
+    .prepare("SELECT site_id, status, created_at FROM domains WHERE hostname = ?")
+    .bind(hostname)
+    .first<{ site_id: string; status: string; created_at: number }>();
+  if (taken && taken.site_id !== site.id) {
+    // An unverified claim older than 7 days is released; anything else belongs to that site.
+    if (taken.status === "active" || now - taken.created_at < DOMAIN_CLAIM_TTL_MS)
+      throw conflict("domain_taken", "That domain is already connected to another site.");
+    await expireDomainClaims(services.db, now);
+  }
   const rdap = await deps.rdap.lookup(apexOf(hostname));
   const gh = services.github({ site, user });
   await gh.setPagesDomain(parseRepo(site.repo), hostname);
@@ -484,9 +489,13 @@ export async function commitCustomDomain(
     if (!head) continue;
     const raw = await gh.readFile(repo, CONFIG_PATH, head);
     if (!raw) continue;
-    const config = JSON.parse(raw) as SiteConfig;
-    if ((config.deploy?.customDomain ?? null) === hostname) continue;
-    config.deploy = { ...config.deploy, customDomain: hostname };
+    const current = SiteConfigSchema.parse(JSON.parse(raw));
+    if (current.deploy.customDomain === hostname) continue;
+    // Validate the result against the schema (ADR-2: no unvalidated config writes).
+    const config: SiteConfig = SiteConfigSchema.parse({
+      ...current,
+      deploy: { ...current.deploy, customDomain: hostname },
+    });
     await gh.commitFiles(repo, {
       branch,
       expectedHead: head,

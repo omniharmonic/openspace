@@ -10,7 +10,7 @@ import { createLogger } from "../lib/log";
 import { createServices, type ServiceOverrides } from "../services";
 import { runRetentionPurge } from "../services/data";
 import { sendWeeklyDigests } from "../services/insights";
-import { sendDailyDigests } from "../services/notifications";
+import { errorKind, sendDailyDigests } from "../services/notifications";
 
 export const PUBLIC_DAILY_CRON = "0 3 * * *";
 export const PUBLIC_WEEKLY_CRON = "0 8 * * 1";
@@ -26,11 +26,20 @@ export async function runPublicServicesCron(
   const services = createServices(env, config, overrides);
   const out: Record<string, unknown> = {};
   if (cron === PUBLIC_DAILY_CRON) {
-    out.purged = await runRetentionPurge(services);
-    out.formDigests = await sendDailyDigests(services);
+    try {
+      out.purged = await runRetentionPurge(services);
+    } catch (err) {
+      out.purgeFailed = errorKind(err);
+      log.error("retention purge failed", { err });
+    }
+    out.formDigests = await sendDailyDigests(services, log);
   } else if (cron === PUBLIC_WEEKLY_CRON) {
-    out.weeklyDigests = await sendWeeklyDigests(services);
+    out.weeklyDigests = await sendWeeklyDigests(services, log);
   }
-  log.info("public services cron", out);
+  const failures = [out.formDigests, out.weeklyDigests].reduce(
+    (n: number, s) => n + ((s as { failed?: number } | undefined)?.failed ?? 0),
+    out.purgeFailed ? 1 : 0,
+  );
+  (failures ? log.warn : log.info)("public services cron", { ...out, failures });
   return out;
 }

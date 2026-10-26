@@ -6,6 +6,7 @@
  * credentials are missing (Global Constraint 8).
  */
 import type { HubConfig } from "./env";
+import { HttpError } from "./lib/errors";
 
 export interface PublicServiceEnv {
   /** Cloudflare Email Service binding (`send_email`). */
@@ -14,6 +15,8 @@ export interface PublicServiceEnv {
   ANALYTICS?: AnalyticsEngineDataset;
   /** Durable Object namespace for the per-IP+site rate limiter. */
   RATE_LIMITER?: DurableObjectNamespace;
+  /** Workers Rate Limiting binding for analytics beacons (`ratelimits`). */
+  BEACON_LIMITER?: { limit(input: { key: string }): Promise<{ success: boolean }> };
 
   /** "cloudflare" | "resend" | "postmark" | "dev" — empty: chosen from what's configured. */
   EMAIL_PROVIDER?: string;
@@ -44,7 +47,24 @@ export interface PublicConfig {
   emailFrom: { email: string; name: string };
   turnstile: { siteKey: string | null; secret: string | null; dev: boolean };
   analyticsEngine: { accountId: string; token: string; dataset: string } | null;
-  hmacKey: string;
+  /**
+   * HMAC key for unsubscribe links and IP hashing: HUB_SECRET, else TOKEN_ENC_KEY, else (DEV_MODE
+   * only) a fixed dev key. Null on a production Hub without either secret — requests that need
+   * it are refused (`requireHmacKey`) rather than signed with a public constant.
+   */
+  hmacKey: string | null;
+}
+
+export const DEV_HMAC_KEY = "openspace-dev-hmac-key";
+
+/** The HMAC key, or a 503 when a production Hub has neither HUB_SECRET nor TOKEN_ENC_KEY. */
+export function requireHmacKey(pc: PublicConfig): string {
+  if (pc.hmacKey) return pc.hmacKey;
+  throw new HttpError(
+    503,
+    "not_configured",
+    "This service isn't fully set up yet. Please try again later.",
+  );
 }
 
 /** `Name <addr>` or a bare address. */
@@ -92,6 +112,6 @@ export function readPublicConfig(env: PublicServiceEnv, config: HubConfig): Publ
             dataset: env.ANALYTICS_DATASET || "openspace_analytics",
           }
         : null,
-    hmacKey: env.HUB_SECRET || config.tokenEncKey || "openspace-dev-hmac-key",
+    hmacKey: env.HUB_SECRET || config.tokenEncKey || (config.devMode ? DEV_HMAC_KEY : null),
   };
 }

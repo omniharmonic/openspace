@@ -247,11 +247,14 @@ describe("POST /f/:siteId/:formId", () => {
     expect(await outbox(f.app, "?kind=form-notification")).toHaveLength(0);
     const { runPublicServicesCron } = await import("../src/cron/public-services");
     const out = await runPublicServicesCron("0 3 * * *", env as never);
-    expect(out.formDigests).toBe(1);
+    expect(out.formDigests).toEqual({ sent: 1, failed: 0 });
     const digests = await outbox(f.app, "?kind=form-digest");
     expect(digests[0]?.subject).toBe("2 new form entries for Maya Yoga");
     // Already notified: nothing on the next run.
-    expect((await runPublicServicesCron("0 3 * * *", env as never)).formDigests).toBe(0);
+    expect((await runPublicServicesCron("0 3 * * *", env as never)).formDigests).toEqual({
+      sent: 0,
+      failed: 0,
+    });
   });
 });
 

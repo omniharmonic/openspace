@@ -54,12 +54,18 @@ describe("newsletter double opt-in", () => {
     });
     const link = mail?.links.find((l) => l.includes("/n/confirm/")) as string;
     expect(link).toMatch(/^http:\/\/localhost:8787\/n\/confirm\/[A-Za-z0-9_-]+$/);
+    // GET only shows a button: mail scanners that prefetch links don't confirm anyone.
     const page = await call(f.app, new URL(link).pathname);
     expect(page.status).toBe(200);
     expect(page.headers.get("content-security-policy")).toContain("default-src 'none'");
-    expect(await page.text()).toContain("You&#39;re subscribed");
+    expect(await page.text()).toContain('<form method="post"');
+    expect(await status(f.siteId, "ana@example.com")).toBe("pending");
+    const done = await call(f.app, new URL(link).pathname, { method: "POST" });
+    expect(done.status).toBe(200);
+    expect(await done.text()).toContain("You&#39;re subscribed");
     expect(await status(f.siteId, "ana@example.com")).toBe("confirmed");
     // Single use.
+    expect((await call(f.app, new URL(link).pathname, { method: "POST" })).status).toBe(404);
     expect((await call(f.app, new URL(link).pathname)).status).toBe(404);
     // Signing up again while confirmed: same answer, no new email (no list probing).
     const again = await subscribe(f.app, f.siteId, { email: "ana@example.com" });
@@ -121,7 +127,17 @@ describe("newsletter double opt-in", () => {
     const f = await siteWithForm(makePublicApp(), { form: null });
     await setQuota(f.siteId, { subscribers: 1, transactionalEmails: 100 });
     expect((await subscribe(f.app, f.siteId, { email: "one@example.com" })).status).toBe(200);
-    const full = await subscribe(f.app, f.siteId, { email: "two@example.com" });
+    // Pending signups don't count towards the cap…
+    expect((await subscribe(f.app, f.siteId, { email: "two@example.com" })).status).toBe(200);
+    await env.HUB_DB.prepare(
+      "UPDATE subscribers SET status = 'confirmed' WHERE email = 'one@example.com'",
+    ).run();
+    // …confirmed ones do, and confirming past the cap is refused too.
+    const [twoMail] = await outbox(f.app, "?kind=newsletter-confirm&to=two@example.com");
+    const twoLink = new URL(twoMail?.links.find((l) => l.includes("/n/confirm/")) as string)
+      .pathname;
+    expect((await call(f.app, twoLink, { method: "POST" })).status).toBe(409);
+    const full = await subscribe(f.app, f.siteId, { email: "three@example.com" });
     expect(full.status).toBe(429);
     expect(((await full.json()) as { error: { code: string } }).error.code).toBe("quota_exceeded");
 
@@ -139,6 +155,39 @@ describe("newsletter double opt-in", () => {
     expect((await subscribe(h.app, h.siteId, { email: "p9@example.com" }, true, ip)).status).toBe(
       429,
     );
+  });
+
+  it("throttles confirmation emails: 1-hour cooldown, per-site and per-address daily caps", async () => {
+    const c = { t: Date.parse("2026-10-20T08:00:00Z") };
+    const app = makePublicApp({ now: () => c.t });
+    const f = await siteWithForm(app, { form: null });
+    let n = 0;
+    const sub = (siteId: string) =>
+      subscribe(app, siteId, { email: "vic@example.com" }, true, {
+        "cf-connecting-ip": `192.0.2.${++n}`,
+      });
+    const count = async (to: string) =>
+      (await outbox(app, `?kind=newsletter-confirm&to=${to}`)).length;
+    for (let i = 0; i < 3; i++) await sub(f.siteId);
+    expect(await count("vic@example.com")).toBe(1);
+    c.t += 61 * 60_000;
+    await sub(f.siteId);
+    expect(await count("vic@example.com")).toBe(2);
+    c.t += 61 * 60_000;
+    await sub(f.siteId);
+    c.t += 61 * 60_000;
+    const res = await sub(f.siteId);
+    expect(res.status).toBe(200); // same answer…
+    expect(await count("vic@example.com")).toBe(3); // …but at most 3 per site per day
+    // Across sites: at most 5 confirmation emails per address per day.
+    for (const name of ["Two", "Three", "Four"]) {
+      const g = await siteWithForm(app, { form: null, name: `Site ${name}` });
+      await sub(g.siteId);
+    }
+    expect(await count("vic@example.com")).toBe(5);
+    c.t += 24 * 60 * 60_000;
+    await sub(f.siteId);
+    expect(await count("vic@example.com")).toBe(6);
   });
 
   it("ignores honeypot signups", async () => {

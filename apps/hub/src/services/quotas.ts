@@ -14,7 +14,7 @@ export interface QuotaLimits {
   formSubmissions: number;
   /** Months submissions are kept (owners can choose shorter). */
   storedSubmissionsMonths: number;
-  /** Subscribers per site (pending + confirmed). */
+  /** Confirmed subscribers per site (pending signups expire after 7 days and don't count). */
   subscribers: number;
   /** Transactional emails per month (confirmations, notifications, magic links, digests). */
   transactionalEmails: number;
@@ -177,7 +177,7 @@ export function quotaGuard(resource: CountedResource): MiddlewareHandler<AppEnv>
     const siteId = c.req.param("siteId") ?? c.req.param("id");
     if (siteId) {
       const { db, now } = c.var.services;
-      const limits = await siteQuotaLimits(db, siteId, c.env.QUOTAS_JSON);
+      const limits = await siteQuotaLimits(db, siteId, c.var.services.pub.quotaOverrides);
       const used = await quotaUsed(db, siteId, resource, now());
       if (used >= limits[resource]) throw quotaExceeded(LABELS[resource]);
     }
@@ -209,7 +209,7 @@ export async function quotaReport(
     })),
   );
   const subs = await db
-    .prepare("SELECT COUNT(*) AS n FROM subscribers WHERE site_id = ? AND status != 'unsubscribed'")
+    .prepare("SELECT COUNT(*) AS n FROM subscribers WHERE site_id = ? AND status = 'confirmed'")
     .bind(siteId)
     .first<{ n: number }>();
   return [
