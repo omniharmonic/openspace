@@ -133,7 +133,7 @@ export const pricingBlock = defineBlock({
 export const pricingCss = `
 .os-pricing{display:grid;gap:var(--os-space-sm)}
 .os-pricing__plans{display:grid;gap:var(--os-space-sm);margin:0;padding:0;list-style:none}
-@container block (min-width:48rem){.os-pricing__plans{grid-template-columns:repeat(var(--n,3),minmax(0,1fr));align-items:stretch}}
+@container block (min-width:48rem){.os-pricing__plans{grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));align-items:stretch}}
 .os-pricing__plan{display:flex;flex-direction:column;gap:var(--os-space-xs);padding:var(--os-space-md);border-radius:var(--os-radius-card);min-width:0}
 .os-block.has-radius .os-pricing__plan{border-radius:var(--radius)}
 .os-pricing__head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--os-space-2xs)}
