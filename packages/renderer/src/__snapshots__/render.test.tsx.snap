@@ -1,0 +1,74 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SectionView > renders a grid section (SSR snapshot) 1`] = `
+"<section id="sec_9bz1abcdef" class="os-section os-theme-dark os-section--grid has-bg-image" data-os-id="sec_9bz1abcdef" data-os-section="">
+<div class="os-section__bg is-parallax" aria-hidden="true">
+<span class="os-img os-image-none os-section__media" style="--focal:50% 30%">
+<picture>
+<img class="os-img__img" src="/media/2026/10/studio.jpg" alt="" loading="lazy" decoding="async"/>
+</picture>
+</span>
+<div class="os-section__overlay" style="--overlay:var(--os-color-neutral-950);--overlay-opacity:0.4">
+</div>
+</div>
+<div class="os-section__inner os-grid os-w-content" style="--rows:16;--trows:16;--mrows:22">
+<div class="os-grid__item" data-os-item="blk_c1c1c1c1c1" style="--x:1;--y:1;--w:10;--h:8;--cs:full-start;--tx:1;--ty:1;--tw:10;--th:8;--tcs:full-start;--mx:1;--my:1;--mw:8;--mh:9">
+<div class="os-block os-block--image" data-os-id="blk_c1c1c1c1c1" data-os-block="image">
+<figure>
+<span class="os-img has-aspect" style="--aspect:4 / 5">
+<picture>
+<img class="os-img__img" src="/media/2026/10/hero-k3f9.jpg" width="2400" height="3000" alt="The studio at dawn" loading="lazy" decoding="async"/>
+</picture>
+</span>
+</figure>
+</div>
+</div>
+<div class="os-grid__item" data-os-item="blk_c3c3c3c3c3" style="--x:12;--y:1;--w:8;--h:3;--tx:12;--ty:1;--tw:8;--th:3;--mx:1;--my:1;--mw:8;--mh:3">
+<div class="os-block os-block--text" data-os-id="blk_c3c3c3c3c3" data-os-block="text">
+<div class="os-rich">
+<h2 class="os-type-h2">This week</h2>
+</div>
+</div>
+</div>
+<div class="os-grid__item" data-os-item="blk_c2c2c2c2c2" style="--x:9;--y:5;--w:14;--h:10;--z:2;--tx:7;--ty:5;--tw:18;--th:10;--mx:1;--my:10;--mw:8;--mh:8">
+<div class="os-block os-block--text" data-os-id="blk_c2c2c2c2c2" data-os-block="text">
+<div class="os-rich">
+<p>Morning flow, every weekday at 7.</p>
+</div>
+</div>
+</div>
+</div>
+</section>"
+`;
+
+exports[`SectionView > renders a stack section (SSR snapshot) 1`] = `
+"<section id="welcome" class="os-section os-theme-light-accent os-section--stack has-minh has-pad" data-os-id="sec_7hq2abcdef" data-os-section="" style="--pad:var(--os-space-xl);--tpad:var(--os-space-xl);--mpad:var(--os-space-lg);--minh:80vh;--tminh:80vh;--mminh:80vh" data-os-behavior="reveal" data-os-reveal="rise" data-os-stagger="">
+<div class="os-section__inner os-stack os-w-content is-align-center is-multi" style="--cols:minmax(0, 7fr) minmax(0, 5fr);--tcols:minmax(0, 7fr) minmax(0, 5fr);--mcols:minmax(0, 12fr)">
+<div class="os-col" data-os-col="0" style="--mo:1">
+<div class="os-block os-block--text" data-os-id="blk_a1a1a1a1a1" data-os-block="text">
+<div class="os-rich">
+<h1 class="os-type-display">Slow, grounded yoga</h1>
+<p class="os-type-lead">Small classes on <strong>Pearl Street</strong>. <a href="/schedule">See the schedule</a>
+</p>
+</div>
+</div>
+<div class="os-block os-block--button" data-os-id="blk_a2a2a2a2a2" data-os-block="button">
+<a href="/about/" class="os-button os-button--primary">
+<span class="os-button__label">Book a class</span>
+</a>
+</div>
+</div>
+<div class="os-col" data-os-col="1" style="--mo:0">
+<div class="os-block os-block--image os-align-center os-talign-center os-malign-start has-radius" data-os-id="blk_a3a3a3a3a3" data-os-block="image" style="--radius:var(--os-radius-lg)">
+<figure>
+<span class="os-img has-aspect" style="--aspect:4 / 5;--focal:42% 35%">
+<picture>
+<img class="os-img__img" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=2400&amp;q=80" srcSet="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=480&amp;q=80&amp;auto=format&amp;fit=max 480w, https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=768&amp;q=80&amp;auto=format&amp;fit=max 768w, https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1080&amp;q=80&amp;auto=format&amp;fit=max 1080w, https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1440&amp;q=80&amp;auto=format&amp;fit=max 1440w, https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1920&amp;q=80&amp;auto=format&amp;fit=max 1920w, https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=2400&amp;q=80&amp;auto=format&amp;fit=max 2400w" sizes="(min-width: 1200px) 40vw, 100vw" alt="A woman in a seated twist by a sunlit window" loading="lazy" decoding="async"/>
+</picture>
+</span>
+</figure>
+</div>
+</div>
+</div>
+</section>"
+`;

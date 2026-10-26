@@ -187,7 +187,7 @@ ${typeClasses}
 }
 
 @layer os.components {
-/* Images & treatments (vars: --os-image-* from the theme, overridden by .os-image-<treatment>) */
+/* Images & treatments (theme image vars, overridden per block by .os-image-<treatment>) */
 .os-img{position:relative;display:block;isolation:isolate;overflow:hidden;border-radius:${v(T.image.radius)};clip-path:${v(T.image["clip-path"])};aspect-ratio:var(--aspect,${v(T.image["aspect-ratio"])});padding:${v(T.image["frame-padding"])};background:${v(T.image["frame-color"])};border:${v(T.image["frame-border"])}}
 .os-img>picture{display:block;height:100%;overflow:hidden;border-radius:inherit;background:${v(T.image.backdrop)}}
 .os-img__img{width:100%;height:100%;object-fit:cover;object-position:var(--focal,50% 50%);filter:${v(T.image.filter)};mix-blend-mode:${v(T.image.blend)};transition:transform ${v(M["duration-slow"])} ${ease}}
@@ -197,7 +197,7 @@ ${typeClasses}
 @media (hover:hover){a:hover .os-img__img,.os-img.is-zoom:hover .os-img__img{transform:scale(${v(M["hover-scale"])})}}
 .os-block.has-radius .os-img{border-radius:var(--radius)}
 
-/* Buttons (Site Styles button system: --os-button-<role>-*) */
+/* Buttons (Site Styles button system: per-role theme button vars) */
 .os-button{display:inline-flex;align-items:center;justify-content:center;gap:0.5em;min-height:2.75rem;padding:var(--b-py) var(--b-px);background:var(--b-bg);color:var(--b-color);border:var(--b-bw) solid var(--b-bc);border-radius:var(--b-radius);text-decoration-line:var(--b-td);text-decoration-thickness:1px;text-underline-offset:0.3em;${typePreset("button")};text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color ${v(M["duration-fast"])} ${ease},color ${v(M["duration-fast"])} ${ease},border-color ${v(M["duration-fast"])} ${ease},transform ${v(M["duration-fast"])} ${ease}}
 .os-button:hover{background:var(--b-bg-h);color:var(--b-color-h);border-color:var(--b-bc-h)}
 .os-button:active{background:var(--b-bg-a);color:var(--b-color-a);border-color:var(--b-bc-a)}
