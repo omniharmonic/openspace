@@ -13,6 +13,7 @@ export const FORM_FIELD_TYPES = [
   "checkbox",
   "radio",
   "date",
+  "file",
 ] as const;
 export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];
 
@@ -45,9 +46,71 @@ const FieldBase = {
 
 const Options = z.array(z.string().min(1).max(120)).min(1).max(100);
 
+/**
+ * File kinds a `file` field may accept (PRD §5.2 "Form (custom fields, file upload)"). Uploads are
+ * stored privately in the Hub (never in the site's repository) and checked against these types.
+ */
+export const FORM_FILE_KINDS = {
+  image: {
+    label: "Images",
+    types: ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic"],
+    extensions: [".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic"],
+  },
+  pdf: { label: "PDF", types: ["application/pdf"], extensions: [".pdf"] },
+  document: {
+    label: "Documents",
+    types: [
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.oasis.opendocument.text",
+      "application/rtf",
+      "text/plain",
+    ],
+    extensions: [".doc", ".docx", ".odt", ".rtf", ".txt"],
+  },
+  spreadsheet: {
+    label: "Spreadsheets",
+    types: [
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.oasis.opendocument.spreadsheet",
+      "text/csv",
+    ],
+    extensions: [".xls", ".xlsx", ".ods", ".csv"],
+  },
+  audio: {
+    label: "Audio",
+    types: ["audio/mpeg", "audio/mp4", "audio/wav", "audio/x-wav", "audio/ogg"],
+    extensions: [".mp3", ".m4a", ".wav", ".ogg"],
+  },
+  video: {
+    label: "Video",
+    types: ["video/mp4", "video/quicktime", "video/webm"],
+    extensions: [".mp4", ".mov", ".webm"],
+  },
+} as const;
+export type FormFileKind = keyof typeof FORM_FILE_KINDS;
+export const FORM_FILE_KIND_IDS = Object.keys(FORM_FILE_KINDS) as FormFileKind[];
+/** Defaults for a `file` field without explicit limits. */
+export const DEFAULT_FILE_KINDS: readonly FormFileKind[] = ["image", "pdf", "document"];
+export const DEFAULT_FILE_MAX_MB = 10;
+export const MAX_FILE_MB = 25;
+
+/** MIME types and extensions a file field accepts (for `accept=` and Hub validation). */
+export function fileFieldAccept(field: { accept?: readonly FormFileKind[] | undefined }): {
+  types: string[];
+  extensions: string[];
+} {
+  const kinds = field.accept?.length ? field.accept : DEFAULT_FILE_KINDS;
+  return {
+    types: kinds.flatMap((k) => [...FORM_FILE_KINDS[k].types]),
+    extensions: kinds.flatMap((k) => [...FORM_FILE_KINDS[k].extensions]),
+  };
+}
+
 export const FormFieldSchema = named(
   "FormField",
-  "A form field: text, email, phone, textarea, select, checkbox, radio or date. Never password or card fields.",
+  "A form field: text, email, phone, textarea, select, checkbox, radio, date or file upload. Never password or card fields.",
   z.discriminatedUnion(
     "type",
     [
@@ -87,6 +150,18 @@ export const FormFieldSchema = named(
       }),
       z.strictObject({ ...FieldBase, type: z.literal("radio"), options: Options }),
       z.strictObject({ ...FieldBase, type: z.literal("date") }),
+      z.strictObject({
+        ...FieldBase,
+        type: z.literal("file"),
+        /** Accepted kinds (default: images, PDF and documents). */
+        accept: z
+          .array(z.enum(Object.keys(FORM_FILE_KINDS) as [FormFileKind, ...FormFileKind[]]))
+          .min(1)
+          .max(6)
+          .optional(),
+        /** Largest file in megabytes (default 10, at most 25). */
+        maxSizeMb: z.int().min(1).max(MAX_FILE_MB).optional(),
+      }),
     ],
     {
       error: (issue) => {

@@ -164,7 +164,7 @@ describe("link picker model", () => {
 describe("form builder model (FR-30)", () => {
   const base = formBlock.create().fields.form as Form;
 
-  it("only builds the eight allowed field types", () => {
+  it("only builds the allowed field types (including file uploads)", () => {
     for (const t of FORM_FIELD_TYPES) {
       const f = newFormField(t, base);
       expect(FormSchema.safeParse({ ...base, fields: [...base.fields, f] }).success).toBe(true);
@@ -172,6 +172,7 @@ describe("form builder model (FR-30)", () => {
     for (const t of FORBIDDEN_FORM_FIELD_TYPES)
       expect(() => newFormField(t as never, base)).toThrow(/not allowed/);
     expect(() => changeFieldType(base.fields[0] as never, "password" as never)).toThrow();
+    expect(changeFieldType(base.fields[0] as never, "file")).toMatchObject({ type: "file" });
   });
 
   it("names fields uniquely in snake_case", () => {

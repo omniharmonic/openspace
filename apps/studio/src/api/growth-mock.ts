@@ -180,7 +180,22 @@ function seed(site: Site, now: number): GrowthSiteState {
         email: p.email,
         dates: i % 2 ? ["Feb 6–8"] : ["Feb 6–8", "Mar 13–15"],
         notes: i === 0 ? "Vegetarian, please." : "",
+        ...(i === 0 ? { health_form: "health-questionnaire.pdf" } : {}),
       },
+      ...(i === 0
+        ? {
+            files: [
+              {
+                field: "health_form",
+                id: "upl_mockhealth01",
+                name: "health-questionnaire.pdf",
+                type: "application/pdf",
+                size: 182_400,
+                url: "data:application/pdf;base64,JVBERi0xLjQK",
+              },
+            ],
+          }
+        : {}),
       read: i > 0,
       spam: false,
       source: "/retreats",

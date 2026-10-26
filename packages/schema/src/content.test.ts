@@ -748,9 +748,22 @@ describe("Form", () => {
     });
     expectInvalid(
       FormSchema,
-      { ...form, fields: [{ type: "file", name: "x", label: "X" }] },
+      { ...form, fields: [{ type: "signature", name: "x", label: "X" }] },
       "Unknown form field type",
     );
+    // File uploads (P4): kinds from the list, at most 25 MB.
+    expectValid(FormSchema, {
+      ...form,
+      fields: [{ type: "file", name: "cv", label: "CV", accept: ["pdf"], maxSizeMb: 5 }],
+    });
+    expectInvalid(FormSchema, {
+      ...form,
+      fields: [{ type: "file", name: "cv", label: "CV", accept: ["exe"] }],
+    });
+    expectInvalid(FormSchema, {
+      ...form,
+      fields: [{ type: "file", name: "cv", label: "CV", maxSizeMb: 100 }],
+    });
     expectInvalid(FormSchema, {
       ...form,
       fields: [{ type: "text", name: "Full Name", label: "X" }],

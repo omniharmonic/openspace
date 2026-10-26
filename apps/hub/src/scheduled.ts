@@ -37,6 +37,8 @@ const SITE_TABLES = [
   "discount_codes",
   "site_updates",
   "stripe_events",
+  // Final wave B: form file uploads (their R2 objects are deleted below).
+  "form_uploads",
 ];
 
 /** Purge archived sites past `purge_at`: setup uploads in R2, room storage, Hub rows. */
@@ -56,13 +58,14 @@ export async function purgeArchivedSites(
     } catch {
       /* the room may never have existed */
     }
-    // Task 18: digital product files.
-    for (let cursor: string | undefined; ; ) {
-      const list = await services.uploads.list({ prefix: `digital/${id}/`, cursor });
-      if (list.objects.length) await services.uploads.delete(list.objects.map((o) => o.key));
-      if (!list.truncated) break;
-      cursor = list.cursor;
-    }
+    // Task 18: digital product files; final wave B: form uploads.
+    for (const prefix of [`digital/${id}/`, `form-uploads/${id}/`])
+      for (let cursor: string | undefined; ; ) {
+        const list = await services.uploads.list({ prefix, cursor });
+        if (list.objects.length) await services.uploads.delete(list.objects.map((o) => o.key));
+        if (!list.truncated) break;
+        cursor = list.cursor;
+      }
     await services.db.batch([
       services.db
         .prepare(

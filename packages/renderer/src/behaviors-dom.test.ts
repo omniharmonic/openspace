@@ -179,6 +179,57 @@ describe("form", () => {
     expect(visible).toHaveLength(1);
   });
 
+  it("uploads chosen files to the Hub first and submits their ids", async () => {
+    document.body.innerHTML = `<form action="https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001">
+      <div class="os-field"><input type="file" name="cv" data-os-max-bytes="1048576" aria-describedby="e2"><p id="e2" class="os-field__error"></p></div>
+      <button type="submit">Send</button></form>`;
+    const calls: Array<{ url: string; method: string; body: unknown }> = [];
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (url, init) => {
+      calls.push({ url: String(url), method: init?.method ?? "GET", body: init?.body });
+      if (String(url).endsWith("/uploads"))
+        return new Response(JSON.stringify({ id: "upl_abc", uploadUrl: "https://hub.test/u/1" }));
+      return new Response(JSON.stringify({ message: "Thanks!" }));
+    });
+    const f = document.querySelector("form") as HTMLFormElement;
+    form(f);
+    const input = f.querySelector("input") as HTMLInputElement;
+    const file = new File(["%PDF-1.4"], "cv.pdf", { type: "application/pdf" });
+    Object.defineProperty(input, "files", { value: [file], configurable: true });
+    f.dispatchEvent(new Event("submit", { cancelable: true }));
+    for (let i = 0; i < 8; i++) await flush();
+    expect(calls.map((c) => `${c.method} ${c.url}`)).toEqual([
+      "POST https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001/uploads",
+      "PUT https://hub.test/u/1",
+      "POST https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001",
+    ]);
+    expect(JSON.parse(calls[0]?.body as string)).toMatchObject({
+      field: "cv",
+      name: "cv.pdf",
+      type: "application/pdf",
+    });
+    expect(calls[1]?.body).toBe(file);
+    expect((calls[2]?.body as FormData).get("cv")).toBe("upl_abc");
+    expect(f.querySelector(".os-form__status")?.textContent).toBe("Thanks!");
+  });
+
+  it("refuses an oversized file before uploading", async () => {
+    document.body.innerHTML = `<form action="https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001">
+      <div class="os-field"><input type="file" name="cv" data-os-max-bytes="4" aria-describedby="e3"><p id="e3" class="os-field__error"></p></div></form>`;
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const f = document.querySelector("form") as HTMLFormElement;
+    form(f);
+    const input = f.querySelector("input") as HTMLInputElement;
+    Object.defineProperty(input, "files", {
+      value: [new File(["0123456789"], "big.pdf", { type: "application/pdf" })],
+      configurable: true,
+    });
+    f.dispatchEvent(new Event("submit", { cancelable: true }));
+    for (let i = 0; i < 4; i++) await flush();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(f.querySelector("#e3")?.textContent).toMatch(/larger than/);
+  });
+
   it("queues the entry and shows the owner's email when the Hub is down", async () => {
     document.body.innerHTML = markup;
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("offline"));

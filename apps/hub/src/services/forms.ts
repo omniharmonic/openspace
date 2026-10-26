@@ -18,6 +18,7 @@ import type { SiteRow } from "../db/sites";
 import { MAIN_BRANCH, parseRepo } from "../github/types";
 import { sha256Hex } from "../lib/crypto";
 import type { FieldValues } from "../lib/public";
+import { downloadUrl } from "./form-uploads";
 import type { Services } from "./index";
 import { loadSiteDocument } from "./site-files";
 
@@ -347,6 +348,15 @@ export interface SubmissionView {
   source: string | null;
   createdAt: string;
   purgeAt: string | null;
+  /** Uploaded files (file fields); `url` is a signed, short-lived download link. */
+  files?: Array<{
+    field: string;
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    url?: string;
+  }>;
 }
 
 export function toSubmissionView(r: SubmissionRow): SubmissionView {
@@ -356,7 +366,15 @@ export function toSubmissionView(r: SubmissionRow): SubmissionView {
   } catch {
     /* keep empty */
   }
+  let files: SubmissionView["files"];
+  try {
+    const parsed = r.files ? (JSON.parse(r.files) as SubmissionView["files"]) : undefined;
+    if (Array.isArray(parsed) && parsed.length) files = parsed;
+  } catch {
+    /* no files */
+  }
   return {
+    ...(files ? { files } : {}),
     id: r.id,
     formId: r.form_id,
     formName: r.form_name ?? null,
@@ -442,4 +460,20 @@ export async function allSubmissions(db: D1Database, siteId: string, formId?: st
     .bind(...(formId ? [siteId, formId] : [siteId]))
     .all<SubmissionRow>();
   return rows.results;
+}
+
+/** Add signed download links to the files of inbox entries. */
+export async function withFileLinks<T extends { submissions: SubmissionView[] } | SubmissionView>(
+  services: Services,
+  siteId: string,
+  value: T,
+): Promise<T> {
+  const views: SubmissionView[] =
+    "submissions" in value ? value.submissions : [value as SubmissionView];
+  for (const v of views)
+    if (v.files)
+      v.files = await Promise.all(
+        v.files.map(async (f) => ({ ...f, url: await downloadUrl(services, siteId, f.id) })),
+      );
+  return value;
 }

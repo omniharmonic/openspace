@@ -1,4 +1,14 @@
-import type { Form, FormField, FormFieldMeta, FormFieldType, Link } from "@openspace/schema";
+import {
+  DEFAULT_FILE_KINDS,
+  DEFAULT_FILE_MAX_MB,
+  FORM_FILE_KIND_IDS,
+  FORM_FILE_KINDS,
+  type Form,
+  type FormField,
+  type FormFieldMeta,
+  type FormFieldType,
+  type Link,
+} from "@openspace/schema";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button, Input, Menu, Segmented, Select, Toggle } from "../../../ui";
@@ -211,6 +221,9 @@ export function FormBuilder({ id, value, onChange, disabled }: ControlProps<Form
               }}
             />
           </PropRow>
+        )}
+        {f.type === "file" && (
+          <FileLimits field={f} disabled={disabled === true} onChange={(n) => setField(i, n)} />
         )}
         {f.type === "select" && (
           <PropRow label="Many answers" htmlFor={`${fid}-multi`}>
@@ -432,6 +445,72 @@ export function FormBuilder({ id, value, onChange, disabled }: ControlProps<Form
           />
         </PropRow>
       </PanelSection>
+    </>
+  );
+}
+
+/**
+ * File upload limits: which kinds of file and how large. Files are kept privately by OpenSpace
+ * (never in the site's files) and shown in the form inbox.
+ */
+function FileLimits({
+  field,
+  disabled,
+  onChange,
+}: {
+  field: Extract<FormField, { type: "file" }>;
+  disabled: boolean;
+  onChange: (next: FormField) => void;
+}) {
+  const kinds = field.accept ?? [...DEFAULT_FILE_KINDS];
+  const max = field.maxSizeMb ?? DEFAULT_FILE_MAX_MB;
+  return (
+    <>
+      <PropRow
+        label="Accepts"
+        stacked
+        hint="Files are kept privately for you, never published with your site."
+      >
+        <div className="st-ip-chips" role="group" aria-label="Accepted files">
+          {FORM_FILE_KIND_IDS.map((k) => {
+            const on = kinds.includes(k);
+            return (
+              <button
+                key={k}
+                type="button"
+                className="st-ip-chip"
+                aria-pressed={on}
+                disabled={disabled || (on && kinds.length === 1)}
+                onClick={() => {
+                  const next = on ? kinds.filter((x) => x !== k) : [...kinds, k];
+                  const sorted = FORM_FILE_KIND_IDS.filter((x) => next.includes(x));
+                  const isDefault =
+                    sorted.length === DEFAULT_FILE_KINDS.length &&
+                    sorted.every((x) => DEFAULT_FILE_KINDS.includes(x));
+                  const { accept: _a, ...rest } = field;
+                  onChange((isDefault ? rest : { ...rest, accept: sorted }) as FormField);
+                }}
+              >
+                {FORM_FILE_KINDS[k].label}
+              </button>
+            );
+          })}
+        </div>
+      </PropRow>
+      <PropRow label="Largest file">
+        <Select<string>
+          aria-label="Largest file"
+          size="sm"
+          value={String(max)}
+          disabled={disabled}
+          onValueChange={(v) => {
+            const { maxSizeMb: _m, ...rest } = field;
+            const n = Number(v);
+            onChange((n === DEFAULT_FILE_MAX_MB ? rest : { ...rest, maxSizeMb: n }) as FormField);
+          }}
+          options={[1, 2, 5, 10, 25].map((n) => ({ value: String(n), label: `${n} MB` }))}
+        />
+      </PropRow>
     </>
   );
 }

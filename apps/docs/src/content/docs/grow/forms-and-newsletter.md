@@ -12,6 +12,7 @@ Add a **Form** block (or a contact section) and build the form in the inspector.
 - text, email, phone and long text
 - drop-down select, checkboxes and radio buttons
 - date
+- **file upload**: choose which kinds of file it accepts (images, PDF, documents, spreadsheets, audio, video) and the largest size (up to 25 MB)
 
 Each field can be required or optional, half or full width. After sending, visitors see a **success message** or go to a page you choose.
 
@@ -26,6 +27,8 @@ For safety, forms can't ask for passwords or card numbers — payments always ha
 ### Your inbox
 
 Studio's **Form inbox** lists entries per form, with search and *All / Unread / Spam* views. Open an entry to read it (it's marked read), reply by email, mark several read or delete them, and **export CSV** for one form or all.
+
+Files sent with a form are **kept privately by OpenSpace, never in your site's files** (on GitHub Pages and Cloudflare alike). An entry shows each file as a **download link** that works for an hour; open the entry again for a fresh one. Files are deleted with their entry, and count toward your file storage on the **Usage** screen.
 
 In the inbox **settings**, choose notifications — **right away**, a **daily digest**, or **never** — the address they go to, and how long entries are kept: **1, 3, 6 or 12 months** (12 by default). Each entry shows the date it will be deleted.
 

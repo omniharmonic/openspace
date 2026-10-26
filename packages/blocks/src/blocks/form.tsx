@@ -1,5 +1,14 @@
 import { Button, cx, resolveLink, useRenderContext } from "@openspace/renderer";
-import { defineBlock, type Form, type FormField, f } from "@openspace/schema";
+import {
+  DEFAULT_FILE_KINDS,
+  DEFAULT_FILE_MAX_MB,
+  defineBlock,
+  FORM_FILE_KINDS,
+  type Form,
+  type FormField,
+  f,
+  fileFieldAccept,
+} from "@openspace/schema";
 import { createContext, type ReactNode, useContext } from "react";
 import { sub, useHub, useOwnerEmail } from "../shared";
 
@@ -278,6 +287,30 @@ function FieldView({ field, base }: { field: FormField; base: string }) {
           describedBy={describedBy}
         />
       );
+    case "file": {
+      // Uploaded privately to the Hub (never into the site's files); the form behavior uploads
+      // first and sends a reference, a no-JS post sends the file itself (multipart).
+      const { types, extensions } = fileFieldAccept(field);
+      const max = field.maxSizeMb ?? DEFAULT_FILE_MAX_MB;
+      const kinds = (field.accept ?? DEFAULT_FILE_KINDS).map((k) => FORM_FILE_KINDS[k].label);
+      const limitsId = sub(id, "limits");
+      return (
+        <FieldShell field={field} id={id}>
+          <Label field={field} htmlFor={id} />
+          <input
+            className="os-file"
+            type="file"
+            accept={[...types, ...extensions].join(",")}
+            data-os-max-bytes={max * 1024 * 1024}
+            {...common}
+            aria-describedby={`${limitsId} ${describedBy}`}
+          />
+          <p className="os-field__help os-file__limits" id={limitsId}>
+            {kinds.join(", ")} · up to {max} MB
+          </p>
+        </FieldShell>
+      );
+    }
   }
 }
 
@@ -368,6 +401,7 @@ function FormView({ id, form, variant }: { id: string; form: Form; variant: stri
       data-os-success={message}
       data-os-redirect={redirect}
       data-os-owner-email={owner}
+      encType={form.fields.some((x) => x.type === "file") ? "multipart/form-data" : undefined}
     >
       <div className="os-formblock__fields">
         {form.fields.map((field) => (
@@ -403,6 +437,10 @@ export const formCss = `
 .os-formblock__fields{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--os-space-sm)}
 @container block (min-width:32rem){.os-formblock__fields{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--os-space-sm)}.os-formblock__fields>.os-field{grid-column:1/-1}.os-formblock__fields>.os-field--half{grid-column:auto}}
 .os-formblock fieldset.os-field{margin:0;padding:0;border:0;min-inline-size:0}
+.os-file{display:block;width:100%;padding:var(--os-space-xs);border:1.5px dashed var(--os-color-border);border-radius:var(--os-radius-input);background:var(--os-color-surface);color:var(--os-color-text);font:inherit;font-size:var(--os-type-small-font-size)}
+.os-file::file-selector-button{margin-inline-end:var(--os-space-xs);padding:0.4em 0.9em;border:1px solid var(--os-color-border);border-radius:var(--os-radius-input);background:var(--os-color-background);color:var(--os-color-text);font:inherit;cursor:pointer}
+.os-file:focus-visible{outline:2px solid var(--os-color-focus);outline-offset:2px}
+.os-file[aria-invalid=true]{border-color:var(--os-color-danger)}
 .os-formblock legend.os-label{padding:0;margin-bottom:var(--os-space-2xs)}
 .os-choices{display:flex;flex-wrap:wrap;gap:var(--os-space-2xs) var(--os-space-sm)}
 .os-select.is-multiple{background-image:none;padding-inline-end:0.95em;min-height:8rem}

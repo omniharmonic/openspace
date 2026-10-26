@@ -8,7 +8,7 @@ import {
 } from "@openspace/schema";
 
 /**
- * Form builder model (FR-30). Only the eight allowed field types exist in the builder, so a
+ * Form builder model (FR-30). Only the allowed field types exist in the builder, so a
  * password or card-number field can't be created; labels and names that ask for one are
  * refused as well (Global Constraint 12).
  */
@@ -22,6 +22,7 @@ export const FORM_TYPE_LABEL: Record<FormFieldType, string> = {
   checkbox: "Checkbox",
   radio: "Choice",
   date: "Date",
+  file: "File upload",
 };
 
 export const BUILDER_TYPES: readonly FormFieldType[] = FORM_FIELD_TYPES;
@@ -66,6 +67,7 @@ const DEFAULT_LABEL: Record<FormFieldType, string> = {
   checkbox: "Keep me posted",
   radio: "Pick one",
   date: "Date",
+  file: "Attach a file",
 };
 
 /** A new field of `type`, named uniquely within the form. */

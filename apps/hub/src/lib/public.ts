@@ -58,7 +58,7 @@ export function publicSiteCors(): MiddlewareHandler<AppEnv> {
       const headers: Record<string, string> = { Vary: "Origin" };
       if (allow) {
         headers["Access-Control-Allow-Origin"] = allow;
-        headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS";
+        headers["Access-Control-Allow-Methods"] = "POST, GET, PUT, OPTIONS";
         headers["Access-Control-Allow-Headers"] = "Content-Type, Accept";
         headers["Access-Control-Max-Age"] = "600";
       }
@@ -121,8 +121,8 @@ const MAX_BODY = 256 * 1024;
 
 /**
  * Parse urlencoded, multipart or JSON bodies into field → value(s). `name[]` keys (checkbox
- * groups, multi-selects) become arrays under `name`. File parts are dropped (no FR-30 field type
- * accepts files; uploads would go to R2 via presigned URLs).
+ * groups, multi-selects) become arrays under `name`. File parts are dropped unless `opts.files`
+ * collects them (no-JS form uploads; the JS path uploads to R2 through presigned URLs first).
  */
 /** Read at most `max` bytes of the body, failing as soon as the stream exceeds it. */
 export async function readBodyLimited(req: Request, max = MAX_BODY): Promise<Uint8Array> {
@@ -151,7 +151,15 @@ export async function readBodyLimited(req: Request, max = MAX_BODY): Promise<Uin
   return out;
 }
 
-export async function parseFields(c: Context): Promise<FieldValues> {
+export async function parseFields(
+  c: Context,
+  opts: {
+    /** Body size limit (default 256 KB). */
+    max?: number;
+    /** Collects multipart file parts (no-JS form uploads); otherwise they are dropped. */
+    files?: Map<string, File>;
+  } = {},
+): Promise<FieldValues> {
   const type = (c.req.header("content-type") ?? "").toLowerCase();
   const out: FieldValues = {};
   const add = (rawKey: string, value: unknown) => {
@@ -168,7 +176,7 @@ export async function parseFields(c: Context): Promise<FieldValues> {
     } else out[key] = values[0] as string;
   };
   try {
-    const bytes = await readBodyLimited(c.req.raw);
+    const bytes = await readBodyLimited(c.req.raw, opts.max);
     if (type.includes("application/json") || type.startsWith("text/plain")) {
       const text = new TextDecoder().decode(bytes);
       const body = text ? (JSON.parse(text) as unknown) : {};
@@ -182,7 +190,10 @@ export async function parseFields(c: Context): Promise<FieldValues> {
       const form = await new Response(bytes, {
         headers: { "Content-Type": c.req.header("content-type") ?? "" },
       }).formData();
-      for (const [k, v] of form.entries()) if (typeof v === "string") add(k, v);
+      for (const [k, v] of form.entries()) {
+        if (typeof v === "string") add(k, v);
+        else if (opts.files && v.size > 0 && k.length <= 64) opts.files.set(k, v);
+      }
     } else {
       throw new HttpError(
         415,

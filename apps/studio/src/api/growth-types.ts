@@ -64,6 +64,15 @@ export interface Submission {
   createdAt: string;
   /** When retention deletes it. */
   purgeAt: string | null;
+  /** Files sent with the entry (file upload fields); `url` is a short-lived download link. */
+  files?: Array<{
+    field: string;
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    url?: string;
+  }>;
 }
 
 export interface SubmissionQuery {

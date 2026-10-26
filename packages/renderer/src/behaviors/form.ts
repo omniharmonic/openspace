@@ -123,6 +123,53 @@ async function exclusive(fn: () => Promise<void>): Promise<void> {
   }
 }
 
+/**
+ * File fields: upload each chosen file to the Hub first (`<action>/uploads` hands out a one-time
+ * upload address), then send the upload's id in place of the file. Returns false (after marking
+ * the field) when a file can't be uploaded.
+ */
+async function uploadFiles(f: HTMLFormElement, data: FormData): Promise<boolean> {
+  for (const input of f.querySelectorAll<HTMLInputElement>("input[type=file][name]")) {
+    const file = input.files?.[0];
+    data.delete(input.name);
+    if (!file) continue;
+    const max = Number(input.dataset.osMaxBytes) || 0;
+    let message = max && file.size > max ? `This file is larger than ${max >> 20} MB.` : "";
+    if (!message) {
+      try {
+        const res = await fetch(`${f.action}/uploads`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ field: input.name, name: file.name, type: file.type, size: file.size }),
+        });
+        const b = (await res.json().catch(() => ({}))) as {
+          id?: string;
+          uploadUrl?: string;
+          message?: string;
+        };
+        if (res.ok && b.id && b.uploadUrl) {
+          const put = await fetch(b.uploadUrl, {
+            method: "PUT",
+            body: file,
+            headers: { "Content-Type": file.type || "application/octet-stream" },
+          });
+          if (put.ok) {
+            data.set(input.name, b.id);
+            continue;
+          }
+        }
+        message = b.message ?? "We couldn't upload this file. Please try again.";
+      } catch {
+        message = "We couldn't upload this file. Please check your connection and try again.";
+      }
+    }
+    mark(input, message);
+    input.focus();
+    return false;
+  }
+  return true;
+}
+
 let flushing = false;
 function scheduleFlush(): void {
   if (flushing) return;
@@ -185,6 +232,11 @@ export default function form(el: HTMLElement): void {
     // repeat the status region's announcement; the live region is the single source from here.
     for (const p of f.querySelectorAll<HTMLElement>(".os-formblock__sent")) p.hidden = true;
     const data = new FormData(f);
+    if (!(await uploadFiles(f, data))) {
+      setBusy(f, false);
+      status(f, "error", "Please fix the highlighted field.");
+      return;
+    }
     const r = await submit(f.action, data);
     setBusy(f, false);
     if (r.ok) {

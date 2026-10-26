@@ -72,3 +72,30 @@
   color: var(--st-text-2);
   font-size: var(--st-fs-sm);
 }
+
+/* Files sent with an entry: a download link (signed, short-lived). */
+.st-inbox__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  color: var(--st-accent);
+  text-decoration: none;
+}
+.st-inbox__file:hover span:first-of-type {
+  text-decoration: underline;
+}
+.st-inbox__file svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+.st-inbox__file span:first-of-type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.st-inbox__file-size {
+  color: var(--st-text-3);
+  font-variant-numeric: tabular-nums;
+}

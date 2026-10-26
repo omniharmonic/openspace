@@ -18,7 +18,10 @@ describe("formRedirectHref", () => {
   it("resolves pages to trailing-slash site paths with anchors", () => {
     const f = (page: string, anchor?: string): Form => ({
       ...base,
-      success: { type: "redirect", link: { type: "page", page, ...(anchor ? { anchor } : {}) } },
+      success: {
+        type: "redirect",
+        link: { type: "page", page: page as `pg_${string}`, ...(anchor ? { anchor } : {}) },
+      },
     });
     expect(formRedirectHref(f("pg_bbbbbbbbbb"), pages)).toBe("/thanks/");
     expect(formRedirectHref(f("pg_aaaaaaaaaa", "top"), pages)).toBe("/#top");

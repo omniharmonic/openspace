@@ -27,6 +27,15 @@ import {
   wantsJson,
 } from "../../lib/public";
 import { siteBaseUrl } from "../../services/email";
+import {
+  attachUploads,
+  createUpload,
+  receiveUpload,
+  resolveUploads,
+  serveDownload,
+  storeDirect,
+  type UploadedFile,
+} from "../../services/form-uploads";
 import { loadManifest, SPAM_THRESHOLD, spamScore, validateSubmission } from "../../services/forms";
 import { notifyInstant } from "../../services/notifications";
 import { consumeQuota, quotaGuard, siteQuotaLimits } from "../../services/quotas";
@@ -69,7 +78,18 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
   if (!originAllowed(c.req.header("origin"), site, c.var.config))
     throw new HttpError(403, "forbidden_origin", "Submissions from this website aren't accepted.");
 
-  const fields = await parseFields(c);
+  // No-JS posts with file fields arrive as multipart with the files themselves (up to 25 MB each).
+  const multipart = (c.req.header("content-type") ?? "").toLowerCase().includes("multipart/");
+  const files = new Map<string, File>();
+  let manifest: Awaited<ReturnType<typeof loadManifest>> | null = null;
+  let takesFiles = false;
+  if (multipart) {
+    manifest = await loadManifest(services, site, base);
+    takesFiles = !!manifest
+      .find((f) => f.form.id === formId)
+      ?.form.fields.some((x) => x.type === "file");
+  }
+  const fields = await parseFields(c, takesFiles ? { max: 52 * 1024 * 1024, files } : {});
   const source = single(fields._source);
   const anchor = single(fields._anchor);
   rememberReturn(c, source, anchor);
@@ -100,7 +120,7 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
     );
     if (blocked) return fail(blocked);
 
-    const manifest = await loadManifest(services, site, base);
+    manifest ??= await loadManifest(services, site, base);
     const entry = manifest.find((f) => f.form.id === formId);
     if (!entry)
       return fail({
@@ -108,17 +128,39 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
         code: "form_not_found",
         message: "This form isn't accepting entries.",
       });
+    // File fields: files sent with a no-JS post are stored now; then every file field must name
+    // an uploaded file of this form (the JS path uploaded it already).
+    const fileErrors: Record<string, string> = {};
+    for (const field of entry.form.fields) {
+      const file = field.type === "file" ? files.get(field.name) : undefined;
+      if (!file) continue;
+      try {
+        fields[field.name] = await storeDirect(services, site, entry.form, field.name, file);
+      } catch (err) {
+        if (!(err instanceof HttpError)) throw err;
+        fileErrors[field.name] = err.message;
+      }
+    }
+    const uploads = await resolveUploads(services, site.id, entry.form, fields);
     const result = validateSubmission(entry.form, fields);
-    if (!result.ok)
+    const errors = {
+      ...(result.ok ? {} : result.errors),
+      ...(uploads.ok ? {} : uploads.errors),
+      ...fileErrors,
+    };
+    if (!result.ok || Object.keys(errors).length)
       return fail({
         status: 422,
         code: "invalid_fields",
         message:
-          Object.keys(result.errors).length === 1
+          Object.keys(errors).length === 1
             ? "Please fix the highlighted field."
             : "Please fix the highlighted fields.",
-        errors: result.errors,
+        errors,
       });
+    const uploaded: UploadedFile[] = uploads.ok ? uploads.files : [];
+    // Entries show the file's name; the inbox links it through `files`.
+    for (const u of uploaded) result.data[u.field] = u.name;
 
     const score = spamScore(result.data);
     const isSpam = score >= SPAM_THRESHOLD;
@@ -146,8 +188,8 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
     const id = randomId("sbm");
     await services.db
       .prepare(
-        `INSERT INTO submissions (id, site_id, form_id, data_json, spam_score, created_at, purge_at, source, notified_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO submissions (id, site_id, form_id, data_json, spam_score, created_at, purge_at, source, notified_at, files)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         id,
@@ -159,8 +201,10 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
         now + months * MONTH,
         source?.slice(0, 300) ?? null,
         isSpam || settings.notifications === "off" || entry.form.notifyOwner === false ? now : null,
+        uploaded.length ? JSON.stringify(uploaded) : null,
       )
       .run();
+    await attachUploads(services, id, uploaded);
     if (!isSpam) await background(c, notifyInstant(services, site, entry.form, id, result.data));
 
     const s = entry.form.success;
@@ -191,3 +235,63 @@ function resolveRedirect(href: string | null, base: string): string | null {
     return null;
   }
 }
+
+// ---- file uploads (PRD §5.2, P4) -------------------------------------------------------------
+
+/** `POST /f/:siteId/:formId/uploads` — reserve an upload for a file field (JS path, step 1). */
+publicFormRoutes.post("/f/:siteId/:formId/uploads", async (c) => {
+  const { services } = c.var;
+  const site = await publicSite(services.db, c.req.param("siteId"));
+  if (!originAllowed(c.req.header("origin"), site, c.var.config))
+    throw new HttpError(403, "forbidden_origin", "Uploads from this website aren't accepted.");
+  const blocked = await gate(c, site, "form", null, { turnstile: false });
+  if (blocked) return c.json(failureBody(blocked), blocked.status as 429);
+  const body = (await c.req.json().catch(() => null)) as {
+    field?: unknown;
+    name?: unknown;
+    type?: unknown;
+    size?: unknown;
+  } | null;
+  if (
+    !body ||
+    typeof body.field !== "string" ||
+    typeof body.name !== "string" ||
+    typeof body.type !== "string" ||
+    typeof body.size !== "number"
+  )
+    throw new HttpError(400, "invalid_request", "Send the file's field, name, type and size.");
+  const base = siteBaseUrl(site, services.config.hubUrl);
+  const entry = (await loadManifest(services, site, base)).find(
+    (f) => f.form.id === c.req.param("formId"),
+  );
+  if (!entry) throw new HttpError(404, "form_not_found", "This form isn't accepting entries.");
+  const upload = await createUpload(services, site, entry.form, {
+    field: body.field,
+    name: body.name,
+    type: body.type,
+    size: body.size,
+  });
+  return c.json(upload, 201);
+});
+
+/** `PUT /f/:siteId/u/:id?exp&sig` — the file's bytes for a reserved upload (JS path, step 2). */
+publicFormRoutes.put("/f/:siteId/u/:id", async (c) => {
+  const { services } = c.var;
+  const site = await publicSite(services.db, c.req.param("siteId"));
+  await receiveUpload(
+    services,
+    site.id,
+    c.req.param("id"),
+    { exp: c.req.query("exp"), sig: c.req.query("sig") },
+    c.req.raw,
+  );
+  return c.json({ ok: true });
+});
+
+/** `GET /f/:siteId/d/:id?exp&sig` — signed, short-lived download for the inbox. */
+publicFormRoutes.get("/f/:siteId/d/:id", async (c) =>
+  serveDownload(c.var.services, c.req.param("siteId"), c.req.param("id"), {
+    exp: c.req.query("exp"),
+    sig: c.req.query("sig"),
+  }),
+);
