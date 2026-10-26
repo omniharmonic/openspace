@@ -1,16 +1,26 @@
+import { resolve } from "node:path";
 import { Command, CommanderError } from "commander";
-import { writeAgentsMd } from "./agents";
+import { renderAgentsMd, writeAgentsMd } from "./agents";
 import { type Budgets, formatReport, githubAnnotations, runCheck } from "./check";
-import { runDev } from "./dev";
+import { runDev, type Spawner } from "./dev";
 import { EJECT_WARNING, runEject } from "./eject";
-import { CliError, type Io, paint, useColor } from "./io";
+import { CliError, colorEnabled, type Io, paint } from "./io";
 import { runMigrate } from "./migrate";
 import { runNew } from "./new";
 
 export const VERSION = "0.1.0";
 
 /** Build the `openspace` command tree. Commands report problems by throwing `CliError`. */
-export function createProgram(io: Io, setExit: (code: number) => void): Command {
+export interface ProgramDeps {
+  spawner?: Spawner;
+  findBin?: (cwd: string) => string | undefined;
+}
+
+export function createProgram(
+  io: Io,
+  setExit: (code: number) => void,
+  deps: ProgramDeps = {},
+): Command {
   const program = new Command("openspace")
     .description("Check, preview, migrate and scaffold OpenSpace sites.")
     .version(VERSION)
@@ -19,27 +29,31 @@ export function createProgram(io: Io, setExit: (code: number) => void): Command 
 
   program
     .command("check")
+    .argument("[dir]", "site folder (default: the current folder)")
     .description("Validate content: schemas, links, images, size budgets and secrets.")
     .option("--ci", "CI mode: also print GitHub Actions annotations")
     .option("--json", "print the report as JSON")
     .option("--media-warn-mb <n>", "media folder warning threshold in MB", Number)
     .option("--media-fail-mb <n>", "media folder failure threshold in MB", Number)
     .action(
-      async (opts: {
-        ci?: boolean;
-        json?: boolean;
-        mediaWarnMb?: number;
-        mediaFailMb?: number;
-      }) => {
+      async (
+        dir: string | undefined,
+        opts: {
+          ci?: boolean;
+          json?: boolean;
+          mediaWarnMb?: number;
+          mediaFailMb?: number;
+        },
+      ) => {
         const budgets: Partial<Budgets> = {};
         if (opts.mediaWarnMb !== undefined) budgets.mediaWarnBytes = opts.mediaWarnMb * 1024 * 1024;
         if (opts.mediaFailMb !== undefined) budgets.mediaFailBytes = opts.mediaFailMb * 1024 * 1024;
-        const report = await runCheck(io.cwd, { budgets });
+        const report = await runCheck(resolve(io.cwd, dir ?? "."), { budgets });
         if (opts.json) {
           io.out(JSON.stringify(report, null, 2));
         } else {
           if (opts.ci) for (const line of githubAnnotations(report)) io.out(line);
-          const color = useColor(io);
+          const color = colorEnabled(io);
           io.out(formatReport(report, (code, s) => paint(color, code, s)));
         }
         if (!report.ok) setExit(1);
@@ -52,7 +66,7 @@ export function createProgram(io: Io, setExit: (code: number) => void): Command 
     .allowUnknownOption()
     .argument("[astroArgs...]", "extra arguments passed to astro dev")
     .action(async (args: string[]) => {
-      setExit(await runDev(io, args));
+      setExit(await runDev(io, args, deps.spawner, deps.findBin));
     });
 
   program
@@ -69,11 +83,9 @@ export function createProgram(io: Io, setExit: (code: number) => void): Command 
       for (const a of r.applied) io.out(`  ${a}`);
       if (r.blocksMigrated)
         io.out(`  Upgraded ${r.blocksMigrated} block(s) to their latest version.`);
-      io.out(
-        `${opts.dryRun ? "Would write" : "Wrote"} ${opts.dryRun ? "" : `${r.written.length} file(s)`}`.trim(),
-      );
-      for (const f of opts.dryRun ? [] : r.written) io.out(`  ${f}`);
-      for (const f of r.removed) io.out(`  removed ${f}`);
+      io.out(opts.dryRun ? "Dry run, would write:" : `Wrote ${r.written.length} file(s):`);
+      for (const f of r.written) io.out(`  ${f}`);
+      for (const f of r.removed) io.out(`  ${opts.dryRun ? "would remove" : "removed"} ${f}`);
     });
 
   program
@@ -143,7 +155,6 @@ export function createProgram(io: Io, setExit: (code: number) => void): Command 
     .option("--stdout", "print instead of writing the file")
     .action(async (opts: { stdout?: boolean }) => {
       if (opts.stdout) {
-        const { renderAgentsMd } = await import("./agents");
         io.out((await renderAgentsMd(io.cwd)).trimEnd());
         return;
       }
@@ -164,11 +175,15 @@ export function createProgram(io: Io, setExit: (code: number) => void): Command 
 }
 
 /** Run the CLI with `argv` (without node and script) and return the exit code. */
-export async function run(argv: string[], io: Io): Promise<number> {
+export async function run(argv: string[], io: Io, deps: ProgramDeps = {}): Promise<number> {
   let code = 0;
-  const program = createProgram(io, (c) => {
-    code = c;
-  });
+  const program = createProgram(
+    io,
+    (c) => {
+      code = c;
+    },
+    deps,
+  );
   try {
     await program.parseAsync(argv, { from: "user" });
   } catch (e) {

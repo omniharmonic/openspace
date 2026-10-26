@@ -6,12 +6,14 @@
  * fonts and the search index. On the Cloudflare target (with `@astrojs/cloudflare` as the adapter) it adds
  * the Worker routes for members, magic-link sign-in and password pages.
  */
+
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { SocialFeedPost } from "@openspace/renderer";
 import type { AstroIntegration } from "astro";
 import { loadSiteDocument } from "./content/index";
 import { type DeployLocation, deployLocation } from "./deploy";
+import { ENTRYPOINTS, type EntrypointName } from "./entrypoints";
 import type { PodcastOptions } from "./feeds";
 import { resolveFonts } from "./node/fonts";
 import { writeSiteOutputs } from "./node/postbuild";
@@ -53,7 +55,7 @@ export const CLOUDFLARE_ADAPTER_OPTIONS = {
 
 const VIRTUAL_SITE = "virtual:openspace/site";
 const VIRTUAL_MEDIA = "virtual:openspace/media";
-const ENTRY = (p: string) => `@openspace/site-kit/${p}`;
+const ENTRY = (p: EntrypointName) => ENTRYPOINTS[p];
 
 export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
   let rootDir = process.cwd();

@@ -6,7 +6,8 @@
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "exports": {
     ".": {
@@ -40,6 +41,10 @@
     "./images-manifest": {
       "types": "./src/runtime/images-manifest.ts",
       "default": "./src/runtime/images-manifest.ts"
+    },
+    "./agents-md": {
+      "types": "./src/agents-md.ts",
+      "default": "./src/agents-md.ts"
     }
   },
   "publishConfig": {
@@ -76,6 +81,10 @@
       "./images-manifest": {
         "types": "./dist/runtime/images-manifest.d.ts",
         "default": "./dist/runtime/images-manifest.js"
+      },
+      "./agents-md": {
+        "types": "./dist/agents-md.d.ts",
+        "default": "./dist/agents-md.js"
       }
     }
   },

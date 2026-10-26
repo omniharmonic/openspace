@@ -86,7 +86,7 @@ export interface CheckReport {
   };
 }
 
-async function listFiles(root: string, dir: string): Promise<string[]> {
+async function listFiles(root: string, dir: string, includeDot = false): Promise<string[]> {
   const out: string[] = [];
   let entries: import("node:fs").Dirent[];
   try {
@@ -95,9 +95,9 @@ async function listFiles(root: string, dir: string): Promise<string[]> {
     return out;
   }
   for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-    if (e.name.startsWith(".")) continue;
+    if (!includeDot && e.name.startsWith(".")) continue;
     const rel = `${dir}/${e.name}`;
-    if (e.isDirectory()) out.push(...(await listFiles(root, rel)));
+    if (e.isDirectory()) out.push(...(await listFiles(root, rel, includeDot)));
     else if (e.isFile()) out.push(rel);
   }
   return out;
@@ -148,6 +148,7 @@ function fileDepth(path: readonly (string | number | symbol)[]): number {
   }
 }
 
+const IMAGE_EXT_RE = /\.(?:jpe?g|png|gif|webp|avif|svg)$/i;
 const MEDIA_REF_RE = /(?<![\w/.:-])media\/[A-Za-z0-9_\-./]+\.[A-Za-z0-9]+/g;
 const MD_LINK_RE = /\]\((\/[^)\s]*)\)|href="(\/[^"\s]*)"/g;
 const COLLECTION_SUBPATHS = new Set(["page", "category", "categories", "tag", "tags"]);
@@ -281,7 +282,7 @@ export async function runCheck(root: string, options: CheckOptions = {}): Promis
   if (doc) checkReferences(doc, pageFiles, mediaOnDisk, budgets, add);
 
   // --- secrets over config + content/** ---------------------------------------------------------
-  const textFiles = [CONFIG_FILE, ...(await listFiles(root, "content"))];
+  const textFiles = [CONFIG_FILE, ...(await listFiles(root, "content", true))];
   for (const rel of textFiles) {
     let text: string;
     try {
@@ -302,6 +303,7 @@ export async function runCheck(root: string, options: CheckOptions = {}): Promis
       });
   }
 
+  // Only pages can be gated: collection items carry no access flags in the schema.
   // --- gated content in a public repo ---------------------------------------------------------
   if (doc?.config.deploy.target === "github-pages") {
     for (const page of Object.values(doc.pages)) {
@@ -347,16 +349,17 @@ function checkReferences(
         message: `Image ${ref} does not exist in media/`,
       });
     const meta: MediaMeta | undefined = doc.media[ref];
-    if (!meta) {
-      if (mediaOnDisk.has(ref) && !reportedImages.has(ref)) {
-        reportedImages.add(ref);
-        add({
-          severity: "error",
-          rule: "media",
-          file: MEDIA_FILE,
-          message: `${ref} is used but has no entry in content/media.json (dimensions and alt text are required)`,
-        });
-      }
+    if (!meta && mediaOnDisk.has(ref) && !reportedImages.has(ref)) {
+      reportedImages.add(ref);
+      const isImage = IMAGE_EXT_RE.test(ref);
+      add({
+        severity: isImage ? "error" : "warning",
+        rule: "media",
+        file: MEDIA_FILE,
+        message: isImage
+          ? `${ref} is used but has no entry in content/media.json (images need their width, height and alt text recorded)`
+          : `${ref} is used but has no entry in content/media.json (its type and size are recorded there)`,
+      });
     }
   };
 

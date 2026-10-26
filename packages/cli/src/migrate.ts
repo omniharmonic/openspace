@@ -1,3 +1,6 @@
+import { cp, mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { blocksRegistry } from "@openspace/blocks";
 import {
   CURRENT_SCHEMA_VERSION,
@@ -63,7 +66,17 @@ export async function runMigrate(
   let removed: string[] = [];
   if (siteResult.applied.length || blocksMigrated) {
     if (opts.dryRun) {
-      written = ["(dry run: nothing written)"];
+      // Write into a scratch copy of the text content to learn which files would change.
+      const scratch = await mkdtemp(join(tmpdir(), "os-migrate-"));
+      try {
+        await cp(join(root, "openspace.json"), join(scratch, "openspace.json"));
+        await cp(join(root, "content"), join(scratch, "content"), { recursive: true });
+        const r = await writeSiteDocument(scratch, next);
+        written = r.written;
+        removed = r.removed;
+      } finally {
+        await rm(scratch, { recursive: true, force: true });
+      }
     } else {
       const r = await writeSiteDocument(root, next);
       written = r.written;

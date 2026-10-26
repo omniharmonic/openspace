@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { CURRENT_SCHEMA_VERSION, newId, type SiteConfig } from "@openspace/schema";
 import { loadSiteDocument, writeSiteDocument } from "@openspace/site-kit/content";
@@ -101,10 +101,31 @@ export async function runNew(
   dirArg: string,
   opts: NewOptions = {},
 ): Promise<NewResult> {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(templateId))
+    throw new CliError(
+      `Invalid template id "${templateId}": use lowercase letters, digits and dashes only.`,
+    );
   const dir = resolve(io.cwd, dirArg);
   if (!(await isEmptyDir(dir)))
     throw new CliError(`${dir} already exists and is not empty. Choose a new folder.`);
   const tpl = await resolveTemplate(templateId, io, opts);
+  const existed = existsSync(dir);
+  try {
+    return await scaffold(templateId, dir, tpl, opts);
+  } catch (e) {
+    // Never leave a half-scaffolded site behind.
+    await rm(dir, { recursive: true, force: true });
+    if (existed) await mkdir(dir, { recursive: true });
+    throw e;
+  }
+}
+
+async function scaffold(
+  templateId: string,
+  dir: string,
+  tpl: TemplateSource,
+  opts: NewOptions,
+): Promise<NewResult> {
   const targetKind = opts.target ?? "github-pages";
   const slug = slugify(basename(dir));
 

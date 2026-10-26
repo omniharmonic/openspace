@@ -15,7 +15,7 @@ export async function renderAgentsMd(root: string, siteTitle?: string): Promise<
     }
   }
   // Loaded lazily: site-kit's entry pulls in the whole build pipeline.
-  const { generateAgentsMd } = await import("@openspace/site-kit");
+  const { generateAgentsMd } = await import("@openspace/site-kit/agents-md");
   return generateAgentsMd(title ? { siteTitle: title } : {});
 }
 

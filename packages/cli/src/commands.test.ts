@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { siteMigrationRegistry } from "@openspace/schema";
@@ -8,6 +8,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { ASTRO_MIN_NODE, runDev } from "./dev";
 import { captureIo } from "./io";
 import { runMigrate } from "./migrate";
+import { run } from "./program";
 import { compareVersions } from "./semver";
 import { cleanup, cli, MEADOW, tmpDir } from "./test-helpers";
 
@@ -93,6 +94,33 @@ describe("openspace new", () => {
     expect(existsSync(join(site.parent, "other"))).toBe(false);
   });
 
+  it("rejects template ids that could escape the templates folder", async () => {
+    const parent = await tmpDir();
+    for (const id of ["../meadow", "a/b", "..", "Meadow"]) {
+      const r = await cli(parent, ["new", id, "x"]);
+      expect(r.code, id).toBe(1);
+      expect(r.err).toContain("Invalid template id");
+    }
+    expect(existsSync(join(parent, "x"))).toBe(false);
+  });
+
+  it("removes a half-scaffolded folder when the template is broken", async () => {
+    const tdir = join(await tmpDir(), "templates");
+    await mkdir(join(tdir, "bad", "content"), { recursive: true });
+    await writeFile(join(tdir, "bad", "openspace.json"), "{}");
+    await writeFile(join(tdir, "bad", "content", "site.json"), "{ nope");
+    const parent = await tmpDir();
+    const r = await cli(parent, ["new", "bad", "site", "--templates-dir", tdir]);
+    expect(r.code).toBe(1);
+    expect(existsSync(join(parent, "site"))).toBe(false);
+    // An existing empty folder survives, emptied.
+    await mkdir(join(parent, "keep"));
+    const again = await cli(parent, ["new", "bad", "keep", "--templates-dir", tdir]);
+    expect(again.code).toBe(1);
+    expect(existsSync(join(parent, "keep"))).toBe(true);
+    expect(await readdir(join(parent, "keep"))).toEqual([]);
+  });
+
   it("uses a template's own content when it has some", async () => {
     const tdir = join(await tmpDir(), "templates");
     const own = join(tdir, "fancy");
@@ -138,6 +166,23 @@ describe("openspace migrate", () => {
     expect(second.written).toEqual([]);
   });
 
+  it("--dry-run lists the files it would write and writes nothing", async () => {
+    const site = await newSite();
+    const migrations = siteMigrationRegistry([
+      {
+        from: 1,
+        description: "add a tagline",
+        up: (c) => ({ ...c, site: { ...(c.site as object), tagline: "Dry" } }),
+      },
+    ]);
+    const before = await readFile(join(site.dir, "openspace.json"), "utf8");
+    const r = await runMigrate(site.dir, { migrations, target: 2, dryRun: true });
+    expect(r.written).toEqual(expect.arrayContaining(["openspace.json", "content/site.json"]));
+    expect(await readFile(join(site.dir, "openspace.json"), "utf8")).toBe(before);
+    const out = await cli(site.dir, ["migrate", "--dry-run"]);
+    expect(out.out).toContain("Already up to date");
+  });
+
   it("refuses content newer than the library", async () => {
     const site = await newSite();
     const cfg = JSON.parse(await readFile(join(site.dir, "openspace.json"), "utf8"));
@@ -173,9 +218,27 @@ describe("openspace dev", () => {
     await expect(runDev({ ...io, nodeVersion: "22.22.3" }, [])).rejects.toThrow(
       `Astro needs Node ${ASTRO_MIN_NODE} or newer, but this is Node 22.22.3`,
     );
-    const r = await cli(process.cwd(), ["dev"]);
-    // Whatever the host Node is, the message must be actionable.
-    expect(r.code === 1 ? r.err : "").not.toBe("undefined");
+  });
+
+  it("runs astro dev with extra args through the command line", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "os-dev-"));
+    made.push(dir);
+    await writeFile(join(dir, "openspace.json"), "{}");
+    const { EventEmitter } = await import("node:events");
+    let args: string[] = [];
+    const cap = captureIo(dir);
+    const io = { ...cap.io, nodeVersion: "24.0.0" };
+    const code = await run(["dev", "--port", "4000"], io, {
+      findBin: () => "/fake/astro.mjs",
+      spawner: (_cmd, a) => {
+        args = a;
+        const child = new EventEmitter();
+        queueMicrotask(() => child.emit("exit", 3, null));
+        return child as never;
+      },
+    });
+    expect(args).toEqual(["/fake/astro.mjs", "dev", "--port", "4000"]);
+    expect(code).toBe(3);
   });
 
   it("compares versions", () => {
@@ -250,9 +313,10 @@ describe("openspace eject", () => {
     expect(await readFile(join(site.dir, "src/pages/[...slug].astro"), "utf8")).toContain(
       'from "../openspace-kit/runtime/route.ts"',
     );
-    const integration = await readFile(join(kit, "integration.ts"), "utf8");
-    expect(integration).toContain("ENTRY_PATHS");
-    expect(integration).toContain("./src/openspace-kit/cloudflare/endpoints/gated.ts");
+    const entrypoints = await readFile(join(kit, "entrypoints.ts"), "utf8");
+    expect(entrypoints).toContain('"./src/openspace-kit/cloudflare/endpoints/gated.ts"');
+    expect(entrypoints).not.toMatch(/["']@openspace\/site-kit/);
+    expect(await readFile(join(kit, "integration.ts"), "utf8")).toContain("ENTRYPOINTS[p]");
 
     const pkg = JSON.parse(await readFile(join(site.dir, "package.json"), "utf8"));
     expect(pkg.dependencies["@openspace/site-kit"]).toBeUndefined();
@@ -263,5 +327,83 @@ describe("openspace eject", () => {
     const again = await cli(site.dir, ["eject", "--yes"]);
     expect(again.code).toBe(1);
     expect(again.err).toContain("already");
+  });
+});
+
+describe("openspace eject safety", () => {
+  async function fakeSite(kitFiles: Record<string, string>) {
+    const dir = await mkdtemp(join(tmpdir(), "os-eject-"));
+    made.push(dir);
+    await writeFile(
+      join(dir, "package.json"),
+      JSON.stringify({ name: "s", dependencies: { "@openspace/site-kit": "^0.1.0" } }),
+    );
+    await mkdir(join(dir, "src/pages"), { recursive: true });
+    await writeFile(join(dir, "astro.config.mjs"), 'import o from "@openspace/site-kit";\n');
+    const kit = join(dir, "node_modules/@openspace/site-kit");
+    for (const [rel, text] of Object.entries(kitFiles)) {
+      await mkdir(join(kit, rel, ".."), { recursive: true });
+      await writeFile(join(kit, rel), text);
+    }
+    return dir;
+  }
+  const pkg = (extra = {}) =>
+    JSON.stringify({
+      name: "@openspace/site-kit",
+      version: "0.1.0",
+      type: "module",
+      exports: { ".": { default: "./src/index.ts" }, "./route": { default: "./src/route.ts" } },
+      ...extra,
+    });
+
+  it("refuses when only dist is shipped and changes nothing", async () => {
+    const dir = await fakeSite({
+      "package.json": pkg({ exports: { ".": { default: "./dist/index.js" } } }),
+      "dist/index.js": "export {};\n",
+    });
+    const before = await readFile(join(dir, "package.json"), "utf8");
+    const r = await cli(dir, ["eject", "--yes"]);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain("ships only built output");
+    expect(existsSync(join(dir, "src/openspace-kit"))).toBe(false);
+    expect(await readFile(join(dir, "package.json"), "utf8")).toBe(before);
+  });
+
+  it("fails loudly and changes nothing when the entrypoint table cannot be rewritten", async () => {
+    const dir = await fakeSite({
+      "package.json": pkg(),
+      "src/index.ts": "export {};\n",
+      "src/route.ts": "export {};\n",
+      // Unrecognisable shape: no kit specifiers at all.
+      "src/entrypoints.ts": "export const ENTRYPOINTS = makeEntries();\n",
+    });
+    const before = await readFile(join(dir, "package.json"), "utf8");
+    const config = await readFile(join(dir, "astro.config.mjs"), "utf8");
+    const r = await cli(dir, ["eject", "--yes"]);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain("not in the expected shape");
+    expect(existsSync(join(dir, "src/openspace-kit"))).toBe(false);
+    expect(await readFile(join(dir, "package.json"), "utf8")).toBe(before);
+    expect(await readFile(join(dir, "astro.config.mjs"), "utf8")).toBe(config);
+
+    // A specifier the kit does not export is also fatal.
+    await writeFile(
+      join(dir, "node_modules/@openspace/site-kit/src/entrypoints.ts"),
+      'export const E = { a: "@openspace/site-kit/nope" };\n',
+    );
+    const r2 = await cli(dir, ["eject", "--yes"]);
+    expect(r2.code).toBe(1);
+    expect(r2.err).toContain("not in the kit's exports");
+    expect(existsSync(join(dir, "src/openspace-kit"))).toBe(false);
+  });
+
+  it("fails when the kit has no entrypoints table", async () => {
+    const dir = await fakeSite({
+      "package.json": pkg(),
+      "src/index.ts": "export {};\n",
+    });
+    const r = await cli(dir, ["eject", "--yes"]);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain("no src/entrypoints.ts");
   });
 });

@@ -159,6 +159,33 @@ describe("openspace check", () => {
     expect(JSON.stringify(JSON.parse(json.out))).not.toContain(secret);
   });
 
+  it("scans dotfiles inside content/ for secrets", async () => {
+    const root = await meadowCopy();
+    const secret = ["ghp", "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8"].join("_");
+    await writeFile(join(root, "content/.env"), `TOKEN=${secret}\n`);
+    const report = await runCheck(root);
+    expect(report.findings.some((f) => f.rule === "secret" && f.file === "content/.env")).toBe(
+      true,
+    );
+  });
+
+  it("only demands dimensions and alt text for images in media.json", async () => {
+    const root = await meadowCopy();
+    const { writeFile: wf } = await import("node:fs/promises");
+    await wf(join(root, "media/guide.pdf"), "%PDF-1.4\n");
+    await wf(join(root, "media/extra.jpg"), "x");
+    await editJson(join(root, "content/pages/about.json"), (p) => {
+      p.sections[0].blocks[0].fields.note = "See media/guide.pdf and media/extra.jpg";
+    });
+    const report = await runCheck(root);
+    const pdf = report.findings.find((f) => f.message.startsWith("media/guide.pdf is used"));
+    const jpg = report.findings.find((f) => f.message.startsWith("media/extra.jpg is used"));
+    expect(pdf?.severity).toBe("warning");
+    expect(pdf?.message).not.toMatch(/alt text/);
+    expect(jpg?.severity).toBe("error");
+    expect(jpg?.message).toMatch(/width, height and alt text/);
+  });
+
   it("rejects gated pages on the github-pages target, allows them on cloudflare", async () => {
     const root = await meadowCopy();
     await editJson(join(root, "content/pages/about.json"), (p) => {

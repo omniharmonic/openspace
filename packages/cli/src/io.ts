@@ -33,7 +33,7 @@ export function captureIo(cwd: string, env: Record<string, string | undefined> =
 }
 
 /** Colour is opt-in: a TTY, no NO_COLOR, not dumb. Output is plain text otherwise. */
-export function useColor(io: Io, isTTY = Boolean(process.stdout.isTTY)): boolean {
+export function colorEnabled(io: Io, isTTY = Boolean(process.stdout.isTTY)): boolean {
   if (io.env.NO_COLOR !== undefined && io.env.NO_COLOR !== "") return false;
   if (io.env.TERM === "dumb") return false;
   return isTTY;
