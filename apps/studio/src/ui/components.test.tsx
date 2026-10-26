@@ -105,11 +105,26 @@ describe("Field", () => {
   });
 });
 
-function Scrub(props: { initial?: number | null; min?: number; max?: number; step?: number; onEnd?: (v: number) => void }) {
+function Scrub(props: {
+  initial?: number | null;
+  min?: number;
+  max?: number;
+  step?: number;
+  onEnd?: (v: number) => void;
+}) {
   const [v, setV] = useState<number | null>(props.initial === undefined ? 10 : props.initial);
   return (
     <>
-      <NumberScrubInput label="Width" value={v} onChange={setV} onChangeEnd={props.onEnd} min={props.min} max={props.max} step={props.step} unit="px" />
+      <NumberScrubInput
+        label="Width"
+        value={v}
+        onChange={setV}
+        onChangeEnd={props.onEnd}
+        min={props.min}
+        max={props.max}
+        step={props.step}
+        unit="px"
+      />
       <output data-testid="value">{String(v)}</output>
     </>
   );
@@ -169,7 +184,9 @@ describe("NumberScrubInput", () => {
 
   it("shows Mixed for null values", () => {
     render(<Scrub initial={null} />);
-    expect((screen.getByRole("spinbutton", { name: "Width" }) as HTMLInputElement).value).toBe("Mixed");
+    expect((screen.getByRole("spinbutton", { name: "Width" }) as HTMLInputElement).value).toBe(
+      "Mixed",
+    );
   });
 });
 
@@ -202,28 +219,28 @@ describe("Segmented and Toggle", () => {
   });
 });
 
+const PICKER_TOKENS = [
+  { id: "accent", name: "Accent", value: "#6f8461" },
+  { id: "ink", name: "Ink", value: "#2e3a2f" },
+];
+
+function Picker({ onChange }: { onChange: (v: ColorValue) => void }) {
+  const [v, setV] = useState<ColorValue | null>({ kind: "token", token: "accent" });
+  return (
+    <TooltipProvider>
+      <ColorPickerPanel
+        tokens={PICKER_TOKENS}
+        value={v}
+        onChange={(next) => {
+          setV(next);
+          onChange(next);
+        }}
+      />
+    </TooltipProvider>
+  );
+}
+
 describe("ColorPickerPanel", () => {
-  const tokens = [
-    { id: "accent", name: "Accent", value: "#6f8461" },
-    { id: "ink", name: "Ink", value: "#2e3a2f" },
-  ];
-
-  function Picker({ onChange }: { onChange: (v: ColorValue) => void }) {
-    const [v, setV] = useState<ColorValue | null>({ kind: "token", token: "accent" });
-    return (
-      <TooltipProvider>
-        <ColorPickerPanel
-          tokens={tokens}
-          value={v}
-          onChange={(next) => {
-            setV(next);
-            onChange(next);
-          }}
-        />
-      </TooltipProvider>
-    );
-  }
-
   it("picks site colors first", async () => {
     const onChange = vi.fn();
     render(<Picker onChange={onChange} />);
@@ -247,7 +264,11 @@ describe("ColorPickerPanel", () => {
 describe("Dialog", () => {
   it("opens from a trigger, focuses data-autofocus, and closes", async () => {
     wrap(
-      <Dialog trigger={<Button>Rename</Button>} title="Rename page" description="Shown in navigation.">
+      <Dialog
+        trigger={<Button>Rename</Button>}
+        title="Rename page"
+        description="Shown in navigation."
+      >
         <Input aria-label="Page name" data-autofocus />
       </Dialog>,
     );
@@ -305,7 +326,12 @@ describe("Toast", () => {
     const onCopy = vi.fn();
     render(<Toaster />);
     act(() => {
-      toast({ tone: "celebrate", title: "Your site is live", description: "sam.github.io/site", action: { label: "Copy link", onClick: onCopy, keepOpen: true } });
+      toast({
+        tone: "celebrate",
+        title: "Your site is live",
+        description: "sam.github.io/site",
+        action: { label: "Copy link", onClick: onCopy, keepOpen: true },
+      });
     });
     expect(await screen.findByText("Your site is live")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Copy link" }));
@@ -359,7 +385,11 @@ describe("Feedback and people", () => {
         <Badge tone="live" dot>
           Live
         </Badge>
-        <EmptyState title="No form entries yet" description="Messages land here." action={<Button>Add a form</Button>} />
+        <EmptyState
+          title="No form entries yet"
+          description="Messages land here."
+          action={<Button>Add a form</Button>}
+        />
         <AvatarStack
           people={[
             { id: "a", name: "Sam Rivera" },

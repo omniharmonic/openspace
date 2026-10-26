@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { evaluateExpression } from "./math";
 import { hexToHsv, hsvToHex, luminance, normalizeHex } from "./color";
+import { evaluateExpression } from "./math";
 import { formatShortcut, matchesShortcut, shortcutKeys } from "./shortcuts";
 
-const ev = (key: string, mods: Partial<Record<"metaKey" | "ctrlKey" | "altKey" | "shiftKey", boolean>> = {}, code?: string) => ({
+const ev = (
+  key: string,
+  mods: Partial<Record<"metaKey" | "ctrlKey" | "altKey" | "shiftKey", boolean>> = {},
+  code?: string,
+) => ({
   key,
   code,
   metaKey: false,
@@ -30,7 +34,9 @@ describe("shortcuts", () => {
     expect(matchesShortcut(ev("k", { ctrlKey: true }), "mod+k", "mac")).toBe(false);
     expect(matchesShortcut(ev("k", { ctrlKey: true }), "mod+k", "other")).toBe(true);
     expect(matchesShortcut(ev("K", { metaKey: true, shiftKey: true }), "mod+k", "mac")).toBe(false);
-    expect(matchesShortcut(ev("z", { metaKey: true, shiftKey: true }), "shift+mod+z", "mac")).toBe(true);
+    expect(matchesShortcut(ev("z", { metaKey: true, shiftKey: true }), "shift+mod+z", "mac")).toBe(
+      true,
+    );
   });
 
   it("matches by physical key when the option key changes the character", () => {

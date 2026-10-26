@@ -14,14 +14,25 @@ export const FAST: Partial<StudioConfig> = {
   showKit: true,
 };
 
-export const SAM: User = { id: "gh_1001", login: "sam-rivera", name: "Sam Rivera", avatarUrl: null };
+export const SAM: User = {
+  id: "gh_1001",
+  login: "sam-rivera",
+  name: "Sam Rivera",
+  avatarUrl: null,
+};
 
 /** Renders the whole Studio at `path` against an in-memory mock Hub. */
-export function renderStudio(path: string, hubOptions: MockHubOptions = {}, config: Partial<StudioConfig> = FAST) {
+export function renderStudio(
+  path: string,
+  hubOptions: MockHubOptions = {},
+  config: Partial<StudioConfig> = FAST,
+) {
   useToastStore.getState().clear();
   useCommandStore.setState({ open: false, sources: {} });
   const hub = createMockHub({ buildMs: 0, ...hubOptions });
-  const router = createMemoryRouter(createRoutes({ showKit: config.showKit ?? true }), { initialEntries: [path] });
+  const router = createMemoryRouter(createRoutes({ showKit: config.showKit ?? true }), {
+    initialEntries: [path],
+  });
   const queryClient = createQueryClient();
   const user = userEvent.setup();
   const utils = render(
