@@ -28,7 +28,8 @@ export const servicesPresets = [
     category: "services",
     name: "image-cards",
     label: "Three services with photos",
-    description: "A heading and three service cards, each with a photo, short description and link.",
+    description:
+      "A heading and three service cards, each with a photo, short description and link.",
     copy: [
       headline,
       intro,
@@ -58,7 +59,9 @@ export const servicesPresets = [
                 image: photo("gardenTrowel", 400, "4:5"),
                 heading: "Garden consultations",
                 body: rt.doc(
-                  rt.p("Two hours on site with a designer, a written plan and a plant list you can take to any nursery."),
+                  rt.p(
+                    "Two hours on site with a designer, a written plan and a plant list you can take to any nursery.",
+                  ),
                 ),
                 link: url("/services/consultations"),
                 linkLabel: "About consultations",
@@ -67,7 +70,9 @@ export const servicesPresets = [
                 image: photo("seedlings", 400, "4:5"),
                 heading: "Planting design",
                 body: rt.doc(
-                  rt.p("Borders, meadows and pots planned for year-round interest and very little watering."),
+                  rt.p(
+                    "Borders, meadows and pots planned for year-round interest and very little watering.",
+                  ),
                 ),
                 link: url("/services/planting"),
                 linkLabel: "About planting",
@@ -76,7 +81,9 @@ export const servicesPresets = [
                 image: photo("porchHouse", 400, "4:5"),
                 heading: "Full garden builds",
                 body: rt.doc(
-                  rt.p("Design, landscaping and planting by our own crew, with a season of aftercare included."),
+                  rt.p(
+                    "Design, landscaping and planting by our own crew, with a season of aftercare included.",
+                  ),
                 ),
                 link: url("/services/builds"),
                 linkLabel: "About garden builds",
@@ -121,20 +128,41 @@ export const servicesPresets = [
               {
                 title: "Cuts",
                 items: [
-                  { name: "Restyle cut", description: "Consultation, wash, cut and finish.", price: "85", dietary: [] },
-                  { name: "Trim & tidy", description: "Keeping your current shape fresh.", price: "60", dietary: [] },
+                  {
+                    name: "Restyle cut",
+                    description: "Consultation, wash, cut and finish.",
+                    price: "85",
+                    dietary: [],
+                  },
+                  {
+                    name: "Trim & tidy",
+                    description: "Keeping your current shape fresh.",
+                    price: "60",
+                    dietary: [],
+                  },
                   { name: "Short cut & clipper work", price: "45", dietary: [] },
                 ],
               },
               {
                 title: "Colour",
                 items: [
-                  { name: "Full head colour", description: "Includes a toner and gloss.", price: "from 120", dietary: [] },
-                  { name: "Balayage", description: "Hand-painted, soft grow-out.", price: "from 190", dietary: [] },
+                  {
+                    name: "Full head colour",
+                    description: "Includes a toner and gloss.",
+                    price: "from 120",
+                    dietary: [],
+                  },
+                  {
+                    name: "Balayage",
+                    description: "Hand-painted, soft grow-out.",
+                    price: "from 190",
+                    dietary: [],
+                  },
                 ],
               },
             ],
-            footnote: "Prices vary with hair length and thickness — we'll always confirm before we start.",
+            footnote:
+              "Prices vary with hair length and thickness — we'll always confirm before we start.",
           },
           { col: 1, variant: "minimal" },
         ),
@@ -171,12 +199,32 @@ export const servicesPresets = [
           {
             columns: "3",
             items: [
-              { icon: "wrench", title: "Repairs", text: "Dripping taps, sticking doors and everything in between." },
-              { icon: "zap", title: "Electrical", text: "Lights, sockets and safety checks by certified electricians." },
+              {
+                icon: "wrench",
+                title: "Repairs",
+                text: "Dripping taps, sticking doors and everything in between.",
+              },
+              {
+                icon: "zap",
+                title: "Electrical",
+                text: "Lights, sockets and safety checks by certified electricians.",
+              },
               { icon: "waves", title: "Plumbing", text: "Leaks, boilers and bathroom refits." },
-              { icon: "brush", title: "Decorating", text: "Interior painting with low-odour, eco paints." },
-              { icon: "home", title: "Carpentry", text: "Shelves, built-in wardrobes and garden decking." },
-              { icon: "shield-check", title: "Maintenance plans", text: "Twice-yearly visits so small problems stay small." },
+              {
+                icon: "brush",
+                title: "Decorating",
+                text: "Interior painting with low-odour, eco paints.",
+              },
+              {
+                icon: "home",
+                title: "Carpentry",
+                text: "Shelves, built-in wardrobes and garden decking.",
+              },
+              {
+                icon: "shield-check",
+                title: "Maintenance plans",
+                text: "Twice-yearly visits so small problems stay small.",
+              },
             ],
           },
           { variant: "tiles" },
@@ -254,15 +302,27 @@ export const servicesPresets = [
             items: [
               {
                 heading: "A free first call",
-                body: rt.doc(rt.p("Thirty minutes to talk through what you need, your timeline and your budget.")),
+                body: rt.doc(
+                  rt.p(
+                    "Thirty minutes to talk through what you need, your timeline and your budget.",
+                  ),
+                ),
               },
               {
                 heading: "A fixed-price proposal",
-                body: rt.doc(rt.p("Within a week you'll have a clear scope, a schedule and one price — no hourly surprises.")),
+                body: rt.doc(
+                  rt.p(
+                    "Within a week you'll have a clear scope, a schedule and one price — no hourly surprises.",
+                  ),
+                ),
               },
               {
                 heading: "Design, build, launch",
-                body: rt.doc(rt.p("We share progress every Friday and hand over a site your team can edit on day one.")),
+                body: rt.doc(
+                  rt.p(
+                    "We share progress every Friday and hand over a site your team can edit on day one.",
+                  ),
+                ),
               },
             ],
           },
@@ -300,21 +360,31 @@ export const servicesPresets = [
               {
                 label: "Individual",
                 content: rt.doc(
-                  rt.p("Weekly one-to-one sessions for anxiety, low mood, grief and life transitions."),
-                  rt.ul("Free 15-minute introduction call", "Evening appointments available", "$140 per session, sliding scale on request"),
+                  rt.p(
+                    "Weekly one-to-one sessions for anxiety, low mood, grief and life transitions.",
+                  ),
+                  rt.ul(
+                    "Free 15-minute introduction call",
+                    "Evening appointments available",
+                    "$140 per session, sliding scale on request",
+                  ),
                 ),
               },
               {
                 label: "Couples",
                 content: rt.doc(
-                  rt.p("A calm space to untangle communication, conflict and big decisions together."),
+                  rt.p(
+                    "A calm space to untangle communication, conflict and big decisions together.",
+                  ),
                   rt.ul("Seventy-minute sessions", "In person or online", "$190 per session"),
                 ),
               },
               {
                 label: "Groups",
                 content: rt.doc(
-                  rt.p("Eight-week closed groups on burnout and on new parenthood, capped at eight people."),
+                  rt.p(
+                    "Eight-week closed groups on burnout and on new parenthood, capped at eight people.",
+                  ),
                   rt.ul("Tuesday evenings", "$360 for the full course"),
                 ),
               },
@@ -376,8 +446,13 @@ export const servicesPresets = [
     category: "services",
     name: "accordion-detail",
     label: "Services with expandable detail",
-    description: "A heading and action on the left; services that expand to show detail on the right.",
-    copy: [headline, intro, copy.items("service", "Service name", "accordion", "items", "question", 1, 8)],
+    description:
+      "A heading and action on the left; services that expand to show detail on the right.",
+    copy: [
+      headline,
+      intro,
+      copy.items("service", "Service name", "accordion", "items", "question", 1, 8),
+    ],
     defaultTheme: "light",
     tags: ["accordion", "two-column", "detail"],
     links: { primary: "/contact" },
@@ -404,19 +479,35 @@ export const servicesPresets = [
             items: [
               {
                 question: "Starting a business",
-                answer: rt.doc(rt.p("Company formation, shareholder agreements and the terms of business you'll use every day.")),
+                answer: rt.doc(
+                  rt.p(
+                    "Company formation, shareholder agreements and the terms of business you'll use every day.",
+                  ),
+                ),
               },
               {
                 question: "Contracts & terms",
-                answer: rt.doc(rt.p("Supplier, client and freelancer contracts drafted or reviewed within five working days.")),
+                answer: rt.doc(
+                  rt.p(
+                    "Supplier, client and freelancer contracts drafted or reviewed within five working days.",
+                  ),
+                ),
               },
               {
                 question: "Employment",
-                answer: rt.doc(rt.p("Contracts, handbooks and calm, practical support when things get difficult.")),
+                answer: rt.doc(
+                  rt.p(
+                    "Contracts, handbooks and calm, practical support when things get difficult.",
+                  ),
+                ),
               },
               {
                 question: "Leases & property",
-                answer: rt.doc(rt.p("Commercial leases negotiated and reviewed before you sign, so there are no surprises later.")),
+                answer: rt.doc(
+                  rt.p(
+                    "Commercial leases negotiated and reviewed before you sign, so there are no surprises later.",
+                  ),
+                ),
               },
             ],
           },

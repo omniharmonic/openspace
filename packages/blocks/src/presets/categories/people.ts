@@ -4,7 +4,7 @@ import { logoStripBlock } from "../../blocks/logo-strip";
 import { tabsBlock } from "../../blocks/tabs";
 import { teamBlock } from "../../blocks/team";
 import { type PhotoKey, photo } from "../images";
-import { button, copy, definePreset, grid, heading, image, make, r, rt, stack, text, url } from "../kit";
+import { button, copy, definePreset, grid, heading, image, make, r, rt, stack, text } from "../kit";
 
 /** FAQ, team, stats and logos presets. */
 
@@ -14,7 +14,12 @@ const FAQ_AVOID =
   "Inventing policies, guarantees or prices; answers longer than a short paragraph; more than ten questions in one list.";
 
 const qa = (question: string, answer: string) => ({ question, answer: rt.doc(rt.p(answer)) });
-const accordion = (items: ReturnType<typeof qa>[], variant: string, col?: number, openFirst = false) =>
+const accordion = (
+  items: ReturnType<typeof qa>[],
+  variant: string,
+  col?: number,
+  openFirst = false,
+) =>
   make(
     accordionBlock,
     { items, exclusive: false, openFirst, faqSchema: true },
@@ -22,10 +27,22 @@ const accordion = (items: ReturnType<typeof qa>[], variant: string, col?: number
   );
 
 const VISIT_FAQ = [
-  qa("Do I need to book?", "We keep half the tables for walk-ins. For groups of six or more, please book ahead."),
-  qa("Do you cater for allergies?", "Yes. Tell your server and the kitchen will walk you through every dish. Most of the menu can be made gluten-free."),
-  qa("Is there parking?", "There's free street parking after 6pm and a public lot two minutes' walk away on Ash Street."),
-  qa("Can I bring my dog?", "Well-behaved dogs are very welcome on the patio, and there's always a water bowl by the door."),
+  qa(
+    "Do I need to book?",
+    "We keep half the tables for walk-ins. For groups of six or more, please book ahead.",
+  ),
+  qa(
+    "Do you cater for allergies?",
+    "Yes. Tell your server and the kitchen will walk you through every dish. Most of the menu can be made gluten-free.",
+  ),
+  qa(
+    "Is there parking?",
+    "There's free street parking after 6pm and a public lot two minutes' walk away on Ash Street.",
+  ),
+  qa(
+    "Can I bring my dog?",
+    "Well-behaved dogs are very welcome on the patio, and there's always a water bowl by the door.",
+  ),
 ];
 
 const person = (name: string, role: string, face: PhotoKey, bio?: string, w = 320) => ({
@@ -80,10 +97,22 @@ export const faqPresets = [
         heading("Questions about your first class", { align: "center", eyebrow: "New students" }),
         accordion(
           [
-            qa("I've never done yoga. Is that OK?", "Absolutely. Foundations classes are designed for complete beginners, and every teacher offers options for every pose."),
-            qa("What should I bring?", "Just comfortable clothes and water. Mats, blocks and blankets are provided."),
-            qa("How early should I arrive?", "Ten minutes before your first class, so we can show you around and ask about any injuries."),
-            qa("Can I cancel a booking?", "Yes, up to four hours before class without losing your credit."),
+            qa(
+              "I've never done yoga. Is that OK?",
+              "Absolutely. Foundations classes are designed for complete beginners, and every teacher offers options for every pose.",
+            ),
+            qa(
+              "What should I bring?",
+              "Just comfortable clothes and water. Mats, blocks and blankets are provided.",
+            ),
+            qa(
+              "How early should I arrive?",
+              "Ten minutes before your first class, so we can show you around and ask about any injuries.",
+            ),
+            qa(
+              "Can I cancel a booking?",
+              "Yes, up to four hours before class without losing your credit.",
+            ),
           ],
           "minimal",
         ),
@@ -110,13 +139,26 @@ export const faqPresets = [
         heading("Ordering and delivery", { align: "center", eyebrow: "Help" }),
         accordion(
           [
-            qa("How long does delivery take?", "Orders placed before noon ship the same day. Most arrive within two to three working days."),
-            qa("Can I return something?", "Yes, within 30 days in its original condition. Return postage is on us."),
-            qa("Do you ship internationally?", "We ship to Canada, the UK and the EU. Duties are calculated at checkout."),
+            qa(
+              "How long does delivery take?",
+              "Orders placed before noon ship the same day. Most arrive within two to three working days.",
+            ),
+            qa(
+              "Can I return something?",
+              "Yes, within 30 days in its original condition. Return postage is on us.",
+            ),
+            qa(
+              "Do you ship internationally?",
+              "We ship to Canada, the UK and the EU. Duties are calculated at checkout.",
+            ),
           ],
           "cards",
         ),
-        button("Ask us anything", c.primary, { role: "secondary", align: "center", note: "We reply within one working day." }),
+        button("Ask us anything", c.primary, {
+          role: "secondary",
+          align: "center",
+          note: "We reply within one working day.",
+        }),
       ],
     }),
   }),
@@ -147,7 +189,9 @@ export const faqPresets = [
                 label: "Booking",
                 content: rt.doc(
                   rt.h(3, "How do I book a stay?", "h4"),
-                  rt.p("Choose your dates on the availability calendar and pay a 30% deposit to confirm."),
+                  rt.p(
+                    "Choose your dates on the availability calendar and pay a 30% deposit to confirm.",
+                  ),
                   rt.h(3, "Can I change my dates?", "h4"),
                   rt.p("Free of charge up to 30 days before arrival, subject to availability."),
                 ),
@@ -156,7 +200,9 @@ export const faqPresets = [
                 label: "Your stay",
                 content: rt.doc(
                   rt.h(3, "What time is check-in?", "h4"),
-                  rt.p("From 4pm. Check-out is at 11am, and late check-out is often possible on Sundays."),
+                  rt.p(
+                    "From 4pm. Check-out is at 11am, and late check-out is often possible on Sundays.",
+                  ),
                   rt.h(3, "Is breakfast included?", "h4"),
                   rt.p("Yes — a basket of local bread, eggs and fruit is waiting in the kitchen."),
                 ),
@@ -165,7 +211,9 @@ export const faqPresets = [
                 label: "Getting here",
                 content: rt.doc(
                   rt.h(3, "Do I need a car?", "h4"),
-                  rt.p("It helps. The nearest station is twenty minutes away, and we can arrange a taxi."),
+                  rt.p(
+                    "It helps. The nearest station is twenty minutes away, and we can arrange a taxi.",
+                  ),
                 ),
               },
             ],
@@ -177,7 +225,8 @@ export const faqPresets = [
   }),
 ];
 
-const TEAM_AVOID = "Inventing staff, titles or qualifications; photos of people who don't work there.";
+const TEAM_AVOID =
+  "Inventing staff, titles or qualifications; photos of people who don't work there.";
 
 export const teamPresets = [
   definePreset({
@@ -274,8 +323,20 @@ export const teamPresets = [
           {
             columns: "2",
             people: [
-              person("Dr Nina Alvarez", "Clinical director", "portraitNina", "Nina has treated runners, dancers and desk-bound backs for fifteen years. She specialises in knee and hip rehabilitation and still runs the trails every Sunday.", 220),
-              person("Marcus Bell", "Sports physiotherapist", "portraitMarcus", "Marcus works with the county rugby club and leads our return-to-sport programme. Ask him about the stretch that fixed his own shoulder.", 220),
+              person(
+                "Dr Nina Alvarez",
+                "Clinical director",
+                "portraitNina",
+                "Nina has treated runners, dancers and desk-bound backs for fifteen years. She specialises in knee and hip rehabilitation and still runs the trails every Sunday.",
+                220,
+              ),
+              person(
+                "Marcus Bell",
+                "Sports physiotherapist",
+                "portraitMarcus",
+                "Marcus works with the county rugby club and leads our return-to-sport programme. Ask him about the stretch that fixed his own shoulder.",
+                220,
+              ),
             ],
           },
           { variant: "list" },
@@ -361,8 +422,13 @@ export const statsPresets = [
     category: "stats",
     name: "cards",
     label: "Numbers on cards",
-    description: "A heading and introduction beside numbers on cards, each with a short explanation.",
-    copy: [headline, copy.sub(6, 30), copy.items("detail", "Stat detail", "stats", "items", "detail", 4, 20)],
+    description:
+      "A heading and introduction beside numbers on cards, each with a short explanation.",
+    copy: [
+      headline,
+      copy.sub(6, 30),
+      copy.items("detail", "Stat detail", "stats", "items", "detail", 4, 20),
+    ],
     defaultTheme: "light",
     tags: ["numbers", "cards", "two-column"],
     ai: {
@@ -382,9 +448,21 @@ export const statsPresets = [
           statsBlock,
           {
             items: [
-              { value: "87%", label: "Pain-free at six months", detail: "Self-reported by clients with chronic back pain." },
-              { value: "9 / 10", label: "Back to their sport", detail: "Athletes returning within the expected timeline." },
-              { value: "6", label: "Average sessions", detail: "Most people need fewer than they expect." },
+              {
+                value: "87%",
+                label: "Pain-free at six months",
+                detail: "Self-reported by clients with chronic back pain.",
+              },
+              {
+                value: "9 / 10",
+                label: "Back to their sport",
+                detail: "Athletes returning within the expected timeline.",
+              },
+              {
+                value: "6",
+                label: "Average sessions",
+                detail: "Most people need fewer than they expect.",
+              },
             ],
           },
           { col: 1, variant: "cards" },
@@ -428,7 +506,8 @@ export const statsPresets = [
   }),
 ];
 
-const LOGO_AVOID = "Logos of companies or publications that never worked with or covered the business.";
+const LOGO_AVOID =
+  "Logos of companies or publications that never worked with or covered the business.";
 const logos = (...names: string[]) => names.map((name) => ({ name }));
 
 export const logosPresets = [
@@ -451,7 +530,17 @@ export const logosPresets = [
       blocks: [
         make(
           logoStripBlock,
-          { label: "Trusted by teams at", logos: logos("Northwind Co-op", "Harbor Mutual", "Juniper & Vale", "Clearwater Labs", "Oak Street Books"), monochrome: true },
+          {
+            label: "Trusted by teams at",
+            logos: logos(
+              "Northwind Co-op",
+              "Harbor Mutual",
+              "Juniper & Vale",
+              "Clearwater Labs",
+              "Oak Street Books",
+            ),
+            monochrome: true,
+          },
           { variant: "row" },
         ),
       ],
@@ -483,7 +572,16 @@ export const logosPresets = [
           logoStripBlock,
           {
             label: undefined,
-            logos: logos("Mesa Market", "The Corner Larder", "Adobe Grocery", "Rio Fresh", "Sunbelt Deli", "High Desert Co-op", "Plaza Provisions", "Green Chile Store"),
+            logos: logos(
+              "Mesa Market",
+              "The Corner Larder",
+              "Adobe Grocery",
+              "Rio Fresh",
+              "Sunbelt Deli",
+              "High Desert Co-op",
+              "Plaza Provisions",
+              "Green Chile Store",
+            ),
             monochrome: true,
           },
           { variant: "grid" },
@@ -513,7 +611,14 @@ export const logosPresets = [
           logoStripBlock,
           {
             label: "In the press",
-            logos: logos("The Weekend Paper", "Craft & Table", "City Living", "Good Design Daily", "Maker Monthly", "The Local Gazette"),
+            logos: logos(
+              "The Weekend Paper",
+              "Craft & Table",
+              "City Living",
+              "Good Design Daily",
+              "Maker Monthly",
+              "The Local Gazette",
+            ),
             monochrome: true,
           },
           { variant: "marquee" },

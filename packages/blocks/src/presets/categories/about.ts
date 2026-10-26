@@ -100,7 +100,7 @@ export const aboutPresets = [
       avoid: AVOID,
     },
     make: (c) => {
-      const pic = image(photo("portraitNina", 560));
+      const pic = image(photo("portraitNina", 480));
       const panel = text(
         [
           rt.p("About Dana", "eyebrow"),
@@ -108,7 +108,9 @@ export const aboutPresets = [
           rt.p(
             "I spent twelve years as a tax accountant before opening my own practice. Now I help freelancers and families get organised, file on time and stop dreading the post.",
           ),
-          rt.p("Most clients tell me the first meeting felt like a weight lifting. That's the goal."),
+          rt.p(
+            "Most clients tell me the first meeting felt like a weight lifting. That's the goal.",
+          ),
         ],
         { style: { colorTheme: c.theme, padding: { d: "xl", m: "md" } } },
       );
@@ -180,10 +182,7 @@ export const aboutPresets = [
     name: "values",
     label: "Values",
     description: "A centred heading with three values as icon tiles.",
-    copy: [
-      headline,
-      copy.items("value", "Value description", "icon-list", "items", "text", 8, 30),
-    ],
+    copy: [headline, copy.items("value", "Value description", "icon-list", "items", "text", 8, 30)],
     defaultTheme: "light-accent",
     tags: ["icons", "values", "centered"],
     ai: {

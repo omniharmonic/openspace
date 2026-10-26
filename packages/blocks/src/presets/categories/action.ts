@@ -1,3 +1,4 @@
+import { type Form, newId } from "@openspace/schema";
 import { contactInfoBlock, hoursBlock } from "../../blocks/business";
 import { iconListBlock } from "../../blocks/card";
 import { donationBlock } from "../../blocks/commerce";
@@ -5,7 +6,6 @@ import { countdownBlock } from "../../blocks/countdown";
 import { formBlock } from "../../blocks/form";
 import { mapBlock } from "../../blocks/map";
 import { newsletterBlock } from "../../blocks/newsletter";
-import { newId, type Form } from "@openspace/schema";
 import { photo } from "../images";
 import {
   button,
@@ -143,7 +143,9 @@ export const ctaPresets = [
       const card = text(
         [
           rt.h(2, "Give two hours a month", "h2"),
-          rt.p("Sort donations, drive deliveries or cook with us on Saturdays. Training and lunch are on us."),
+          rt.p(
+            "Sort donations, drive deliveries or cook with us on Saturdays. Training and lunch are on us.",
+          ),
         ],
         { style: { colorTheme: c.theme, padding: { d: "xl", m: "md" } } },
       );
@@ -246,7 +248,12 @@ export const ctaPresets = [
 
 // --- contact ------------------------------------------------------------------------------------
 
-const contactForm = (name: string, fields: Form["fields"], submitLabel: string, message: string): Form => ({
+const contactForm = (
+  name: string,
+  fields: Form["fields"],
+  submitLabel: string,
+  message: string,
+): Form => ({
   id: newId("frm"),
   name,
   fields,
@@ -262,7 +269,12 @@ const hours = (open: string, close: string, weekendOpen?: string, weekendClose?:
   (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const).map((day) => {
     const weekend = day === "sat" || day === "sun";
     if (weekend && !weekendOpen) return { day, closed: true };
-    return { day, opens: weekend ? weekendOpen : open, closes: weekend ? weekendClose : close, closed: false };
+    return {
+      day,
+      opens: weekend ? weekendOpen : open,
+      closes: weekend ? weekendClose : close,
+      closed: false,
+    };
   });
 
 export const contactPresets = [
@@ -309,8 +321,20 @@ export const contactPresets = [
               [
                 { type: "text", name: "name", label: "Your name", required: true, width: "half" },
                 { type: "email", name: "email", label: "Email", required: true, width: "half" },
-                { type: "select", name: "budget", label: "Rough budget", width: "full", options: ["Under $5,000", "$5,000 – $15,000", "$15,000+", "Not sure yet"] },
-                { type: "textarea", name: "message", label: "What are you working on?", required: true, maxLength: 3000 },
+                {
+                  type: "select",
+                  name: "budget",
+                  label: "Rough budget",
+                  width: "full",
+                  options: ["Under $5,000", "$5,000 – $15,000", "$15,000+", "Not sure yet"],
+                },
+                {
+                  type: "textarea",
+                  name: "message",
+                  label: "What are you working on?",
+                  required: true,
+                  maxLength: 3000,
+                },
               ],
               "Send enquiry",
               "Thanks — we've got your message and will be in touch within two working days.",
@@ -356,7 +380,12 @@ export const contactPresets = [
         heading("Come and see us", { col: 1, eyebrow: "Visit" }),
         make(
           hoursBlock,
-          { heading: "Opening hours", headingLevel: "h3", rows: hours("07:00", "15:00", "08:00", "14:00"), note: "The ovens fire at 4am — loaves are usually gone by noon on Saturdays." },
+          {
+            heading: "Opening hours",
+            headingLevel: "h3",
+            rows: hours("07:00", "15:00", "08:00", "14:00"),
+            note: "The ovens fire at 4am — loaves are usually gone by noon on Saturdays.",
+          },
           { col: 1, variant: "compact" },
         ),
         make(
@@ -394,7 +423,12 @@ export const contactPresets = [
       const pic = image(photo("cafeInterior", 960));
       const card = make(
         hoursBlock,
-        { heading: "Opening hours", headingLevel: "h2", rows: hours("07:30", "17:00", "08:30", "16:00"), note: "Kitchen closes 30 minutes before the doors." },
+        {
+          heading: "Opening hours",
+          headingLevel: "h2",
+          rows: hours("07:30", "17:00", "08:30", "16:00"),
+          note: "Kitchen closes 30 minutes before the doors.",
+        },
         { variant: "card", style: { colorTheme: c.theme, padding: { d: "lg", m: "md" } } },
       );
       const info = make(
@@ -488,9 +522,26 @@ export const contactPresets = [
               [
                 { type: "text", name: "name", label: "Name", required: true, width: "half" },
                 { type: "email", name: "email", label: "Email", required: true, width: "half" },
-                { type: "date", name: "date", label: "Preferred date", required: true, width: "half" },
-                { type: "select", name: "guests", label: "Number of guests", width: "half", options: ["8 – 12", "13 – 18", "19 – 24"] },
-                { type: "textarea", name: "occasion", label: "Tell us about the occasion", maxLength: 2000 },
+                {
+                  type: "date",
+                  name: "date",
+                  label: "Preferred date",
+                  required: true,
+                  width: "half",
+                },
+                {
+                  type: "select",
+                  name: "guests",
+                  label: "Number of guests",
+                  width: "half",
+                  options: ["8 – 12", "13 – 18", "19 – 24"],
+                },
+                {
+                  type: "textarea",
+                  name: "occasion",
+                  label: "Tell us about the occasion",
+                  maxLength: 2000,
+                },
               ],
               "Send request",
               "Thank you — we'll be in touch within one day with menus and availability.",
@@ -521,12 +572,30 @@ export const contactPresets = [
         heading("Two shops, same bread", { col: 0, eyebrow: "Locations" }),
         make(
           contactInfoBlock,
-          { heading: "Old Town", headingLevel: "h3", name: undefined, address: "418 Linden Street\nFort Collins, CO 80524", phone: "+1 (970) 555-0163", email: undefined, directions: true, note: "Seating for twenty, plus the patio." },
+          {
+            heading: "Old Town",
+            headingLevel: "h3",
+            name: undefined,
+            address: "418 Linden Street\nFort Collins, CO 80524",
+            phone: "+1 (970) 555-0163",
+            email: undefined,
+            directions: true,
+            note: "Seating for twenty, plus the patio.",
+          },
           { col: 0, variant: "card" },
         ),
         make(
           contactInfoBlock,
-          { heading: "Midtown", headingLevel: "h3", name: undefined, address: "2601 College Avenue\nFort Collins, CO 80525", phone: "+1 (970) 555-0171", email: undefined, directions: true, note: "Takeaway only, with parking out front." },
+          {
+            heading: "Midtown",
+            headingLevel: "h3",
+            name: undefined,
+            address: "2601 College Avenue\nFort Collins, CO 80525",
+            phone: "+1 (970) 555-0171",
+            email: undefined,
+            directions: true,
+            note: "Takeaway only, with parking out front.",
+          },
           { col: 1, variant: "card" },
         ),
       ],
@@ -536,9 +605,14 @@ export const contactPresets = [
 
 // --- newsletter ---------------------------------------------------------------------------------
 
-const NEWS_AVOID = "Promising perks, discounts or a schedule the owner hasn't confirmed; asking for more than an email.";
+const NEWS_AVOID =
+  "Promising perks, discounts or a schedule the owner hasn't confirmed; asking for more than an email.";
 
-const signup = (fields: Partial<Record<string, unknown>>, variant: string, extra: { col?: number; style?: object } = {}) =>
+const signup = (
+  fields: Partial<Record<string, unknown>>,
+  variant: string,
+  extra: { col?: number; style?: object } = {},
+) =>
   make(
     newsletterBlock,
     {
@@ -603,7 +677,8 @@ export const newsletterPresets = [
         signup(
           {
             heading: "Get the Sunday letter",
-            description: "One essay about slow living and good work, every Sunday morning. Read by 9,000 people.",
+            description:
+              "One essay about slow living and good work, every Sunday morning. Read by 9,000 people.",
             askName: true,
             note: "Unsubscribe any time with one click.",
           },
@@ -644,7 +719,9 @@ export const newsletterPresets = [
           },
           { col: 1, variant: "list" },
         ),
-        signup({ buttonLabel: "Join the list", note: "Twice a month. No spam, ever." }, "stacked", { col: 1 }),
+        signup({ buttonLabel: "Join the list", note: "Twice a month. No spam, ever." }, "stacked", {
+          col: 1,
+        }),
       ],
     }),
   }),

@@ -18,7 +18,15 @@ const featureCard = (
 ) =>
   make(
     cardBlock,
-    { image: undefined, eyebrow: undefined, icon, heading, body: rt.doc(rt.p(body)), link: undefined, linkLabel: undefined },
+    {
+      image: undefined,
+      eyebrow: undefined,
+      icon,
+      heading,
+      body: rt.doc(rt.p(body)),
+      link: undefined,
+      linkLabel: undefined,
+    },
     { col, variant: "minimal", ...(theme ? { style: { colorTheme: theme } } : {}) },
   );
 
@@ -48,10 +56,22 @@ export const featuresPresets = [
           {
             columns: "4",
             items: [
-              { icon: "users", title: "Four per class", text: "Every child gets time with the teacher." },
+              {
+                icon: "users",
+                title: "Four per class",
+                text: "Every child gets time with the teacher.",
+              },
               { icon: "sun", title: "Warm water", text: "Our pool is kept at a cosy 32°C." },
-              { icon: "calendar", title: "Flexible makeups", text: "Missed a lesson? Swap it for another day." },
-              { icon: "award", title: "Qualified teachers", text: "Certified, first-aid trained and patient." },
+              {
+                icon: "calendar",
+                title: "Flexible makeups",
+                text: "Missed a lesson? Swap it for another day.",
+              },
+              {
+                icon: "award",
+                title: "Qualified teachers",
+                text: "Certified, first-aid trained and patient.",
+              },
             ],
           },
           { variant: "tiles" },
@@ -116,7 +136,8 @@ export const featuresPresets = [
       avoid: AVOID,
     },
     make: (c) => {
-      const panel = c.theme === "light" ? "light-accent" : c.theme === "light-accent" ? "light" : undefined;
+      const panel =
+        c.theme === "light" ? "light-accent" : c.theme === "light-accent" ? "light" : undefined;
       return {
         layout: stack({ cols: [4, 4, 4], gap: "md" }),
         blocks: [
@@ -124,10 +145,34 @@ export const featuresPresets = [
             col: 0,
             eyebrow: "Features",
           }),
-          featureCard("calendar", "Two-way calendar sync", "Works with Google, Outlook and Apple calendars, so you're never double-booked.", 1, panel),
-          featureCard("message-circle", "Friendly reminders", "Clients get a text the day before. No-shows drop by half on average.", 2, panel),
-          featureCard("lock", "Deposits, not chasing", "Take a deposit when someone books and refund it automatically if they cancel in time.", 1, panel),
-          featureCard("globe", "Your brand, your link", "A booking page on your own domain, in your colours, with no ads.", 2, panel),
+          featureCard(
+            "calendar",
+            "Two-way calendar sync",
+            "Works with Google, Outlook and Apple calendars, so you're never double-booked.",
+            1,
+            panel,
+          ),
+          featureCard(
+            "message-circle",
+            "Friendly reminders",
+            "Clients get a text the day before. No-shows drop by half on average.",
+            2,
+            panel,
+          ),
+          featureCard(
+            "lock",
+            "Deposits, not chasing",
+            "Take a deposit when someone books and refund it automatically if they cancel in time.",
+            1,
+            panel,
+          ),
+          featureCard(
+            "globe",
+            "Your brand, your link",
+            "A booking page on your own domain, in your colours, with no ads.",
+            2,
+            panel,
+          ),
         ],
       };
     },
@@ -137,7 +182,8 @@ export const featuresPresets = [
     category: "features",
     name: "screenshot-callout",
     label: "Photo with floating stats",
-    description: "A wide photograph with a stats card layered over one corner, beside the benefit copy.",
+    description:
+      "A wide photograph with a stats card layered over one corner, beside the benefit copy.",
     copy: [headline, copy.body(15, 70)],
     images: [{ slot: "photo", aspect: "fill" }],
     tags: ["image", "grid", "overlap", "stats"],
@@ -157,7 +203,13 @@ export const featuresPresets = [
             { value: "98%", label: "On-time invoices" },
           ],
         },
-        { variant: "row", style: { colorTheme: c.theme === "dark" ? "light" : "dark", padding: { d: "md", m: "sm" } } },
+        {
+          variant: "row",
+          style: {
+            colorTheme: c.theme === "dark" ? "light" : "dark",
+            padding: { d: "md", m: "sm" },
+          },
+        },
       );
       const words = heading("See your whole week at a glance", { eyebrow: "Reporting" });
       const body = text([
@@ -194,11 +246,32 @@ export const featuresPresets = [
     },
     make: (c) => {
       const panel = c.theme === "light" ? "light-accent" : "light";
-      const intro2 = heading("A café kit that does the thinking", { eyebrow: "Inside the box", size: "h2" });
-      const big = featureCard("coffee", "Fresh beans every fortnight", "Roasted on Monday, at your door by Wednesday. Pause or swap blends whenever you like.", 0, "dark-accent");
+      const intro2 = heading("A café kit that does the thinking", {
+        eyebrow: "Inside the box",
+        size: "h2",
+      });
+      const big = featureCard(
+        "coffee",
+        "Fresh beans every fortnight",
+        "Roasted on Monday, at your door by Wednesday. Pause or swap blends whenever you like.",
+        0,
+        "dark-accent",
+      );
       const pic = image(photo("pourOver", 520));
-      const a = featureCard("recycle", "Zero-waste packaging", "Compostable bags and a return label for the tins.", 0, panel);
-      const b = featureCard("book-open", "Brew guides", "Short cards for every method, from moka pot to pour-over.", 0, panel);
+      const a = featureCard(
+        "recycle",
+        "Zero-waste packaging",
+        "Compostable bags and a return label for the tins.",
+        0,
+        panel,
+      );
+      const b = featureCard(
+        "book-open",
+        "Brew guides",
+        "Short cards for every method, from moka pot to pour-over.",
+        0,
+        panel,
+      );
       return {
         ...grid([
           [intro2, r(1, 1, 10, 6), r(1, 1, 8, 5)],

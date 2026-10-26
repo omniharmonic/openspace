@@ -2,13 +2,31 @@ import { columnsBlock } from "../../blocks/card";
 import { beforeAfterBlock } from "../../blocks/compare";
 import { galleryBlock } from "../../blocks/gallery";
 import { type CropAspect, type PhotoKey, photo } from "../images";
-import { button, copy, definePreset, grid, heading, image, make, r, rt, stack, text, url } from "../kit";
+import {
+  button,
+  copy,
+  definePreset,
+  grid,
+  heading,
+  image,
+  make,
+  r,
+  rt,
+  stack,
+  text,
+  url,
+} from "../kit";
 
 const headline = copy.headline(1, 10, 2);
 const AVOID =
   "Mixing photos of very different quality or colour; images without alt text; more than twenty photos in one section.";
 
-const shots = (keys: PhotoKey[], width: number, aspect: CropAspect = "original", captions?: string[]) =>
+const shots = (
+  keys: PhotoKey[],
+  width: number,
+  aspect: CropAspect = "original",
+  captions?: string[],
+) =>
   keys.map((k, i) => ({
     image: photo(k, width, aspect),
     ...(captions?.[i] ? { caption: captions[i] } : {}),
@@ -81,7 +99,15 @@ export const galleryPresets = [
         heading("Recent commissions", { eyebrow: "Portfolio", align: "center" }),
         gallery(
           shots(
-            ["portraitClara", "weddingHands", "portraitTheo", "weddingAisle", "portraitAna", "friendsSunset", "portraitSam"],
+            [
+              "portraitClara",
+              "weddingHands",
+              "portraitTheo",
+              "weddingAisle",
+              "portraitAna",
+              "friendsSunset",
+              "portraitSam",
+            ],
             460,
           ),
           "masonry",
@@ -112,7 +138,14 @@ export const galleryPresets = [
             ["livingRoom", "bohoLounge", "yellowChair", "greenSofa", "kitchen", "loungePlants"],
             420,
             "4:5",
-            ["The garden lounge", "The rust room", "Reading corner", "The green room", "Shared kitchen", "Library"],
+            [
+              "The garden lounge",
+              "The rust room",
+              "Reading corner",
+              "The green room",
+              "Shared kitchen",
+              "Library",
+            ],
           ),
           "carousel",
           { aspect: "4:5", captions: true },
@@ -138,7 +171,11 @@ export const galleryPresets = [
     make: () => ({
       layout: stack({ width: "wide" }),
       padding: { d: "lg", m: "md" },
-      blocks: [gallery(shots(["lake", "mountainLake", "valley", "coast"], 1440, "3:2"), "slideshow", { aspect: "3:2" })],
+      blocks: [
+        gallery(shots(["lake", "mountainLake", "valley", "coast"], 1440, "3:2"), "slideshow", {
+          aspect: "3:2",
+        }),
+      ],
     }),
   }),
 
@@ -215,7 +252,9 @@ export const galleryPresets = [
       const close = image(photo("weddingHands", 420), { shadow: "lg" });
       const words = heading("Flowers for the Hartley wedding", { eyebrow: "Recent work" });
       const body = text([
-        rt.p("Dahlias, garden roses and wild grasses from three local growers, arranged the morning of the ceremony."),
+        rt.p(
+          "Dahlias, garden roses and wild grasses from three local growers, arranged the morning of the ceremony.",
+        ),
       ]);
       return {
         ...grid([
@@ -252,7 +291,9 @@ export const galleryPresets = [
         [
           rt.p("Project · 2025", "eyebrow"),
           rt.h(2, "The Palm House", "h2"),
-          rt.p("A 1960s bungalow opened up to the garden, with a new pool pavilion and a roof that collects every drop of rain."),
+          rt.p(
+            "A 1960s bungalow opened up to the garden, with a new pool pavilion and a roof that collects every drop of rain.",
+          ),
         ],
         { style: { colorTheme: c.theme, padding: { d: "lg", m: "md" } } },
       );

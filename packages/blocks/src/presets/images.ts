@@ -599,12 +599,7 @@ export const PHOTOS = {
     1705,
     "Sunlight falling through tall trees onto a forest path",
   ),
-  cliffs: p(
-    "1470071459604-3b5ec3a7fe05",
-    7372,
-    4392,
-    "Mist rolling over green cliffs at sunrise",
-  ),
+  cliffs: p("1470071459604-3b5ec3a7fe05", 7372, 4392, "Mist rolling over green cliffs at sunrise"),
   bridge: p(
     "1447752875215-b2761acb3c5d",
     5472,
@@ -705,7 +700,11 @@ export function coverWidth(
  * (sharp on high-density screens, never above the Design check's 2× limit) and never larger
  * than the original.
  */
-export function photo(key: PhotoKey, displayWidth: number, aspect: CropAspect = "original"): ImageValue {
+export function photo(
+  key: PhotoKey,
+  displayWidth: number,
+  aspect: CropAspect = "original",
+): ImageValue {
   const ph: DemoPhoto = PHOTOS[key];
   const needed = coverWidth(ph, displayWidth, aspectValue(aspect, ph));
   const width = Math.min(ph.w, Math.max(320, Math.floor((needed * 2) / 40) * 40));

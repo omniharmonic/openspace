@@ -24,13 +24,13 @@ import {
   type CopyRule,
   type HeaderPreset,
   type ImageSlot,
+  PRESET_CATEGORIES,
   type PresetAi,
   type PresetBuildOptions,
   type PresetCategory,
   type PresetId,
   type PresetMeta,
   type SectionPreset,
-  PRESET_CATEGORIES,
 } from "./types";
 
 /** Authoring kit for section presets: terse block builders and the `definePreset` wrapper. */
@@ -54,8 +54,12 @@ export interface PlaceOpts {
  * Create a block from a definition. Fields passed as `undefined` are removed, so a block's own
  * demo defaults (its sample copy) never leak into a preset by accident.
  */
-// biome-ignore lint/suspicious/noExplicitAny: fields are checked by the definition at runtime
-export function make(def: AnyBlockDefinition, fields: Record<string, any>, o: PlaceOpts = {}): Block {
+export function make(
+  def: AnyBlockDefinition,
+  // biome-ignore lint/suspicious/noExplicitAny: fields are checked by the definition at runtime
+  fields: Record<string, any>,
+  o: PlaceOpts = {},
+): Block {
   const block = def.create({
     fields,
     ...(o.variant !== undefined ? { variant: o.variant } : {}),
@@ -230,7 +234,10 @@ export interface GridOpts {
 }
 
 /** A grid layout from placed blocks. Rows are derived from the rects. */
-export function grid(placed: Placed[], o: GridOpts = {}): { layout: SectionLayout; blocks: Block[] } {
+export function grid(
+  placed: Placed[],
+  o: GridOpts = {},
+): { layout: SectionLayout; blocks: Block[] } {
   const items: Record<string, { d: GridRect; m?: GridRect }> = {};
   let d = 1;
   let m = 1;
@@ -411,7 +418,14 @@ export const copy = {
     target: { kind: "field", block: "heading", field: "subheading" },
     words: [min, max],
   }),
-  field: (slot: string, label: string, block: string, field: string, min: number, max: number): CopyRule => ({
+  field: (
+    slot: string,
+    label: string,
+    block: string,
+    field: string,
+    min: number,
+    max: number,
+  ): CopyRule => ({
     slot,
     label,
     target: { kind: "field", block, field },
@@ -425,7 +439,12 @@ export const copy = {
     field: string,
     min: number,
     max: number,
-  ): CopyRule => ({ slot, label, target: { kind: "items", block, list, field }, words: [min, max] }),
+  ): CopyRule => ({
+    slot,
+    label,
+    target: { kind: "items", block, list, field },
+    words: [min, max],
+  }),
 };
 
 /** A theme-relative scrim for text over photographs: the section's own background color. */

@@ -68,9 +68,25 @@ describe("preset catalog", () => {
 
   it("meets the MVP count in every category", () => {
     const mvp: Record<string, number> = {
-      header: 4, hero: 6, about: 4, services: 4, features: 3, gallery: 4, testimonials: 3,
-      pricing: 1, faq: 2, team: 1, stats: 1, logos: 1, cta: 3, contact: 3, newsletter: 2,
-      blog: 1, events: 1, products: 1, footer: 3,
+      header: 4,
+      hero: 6,
+      about: 4,
+      services: 4,
+      features: 3,
+      gallery: 4,
+      testimonials: 3,
+      pricing: 1,
+      faq: 2,
+      team: 1,
+      stats: 1,
+      logos: 1,
+      cta: 3,
+      contact: 3,
+      newsletter: 2,
+      blog: 1,
+      events: 1,
+      products: 1,
+      footer: 3,
     };
     for (const [c, n] of Object.entries(mvp))
       expect(presetsIn(c as never).length, c).toBeGreaterThanOrEqual(n);
@@ -84,7 +100,10 @@ describe("preset catalog", () => {
       const s = p.build();
       if (s.layout.mode !== "grid") throw new Error(p.id);
       const rects = Object.values(s.layout.items).map((i) => i.d);
-      expect(rects.some((a, i) => rects.some((b, j) => j > i && rectsOverlap(a, b))), p.id).toBe(true);
+      expect(
+        rects.some((a, i) => rects.some((b, j) => j > i && rectsOverlap(a, b))),
+        p.id,
+      ).toBe(true);
     }
   });
 
@@ -114,7 +133,9 @@ describe("preset catalog", () => {
 
   it("demo copy is real (no lorem ipsum, no placeholders)", () => {
     const text = JSON.stringify(sectionPresets.map((p) => p.build()));
-    expect(text.match(/.{40}\b(?:lorem|ipsum|TODO|TBD|placeholder text|Juniper Yoga)\b.{20}/i)).toBeNull();
+    expect(
+      text.match(/.{40}\b(?:lorem|ipsum|TODO|TBD|placeholder text|Juniper Yoga)\b.{20}/i),
+    ).toBeNull();
   });
 });
 
@@ -139,7 +160,8 @@ describe("building", () => {
     for (const p of sectionPresets) {
       const s = p.build();
       if (s.layout.mode !== "grid") continue;
-      for (const [id, item] of Object.entries(s.layout.items)) expect(item.m, `${p.id} ${id}`).toBeDefined();
+      for (const [id, item] of Object.entries(s.layout.items))
+        expect(item.m, `${p.id} ${id}`).toBeDefined();
     }
   });
 
@@ -202,7 +224,11 @@ describe("building", () => {
 
 describe("rendering in every color theme", () => {
   const pages = COLOR_THEMES.map((t) =>
-    page(`Theme ${t}`, `theme-${t}`, sectionPresets.map((p): Section => p.build({ colorTheme: t }))),
+    page(
+      `Theme ${t}`,
+      `theme-${t}`,
+      sectionPresets.map((p): Section => p.build({ colorTheme: t })),
+    ),
   );
   const doc = siteWith(pages);
 
@@ -213,9 +239,15 @@ describe("rendering in every color theme", () => {
 
   for (const p of pages) {
     it(`${p.slug}: renders without html-validate findings`, async () => {
-      const html = renderPageHtml({ doc, pageId: p.id, mode: "production", extraHead: blocksStyleTag() });
+      const html = renderPageHtml({
+        doc,
+        pageId: p.id,
+        mode: "production",
+        extraHead: blocksStyleTag(),
+      });
       expect(html).not.toContain('class="os-block-missing"');
-      for (const s of p.sections) for (const b of s.blocks) expect(html).toContain(`data-os-id="${b.id}"`);
+      for (const s of p.sections)
+        for (const b of s.blocks) expect(html).toContain(`data-os-id="${b.id}"`);
       const report = await validator.validateString(html);
       const messages = report.results.flatMap((r) =>
         r.messages.map((m) => `${m.ruleId}: ${m.message} — ${m.selector ?? ""}`),

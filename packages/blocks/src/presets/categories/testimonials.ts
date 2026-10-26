@@ -15,7 +15,12 @@ const testimonial = (
   name: string,
   role: string,
   face: PhotoKey | undefined,
-  o: { col?: number; variant?: string; rating?: number; theme?: "light" | "light-accent" | "dark" | "dark-accent" | "brand" } = {},
+  o: {
+    col?: number;
+    variant?: string;
+    rating?: number;
+    theme?: "light" | "light-accent" | "dark" | "dark-accent" | "brand";
+  } = {},
 ) =>
   make(
     testimonialBlock,
@@ -102,7 +107,9 @@ export const testimonialsPresets = [
           testimonialBlock,
           {
             quote: rt.doc(
-              rt.p("Six months in, my back pain is gone and I actually look forward to Monday mornings. I wish I'd found this studio years ago."),
+              rt.p(
+                "Six months in, my back pain is gone and I actually look forward to Monday mornings. I wish I'd found this studio years ago.",
+              ),
             ),
             name: "Grace Liu",
             role: "Member since 2024",
@@ -137,13 +144,15 @@ export const testimonialsPresets = [
             label: "What clients say",
             quotes: [
               {
-                quote: "Our books were a mess when we found Clearwater. Now I know our numbers every Monday and tax season is boring — in the best way.",
+                quote:
+                  "Our books were a mess when we found Clearwater. Now I know our numbers every Monday and tax season is boring — in the best way.",
                 name: "Ines Moreau",
                 role: "Owner, Moreau Florals",
                 photo: avatar("portraitClara"),
               },
               {
-                quote: "They spotted a payroll error that had been costing us for two years and fixed it in a week.",
+                quote:
+                  "They spotted a payroll error that had been costing us for two years and fixed it in a week.",
                 name: "Owen Patel",
                 role: "Director, Patel & Sons Joinery",
                 photo: avatar("portraitOwen"),
@@ -176,7 +185,7 @@ export const testimonialsPresets = [
       avoid: AVOID,
     },
     make: (c) => {
-      const pic = image(photo("beachClass", 900));
+      const pic = image(photo("beachClass", 850));
       const quote = testimonial(
         "I came for a weekend and left with a daily practice. Gentle, funny teachers and the most beautiful mornings on the sand.",
         "Amelia Hart",
@@ -237,7 +246,10 @@ export const testimonialsPresets = [
     name: "ratings-summary",
     label: "Ratings with reviews",
     description: "Headline review numbers beside a carousel of short review cards.",
-    copy: [copy.headline(2, 10, 2), copy.items("quote", "Review", "quote-carousel", "quotes", "quote", 6, 40)],
+    copy: [
+      copy.headline(2, 10, 2),
+      copy.items("quote", "Review", "quote-carousel", "quotes", "quote", 6, 40),
+    ],
     defaultTheme: "light-accent",
     tags: ["stats", "carousel", "social-proof"],
     ai: {
@@ -264,9 +276,23 @@ export const testimonialsPresets = [
           {
             label: "Customer reviews",
             quotes: [
-              { quote: "Showed up on time, fixed the leak in twenty minutes and left the kitchen cleaner than they found it.", name: "Rosa M.", role: "Kitchen repair" },
-              { quote: "Honest quote, no upselling, and they explained everything as they went.", name: "David K.", role: "Boiler service" },
-              { quote: "Our go-to for every odd job now. The maintenance plan has already paid for itself.", name: "Priya S.", role: "Maintenance plan" },
+              {
+                quote:
+                  "Showed up on time, fixed the leak in twenty minutes and left the kitchen cleaner than they found it.",
+                name: "Rosa M.",
+                role: "Kitchen repair",
+              },
+              {
+                quote: "Honest quote, no upselling, and they explained everything as they went.",
+                name: "David K.",
+                role: "Boiler service",
+              },
+              {
+                quote:
+                  "Our go-to for every odd job now. The maintenance plan has already paid for itself.",
+                name: "Priya S.",
+                role: "Maintenance plan",
+              },
             ],
           },
           { col: 1, variant: "cards" },

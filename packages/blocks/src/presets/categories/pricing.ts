@@ -41,7 +41,11 @@ export const pricingPresets = [
     name: "three-plans",
     label: "Three plans",
     description: "A centred heading and three plan cards, with the middle plan highlighted.",
-    copy: [headline, copy.sub(6, 30), copy.items("plan", "Plan description", "pricing", "plans", "description", 4, 25)],
+    copy: [
+      headline,
+      copy.sub(6, 30),
+      copy.items("plan", "Plan description", "pricing", "plans", "description", 4, 25),
+    ],
     tags: ["cards", "three-up", "membership"],
     ai: {
       purpose: "Compares memberships or packages so people can pick one quickly.",
@@ -58,9 +62,35 @@ export const pricingPresets = [
         }),
         pricing(
           [
-            plan("Drop-in", "$24", "per class", "For trying us out or an irregular week.", ["Any regular class", "Mat and props included", "Valid for 30 days"], "Buy a class", "/buy/drop-in"),
-            plan("Unlimited", "$139", "per month", "For a steady practice, as often as you like.", ["Unlimited classes", "Two guest passes a month", "10% off workshops"], "Become a member", "/buy/unlimited", true, "Most popular"),
-            plan("Ten-class pass", "$190", "valid 4 months", "For a practice that moves around your week.", ["Ten classes, any time", "Share with a partner", "Mat hire included"], "Buy the pass", "/buy/ten-pass"),
+            plan(
+              "Drop-in",
+              "$24",
+              "per class",
+              "For trying us out or an irregular week.",
+              ["Any regular class", "Mat and props included", "Valid for 30 days"],
+              "Buy a class",
+              "/buy/drop-in",
+            ),
+            plan(
+              "Unlimited",
+              "$139",
+              "per month",
+              "For a steady practice, as often as you like.",
+              ["Unlimited classes", "Two guest passes a month", "10% off workshops"],
+              "Become a member",
+              "/buy/unlimited",
+              true,
+              "Most popular",
+            ),
+            plan(
+              "Ten-class pass",
+              "$190",
+              "valid 4 months",
+              "For a practice that moves around your week.",
+              ["Ten classes, any time", "Share with a partner", "Mat hire included"],
+              "Buy the pass",
+              "/buy/ten-pass",
+            ),
           ],
           "cards",
           "Students and over-65s save 20% on every option — just ask at the desk.",
@@ -92,8 +122,26 @@ export const pricingPresets = [
         }),
         pricing(
           [
-            plan("Essentials", "$290", "per month", "Sole traders and small teams up to five people.", ["Monthly bookkeeping", "Quarterly tax returns", "Email support within a day"], "Choose Essentials", "/start?plan=essentials"),
-            plan("Growth", "$590", "per month", "Growing teams who need forecasts and payroll.", ["Everything in Essentials", "Payroll for up to 25 people", "Monthly forecast call"], "Choose Growth", "/start?plan=growth", true, "Best value"),
+            plan(
+              "Essentials",
+              "$290",
+              "per month",
+              "Sole traders and small teams up to five people.",
+              ["Monthly bookkeeping", "Quarterly tax returns", "Email support within a day"],
+              "Choose Essentials",
+              "/start?plan=essentials",
+            ),
+            plan(
+              "Growth",
+              "$590",
+              "per month",
+              "Growing teams who need forecasts and payroll.",
+              ["Everything in Essentials", "Payroll for up to 25 people", "Monthly forecast call"],
+              "Choose Growth",
+              "/start?plan=growth",
+              true,
+              "Best value",
+            ),
           ],
           "columns",
           undefined,
@@ -122,9 +170,33 @@ export const pricingPresets = [
         heading("Studio hire", { eyebrow: "Rates", align: "center" }),
         pricing(
           [
-            plan("Hourly", "$45", "per hour", "Minimum two hours, weekdays before 5pm.", [], "Book hourly", "/hire?rate=hourly"),
-            plan("Half day", "$160", "4 hours", "Ideal for shoots, rehearsals and workshops.", [], "Book a half day", "/hire?rate=half"),
-            plan("Full day", "$290", "9am – 6pm", "Includes lighting kit and the kitchen.", [], "Book a full day", "/hire?rate=day"),
+            plan(
+              "Hourly",
+              "$45",
+              "per hour",
+              "Minimum two hours, weekdays before 5pm.",
+              [],
+              "Book hourly",
+              "/hire?rate=hourly",
+            ),
+            plan(
+              "Half day",
+              "$160",
+              "4 hours",
+              "Ideal for shoots, rehearsals and workshops.",
+              [],
+              "Book a half day",
+              "/hire?rate=half",
+            ),
+            plan(
+              "Full day",
+              "$290",
+              "9am – 6pm",
+              "Includes lighting kit and the kitchen.",
+              [],
+              "Book a full day",
+              "/hire?rate=day",
+            ),
           ],
           "compact",
           "All rates include Wi-Fi, chairs for twenty and tea and coffee.",
@@ -167,7 +239,19 @@ export const pricingPresets = [
           { col: 0, variant: "checklist" },
         ),
         pricing(
-          [plan("Full course", "$149", "one-off", "Lifetime access, including every future lesson.", ["Starter kit included", "Private community", "Certificate on completion"], "Enrol now", "/course/enrol", true, "Next cohort: 3 March")],
+          [
+            plan(
+              "Full course",
+              "$149",
+              "one-off",
+              "Lifetime access, including every future lesson.",
+              ["Starter kit included", "Private community", "Certificate on completion"],
+              "Enrol now",
+              "/course/enrol",
+              true,
+              "Next cohort: 3 March",
+            ),
+          ],
           "cards",
           "Not for you? Full refund within 14 days.",
           1,
@@ -201,11 +285,21 @@ export const pricingPresets = [
             items: [
               {
                 label: "Monthly",
-                content: rt.doc(rt.p("$18 a month for one fresh bag every two weeks. Skip, pause or cancel whenever you like."), rt.ul("Free delivery", "Swap blends any time")),
+                content: rt.doc(
+                  rt.p(
+                    "$18 a month for one fresh bag every two weeks. Skip, pause or cancel whenever you like.",
+                  ),
+                  rt.ul("Free delivery", "Swap blends any time"),
+                ),
               },
               {
                 label: "Yearly",
-                content: rt.doc(rt.p("$180 a year — two months free. Includes a ceramic pour-over set in your first box."), rt.ul("Free delivery", "Pour-over set included")),
+                content: rt.doc(
+                  rt.p(
+                    "$180 a year — two months free. Includes a ceramic pour-over set in your first box.",
+                  ),
+                  rt.ul("Free delivery", "Pour-over set included"),
+                ),
               },
             ],
           },
@@ -218,8 +312,18 @@ export const pricingPresets = [
             openFirst: false,
             faqSchema: true,
             items: [
-              { question: "Can I pause my subscription?", answer: rt.doc(rt.p("Yes — pause for up to three months from your account, no questions asked.")) },
-              { question: "When am I charged?", answer: rt.doc(rt.p("On the day each bag is roasted. You'll get an email the day before.")) },
+              {
+                question: "Can I pause my subscription?",
+                answer: rt.doc(
+                  rt.p("Yes — pause for up to three months from your account, no questions asked."),
+                ),
+              },
+              {
+                question: "When am I charged?",
+                answer: rt.doc(
+                  rt.p("On the day each bag is roasted. You'll get an email the day before."),
+                ),
+              },
             ],
           },
           { variant: "lines" },

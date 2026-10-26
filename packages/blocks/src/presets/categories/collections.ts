@@ -1,7 +1,20 @@
 import { eventsBlock, summaryBlock } from "../../blocks/collections";
 import { productBlock } from "../../blocks/commerce";
 import { photo } from "../images";
-import { button, copy, definePreset, grid, heading, image, make, r, rt, stack, text, url } from "../kit";
+import {
+  button,
+  copy,
+  definePreset,
+  grid,
+  heading,
+  image,
+  make,
+  r,
+  rt,
+  stack,
+  text,
+  url,
+} from "../kit";
 
 /** Blog/summary, events and products presets (they read collections). */
 
@@ -43,7 +56,8 @@ const summary = (
     { variant, ...(o.col !== undefined ? { col: o.col } : {}) },
   );
 
-const BLOG_AVOID = "Showing more than six posts on a home page; hiding dates on time-sensitive posts.";
+const BLOG_AVOID =
+  "Showing more than six posts on a home page; hiding dates on time-sensitive posts.";
 const BLOG_EMPTY = "New posts are on the way — check back soon.";
 
 export const blogPresets = [
@@ -123,7 +137,12 @@ export const blogPresets = [
     make: (c) => ({
       layout: stack(),
       blocks: [
-        summary(c.collection, "carousel", { heading: "Stories and recipes", limit: 6, excerpt: false, empty: BLOG_EMPTY }),
+        summary(c.collection, "carousel", {
+          heading: "Stories and recipes",
+          limit: 6,
+          excerpt: false,
+          empty: BLOG_EMPTY,
+        }),
       ],
     }),
   }),
@@ -145,7 +164,14 @@ export const blogPresets = [
     },
     make: (c) => ({
       layout: stack({ width: "wide" }),
-      blocks: [summary(c.collection, "wall", { heading: "Field notes", columns: "3", excerpt: false, empty: BLOG_EMPTY })],
+      blocks: [
+        summary(c.collection, "wall", {
+          heading: "Field notes",
+          columns: "3",
+          excerpt: false,
+          empty: BLOG_EMPTY,
+        }),
+      ],
     }),
   }),
 
@@ -169,9 +195,22 @@ export const blogPresets = [
       layout: stack({ cols: [4, 8], gap: "2xl" }),
       blocks: [
         heading("The journal", { col: 0, eyebrow: "Writing" }),
-        text([rt.p("Short essays on practice, rest and the small rituals that make a week feel lighter. A new one most Sundays.")], { col: 0 }),
+        text(
+          [
+            rt.p(
+              "Short essays on practice, rest and the small rituals that make a week feel lighter. A new one most Sundays.",
+            ),
+          ],
+          { col: 0 },
+        ),
         button("Get it by email", c.primary, { col: 0, role: "secondary" }),
-        summary(c.collection, "list", { level: "h3", limit: 3, image: true, empty: BLOG_EMPTY, col: 1 }),
+        summary(c.collection, "list", {
+          level: "h3",
+          limit: 3,
+          image: true,
+          empty: BLOG_EMPTY,
+          col: 1,
+        }),
       ],
     }),
   }),
@@ -281,12 +320,14 @@ export const eventsPresets = [
       avoid: EVENT_AVOID,
     },
     make: (c) => {
-      const pic = image(photo("stageLights", 760));
+      const pic = image(photo("stageLights", 690));
       const intro = text(
         [
           rt.p("Autumn season", "eyebrow"),
           rt.h(2, "Live at the Granary", "h2"),
-          rt.p("Folk, jazz and the occasional brass band in a 200-year-old barn. Doors at seven, music at eight."),
+          rt.p(
+            "Folk, jazz and the occasional brass band in a 200-year-old barn. Doors at seven, music at eight.",
+          ),
         ],
         { style: { colorTheme: c.theme, padding: { d: "lg", m: "md" } } },
       );
@@ -302,7 +343,8 @@ export const eventsPresets = [
   }),
 ];
 
-const PRODUCT_AVOID = "Products that aren't in the shop collection; prices typed into text (they come from the catalog).";
+const PRODUCT_AVOID =
+  "Products that aren't in the shop collection; prices typed into text (they come from the catalog).";
 const product = (collection: string, variant: string, col?: number) =>
   make(
     productBlock,
@@ -416,12 +458,14 @@ export const productsPresets = [
       avoid: PRODUCT_AVOID,
     },
     make: (c) => {
-      const pic = image(photo("yogaMats", 720));
+      const pic = image(photo("yogaMats", 640));
       const story = text(
         [
           rt.p("How it's made", "eyebrow"),
           rt.h(2, "Cork from the bark, not the tree", "h2"),
-          rt.p("Our mats are made from cork harvested by hand every nine years in Portugal. The tree keeps growing; the mat grips better the more you sweat."),
+          rt.p(
+            "Our mats are made from cork harvested by hand every nine years in Portugal. The tree keeps growing; the mat grips better the more you sweat.",
+          ),
         ],
         { style: { colorTheme: c.theme, padding: { d: "lg", m: "md" } } },
       );
@@ -456,7 +500,14 @@ export const productsPresets = [
       layout: stack({ cols: [7, 5], gap: "2xl", align: "center" }),
       blocks: [
         heading("The practice collection", { col: 0, eyebrow: "Shop" }),
-        text([rt.p("Everything we use in the studio, chosen to last for years: natural cork mats, organic cotton bolsters and blocks made from offcuts.")], { col: 0 }),
+        text(
+          [
+            rt.p(
+              "Everything we use in the studio, chosen to last for years: natural cork mats, organic cotton bolsters and blocks made from offcuts.",
+            ),
+          ],
+          { col: 0 },
+        ),
         button("Shop the collection", c.primary, { col: 0, role: "secondary" }),
         product(c.collection, "card", 1),
       ],

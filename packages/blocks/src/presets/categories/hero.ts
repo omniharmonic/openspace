@@ -1,7 +1,7 @@
+import { statsBlock } from "../../blocks/data";
 import { logoStripBlock } from "../../blocks/logo-strip";
 import { marqueeBlock } from "../../blocks/marquee";
 import { newsletterBlock } from "../../blocks/newsletter";
-import { statsBlock } from "../../blocks/data";
 import { photo } from "../images";
 import {
   button,
@@ -16,7 +16,6 @@ import {
   scrim,
   stack,
   text,
-  url,
 } from "../kit";
 
 const headline = copy.headline(3, 10, 1);
@@ -37,8 +36,10 @@ export const heroPresets = [
     tags: ["image", "two-column", "classic"],
     links: { primary: "/classes", secondary: "/timetable" },
     ai: {
-      purpose: "Opens a home or landing page with a clear promise, a photo of the real thing and one main action.",
-      whenToUse: "The default hero for most small businesses: studios, cafés, makers and practitioners.",
+      purpose:
+        "Opens a home or landing page with a clear promise, a photo of the real thing and one main action.",
+      whenToUse:
+        "The default hero for most small businesses: studios, cafés, makers and practitioners.",
       avoid: AI_AVOID,
     },
     make: (c) => ({
@@ -107,7 +108,8 @@ export const heroPresets = [
     links: { primary: "/work", secondary: "/contact" },
     ai: {
       purpose: "A typographic opening that lets the words carry the page.",
-      whenToUse: "Consultants, writers and studios whose work is ideas; pages where a photo would be filler.",
+      whenToUse:
+        "Consultants, writers and studios whose work is ideas; pages where a photo would be filler.",
       avoid: AI_AVOID,
     },
     make: (c) => ({
@@ -167,7 +169,8 @@ export const heroPresets = [
     category: "hero",
     name: "full-bleed-photo",
     label: "Full-bleed photograph",
-    description: "A tall section with a background photograph, a soft scrim and a centred headline.",
+    description:
+      "A tall section with a background photograph, a soft scrim and a centred headline.",
     copy: [headline, intro],
     images: [{ slot: "background", aspect: "fill" }],
     defaultTheme: "dark",
@@ -250,7 +253,8 @@ export const heroPresets = [
     category: "hero",
     name: "editorial-overlap",
     label: "Editorial overlap",
-    description: "A large photograph bleeding off the right edge with a text panel layered over it.",
+    description:
+      "A large photograph bleeding off the right edge with a text panel layered over it.",
     copy: [headline, intro],
     images: [{ slot: "photo", aspect: "fill" }],
     defaultTheme: "light-accent",
@@ -297,7 +301,8 @@ export const heroPresets = [
     tags: ["image", "grid", "overlap", "playful"],
     links: { primary: "/shop", secondary: "/workshops" },
     ai: {
-      purpose: "Shows two sides of the business at once — the place and the product, the maker and the work.",
+      purpose:
+        "Shows two sides of the business at once — the place and the product, the maker and the work.",
       whenToUse: "Shops, makers and studios with a pair of complementary photos.",
       avoid: `${AI_AVOID} Two photos with clashing colour or the same subject.`,
     },
@@ -329,14 +334,16 @@ export const heroPresets = [
     category: "hero",
     name: "big-type",
     label: "Big type with details",
-    description: "An oversized headline across the page with the introduction and action in two columns below.",
+    description:
+      "An oversized headline across the page with the introduction and action in two columns below.",
     copy: [headline, intro],
     defaultTheme: "light",
     tags: ["text-only", "typographic", "bold"],
     links: { primary: "/contact", secondary: "/case-studies" },
     ai: {
       purpose: "A confident, type-led opening for brands with a strong line.",
-      whenToUse: "Agencies, consultants, product launches — when the headline is short and memorable.",
+      whenToUse:
+        "Agencies, consultants, product launches — when the headline is short and memorable.",
       avoid: `${AI_AVOID} Headlines over six words; they become a wall of type.`,
     },
     make: (c) => ({
@@ -419,7 +426,7 @@ export const heroPresets = [
     },
     make: (c) => {
       const a = image(photo("plates", 420));
-      const b = image(photo("chefPrep", 420));
+      const b = image(photo("chefPrep", 320));
       const d = image(photo("sharedTable", 420));
       const words = text(
         [

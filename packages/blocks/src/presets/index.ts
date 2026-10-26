@@ -9,7 +9,7 @@ import { faqPresets, logosPresets, statsPresets, teamPresets } from "./categorie
 import { pricingPresets } from "./categories/pricing";
 import { servicesPresets } from "./categories/services";
 import { testimonialsPresets } from "./categories/testimonials";
-import type { Preset, PresetCategory, PresetMeta, SectionPreset, HeaderPreset } from "./types";
+import type { HeaderPreset, Preset, PresetCategory, PresetMeta, SectionPreset } from "./types";
 
 /**
  * Section presets (doc 04 §6): pre-composed, designed sections that render in whatever Site
@@ -23,8 +23,8 @@ export {
   type DemoPhoto,
   type ImageCredit,
   PHOTOS,
-  PRESET_IMAGE_CREDITS,
   type PhotoKey,
+  PRESET_IMAGE_CREDITS,
   photo,
 } from "./images";
 export { rectsOverlap } from "./kit";
