@@ -6,6 +6,7 @@ import type {
   SiteDocument,
 } from "@openspace/schema";
 import { imageTreatmentClass } from "@openspace/theme";
+import { createContext, useContext } from "react";
 import { useImageMap, useRenderContext } from "./context";
 import { type CssVars, cx } from "./cx";
 import type { ImageMap, ResolvedImage } from "./image-map";
@@ -118,6 +119,17 @@ function ratio(aspect: AspectRatio | undefined): string | undefined {
 const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
 
 /**
+ * Above-the-fold images in the page's first section. Provided per render by `SectionView`:
+ * images there are never lazy-loaded, and the first two (the likely LCP element) get
+ * `fetchpriority="high"`. Images elsewhere load lazily unless `priority` is set.
+ */
+export interface AboveFold {
+  /** High-priority fetches left for this section. */
+  high: number;
+}
+export const AboveFoldContext = createContext<AboveFold | null>(null);
+
+/**
  * Responsive image. Reads the `ImageResolverContext` map (AVIF/WebP sources, srcset, intrinsic
  * size, blurred placeholder), always emits width/height when known, crops with
  * `object-position` at the focal point, and applies image-treatment classes.
@@ -142,6 +154,13 @@ export function Img(props: ImgProps) {
   if (aspect) style["--aspect"] = aspect;
   if (focal) style["--focal"] = `${pct(focal[0])} ${pct(focal[1])}`;
   const imgStyle = r.placeholder ? { backgroundImage: `url("${r.placeholder}")` } : undefined;
+  const fold = useContext(AboveFoldContext);
+  const eager = props.priority ?? Boolean(fold);
+  let high = props.priority === true;
+  if (eager && fold && fold.high > 0) {
+    fold.high--;
+    high = true;
+  }
   return (
     <span
       className={cx(
@@ -167,9 +186,9 @@ export function Img(props: ImgProps) {
           width={r.width}
           height={r.height}
           alt={alt}
-          loading={props.priority ? "eager" : "lazy"}
-          decoding={props.priority ? "sync" : "async"}
-          fetchPriority={props.priority ? "high" : undefined}
+          loading={eager ? "eager" : "lazy"}
+          decoding={high ? "sync" : "async"}
+          fetchPriority={high ? "high" : undefined}
           style={imgStyle}
         />
       </picture>

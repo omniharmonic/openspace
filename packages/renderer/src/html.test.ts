@@ -1,8 +1,11 @@
+import { createElement, Fragment } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { fixtureBlocks } from "./__fixtures__/blocks";
 import { IDS, must, siteFixture } from "./__fixtures__/site";
 import { behaviorsInHtml } from "./behaviors-manifest";
 import { behaviorsForPage, jsonForScript, pageTitle, renderPageHtml } from "./html";
+import { AboveFoldContext, Img } from "./image";
 import { registerBlocks, unregisterBlocks } from "./registry";
 import { BASE_CSS } from "./styles/base-css";
 
@@ -157,5 +160,45 @@ describe("renderPageHtml", () => {
       },
     });
     expect(remote).toContain('content="https://cdn.example.com/h.jpg"');
+  });
+});
+
+describe("published page details", () => {
+  it("gives sites without a tab icon an inline monogram (no /favicon.ico 404)", () => {
+    const doc = siteFixture();
+    const bare = { ...doc, site: { ...doc.site, favicon: null } } as typeof doc;
+    const html = renderPageHtml({ doc: bare, pageId: IDS.home });
+    const icon = /<link rel="icon" href="(data:image\/svg\+xml,[^"]+)">/.exec(html)?.[1];
+    expect(icon).toBeDefined();
+    expect(decodeURIComponent(icon ?? "")).toContain(">M</text>");
+  });
+
+  it("loads first-section images eagerly, the first two at high priority; later ones lazily", () => {
+    const img = (src: string) =>
+      createElement(Img, { src: `https://example.com/${src}.jpg`, alt: "" });
+    const html = renderToStaticMarkup(
+      createElement(
+        Fragment,
+        null,
+        createElement(
+          AboveFoldContext.Provider,
+          { value: { high: 2 } },
+          img("a"),
+          img("b"),
+          img("c"),
+        ),
+        img("d"),
+      ),
+    );
+    const tags = [...html.matchAll(/<img [^>]*>/g)].map((m) => m[0]);
+    expect(tags.map((t) => /loading="(\w+)"/.exec(t)?.[1])).toEqual([
+      "eager",
+      "eager",
+      "eager",
+      "lazy",
+    ]);
+    expect(
+      tags.map((t) => t.includes('fetchPriority="high"') || t.includes('fetchpriority="high"')),
+    ).toEqual([true, true, false, false]);
   });
 });

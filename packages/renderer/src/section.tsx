@@ -4,7 +4,7 @@ import { createContext, type ReactNode, useContext } from "react";
 import { BlockView, MissingBlock } from "./block";
 import { SectionContext, useEditor, useRenderContext } from "./context";
 import { type CssVars, cx } from "./cx";
-import { Img } from "./image";
+import { AboveFoldContext, Img } from "./image";
 import {
   blocksByColumn,
   colorValue,
@@ -219,12 +219,14 @@ export function SectionView({ section, as: Tag = "section", className }: Section
       {...reveal}
     >
       <SectionContext.Provider value={section}>
-        <SectionBackgroundLayer background={style.background} />
-        {layout.mode === "stack" ? (
-          <StackBody section={section as Section & { layout: { mode: "stack" } }} />
-        ) : (
-          <GridBody section={section as Section & { layout: { mode: "grid" } }} />
-        )}
+        <AboveFoldContext.Provider value={first ? { high: 2 } : null}>
+          <SectionBackgroundLayer background={style.background} />
+          {layout.mode === "stack" ? (
+            <StackBody section={section as Section & { layout: { mode: "stack" } }} />
+          ) : (
+            <GridBody section={section as Section & { layout: { mode: "grid" } }} />
+          )}
+        </AboveFoldContext.Provider>
       </SectionContext.Provider>
     </Tag>
   );

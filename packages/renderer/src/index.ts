@@ -74,7 +74,15 @@ export {
   pageTitle,
   siteUrlFor,
 } from "./html-meta";
-export { Img, type ImgProps, REMOTE_WIDTHS, remoteSrcset, resolveImage } from "./image";
+export {
+  type AboveFold,
+  AboveFoldContext,
+  Img,
+  type ImgProps,
+  REMOTE_WIDTHS,
+  remoteSrcset,
+  resolveImage,
+} from "./image";
 export {
   collectImageSrcs,
   type ImageMap,

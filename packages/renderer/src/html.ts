@@ -50,6 +50,21 @@ export interface RenderPageHtmlOptions {
 }
 
 /**
+ * Until the owner uploads a browser-tab icon: the site's initial on its brand color, as an
+ * inline SVG (no request, and no 404 for `/favicon.ico` in the console).
+ */
+export function monogramIcon(
+  title: string,
+  brand: { background?: string; heading?: string } | undefined,
+): string {
+  const letter = escapeHtml((title.trim().match(/\p{L}|\p{N}/u)?.[0] ?? "•").toUpperCase());
+  const bg = brand?.background ?? "#222222";
+  const fg = brand?.heading ?? "#ffffff";
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${bg}"/><text x="32" y="43" font-family="system-ui,sans-serif" font-size="34" font-weight="600" text-anchor="middle" fill="${fg}">${letter}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+/**
  * Render a complete HTML document for a page: head (title, meta, Open Graph, canonical, JSON-LD,
  * fonts, token CSS, base CSS, custom CSS, head injection), the rendered body, and behavior
  * scripts only for behaviors the page actually uses. No React runtime ships.
@@ -109,7 +124,7 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     meta("og:image", ogImage, "property"),
     meta("og:locale", site.locale.replace("-", "_"), "property"),
     meta("twitter:card", ogImage ? "summary_large_image" : "summary"),
-    site.favicon ? `<link rel="icon" href="${escapeHtml(mediaUrl(site.favicon, basePath))}">` : "",
+    `<link rel="icon" href="${escapeHtml(site.favicon ? mediaUrl(site.favicon, basePath) : monogramIcon(site.title, styles.tokens.themes.brand))}">`,
     '<meta name="generator" content="OpenSpace">',
     "<script>document.documentElement.classList.add('os-js')</script>",
     usesGoogle
