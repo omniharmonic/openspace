@@ -92,4 +92,35 @@ describe("budget alerts (PRD 7.6)", () => {
     expect((await checkBudget(s)).map((l) => l.resource)).toEqual(["emails"]);
     expect((await outbox()).filter((m) => m.text.includes("2031-06"))).toHaveLength(0);
   });
+
+  it("retries the email on the next run when sending failed", async () => {
+    await env.HUB_DB.prepare(
+      "INSERT INTO quota_usage (site_id, resource, period, count) VALUES ('st_budget0004', 'analyticsPageviews', '2031-07', 990)",
+    ).run();
+    const at = () => Date.UTC(2031, 6, 3);
+    let fail = true;
+    const sent: string[] = [];
+    const email = {
+      kind: "dev" as const,
+      async send(m: { to: string; subject: string }) {
+        if (fail) throw new Error("provider down");
+        sent.push(m.subject);
+        return { id: "x", provider: "dev" };
+      },
+    };
+    const make = () =>
+      createServices(env as never, readConfig(env as never), {
+        now: at,
+        operator: { alertEmail: "ops@hub.example", allowances },
+        public: { email },
+      });
+    expect((await checkBudget(make())).map((l) => l.resource)).toEqual(["analyticsEvents"]);
+    expect(sent).toEqual([]);
+    fail = false;
+    expect(await checkBudget(make())).toEqual([]);
+    expect(sent).toHaveLength(1);
+    expect(sent[0]).toContain("Analytics events");
+    await checkBudget(make());
+    expect(sent).toHaveLength(1);
+  });
 });

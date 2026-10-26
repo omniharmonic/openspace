@@ -99,8 +99,9 @@ const fmt = (r: BudgetResource, n: number) =>
   r === "storageBytes" ? `${(n / 1024 ** 3).toFixed(2)} GB` : n.toLocaleString("en-US");
 
 /**
- * Record (and email) an alert for every resource at or above 80% of its allowance that hasn't
- * alerted this month. Returns the new alerts.
+ * Record an alert for every resource at or above 80% of its allowance that hasn't alerted this
+ * month, and email every alert of the month not emailed yet (so a failed send is retried by the
+ * next daily run). Returns the new alerts.
  */
 export async function checkBudget(services: Services, log?: Logger): Promise<BudgetLine[]> {
   const now = services.now();
@@ -119,13 +120,23 @@ export async function checkBudget(services: Services, log?: Logger): Promise<Bud
     if ((inserted.meta.changes ?? 0) === 0) continue;
     fresh.push(line);
   }
-  if (!fresh.length) return fresh;
-  log?.warn("hub usage above 80% of plan allowances", {
-    resources: fresh.map((l) => l.resource),
-  });
+  if (fresh.length)
+    log?.warn("hub usage above 80% of plan allowances", {
+      resources: fresh.map((l) => l.resource),
+    });
   const to = services.operator.alertEmail;
   if (!to) return fresh;
-  const rows = fresh.map(
+  // Every alert of this month not emailed yet (new ones, and ones whose email failed before).
+  const unsent = (
+    await services.db
+      .prepare(
+        "SELECT resource, used, allowance FROM budget_alerts WHERE period = ? AND emailed_at IS NULL",
+      )
+      .bind(period)
+      .all<{ resource: BudgetResource; used: number; allowance: number }>()
+  ).results.map((r) => ({ ...r, ratio: r.allowance > 0 ? r.used / r.allowance : 0 }));
+  if (!unsent.length) return fresh;
+  const rows = unsent.map(
     (l) =>
       `${LABELS[l.resource]}: ${fmt(l.resource, l.used)} of ${fmt(l.resource, l.allowance)} (${Math.round(l.ratio * 100)}%)`,
   );
@@ -142,7 +153,7 @@ export async function checkBudget(services: Services, log?: Logger): Promise<Bud
     await services.pub.email.send({
       to,
       from: services.pub.config.emailFrom,
-      subject: `OpenSpace Hub budget alert: ${fresh.map((l) => LABELS[l.resource]).join(", ")} at 80%`,
+      subject: `OpenSpace Hub budget alert: ${unsent.map((l) => LABELS[l.resource]).join(", ")} at 80%`,
       html,
       text,
       kind: "budget-alert",
@@ -150,12 +161,12 @@ export async function checkBudget(services: Services, log?: Logger): Promise<Bud
     });
     await services.db
       .prepare(
-        `UPDATE budget_alerts SET emailed_at = ? WHERE period = ? AND resource IN (${fresh.map(() => "?").join(", ")})`,
+        `UPDATE budget_alerts SET emailed_at = ? WHERE period = ? AND resource IN (${unsent.map(() => "?").join(", ")})`,
       )
-      .bind(now, period, ...fresh.map((l) => l.resource))
+      .bind(now, period, ...unsent.map((l) => l.resource))
       .run();
   } catch (err) {
-    log?.error("budget alert email failed", { err });
+    log?.error("budget alert email failed; the next daily run retries", { err });
   }
   return fresh;
 }

@@ -501,8 +501,22 @@ export class RoomState {
   }
 
   /** Who started a collection item (user id), recorded when its first upsert was accepted. */
-  readonly itemAuthor = (collection: string, slug: string): string | undefined =>
-    this.getMeta(itemAuthorKey(collection, slug)) ?? undefined;
+  readonly itemAuthor = (collection: string, slug: string): string | undefined => {
+    const known = this.getMeta(itemAuthorKey(collection, slug));
+    if (known) return known;
+    // Drafts started before authors were recorded: whoever first saved the item in the op log.
+    const first = this.sql
+      .exec<{ user_id: string }>(
+        `SELECT user_id FROM ops WHERE json_extract(op, '$.op') = 'collection.upsert'
+           AND json_extract(op, '$.collection') = ? AND json_extract(op, '$.item.slug') = ?
+         ORDER BY seq LIMIT 1`,
+        collection,
+        slug,
+      )
+      .toArray()[0]?.user_id;
+    if (first) this.setMeta(itemAuthorKey(collection, slug), first);
+    return first;
+  };
 
   /** Ops an agent session made that are still in the log. */
   agentSessionOpCount(sessionId: string): number {

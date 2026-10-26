@@ -332,6 +332,16 @@ describe("DraftRoom", () => {
     expect((await submit(cora, [draftBy("mayas-notes", "Overwritten.")]))[0]).toMatchObject({
       code: "forbidden",
     });
+    // Drafts saved before authors were recorded: the first saver in the op log is the author.
+    await runInDurableObject(rawRoom(site.id), async (_i, state) => {
+      state.storage.sql.exec("DELETE FROM meta WHERE key LIKE 'item-author:%'");
+    });
+    expect((await submit(cora, [draftBy("second", "Legacy draft, revised.")]))[0]?.status).toBe(
+      "accepted",
+    );
+    expect((await submit(cora, [draftBy("mayas-notes", "Overwritten.")]))[0]).toMatchObject({
+      code: "forbidden",
+    });
   });
 
   it("lets an Editor undo their own op even when the inverse needs layout rights", async () => {

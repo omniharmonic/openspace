@@ -301,6 +301,23 @@ describe("page commands (ops)", () => {
     expect(store.getState().doc.pages[target.id]?.access).toEqual({ members: true });
   });
 
+  it("duplicates a page without its own code for editors", () => {
+    const store = session();
+    const doc = store.getState().doc;
+    const target = Object.values(doc.pages).find((p) => p.slug !== "");
+    if (!target) throw new Error("page");
+    const withCode = {
+      ...doc,
+      pages: { ...doc.pages, [target.id]: { ...target, headInjection: "<meta name=x>" } },
+    } as typeof doc;
+    const page = (cmd: ReturnType<typeof duplicatePage>) =>
+      (cmd?.bodies[0] as { page: { headInjection?: string } }).page;
+    expect(page(duplicatePage(withCode, target.id)).headInjection).toBe("<meta name=x>");
+    expect(page(duplicatePage(withCode, target.id, { keepCode: false })).headInjection).toBe(
+      undefined,
+    );
+  });
+
   it("explains address problems in plain words", () => {
     const doc = session().getState().doc;
     const other = Object.values(doc.pages).find((p) => p.slug !== "");

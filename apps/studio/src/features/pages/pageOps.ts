@@ -85,6 +85,8 @@ export function createPage(
 export function duplicatePage(
   doc: SiteDocument,
   pageId: string,
+  /** Owners and designers keep the page's own head/footer code; editors can't send it. */
+  opts: { keepCode?: boolean } = {},
 ): (Command & { pageId: string; droppedPassword: boolean }) | null {
   const src = doc.pages[pageId as keyof SiteDocument["pages"]];
   if (!src) return null;
@@ -93,9 +95,17 @@ export function duplicatePage(
   const { id: _id, sections, slug: _s, title: _t, ...rest } = structuredClone(src);
   // Passwords live in the Hub per page: a copy can't inherit one, so it starts public (members-
   // only gating needs no secret and is kept).
-  const { access, ...restNoAccess } = rest;
+  const { access, headInjection, footerInjection, ...restNoAccess } = rest;
+  const code =
+    opts.keepCode === false
+      ? {}
+      : {
+          ...(headInjection !== undefined ? { headInjection } : {}),
+          ...(footerInjection !== undefined ? { footerInjection } : {}),
+        };
   const page = {
     ...restNoAccess,
+    ...code,
     ...(access?.members
       ? { access: { members: true, ...(access.tiers?.length ? { tiers: access.tiers } : {}) } }
       : {}),

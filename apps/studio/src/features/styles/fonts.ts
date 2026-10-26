@@ -1,6 +1,6 @@
 import { type CustomFont, newId, type Styles } from "@openspace/schema";
 import { customFontFaces } from "@openspace/theme";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { sha256Hex, slugifyName } from "../media/naming";
 import { previewUrl, readMediaBytes, useMediaSources } from "../media/sources";
 
@@ -120,24 +120,43 @@ export function withFont(fonts: readonly CustomFont[] | undefined, font: CustomF
 export function useCustomFontCss(styles: Styles): string {
   const local = useMediaSources((s) => s.local);
   const [loaded, setLoaded] = useState<Record<string, string>>({});
+  /** Files being read (each is read once, however often the effect re-runs). */
+  const pending = useRef(new Set<string>());
   const files = useMemo(
     () => (styles.fonts ?? []).flatMap((f) => f.files.map((x) => x.src)),
     [styles.fonts],
   );
+  const mounted = useRef(true);
   useEffect(() => {
-    let alive = true;
     for (const src of files) {
-      if (local[src] || loaded[src]) continue;
+      if (local[src] || loaded[src] || pending.current.has(src)) continue;
+      pending.current.add(src);
       void readMediaBytes(src).then((bytes) => {
-        if (!alive || !bytes || typeof URL.createObjectURL !== "function") return;
+        pending.current.delete(src);
+        if (!mounted.current || !bytes || typeof URL.createObjectURL !== "function") return;
         const url = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>]));
         setLoaded((prev) => ({ ...prev, [src]: url }));
       });
     }
-    return () => {
-      alive = false;
-    };
+    // Fonts removed from Site Styles: free their copies.
+    const gone = Object.keys(loaded).filter((src) => !files.includes(src));
+    if (gone.length) {
+      for (const src of gone) URL.revokeObjectURL(loaded[src] as string);
+      setLoaded((prev) =>
+        Object.fromEntries(Object.entries(prev).filter(([k]) => files.includes(k))),
+      );
+    }
   }, [files, local, loaded]);
+  // Free every copy when the canvas or panel goes away.
+  const latest = useRef(loaded);
+  latest.current = loaded;
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      for (const url of Object.values(latest.current)) URL.revokeObjectURL(url);
+    };
+  }, []);
   return useMemo(
     () =>
       customFontFaces(
