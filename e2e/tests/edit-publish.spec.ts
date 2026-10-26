@@ -153,9 +153,11 @@ test("edit headline inline, replace an image (EXIF stripped), add a preset secti
   await palettes.locator('button[aria-pressed="false"]').nth(2).click();
   const pairings = page.getByRole("group", { name: "Font pairings" });
   const pairing = pairings.locator('button[aria-pressed="false"]').nth(3);
-  const pairingName = await pairing.getAttribute("aria-label");
+  // The pairing's accessible name is its visible name text (the specimen lines are aria-hidden).
+  const pairingName = ((await pairing.locator(".st-ss-pairing__name").textContent()) ?? "").trim();
+  expect(pairingName).not.toBe("");
   await pairing.click();
-  await expect(pairings.getByRole("button", { name: pairingName ?? "" })).toHaveAttribute(
+  await expect(pairings.getByRole("button", { name: pairingName, exact: true })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
