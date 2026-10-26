@@ -33,7 +33,10 @@ collaboratorRoutes.get("/:id/collaborators", async (c) => {
 collaboratorRoutes.post("/:id/collaborators", async (c) => {
   const user = requireUser(c);
   const input = await readJson(c, InviteSchema);
-  return c.json(await inviteCollaborator(c.var.services, c.req.param("id"), user, input), 201);
+  return c.json(
+    await inviteCollaborator(c.var.services, c.req.param("id"), user, input, c.var.log),
+    201,
+  );
 });
 
 /** PATCH /api/sites/:id/collaborators/:userId { role?, lockedSections? } */

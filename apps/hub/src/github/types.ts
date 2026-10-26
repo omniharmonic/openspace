@@ -170,6 +170,15 @@ export interface GitHubAccess {
   /** Names of the failed jobs/steps of a workflow run (for plain-language build errors). */
   failedSteps(repo: RepoRef, runId: number): Promise<string[]>;
   openPullRequest(repo: RepoRef, input: PullRequestInput): Promise<{ number: number; url: string }>;
+  /**
+   * Squash-merge a pull request (Task 18 update bot). `sha` guards against the head having moved
+   * since it was reviewed (conflict otherwise).
+   */
+  mergePullRequest(
+    repo: RepoRef,
+    number: number,
+    input: { title: string; sha?: string },
+  ): Promise<{ sha: string }>;
 }
 
 /** Thrown when `expectedHead` does not match (someone else committed first). */

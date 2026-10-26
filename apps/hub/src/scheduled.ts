@@ -2,6 +2,7 @@ import type { HubBindings } from "./env";
 import { readConfig } from "./env";
 import { createLogger } from "./lib/log";
 import { roomStub } from "./room";
+import { runDueCampaigns } from "./services/campaigns";
 import { expireInvitations } from "./services/collaborators";
 import { createServices, type Services } from "./services/index";
 import { runDueSchedules } from "./services/publishing";
@@ -24,6 +25,17 @@ const SITE_TABLES = [
   "service_settings",
   "quota_usage",
   "domains",
+  // Task 18 growth + commerce tables (campaign_clicks has no site_id; see below).
+  "sender_connections",
+  "member_links",
+  "order_refunds",
+  "campaign_recipients",
+  "member_tiers",
+  "page_passwords",
+  "commerce_settings",
+  "discount_codes",
+  "site_updates",
+  "stripe_events",
 ];
 
 /** Purge archived sites past `purge_at`: setup uploads in R2, room storage, Hub rows. */
@@ -43,7 +55,19 @@ export async function purgeArchivedSites(
     } catch {
       /* the room may never have existed */
     }
+    // Task 18: digital product files.
+    for (let cursor: string | undefined; ; ) {
+      const list = await services.uploads.list({ prefix: `digital/${id}/`, cursor });
+      if (list.objects.length) await services.uploads.delete(list.objects.map((o) => o.key));
+      if (!list.truncated) break;
+      cursor = list.cursor;
+    }
     await services.db.batch([
+      services.db
+        .prepare(
+          "DELETE FROM campaign_clicks WHERE campaign_id IN (SELECT id FROM campaigns WHERE site_id = ?)",
+        )
+        .bind(id),
       ...SITE_TABLES.map((t) => services.db.prepare(`DELETE FROM ${t} WHERE site_id = ?`).bind(id)),
       services.db.prepare("DELETE FROM sites WHERE id = ?").bind(id),
     ]);
@@ -61,6 +85,8 @@ export async function runScheduled(env: HubBindings, scheduledTime = Date.now())
     ["transfers", () => expireTransfers(services, scheduledTime)],
     ["invitations", () => expireInvitations(services, scheduledTime)],
     ["purge", () => purgeArchivedSites(env, services, scheduledTime)],
+    // Task 18: start due scheduled campaigns; continue sends when there is no Queue.
+    ["campaigns", () => runDueCampaigns(services, scheduledTime, log)],
   ];
   for (const [name, job] of jobs) {
     try {

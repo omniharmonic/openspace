@@ -28,7 +28,8 @@ export interface SendResult {
 }
 
 export interface EmailSender {
-  readonly kind: "cloudflare" | "resend" | "postmark" | "dev";
+  /** `ses` and `cloudflare-api` are owner senders for campaigns (Task 18). */
+  readonly kind: "cloudflare" | "resend" | "postmark" | "dev" | "ses" | "cloudflare-api";
   send(message: OutgoingEmail): Promise<SendResult>;
 }
 

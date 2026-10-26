@@ -704,4 +704,32 @@ export class DevGitHubAccess implements GitHubAccess {
       .run();
     return { number, url: `${this.toInfo(row).htmlUrl}/pull/${number}` };
   }
+
+  async mergePullRequest(
+    repo: RepoRef,
+    number: number,
+    input: { title: string; sha?: string },
+  ): Promise<{ sha: string }> {
+    const pr = await this.db
+      .prepare("SELECT head, base, state FROM dev_pull_requests WHERE repo = ? AND number = ?")
+      .bind(key(repo), number)
+      .first<{ head: string; base: string; state: string }>();
+    if (!pr) throw new GitHubNotFoundError(`Pull request #${number} not found`);
+    if (pr.state !== "open")
+      throw new GitHubConflictError(`Pull request #${number} is ${pr.state}`);
+    const headSha = await this.resolve(repo, pr.head);
+    if (input.sha && input.sha !== headSha)
+      throw new GitHubConflictError("Pull request head moved", headSha);
+    // Squash: one commit on the base whose tree is the head's tree.
+    const commit = await this.commitTree(repo, {
+      branch: pr.base,
+      treeOf: headSha,
+      message: input.title,
+    });
+    await this.db
+      .prepare("UPDATE dev_pull_requests SET state = 'merged' WHERE repo = ? AND number = ?")
+      .bind(key(repo), number)
+      .run();
+    return { sha: commit.sha };
+  }
 }

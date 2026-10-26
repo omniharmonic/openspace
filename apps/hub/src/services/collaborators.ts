@@ -9,7 +9,7 @@ import type { HubBindings } from "../env";
 import { parseRepo } from "../github/types";
 import { randomId, randomToken, sha256Hex } from "../lib/crypto";
 import { forbidden, HttpError, notFound } from "../lib/errors";
-import type { Logger } from "../lib/log";
+import { createLogger, type Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import { emailSite, sendTransactional, siteBaseUrl } from "./email";
 import type { Services } from "./index";
@@ -206,6 +206,7 @@ export async function inviteCollaborator(
   id: string,
   user: User,
   input: z.infer<typeof InviteSchema>,
+  log?: Logger,
 ): Promise<{ invitation: InvitationView; acceptUrl: string }> {
   const site = await siteForUser(services, id, user);
   requireManage(site, input.role);
@@ -261,7 +262,14 @@ export async function inviteCollaborator(
       inviter: user.name ?? user.login,
       role: input.role,
       acceptUrl,
-    }).catch(() => undefined);
+    }).catch((err) =>
+      // Not fatal (Studio shows the link to copy), but the owner's support needs to see it.
+      (log ?? createLogger(services.config.logLevel)).warn("invitation email failed", {
+        siteId: id,
+        invitation: row.id,
+        err,
+      }),
+    );
   await audit(services.db, {
     siteId: id,
     actor: user.id,

@@ -10,25 +10,35 @@ import {
   warnMissingTurnstile,
 } from "../../lib/public";
 import { requireHmacKey } from "../../public-env";
-import { RATE_RULES } from "../../services/rate-limit";
+import { RATE_RULES, type RateRule } from "../../services/rate-limit";
 import type { AppEnv } from "../../types";
 
 export async function gate(
   c: Context<AppEnv>,
   site: SiteRow,
-  kind: "form" | "subscribe",
+  kind: "form" | "subscribe" | "login" | "checkout",
   turnstileToken: string | null,
+  opts: { turnstile?: boolean } = {},
 ): Promise<PublicFailure | null> {
   const { services } = c.var;
   warnMissingTurnstile(c);
   const ip = clientIp(c);
   const key = requireHmacKey(services.pub.config);
   const who = (await sha256Hex(`${key}|${rateKeyIp(ip)}`)).slice(0, 24);
-  const [visitorRule, siteRule] =
-    kind === "form"
-      ? [RATE_RULES.form, RATE_RULES.formSite]
-      : [RATE_RULES.subscribe, RATE_RULES.subscribeSite];
-  const what = kind === "form" ? "messages" : "signups";
+  const [visitorRule, siteRule] = (
+    {
+      form: [RATE_RULES.form, RATE_RULES.formSite],
+      subscribe: [RATE_RULES.subscribe, RATE_RULES.subscribeSite],
+      login: [RATE_RULES.login, RATE_RULES.loginSite],
+      checkout: [RATE_RULES.checkout, RATE_RULES.checkoutSite],
+    } satisfies Record<string, [RateRule, RateRule]>
+  )[kind];
+  const what = {
+    form: "messages",
+    subscribe: "signups",
+    login: "sign-in requests",
+    checkout: "checkout attempts",
+  }[kind];
   for (const [k, rule, message] of [
     [
       `${site.id}|${who}`,
@@ -47,6 +57,8 @@ export async function gate(
       return { status: 429, code: "rate_limited", message };
     }
   }
+  // Checkout skips Turnstile (the cart posts from a script; Stripe runs its own fraud checks).
+  if (opts.turnstile === false) return null;
   const turnstile = await services.pub.turnstile.verify(
     turnstileToken,
     ip,
