@@ -52,6 +52,8 @@ export interface EditorUiState {
   revealInspector: () => void;
   toggleLeftPanel: (panel: LeftPanel) => void;
   setLeftPanel: (panel: LeftPanel | null) => void;
+  /** Open a left panel from anywhere (shows hidden chrome; the one-panel rule applies). */
+  showLeftPanel: (panel: LeftPanel) => void;
   toggleInspector: () => void;
   toggleChrome: () => void;
   setBreakpoint: (bp: Breakpoint) => void;
@@ -93,6 +95,12 @@ export const useEditorUi = create<EditorUiState>((set, get) => ({
     }),
   setLeftPanel: (leftPanel) =>
     set((s) => ({ leftPanel, ...(s.onePanel && leftPanel ? { inspectorOpen: false } : {}) })),
+  showLeftPanel: (leftPanel) =>
+    set((s) => ({
+      leftPanel,
+      chromeHidden: false,
+      ...(s.onePanel ? { inspectorOpen: false } : {}),
+    })),
   toggleInspector: () =>
     set((s) => {
       const inspectorOpen = !s.inspectorOpen;

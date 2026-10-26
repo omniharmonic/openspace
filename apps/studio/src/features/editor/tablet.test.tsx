@@ -97,6 +97,15 @@ describe("tablet (834px): one side panel at a time", () => {
     expect(ui().leftPanel).toBeNull();
   });
 
+  it("Review issues and the Check badge follow the rule too", () => {
+    act(() => {
+      ui().setOnePanel(true);
+      ui().toggleChrome();
+      ui().showLeftPanel("check");
+    });
+    expect(ui()).toMatchObject({ leftPanel: "check", inspectorOpen: false, chromeHidden: false });
+  });
+
   it("leaves desktop alone: both panels stay open", () => {
     act(() => {
       ui().setOnePanel(false);
