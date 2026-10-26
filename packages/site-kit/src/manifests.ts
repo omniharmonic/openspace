@@ -66,6 +66,11 @@ export function formsManifest(plan: SitePlan): FormsManifest {
     if (block.type !== "form") continue;
     const form = block.fields.form as Form | undefined;
     if (!form?.id) continue;
+    const seen = forms[form.id];
+    if (seen && JSON.stringify(seen) !== JSON.stringify(form))
+      throw new Error(
+        `Two different forms share the id ${form.id} (on ${page ?? "the footer"} and elsewhere): give one of them a new frm_ id so their entries don't mix.`,
+      );
     forms[form.id] ??= form;
     pages[form.id] ??= [];
     const list = pages[form.id] as string[];
@@ -122,6 +127,15 @@ export interface CatalogManifest {
   skus: Record<string, { price: Money; collection: string; slug: string; available: boolean }>;
 }
 
+/** Thrown when two purchasable things share a SKU (checkout couldn't tell them apart). */
+function claimSku(skus: CatalogManifest["skus"], sku: string, where: string): void {
+  const prev = skus[sku];
+  if (prev)
+    throw new Error(
+      `SKU ${sku} is used by both ${prev.collection}/${prev.slug} and ${where}: SKUs must be unique.`,
+    );
+}
+
 export function catalogManifest(plan: SitePlan): CatalogManifest {
   const products: CatalogProduct[] = [];
   const skus: CatalogManifest["skus"] = {};
@@ -156,6 +170,7 @@ export function catalogManifest(plan: SitePlan): CatalogManifest {
             price: v.price ?? fm.price,
             available: available && v.available !== false,
           };
+          claimSku(skus, vsku, `${collection}/${item.slug}`);
           skus[vsku] = {
             price: variant.price,
             collection,
@@ -165,6 +180,7 @@ export function catalogManifest(plan: SitePlan): CatalogManifest {
           return variant;
         });
       } else {
+        claimSku(skus, sku, `${collection}/${item.slug}`);
         skus[sku] = { price: fm.price, collection, slug: item.slug, available };
       }
       products.push(product);

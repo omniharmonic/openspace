@@ -14,20 +14,12 @@
  */
 /// <reference path="../virtual.d.ts" />
 
-import { getImage } from "astro:assets";
-import { mediaImports } from "virtual:openspace/media";
 import { doc, options } from "virtual:openspace/site";
-import type { ImageMap, ResolvedImage } from "@openspace/renderer";
+import type { ImageMap } from "@openspace/renderer";
 import { renderRoute } from "../render";
 import { planSite, type SitePlan, type SiteRoute } from "../routes";
-import {
-  fallbackFormat,
-  fallbackWidth,
-  imageWidths,
-  localImageSrcs,
-  pageImageSrcs,
-  resolvedImage,
-} from "./images";
+import { resolveImages } from "./astro-images";
+import { pageImageSrcs } from "./images";
 
 let plan: SitePlan | undefined;
 function sitePlan(): SitePlan {
@@ -47,51 +39,11 @@ export function staticPaths() {
   }));
 }
 
-const cache = new Map<string, Promise<ResolvedImage | undefined>>();
-
-interface ImageMeta {
-  src: string;
-  width: number;
-  height: number;
-  format: string;
-}
-
-async function resolveOne(src: string): Promise<ResolvedImage | undefined> {
-  const load = mediaImports[`/${src}`];
-  if (!load) return undefined;
-  const meta = (await load()) as ImageMeta;
-  if (meta.format === "svg") return undefined;
-  const widths = imageWidths(meta.width);
-  const transform = async (format: "avif" | "webp" | "jpg" | "png") => {
-    const r = await getImage({ src: meta, width: fallbackWidth(meta.width), widths, format });
-    return { src: r.src, srcset: r.srcSet.attribute };
-  };
-  const [avif, webp, fallback] = await Promise.all([
-    transform("avif"),
-    transform("webp"),
-    transform(fallbackFormat(meta.format)),
-  ]);
-  return resolvedImage(meta, { avif, webp, fallback }, doc.media[src]?.placeholder);
-}
-
 /** Resolve every local media image a route's page (and the site chrome) uses. */
 export async function imageMapFor(route: SiteRoute): Promise<ImageMap> {
   const p = sitePlan();
   const page = p.doc.pages[route.pageId as keyof typeof p.doc.pages];
-  const srcs = page ? pageImageSrcs(p.doc, page) : new Set<string>();
-  const map: Record<string, ResolvedImage> = {};
-  await Promise.all(
-    localImageSrcs(srcs).map(async (src) => {
-      let pending = cache.get(src);
-      if (!pending) {
-        pending = resolveOne(src);
-        cache.set(src, pending);
-      }
-      const resolved = await pending;
-      if (resolved) map[src] = resolved;
-    }),
-  );
-  return map;
+  return resolveImages(page ? pageImageSrcs(p.doc, page) : []);
 }
 
 /** Render the page for `Astro.props` to a full HTML document. */

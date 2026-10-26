@@ -7,7 +7,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promi
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { gunzipSync, gzipSync } from "node:zlib";
+import { gzipSync } from "node:zlib";
 import { BEHAVIORS, type ResolvedImage } from "@openspace/renderer";
 import { FormSchema } from "@openspace/schema";
 import {
@@ -197,9 +197,13 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
     // Behaviors nobody uses are not published.
     for (const b of ["carousel", "popup", "tabs", "marquee", "beacon"])
       expect(shipped).not.toContain(b);
-    // The cart ships only for product pages (blocks B product block), never elsewhere.
-    if (shipped.includes("cart"))
-      expect(await read(out, "shop/linen-bolster/index.html")).toContain("/_os/behaviors/cart.js");
+    // The cart ships for product pages (the product block's add-to-cart) and nowhere else.
+    expect(shipped).toContain("cart");
+    const product = await read(out, "shop/linen-bolster/index.html");
+    expect(product).toContain('<link rel="modulepreload" href="/_os/behaviors/cart.js">');
+    expect(product).toMatch(/data-os-add[^>]*data-os-sku="MDW-BOL-01/);
+    for (const f of all.filter((x) => x.endsWith(".html") && !x.startsWith("shop/")))
+      expect(await read(out, f), f).not.toContain("/_os/behaviors/cart.js");
     expect(
       shipped.every((b) => b === "os-behaviors" || (BEHAVIORS as readonly string[]).includes(b)),
     ).toBe(true);
@@ -210,12 +214,23 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
     expect(about).not.toContain("/_os/behaviors/form.js");
     expect(about).toContain("/_os/behaviors/lightbox.js");
     expect(about).not.toContain("/_os/behaviors/cart.js");
-    // Content pages stay well under the 30 KB JS budget.
-    let total = 0;
-    for (const f of js.filter((x) => x.startsWith("_os/behaviors/")))
-      total += gzipSync(await readFile(join(out, f))).length;
-    expect(total).toBeLessThan(30_000);
-    expect(gunzipSync(gzipSync("ok")).toString()).toBe("ok");
+    // Budgets (GC4/GC11): ≤ 3 KB gz per behavior (cart ≤ 12 KB), and every page's JS — the
+    // loader plus the behaviors it preloads — under 30 KB gz.
+    const gz = new Map<string, number>();
+    for (const f of js.filter((x) => x.startsWith("_os/behaviors/"))) {
+      const size = gzipSync(await readFile(join(out, f)), { level: 9 }).length;
+      gz.set(f.slice(14, -3), size);
+      expect(size, f).toBeLessThanOrEqual(f.endsWith("/cart.js") ? 12_288 : 3_072);
+    }
+    for (const f of all.filter((x) => x.endsWith(".html"))) {
+      const html = await read(out, f);
+      const used = [...html.matchAll(/\/_os\/behaviors\/([a-z-]+)\.js/g)].map(
+        (m) => m[1] as string,
+      );
+      const total = [...new Set(used)].reduce((sum, b) => sum + (gz.get(b) ?? 0), 0);
+      expect(total, f).toBeLessThan(30_000);
+      if (used.length) expect(used, f).toContain("os-behaviors");
+    }
   });
 
   it("links content-hashed stylesheets including the block library CSS", async () => {
@@ -434,6 +449,27 @@ describe("astro build on the Cloudflare target", () => {
       "/schedule /classes/ 301\n/old/blog /journal/ 301\n",
     );
     expect(await exists(join(client, "_os/forms.json"))).toBe(true);
+  });
+
+  it("publishes the image manifest and every behavior for Worker-rendered pages", async () => {
+    const client = join(out, "client");
+    const manifest = JSON.parse(await read(client, "_os/images.json")) as Record<
+      string,
+      { src: string; width: number; height: number; sources: { type: string }[] }
+    >;
+    const media = Object.keys(JSON.parse(await read(MEADOW_DIR, "content/media.json"))).filter(
+      (p) => /\.(?:jpe?g|png)$/.test(p),
+    );
+    expect(Object.keys(manifest).sort()).toEqual(media.sort());
+    for (const [path, img] of Object.entries(manifest)) {
+      expect(img.src, path).toMatch(/^\/_astro\//);
+      expect(await exists(join(client, img.src))).toBe(true);
+      expect(img.sources.map((x) => x.type)).toEqual(["image/avif", "image/webp"]);
+      expect(img.width).toBeGreaterThan(0);
+    }
+    const shipped = (await files(join(client, "_os", "behaviors"))).map((f) => f.slice(0, -3));
+    for (const b of BEHAVIORS.filter((x) => x !== "beacon")) expect(shipped).toContain(b);
+    expect(await read(client, "index.html")).toContain("/_os/blocks.");
   });
 
   it("builds a Worker for members, sign-in and password routes with the gated-content bucket", async () => {

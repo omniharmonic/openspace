@@ -391,6 +391,8 @@ export async function writeSiteDocument(
     const dir = `${COLLECTIONS_DIR}/${name}`;
     const cfg = doc.collectionConfigs?.[name];
     if (cfg) await put(`${dir}/${COLLECTION_CONFIG_FILE}`, formatJson(cfg));
+    else if (await exists(join(rootDir, dir, COLLECTION_CONFIG_FILE)))
+      await remove(`${dir}/${COLLECTION_CONFIG_FILE}`);
     const items = doc.collections[name] ?? {};
     for (const item of Object.values(items))
       await put(`${dir}/${item.slug}${ITEM_EXT}`, serializeItemFile(item));
@@ -407,7 +409,8 @@ export async function writeSiteDocument(
     for (const d of await readdir(join(rootDir, COLLECTIONS_DIR), { withFileTypes: true })) {
       if (!d.isDirectory() || names.has(d.name)) continue;
       for (const f of await readdir(join(rootDir, COLLECTIONS_DIR, d.name)))
-        if (f.endsWith(ITEM_EXT)) await remove(`${COLLECTIONS_DIR}/${d.name}/${f}`);
+        if (f.endsWith(ITEM_EXT) || f === COLLECTION_CONFIG_FILE)
+          await remove(`${COLLECTIONS_DIR}/${d.name}/${f}`);
     }
   } catch {
     // No collections folder.

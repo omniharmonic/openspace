@@ -146,6 +146,18 @@ function coerce(meta: FieldMeta, value: Json, media: Record<string, MediaMeta> |
   }
 }
 
+/** Image values (`{ src, alt, … }`) with an https src and no width/height. */
+function unsizedRemoteImages(value: Json, out: string[] = []): string[] {
+  if (Array.isArray(value)) for (const v of value) unsizedRemoteImages(v, out);
+  else if (value && typeof value === "object") {
+    const o = value as Record<string, Json>;
+    if (typeof o.src === "string" && "alt" in o && /^https:\/\//.test(o.src)) {
+      if (!(typeof o.width === "number" && typeof o.height === "number")) out.push(o.src);
+    } else for (const v of Object.values(o)) unsizedRemoteImages(v, out);
+  }
+  return out;
+}
+
 /** Required-field defaults only (optional demo defaults never leak into posts). */
 export function requiredDefaults(fields: Record<string, FieldMeta>): Record<string, Json> {
   const out: Record<string, Json> = {};
@@ -171,6 +183,7 @@ export function blockFromTag(
   let variant: string | undefined;
   let id = opts.id;
   let alt: string | undefined;
+  const size: { width?: number; height?: number } = {};
   const entries = Object.entries(meta.fields);
   for (const [key, raw] of Object.entries(attributes)) {
     if (key === "id") {
@@ -180,6 +193,12 @@ export function blockFromTag(
     }
     if (key === "alt" && !meta.fields.alt) {
       alt = String(raw);
+      continue;
+    }
+    if ((key === "width" || key === "height") && !meta.fields[key]) {
+      const n = Number(raw);
+      if (!Number.isInteger(n) || n <= 0) errors.push(`${key} must be a positive whole number`);
+      else size[key] = n;
       continue;
     }
     if ((key === "variant" || key === "layout") && !meta.fields[key]) {
@@ -212,10 +231,15 @@ export function blockFromTag(
     }
     fields[key] = coerce(fieldMeta, raw, opts.media);
   }
-  if (alt !== undefined) {
+  if (alt !== undefined || size.width || size.height) {
     const img = entries.find(([, m]) => m.kind === "image");
     const value = img ? fields[img[0]] : undefined;
-    if (value && typeof value === "object") (value as Record<string, Json>).alt = alt;
+    if (value && typeof value === "object") {
+      const v = value as Record<string, Json>;
+      if (alt !== undefined) v.alt = alt;
+      if (size.width) v.width = size.width;
+      if (size.height) v.height = size.height;
+    }
   }
   if (content && (content.markdown?.trim() || content.text?.trim())) {
     const rich = entries.find(([k, m]) => m.kind === "richText" && !(k in attributes));
@@ -226,6 +250,11 @@ export function blockFromTag(
   }
   const block: Block = { id: id as Block["id"], type: def.type, v: def.version, fields };
   if (variant) block.variant = variant;
+  // No layout shift (GC11): remote images must state their size (local ones get it from media.json).
+  for (const src of unsizedRemoteImages(fields))
+    errors.push(
+      `${tag}: remote image ${src} needs a size — add width= and height= (or ![alt](url "=WxH"))`,
+    );
   const result = def.validate(block);
   if (!result.success) {
     for (const i of result.issues)
@@ -297,9 +326,15 @@ export function markdocToBlocks(body: string, opts: MarkdocToBlocksOptions): Mar
     if (img) {
       flush();
       const src = String(img.attributes.src ?? "");
+      // `![alt](url "=1600x1067")` gives a remote image its size.
+      const dims = /^=(\d+)x(\d+)$/.exec(String(img.attributes.title ?? ""));
       const r = blockFromTag(
         "image",
-        { image: src, ...(img.attributes.alt ? { alt: String(img.attributes.alt) } : {}) },
+        {
+          image: src,
+          ...(img.attributes.alt ? { alt: String(img.attributes.alt) } : {}),
+          ...(dims ? { width: Number(dims[1]), height: Number(dims[2]) } : {}),
+        },
         undefined,
         { ...opts, id: nextId() },
       );

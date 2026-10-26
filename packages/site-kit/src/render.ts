@@ -206,6 +206,21 @@ export function addTurnstileLoader(html: string, loaderHref: string): string {
   return html.replace("</head>", `<script type="module" src="${loaderHref}"></script>\n</head>`);
 }
 
+/** Collection data for a document already limited to live items, at `now`. */
+export function collectionsContextValueFor(
+  doc: SiteDocument,
+  now: Date,
+  feeds: Record<string, SocialFeedPost[]> = {},
+): CollectionsContextValue {
+  return {
+    collections: doc.collections,
+    configs: doc.collectionConfigs ?? {},
+    now: now.toISOString(),
+    includeDrafts: false,
+    feeds,
+  };
+}
+
 /** Collection data for list blocks: live items only, `now` = build time. */
 export function collectionsContextValue(
   plan: SitePlan,
@@ -220,9 +235,76 @@ export function collectionsContextValue(
   };
 }
 
+export interface RenderDocumentOptions {
+  /** The document to render against (must contain `page` in `pages` for links to resolve). */
+  doc: SiteDocument;
+  page: Page;
+  location: DeployLocation;
+  imageMap?: ImageMap;
+  assets?: SiteAssets;
+  fontStylesheets?: string[];
+  hubUrl?: string;
+  turnstileSiteKey?: string;
+  /** Collection data for list blocks (`CollectionsContext`). */
+  collections?: CollectionsContextValue;
+  jsonLd?: Record<string, unknown>[];
+  /** Extra trusted head markup (after the block stylesheet). */
+  extraHead?: string;
+  mode?: "production" | "preview";
+}
+
+/**
+ * One page document: `renderPageHtml` plus the block stylesheet and site-kit's contexts.
+ * Shared by static routes and the Cloudflare Worker's gated pages.
+ */
+export function renderDocument(opts: RenderDocumentOptions): string {
+  ensureBlocks();
+  const { doc, page, location } = opts;
+  const basePath = location.basePath;
+  const mode = opts.mode ?? "production";
+  const imageMap = opts.imageMap ?? {};
+  const head = [
+    opts.assets
+      ? `<link rel="stylesheet" href="${opts.assets.blocks}">`
+      : `<style data-os="blocks">${BLOCKS_CSS}</style>`,
+    opts.extraHead ?? "",
+  ];
+  const html = renderPageHtml({
+    doc,
+    pageId: page,
+    mode,
+    basePath,
+    imageMap,
+    siteUrl: location.siteUrl,
+    jsonLd: opts.jsonLd ?? [],
+    ...(opts.hubUrl ? { hubUrl: opts.hubUrl } : {}),
+    ...(opts.fontStylesheets ? { fontStylesheets: opts.fontStylesheets } : {}),
+    ...(opts.assets ? { stylesheets: { base: opts.assets.base, tokens: opts.assets.tokens } } : {}),
+    extraHead: head.filter(Boolean).join("\n"),
+  });
+  const wrapped = withContexts(
+    html,
+    {
+      doc,
+      page,
+      mode,
+      basePath,
+      imageMap,
+      hubUrl: (opts.hubUrl ?? doc.config.hub).replace(/\/+$/, ""),
+    },
+    {
+      ...(opts.collections ? { collections: opts.collections } : {}),
+      ...(opts.turnstileSiteKey ? { turnstileSiteKey: opts.turnstileSiteKey } : {}),
+    },
+    `${basePath}/_os/behaviors`,
+  );
+  return opts.turnstileSiteKey
+    ? addTurnstileLoader(wrapped, `${basePath}/_os/turnstile.js`)
+    : wrapped;
+}
+
 /** Render a planned route to a complete HTML document. */
 export function renderRoute(opts: RenderRouteOptions): string {
-  ensureBlocks();
   const { plan, route, location } = opts;
   const basePath = location.basePath;
   const { page, og } = routePage(plan, route, opts.ogImages ?? true);
@@ -234,48 +316,23 @@ export function renderRoute(opts: RenderRouteOptions): string {
       height: OG_HEIGHT,
     };
   }
-  const head: string[] = [];
-  if (opts.assets) head.push(`<link rel="stylesheet" href="${opts.assets.blocks}">`);
-  else head.push(`<style data-os="blocks">${BLOCKS_CSS}</style>`);
-  const collection = route.collection;
-  if (collection) head.push(feedLinks(plan, collection, basePath));
-  const html = renderPageHtml({
+  return renderDocument({
     doc: plan.doc,
-    pageId: page,
-    mode: opts.mode ?? "production",
-    basePath,
+    page,
+    location,
     imageMap,
-    siteUrl: location.siteUrl,
+    ...(opts.assets ? { assets: opts.assets } : {}),
+    ...(opts.fontStylesheets ? { fontStylesheets: opts.fontStylesheets } : {}),
+    ...(opts.hubUrl ? { hubUrl: opts.hubUrl } : {}),
+    ...(opts.turnstileSiteKey ? { turnstileSiteKey: opts.turnstileSiteKey } : {}),
+    ...(opts.mode ? { mode: opts.mode } : {}),
+    collections: collectionsContextValue(plan, opts.socialFeeds),
     jsonLd: jsonLdFor(plan, route, {
       siteUrl: location.siteUrl,
       mediaUrl: (src) => mediaAbsolute(src, location, imageMap),
     }),
-    ...(opts.hubUrl ? { hubUrl: opts.hubUrl } : {}),
-    ...(opts.fontStylesheets ? { fontStylesheets: opts.fontStylesheets } : {}),
-    ...(opts.assets ? { stylesheets: { base: opts.assets.base, tokens: opts.assets.tokens } } : {}),
-    extraHead: head.filter(Boolean).join("\n"),
+    extraHead: route.collection ? feedLinks(plan, route.collection, basePath) : "",
   });
-  const mode = opts.mode ?? "production";
-  const behaviorsUrl = `${basePath}/_os/behaviors`;
-  const wrapped = withContexts(
-    html,
-    {
-      doc: plan.doc,
-      page,
-      mode,
-      basePath,
-      imageMap,
-      hubUrl: (opts.hubUrl ?? plan.doc.config.hub).replace(/\/+$/, ""),
-    },
-    {
-      collections: collectionsContextValue(plan, opts.socialFeeds),
-      ...(opts.turnstileSiteKey ? { turnstileSiteKey: opts.turnstileSiteKey } : {}),
-    },
-    behaviorsUrl,
-  );
-  return opts.turnstileSiteKey
-    ? addTurnstileLoader(wrapped, `${basePath}/_os/turnstile.js`)
-    : wrapped;
 }
 
 /** Absolute URL of a media source: an image-map URL if resolved, else the raw published file. */

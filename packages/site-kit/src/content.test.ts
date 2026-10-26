@@ -112,6 +112,20 @@ describe("loadSiteDocument / writeSiteDocument", () => {
     expect(again.collections.journal?.["draft-retreat-notes"]).toBeUndefined();
   });
 
+  it("deleting a collection removes its items and _collection.json", async () => {
+    const doc = await loadSiteDocument(dir);
+    delete doc.collections.podcast;
+    delete doc.collectionConfigs?.podcast;
+    const result = await writeSiteDocument(dir, doc);
+    expect(result.removed.sort()).toEqual([
+      "content/collections/podcast/_collection.json",
+      "content/collections/podcast/slow-mornings-01.mdoc",
+    ]);
+    const again = await loadSiteDocument(dir);
+    expect(again.collections.podcast).toBeUndefined();
+    expect(again.collectionConfigs?.podcast).toBeUndefined();
+  });
+
   it("keeps a page at <slug>/index.json when it already lives there", async () => {
     const doc = await loadSiteDocument(dir);
     await mkdir(join(dir, "content/pages/classes"), { recursive: true });

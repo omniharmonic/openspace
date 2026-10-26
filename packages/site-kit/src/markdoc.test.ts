@@ -27,7 +27,7 @@ describe("markdocToBlocks", () => {
 - Foundations at 8
 - Restorative on Wednesday
 
-{% gallery layout="grid" images=["media/a.jpg", "https://images.unsplash.com/photo-1?w=1600"] /%}
+{% gallery layout="grid" images=["media/a.jpg", {image: {src: "https://images.unsplash.com/photo-1?w=1600", alt: "Dusk", width: 1600, height: 1067}}] /%}
 
 {% button href="/schedule" variant="primary" %}See the schedule{% /button %}
 
@@ -69,6 +69,22 @@ Last words.
     const { blocks } = markdocToBlocks("![Morning class](media/a.jpg)\n\n---\n\nText.\n", opts);
     expect(blocks.map((b) => b.type)).toEqual(["image", "line", "text"]);
     expect(blocks[0]?.fields.image).toMatchObject({ src: "media/a.jpg", alt: "Morning class" });
+  });
+
+  it("sizes remote images and reports unsized ones (no layout shift)", () => {
+    const ok = markdocToBlocks(
+      '![Dusk](https://images.unsplash.com/photo-1 "=1600x1067")\n\n{% image image="https://images.unsplash.com/photo-2" alt="Dawn" width=1200 height=800 /%}\n',
+      opts,
+    );
+    expect(ok.issues).toEqual([]);
+    expect(ok.blocks[0]?.fields.image).toMatchObject({ width: 1600, height: 1067, alt: "Dusk" });
+    expect(ok.blocks[1]?.fields.image).toMatchObject({ width: 1200, height: 800, alt: "Dawn" });
+    const bad = markdocToBlocks(
+      '![Dusk](https://images.unsplash.com/photo-1)\n\n{% gallery images=["https://images.unsplash.com/photo-3"] /%}\n',
+      opts,
+    );
+    expect(bad.issues.map((i) => i.line)).toEqual([1, 3]);
+    expect(bad.issues[0]?.message).toMatch(/needs a size/);
   });
 
   it("fills a block's rich text from multi-line tag content", () => {

@@ -4,7 +4,14 @@ import type { GateContext, GateEnv } from "../handlers";
 
 /** Handler context from the integration's virtual module. */
 export function gateContext(): GateContext {
-  return { doc, location: options.location, assets: options.assets };
+  return {
+    doc,
+    location: options.location,
+    assets: options.assets,
+    fontStylesheets: options.fontStylesheets,
+    hubUrl: options.hubUrl,
+    turnstileSiteKey: options.turnstileSiteKey,
+  };
 }
 
 /** The Worker env (`cloudflare:workers`), imported lazily so prerendering never touches it. */

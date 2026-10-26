@@ -259,6 +259,9 @@ export function redirectHtml(r: Redirect, basePath: string, siteUrl: string): st
 /** Output file for a redirect's `from` path: `/old-page` → `old-page/index.html`. */
 export function redirectFile(from: string): string {
   const clean = from.replace(/^\/+/, "").replace(/\/+$/, "");
+  const segments = clean.split("/");
+  if (segments.some((s) => s === "." || s === ".." || s.includes("\\") || s.includes("\0")))
+    throw new Error(`Redirect path ${from} contains . or .. segments`);
   if (!clean) return "index.html";
   return /\.html?$/.test(clean) ? clean : `${clean}/index.html`;
 }

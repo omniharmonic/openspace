@@ -10,6 +10,7 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
+import { contentHash } from "../ids";
 import type { OgSpec } from "../render";
 import { OG_HEIGHT, OG_WIDTH } from "../render";
 
@@ -133,10 +134,28 @@ export async function writeOgImages(
   if (!unique.size) return { generated: 0, cached: 0 };
   await mkdir(join(opts.outDir, "_os", "og"), { recursive: true });
   await mkdir(opts.cacheDir, { recursive: true });
-  let fonts: OgFont[] | undefined;
+  // The cache key includes the fonts actually available (installing the pairing's Fontsource
+  // package changes the rendering without changing the page content).
+  const fontsByFamily = new Map<string, { fonts: OgFont[]; key: string }>();
+  const fontsFor = async (family: string) => {
+    let entry = fontsByFamily.get(family);
+    if (!entry) {
+      const fonts = await loadOgFonts(opts.rootDir, family);
+      entry = {
+        fonts,
+        key: contentHash(
+          fonts.map((f) => `${f.name}:${f.weight}:${f.data.byteLength}`).join("|"),
+          8,
+        ),
+      };
+      fontsByFamily.set(family, entry);
+    }
+    return entry;
+  };
   const result: OgResult = { generated: 0, cached: 0 };
   for (const spec of unique.values()) {
-    const cached = join(opts.cacheDir, `${spec.hash}.png`);
+    const { fonts, key } = await fontsFor(spec.heading);
+    const cached = join(opts.cacheDir, `${spec.hash}-${key}.png`);
     const out = join(opts.outDir, "_os", "og", `${spec.hash}.png`);
     const hit = await stat(cached).then(
       (s) => s.size > 0,
@@ -147,7 +166,6 @@ export async function writeOgImages(
       result.cached++;
       continue;
     }
-    fonts ??= await loadOgFonts(opts.rootDir, spec.heading);
     const png = await renderOgPng(spec, fonts);
     await writeFile(cached, png);
     await writeFile(out, png);

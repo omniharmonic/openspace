@@ -5,7 +5,7 @@
  * so they render through `renderPageHtml` exactly like the owner's pages.
  */
 import { rt } from "@openspace/blocks";
-import { isLive, itemDate, itemPath } from "@openspace/renderer";
+import { isLive, itemDate } from "@openspace/renderer";
 import type {
   Block,
   BlockRegistry,
@@ -537,8 +537,9 @@ export function cardRows(
       b.column = i;
       return b;
     });
-    const cols = chunk.length === 1 ? [4, 8] : chunk.length === 2 ? [4, 4, 4] : [4, 4, 4];
-    sections.push(stackSection(`${seed}#row-${row}`, blocks, { columns: cols, width: "wide" }));
+    sections.push(
+      stackSection(`${seed}#row-${row}`, blocks, { columns: [4, 4, 4], width: "wide" }),
+    );
   }
   return sections;
 }
@@ -649,5 +650,3 @@ export function notFoundPage(ctx: ComposeContext): Page {
     ],
   };
 }
-
-export { itemPath };

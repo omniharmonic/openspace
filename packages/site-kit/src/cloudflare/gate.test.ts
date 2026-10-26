@@ -123,6 +123,11 @@ describe("signed values and passwords", () => {
     expect(safeReturnPath("//evil.example/", "/repo")).toBe("/repo/");
     expect(safeReturnPath("https://evil.example/", "")).toBe("/");
     expect(slugFromPath("/repo/members/plans/", "/repo")).toBe("members/plans");
+    // Browsers strip tabs/newlines and treat backslashes as slashes: never leave the site.
+    expect(safeReturnPath("/\t/evil.example/", "")).toBe("/");
+    expect(safeReturnPath("/\\evil.example/", "")).toBe("/");
+    expect(safeReturnPath("/other/", "/repo")).toBe("/repo/");
+    expect(safeReturnPath("/repo/members/?a=1#b", "/repo")).toBe("/repo/members/?a=1#b");
   });
 });
 
@@ -198,6 +203,115 @@ describe("Worker handlers", () => {
     const html = await page.text();
     expect(html).toContain("<title>Member library · Meadow Yoga</title>");
     expect(html).toContain('<meta name="robots" content="noindex">');
+  });
+
+  it("renders gated pages with the build-time image map and their behaviors", async () => {
+    const photo = "media/2026/10/studio-open.jpg";
+    const gated: Page = {
+      id: "pg_membersfaq",
+      title: "Members FAQ",
+      slug: "members/faq",
+      sections: [
+        {
+          id: "sec_membersfq1",
+          layout: { mode: "stack", columns: { d: [12] } },
+          style: {},
+          blocks: [
+            {
+              id: "blk_membersph1",
+              type: "image",
+              v: 1,
+              fields: { image: { src: photo, alt: "The studio" }, aspect: "3:2", lightbox: false },
+            },
+            {
+              id: "blk_membersac1",
+              type: "accordion",
+              v: 1,
+              fields: {
+                items: [
+                  {
+                    question: "When?",
+                    answer: {
+                      type: "doc",
+                      content: [{ type: "paragraph", content: [{ type: "text", text: "Daily." }] }],
+                    },
+                  },
+                ],
+                exclusive: true,
+                openFirst: false,
+                faqSchema: false,
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const manifest = {
+      [photo]: {
+        src: "/_astro/studio-open.abc.jpg",
+        srcset: "/_astro/studio-open.abc.jpg 1600w",
+        sources: [{ type: "image/avif", srcset: "/_astro/studio-open.abc.avif 1600w" }],
+        width: 1600,
+        height: 1067,
+      },
+    };
+    let fetched = "";
+    const env = {
+      OS_SESSION_SECRET: SECRET,
+      OS_GATED: r2({ "members/faq": gated }),
+      ASSETS: {
+        fetch: async (req: Request | string) => {
+          fetched = String(typeof req === "string" ? req : req.url);
+          return new Response(JSON.stringify(manifest));
+        },
+      },
+    };
+    const session = await signValue({ sub: "mem_1" }, SECRET, 600, NOW);
+    const res = await handleGatedPage(
+      new Request("https://meadowyoga.example/members/faq/", {
+        headers: { cookie: `os_member=${session}` },
+      }),
+      env,
+      {
+        ...ctx,
+        assets: { base: "/_os/os.1.css", tokens: "/_os/tokens.1.css", blocks: "/_os/blocks.1.css" },
+      },
+    );
+    const html = await res.text();
+    expect(res.status, html.slice(0, 300)).toBe(200);
+    expect(fetched).toBe("https://meadowyoga.example/_os/images.json");
+    expect(html).toContain('srcSet="/_astro/studio-open.abc.avif 1600w"');
+    expect(html).toMatch(/width="1600" height="1067"/);
+    expect(html).toContain('<link rel="modulepreload" href="/_os/behaviors/accordion.js">');
+    expect(html).toContain('<script type="module" src="/_os/behaviors/os-behaviors.js">');
+    expect(html).toContain('<link rel="stylesheet" href="/_os/blocks.1.css">');
+  });
+
+  it("answers 503 when the Worker isn't configured", async () => {
+    const page = await handleGatedPage(
+      new Request("https://meadowyoga.example/members/x/"),
+      {},
+      ctx,
+    );
+    expect(page.status).toBe(503);
+    const cb = await handleAuthCallback(
+      new Request(`https://meadowyoga.example/_os/auth/callback?token=${await token(claims)}`),
+      { OS_SESSION_SECRET: SECRET },
+      {
+        ...ctx,
+        fetchJwks: async () => {
+          throw new Error("offline");
+        },
+      },
+    );
+    expect(cb.status).toBe(503);
+    expect(await cb.text()).toContain("Signing in isn’t available right now");
+    const noSecret = await handleAuthCallback(
+      new Request(`https://meadowyoga.example/_os/auth/callback?token=${await token(claims)}`),
+      { OS_SESSION_SECRET: "short" },
+      ctx,
+    );
+    expect(noSecret.status).toBe(503);
   });
 
   it("rejects bad sign-in links", async () => {

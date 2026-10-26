@@ -10,15 +10,25 @@
  * - `OS_GATED` (R2 bucket) holds gated page JSON at `pages/<slug>.json` — gated content is never
  *   in the public repo.
  * - `OS_PAGE_PASSWORDS` (secret) JSON `{ "<pageId>": "pbkdf2$…" }` from `hashPagePassword`.
+ * - `ASSETS` (static assets binding) serves `/_os/images.json`, the build-time image map that
+ *   gives gated pages' local images the same responsive sources as static pages.
+ *
+ * Magic-link replay: the callback is stateless, so a sign-in link works until its `exp`. The Hub
+ * issues these tokens with a short expiry (minutes) for exactly that reason; the resulting
+ * session lives in the site's own signed cookie.
+ *
+ * Misconfiguration (no session secret, Hub keys unreachable) answers 503 with a plain notice,
+ * never a misleading "your link expired" or a raw 500.
  */
-import { BLOCKS_CSS } from "@openspace/blocks";
-import { escapeHtml, renderPageHtml } from "@openspace/renderer";
+import { escapeHtml, type ImageMap } from "@openspace/renderer";
 import { type Page, PageSchema, type SiteDocument } from "@openspace/schema";
 import type { DeployLocation } from "../deploy";
 import { stableId } from "../ids";
-import { ensureBlocks, type SiteAssets } from "../render";
+import { collectionsContextValueFor, renderDocument, type SiteAssets } from "../render";
+import { publishableDoc } from "../routes";
 import {
   checkPagePassword,
+  GateConfigError,
   GateError,
   getCookie,
   type Jwk,
@@ -27,6 +37,7 @@ import {
   readSigned,
   SESSION_TTL,
   safeReturnPath,
+  sessionSecretOk,
   setCookie,
   signValue,
   verifyHubToken,
@@ -36,10 +47,15 @@ export interface R2Like {
   get(key: string): Promise<{ text(): Promise<string> } | null>;
 }
 
+export interface AssetsLike {
+  fetch(request: Request | string): Promise<Response>;
+}
+
 export interface GateEnv {
   OS_SESSION_SECRET?: string;
   OS_GATED?: R2Like;
   OS_PAGE_PASSWORDS?: string;
+  ASSETS?: AssetsLike;
 }
 
 export interface GateContext {
@@ -47,6 +63,11 @@ export interface GateContext {
   doc: SiteDocument;
   location: DeployLocation;
   assets?: SiteAssets;
+  fontStylesheets?: string[] | undefined;
+  hubUrl?: string | undefined;
+  turnstileSiteKey?: string | undefined;
+  /** Image map override (tests); default: `/_os/images.json` from the ASSETS binding. */
+  imageMap?: ImageMap;
   /** Fetch the Hub's JWKS (injected for tests; default `fetch(<hub>/.well-known/jwks.json)`). */
   fetchJwks?: () => Promise<{ keys: Jwk[] }>;
   now?: number;
@@ -88,16 +109,39 @@ function hubOrigin(doc: SiteDocument) {
   return doc.config.hub.replace(/\/+$/, "");
 }
 
-function renderGated(ctx: GateContext, page: Page, extraMain?: string): string {
-  ensureBlocks();
-  const doc = { ...ctx.doc, pages: { ...ctx.doc.pages, [page.id]: page } } as SiteDocument;
-  const html = renderPageHtml({
+let manifest: Promise<ImageMap> | undefined;
+
+/** The build-time image map (`/_os/images.json`), loaded once per Worker isolate. */
+async function imageManifest(request: Request, env: GateEnv, ctx: GateContext): Promise<ImageMap> {
+  if (ctx.imageMap) return ctx.imageMap;
+  if (!env.ASSETS) return {};
+  manifest ??= env.ASSETS.fetch(
+    new URL(`${ctx.location.basePath}/_os/images.json`, request.url).toString(),
+  )
+    .then((r) => (r.ok ? (r.json() as Promise<ImageMap>) : {}))
+    .catch(() => {
+      manifest = undefined;
+      return {};
+    });
+  return manifest;
+}
+
+function renderGated(ctx: GateContext, page: Page, imageMap: ImageMap, extraMain?: string): string {
+  const now = new Date(ctx.now ?? Date.now());
+  const live = publishableDoc(ctx.doc, now);
+  // Gated pages are never part of the static document; add this one so its links resolve.
+  const doc = { ...live, pages: { ...live.pages, [page.id]: page } } as SiteDocument;
+  const html = renderDocument({
     doc,
-    pageId: page,
-    basePath: ctx.location.basePath,
-    siteUrl: ctx.location.siteUrl,
-    ...(ctx.assets ? { stylesheets: { base: ctx.assets.base, tokens: ctx.assets.tokens } } : {}),
-    extraHead: `${ctx.assets ? `<link rel="stylesheet" href="${ctx.assets.blocks}">` : `<style data-os="blocks">${BLOCKS_CSS}</style>`}<meta name="robots" content="noindex">`,
+    page,
+    location: ctx.location,
+    imageMap,
+    ...(ctx.assets ? { assets: ctx.assets } : {}),
+    ...(ctx.fontStylesheets ? { fontStylesheets: ctx.fontStylesheets } : {}),
+    ...(ctx.hubUrl ? { hubUrl: ctx.hubUrl } : {}),
+    ...(ctx.turnstileSiteKey ? { turnstileSiteKey: ctx.turnstileSiteKey } : {}),
+    collections: collectionsContextValueFor(doc, now),
+    extraHead: '<meta name="robots" content="noindex">',
   });
   return extraMain ? html.replace("</main>", `${extraMain}</main>`) : html;
 }
@@ -107,6 +151,14 @@ const htmlResponse = (html: string, status = 200) =>
     status,
     headers: { "content-type": "text/html; charset=utf-8", ...PRIVATE },
   });
+
+/** 503 for a Worker that isn't fully set up (the owner fixes it in Studio → Settings). */
+export function unavailable(what: string): Response {
+  return htmlResponse(
+    `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="robots" content="noindex"><title>Temporarily unavailable</title><p>${escapeHtml(what)} isn’t available right now. Please try again later.</p></html>`,
+    503,
+  );
+}
 
 async function passwordPages(
   cookieHeader: string | null,
@@ -128,6 +180,7 @@ export async function handleGatedPage(
   ctx: GateContext,
 ): Promise<Response> {
   const url = new URL(request.url);
+  if (!sessionSecretOk(env.OS_SESSION_SECRET)) return unavailable("This page");
   const slug = slugFromPath(url.pathname, ctx.location.basePath);
   const page = await findGatedPage(slug, env, ctx.doc);
   const membersOnly =
@@ -145,11 +198,12 @@ export async function handleGatedPage(
       login.searchParams.set("return", url.pathname);
       return redirect(login.toString());
     }
-    return htmlResponse(renderGated(ctx, page));
+    return htmlResponse(renderGated(ctx, page, await imageManifest(request, env, ctx)));
   }
   // Password page.
   const unlocked = await passwordPages(cookies, env, ctx);
-  if (unlocked.includes(page.id)) return htmlResponse(renderGated(ctx, page));
+  if (unlocked.includes(page.id))
+    return htmlResponse(renderGated(ctx, page, await imageManifest(request, env, ctx)));
   const error = url.searchParams.get("os_password") === "error";
   const prompt: Page = {
     id: stableId("pg", `password:${page.id}`),
@@ -169,7 +223,7 @@ export async function handleGatedPage(
 ${error ? '<p class="os-field__error" id="os-pw-error">That password didn’t work. Try again.</p>' : ""}
 <button class="os-button os-button--primary" type="submit">Continue</button>
 </form></div></section>`;
-  return htmlResponse(renderGated(ctx, prompt, form), error ? 401 : 200);
+  return htmlResponse(renderGated(ctx, prompt, {}, form), error ? 401 : 200);
 }
 
 /** POST `/_os/auth/password`: check the shared password and remember the unlocked page. */
@@ -178,6 +232,7 @@ export async function handlePasswordSubmit(
   env: GateEnv,
   ctx: GateContext,
 ): Promise<Response> {
+  if (!sessionSecretOk(env.OS_SESSION_SECRET)) return unavailable("This page");
   const form = await request.formData();
   const pageId = String(form.get("page") ?? "");
   const password = String(form.get("password") ?? "");
@@ -218,11 +273,22 @@ export async function handleAuthCallback(
       "<!doctype html><title>Sign-in link</title><p>This sign-in link is incomplete.</p>",
       400,
     );
+  if (!sessionSecretOk(env.OS_SESSION_SECRET)) return unavailable("Signing in");
   const hub = hubOrigin(ctx.doc);
-  const jwks = await (
-    ctx.fetchJwks ??
-    (async () => (await fetch(`${hub}/.well-known/jwks.json`)).json() as Promise<{ keys: Jwk[] }>)
-  )();
+  let jwks: { keys: Jwk[] };
+  try {
+    jwks = await (
+      ctx.fetchJwks ??
+      (async () => {
+        const r = await fetch(`${hub}/.well-known/jwks.json`);
+        if (!r.ok) throw new Error(`JWKS ${r.status}`);
+        return (await r.json()) as { keys: Jwk[] };
+      })
+    )();
+    if (!Array.isArray(jwks?.keys)) throw new Error("JWKS has no keys");
+  } catch {
+    return unavailable("Signing in");
+  }
   try {
     const claims = await verifyHubToken(token, jwks, {
       issuer: new URL(hub).origin,
@@ -243,6 +309,7 @@ export async function handleAuthCallback(
       setCookie(MEMBER_COOKIE, session, { maxAge: SESSION_TTL, path: `${ctx.location.basePath}/` }),
     ]);
   } catch (e) {
+    if (e instanceof GateConfigError) return unavailable("Signing in");
     if (e instanceof GateError)
       return htmlResponse(
         `<!doctype html><title>Sign-in link</title><p>This sign-in link has expired or isn’t valid (${escapeHtml(e.message)}). Please request a new one.</p>`,

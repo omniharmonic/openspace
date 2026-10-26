@@ -128,7 +128,17 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
             entrypoint: ENTRY("cloudflare/password"),
             prerender: false,
           });
+          // Build-time image map for Worker-rendered (gated) pages.
+          injectRoute({
+            pattern: "/_os/images.json",
+            entrypoint: ENTRY("images-manifest"),
+            prerender: true,
+          });
           for (const page of gatedPages(doc)) {
+            if (page.slug === "")
+              throw new Error(
+                "The home page can't be members-only or password-protected; gate another page instead.",
+              );
             if (page.slug === "members" || page.slug.startsWith("members/")) continue;
             injectRoute({
               pattern: `/${page.slug}`,

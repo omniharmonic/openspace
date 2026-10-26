@@ -282,6 +282,15 @@ describe("feeds", () => {
     expect(ics.endsWith("END:VCALENDAR\r\n")).toBe(true);
   });
 
+  it("escapes enclosure types and writes whole-second durations", () => {
+    const ep = structuredClone(plan.items.podcast?.[0]) as CollectionItem & { kind: "podcast" };
+    (ep.frontmatter.audio as { duration: number }).duration = 1519.6;
+    (ep.frontmatter.audio as { mime: string }).mime = 'audio/mpeg"><x' as never;
+    const xml = podcastFeed(ctx(), "podcast", [ep], "/podcast/podcast.xml");
+    expect(xml).toContain("<itunes:duration>00:25:20</itunes:duration>");
+    expect(xml).toContain('type="audio/mpeg&quot;&gt;&lt;x"');
+  });
+
   it("adds Apple podcast tags", () => {
     const xml = podcastFeed(ctx(), "podcast", plan.items.podcast ?? [], "/podcast/podcast.xml");
     expect(xml).toContain('<itunes:category text="Society &amp; Culture"/>');
@@ -304,6 +313,11 @@ describe("SEO outputs", () => {
     expect(
       robotsTxt({ ...doc, site: { ...doc.site, seo: { noindex: true } } }, loc().siteUrl),
     ).toBe("User-agent: *\nDisallow: /\n");
+  });
+
+  it("refuses redirect paths with dot segments", () => {
+    expect(() => redirectFile("/../../etc/passwd")).toThrow(/segments/);
+    expect(() => redirectFile("/a/./b")).toThrow(/segments/);
   });
 
   it("redirects as static HTML and Cloudflare _redirects", () => {
@@ -343,6 +357,26 @@ describe("SEO outputs", () => {
 });
 
 describe("Hub manifests", () => {
+  it("fail the build on a form id shared by two different forms", () => {
+    const contact = Object.values(plan.doc.pages).find((pg) => pg.slug === "contact") as Page;
+    const clone = structuredClone(contact);
+    clone.id = "pg_c0ntactc0py";
+    clone.slug = "contact-copy";
+    const formBlock = clone.sections.flatMap((x) => x.blocks).find((b) => b.type === "form");
+    (formBlock?.fields.form as { name: string }).name = "Something else";
+    const p = { ...plan, doc: { ...plan.doc, pages: { ...plan.doc.pages, [clone.id]: clone } } };
+    expect(() => formsManifest(p as SitePlan)).toThrow(/share the id frm_c0ntactmdw/);
+  });
+
+  it("fail the build on a SKU used twice", () => {
+    const shop = plan.items.shop ?? [];
+    const dupe = structuredClone(shop[0]) as CollectionItem;
+    dupe.slug = "dupe";
+    expect(() => catalogManifest({ ...plan, items: { ...plan.items, extra: [dupe] } })).toThrow(
+      /SKU .* is used by both/,
+    );
+  });
+
   it("forms.json: the Hub's shape — forms by id, each a Form plus redirectHref", () => {
     const m = formsManifest(plan);
     expect(Object.keys(m.forms)).toEqual(["frm_c0ntactmdw"]);

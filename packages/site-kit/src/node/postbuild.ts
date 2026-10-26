@@ -5,8 +5,8 @@
  * self-hosted fonts and the Pagefind index.
  */
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
-import { dirname, join, relative, sep } from "node:path";
-import { BEHAVIOR_LOADER, behaviorsInHtml } from "@openspace/renderer";
+import { dirname, join, relative, resolve, sep } from "node:path";
+import { BEHAVIOR_LOADER, BEHAVIORS, behaviorsInHtml } from "@openspace/renderer";
 import { BEHAVIOR_ESBUILD, behaviorDistPath, behaviorSourcePath } from "@openspace/renderer/node";
 import type { SiteDocument } from "@openspace/schema";
 import { build as esbuild } from "esbuild";
@@ -117,8 +117,12 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
   const log = opts.log ?? (() => {});
   const written: string[] = [];
   const warnings: string[] = [];
+  const root = resolve(outDir);
   const put = async (rel: string, contents: string | Uint8Array) => {
-    const abs = join(outDir, rel.replace(/^\/+/, ""));
+    const abs = resolve(root, rel.replace(/^\/+/, ""));
+    // Never write outside the build directory (content-controlled paths: redirects, feeds).
+    if (abs !== root && !abs.startsWith(`${root}${sep}`))
+      throw new Error(`Refusing to write ${rel} outside the build directory`);
     await mkdir(dirname(abs), { recursive: true });
     await writeFile(abs, contents);
     written.push(rel.replace(/^\/+/, ""));
@@ -140,6 +144,9 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
     if (html.includes(`data-os-behavior="beacon"`)) used.add("beacon");
     if (html.includes("data-os-turnstile=")) turnstile = true;
   }
+  // On Cloudflare, Worker-rendered (gated) pages may use any behavior: publish them all.
+  if (opts.cloudflare)
+    for (const b of BEHAVIORS) if (b !== "beacon" || used.has("beacon")) used.add(b);
   const behaviors = [...used].sort();
   if (behaviors.length) {
     const names = [...behaviors, BEHAVIOR_LOADER] as Parameters<typeof behaviorDistPath>[0][];

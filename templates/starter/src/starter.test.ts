@@ -5,6 +5,10 @@ import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 import { SITE_DIR, starterFiles, VARIANTS } from "./index";
 
+// GitHub expression strings, built so linters don't read them as template literals.
+const expr = (inner: string) => ["$", "{{ ", inner, " }}"].join("");
+const TURNSTILE_VAR = expr("vars.OPENSPACE_TURNSTILE_SITE_KEY");
+
 type Step = {
   uses?: string;
   run?: string;
@@ -35,15 +39,22 @@ describe("starter site shell", () => {
       "actions/checkout@v7",
       "actions/setup-node@v7",
       "actions/cache@v6",
-      "npm ci",
+      "if [ -f package-lock.json ]; then npm ci; else npm install; fi",
       "npx openspace check --ci",
       "npm run build",
       "actions/upload-pages-artifact@v5",
     ]);
-    expect(build?.steps[1]?.with).toEqual({ "node-version": 22, cache: "npm" });
+    expect(build?.steps[1]?.with).toEqual({
+      "node-version": 22,
+      cache: "npm",
+      "cache-dependency-path": "package.json",
+    });
+    expect(build?.steps[5]?.env).toEqual({
+      OPENSPACE_TURNSTILE_SITE_KEY: TURNSTILE_VAR,
+    });
     expect(build?.steps[2]?.with).toEqual({
       path: "node_modules/.astro",
-      key: "os-assets-${{ hashFiles('media/**') }}",
+      key: `os-assets-${expr("hashFiles('media/**')")}`,
       "restore-keys": "os-assets-",
     });
     expect(build?.steps[6]?.with).toEqual({ path: "dist" });
@@ -51,7 +62,7 @@ describe("starter site shell", () => {
     expect(deploy?.needs).toBe("build");
     expect(deploy?.environment).toEqual({
       name: "github-pages",
-      url: "${{ steps.d.outputs.page_url }}",
+      url: expr("steps.d.outputs.page_url"),
     });
     expect(deploy?.steps).toEqual([{ id: "d", uses: "actions/deploy-pages@v5" }]);
   });
@@ -63,11 +74,17 @@ describe("starter site shell", () => {
     expect(wf.permissions).toEqual({ contents: "read" });
     const steps = wf.jobs.publish?.steps ?? [];
     expect(steps.map((s) => s.uses ?? s.run)).toContain("npx openspace check --ci");
+    expect(steps.map((s) => s.uses ?? s.run)).toContain(
+      "if [ -f package-lock.json ]; then npm ci; else npm install; fi",
+    );
+    expect(steps.find((s) => s.run === "npm run build")?.env).toEqual({
+      OPENSPACE_TURNSTILE_SITE_KEY: TURNSTILE_VAR,
+    });
     const deploy = steps.at(-1);
     expect(deploy?.run).toBe("npx wrangler deploy");
     expect(deploy?.env).toEqual({
-      CLOUDFLARE_API_TOKEN: "${{ secrets.CLOUDFLARE_API_TOKEN }}",
-      CLOUDFLARE_ACCOUNT_ID: "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}",
+      CLOUDFLARE_API_TOKEN: expr("secrets.CLOUDFLARE_API_TOKEN"),
+      CLOUDFLARE_ACCOUNT_ID: expr("secrets.CLOUDFLARE_ACCOUNT_ID"),
     });
     const wrangler = await readFile(join(VARIANTS.cloudflare, "wrangler.jsonc"), "utf8");
     expect(wrangler).toContain('"binding": "OS_GATED"');

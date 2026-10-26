@@ -36,6 +36,10 @@
     "./cloudflare/password": {
       "types": "./src/cloudflare/endpoints/password.ts",
       "default": "./src/cloudflare/endpoints/password.ts"
+    },
+    "./images-manifest": {
+      "types": "./src/runtime/images-manifest.ts",
+      "default": "./src/runtime/images-manifest.ts"
     }
   },
   "publishConfig": {
@@ -68,6 +72,10 @@
       "./cloudflare/password": {
         "types": "./dist/cloudflare/endpoints/password.d.ts",
         "default": "./dist/cloudflare/endpoints/password.js"
+      },
+      "./images-manifest": {
+        "types": "./dist/runtime/images-manifest.d.ts",
+        "default": "./dist/runtime/images-manifest.js"
       }
     }
   },

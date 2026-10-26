@@ -244,12 +244,17 @@ export interface PodcastOptions {
   ownerEmail?: string | undefined;
 }
 
-const hms = (seconds: number) => {
+/** `HH:MM:SS` from whole seconds (fractions are rounded; Apple rejects decimals). */
+const hms = (raw: number) => {
+  const seconds = Math.max(0, Math.round(raw));
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
   return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
 };
+
+const transcriptType = (src: string) =>
+  src.endsWith(".vtt") ? "text/vtt" : src.endsWith(".srt") ? "application/srt" : "text/plain";
 
 export function podcastFeed(
   ctx: FeedContext,
@@ -280,7 +285,7 @@ export function podcastFeed(
         `      <pubDate>${toDate(fm.date).toUTCString()}</pubDate>`,
         desc ? `      <description>${xml(desc)}</description>` : "",
         desc ? `      <itunes:summary>${xml(desc)}</itunes:summary>` : "",
-        `      <enclosure url="${xml(ctx.mediaUrl(fm.audio.src))}" length="${bytes}" type="${fm.audio.mime}"/>`,
+        `      <enclosure url="${xml(ctx.mediaUrl(fm.audio.src))}" length="${bytes}" type="${xml(fm.audio.mime)}"/>`,
         `      <itunes:duration>${hms(fm.audio.duration)}</itunes:duration>`,
         `      <itunes:explicit>${fm.explicit ? "true" : "false"}</itunes:explicit>`,
         fm.episode !== undefined ? `      <itunes:episode>${fm.episode}</itunes:episode>` : "",
@@ -288,7 +293,7 @@ export function podcastFeed(
         `      <itunes:episodeType>${fm.episodeType ?? "full"}</itunes:episodeType>`,
         fm.image ? `      <itunes:image href="${xml(ctx.mediaUrl(fm.image))}"/>` : "",
         fm.transcript
-          ? `      <podcast:transcript url="${xml(ctx.mediaUrl(fm.transcript))}" type="${fm.transcript.endsWith(".vtt") ? "text/vtt" : fm.transcript.endsWith(".srt") ? "application/srt" : "text/plain"}"/>`
+          ? `      <podcast:transcript url="${xml(ctx.mediaUrl(fm.transcript))}" type="${xml(transcriptType(fm.transcript))}"/>`
           : "",
         "    </item>",
       ]

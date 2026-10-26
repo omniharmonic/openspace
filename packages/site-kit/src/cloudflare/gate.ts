@@ -50,6 +50,15 @@ export class GateError extends Error {
   override name = "GateError";
 }
 
+/** The Worker is missing configuration (secrets, Hub keys) — not the visitor's fault. */
+export class GateConfigError extends Error {
+  override name = "GateConfigError";
+}
+
+/** Whether the session secret is usable (≥ 32 characters). */
+export const sessionSecretOk = (secret: string | undefined): secret is string =>
+  typeof secret === "string" && secret.length >= 32;
+
 const ALGS: Record<
   string,
   { import: RsaHashedImportParams | EcKeyImportParams; verify: AlgorithmIdentifier | EcdsaParams }
@@ -123,8 +132,8 @@ export async function signValue(
   ttlSeconds: number,
   now = Date.now(),
 ): Promise<string> {
-  if (!secret || secret.length < 32)
-    throw new GateError("Session secret must be at least 32 characters");
+  if (!sessionSecretOk(secret))
+    throw new GateConfigError("Session secret must be at least 32 characters");
   const payload = b64urlEncode(
     enc.encode(JSON.stringify({ ...value, exp: Math.floor(now / 1000) + ttlSeconds })),
   );
@@ -214,9 +223,23 @@ export async function checkPagePassword(
   return diff === 0;
 }
 
-/** Only same-site relative paths are allowed as post-login destinations. */
+/**
+ * Post-login destinations: only paths on this site, under its base path. The value is parsed
+ * as a URL against a placeholder origin (so tabs/newlines/backslashes are normalised the way
+ * browsers do) and rejected unless it stays on that origin.
+ */
 export function safeReturnPath(value: string | null | undefined, basePath: string): string {
   const fallback = `${basePath}/`;
-  if (!value?.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
-  return value;
+  if (!value) return fallback;
+  const origin = "https://site.invalid";
+  let url: URL;
+  try {
+    url = new URL(value, `${origin}/`);
+  } catch {
+    return fallback;
+  }
+  if (url.origin !== origin) return fallback;
+  if (basePath && url.pathname !== basePath && !url.pathname.startsWith(`${basePath}/`))
+    return fallback;
+  return `${url.pathname}${url.search}${url.hash}`;
 }

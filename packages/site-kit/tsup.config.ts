@@ -5,6 +5,7 @@ export default defineConfig({
     "src/index.ts",
     "src/content/index.ts",
     "src/runtime/route.ts",
+    "src/runtime/images-manifest.ts",
     "src/cloudflare/index.ts",
     "src/cloudflare/endpoints/gated.ts",
     "src/cloudflare/endpoints/auth-callback.ts",
