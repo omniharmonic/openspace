@@ -417,7 +417,8 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
                     Manage members in Members.
                   </p>
                   {activeTiers.length > 0 && (
-                    <div className="st-tier-picker" role="group" aria-label="Membership plans">
+                    <fieldset className="st-tier-picker">
+                      <legend className="st-muted-note">Plans that can open it</legend>
                       {activeTiers.map((t) => (
                         <Switch
                           key={t.id}
@@ -438,7 +439,7 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
                           ? "Only members on the plans switched on can open this page."
                           : "No plan chosen: every member can open this page."}
                       </p>
-                    </div>
+                    </fieldset>
                   )}
                   {openToAnyone && (
                     <div className="st-callout st-callout--pending" role="note">

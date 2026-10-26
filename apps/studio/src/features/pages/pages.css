@@ -587,5 +587,7 @@
 .st-tier-picker {
   display: grid;
   gap: 4px;
-  margin-top: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
 }
