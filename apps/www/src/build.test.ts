@@ -33,6 +33,8 @@ describe("openspace.dev build", () => {
         ...process.env,
         ASTRO_TELEMETRY_DISABLED: "1",
         OPENSPACE_BUILD_TIME: "2026-10-26T12:00:00Z",
+        // Hermetic: link Google Fonts instead of downloading them.
+        OPENSPACE_GOOGLE_FONTS: "link",
       },
       maxBuffer: 64 * 1024 * 1024,
     });

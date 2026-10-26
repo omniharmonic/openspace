@@ -51,6 +51,8 @@ describe("starter site shell", () => {
     });
     expect(build?.steps[5]?.env).toEqual({
       OPENSPACE_TURNSTILE_SITE_KEY: TURNSTILE_VAR,
+      // Publishing self-hosts the font pairing (downloaded from Google Fonts at build time).
+      OPENSPACE_GOOGLE_FONTS: "download",
     });
     expect(build?.steps[2]?.with).toEqual({
       path: "node_modules/.astro",
@@ -79,6 +81,8 @@ describe("starter site shell", () => {
     );
     expect(steps.find((s) => s.run === "npm run build")?.env).toEqual({
       OPENSPACE_TURNSTILE_SITE_KEY: TURNSTILE_VAR,
+      // Publishing self-hosts the font pairing (downloaded from Google Fonts at build time).
+      OPENSPACE_GOOGLE_FONTS: "download",
     });
     const deploy = steps.at(-1);
     expect(deploy?.run).toBe("npx wrangler deploy");

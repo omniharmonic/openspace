@@ -71,6 +71,8 @@ export async function astroBuild(root) {
       ...process.env,
       OPENSPACE_BUILD_TIME: "2026-10-26T12:00:00Z",
       ASTRO_TELEMETRY_DISABLED: "1",
+      // As published: the starter's publish workflow self-hosts the font pairing.
+      OPENSPACE_GOOGLE_FONTS: process.env.OPENSPACE_GOOGLE_FONTS ?? "download",
     },
     maxBuffer: 64 * 1024 * 1024,
   });

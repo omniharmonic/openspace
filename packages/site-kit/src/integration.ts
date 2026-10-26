@@ -9,7 +9,7 @@
 
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { SocialFeedPost } from "@openspace/renderer";
+import { compiledStylesFor, type SocialFeedPost } from "@openspace/renderer";
 import type { AstroIntegration } from "astro";
 import { loadSiteDocument } from "./content/index";
 import { type DeployLocation, deployLocation } from "./deploy";
@@ -88,14 +88,18 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
         location = deployLocation(doc.config);
         cloudflare = doc.config.deploy.target === "cloudflare";
         search = options.search ?? doc.config.features.search;
-        // Builds self-host the fonts (Fontsource packages, else a one-time Google download).
+        // Builds self-host the fonts: Fontsource packages, else (publish workflows set
+        // OPENSPACE_GOOGLE_FONTS=download) a one-time Google download. Dev never downloads.
         const fonts = await resolveFonts(rootDir, doc, location.basePath, {
-          google: command === "build" && process.env.OPENSPACE_GOOGLE_FONTS !== "link",
+          google: command === "build" && process.env.OPENSPACE_GOOGLE_FONTS === "download",
         });
         if (!fonts.plan && command === "build")
           logger.info(
-            `fonts load from Google Fonts; install ${fonts.missing.join(", ")} to self-host them`,
+            fonts.reason
+              ? `fonts load from Google Fonts: the download failed (${fonts.reason})`
+              : `fonts load from Google Fonts; install ${fonts.missing.join(", ")} or set OPENSPACE_GOOGLE_FONTS=download to self-host them`,
           );
+        const pairing = compiledStylesFor(doc.styles).tokens.pairing;
         const turnstileSiteKey =
           options.turnstileSiteKey ?? process.env.OPENSPACE_TURNSTILE_SITE_KEY;
         runtime = {
@@ -103,7 +107,12 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
           location,
           assets: siteStylesheets(doc, location.basePath).hrefs,
           fontStylesheets: fonts.plan ? [`${location.basePath}/${fonts.plan.cssFile}`] : undefined,
-          fontPreloads: fonts.plan ? fontPreloads(fonts.plan.css) : undefined,
+          fontPreloads: fonts.plan
+            ? fontPreloads(fonts.plan.css, [
+                { family: pairing.heading.family, weight: pairing.headingWeight },
+                { family: pairing.body.family, weight: pairing.bodyWeight },
+              ])
+            : undefined,
           hubUrl: options.hubUrl,
           turnstileSiteKey: turnstileSiteKey || undefined,
           ogImages: options.ogImages ?? true,

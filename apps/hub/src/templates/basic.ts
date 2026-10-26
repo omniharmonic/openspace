@@ -276,6 +276,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          OPENSPACE_GOOGLE_FONTS: download
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
