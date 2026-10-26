@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useEditorUi } from "../editor/editor-store";
 import { FORBIDDEN, openWorkspace, visibleCopy, WILLOW } from "../workspace/testing";
 
@@ -40,6 +40,8 @@ describe("email campaigns", () => {
     const { user, hub, router } = await openWorkspace("campaigns/new");
     await waitFor(() => expect(router.state.location.pathname).toMatch(/\/campaigns\/cmp_/));
     const subject = await screen.findByRole("textbox", { name: "Subject" });
+    expect(subject).toHaveValue("News from Willow Street Yoga");
+    await user.clear(subject);
     await user.type(subject, "Spring timetable");
     await user.type(screen.getByRole("textbox", { name: "Preview text" }), "Three new classes");
     // The starter blocks render through email-render.
@@ -70,6 +72,37 @@ describe("email campaigns", () => {
       },
       { timeout: 3000 },
     );
+  });
+
+  it("saves an everyone campaign with an empty segment, clears preview text to null, and flags an empty subject", async () => {
+    const { user, hub } = await openWorkspace("campaigns/cmp_retreat");
+    await screen.findByRole("textbox", { name: "Subject" });
+    const update = vi.spyOn(hub, "updateCampaign");
+    // Remove the only tag: the email goes to everyone.
+    await user.click(screen.getByRole("button", { name: "Remove retreats" }));
+    await user.type(screen.getByRole("textbox", { name: "Preview text" }), "x");
+    await waitFor(() => expect(update).toHaveBeenCalled(), { timeout: 3000 });
+    await user.clear(screen.getByRole("textbox", { name: "Preview text" }));
+    await waitFor(
+      () => {
+        const last = update.mock.calls.at(-1)?.[2];
+        expect(last?.segment).toEqual({ tags: [], match: "any" });
+        expect(last?.preheader).toBeNull();
+      },
+      { timeout: 3000 },
+    );
+    const c = growth(hub).campaigns.find((x) => x.id === "cmp_retreat") as unknown as {
+      segment: unknown;
+      preheader: unknown;
+    };
+    expect(c.segment).toEqual({ tags: [], match: "any" });
+    expect(c.preheader).toBeNull();
+    expect(screen.getByText(/All subscribers: \d+ people/)).toBeInTheDocument();
+    // The Hub refuses an empty subject; the composer says so instead of failing silently.
+    await user.clear(screen.getByRole("textbox", { name: "Subject" }));
+    expect(
+      await screen.findByText(/Not saved: Give the email a subject\./, {}, { timeout: 3000 }),
+    ).toBeInTheDocument();
   });
 
   it("targets a tag, sends a test and sends to the segment", async () => {
@@ -147,8 +180,17 @@ describe("sending setup", () => {
     // Built at runtime so no secret-shaped literal lands in the repo.
     const key = ["re", "test", "abc123def456"].join("_");
     await user.type(screen.getByLabelText("API key"), key);
+    const hook = ["whsec", "abcdefgh12345678"].join("_");
+    await user.type(screen.getByLabelText("Webhook signing secret (optional)"), hook);
+    const create = vi.spyOn(hub, "createSender");
     await user.click(screen.getByRole("button", { name: "Connect Resend" }));
     expect(await screen.findByText(/It's shown only once/)).toBeInTheDocument();
+    // The Svix secret is a top-level field in the Hub's contract, not a credential.
+    expect(create.mock.calls[0]?.[1]).toMatchObject({
+      provider: "resend",
+      credentials: { apiKey: key },
+      webhookSecret: hook,
+    });
     expect(screen.getByText(/\/e\/webhooks\/resend\//)).toBeInTheDocument();
     const call = hub.calls.find((c) => c.method === "createSender");
     expect(JSON.stringify(call?.args)).not.toContain(key);

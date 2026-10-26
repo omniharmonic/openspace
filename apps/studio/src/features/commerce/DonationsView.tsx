@@ -1,10 +1,10 @@
 import { HandHeart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useCommerceActions, useCommerceSettings, useOrders } from "../../api";
+import { useCommerceActions, useCommerceSettings, useOrdersPaged } from "../../api";
 import { Button, Field, Input, Skeleton, toast } from "../../ui";
 import { can } from "../site-mgmt/manage-ui";
-import { money, number } from "../workspace/format";
+import { date, money, number } from "../workspace/format";
 import { workspacePath } from "../workspace/routes";
 import { errorMessage, Stat, WsHeader } from "../workspace/ui";
 import type { AreaProps } from "../workspace/WorkspaceView";
@@ -15,7 +15,7 @@ export function DonationsView({ site }: AreaProps) {
   const navigate = useNavigate();
   const q = useCommerceSettings(site.id);
   const actions = useCommerceActions(site.id);
-  const gifts = useOrders(site.id, { kind: "donation", limit: 200 });
+  const gifts = useOrdersPaged(site.id, { kind: "donation", limit: 50 });
   const s = q.data?.settings;
   const [min, setMin] = useState("");
   const [max, setMax] = useState("");
@@ -27,11 +27,16 @@ export function DonationsView({ site }: AreaProps) {
     }
   }, [s]);
   const designer = can(site, "designer");
-  const list = (gifts.data?.orders ?? []).filter(
-    (o) => o.status === "paid" || o.status === "partially_refunded",
-  );
-  const total = list.reduce((sum, o) => sum + o.total - o.refunded, 0);
-  const currency = list[0]?.currency ?? s?.currency ?? "USD";
+  const list = (gifts.data?.pages ?? [])
+    .flatMap((p) => p.orders)
+    .filter((o) => o.status === "paid" || o.status === "partially_refunded");
+  // Gifts can come in several currencies: one total each, never added together.
+  const totals = new Map<string, number>();
+  for (const o of list)
+    totals.set(o.currency, (totals.get(o.currency) ?? 0) + o.total - o.refunded);
+  const totalText = totals.size
+    ? [...totals].map(([cur, minor]) => money(minor, cur)).join(" + ")
+    : money(0, s?.currency ?? "USD");
   return (
     <div className="st-ws-stack">
       <WsHeader
@@ -45,13 +50,49 @@ export function DonationsView({ site }: AreaProps) {
       />
       <div className="st-stats">
         <Stat label="Gifts received" value={number(list.length)} />
-        <Stat label="Total given" value={money(total, currency)} />
+        <Stat
+          label="Total given"
+          value={totalText}
+          detail={gifts.hasNextPage ? `From the ${list.length} most recent gifts` : undefined}
+        />
         <Stat
           label="Payments"
           value={q.data?.payments.ready ? "Ready" : "Not set up"}
           detail={q.data?.payments.ready ? undefined : "Connect Stripe in Store settings"}
         />
       </div>
+      {list.length > 0 && (
+        <section className="st-ws-panel st-ws-scroll" aria-labelledby="dn-gifts">
+          <div className="st-ws-section">
+            <h3 id="dn-gifts" className="st-ws-section__title">
+              Recent gifts
+            </h3>
+          </div>
+          <table className="st-ws-table">
+            <tbody>
+              {list.map((o) => (
+                <tr key={o.id}>
+                  <td>{o.customerName ?? o.email ?? "Anonymous"}</td>
+                  <td>{date(o.paidAt ?? o.createdAt)}</td>
+                  <td className="is-num">{money(o.total - o.refunded, o.currency)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {gifts.hasNextPage && (
+            <div className="st-ws-more">
+              <Button
+                size="sm"
+                variant="ghost"
+                loading={gifts.isFetchingNextPage}
+                onClick={() => void gifts.fetchNextPage()}
+              >
+                Show more
+              </Button>
+            </div>
+          )}
+        </section>
+      )}
       {!s ? (
         <Skeleton height={120} />
       ) : (

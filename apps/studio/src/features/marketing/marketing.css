@@ -190,3 +190,7 @@
   font-family: var(--st-font-mono);
   font-size: var(--st-fs-xs);
 }
+
+.st-campaign__notsaved {
+  color: var(--st-danger);
+}

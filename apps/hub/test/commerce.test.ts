@@ -470,6 +470,69 @@ describe("orders dashboard, refunds, discounts, stock API", () => {
     expect(await stock(f.siteId, "CANDLE")).toBe(10);
   });
 
+  it("marks download-only orders and donations as sent when paid; 'to send' lists only parcels", async () => {
+    const app = makeGrowthApp();
+    const f = await shopSite(app);
+    await setStockRow(f.siteId, "CANDLE", 10);
+    const checkout = async (items: Array<{ sku: string; qty: number }>) =>
+      (await (await postCheckout(f, { items })).json()) as { url: string; orderId: string };
+    const digital = await checkout([{ sku: "GUIDE", qty: 1 }]);
+    await payDev(app, digital.url);
+    const parcel = await checkout([
+      { sku: "CANDLE", qty: 1 },
+      { sku: "GUIDE", qty: 1 },
+    ]);
+    await payDev(app, parcel.url);
+    const gift = await postForm(f, `/c/${f.siteId}/checkout`, {
+      kind: "donation",
+      currency: "USD",
+      interval: "once",
+      amount: "2500",
+      _source: "/give",
+    });
+    await payDev(app, gift.headers.get("location") as string);
+
+    expect(await orderRow(digital.orderId)).toMatchObject({
+      status: "paid",
+      fulfillment: "fulfilled",
+    });
+    expect((await orderRow(digital.orderId))?.fulfilled_at).toBeTruthy();
+    expect(await orderRow(parcel.orderId)).toMatchObject({
+      status: "paid",
+      fulfillment: "unfulfilled",
+    });
+    const donation = (await env.HUB_DB.prepare(
+      "SELECT fulfillment FROM orders WHERE site_id = ? AND kind = 'donation'",
+    )
+      .bind(f.siteId)
+      .first()) as { fulfillment: string };
+    expect(donation.fulfillment).toBe("fulfilled");
+
+    type List = { orders: Array<{ id: string }>; counts: { toSend: number; problem: number } };
+    const list = async (qs: string) =>
+      (await (
+        await call(app, `/api/sites/${f.siteId}/orders${qs}`, { cookie: f.cookie })
+      ).json()) as List;
+    const toSend = await list("?toSend=1");
+    expect(toSend.orders.map((o) => o.id)).toEqual([parcel.orderId]);
+    expect(toSend.counts).toEqual({ toSend: 1, problem: 0 });
+    // A partial refund keeps it on the list; sending it takes it off.
+    await call(app, `/api/sites/${f.siteId}/orders/${parcel.orderId}/refund`, {
+      method: "POST",
+      cookie: f.cookie,
+      json: { amount: 100 },
+    });
+    expect((await list("?toSend=1")).orders.map((o) => o.id)).toEqual([parcel.orderId]);
+    await call(app, `/api/sites/${f.siteId}/orders/${parcel.orderId}/fulfill`, {
+      method: "POST",
+      cookie: f.cookie,
+      json: {},
+    });
+    const after = await list("?toSend=1");
+    expect(after.orders).toEqual([]);
+    expect(after.counts.toSend).toBe(0);
+  });
+
   it("manages inventory and serves availability to product pages", async () => {
     const app = makeGrowthApp();
     const f = await shopSite(app);

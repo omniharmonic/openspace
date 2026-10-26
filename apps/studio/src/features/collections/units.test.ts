@@ -4,6 +4,7 @@ import { type CollectionItem, CollectionItemSchema, type SiteDocument } from "@o
 import { describe, expect, it } from "vitest";
 import { demoCollections } from "../../api/growth-fixtures";
 import { niceTicks } from "../analytics/charts";
+import { bandLabel, LABEL_MAX } from "../commerce/StoreSettingsView";
 import { devSiteDocument } from "../editor/model/dev-site";
 import { forceDark, previewEmail } from "../marketing/emailPreview";
 import { duration, money, parseDuration, parseMoney } from "../workspace/format";
@@ -20,7 +21,14 @@ import {
   uniqueCollectionName,
 } from "./itemOps";
 import { KIND_META, kindOf, listCollections } from "./kinds";
-import { defaultRepeat, describeRepeat, nextDates, parseRRule, toRRule } from "./rrule";
+import {
+  defaultRepeat,
+  describeRepeat,
+  nextDates,
+  normalizeRRule,
+  parseRRule,
+  toRRule,
+} from "./rrule";
 import { combinations, suggestSku, syncVariants } from "./variants";
 
 const NOW = Date.UTC(2026, 9, 26, 12);
@@ -91,6 +99,34 @@ describe("repeat rules", () => {
       };
       expect(CollectionItemSchema.safeParse(item).success).toBe(true);
     }
+  });
+
+  it("always includes the first date's weekday and writes all-day UNTIL as a date", () => {
+    const allDay = "2026-11-03"; // a Tuesday
+    expect(toRRule({ ...defaultRepeat(allDay), byDay: ["FR"] }, allDay)).toBe(
+      "FREQ=WEEKLY;BYDAY=TU,FR",
+    );
+    expect(
+      toRRule({ ...defaultRepeat(allDay), end: { type: "until", date: "2026-12-31" } }, allDay),
+    ).toBe("FREQ=WEEKLY;BYDAY=TU;UNTIL=20261231");
+    const r = parseRRule("FREQ=WEEKLY;BYDAY=FR;COUNT=2", allDay);
+    if (!r) throw new Error("no rule");
+    expect(normalizeRRule("FREQ=WEEKLY;BYDAY=FR;COUNT=2", allDay)).toBe(
+      "FREQ=WEEKLY;BYDAY=TU,FR;COUNT=2",
+    );
+    const item = {
+      kind: "events",
+      slug: "x",
+      frontmatter: {
+        title: "X",
+        status: "draft",
+        start: allDay,
+        allDay: true,
+        recurrence: "FREQ=WEEKLY;BYDAY=TU;UNTIL=20261231",
+      },
+      body: "",
+    };
+    expect(CollectionItemSchema.safeParse(item).success).toBe(true);
   });
 
   it("describes rules in plain words and lists the next dates", () => {
@@ -229,6 +265,15 @@ describe("review diffs", () => {
     const lines = diffLines(before.body, after.body);
     expect(lines.filter((l) => l.kind === "remove")).toHaveLength(1);
     expect(lines.filter((l) => l.kind === "add")[0]?.text).toContain("People are surprised.");
+  });
+});
+
+describe("shipping labels", () => {
+  it("keeps a weight band label within the Hub's 60 characters", () => {
+    expect(bandLabel("Standard", "up to 2 kg")).toBe("Standard (up to 2 kg)");
+    const long = bandLabel("x".repeat(80), "up to 20 kilograms ok");
+    expect(long.length).toBeLessThanOrEqual(LABEL_MAX);
+    expect(long.endsWith("(up to 20 kilograms o)")).toBe(true);
   });
 });
 

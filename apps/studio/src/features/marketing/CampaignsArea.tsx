@@ -74,7 +74,11 @@ function NewCampaign({ site }: { site: Site }) {
     if (started.current) return;
     started.current = true;
     actions.create.mutate(
-      { subject: "", body: { blocks: starterBlocks(site.name) } },
+      {
+        subject: `News from ${site.name}`,
+        body: { blocks: starterBlocks(site.name) },
+        segment: { tags: [], match: "any" },
+      },
       {
         onSuccess: (c) => navigate(workspacePath(site.id, "campaigns", c.id), { replace: true }),
         onError: (err) => {

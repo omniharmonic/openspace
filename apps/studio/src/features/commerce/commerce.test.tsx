@@ -36,7 +36,10 @@ describe("orders", () => {
   it("shows orders to send first, flags problem orders and filters to them", async () => {
     const { user } = await openWorkspace("orders");
     expect(await screen.findByRole("row", { name: "Order #1001" })).toBeInTheDocument();
-    expect(screen.queryByRole("row", { name: "Order #1002" })).toBeNull(); // already sent
+    expect(screen.queryByRole("row", { name: "Order #1002" })).toBeNull(); // download only: done
+    // Partly refunded but not posted yet still needs sending.
+    expect(screen.getByRole("row", { name: "Order #1007" })).toBeInTheDocument();
+    expect(screen.queryByRole("row", { name: "Order #1008" })).toBeNull(); // a donation
     expect(screen.getByText("1 order needs your attention.")).toBeInTheDocument();
     expect(visibleCopy().match(FORBIDDEN)).toBeNull();
     await user.click(screen.getByRole("button", { name: "Show it" }));
@@ -199,11 +202,31 @@ describe("store settings", () => {
     await screen.findByText("Ready to take payments");
     Object.assign(growth(hub).payments, { ready: false, account: null, chargesEnabled: false });
     await user.click(screen.getByRole("button", { name: "Check again" }));
-    const open = vi.spyOn(window, "open").mockReturnValue({} as Window);
-    await user.click(await screen.findByRole("button", { name: "Connect Stripe" }));
-    await waitFor(() => expect(open).toHaveBeenCalled());
-    expect(String(open.mock.calls[0]?.[0])).toContain("stripe-onboarding");
-    open.mockRestore();
+    const tab = { opener: window as unknown } as Window;
+    const open = vi.spyOn(window, "open").mockReturnValue(tab);
+    const assign = vi.fn();
+    const realLocation = window.location;
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: { ...realLocation, href: realLocation.href, assign },
+    });
+    try {
+      await user.click(await screen.findByRole("button", { name: "Connect Stripe" }));
+      await waitFor(() => expect(open).toHaveBeenCalled());
+      // A new tab, not "noopener" (which returns null), and the tab can't reach back into Studio.
+      expect(open.mock.calls[0]).toEqual([expect.stringContaining("stripe-onboarding"), "_blank"]);
+      expect(tab.opener).toBeNull();
+      expect(assign).not.toHaveBeenCalled();
+      // A blocked pop-up falls back to this tab.
+      open.mockReturnValue(null);
+      await user.click(screen.getByRole("button", { name: /Continue in Stripe|Connect Stripe/ }));
+      await waitFor(() =>
+        expect(assign).toHaveBeenCalledWith(expect.stringContaining("stripe-onboarding")),
+      );
+    } finally {
+      Object.defineProperty(window, "location", { configurable: true, value: realLocation });
+      open.mockRestore();
+    }
   });
 
   it("saves low-stock alerts", async () => {
@@ -221,7 +244,11 @@ describe("store settings", () => {
 describe("donations", () => {
   it("validates and saves gift limits and totals gifts received", async () => {
     const { user, hub } = await openWorkspace("donations");
-    expect(await screen.findByText("$50.00")).toBeInTheDocument();
+    expect(await screen.findByText("Total given")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByText("Total given").parentElement?.textContent).toContain("$50.00"),
+    );
+    expect(await screen.findByRole("heading", { name: "Recent gifts" })).toBeInTheDocument();
     const min = screen.getByRole("textbox", { name: "Smallest gift" });
     await user.clear(min);
     await user.type(min, "9000");

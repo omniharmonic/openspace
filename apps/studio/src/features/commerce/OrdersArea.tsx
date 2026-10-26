@@ -17,7 +17,7 @@ import {
   useHub,
   useOrder,
   useOrderActions,
-  useOrders,
+  useOrdersPaged,
 } from "../../api";
 import type { Site } from "../../api/types";
 import {
@@ -63,7 +63,7 @@ function queryFor(view: View, kind: OrderKind | "", q: string): OrderQuery {
   const base: OrderQuery = { kind: kind || undefined, q: q || undefined };
   switch (view) {
     case "open":
-      return { ...base, status: "paid", fulfillment: "unfulfilled" };
+      return { ...base, toSend: true };
     case "problem":
       return { ...base, problem: true };
     case "fulfilled":
@@ -88,10 +88,11 @@ function OrdersList({ site }: { site: Site }) {
   const [kind, setKind] = useState<OrderKind | "">("");
   const [q, setQ] = useState("");
   const query = useDebounced(q);
-  const orders = useOrders(site.id, queryFor(view, kind, query));
-  const problems = useOrders(site.id, { problem: true });
-  const list = orders.data?.orders ?? [];
-  const problemCount = problems.data?.orders.length ?? 0;
+  const orders = useOrdersPaged(site.id, queryFor(view, kind, query));
+  const pages = orders.data?.pages ?? [];
+  const list = pages.flatMap((p) => p.orders);
+  // Badge counts come from the Hub (site-wide), not from the page on screen.
+  const problemCount = pages[0]?.counts?.problem ?? 0;
   return (
     <div className="st-ws-stack">
       <WsHeader
@@ -216,6 +217,18 @@ function OrdersList({ site }: { site: Site }) {
               ))}
             </tbody>
           </table>
+        )}
+        {orders.hasNextPage && (
+          <div className="st-ws-more">
+            <Button
+              size="sm"
+              variant="ghost"
+              loading={orders.isFetchingNextPage}
+              onClick={() => void orders.fetchNextPage()}
+            >
+              Show more
+            </Button>
+          </div>
         )}
       </div>
     </div>

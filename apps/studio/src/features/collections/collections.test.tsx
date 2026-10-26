@@ -94,7 +94,11 @@ describe("collections", () => {
     const { user } = await openWorkspace("content/events/community-open-house");
     await screen.findByDisplayValue("Community open house");
     await user.click(screen.getByRole("switch", { name: /Repeating event/ }));
-    await user.click(screen.getByRole("button", { name: "Friday", pressed: false }));
+    // Pick a weekday other than the event's own day (that one is always included).
+    const extra = screen
+      .getAllByRole("button", { pressed: false })
+      .find((b) => /day$/.test(b.getAttribute("aria-label") ?? "")) as HTMLElement;
+    await user.click(extra);
     await user.type(
       screen.getByRole("textbox", { name: "RSVP or ticket link" }),
       "https://willow.example/rsvp",
@@ -106,7 +110,7 @@ describe("collections", () => {
       }),
     );
     const fm = item("events", "community-open-house")?.frontmatter as { recurrence?: string };
-    expect(fm.recurrence).toMatch(/^FREQ=WEEKLY;BYDAY=(\w\w,)?FR/);
+    expect(fm.recurrence).toMatch(/^FREQ=WEEKLY;BYDAY=\w\w,\w\w$/);
     expect(screen.getByText(/^Next:/)).toBeInTheDocument();
   });
 

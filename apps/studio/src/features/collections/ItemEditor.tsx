@@ -540,6 +540,8 @@ export function ItemEditor({
                 <Input
                   prefix={<span className="st-item__prefix">/{info.name}/</span>}
                   value={current.slug}
+                  // Moving a saved item deletes the old one, which contributors can't do.
+                  disabled={Boolean(readOnly) || (contributor && Boolean(saved))}
                   onChange={(e) => {
                     setSlugTouched(true);
                     setDraft({

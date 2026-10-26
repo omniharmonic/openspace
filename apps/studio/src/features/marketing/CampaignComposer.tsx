@@ -9,6 +9,7 @@ import {
   useSegmentCount,
   useSenders,
 } from "../../api";
+import { CampaignPatchSchema, firstIssue } from "../../api/growth-schemas";
 import type { Site } from "../../api/types";
 import { HubError } from "../../api/types";
 import { Badge, Button, Dialog, Field, Input, Popover, Segmented, toast } from "../../ui";
@@ -26,7 +27,7 @@ interface Draft {
   subject: string;
   preheader: string;
   blocks: Block[];
-  segment: CampaignSegment | null;
+  segment: CampaignSegment;
   trackOpens: boolean;
 }
 
@@ -57,6 +58,7 @@ export function CampaignComposer({
   const sender = senders.data?.find((s) => s.id === campaign.senderId) ?? senders.data?.[0];
   const [draft, setDraft] = useState<Draft>(() => toDraft(campaign));
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [confirmSend, setConfirmSend] = useState(false);
   const [scheduling, setScheduling] = useState(false);
   const [when, setWhen] = useState(() =>
@@ -64,50 +66,61 @@ export function CampaignComposer({
   );
   const [deleting, setDeleting] = useState(false);
   const [problem, setProblem] = useState<HubError | null>(null);
-  const segment = draft.segment ?? { tags: [], match: "any" as const };
+  const segment = draft.segment;
   const count = useSegmentCount(site.id, segment);
   const editable = campaign.status === "draft";
 
-  // Autosave a moment after typing stops.
+  /** The PATCH body for the draft, checked against the Hub's own rules first. */
+  const patchOf = (d: Draft) => {
+    const patch = {
+      subject: d.subject,
+      preheader: d.preheader.trim() || null,
+      body: { blocks: d.blocks },
+      segment: d.segment,
+      trackOpens: d.trackOpens,
+    };
+    const r = CampaignPatchSchema.safeParse(patch);
+    return r.success ? { patch, problem: null } : { patch, problem: firstIssue(r.error) };
+  };
+
+  // Autosave a moment after typing stops; problems show as "Not saved".
   const lastSaved = useRef(JSON.stringify(toDraft(campaign)));
   // biome-ignore lint/correctness/useExhaustiveDependencies: autosaves when the draft changes; the mutation object is stable enough
   useEffect(() => {
     const json = JSON.stringify(draft);
     if (json === lastSaved.current || !editable) return;
     const t = setTimeout(() => {
+      const { patch, problem: invalid } = patchOf(draft);
+      if (invalid) {
+        setSaveError(invalid);
+        return;
+      }
       actions.update.mutate(
-        {
-          id: campaign.id,
-          patch: {
-            subject: draft.subject,
-            preheader: draft.preheader || undefined,
-            body: { blocks: draft.blocks },
-            segment: draft.segment?.tags.length ? draft.segment : null,
-            trackOpens: draft.trackOpens,
-          },
-        },
+        { id: campaign.id, patch },
         {
           onSuccess: () => {
             lastSaved.current = json;
+            setSaveError(null);
             setSavedAt(Date.now());
           },
+          onError: (err) => setSaveError(errorMessage(err)),
         },
       );
     }, 900);
     return () => clearTimeout(t);
   }, [draft]);
 
-  const flush = () =>
-    actions.update.mutateAsync({
-      id: campaign.id,
-      patch: {
-        subject: draft.subject,
-        preheader: draft.preheader || undefined,
-        body: { blocks: draft.blocks },
-        segment: draft.segment?.tags.length ? draft.segment : null,
-        trackOpens: draft.trackOpens,
-      },
-    });
+  const flush = async () => {
+    const { patch, problem: invalid } = patchOf(draft);
+    if (invalid) {
+      setSaveError(invalid);
+      throw new HubError(400, "invalid_request", invalid);
+    }
+    const r = await actions.update.mutateAsync({ id: campaign.id, patch });
+    lastSaved.current = JSON.stringify(draft);
+    setSaveError(null);
+    return r;
+  };
 
   const fail = (err: unknown) => {
     if (
@@ -174,7 +187,17 @@ export function CampaignComposer({
           <Badge>Draft</Badge>
         )}
         <span className="st-item__dirty st-campaign__saved" aria-live="polite">
-          {actions.update.isPending ? "Saving…" : savedAt ? "Saved" : ""}
+          {saveError ? (
+            <span className="st-campaign__notsaved" role="alert">
+              Not saved: {saveError}
+            </span>
+          ) : actions.update.isPending ? (
+            "Saving…"
+          ) : savedAt ? (
+            "Saved"
+          ) : (
+            ""
+          )}
         </span>
         <span className="st-ws-toolbar__spacer" />
         {campaign.status === "scheduled" ? (

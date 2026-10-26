@@ -7,7 +7,7 @@ import {
   useCommerceActions,
   useCommerceSettings,
   useMemberActions,
-  useMembers,
+  useMembersPaged,
   useTiers,
 } from "../../api";
 import {
@@ -81,7 +81,7 @@ function People({ siteId, canRemove }: { siteId: string; canRemove: boolean }) {
   const [tier, setTier] = useState("");
   const [status, setStatus] = useState<"" | "active" | "blocked">("");
   const query = useDebounced(q);
-  const members = useMembers(siteId, {
+  const members = useMembersPaged(siteId, {
     q: query || undefined,
     tier: tier || undefined,
     status: status || undefined,
@@ -92,7 +92,9 @@ function People({ siteId, canRemove }: { siteId: string; canRemove: boolean }) {
   const [removing, setRemoving] = useState<Member | null>(null);
   const tierName = (id: string | null) =>
     id ? (tiers.data?.find((t) => t.id === id)?.name ?? "Unknown tier") : "Free";
-  const list = members.data?.members ?? [];
+  const pages = members.data?.pages ?? [];
+  const list = pages.flatMap((p) => p.members);
+  const total = pages[0]?.total ?? 0;
 
   return (
     <div className="st-ws-stack">
@@ -236,9 +238,24 @@ function People({ siteId, canRemove }: { siteId: string; canRemove: boolean }) {
             </tbody>
           </table>
         )}
+        {members.hasNextPage && (
+          <div className="st-ws-more">
+            <Button
+              size="sm"
+              variant="ghost"
+              loading={members.isFetchingNextPage}
+              onClick={() => void members.fetchNextPage()}
+            >
+              Show more
+            </Button>
+          </div>
+        )}
       </div>
-      {members.data && list.length > 0 && (
-        <p className="st-ws-hint">{number(members.data.total)} members</p>
+      {list.length > 0 && (
+        <p className="st-ws-hint">
+          {list.length < total ? `${number(list.length)} of ` : ""}
+          {number(total)} members
+        </p>
       )}
       <AddMemberDialog
         siteId={siteId}

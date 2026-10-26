@@ -142,7 +142,13 @@ export interface AnalyticsReport {
   countries: Breakdown[];
   sources: Breakdown[];
   events: Breakdown[];
-  forms: Array<{ formId: string; name: string; submissions: number; conversionRate: number }>;
+  /** `conversionRate` is null when there were no visits in the range. */
+  forms: Array<{
+    formId: string;
+    name: string;
+    submissions: number;
+    conversionRate: number | null;
+  }>;
   /** Some visits were counted 1-in-10 (above the monthly allowance). */
   sampled: boolean;
   store: "d1" | "analytics-engine" | string;
@@ -275,6 +281,8 @@ export interface OrderQuery {
   to?: string;
   /** Only orders that need attention. */
   problem?: boolean;
+  /** Paid or partly refunded orders with something to post that isn't sent yet. */
+  toSend?: boolean;
   limit?: number;
   cursor?: string | null;
 }
@@ -282,6 +290,8 @@ export interface OrderQuery {
 export interface OrderPage {
   orders: OrderView[];
   nextCursor: string | null;
+  /** Site-wide badge counts (ignore the filters and paging). */
+  counts?: { toSend: number; problem: number };
 }
 
 // --- discounts -------------------------------------------------------------------------------
@@ -390,7 +400,9 @@ export interface SenderInput {
   fromName?: string;
   replyTo?: string;
   dkimSelector?: string;
-  credentials: Record<string, string>;
+  credentials?: Record<string, string>;
+  /** Resend only: the Svix signing secret for bounce webhooks (top level, not a credential). */
+  webhookSecret?: string;
 }
 
 export interface CampaignSegment {
@@ -410,7 +422,7 @@ export interface CampaignView {
   subject: string;
   preheader: string | null;
   body: CampaignBody;
-  segment: CampaignSegment | null;
+  segment: CampaignSegment;
   senderId: string | null;
   trackOpens: boolean;
   status: CampaignStatus;
@@ -425,9 +437,11 @@ export interface CampaignView {
 
 export interface CampaignInput {
   subject: string;
-  preheader?: string;
+  /** null clears it. */
+  preheader?: string | null;
   body: CampaignBody;
-  segment?: CampaignSegment | null;
+  /** No tags = everyone confirmed. Never null (the Hub refuses null). */
+  segment?: CampaignSegment;
   senderId?: string | null;
   trackOpens?: boolean;
 }

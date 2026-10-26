@@ -274,7 +274,9 @@ export function AnalyticsView({ site }: AreaProps) {
                         <tr key={f.formId}>
                           <td>{f.name} form</td>
                           <td className="is-num">{number(f.submissions)}</td>
-                          <td className="is-num">{percent(f.conversionRate)}</td>
+                          <td className="is-num">
+                            {f.conversionRate === null ? "—" : percent(f.conversionRate)}
+                          </td>
                         </tr>
                       ))}
                       {r.events.map((e) => (

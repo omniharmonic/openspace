@@ -1,6 +1,12 @@
 import { campaignEmail } from "@openspace/email-render";
 import type { CollectionItem, SiteDocument } from "@openspace/schema";
 import { canonicalJson } from "./canonical";
+import {
+  CampaignInputSchema,
+  CampaignPatchSchema,
+  firstIssue,
+  SenderInputSchema,
+} from "./growth-schemas";
 import type {
   AnalyticsRange,
   AnalyticsReport,
@@ -389,17 +395,17 @@ function seed(site: Site, now: number): GrowthSiteState {
       body: {
         blocks: [
           {
-            id: "blk_c0000000001" as never,
+            id: "blk_c000000001" as never,
             type: "heading",
             v: 1,
             fields: { text: "New evening classes", level: "2", size: "md" },
           },
           textBlock(
-            "blk_c0000000002",
+            "blk_c000000002",
             "From November we're adding a slow candlelit flow every Tuesday at 7pm.",
           ),
           {
-            id: "blk_c0000000003" as never,
+            id: "blk_c000000003" as never,
             type: "button",
             v: 1,
             fields: {
@@ -410,7 +416,7 @@ function seed(site: Site, now: number): GrowthSiteState {
           },
         ],
       },
-      segment: null,
+      segment: { tags: [], match: "any" },
       senderId: "snd_dev",
       trackOpens: false,
       status: "sent",
@@ -429,10 +435,7 @@ function seed(site: Site, now: number): GrowthSiteState {
       preheader: "",
       body: {
         blocks: [
-          textBlock(
-            "blk_c0000000004",
-            "Places for our February retreat open to subscribers first.",
-          ),
+          textBlock("blk_c000000004", "Places for our February retreat open to subscribers first."),
         ],
       },
       segment: { tags: ["retreats"], match: "any" },
@@ -749,6 +752,13 @@ export function createGrowthMock(ctx: GrowthMockContext): {
     }
     return out;
   }
+
+  /** Same rule as the Hub's "to send" list. */
+  const toSend = (o: OrderView) =>
+    (o.status === "paid" || o.status === "partially_refunded") &&
+    o.fulfillment === "unfulfilled" &&
+    o.kind === "order" &&
+    o.items.some((i) => !i.digital);
 
   // ------------------------------------------------------------------------------ campaigns ----
   const campaignOf = (siteId: string, cid: string) => {
@@ -1296,6 +1306,7 @@ export function createGrowthMock(ctx: GrowthMockContext): {
         .filter((o) => !query.kind || o.kind === query.kind)
         .filter((o) => !query.fulfillment || o.fulfillment === query.fulfillment)
         .filter((o) => !query.problem || Boolean(o.problem))
+        .filter((o) => !query.toSend || toSend(o))
         .filter((o) => !query.from || o.createdAt.slice(0, 10) >= query.from)
         .filter((o) => !query.to || o.createdAt.slice(0, 10) <= query.to)
         .filter((o) => {
@@ -1305,7 +1316,15 @@ export function createGrowthMock(ctx: GrowthMockContext): {
         })
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       const { slice, next } = page(all, query.limit ?? 50, query.cursor);
-      return { orders: clone(slice), nextCursor: next };
+      const every = of(siteId).orders;
+      return {
+        orders: clone(slice),
+        nextCursor: next,
+        counts: {
+          toSend: every.filter(toSend).length,
+          problem: every.filter((o) => o.problem && o.status !== "refunded").length,
+        },
+      };
     },
     async getOrder(siteId, orderId) {
       await call("getOrder", [siteId, orderId]);
@@ -1535,26 +1554,19 @@ export function createGrowthMock(ctx: GrowthMockContext): {
       return of(siteId).senders.map(({ verifyAttempts: _v, ...s }) => clone(s));
     },
     async createSender(siteId, input) {
-      await call("createSender", [siteId, { ...input, credentials: "[sealed]" }]);
+      await call("createSender", [
+        siteId,
+        {
+          ...input,
+          credentials: "[sealed]",
+          webhookSecret: input.webhookSecret ? "[sealed]" : undefined,
+        },
+      ]);
       need(siteId, "owner", "Only the owner can connect an email sender.");
-      const email = input.fromEmail.trim().toLowerCase();
-      if (!/^[^\s@]+@([^\s@]+\.[^\s@]+)$/.test(email))
-        throw new HubError(422, "invalid_fields", "Enter the address your emails come from.");
-      const required: Record<string, string[]> = {
-        resend: ["apiKey"],
-        postmark: ["serverToken"],
-        ses: ["accessKeyId", "secretAccessKey", "region"],
-        cloudflare: ["accountId", "apiToken"],
-        dev: [],
-      };
-      for (const k of required[input.provider] ?? [])
-        if (!input.credentials[k]?.trim())
-          throw new HubError(422, "invalid_credentials", "Fill in every key from your provider.");
-      if (
-        input.provider === "cloudflare" &&
-        !/^[0-9a-f]{32}$/i.test(input.credentials.accountId ?? "")
-      )
-        throw new HubError(422, "invalid_credentials", "The account ID is 32 letters and numbers.");
+      // Same body rules as the Hub (`SenderInputSchema`): strict, provider-specific credentials.
+      const parsed = SenderInputSchema.safeParse(input);
+      if (!parsed.success) throw new HubError(400, "invalid_request", firstIssue(parsed.error));
+      const email = parsed.data.fromEmail;
       const s = of(siteId);
       const sender: GrowthSiteState["senders"][number] = {
         id: `snd_${now().toString(36)}${s.senders.length}`,
@@ -1621,6 +1633,8 @@ export function createGrowthMock(ctx: GrowthMockContext): {
     async createCampaign(siteId, input) {
       await call("createCampaign", [siteId, input]);
       need(siteId, "editor", "Editors and above can write emails.");
+      const parsed = CampaignInputSchema.safeParse(input);
+      if (!parsed.success) throw new HubError(400, "invalid_request", firstIssue(parsed.error));
       const s = of(siteId);
       const at = iso(now());
       const c: GrowthSiteState["campaigns"][number] = {
@@ -1628,7 +1642,7 @@ export function createGrowthMock(ctx: GrowthMockContext): {
         subject: input.subject,
         preheader: input.preheader ?? null,
         body: clone(input.body),
-        segment: input.segment ?? null,
+        segment: input.segment ?? { tags: [], match: "any" },
         senderId: input.senderId ?? s.senders.find((x) => x.status === "verified")?.id ?? null,
         trackOpens: input.trackOpens ?? false,
         status: "draft",
@@ -1652,9 +1666,18 @@ export function createGrowthMock(ctx: GrowthMockContext): {
     async updateCampaign(siteId, campaignId, patch) {
       await call("updateCampaign", [siteId, campaignId, patch]);
       const c = campaignOf(siteId, campaignId);
+      const parsed = CampaignPatchSchema.safeParse(patch);
+      if (!parsed.success) throw new HubError(400, "invalid_request", firstIssue(parsed.error));
       if (c.status !== "draft")
         throw new HubError(409, "not_editable", "Only drafts can be changed. Unschedule it first.");
-      Object.assign(c, clone(patch), { updatedAt: iso(now()) });
+      const p = parsed.data;
+      if (p.subject !== undefined) c.subject = p.subject;
+      if (p.preheader !== undefined) c.preheader = p.preheader ?? null;
+      if (p.body) c.body = clone(p.body) as typeof c.body;
+      if (p.segment) c.segment = clone(p.segment);
+      if (p.senderId !== undefined) c.senderId = p.senderId ?? null;
+      if (p.trackOpens !== undefined) c.trackOpens = p.trackOpens;
+      c.updatedAt = iso(now());
       return view(c);
     },
     async deleteCampaign(siteId, campaignId) {

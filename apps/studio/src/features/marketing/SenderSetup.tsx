@@ -372,7 +372,15 @@ function ConnectWizard({ siteId, onDone }: { siteId: string; onDone: () => void 
                 fromName: from.fromName.trim() || undefined,
                 replyTo: from.replyTo.trim() || undefined,
                 dkimSelector: from.dkimSelector.trim() || undefined,
-                credentials: Object.fromEntries(Object.entries(creds).filter(([, v]) => v.trim())),
+                credentials: Object.fromEntries(
+                  Object.entries(creds)
+                    .filter(([k, v]) => k !== "webhookSecret" && v.trim())
+                    .map(([k, v]) => [k, v.trim()]),
+                ),
+                // The Svix signing secret is a top-level field in the Hub's contract.
+                ...(creds.webhookSecret?.trim()
+                  ? { webhookSecret: creds.webhookSecret.trim() }
+                  : {}),
               },
               { onSuccess: setCreated, onError: (err) => setError(errorMessage(err)) },
             );

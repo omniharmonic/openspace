@@ -43,6 +43,17 @@ const weekdayOf = (date: Date): Weekday => JS_DAY[date.getUTCDay()] as Weekday;
 /** 1..5: which occurrence of its weekday the date is in its month. */
 const nthOfMonth = (date: Date) => Math.ceil(date.getUTCDate() / 7);
 
+/** An all-day start ("2026-11-03") rather than a date-time. */
+export function isDateOnly(start: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(start);
+}
+
+/** The rule written the way `toRRule` writes it today (or null when it isn't a rule). */
+export function normalizeRRule(rule: string, start: string): string | null {
+  const r = parseRRule(rule, start);
+  return r ? toRRule(r, start) : null;
+}
+
 export function defaultRepeat(start: string): Repeat {
   const p = ymd(start);
   const day = p ? weekdayOf(utc(p.y, p.m, p.d)) : "MO";
@@ -53,8 +64,11 @@ export function toRRule(r: Repeat, start: string): string {
   const parts = [`FREQ=${r.freq}`];
   if (r.interval > 1) parts.push(`INTERVAL=${Math.floor(r.interval)}`);
   const p = ymd(start);
-  if (r.freq === "WEEKLY" && r.byDay.length) {
-    const days = WEEKDAYS.filter((d) => r.byDay.includes(d));
+  if (r.freq === "WEEKLY") {
+    // The first date always counts as an occurrence (and toward COUNT), so its weekday is always
+    // part of the rule; otherwise calendars disagree about which dates COUNT covers.
+    const startDay = p ? weekdayOf(utc(p.y, p.m, p.d)) : undefined;
+    const days = WEEKDAYS.filter((d) => r.byDay.includes(d) || d === startDay);
     parts.push(`BYDAY=${days.join(",")}`);
   }
   if (r.freq === "MONTHLY" && p) {
@@ -63,7 +77,11 @@ export function toRRule(r: Repeat, start: string): string {
     else parts.push(`BYMONTHDAY=${p.d}`);
   }
   if (r.end.type === "count") parts.push(`COUNT=${Math.max(1, Math.floor(r.end.count))}`);
-  if (r.end.type === "until") parts.push(`UNTIL=${r.end.date.replace(/-/g, "")}T235959Z`);
+  if (r.end.type === "until") {
+    // RFC 5545: UNTIL has the same value type as DTSTART — a DATE for all-day events.
+    const day = r.end.date.replace(/-/g, "");
+    parts.push(isDateOnly(start) ? `UNTIL=${day}` : `UNTIL=${day}T235959Z`);
+  }
   return parts.join(";");
 }
 

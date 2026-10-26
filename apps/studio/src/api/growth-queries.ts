@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useHub } from "./context";
 import type {
   AnalyticsRange,
@@ -255,6 +261,18 @@ export function useOrders(siteId: string, query: OrderQuery) {
   });
 }
 
+/** Orders a page at a time (the Hub's cursor), for "Show more". */
+export function useOrdersPaged(siteId: string, query: OrderQuery) {
+  const hub = useHub();
+  return useInfiniteQuery({
+    queryKey: [...growthKeys.orders(siteId, query), "paged"],
+    queryFn: ({ pageParam }) => hub.listOrders(siteId, { ...query, cursor: pageParam }),
+    initialPageParam: null as string | null,
+    getNextPageParam: (last) => last.nextCursor,
+    placeholderData: keepPreviousData,
+  });
+}
+
 export function useOrder(siteId: string, orderId: string | null) {
   const hub = useHub();
   return useQuery({
@@ -325,6 +343,18 @@ export function useMembers(siteId: string, query: MemberQuery) {
   return useQuery({
     queryKey: growthKeys.members(siteId, query),
     queryFn: () => hub.listMembers(siteId, query),
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** Members a page at a time (the Hub's cursor), for "Show more". */
+export function useMembersPaged(siteId: string, query: MemberQuery) {
+  const hub = useHub();
+  return useInfiniteQuery({
+    queryKey: [...growthKeys.members(siteId, query), "paged"],
+    queryFn: ({ pageParam }) => hub.listMembers(siteId, { ...query, cursor: pageParam }),
+    initialPageParam: null as string | null,
+    getNextPageParam: (last) => last.nextCursor,
     placeholderData: keepPreviousData,
   });
 }

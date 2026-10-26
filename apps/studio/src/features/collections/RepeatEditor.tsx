@@ -1,5 +1,5 @@
 import { Repeat as RepeatIcon } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { cx, Field, Input, Segmented, Select } from "../../ui";
 import { date as fmtDate } from "../workspace/format";
 import { SwitchRow } from "../workspace/ui";
@@ -8,6 +8,7 @@ import {
   describeRepeat,
   type Freq,
   nextDates,
+  normalizeRRule,
   parseRRule,
   type Repeat,
   toRRule,
@@ -45,6 +46,17 @@ export function RepeatEditor({
     onChange(toRRule({ ...base, ...patch }, start));
   };
   const upcoming = repeat ? nextDates(repeat, start, 4) : [];
+  // Moving the start date (or switching to all day) rewrites the rule to match it.
+  useEffect(() => {
+    if (!value) return;
+    const normal = normalizeRRule(value, start);
+    if (normal && normal !== value) onChange(normal);
+  }, [value, start, onChange]);
+  const startDay = /^\d{4}-\d{2}-\d{2}/.test(start)
+    ? (["SU", "MO", "TU", "WE", "TH", "FR", "SA"] as const)[
+        new Date(`${start.slice(0, 10)}T12:00:00Z`).getUTCDay()
+      ]
+    : undefined;
   return (
     <fieldset className="st-fieldset st-repeat">
       <legend>Repeats</legend>
@@ -86,13 +98,16 @@ export function RepeatEditor({
             <fieldset className="st-repeat__days">
               <legend className="st-sr-only">On these days</legend>
               {WEEKDAYS.map((d) => {
-                const on = repeat.byDay.includes(d);
+                const isStart = d === startDay;
+                const on = repeat.byDay.includes(d) || isStart;
                 return (
                   <button
                     key={d}
                     type="button"
                     aria-pressed={on}
                     aria-label={WEEKDAY_NAMES[d]}
+                    disabled={isStart}
+                    title={isStart ? "The event's first date is on this day" : undefined}
                     className={cx("st-repeat__day", on && "is-on")}
                     onClick={() => {
                       const next = on ? repeat.byDay.filter((x) => x !== d) : [...repeat.byDay, d];

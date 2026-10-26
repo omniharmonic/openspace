@@ -138,8 +138,11 @@ function Payments({ site, payments }: { site: Site; payments: PaymentsView }) {
   const connect = () =>
     actions.connect.mutate(window.location.href, {
       onSuccess: ({ url }) => {
-        const w = window.open(url, "_blank", "noopener");
-        if (!w) window.location.assign(url);
+        // "noopener" makes window.open return null even when the tab opened, so open normally,
+        // then cut the link back to Studio. Only a blocked pop-up falls back to this tab.
+        const w = window.open(url, "_blank");
+        if (w) w.opener = null;
+        else window.location.assign(url);
         toast({
           tone: "success",
           title: "Finish in Stripe",
@@ -189,7 +192,7 @@ function Payments({ site, payments }: { site: Site; payments: PaymentsView }) {
               {payments.account ? "Continue in Stripe" : "Connect Stripe"}
             </Button>
           )}
-          {!sovereign && payments.account && (
+          {!sovereign && payments.account && can(site, "designer") && (
             <Button
               icon={<RefreshCw />}
               loading={actions.refresh.isPending}
@@ -315,9 +318,27 @@ function SovereignKeys({ siteId, payments }: { siteId: string; payments: Payment
 type ShipKind = "flat" | "weight" | "free" | "pickup";
 
 interface ShipRow extends ShippingOption {
+  /** Stable React key for the row (new rows have no Hub id yet). */
+  key: string;
   kind: ShipKind;
   /** Weight band, e.g. "up to 2 kg" (shown to buyers in the label). */
   band?: string;
+}
+
+/** The Hub keeps shipping labels to 60 characters, band included. */
+export const LABEL_MAX = 60;
+export const BAND_MAX = 20;
+let rowKey = 0;
+const nextKey = () => `row-${++rowKey}`;
+
+/** "Standard (up to 2 kg)", trimmed so the whole label fits the Hub's limit. */
+export function bandLabel(label: string, band: string): string {
+  const b = band.trim().slice(0, BAND_MAX);
+  const suffix = ` (${b})`;
+  return `${label
+    .trim()
+    .slice(0, LABEL_MAX - suffix.length)
+    .trimEnd()}${suffix}`;
 }
 
 const BAND_RE = /\s*\(([^)]*\b(?:kg|g|lb|oz)\b[^)]*)\)$/i;
@@ -333,15 +354,22 @@ function toRows(options: ShippingOption[]): ShipRow[] {
           : o.freeOver !== undefined
             ? "free"
             : "flat";
-    return { ...o, kind, band, label: band ? o.label.replace(BAND_RE, "") : o.label };
+    return {
+      ...o,
+      key: o.id ?? nextKey(),
+      kind,
+      band,
+      label: band ? o.label.replace(BAND_RE, "") : o.label,
+    };
   });
 }
 
 function fromRows(rows: ShipRow[]): ShippingOption[] {
-  return rows.map(({ kind, band, ...o }) => {
+  return rows.map(({ kind, band, key: _key, ...o }) => {
     const out: ShippingOption = {
       ...o,
-      label: kind === "weight" && band ? `${o.label} (${band})` : o.label,
+      label:
+        kind === "weight" && band ? bandLabel(o.label, band) : o.label.trim().slice(0, LABEL_MAX),
     };
     if (kind === "pickup") {
       out.amount = 0;
@@ -384,7 +412,7 @@ function Shipping({
           shipping.
         </p>
         {rows.map((r, i) => (
-          <fieldset key={r.id ?? `new-${i}`} className="st-ship" disabled={!canEdit}>
+          <fieldset key={r.key} className="st-ship" disabled={!canEdit}>
             <legend className="st-sr-only">Shipping option {i + 1}</legend>
             <Segmented<ShipKind>
               size="sm"
@@ -409,7 +437,9 @@ function Shipping({
               <Field label="Name buyers see">
                 <Input
                   value={r.label}
-                  maxLength={60}
+                  maxLength={
+                    r.kind === "weight" ? LABEL_MAX - 3 - (r.band ?? "").length : LABEL_MAX
+                  }
                   onChange={(e) => set(i, { label: e.target.value })}
                 />
               </Field>
@@ -417,6 +447,7 @@ function Shipping({
                 <Field label="Weight band">
                   <Input
                     value={r.band ?? ""}
+                    maxLength={BAND_MAX}
                     placeholder="up to 2 kg"
                     onChange={(e) => set(i, { band: e.target.value })}
                   />
@@ -500,7 +531,10 @@ function Shipping({
                 size="sm"
                 icon={<Plus />}
                 onClick={() =>
-                  setRows([...rows, { kind: "flat", label: "Standard shipping", amount: 500 }])
+                  setRows([
+                    ...rows,
+                    { key: nextKey(), kind: "flat", label: "Standard shipping", amount: 500 },
+                  ])
                 }
               >
                 Add an option
