@@ -3,7 +3,8 @@ import { reducedMotion } from "./shared";
 /**
  * Lightweight video. Two forms:
  * - `.os-video[data-os-embed]`: a poster + play button; the provider iframe (YouTube nocookie,
- *   Vimeo, PeerTube…) loads only on click.
+ *   Vimeo, PeerTube…) loads only on click. Any other `[data-os-embed]` element with a
+ *   `[data-os-load]` button works the same way (e.g. a booking calendar).
  * - `<video data-os-autoplay>`: background video; plays muted when visible, never under
  *   reduced motion (the poster stays).
  */
@@ -21,7 +22,7 @@ export default function videoLite(el: HTMLElement): void {
     } else play();
     return;
   }
-  const button = el.querySelector<HTMLButtonElement>(".os-video__play");
+  const button = el.querySelector<HTMLButtonElement>(".os-video__play, [data-os-load]");
   const src = el.dataset.osEmbed;
   if (!button || !src || !/^https:\/\//i.test(src)) return;
   button.addEventListener(
@@ -34,11 +35,13 @@ export default function videoLite(el: HTMLElement): void {
         return;
       }
       if (url.protocol !== "https:") return;
-      url.searchParams.set("autoplay", "1");
+      // Videos start playing on the click that loaded them; other embeds (calendars) don't.
+      const isVideo = button.classList.contains("os-video__play");
+      if (isVideo) url.searchParams.set("autoplay", "1");
       const iframe = document.createElement("iframe");
       iframe.src = url.toString();
       iframe.title = el.dataset.osTitle ?? "Video";
-      iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+      if (isVideo) iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
       iframe.allowFullscreen = true;
       iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
       el.replaceChildren(iframe);

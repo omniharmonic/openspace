@@ -222,6 +222,8 @@ ${button("tertiary")}
 .os-input,.os-textarea,.os-select{display:block;width:100%;min-height:3rem;padding:0.7em 0.95em;background:${v(c.background)};color:${v(c.text)};border:1px solid ${v(c["text-muted"])};border-radius:${v(T.radius.input)};${typePreset("body")};line-height:1.4;transition:border-color ${v(M["duration-fast"])} ${ease},box-shadow ${v(M["duration-fast"])} ${ease}}
 .os-textarea{min-height:8rem;resize:vertical}
 .os-select{appearance:none;padding-inline-end:2.5em;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 1.2em) 55%,calc(100% - 0.85em) 55%;background-size:0.35em 0.35em;background-repeat:no-repeat}
+/* Single-line selects match text inputs exactly (appearance:none selects otherwise size from the font's own metrics). */
+.os-select:not([multiple]){height:calc(2.8em + 2px)}
 .os-input::placeholder,.os-textarea::placeholder{color:${v(c["text-muted"])};opacity:1}
 .os-input:hover,.os-textarea:hover,.os-select:hover{border-color:${v(c.text)}}
 .os-input:focus-visible,.os-textarea:focus-visible,.os-select:focus-visible{outline:2px solid ${v(c.focus)};outline-offset:1px;border-color:${v(c.focus)}}
@@ -405,6 +407,24 @@ html:not(.os-js) .os-carousel__controls{display:none}
 .os-video__play{position:absolute;inset:0;display:grid;place-items:center;width:100%;border:0;background:transparent;color:${v(c["accent-text"])}}
 .os-video__play>span{display:grid;place-items:center;width:4.5rem;height:4.5rem;border-radius:${v(T.radius.full)};background:${v(c.accent)};box-shadow:${v(T.shadow.lg)};transition:transform ${v(M["duration-base"])} ${ease}}
 .os-video__play:hover>span{transform:scale(1.06)}
+
+/* Before/after: the before image is clipped at --pos; an invisible full-size range input drives it.
+   Without JavaScript the two images sit side by side. */
+.os-compare{position:relative;--pos:50%}
+.os-compare__stage{position:relative;display:grid;overflow:hidden;border-radius:${v(T.radius.image)}}
+.os-compare__stage>*{grid-area:1/1;min-width:0}
+.os-compare__before{clip-path:inset(0 calc(100% - var(--pos)) 0 0);z-index:1}
+.os-compare__handle{position:absolute;z-index:2;top:0;bottom:0;left:var(--pos);width:2px;translate:-1px 0;background:${v(c.background)};pointer-events:none}
+.os-compare__handle::after{content:"";position:absolute;top:50%;left:50%;width:2.75rem;height:2.75rem;translate:-50% -50%;border-radius:${v(T.radius.full)};background:${v(c.background)};box-shadow:${v(T.shadow.md)}}
+.os-compare__range{position:absolute;z-index:3;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;appearance:none}
+.os-compare__range:focus-visible+.os-compare__handle::after{outline:2px solid ${v(c.focus)};outline-offset:2px}
+html:not(.os-js) .os-compare__stage{grid-template-columns:1fr 1fr;gap:${v(T.space["2xs"])}}
+html:not(.os-js) .os-compare__before{grid-area:1/1;clip-path:none}
+html:not(.os-js) .os-compare__after{grid-area:1/2}
+html:not(.os-js) .os-compare__handle,html:not(.os-js) .os-compare__range{display:none}
+
+/* Countdown: numbers need JavaScript; without it the printed date stands alone. */
+html:not(.os-js) .os-countdown__units{display:none}
 
 /* Search dialog */
 .os-search{width:min(44rem,calc(100vw - 2rem));margin-top:10vh;padding:${v(T.space.sm)};border:0;border-radius:${v(T.radius.card)};background:${v(c.background)};color:${v(c.text)};box-shadow:${v(T.shadow.lg)}}

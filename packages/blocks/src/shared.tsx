@@ -9,6 +9,8 @@ import {
   type RichTextDoc,
   type TypePreset,
 } from "@openspace/schema";
+import type { ReactNode } from "react";
+import { Icon } from "./icons";
 
 /** Helpers shared by the block library. */
 
@@ -237,3 +239,165 @@ export const DEMO = {
     1600,
   ),
 } as const;
+
+// --- locale, money and dates ----------------------------------------------------------------------
+
+/** The site's locale (BCP 47), `en-US` when rendering without a site. */
+export function useLocale(): string {
+  return useRenderContext().doc?.site.locale ?? "en-US";
+}
+
+/** Digits after the decimal point for a currency (USD 2, JPY 0, KWD 3). */
+export function currencyExponent(currency: string): number {
+  try {
+    return (
+      new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions()
+        .maximumFractionDigits ?? 2
+    );
+  } catch {
+    return 2;
+  }
+}
+
+/** Format minor units (`6800` USD) as display money (`$68`, or `$68.50`). */
+export function formatMoney(
+  minor: number,
+  currency: string,
+  locale: string,
+  opts: { trimZeros?: boolean } = {},
+): string {
+  const exp = currencyExponent(currency);
+  const major = minor / 10 ** exp;
+  const whole = Number.isInteger(major);
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      ...(opts.trimZeros !== false && whole ? { minimumFractionDigits: 0 } : {}),
+    }).format(major);
+  } catch {
+    return `${major.toFixed(exp)} ${currency}`;
+  }
+}
+
+const OFFSET_RE = /([+-]\d{2}:\d{2})$/;
+
+/** Is this an ISO date without a time (`2026-11-14`)? */
+export const isDateOnly = (iso: string) => /^\d{4}-\d{2}-\d{2}$/.test(iso);
+
+/**
+ * Format an ISO date or date-time in a fixed zone so static output never depends on the build
+ * machine: date-only values in UTC, date-times in `timeZone`, else their own offset.
+ */
+export function formatDate(
+  iso: string,
+  locale: string,
+  options: Intl.DateTimeFormatOptions,
+  timeZone?: string,
+): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  const zone = isDateOnly(iso) ? "UTC" : (timeZone ?? iso.match(OFFSET_RE)?.[1] ?? "UTC");
+  for (const tz of [zone, "UTC"]) {
+    try {
+      return new Intl.DateTimeFormat(locale, { ...options, timeZone: tz }).format(date);
+    } catch {
+      /* unsupported zone: fall back to UTC */
+    }
+  }
+  return iso;
+}
+
+/** Calendar parts (`year`, `month` 1–12, `day`) of an ISO value in its own zone (see formatDate). */
+export function dateParts(iso: string, timeZone?: string) {
+  const zone = isDateOnly(iso) ? "UTC" : (timeZone ?? iso.match(OFFSET_RE)?.[1] ?? "UTC");
+  const date = new Date(iso);
+  let parts: Intl.DateTimeFormatPart[];
+  try {
+    parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: zone,
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    }).formatToParts(date);
+  } catch {
+    parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "UTC",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    }).formatToParts(date);
+  }
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+  return { year: get("year"), month: get("month"), day: get("day") };
+}
+
+// --- editing notices ----------------------------------------------------------------------------
+
+/**
+ * A short notice for owners (Studio canvas and previews). Production renders nothing, so a
+ * half-configured block never shows instructions to visitors.
+ */
+export function EditorNotice({ children }: { children: ReactNode }) {
+  const { mode } = useRenderContext();
+  if (mode === "production") return null;
+  return (
+    <p className="os-empty" role="note">
+      {children}
+    </p>
+  );
+}
+
+// --- carousel controls -----------------------------------------------------------------------------
+
+/**
+ * Previous / next buttons for the renderer carousel contract (`[data-os-prev]`,
+ * `[data-os-next]`, `aria-controls` → the `.os-carousel__track` id). `noun` names what moves:
+ * "photos", "quote", "items".
+ */
+export function CarouselControls({ trackId, noun }: { trackId: string; noun: string }) {
+  return (
+    <div className="os-carousel__controls">
+      <button
+        type="button"
+        className="os-carousel__btn"
+        data-os-prev=""
+        aria-controls={trackId}
+        aria-label={`Previous ${noun}`}
+      >
+        <Icon name="arrow-right" size={20} className="os-flip" />
+      </button>
+      <button
+        type="button"
+        className="os-carousel__btn"
+        data-os-next=""
+        aria-controls={trackId}
+        aria-label={`Next ${noun}`}
+      >
+        <Icon name="arrow-right" size={20} />
+      </button>
+    </div>
+  );
+}
+
+// --- heading levels -------------------------------------------------------------------------------
+
+export const HEADING_LEVELS = ["h2", "h3", "h4"] as const;
+export type HeadingLevel = (typeof HEADING_LEVELS)[number];
+
+/** The block's own heading level (default h3, under the page's section headings). */
+export const headingLevelField = () =>
+  f.select({
+    options: [
+      { value: "h2", label: "Heading 2" },
+      { value: "h3", label: "Heading 3" },
+      { value: "h4", label: "Heading 4" },
+    ],
+    default: "h3",
+    label: "Heading level",
+    help: "Match the page outline: one level below the section's heading",
+  });
+
+/** One level below `level` (item titles under the block heading), capped at h5. */
+export const childLevel = (level: HeadingLevel) =>
+  (({ h2: "h3", h3: "h4", h4: "h5" }) as const)[level];

@@ -6,8 +6,7 @@ import {
   type ImageValue,
   type Link as LinkValue,
 } from "@openspace/schema";
-import { Icon } from "../icons";
-import { ASPECT_OPTIONS, DEMO, useImageUrl } from "../shared";
+import { ASPECT_OPTIONS, CarouselControls, DEMO, sub, useImageUrl } from "../shared";
 
 const COLUMN_OPTIONS = [
   { value: "2", label: "2" },
@@ -121,7 +120,7 @@ function Gallery({ id, fields, variant }: { id: string; fields: GalleryFields; v
           className="os-gallery__link"
           data-os-lightbox=""
           data-os-caption={item.caption ?? item.image.alt}
-          aria-label={item.image.alt ? undefined : (item.caption ?? `Photo ${i + 1}`)}
+          aria-label={item.image.alt ? undefined : item.caption || `Photo ${i + 1}`}
         >
           {img}
         </a>
@@ -158,30 +157,11 @@ function Gallery({ id, fields, variant }: { id: string; fields: GalleryFields; v
         aria-label={label}
         data-os-behavior={behaviors || undefined}
       >
-        <ul className="os-carousel__track os-gallery__items" id={`${id}-track`}>
+        <ul className="os-carousel__track os-gallery__items" id={sub(id, "track")}>
           {items}
         </ul>
         {fields.images.length > 1 ? (
-          <div className="os-carousel__controls">
-            <button
-              type="button"
-              className="os-carousel__btn"
-              data-os-prev=""
-              aria-controls={`${id}-track`}
-              aria-label="Previous photos"
-            >
-              <Icon name="arrow-right" size={20} className="os-flip" />
-            </button>
-            <button
-              type="button"
-              className="os-carousel__btn"
-              data-os-next=""
-              aria-controls={`${id}-track`}
-              aria-label="Next photos"
-            >
-              <Icon name="arrow-right" size={20} />
-            </button>
-          </div>
+          <CarouselControls trackId={sub(id, "track")} noun="photos" />
         ) : null}
       </div>
     );

@@ -361,7 +361,7 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
             <span className="os-visually-hidden">Close menu</span>
           </button>
         </div>
-        <nav className="os-menu__nav" aria-label="Main">
+        <nav className="os-menu__nav" aria-label="Menu">
           <NavList items={nav} className="os-menu__list" />
         </nav>
         {(buttons.length > 0 || (site.social?.length ?? 0) > 0) && (

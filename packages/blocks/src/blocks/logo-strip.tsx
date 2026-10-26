@@ -72,7 +72,7 @@ export const logoStripBlock = defineBlock({
         <div className={cls}>
           {label}
           <div className="os-marquee" data-os-behavior="marquee" data-os-speed="30">
-            <ul className="os-marquee__track os-logos__list" aria-label={fields.label ?? "Logos"}>
+            <ul className="os-marquee__track os-logos__list" aria-label={fields.label || "Logos"}>
               {items}
             </ul>
           </div>
@@ -82,7 +82,7 @@ export const logoStripBlock = defineBlock({
     return (
       <div className={cls}>
         {label}
-        <ul className="os-logos__list" aria-label={fields.label ?? "Logos"}>
+        <ul className="os-logos__list" aria-label={fields.label || "Logos"}>
           {items}
         </ul>
       </div>

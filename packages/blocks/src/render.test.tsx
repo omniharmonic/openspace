@@ -43,14 +43,6 @@ function libraryDoc() {
   return siteWith(pages);
 }
 
-/**
- * Findings in renderer-owned page chrome (not block output), reported to the renderer owner:
- * the header's desktop `<nav>` and the mobile menu's `<nav>` are both unlabelled landmarks.
- */
-const RENDERER_KNOWN = [
-  /^unique-landmark: .* — (?:html > body > div > header .*> nav|#os-menu > nav)$/,
-];
-
 const INLINE_SCRIPT_RE =
   /<script(?![^>]*\b(?:type="application\/ld\+json"|src=))[^>]*>([\s\S]*?)<\/script>/g;
 
@@ -83,9 +75,9 @@ describe("every block × variant renders through renderPageHtml", () => {
             expect(BEHAVIORS as readonly string[]).toContain(name);
 
         const report = await validator.validateString(html);
-        const messages = report.results
-          .flatMap((r) => r.messages.map((m) => `${m.ruleId}: ${m.message} — ${m.selector ?? ""}`))
-          .filter((m) => !RENDERER_KNOWN.some((re) => re.test(m)));
+        const messages = report.results.flatMap((r) =>
+          r.messages.map((m) => `${m.ruleId}: ${m.message} — ${m.selector ?? ""}`),
+        );
         expect(messages).toEqual([]);
       });
     }
