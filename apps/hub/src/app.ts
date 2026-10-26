@@ -6,10 +6,19 @@ import { errorBody } from "./lib/errors";
 import { handleError } from "./lib/handle-error";
 import { createLogger } from "./lib/log";
 import { authRoutes } from "./routes/auth";
+import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
 import { meRoutes } from "./routes/me";
 import { previewRoutes } from "./routes/preview";
+import { publicAnalyticsRoutes } from "./routes/public/analytics";
+import { devOutboxRoutes } from "./routes/public/dev-outbox";
+import { publicFormRoutes } from "./routes/public/forms";
+import { publicNewsletterRoutes } from "./routes/public/newsletter";
+import { publishingRoutes } from "./routes/publishing";
+import { roomRoutes } from "./routes/room";
+import { domainInfoRoutes, siteServiceRoutes } from "./routes/site-services";
 import { siteRoutes } from "./routes/sites";
 import { templateRoutes } from "./routes/templates";
+import { webhookRoutes } from "./routes/webhooks";
 import { createServices, type ServiceOverrides } from "./services";
 import type { AppEnv } from "./types";
 
@@ -66,6 +75,19 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api", meRoutes);
   app.route("/api/templates", templateRoutes);
   app.route("/api/sites", siteRoutes);
+  // Task 16: Studio APIs for forms, newsletter, analytics, domains, quotas, audit, export.
+  app.route("/api/sites", siteServiceRoutes);
+  app.route("/api/domains", domainInfoRoutes);
+  // Task 16: public endpoints called from published sites, and the dev outbox.
+  app.route("/", publicFormRoutes);
+  app.route("/", publicNewsletterRoutes);
+  app.route("/", publicAnalyticsRoutes);
+  app.route("/", devOutboxRoutes);
+  app.route("/api/sites", roomRoutes);
+  app.route("/api/sites", publishingRoutes);
+  app.route("/api/sites", collaboratorRoutes);
+  app.route("/api/invitations", invitationRoutes);
+  app.route("/webhooks", webhookRoutes);
   app.route("/", previewRoutes);
 
   app.notFound((c) => c.json(errorBody("not_found", "Not found."), 404));

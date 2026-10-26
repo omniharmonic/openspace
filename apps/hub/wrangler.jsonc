@@ -15,7 +15,23 @@
     "LOG_LEVEL": "info"
   },
   // Secrets (wrangler secret put / .dev.vars): GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY,
-  // GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, TOKEN_ENC_KEY. See .dev.vars.example.
+  // GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, TOKEN_ENC_KEY, GITHUB_WEBHOOK_SECRET.
+  // See .dev.vars.example.
+  // DraftRoom (Task 15) + the per-IP+site rate limiter for public endpoints (Task 16).
+  "durable_objects": {
+    "bindings": [
+      { "name": "DRAFT_ROOM", "class_name": "DraftRoom" },
+      { "name": "RATE_LIMITER", "class_name": "RateLimiter" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["DraftRoom"] },
+    { "tag": "rate-limiter-v1", "new_sqlite_classes": ["RateLimiter"] }
+  ],
+  // "* * * * *": scheduled publishes, transfer/invitation expiry, archived-site purges (Task 15).
+  // "0 3 * * *": retention purge + daily form digests; "0 8 * * 1": weekly analytics digests
+  // (Task 16). The `scheduled` handler dispatches by cron string.
+  "triggers": { "crons": ["* * * * *", "0 3 * * *", "0 8 * * 1"] },
   "d1_databases": [
     {
       "binding": "HUB_DB",
@@ -26,6 +42,10 @@
   ],
   "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
   "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }],
+  // Task 16: per-visitor analytics beacon limit (Workers Rate Limiting API; local to each colo).
+  "ratelimits": [
+    { "name": "BEACON_LIMITER", "namespace_id": "1601", "simple": { "limit": 120, "period": 60 } }
+  ],
   // Production: real GitHub App, no dev sign-in. Bindings are not inherited by environments,
   // so they are repeated here (replace the ids with your own resources).
   "env": {
@@ -37,6 +57,13 @@
         "GITHUB_APP_SLUG": "openspace",
         "LOG_LEVEL": "info"
       },
+      "durable_objects": {
+        "bindings": [
+          { "name": "DRAFT_ROOM", "class_name": "DraftRoom" },
+          { "name": "RATE_LIMITER", "class_name": "RateLimiter" }
+        ]
+      },
+      "triggers": { "crons": ["* * * * *", "0 3 * * *", "0 8 * * 1"] },
       "d1_databases": [
         {
           "binding": "HUB_DB",
@@ -46,7 +73,20 @@
         }
       ],
       "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
-      "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }]
+      "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }],
+      "ratelimits": [
+        {
+          "name": "BEACON_LIMITER",
+          "namespace_id": "1601",
+          "simple": { "limit": 120, "period": 60 }
+        }
+      ],
+      // Task 16: Hub-domain transactional mail (Cloudflare Email Service; onboard the sending
+      // domain with `wrangler email sending enable`) and Analytics Engine for pageviews.
+      // Secrets: EMAIL_FROM, TURNSTILE_SECRET, CF_ACCOUNT_ID, CF_ANALYTICS_TOKEN, HUB_SECRET
+      // (or RESEND_API_KEY / POSTMARK_TOKEN with EMAIL_PROVIDER).
+      "send_email": [{ "name": "EMAIL" }],
+      "analytics_engine_datasets": [{ "binding": "ANALYTICS", "dataset": "openspace_analytics" }]
     }
   }
 }

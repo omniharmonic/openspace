@@ -15,6 +15,7 @@ import {
   GitHubConflictError,
   GitHubNotFoundError,
   normalizeRef,
+  type PagesInfo,
   type PullRequestInput,
   type RepoInfo,
   type RepoRef,
@@ -393,6 +394,17 @@ export class GitHubAppAccess implements GitHubAccess {
     }
   }
 
+  async listTags(repo: RepoRef, prefix = ""): Promise<Array<{ name: string; sha: string }>> {
+    const data = await this.rest<Array<{ ref: string; object: { sha: string } }>>(
+      `${this.repoPath(repo)}/git/matching-refs/tags/${encPath(prefix)}`,
+      { allow404: true },
+    );
+    return (data ?? []).map((r) => ({
+      name: r.ref.replace(/^refs\/tags\//, ""),
+      sha: r.object.sha,
+    }));
+  }
+
   async listCommits(
     repo: RepoRef,
     options: { ref: string; limit?: number; path?: string },
@@ -502,6 +514,36 @@ export class GitHubAppAccess implements GitHubAccess {
     await this.rest(`${this.repoPath(repo)}/pages`, { method: "PUT", body: { cname: domain } });
   }
 
+  async getPages(repo: RepoRef): Promise<PagesInfo | null> {
+    const data = await this.rest<{
+      html_url?: string;
+      cname?: string | null;
+      https_enforced?: boolean;
+      https_certificate?: { state?: string } | null;
+    }>(`${this.repoPath(repo)}/pages`, { allow404: true });
+    if (!data) return null;
+    const state = data.https_certificate?.state ?? null;
+    return {
+      url: data.html_url ?? null,
+      cname: data.cname ?? null,
+      httpsEnforced: data.https_enforced === true,
+      certificate: !state
+        ? "none"
+        : state === "approved"
+          ? "approved"
+          : state === "errored" || state === "bad_authz" || state === "destroy_pending"
+            ? "errored"
+            : "pending",
+    };
+  }
+
+  async setPagesHttps(repo: RepoRef, enforced: boolean): Promise<void> {
+    await this.rest(`${this.repoPath(repo)}/pages`, {
+      method: "PUT",
+      body: { https_enforced: enforced },
+    });
+  }
+
   async dispatchWorkflow(
     repo: RepoRef,
     input: { workflow: string; ref: string; inputs?: Record<string, string> },
@@ -559,6 +601,31 @@ export class GitHubAppAccess implements GitHubAccess {
       method: "PUT",
       body: { permission },
     });
+  }
+
+  async removeCollaborator(repo: RepoRef, login: string): Promise<void> {
+    await this.rest(`${this.repoPath(repo)}/collaborators/${enc(login)}`, {
+      method: "DELETE",
+      allow404: true,
+    });
+  }
+
+  async failedSteps(repo: RepoRef, runId: number): Promise<string[]> {
+    const data = await this.rest<{
+      jobs: Array<{
+        name: string;
+        conclusion: string | null;
+        steps?: Array<{ name: string; conclusion: string | null }>;
+      }>;
+    }>(`${this.repoPath(repo)}/actions/runs/${runId}/jobs`, { allow404: true });
+    const out: string[] = [];
+    for (const job of data?.jobs ?? []) {
+      if (job.conclusion !== "failure") continue;
+      const steps = (job.steps ?? []).filter((s) => s.conclusion === "failure");
+      if (steps.length) for (const s of steps) out.push(`${job.name}: ${s.name}`);
+      else out.push(job.name);
+    }
+    return out;
   }
 
   async openPullRequest(

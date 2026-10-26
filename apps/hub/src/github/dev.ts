@@ -14,6 +14,7 @@ import {
   GitHubInputError,
   GitHubNotFoundError,
   normalizeRef,
+  type PagesInfo,
   type PullRequestInput,
   type RepoInfo,
   type RepoRef,
@@ -51,6 +52,7 @@ interface RepoRow {
   archived: number;
   pages_enabled: number;
   pages_url: string | null;
+  pages_domain: string | null;
 }
 
 export interface DevGitHubOptions {
@@ -435,6 +437,15 @@ export class DevGitHubAccess implements GitHubAccess {
     await this.setRef(repo, ref, target);
   }
 
+  async listTags(repo: RepoRef, prefix = ""): Promise<Array<{ name: string; sha: string }>> {
+    await this.requireRepo(repo);
+    const res = await this.db
+      .prepare("SELECT ref, sha FROM dev_refs WHERE repo = ? AND ref LIKE ? ORDER BY ref")
+      .bind(key(repo), `refs/tags/${prefix.replace(/[%_]/g, "")}%`)
+      .all<{ ref: string; sha: string }>();
+    return res.results.map((r) => ({ name: r.ref.slice("refs/tags/".length), sha: r.sha }));
+  }
+
   async listCommits(
     repo: RepoRef,
     options: { ref: string; limit?: number; path?: string },
@@ -535,6 +546,30 @@ export class DevGitHubAccess implements GitHubAccess {
       .run();
   }
 
+  async getPages(repo: RepoRef): Promise<PagesInfo | null> {
+    const row = await this.requireRepo(repo);
+    if (!row.pages_enabled) return null;
+    const https = await this.db
+      .prepare("SELECT pages_https FROM dev_repos WHERE full_name = ?")
+      .bind(key(repo))
+      .first<{ pages_https: number | null }>();
+    return {
+      url: row.pages_url,
+      cname: row.pages_domain,
+      httpsEnforced: https?.pages_https === 1,
+      // Dev: the "certificate" is issued as soon as a domain is set.
+      certificate: row.pages_domain ? "approved" : "none",
+    };
+  }
+
+  async setPagesHttps(repo: RepoRef, enforced: boolean): Promise<void> {
+    await this.requireRepo(repo);
+    await this.db
+      .prepare("UPDATE dev_repos SET pages_https = ? WHERE full_name = ?")
+      .bind(enforced ? 1 : 0, key(repo))
+      .run();
+  }
+
   async dispatchWorkflow(
     repo: RepoRef,
     input: { workflow: string; ref: string; inputs?: Record<string, string> },
@@ -626,6 +661,27 @@ export class DevGitHubAccess implements GitHubAccess {
       )
       .bind(key(repo), login, permission)
       .run();
+  }
+
+  async removeCollaborator(repo: RepoRef, login: string): Promise<void> {
+    await this.requireRepo(repo);
+    await this.db
+      .prepare("DELETE FROM dev_collaborators WHERE repo = ? AND login = ? COLLATE NOCASE")
+      .bind(key(repo), login)
+      .run();
+  }
+
+  async failedSteps(_repo: RepoRef, runId: number): Promise<string[]> {
+    const row = await this.db
+      .prepare("SELECT inputs_json FROM dev_workflow_runs WHERE id = ?")
+      .bind(runId)
+      .first<{ inputs_json: string | null }>();
+    try {
+      const inputs = JSON.parse(row?.inputs_json ?? "{}") as { failedStep?: string };
+      return inputs.failedStep ? [inputs.failedStep] : [];
+    } catch {
+      return [];
+    }
   }
 
   async openPullRequest(

@@ -55,21 +55,3 @@ export function siteOrigins(site: Pick<SiteRow, "url" | "domain">, config: HubCo
   }
   return [...out];
 }
-
-/** Non-credentialed CORS for public per-site routes (`/f/:siteId/…` etc., Task 16). */
-export function siteCors(
-  config: HubConfig,
-  lookup: (siteId: string) => Promise<Pick<SiteRow, "url" | "domain"> | null>,
-): MiddlewareHandler {
-  return async (c, next) => {
-    const siteId = c.req.param("siteId");
-    const site = siteId ? await lookup(siteId) : null;
-    const allowed = site ? siteOrigins(site, config) : [];
-    return cors({
-      origin: (origin) => (allowed.includes(origin) ? origin : null),
-      allowMethods: ["GET", "POST", "OPTIONS"],
-      allowHeaders: ["Content-Type"],
-      maxAge: 600,
-    })(c, next);
-  };
-}

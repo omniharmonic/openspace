@@ -5,3 +5,17 @@
 # GITHUB_CLIENT_ID=
 # GITHUB_CLIENT_SECRET=
 # TOKEN_ENC_KEY=   # 32 random bytes, base64: openssl rand -base64 32
+# GITHUB_WEBHOOK_SECRET=   # the GitHub App webhook secret; /webhooks/github rejects unsigned events without it
+
+# Public services (Task 16). All optional; without them (or in DEV_MODE) email goes to the dev
+# outbox at /dev/outbox, Turnstile is bypassed and analytics are stored in D1.
+# EMAIL_FROM="OpenSpace <no-reply@hub.example.com>"
+# EMAIL_PROVIDER=          # cloudflare | resend | postmark (default: whichever is configured)
+# RESEND_API_KEY=
+# POSTMARK_TOKEN=
+# TURNSTILE_SITE_KEY=
+# TURNSTILE_SECRET=
+# CF_ACCOUNT_ID=           # Analytics Engine SQL reads (with the ANALYTICS binding)
+# CF_ANALYTICS_TOKEN=
+# HUB_SECRET=              # HMAC key for unsubscribe links (falls back to TOKEN_ENC_KEY)
+# QUOTAS_JSON='{"formSubmissions":5000}'   # self-hosted quota overrides

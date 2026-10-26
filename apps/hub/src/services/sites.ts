@@ -10,6 +10,7 @@ import {
 } from "@openspace/schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
+import { insertPublish, latestPublish, publishBySha } from "../db/publishes";
 import {
   getSite,
   getSiteForUser,
@@ -23,7 +24,8 @@ import {
   setRole,
   updateSite,
 } from "../db/sites";
-import { getUserByLogin, type User } from "../db/users";
+import { getUserByLogin, getUserRow, toUser, type User } from "../db/users";
+import type { HubBindings } from "../env";
 import {
   DRAFT_BRANCH,
   type FileContent,
@@ -36,8 +38,11 @@ import { base64ToBytes, bytesToBase64 } from "../lib/crypto";
 import { forbidden, HttpError, notFound } from "../lib/errors";
 import { type DecodedImage, decodeImageDataUrl } from "../lib/image";
 import type { Logger } from "../lib/log";
+import { roomStub, unwrapRoom } from "../room";
+import type { PublishResult } from "../room/draft-room";
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
+import { draftReady } from "./publishing";
 import { CONFIG_PATH, isDocumentPath, loadSiteDocument, siteDocumentToFiles } from "./site-files";
 import type { TemplateMeta } from "./templates";
 
@@ -261,6 +266,21 @@ export interface SiteSetup {
 
 const setupKey = (siteId: string) => `site-setup/${siteId}/logo`;
 
+/** Delete a site's setup uploads (the logo) from R2 — after setup succeeded, and on purge. */
+export async function deleteSetupAssets(
+  services: Pick<Services, "uploads">,
+  siteId: string,
+  log?: Logger,
+): Promise<void> {
+  try {
+    const listed = await services.uploads.list({ prefix: `site-setup/${siteId}/` });
+    const keys = listed.objects.map((o) => o.key);
+    if (keys.length) await services.uploads.delete(keys);
+  } catch (err) {
+    log?.warn("setup asset cleanup failed", { siteId, err });
+  }
+}
+
 /** The new site's repo files: template shell + personalized document (+ logo). Deterministic. */
 async function buildSiteFiles(
   services: Services,
@@ -388,6 +408,8 @@ async function runSetup(
         head = commit.sha;
       }
     }
+    // The content is on main: the setup logo in R2 is no longer needed.
+    await deleteSetupAssets(services, site.id, opts.log);
     stage = "draft";
     if (!(await gh.getRef(repo, DRAFT_BRANCH))) await gh.createBranch(repo, DRAFT_BRANCH, head);
     stage = "pages";
@@ -397,6 +419,21 @@ async function runSetup(
     const run = await gh.workflowStatus(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
     const status: SiteStatus =
       run.state === "success" ? "live" : run.state === "failure" ? "failed" : "building";
+    // The first version is a publish too: "Fix it for me" and history can go back to it.
+    if (!(await publishBySha(services.db, site.id, head)))
+      await insertPublish(
+        services.db,
+        {
+          site_id: site.id,
+          kind: "setup",
+          sha: head,
+          prev_sha: null,
+          summary: `Create ${site.name}`,
+          actor: user.id,
+          status: run.state === "none" ? "queued" : run.state,
+        },
+        services.now(),
+      );
     return {
       status,
       detail:
@@ -548,32 +585,51 @@ export async function patchSite(
 }
 
 /**
- * Publish. In this task it (re)runs setup idempotently — finishing a site whose creation failed at
- * any stage — and re-dispatches the publish workflow. Task 15 extends it into the full
- * flush + squash-publish of the draft.
+ * Publish (`POST /api/sites/:id/publish`). A site whose setup never finished (no repo, no
+ * content, no draft — or a failed first publish) resumes setup idempotently; otherwise the
+ * site's DraftRoom flushes and squash-publishes the draft (arch §5.4).
  */
 export async function publishSite(
   services: Services,
+  env: HubBindings,
   id: string,
   user: User,
   log?: Logger,
-): Promise<SiteView> {
+): Promise<SiteView & { publish: PublishResult | null }> {
   const site = await siteForUser(services, id, user);
-  requireRole(site, "designer");
-  const result = await runSetup(services, site, user, log ? { log } : {});
-  await updateSite(
-    services.db,
-    id,
-    { status: result.status, status_detail: result.detail, url: result.url },
-    services.now(),
-  );
-  await audit(services.db, {
-    siteId: id,
-    actor: user.id,
-    action: "site.publish",
-    meta: { status: result.status },
-  });
-  return getSiteView(services, id, user, log);
+  requireRole(site, "editor");
+  const owner = await ownerOf(services, site);
+  const published = await latestPublish(services.db, id);
+  const needsSetup =
+    (site.status === "failed" && (!published || published.kind === "setup")) ||
+    !(await draftReady(services, site, owner));
+  if (needsSetup) {
+    const result = await runSetup(services, site, owner ?? user, log ? { log } : {});
+    await updateSite(
+      services.db,
+      id,
+      { status: result.status, status_detail: result.detail, url: result.url },
+      services.now(),
+    );
+    await audit(services.db, {
+      siteId: id,
+      actor: user.id,
+      action: "site.setup.retry",
+      meta: { status: result.status },
+    });
+    return { ...(await getSiteView(services, id, user, log)), publish: null };
+  }
+  const result = await unwrapRoom(roomStub(env, id).publish(id, { userId: user.id }));
+  return { ...(await getSiteView(services, id, user, log)), publish: result };
+}
+
+/** The site owner's account (server-side GitHub work falls back to their token). */
+export async function ownerOf(
+  services: Services,
+  site: Pick<SiteRow, "owner_id">,
+): Promise<User | null> {
+  const row = await getUserRow(services.db, site.owner_id);
+  return row ? toUser(row) : null;
 }
 
 /** Archive (FR-4): typed confirmation, repo archived, Hub data kept 30 days then purged. */
@@ -639,13 +695,70 @@ export async function completeTransfer(
   });
 }
 
-/** Poll a pending transfer: complete it when the repository appears under the recipient. */
+/** Pending ownership transfers lapse after this long (GitHub's own invitations expire too). */
+export const TRANSFER_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+
+/** Drop a pending transfer (cancelled by the owner, or expired). Roles and repo are unchanged. */
+export async function clearTransfer(
+  services: Services,
+  site: Pick<SiteRow, "id" | "transfer_to">,
+  actor: string,
+  reason: "cancelled" | "expired",
+): Promise<void> {
+  await updateSite(
+    services.db,
+    site.id,
+    { transfer_to: null, transfer_requested_at: null },
+    services.now(),
+  );
+  await audit(services.db, {
+    siteId: site.id,
+    actor,
+    action: `site.transfer.${reason}`,
+    meta: { to: site.transfer_to },
+  });
+}
+
+/** `DELETE /api/sites/:id/transfer` — the owner withdraws a pending transfer. */
+export async function cancelTransfer(
+  services: Services,
+  id: string,
+  user: User,
+): Promise<SiteView> {
+  const site = await siteForUser(services, id, user);
+  requireRole(site, "owner");
+  if (!site.transfer_to)
+    throw new HttpError(409, "no_transfer", "There's no transfer waiting for this site.");
+  await clearTransfer(services, site, user.id, "cancelled");
+  return getSiteView(services, id, user);
+}
+
+/** Expire every pending transfer older than `TRANSFER_TTL_MS` (cron). */
+export async function expireTransfers(services: Services, now: number): Promise<number> {
+  const rows = await services.db
+    .prepare(
+      "SELECT id, transfer_to FROM sites WHERE transfer_to IS NOT NULL AND transfer_requested_at < ?",
+    )
+    .bind(now - TRANSFER_TTL_MS)
+    .all<Pick<SiteRow, "id" | "transfer_to">>();
+  for (const r of rows.results) await clearTransfer(services, r, "system", "expired");
+  return rows.results.length;
+}
+
+/**
+ * Poll a pending transfer: complete it when the repository appears under the recipient, expire
+ * it after `TRANSFER_TTL_MS`. (The `repository.transferred` webhook completes it sooner.)
+ */
 export async function refreshTransfer(
   services: Services,
   site: SiteWithRole,
   log?: Logger,
 ): Promise<boolean> {
   if (!site.transfer_to) return false;
+  if ((site.transfer_requested_at ?? 0) + TRANSFER_TTL_MS < services.now()) {
+    await clearTransfer(services, site, "system", "expired");
+    return true;
+  }
   try {
     const target = await getUserByLogin(services.db, site.transfer_to);
     if (!target) return false;

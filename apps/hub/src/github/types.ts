@@ -109,6 +109,14 @@ export interface PullRequestInput {
   body?: string;
 }
 
+export interface PagesInfo {
+  url: string | null;
+  cname: string | null;
+  httpsEnforced: boolean;
+  /** GitHub's certificate state: none | new | authorization_created | … | approved | errored. */
+  certificate: "none" | "pending" | "approved" | "errored";
+}
+
 export type CollaboratorPermission = "pull" | "triage" | "push" | "maintain" | "admin";
 
 export interface GitHubAccess {
@@ -137,6 +145,8 @@ export interface GitHubAccess {
   /** Force-move a branch (creating it if needed). */
   resetBranch(repo: RepoRef, branch: string, sha: string): Promise<void>;
   tag(repo: RepoRef, name: string, sha: string): Promise<void>;
+  /** Tags whose name starts with `prefix` (e.g. `os/snap/`), newest-created order not guaranteed. */
+  listTags(repo: RepoRef, prefix?: string): Promise<Array<{ name: string; sha: string }>>;
   listCommits(
     repo: RepoRef,
     options: { ref: string; limit?: number; path?: string },
@@ -144,6 +154,10 @@ export interface GitHubAccess {
 
   enablePages(repo: RepoRef): Promise<{ url: string }>;
   setPagesDomain(repo: RepoRef, domain: string | null): Promise<void>;
+  /** Pages custom-domain + certificate state (Task 16 domains wizard); null if Pages is off. */
+  getPages(repo: RepoRef): Promise<PagesInfo | null>;
+  /** Turn "Enforce HTTPS" on or off (only possible once the certificate is issued). */
+  setPagesHttps(repo: RepoRef, enforced: boolean): Promise<void>;
   dispatchWorkflow(
     repo: RepoRef,
     input: { workflow: string; ref: string; inputs?: Record<string, string> },
@@ -152,6 +166,9 @@ export interface GitHubAccess {
 
   setSecret(repo: RepoRef, name: string, value: string): Promise<void>;
   addCollaborator(repo: RepoRef, login: string, permission?: CollaboratorPermission): Promise<void>;
+  removeCollaborator(repo: RepoRef, login: string): Promise<void>;
+  /** Names of the failed jobs/steps of a workflow run (for plain-language build errors). */
+  failedSteps(repo: RepoRef, runId: number): Promise<string[]>;
   openPullRequest(repo: RepoRef, input: PullRequestInput): Promise<{ number: number; url: string }>;
 }
 
