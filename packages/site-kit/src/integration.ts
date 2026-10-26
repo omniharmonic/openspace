@@ -32,6 +32,12 @@ export interface OpenSpaceOptions {
   /** Options passed to `@astrojs/cloudflare` on the Cloudflare target. */
   cloudflare?: Record<string, unknown>;
   podcast?: PodcastOptions;
+  /**
+   * Build-time posts for the social-feed block, keyed by `feedKey(network, handle)`
+   * (`instagram:meadowyoga`). Fetching needs the owner's authorization, which lives in the Hub;
+   * pass the data here (or a function returning it). Without it the block shows pinned posts.
+   */
+  socialFeeds?: Record<string, unknown[]> | (() => Promise<Record<string, unknown[]>>);
 }
 
 const VIRTUAL_SITE = "virtual:openspace/site";
@@ -84,6 +90,10 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
           hubUrl: options.hubUrl,
           turnstileSiteKey: turnstileSiteKey || undefined,
           ogImages: options.ogImages ?? true,
+          socialFeeds:
+            typeof options.socialFeeds === "function"
+              ? await options.socialFeeds()
+              : options.socialFeeds,
         };
 
         addWatchFile(join(rootDir, "openspace.json"));

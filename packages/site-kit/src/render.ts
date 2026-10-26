@@ -3,15 +3,22 @@
  * the image map from Astro's `getImage()`), the Cloudflare Worker (gated pages) and tests.
  * Every page goes through `renderPageHtml` — the one renderer (ADR-3).
  */
-import { BLOCKS_CSS, registerAll } from "@openspace/blocks";
+import { BLOCKS_CSS, FormSecurityContext, registerAll } from "@openspace/blocks";
+import * as renderer from "@openspace/renderer";
 import {
   BASE_CSS,
+  BEHAVIOR_LOADER,
+  behaviorsInHtml,
   compiledStylesFor,
   type ImageMap,
+  PageView,
+  type PageViewProps,
   type ResolvedImage,
   renderPageHtml,
 } from "@openspace/renderer";
 import type { Page, SiteDocument } from "@openspace/schema";
+import { type Context, createElement, type ReactElement, type ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import type { DeployLocation } from "./deploy";
 import { feedLinks } from "./feeds";
 import { contentHash } from "./ids";
@@ -113,6 +120,8 @@ export interface RenderRouteOptions {
   turnstileSiteKey?: string;
   /** Generated share images for pages without their own (default true). */
   ogImages?: boolean;
+  /** Build-time social feed posts for the social-feed block, keyed by `feedKey(network, handle)`. */
+  socialFeeds?: Record<string, unknown[]>;
   mode?: "production" | "preview";
 }
 
@@ -129,24 +138,96 @@ export function routePage(
   return { page: { ...page, seo: { ...page.seo, image: `${OG_MEDIA_PREFIX}${og.hash}.png` } }, og };
 }
 
-const TURNSTILE_SLOT = (key: string) =>
-  `<div class="os-turnstile" data-os-turnstile="${key.replace(/[^A-Za-z0-9_-]/g, "")}" data-appearance="interaction-only"></div>`;
-const HONEYPOT_RE = /(<div class="os-hp" aria-hidden="true">[\s\S]*?<\/label><\/div>)/g;
-
 /**
- * ADAPTER POINT (Turnstile): blocks read the site key from `FormSecurityContext`, but
- * `renderPageHtml` has no context hook yet, so site-kit inserts the identical slot markup the
- * blocks' `TurnstileSlot` renders (right after the honeypot). Replace with a context provider
- * once the renderer accepts one.
+ * Contexts site-kit provides around every page: build-time collection data for list blocks
+ * (`CollectionsContext`: live items, `now` = build time, social feeds) and the Turnstile site
+ * key for form/newsletter blocks (`FormSecurityContext`).
+ *
+ * `renderPageHtml` has no wrapper hook, so site-kit renders the page body with the same props
+ * twice — plain (byte-identical to the body inside `renderPageHtml`'s document) and wrapped —
+ * and swaps the wrapped body in. When the contexts change nothing, the output is exactly
+ * `renderPageHtml`'s.
  */
-export function addTurnstile(html: string, siteKey: string, loaderHref: string): string {
-  if (!HONEYPOT_RE.test(html)) return html;
-  HONEYPOT_RE.lastIndex = 0;
-  const withSlots = html.replace(HONEYPOT_RE, `$1${TURNSTILE_SLOT(siteKey)}`);
-  return withSlots.replace(
-    "</head>",
-    `<script type="module" src="${loaderHref}"></script>\n</head>`,
+export interface PageContexts {
+  collections?: CollectionsContextValue;
+  turnstileSiteKey?: string;
+}
+
+/** Shape of the renderer's `CollectionsContext` value (blocks B). */
+export interface CollectionsContextValue {
+  collections?: SiteDocument["collections"];
+  configs?: NonNullable<SiteDocument["collectionConfigs"]>;
+  now?: string;
+  includeDrafts?: boolean;
+  feeds?: Record<string, unknown[]>;
+}
+
+/** The renderer's CollectionsContext when this renderer version has it. */
+function collectionsContext(): Context<unknown> | undefined {
+  return (renderer as unknown as { CollectionsContext?: Context<unknown> }).CollectionsContext;
+}
+
+function wrapContexts(node: ReactNode, contexts: PageContexts): ReactNode {
+  let out = node;
+  if (contexts.turnstileSiteKey)
+    out = createElement(
+      FormSecurityContext.Provider,
+      { value: { turnstileSiteKey: contexts.turnstileSiteKey } },
+      out,
+    );
+  const cc = collectionsContext();
+  if (cc && contexts.collections)
+    out = createElement(cc.Provider, { value: contexts.collections }, out);
+  return out;
+}
+
+function withContexts(
+  html: string,
+  props: PageViewProps,
+  contexts: PageContexts,
+  behaviorsUrl: string,
+): string {
+  const plainBody = renderToStaticMarkup(createElement(PageView, props));
+  const wrappedBody = renderToStaticMarkup(
+    wrapContexts(createElement(PageView, props), contexts) as ReactElement,
   );
+  if (plainBody === wrappedBody) return html;
+  const at = html.indexOf(plainBody);
+  if (at < 0) throw new Error("site-kit: page body not found in the rendered document");
+  let out = html.slice(0, at) + wrappedBody + html.slice(at + plainBody.length);
+  // Behaviors the context-dependent markup adds (rare): preload them and make sure the loader runs.
+  const added = behaviorsInHtml(wrappedBody).filter(
+    (b) => !behaviorsInHtml(plainBody).includes(b) && !out.includes(`${behaviorsUrl}/${b}.js`),
+  );
+  if (added.length) {
+    out = out.replace(
+      "</head>",
+      `${added.map((b) => `<link rel="modulepreload" href="${behaviorsUrl}/${b}.js">`).join("\n")}\n</head>`,
+    );
+    const loader = `<script type="module" src="${behaviorsUrl}/${BEHAVIOR_LOADER}.js"></script>`;
+    if (!out.includes(loader)) out = out.replace("\n</body>", `\n${loader}\n</body>`);
+  }
+  return out;
+}
+
+/** Load Turnstile only on pages whose forms have a widget slot. */
+export function addTurnstileLoader(html: string, loaderHref: string): string {
+  if (!html.includes("data-os-turnstile=")) return html;
+  return html.replace("</head>", `<script type="module" src="${loaderHref}"></script>\n</head>`);
+}
+
+/** Collection data for list blocks: live items only, `now` = build time. */
+export function collectionsContextValue(
+  plan: SitePlan,
+  feeds: Record<string, unknown[]> = {},
+): CollectionsContextValue {
+  return {
+    collections: plan.doc.collections,
+    configs: plan.doc.collectionConfigs ?? {},
+    now: plan.now,
+    includeDrafts: false,
+    feeds,
+  };
 }
 
 /** Render a planned route to a complete HTML document. */
@@ -184,9 +265,27 @@ export function renderRoute(opts: RenderRouteOptions): string {
     ...(opts.assets ? { stylesheets: { base: opts.assets.base, tokens: opts.assets.tokens } } : {}),
     extraHead: head.filter(Boolean).join("\n"),
   });
+  const mode = opts.mode ?? "production";
+  const behaviorsUrl = `${basePath}/_os/behaviors`;
+  const wrapped = withContexts(
+    html,
+    {
+      doc: plan.doc,
+      page,
+      mode,
+      basePath,
+      imageMap,
+      hubUrl: (opts.hubUrl ?? plan.doc.config.hub).replace(/\/+$/, ""),
+    },
+    {
+      collections: collectionsContextValue(plan, opts.socialFeeds),
+      ...(opts.turnstileSiteKey ? { turnstileSiteKey: opts.turnstileSiteKey } : {}),
+    },
+    behaviorsUrl,
+  );
   return opts.turnstileSiteKey
-    ? addTurnstile(html, opts.turnstileSiteKey, `${basePath}/_os/turnstile.js`)
-    : html;
+    ? addTurnstileLoader(wrapped, `${basePath}/_os/turnstile.js`)
+    : wrapped;
 }
 
 /** Absolute URL of a media source: an image-map URL if resolved, else the raw published file. */

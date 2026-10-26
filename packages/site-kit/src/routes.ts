@@ -223,18 +223,3 @@ function sharedCategories(a: CollectionItem, b: CollectionItem): number {
   const cats = new Set(b.frontmatter.categories ?? []);
   return (a.frontmatter.categories ?? []).filter((c) => cats.has(c)).length;
 }
-
-/**
- * Shape of the renderer's `CollectionsContext` value (blocks B). ADAPTER POINT: when
- * `renderPageHtml` accepts a context wrapper, site-kit passes this so list blocks use the
- * build time and only live items. Until then blocks read `doc.collections` from the render
- * document, which `planSite` already limits to live items.
- */
-export function collectionsValue(plan: SitePlan) {
-  return {
-    collections: plan.doc.collections,
-    configs: plan.doc.collectionConfigs ?? {},
-    now: plan.now,
-    includeDrafts: false,
-  };
-}

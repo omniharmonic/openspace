@@ -11,8 +11,13 @@
       "layout": {
         "mode": "stack",
         "columns": {
-          "d": [7, 5],
-          "m": [12]
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
         }
       },
       "style": {
@@ -107,7 +112,9 @@
       "layout": {
         "mode": "stack",
         "columns": {
-          "d": [12]
+          "d": [
+            12
+          ]
         }
       },
       "style": {
@@ -145,7 +152,9 @@
       "layout": {
         "mode": "stack",
         "columns": {
-          "d": [12]
+          "d": [
+            12
+          ]
         }
       },
       "style": {

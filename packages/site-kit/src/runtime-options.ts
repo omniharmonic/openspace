@@ -12,4 +12,6 @@ export interface RuntimeOptions {
   hubUrl?: string | undefined;
   turnstileSiteKey?: string | undefined;
   ogImages: boolean;
+  /** Build-time social feed posts keyed by `feedKey(network, handle)`. */
+  socialFeeds?: Record<string, unknown[]> | undefined;
 }

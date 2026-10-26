@@ -79,6 +79,8 @@
   "devDependencies": {
     "@astrojs/cloudflare": "^14.4.2",
     "@types/node": "catalog:",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "astro": "^7.4.2",
     "sharp": "^0.35.5",
     "tsup": "catalog:",

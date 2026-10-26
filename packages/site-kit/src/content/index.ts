@@ -120,7 +120,9 @@ export async function loadSite(rootDir: string, opts: LoadOptions = {}): Promise
   };
   const check = <S extends z.ZodType>(schema: S, value: unknown, file: string) => {
     const r = schema.safeParse(value);
-    if (r.success) return r.data as z.infer<S>;
+    // Keep the file's own value (key order included) so load → write is byte-stable; zod's
+    // output would reorder keys to the schema's order.
+    if (r.success) return value as z.infer<S>;
     for (const i of r.error.issues)
       issues.push({ file, path: i.path as (string | number)[], message: i.message });
     return undefined;

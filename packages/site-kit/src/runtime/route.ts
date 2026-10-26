@@ -110,5 +110,6 @@ export async function renderPage(props: PageProps): Promise<string> {
     ...(options.hubUrl ? { hubUrl: options.hubUrl } : {}),
     ...(options.turnstileSiteKey ? { turnstileSiteKey: options.turnstileSiteKey } : {}),
     ogImages: options.ogImages,
+    ...(options.socialFeeds ? { socialFeeds: options.socialFeeds } : {}),
   });
 }
