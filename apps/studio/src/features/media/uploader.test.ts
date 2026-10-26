@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { type MediaMeta, MediaMetaSchema, type SiteDocument } from "@openspace/schema";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TEMPLATE_FIXTURES } from "../../api/fixtures";
 import { createMockHub } from "../../api/mock";
 import { devSiteDocument } from "../editor/model/dev-site";
@@ -80,7 +80,10 @@ describe("uploader", () => {
     const { hub, store, images, uploader } = await setup();
     hub.manage.failUploads = 2;
     const [res] = await uploader.add([fakePhoto(images, { width: 800, height: 600 })]);
-    await new Promise((r) => setTimeout(r, 60));
+    // Retries run on (5ms) backoff timers: wait for the condition, not a fixed real-time delay.
+    await vi.waitFor(() =>
+      expect(hub.calls.filter((c) => c.method === "uploadMedia").length).toBe(3),
+    );
     await uploader.idle();
     const path = res?.path as keyof SiteDocument["media"];
     expect(hub.calls.filter((c) => c.method === "uploadMedia").length).toBe(3);
