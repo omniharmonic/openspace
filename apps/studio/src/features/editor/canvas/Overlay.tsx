@@ -25,7 +25,8 @@ import {
 } from "react";
 import { cx, IconButton, Menu, Segmented, toast } from "../../../ui";
 import { useAddSection } from "../../add-section/blockMenuStore";
-import { useInspectorTab } from "../../inspector/env";
+import { useInspectorRole, useInspectorTab } from "../../inspector/env";
+import { capabilities } from "../../inspector/model/permissions";
 import { BlockIcon } from "../blockIcons";
 import { useEditorUi } from "../editor-store";
 import { GridLayer } from "../grid/GridLayer";
@@ -399,6 +400,7 @@ function ThemeSwatch({ theme }: { theme: ColorTheme }) {
 
 function SectionToolbar({ section, frameDoc }: { section: Section; frameDoc: Document | null }) {
   const api = useDocStoreApi();
+  const role = useInspectorRole();
   const doc = useDocStore((s) => s.doc);
   const pageId = useDocStore((s) => s.pageId);
   const loc = locate(doc, pageId, { kind: "section", id: section.id });
@@ -406,6 +408,8 @@ function SectionToolbar({ section, frameDoc }: { section: Section; frameDoc: Doc
   const isFooter = loc.container === FOOTER;
   const s = () => api.getState();
   const items: SelItem[] = [{ kind: "section", id: section.id }];
+  // Stack ⇄ grid is a section layout change: the same capability the inspector uses.
+  const canDesign = capabilities(role, section).sectionDesign;
   const theme = section.style.colorTheme ?? "light";
   const measure = (id: string) => {
     const el = elementFor(frameDoc, { kind: "block", id });
@@ -470,6 +474,7 @@ function SectionToolbar({ section, frameDoc }: { section: Section; frameDoc: Doc
       <Segmented<"stack" | "grid">
         aria-label="Layout"
         size="sm"
+        disabled={!canDesign}
         value={section.layout.mode}
         onValueChange={(mode) =>
           s().run(setLayoutMode(s().doc, s().pageId, section.id, mode, measure))

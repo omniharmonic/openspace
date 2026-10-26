@@ -143,6 +143,12 @@
   height: 12px;
 }
 
+.st-grid__linewrap {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
 /* Eight resize handles. */
 .st-grid__handle {
   position: absolute;
@@ -315,4 +321,28 @@
 .st-grid__reorder-note {
   margin: 0 0 8px;
   color: var(--st-text-2);
+}
+
+/* Pinned blocks: a small pin on the edge they're pinned to. */
+.st-grid__pin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--st-accent);
+  color: var(--st-on-accent);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+}
+
+.st-grid__pin > svg {
+  width: 11px;
+  height: 11px;
+}
+
+.st-grid__pin[data-pin="bottom"] > svg {
+  transform: rotate(180deg);
 }

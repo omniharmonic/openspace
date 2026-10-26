@@ -4,6 +4,7 @@ import {
   type Box,
   colStart,
   constrainAxis,
+  displayRects,
   editBp,
   HANDLES,
   metricsFromTracks,
@@ -13,6 +14,8 @@ import {
   rectsOverlap,
   resizeRect,
   rowStart,
+  rowsAt,
+  rowsToKeep,
   smartGuides,
   stackOrder,
   uniformMetrics,
@@ -258,5 +261,69 @@ describe("which breakpoint an edit writes", () => {
       items: { blk_a: { ...layout.items.blk_a, t: layout.items.blk_a.d } },
     };
     expect(editBp("tablet", custom as never)).toBe("t");
+  });
+});
+
+describe("pinned placements", () => {
+  it("draw on the first/last row whatever their stored row", () => {
+    const layout = {
+      mode: "grid" as const,
+      rows: { d: 20 },
+      items: {
+        blk_a: { d: { x: 1, y: 3, w: 4, h: 2, pin: "bottom" as const } },
+        blk_b: { d: { x: 5, y: 6, w: 4, h: 2, pin: "top" as const } },
+        blk_c: { d: { x: 9, y: 6, w: 4, h: 2 } },
+      },
+    };
+    const r = displayRects(layout as never, "d");
+    expect(r.get("blk_a")?.y).toBe(19);
+    expect(r.get("blk_b")?.y).toBe(1);
+    expect(r.get("blk_c")?.y).toBe(6);
+    expect(rowsAt(layout as never, "d")).toBe(20);
+  });
+
+  it("keep their row while dragged (sideways only) and lock the pinned edge on resize", () => {
+    const pinned: GridRect = { x: 3, y: 17, w: 4, h: 4, pin: "bottom" };
+    expect(planMove(M, [pinned], 0, P * 2, 24 * 5).rects[0]).toEqual({ ...pinned, x: 5 });
+    // A group grabbed by a free item: the free one moves vertically, the pinned one doesn't.
+    const free: GridRect = { x: 10, y: 2, w: 2, h: 2 };
+    const plan = planMove(M, [free, pinned], 0, 0, 48);
+    expect(plan.rects).toEqual([{ ...free, y: 4 }, pinned]);
+    // Bottom-pinned: the bottom edge stays; the top edge still resizes.
+    expect(resizeRect(M, pinned, "s", 0, 48)).toEqual(pinned);
+    expect(resizeRect(M, pinned, "n", 0, -48)).toEqual({ ...pinned, y: 15, h: 6 });
+    const top: GridRect = { x: 3, y: 1, w: 4, h: 4, pin: "top" };
+    expect(resizeRect(M, top, "nw", -P, -48)).toEqual({ ...top, x: 2, w: 5 });
+  });
+
+  it("trimming keeps a bottom-pinned block below the content it sits under", () => {
+    const rects = new Map<string, GridRect>([
+      ["a", { x: 1, y: 1, w: 12, h: 6 }],
+      ["foot", { x: 1, y: 17, w: 12, h: 2, pin: "bottom" }],
+      ["caption", { x: 14, y: 15, w: 4, h: 4, pin: "bottom" }],
+      ["photo", { x: 13, y: 1, w: 12, h: 18 }],
+    ]);
+    // "foot" sits under "a" (needs 6 + 2); the caption is layered on the photo (needs nothing more).
+    expect(rowsToKeep(rects)).toBe(18);
+    rects.delete("photo");
+    expect(rowsToKeep(rects)).toBe(8);
+  });
+});
+
+describe("⇧ resize keeps the proportions", () => {
+  const r: GridRect = { x: 1, y: 1, w: 8, h: 8 }; // 390 × 192 px: ratio ≈ 2
+  it("corner handles scale both sides by the larger change", () => {
+    const out = resizeRect(M, r, "se", P * 8, 0, { keepAspect: true });
+    expect(out.w).toBe(16);
+    expect(out.h).toBeGreaterThanOrEqual(15);
+    expect(out.h).toBeLessThanOrEqual(17);
+  });
+  it("side handles move the perpendicular edge too", () => {
+    const out = resizeRect(M, r, "e", P * 8, 0, { keepAspect: true });
+    expect(out.w).toBe(16);
+    expect(out.h).toBeGreaterThan(8);
+    const tall = resizeRect(M, r, "s", 0, 24 * 8, { keepAspect: true });
+    expect(tall.h).toBe(16);
+    expect(tall.w).toBeGreaterThan(8);
   });
 });

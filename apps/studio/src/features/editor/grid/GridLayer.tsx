@@ -1,8 +1,11 @@
 import type { GridRect, SiteDocument } from "@openspace/schema";
 import {
   ArrowDownToLine,
+  ArrowUpToLine,
   BringToFront,
+  FoldVertical,
   ListOrdered,
+  Pin,
   RotateCcw,
   SendToBack,
   TriangleAlert,
@@ -25,6 +28,7 @@ import { gridCaps, usePhoneViewport } from "./caps";
 import {
   customizeTabletCommand,
   emptyTrailingRows,
+  pinCommand,
   resetMobileCommand,
   trimRowsCommand,
   zOrderCommand,
@@ -104,6 +108,7 @@ export function GridLayer({ frameDoc, scale, width, height, measure }: GridLayer
   const marqueeRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const readoutRef = useRef<HTMLDivElement>(null);
+  const linesRef = useRef<HTMLDivElement>(null);
 
   // Hand the drag loop what it needs (no state: read at pointer time).
   useLayoutEffect(() => {
@@ -121,6 +126,7 @@ export function GridLayer({ frameDoc, scale, width, height, measure }: GridLayer
         marquee: marqueeRef.current,
         badge: badgeRef.current,
         readout: readoutRef.current,
+        lines: linesRef.current,
       },
       ...(measure ? { measure: (id: string) => measure(id) } : {}),
     };
@@ -173,9 +179,33 @@ export function GridLayer({ frameDoc, scale, width, height, measure }: GridLayer
       data-grid-active={active?.kind}
     >
       <div className="st-grid__clip">
-        {chrome && metrics && section && (
-          <GridLines metrics={metrics} toOv={toOv} rows={rows(section, view)} />
-        )}
+        <div ref={linesRef} className="st-grid__linewrap">
+          {chrome && metrics && section && (
+            <GridLines metrics={metrics} toOv={toOv} rows={rows(section, view)} />
+          )}
+        </div>
+        {chrome &&
+          metrics &&
+          [...rects.entries()]
+            .filter(([, r]) => r.pin)
+            .map(([id, r]) => {
+              const b = toOv(rectBox(metrics, r));
+              return (
+                <span
+                  key={id}
+                  className="st-grid__pin"
+                  data-pin={r.pin}
+                  title={r.pin === "top" ? "Pinned to the top row" : "Pinned to the bottom row"}
+                  style={{
+                    transform: `translate(${Math.round(b.x + b.w - 22)}px, ${Math.round(
+                      r.pin === "top" ? b.y + 4 : b.y + b.h - 22,
+                    )}px)`,
+                  }}
+                >
+                  <Pin aria-hidden="true" />
+                </span>
+              );
+            })}
         {showHandles && metrics && singleRect && single && (
           <Handles id={single} box={toOv(rectBox(metrics, singleRect))} />
         )}
@@ -390,6 +420,20 @@ function GridBar({
       onClick={() => run(zOrderCommand(s().doc, s().pageId, s().selection, action, bp))}
     />
   );
+  // Pins: the selected blocks' placements at the breakpoint being edited.
+  const bpRects = displayRects(section.layout, bp);
+  const pinBtn = (pin: "top" | "bottom", label: string, icon: ReactNode) => {
+    const on = selectedIds.length > 0 && selectedIds.every((id) => bpRects.get(id)?.pin === pin);
+    return (
+      <IconButton
+        size="sm"
+        label={on ? "Unpin" : label}
+        icon={icon}
+        active={on}
+        onClick={() => run(pinCommand(s().doc, s().pageId, s().selection, on ? null : pin, bp))}
+      />
+    );
+  };
   const empty = emptyTrailingRows(section.layout, view === "t" && bp === "d" ? "d" : view);
   const auto = view === "m" ? isMobileAuto(section) : true;
   const customized = tabletCustomized(section.layout);
@@ -411,6 +455,8 @@ function GridBar({
             <>
               {zBtn("forward", "Bring forward", "mod+]", <BringToFront />)}
               {zBtn("backward", "Send backward", "mod+[", <SendToBack />)}
+              {pinBtn("top", "Pin to top", <ArrowUpToLine />)}
+              {pinBtn("bottom", "Pin to bottom", <ArrowDownToLine />)}
             </>
           )}
           {view === "t" && (
@@ -450,7 +496,7 @@ function GridBar({
             <Button
               size="sm"
               variant="ghost"
-              icon={<ArrowDownToLine />}
+              icon={<FoldVertical />}
               onClick={() => run(trimRowsCommand(s().doc, pageId, section.id))}
             >
               Trim {empty} empty {empty === 1 ? "row" : "rows"}

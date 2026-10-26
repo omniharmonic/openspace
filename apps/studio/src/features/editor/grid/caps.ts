@@ -4,7 +4,7 @@ import { asRole, isDesigner, type Role } from "../../inspector/model/permissions
 /**
  * Who may arrange a grid. Placing blocks is a layout change: the Hub denies `grid.place` to
  * editors and contributors (`transformForRole`), so only owners and designers get the handles.
- * A locked section isn't rearranged on the canvas by anyone until it is unlocked, and phones
+ * Section locks restrict editors only (matching the ops and the inspector), and phones
  * (a Studio viewport under 768px) get the simplified reorder list instead of free placement
  * (FR-22).
  */
@@ -24,11 +24,14 @@ export function gridCaps(
       edit: false,
       reason:
         r === "editor"
-          ? "Only the site’s designer can move blocks on the grid."
+          ? section?.locked
+            ? "This section is locked, and only the site’s designer can move blocks on the grid."
+            : "Only the site’s designer can move blocks on the grid."
           : "You can’t change the layout of pages.",
     };
-  if (section?.locked)
-    return { edit: false, reason: "This section is locked. Unlock it to move its blocks." };
+  // Locks restrict editors only (as the ops do): designers and owners still arrange locked
+  // sections.
+  void section;
   return { edit: true };
 }
 

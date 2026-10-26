@@ -315,6 +315,56 @@ describe("grid drag loop", () => {
     expect(d(I.heroImage)).toMatchObject({ x: 15, y: 1 });
   });
 
+  it("after Esc the click that ends the press is swallowed, until the next press", () => {
+    const { frameDoc, blockEl } = setup();
+    act(() => {
+      pointer("pointerdown", blockEl(I.heroImage), 900, 40);
+      pointer("pointermove", frameDoc.body, 700, 200);
+      flushFrames();
+      frameDoc.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    expect(useGridDrag.getState().active).toBeNull();
+    // Released later (another task): the click still belongs to the cancelled drag.
+    expect(gridController.consumeClick()).toBe(true);
+    act(() => {
+      frameDoc.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      pointer("pointerdown", blockEl(I.heroImage), 900, 40);
+      pointer("pointerup", blockEl(I.heroImage), 900, 40);
+    });
+    expect(gridController.consumeClick()).toBe(false);
+  });
+
+  it("⇧-marquee adds to the selection", () => {
+    const { s, frameDoc } = setup();
+    act(() => s().setSelection([{ kind: "block", id: I.heroImage }]));
+    const grid = frameDoc.querySelector(".os-grid") as HTMLElement;
+    act(() => {
+      pointer("pointerdown", grid, 85, 5, { shiftKey: true });
+      pointer("pointermove", frameDoc.body, 140, 60, { shiftKey: true });
+      flushFrames();
+      pointer("pointerup", frameDoc.body, 140, 60, { shiftKey: true });
+    });
+    expect(s().selection.map((i) => i.id)).toEqual([I.heroImage, I.heroHeading]);
+  });
+
+  it("shows a pin on pinned blocks, and dragging a pinned block keeps its row", async () => {
+    const user = userEvent.setup();
+    const { s, frameDoc, blockEl, d, container } = setup();
+    act(() => s().select({ kind: "block", id: I.heroButton }));
+    await user.click(screen.getByRole("button", { name: "Pin to bottom" }));
+    expect(d(I.heroButton)).toMatchObject({ pin: "bottom" });
+    expect(container.querySelectorAll(".st-grid__pin")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Unpin" })).toBeTruthy();
+    gridController.consumeClick();
+    act(() => {
+      pointer("pointerdown", blockEl(I.heroButton), 100, 120);
+      pointer("pointermove", frameDoc.body, 100 + PITCH * 2, 10);
+      flushFrames();
+      pointer("pointerup", frameDoc.body, 100 + PITCH * 2, 10);
+    });
+    expect(d(I.heroButton)).toMatchObject({ x: 3, y: 5, pin: "bottom" });
+  });
+
   it("the grid bar offers Customize tablet and Reset mobile layout per device", async () => {
     const user = userEvent.setup();
     const { s, hero } = setup("designer", { customPhone: true });

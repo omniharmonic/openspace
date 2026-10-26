@@ -54,6 +54,8 @@ export interface GridLayers {
   marquee: HTMLElement | null;
   badge: HTMLElement | null;
   readout: HTMLElement | null;
+  /** The column/row guides (shifted while the canvas auto-scrolls). */
+  lines?: HTMLElement | null;
 }
 
 export interface GridContext {
@@ -71,6 +73,10 @@ export interface GridContext {
   raf?: (cb: () => void) => number;
   cancelRaf?: (id: number) => void;
 }
+
+/** Auto-scroll zone at the canvas's top/bottom edge, and the fastest scroll per frame (page px). */
+const AUTO_SCROLL_EDGE = 48;
+const AUTO_SCROLL_MAX = 24;
 
 /** Pixels the pointer travels before a press becomes a drag. */
 export const DRAG_THRESHOLD = 4;
@@ -121,6 +127,11 @@ interface BaseSession {
   y0: number;
   dx: number;
   dy: number;
+  /** Last pointer position in the canvas viewport (page px, scroll excluded). */
+  cx: number;
+  cy: number;
+  /** Canvas scroll when the drag started (to shift the static guides while auto-scrolling). */
+  scrollY0: number;
   shift: boolean;
   alt: boolean;
   started: boolean;
@@ -153,6 +164,8 @@ interface MarqueeSession extends BaseSession {
   kind: "marquee";
   boxes: Array<{ id: string; box: Box }>;
   picked: string;
+  /** ⇧-marquee adds to these. */
+  base: string[];
 }
 
 type Session = MoveSession | ResizeSession | MarqueeSession;
@@ -209,6 +222,8 @@ export class GridController {
    * may arrange) or a pending marquee (on empty grid space). Returns true when it took the press.
    */
   pointerDownInFrame(e: PointerEvent): boolean {
+    // A fresh press: whatever an Esc-cancelled drag left to swallow is over.
+    if (!this.session) this.suppressClick = false;
     const ctx = this.ctx;
     if (!ctx || this.session || e.button !== 0 || ctx.phone) return false;
     if (useEditorUi.getState().panning) return false;
@@ -249,6 +264,9 @@ export class GridController {
           y0: p.y,
           dx: 0,
           dy: 0,
+          cx: p.x - this.scroll().x,
+          cy: p.y - this.scroll().y,
+          scrollY0: this.scroll().y,
           shift: e.shiftKey,
           alt: e.altKey,
           started: false,
@@ -286,6 +304,9 @@ export class GridController {
         y0: p.y,
         dx: 0,
         dy: 0,
+        cx: p.x - this.scroll().x,
+        cy: p.y - this.scroll().y,
+        scrollY0: this.scroll().y,
         shift: e.shiftKey,
         alt: false,
         started: false,
@@ -293,6 +314,7 @@ export class GridController {
         cleanup: [],
         boxes: [...rects.entries()].map(([id, r]) => ({ id, box: rectBox(metrics, r) })),
         picked: "",
+        base: e.shiftKey ? s.selection.filter((i) => i.kind === "block").map((i) => i.id) : [],
       },
       target,
     );
@@ -327,6 +349,9 @@ export class GridController {
         y0: p.y,
         dx: 0,
         dy: 0,
+        cx: p.x - this.scroll().x,
+        cy: p.y - this.scroll().y,
+        scrollY0: this.scroll().y,
         shift: e.shiftKey,
         alt: false,
         started: false,
@@ -364,7 +389,7 @@ export class GridController {
       if (k.key === "Escape" && this.session) {
         k.preventDefault();
         k.stopPropagation();
-        this.cancel();
+        this.cancel(true);
         return;
       }
       if (k.key === "Alt" || k.key === "Shift") {
@@ -412,6 +437,9 @@ export class GridController {
     const p = this.point(e, s.source);
     s.dx = p.x - s.x0;
     s.dy = p.y - s.y0;
+    const sc = this.scroll();
+    s.cx = p.x - sc.x;
+    s.cy = p.y - sc.y;
     s.shift = e.shiftKey;
     if (s.kind === "move") s.alt = e.altKey;
     if (!s.started) {
@@ -461,6 +489,7 @@ export class GridController {
     const ctx = this.ctx;
     if (!s || !ctx || !s.started) return;
     this.frames++;
+    const scrolling = this.autoScroll(s);
     let { dx, dy } = s;
     if (s.shift && s.kind === "move") ({ dx, dy } = constrainAxis(dx, dy));
     const m = s.metrics;
@@ -483,7 +512,8 @@ export class GridController {
         s.plan[s.primary] as GridRect,
       );
     } else if (s.kind === "resize") {
-      s.plan = resizeRect(m, s.start, s.handle, dx, dy, { bleed: s.bleed });
+      // ⇧ keeps the proportions.
+      s.plan = resizeRect(m, s.start, s.handle, dx, dy, { bleed: s.bleed, keepAspect: s.shift });
       const box = rectBox(m, s.plan);
       this.drawGhosts([box], [], false);
       this.drawGuides(box, s.others, m);
@@ -504,12 +534,40 @@ export class GridController {
             b.x < box.x + box.w && box.x < b.x + b.w && b.y < box.y + box.h && box.y < b.y + b.h,
         )
         .map((b) => b.id);
-      const key = hit.join(",");
+      const picked = [...s.base, ...hit.filter((id) => !s.base.includes(id))];
+      const key = picked.join(",");
       if (key !== s.picked) {
         s.picked = key;
-        ctx.store.getState().setSelection(hit.map((id) => ({ kind: "block", id })));
+        ctx.store.getState().setSelection(picked.map((id) => ({ kind: "block", id })));
       }
     }
+    if (scrolling) this.schedule();
+  }
+
+  /**
+   * Near the top/bottom of the canvas the page scrolls by itself (faster closer to the edge);
+   * the pointer's page position follows the scroll. Returns true while it keeps scrolling.
+   */
+  private autoScroll(s: Session): boolean {
+    const win = this.ctx?.frameDoc?.defaultView;
+    const root = this.ctx?.frameDoc?.documentElement;
+    if (!win || !root || root.scrollHeight <= win.innerHeight) return false;
+    const vh = win.innerHeight;
+    let v = 0;
+    if (s.cy < AUTO_SCROLL_EDGE) v = -Math.min(AUTO_SCROLL_MAX, (AUTO_SCROLL_EDGE - s.cy) / 2);
+    else if (s.cy > vh - AUTO_SCROLL_EDGE)
+      v = Math.min(AUTO_SCROLL_MAX, (s.cy - (vh - AUTO_SCROLL_EDGE)) / 2);
+    if (!v) return false;
+    const before = win.scrollY;
+    win.scrollBy(0, Math.round(v) || Math.sign(v));
+    if (win.scrollY === before) return false;
+    const sc = this.scroll();
+    s.dx = s.cx + sc.x - s.x0;
+    s.dy = s.cy + sc.y - s.y0;
+    const lines = this.ctx?.layers.lines;
+    if (lines)
+      lines.style.transform = `translateY(${-(sc.y - s.scrollY0) * (this.ctx?.scale ?? 1)}px)`;
+    return true;
   }
 
   /** Page px → overlay px. */
@@ -664,14 +722,12 @@ export class GridController {
     });
   }
 
-  cancel() {
-    if (this.session?.kind === "marquee" && this.session.started) {
-      // Keep whatever the marquee selected.
-    }
-    this.end(Boolean(this.session?.started));
+  /** Stop the drag without changing anything (a marquee keeps what it selected). */
+  cancel(escaped = false) {
+    this.end(Boolean(this.session?.started), escaped);
   }
 
-  private end(dragged: boolean) {
+  private end(dragged: boolean, escaped = false) {
     const s = this.session;
     if (!s) return;
     for (const c of s.cleanup) c();
@@ -689,13 +745,16 @@ export class GridController {
     if (ctx?.layers.readout) ctx.layers.readout.style.display = "none";
     if (ctx?.layers.marquee) ctx.layers.marquee.style.display = "none";
     if (ctx?.layers.badge) ctx.layers.badge.style.display = "none";
+    if (ctx?.layers.lines) ctx.layers.lines.style.transform = "";
     frameTickFreeze.active = false;
     if (dragged) {
-      // The click that follows pointerup belongs to the drag.
+      // The click that follows pointerup belongs to the drag. After Esc the button is still
+      // down, so the click comes later: keep swallowing it until the next press.
       this.suppressClick = true;
-      setTimeout(() => {
-        this.suppressClick = false;
-      }, 0);
+      if (!escaped)
+        setTimeout(() => {
+          this.suppressClick = false;
+        }, 0);
       useGridDrag.setState({ active: null });
       // Let the overlay re-measure (scrolls during the drag were not tracked).
       ctx?.frameDoc?.defaultView?.dispatchEvent(new Event("resize"));

@@ -1,6 +1,6 @@
 import { autoMobileLayout } from "@openspace/lint";
 import { type Op, parseOp } from "@openspace/ops";
-import type { GridLayout, Section, SiteDocument } from "@openspace/schema";
+import { type GridLayout, MAX_GRID_ROWS, type Section, type SiteDocument } from "@openspace/schema";
 import { afterEach, describe, expect, it } from "vitest";
 import { useSiteRoleStore } from "../../inspector/env";
 import { useEditorUi } from "../editor-store";
@@ -16,6 +16,7 @@ import {
   mobileOrder,
   mobileReorderCommand,
   nudgeCommand,
+  pinCommand,
   placeCommand,
   resetMobileCommand,
   trimRowsCommand,
@@ -383,23 +384,115 @@ describe("phones: simplified reorder", () => {
 });
 
 describe("roles and locks", () => {
-  it("only owners and designers arrange grids, and locked sections stay put", () => {
+  it("only owners and designers arrange grids; locks restrict editors only (as the ops do)", () => {
     expect(gridCaps("owner", {}).edit).toBe(true);
     expect(gridCaps("designer", { locked: false }).edit).toBe(true);
-    expect(gridCaps("designer", { locked: true })).toMatchObject({ edit: false });
+    expect(gridCaps("designer", { locked: true }).edit).toBe(true);
+    expect(gridCaps("owner", { locked: true }).edit).toBe(true);
     expect(gridCaps("editor", {})).toMatchObject({ edit: false });
+    expect(gridCaps("editor", { locked: true }).reason).toMatch(/locked/);
     expect(gridCaps("contributor", {}).edit).toBe(false);
     expect(gridCaps(undefined, {}).edit).toBe(false);
   });
 
-  it("keyboard nudges respect the lock", () => {
+  it("keyboard nudges work for designers in a locked section, never for editors", () => {
     const { store, s, hero } = setup();
-    useSiteRoleStore.setState({ role: "designer" });
     s().commit([
       { op: "section.update", page: I.home, section: I.hero, set: { locked: true } } as never,
     ]);
     s().setSelection([{ kind: "block", id: I.heroButton }]);
+    useSiteRoleStore.setState({ role: "designer" });
+    expect(gridNudge(store, 1, 0)).toBe(true);
+    expect(item(hero(), I.heroButton).d.x).toBe(2);
+    useSiteRoleStore.setState({ role: "editor" });
     expect(gridNudge(store, 1, 0)).toBe(false);
-    expect(item(hero(), I.heroButton).d.x).toBe(1);
+    expect(item(hero(), I.heroButton).d.x).toBe(2);
+  });
+});
+
+describe("pins, duplicates on a custom tablet, nudge limits", () => {
+  it("pins to the bottom row, stays there when rows grow, trims with the last row, and unpins", () => {
+    const { s, hero } = setup();
+    const sel = [{ kind: "block" as const, id: I.heroButton }];
+    s().run(pinCommand(s().doc, I.home, sel, "bottom", "d"));
+    expect(item(hero(), I.heroButton).d).toMatchObject({ y: 5, h: 4, pin: "bottom" });
+    // Another block dropped lower grows the rows: the pinned button is drawn on the new last rows.
+    s().run(
+      placeCommand(
+        s().doc,
+        I.home,
+        I.hero,
+        [{ id: I.heroImage, rect: { x: 15, y: 10, w: 10, h: 10 } }],
+        "d",
+      ),
+    );
+    expect(hero().layout.rows.d).toBe(19);
+    expect(displayRects(hero().layout, "d").get(I.heroButton)?.y).toBe(16);
+    // A vertical nudge leaves it pinned where it is; a sideways one moves it.
+    s().run(nudgeCommand(s().doc, I.home, sel, 0, -3, "d"));
+    expect(displayRects(hero().layout, "d").get(I.heroButton)?.y).toBe(16);
+    s().run(nudgeCommand(s().doc, I.home, sel, 2, 0, "d"));
+    expect(item(hero(), I.heroButton).d).toMatchObject({ x: 3, y: 16, pin: "bottom" });
+    // Move the image back up and trim: the pinned button moves up with the last row.
+    s().run(
+      placeCommand(
+        s().doc,
+        I.home,
+        I.hero,
+        [{ id: I.heroImage, rect: { x: 15, y: 1, w: 10, h: 4 } }],
+        "d",
+      ),
+    );
+    s().run(trimRowsCommand(s().doc, I.home, I.hero));
+    expect(hero().layout.rows.d).toBe(8);
+    expect(item(hero(), I.heroButton).d).toMatchObject({ y: 5, pin: "bottom" });
+    s().run(pinCommand(s().doc, I.home, sel, null, "d"));
+    expect(item(hero(), I.heroButton).d.pin).toBeUndefined();
+    // Top pins.
+    s().run(pinCommand(s().doc, I.home, sel, "top", "d"));
+    expect(item(hero(), I.heroButton).d).toMatchObject({ y: 1, pin: "top" });
+  });
+
+  it("phone pins write m only", () => {
+    const { s, hero } = setup();
+    const d = structuredClone(item(hero(), I.heroImage).d);
+    const r = s().run(
+      pinCommand(s().doc, I.home, [{ kind: "block", id: I.heroImage }], "top", "m"),
+    );
+    expect(r.ok && r.ops.every((o) => o.op === "grid.place" && o.bp === "m")).toBe(true);
+    expect(item(hero(), I.heroImage).m).toMatchObject({ y: 1, pin: "top" });
+    expect(item(hero(), I.heroImage).d).toEqual(d);
+  });
+
+  it("nudging down stops at the schema's row limit", () => {
+    const { s, hero } = setup();
+    const sel = [{ kind: "block" as const, id: I.heroButton }];
+    s().run(nudgeCommand(s().doc, I.home, sel, 0, MAX_GRID_ROWS * 2, "d"));
+    const r = item(hero(), I.heroButton).d;
+    expect(r.y + r.h - 1).toBe(MAX_GRID_ROWS);
+    expect(nudgeCommand(s().doc, I.home, sel, 0, 1, "d")).toBeNull();
+  });
+
+  it("⌥-duplicating on a customized tablet places the copy below at other sizes and keeps phones automatic", () => {
+    const { s, hero } = setup();
+    s().run(resetMobileCommand(s().doc, I.home, I.hero));
+    s().run(customizeTabletCommand(s().doc, I.home, I.hero, true));
+    expect(isMobileAuto(hero())).toBe(true);
+    s().run(
+      duplicateCommand(
+        s().doc,
+        I.home,
+        I.hero,
+        [{ id: I.heroImage, rect: { x: 1, y: 9, w: 10, h: 4 } }],
+        "t",
+      ),
+    );
+    const copy = s().selection[0]?.id as string;
+    const c = item(hero(), copy);
+    expect(c.t).toEqual({ x: 1, y: 9, w: 10, h: 4 });
+    // Not on top of the original on desktop: below everything.
+    expect(c.d.y).toBeGreaterThan(8);
+    expect(isMobileAuto(hero())).toBe(true);
+    expect(c.m).toBeDefined();
   });
 });
