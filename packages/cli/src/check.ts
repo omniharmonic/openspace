@@ -319,13 +319,15 @@ export async function runCheck(root: string, options: CheckOptions = {}): Promis
         .filter(Boolean)
         .join(" and ") || "members-only";
     const file = pageFiles[page.id] ?? PAGES_DIR;
+    // A warning, not an error: template samples and hand-made sites may carry it on purpose,
+    // and the Hub never commits it (it seals gated pages into stubs).
     if (page.sections.length)
       add({
-        severity: "error",
+        severity: "warning",
         rule: "gating",
         file,
         path: "sections",
-        message: `Page "${page.title}" is ${kinds}, but its content is in the site's files, which are public. Edit it in Studio (the Hub keeps gated content) and leave only the stub here.`,
+        message: `Page "${page.title}" is ${kinds}, but its content is in the site's files, which anyone can read. Edit it in Studio (the Hub keeps gated content out of the files); the published site serves only content the Hub holds.`,
       });
     else if (doc?.config.deploy.target === "github-pages")
       add({
