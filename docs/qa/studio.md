@@ -28,10 +28,16 @@ below are in priority order, each with the fix. Before/after pairs are in [studi
      their dot and icon (the words stay for screen readers and in the tooltip), and the page
      name hides.
    - [before](studio/block-selected-834-light-before.png) / [after](studio/block-selected-834-light-after.png)
-2. **Canvas squeezed to 268 px on tablets** with both side panels open.
-   - Fix: between 768 and 1099 px the editor opens with the canvas only, and selecting
-     something trades the left panel for the inspector (one side panel at a time; the rail
-     brings it back).
+2. **Canvas squeezed to 268 px on tablets** with both side panels open, and **the page ran
+   under the inspector**: the fit zoom assumed phone padding (24 px) whenever the canvas was
+   narrower than 768 px, though the canvas still pads 48 px each side.
+   - Fix: between 768 and 1099 px there is one side panel at a time, enforced by every panel
+     action. The rail closes the inspector; the inspector toggle closes the left panel; a pick
+     on the canvas shows the inspector; a pick in Layers keeps Layers.
+   - The fit zoom measures the canvas's real padding. The tour now flags a page that runs
+     under a side panel or past the canvas.
+   - [after, inspector](studio/block-selected-834-light-after.png) /
+     [after, Layers](studio/panel-layers-834-light-after.png)
 3. **Phone preview toolbar ran off the screen** (390 px; a Task 26 concern). The block
    toolbar's last buttons were clipped.
    - Fix: floating toolbars are capped to the page width and scroll sideways.

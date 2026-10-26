@@ -98,10 +98,17 @@ export function Canvas({
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Fit inside the canvas's real padding (a 514px tablet canvas still pads 48px each side;
+    // assuming phone padding there pushed the page under the inspector).
     const measure = () => {
-      const avail = el.clientWidth - (el.clientWidth < 768 ? 24 : 96);
+      const cs = getComputedStyle(el);
+      const padX =
+        (Number.parseFloat(cs.paddingLeft) || 0) + (Number.parseFloat(cs.paddingRight) || 0);
+      const padY =
+        (Number.parseFloat(cs.paddingTop) || 0) + (Number.parseFloat(cs.paddingBottom) || 0);
+      const avail = el.clientWidth - padX;
       if (avail > 0) setFitScale(Math.min(1, avail / device));
-      setAvailH(el.clientHeight - (el.clientWidth < 768 ? 40 : 96));
+      setAvailH(el.clientHeight - padY);
     };
     measure();
     const ro = new ResizeObserver(measure);

@@ -64,11 +64,28 @@ async function audit(page, where) {
           );
       }
     }
-    return { overflow, clipped: clipped.slice(0, 8), wide: wide.slice(0, 6) };
+    // At "fit" zoom the page must sit inside the visible canvas, not run under a side panel.
+    const occluded = [];
+    const canvas = document.querySelector(".st-ed-canvas");
+    const frame = document.querySelector(".st-ed-canvas__frame");
+    const zoom = document.querySelector(".st-ed-zoom")?.textContent ?? "";
+    if (canvas && frame && !document.querySelector("[data-testid=mobile-studio]")) {
+      const c = canvas.getBoundingClientRect();
+      const f = frame.getBoundingClientRect();
+      for (const panel of document.querySelectorAll(".st-ed-panel")) {
+        const p = panel.getBoundingClientRect();
+        if (p.width && f.right > p.left + 1 && f.left < p.right - 1)
+          occluded.push(`page under ${panel.className.split(" ").pop()} (zoom ${zoom.trim()})`);
+      }
+      if (!occluded.length && (f.right > c.right + 1 || f.left < c.left - 1))
+        occluded.push(`page wider than the canvas (zoom ${zoom.trim()})`);
+    }
+    return { overflow, clipped: clipped.slice(0, 8), wide: wide.slice(0, 6), occluded };
   });
   if (r.overflow > 0) problems.push(`${where}: page scrolls sideways by ${r.overflow}px`);
   for (const c of r.clipped) problems.push(`${where}: control past the right edge: ${c}`);
   for (const w of r.wide) problems.push(`${where}: content wider than its box: ${w}`);
+  for (const o of r.occluded) problems.push(`${where}: ${o}`);
 }
 
 async function shot(page, name, ctx) {
