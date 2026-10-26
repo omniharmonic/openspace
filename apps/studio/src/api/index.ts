@@ -1,3 +1,5 @@
+export * from "./catalog-queries";
+export * from "./catalog-types";
 export { HubProvider, useHub } from "./context";
 export { createHttpHub, DEFAULT_HUB_URL, githubStartUrl } from "./http";
 export * from "./manage-queries";
@@ -16,9 +18,14 @@ export async function hubFromEnv(env: ImportMetaEnv = import.meta.env): Promise<
   // Read the flag straight off `import.meta.env` so production builds drop the mock (and its
   // demo content) entirely: Vite inlines the value and the dead branch is removed.
   if (import.meta.env.VITE_MOCK_API === "1" || import.meta.env.VITE_MOCK_API === "true") {
-    const { createMockHub } = await import("./mock");
+    const [{ createMockHub }, { registryTemplates }] = await Promise.all([
+      import("./mock"),
+      import("./catalog-mock"),
+    ]);
     return createMockHub({
       sites: "demo",
+      // The real launch templates (12, three looks each), as the Hub serves them.
+      templates: await registryTemplates(),
       persistKey: "openspace.mockHub",
       latencyMs: 250,
       roomLatencyMs: 40,

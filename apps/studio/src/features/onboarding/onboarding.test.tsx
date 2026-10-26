@@ -17,7 +17,7 @@ describe("onboarding: template → details → sign in → building → editor",
     await user.click(within(meadow).getByRole("radio", { name: "Clay look" }));
     expect(within(meadow).getByText("Clay look")).toBeInTheDocument();
     expect(
-      within(meadow).getByRole("img", { name: "Preview of Willow Street Yoga" }),
+      within(meadow).getByRole("img", { name: "Meadow template, Clay look" }),
     ).toBeInTheDocument();
   });
 

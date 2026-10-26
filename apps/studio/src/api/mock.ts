@@ -2,6 +2,7 @@ import { deepEqual, diff, summarize } from "@openspace/ops";
 import { newId, type SiteDocument } from "@openspace/schema";
 import { devSiteDocument } from "../features/editor/model/dev-site";
 import type { BuildNotice, PublishError } from "../features/sync/protocol";
+import { type CatalogMockState, createCatalogMock } from "./catalog-mock";
 import { demoSites, TEMPLATE_FIXTURES } from "./fixtures";
 import { createManageMock, type ManageMockState } from "./manage-mock";
 import { MockRoom } from "./mockRoom";
@@ -101,6 +102,8 @@ export interface MockHub extends HubApi {
   readonly calls: Array<{ method: keyof HubApi; args: unknown[] }>;
   /** Site-management state (domains, collaborators, uploads, hosting…; Task 24). */
   readonly manage: ManageMockState;
+  /** Kit updates (Task 26). */
+  readonly catalog: CatalogMockState;
   /** The site's in-memory draft room (created on first use). */
   room(siteId: string): MockRoom;
   /** Make the next publish of a site fail with one of {@link MOCK_PUBLISH_ERRORS}. */
@@ -210,6 +213,15 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   };
 
   const manage = createManageMock({ calls, wait, requireUser, findSite, now });
+  const catalog = createCatalogMock({
+    calls,
+    wait,
+    requireUser,
+    findSite,
+    now,
+    templates: () => templates,
+    save: () => save(),
+  });
   // --- draft rooms, publishing and history --------------------------------------------------
 
   const rooms = new Map<string, MockRoom>();
@@ -395,10 +407,12 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
 
   const hub: MockHub = {
     ...manage.api,
+    ...catalog.api,
     kind: "mock",
     state,
     calls,
     manage: manage.state,
+    catalog: catalog.state,
 
     room(siteId) {
       const site = state.sites.find((s) => s.id === siteId);
