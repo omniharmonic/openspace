@@ -996,3 +996,13 @@
   padding: 0;
   border: 0;
 }
+
+.st-ip-unit {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.st-ip-unit[aria-pressed="true"] {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-text);
+}

@@ -224,7 +224,7 @@ export function BlockDesign({
                 <TokenSelect
                   label="Padding"
                   value={cur}
-                  defaultLabel={bp === "d" ? "None" : undefined}
+                  defaultLabel={bp === "d" ? "None" : "Same as desktop"}
                   disabled={disabled}
                   options={spaceOptions(styles.choices.density)}
                   onChange={setV}

@@ -253,7 +253,6 @@ function StackLayoutControls({
         <TokenSelect
           label="Vertical alignment"
           value={layout.align ?? "start"}
-          segmented
           disabled={disabled}
           options={[
             { value: "start", label: "Top" },
@@ -690,7 +689,7 @@ export function SectionDesign({
             <TokenSelect
               label="Section padding"
               value={cur}
-              defaultLabel={bp === "d" ? "Site density" : undefined}
+              defaultLabel={bp === "d" ? "Site density" : "Same as desktop"}
               disabled={disabled}
               options={spaceOptions(styles.choices.density)}
               onChange={set}
@@ -706,57 +705,57 @@ export function SectionDesign({
           onCommit={(v) => setStyle("minHeight", v, "Change height")}
           render={(cur, set) => {
             const px = cur && /px$/.test(cur) ? Number.parseInt(cur, 10) : null;
-            return px !== null && caps.exact ? (
-              <NumberScrubInput
-                label="Minimum height"
-                value={px}
-                min={10}
-                max={9999}
-                unit="px"
-                disabled={disabled}
-                onChange={(n) => set(`${Math.round(n)}px`)}
-              />
-            ) : (
-              <TokenSelect
-                label="Minimum height"
-                value={
-                  cur && MIN_HEIGHTS.some((m) => m.value === cur)
-                    ? cur
-                    : cur
-                      ? "__custom"
-                      : undefined
-                }
-                defaultLabel={bp === "d" ? "Fit content" : undefined}
-                disabled={disabled}
-                options={[
-                  ...MIN_HEIGHTS.filter((m) => m.value !== "auto" || bp !== "d"),
-                  ...(cur && !MIN_HEIGHTS.some((m) => m.value === cur)
-                    ? [{ value: "__custom", label: cur }]
-                    : []),
-                ]}
-                onChange={(v) => v !== "__custom" && set(v)}
-              />
+            const control =
+              px !== null && caps.exact ? (
+                <NumberScrubInput
+                  label="Minimum height"
+                  value={px}
+                  min={10}
+                  max={9999}
+                  unit="px"
+                  disabled={disabled}
+                  onChange={(n) => set(`${Math.round(n)}px`)}
+                />
+              ) : (
+                <TokenSelect
+                  label="Minimum height"
+                  value={
+                    cur && MIN_HEIGHTS.some((m) => m.value === cur)
+                      ? cur
+                      : cur
+                        ? "__custom"
+                        : undefined
+                  }
+                  defaultLabel={bp === "d" ? "Fit content" : "Same as desktop"}
+                  disabled={disabled}
+                  options={[
+                    ...MIN_HEIGHTS.filter((m) => m.value !== "auto" || bp !== "d"),
+                    ...(cur && !MIN_HEIGHTS.some((m) => m.value === cur)
+                      ? [{ value: "__custom", label: cur }]
+                      : []),
+                  ]}
+                  onChange={(v) => v !== "__custom" && set(v)}
+                />
+              );
+            if (!caps.exact) return control;
+            return (
+              <>
+                {control}
+                <button
+                  type="button"
+                  className="st-ip-icon-btn st-ip-fixed st-ip-unit"
+                  aria-pressed={px !== null}
+                  aria-label="Exact height in pixels"
+                  title="Exact height in pixels"
+                  disabled={disabled}
+                  onClick={() => set(px !== null ? undefined : "480px")}
+                >
+                  px
+                </button>
+              </>
             );
           }}
         />
-        {caps.exact && (
-          <PropRow label="Exact height" hint="Designer: set the minimum height in pixels.">
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={disabled}
-              onClick={() => {
-                const current = minH;
-                const next = { ...(current ?? { d: "auto" }) } as Responsive<string>;
-                next[bp] = "480px";
-                if (bp !== "d" && !current) next.d = "auto";
-                setStyle("minHeight", next, "Set exact height");
-              }}
-            >
-              Use pixels
-            </Button>
-          </PropRow>
-        )}
       </PanelSection>
       <PanelSection title="Background">
         <BackgroundControls section={section} container={container} caps={caps} />

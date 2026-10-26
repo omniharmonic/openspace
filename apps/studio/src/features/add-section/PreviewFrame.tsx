@@ -35,6 +35,8 @@ function initFrame(d: Document): HTMLElement {
   q("base").textContent = BASE_CSS;
   q("blocks").textContent = BLOCKS_CSS;
   q("preview").textContent = PREVIEW_CSS;
+  // Render as a page with JavaScript (menus collapsed), like the canvas.
+  d.documentElement.classList.add("os-js");
   d.body.className = "os-body";
   d.body.dataset.osMode = "editor";
   const root = tag("div", { id: "os-preview-root" });

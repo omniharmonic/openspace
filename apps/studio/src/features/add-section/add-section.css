@@ -130,6 +130,7 @@
 
 .st-gal__card {
   display: grid;
+  align-content: start;
   gap: 3px;
   justify-items: start;
   min-width: 0;
@@ -247,4 +248,10 @@
   .st-gal-dialog {
     height: calc(100vh - 32px);
   }
+}
+
+.st-blockmenu .st-blockmenu__item[aria-selected="true"] svg,
+.st-blockmenu .st-blockmenu__item[aria-selected="true"] .st-blockmenu__desc {
+  color: inherit;
+  opacity: 0.85;
 }
