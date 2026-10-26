@@ -30,6 +30,7 @@ export function PanelSection({
         <button
           type="button"
           className="st-ip-sec__toggle"
+          data-ip-nav=""
           aria-expanded={open}
           aria-controls={id}
           onClick={() => setOpen((o) => !o)}
@@ -160,6 +161,7 @@ export function TokenPicker<V extends string>({
   if (segmented) {
     return (
       <Segmented<V>
+        disabled={disabled}
         aria-label={label}
         size="sm"
         block

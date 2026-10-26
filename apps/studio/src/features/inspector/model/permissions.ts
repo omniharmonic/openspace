@@ -36,8 +36,14 @@ export interface Capabilities {
   note?: string;
 }
 
+/** May this role add page sections (presets) at all? Contributors write posts, not pages. */
+export const canAddSections = (role: Role) => role !== "contributor";
+
 /** Capabilities for `role` on content inside `section` (or site-wide when absent). */
-export function capabilities(role: Role, section?: Pick<Section, "locked">): Capabilities {
+export function capabilities(
+  role: Role,
+  section?: { locked?: boolean | undefined; layout?: Pick<Section["layout"], "mode"> },
+): Capabilities {
   if (isDesigner(role)) {
     return {
       exact: true,
@@ -56,7 +62,8 @@ export function capabilities(role: Role, section?: Pick<Section, "locked">): Cap
       sectionDesign: false,
       blockDesign: !locked,
       field: (kind) => !locked || CONTENT_KINDS.has(kind),
-      structure: !locked,
+      // Adding, moving or removing blocks in a grid places them, which only designers may do.
+      structure: !locked && section?.layout?.mode !== "grid",
       note: locked
         ? "This section is locked. You can change its words and images."
         : "Layout and site styles are set by the site’s designer.",

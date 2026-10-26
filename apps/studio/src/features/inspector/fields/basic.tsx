@@ -227,6 +227,7 @@ export function ColorControl({
   label,
   value,
   onChange,
+  disabled,
 }: ControlProps<ColorFieldMeta, string>) {
   const { doc, caps } = useFieldsContext();
   const tokens = useMemo(() => paletteTokens(doc.styles), [doc.styles]);
@@ -236,6 +237,7 @@ export function ColorControl({
       tokens={tokens}
       value={toPickerValue(value)}
       allowExact={meta.allowCustom && caps.exact}
+      disabled={disabled}
       onChange={(v) => onChange(fromPickerValue(v), { merge: true })}
     />
   );

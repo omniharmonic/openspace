@@ -8,7 +8,7 @@ import type {
 import { Film, ImageIcon, Music } from "lucide-react";
 import { type KeyboardEvent, type PointerEvent, useRef, useState } from "react";
 import { Button, Input, Segmented, Toggle } from "../../../ui";
-import { previewSrc, useOpenMediaPicker } from "../media";
+import { useOpenMediaPicker, usePreviewSrc } from "../media";
 import { PropRow } from "../ui";
 import { useDraft } from "./basic";
 import type { ControlProps } from "./types";
@@ -24,12 +24,15 @@ export function FocalPointPicker({
   value,
   onChange,
   label = "Focal point",
+  disabled,
 }: {
   src: string | undefined;
   value: FocalPoint | undefined;
   onChange: (focal: FocalPoint, final: boolean) => void;
   label?: string;
+  disabled?: boolean;
 }) {
+  const shown = usePreviewSrc(src);
   const ref = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
   const [x, y] = value ?? [0.5, 0.5];
@@ -42,6 +45,7 @@ export function FocalPointPicker({
     ];
   };
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return;
     const step = e.shiftKey ? 0.01 : 0.05;
     const d: Record<string, [number, number]> = {
       ArrowLeft: [-step, 0],
@@ -65,14 +69,17 @@ export function FocalPointPicker({
       ref={ref}
       className="st-ip-focal"
       role="slider"
-      tabIndex={0}
+      tabIndex={disabled ? -1 : 0}
       aria-label={label}
       aria-valuetext={`${Math.round(x * 100)}% across, ${Math.round(y * 100)}% down`}
       aria-valuenow={Math.round(x * 100)}
       aria-valuemin={0}
       aria-valuemax={100}
       onKeyDown={onKey}
+      aria-disabled={disabled ? true : undefined}
+      data-disabled={disabled ? "" : undefined}
       onPointerDown={(e) => {
+        if (disabled) return;
         dragging.current = true;
         e.currentTarget.setPointerCapture?.(e.pointerId);
         onChange(at(e), false);
@@ -84,7 +91,7 @@ export function FocalPointPicker({
         onChange(at(e), true);
       }}
     >
-      {src && <img src={previewSrc(src)} alt="" draggable={false} />}
+      {shown && <img src={shown} alt="" draggable={false} />}
       <span className="st-ip-focal__pin" style={{ left: `${x * 100}%`, top: `${y * 100}%` }} />
     </div>
   );
@@ -92,7 +99,7 @@ export function FocalPointPicker({
 
 function fileName(src: string | undefined): string {
   if (!src) return "";
-  return decodeURIComponent(src.split(/[/?#]/).filter(Boolean).at(-1) ?? src);
+  return decodeURIComponent((src.split(/[?#]/)[0] ?? src).split("/").filter(Boolean).at(-1) ?? src);
 }
 
 export function ImageControl({
@@ -104,6 +111,7 @@ export function ImageControl({
   disabled,
 }: ControlProps<ImageFieldMeta, ImageValue>) {
   const open = useOpenMediaPicker();
+  const thumb = usePreviewSrc(value?.src);
   const [error, setError] = useState<string | null>(null);
   const alt = useDraft<string>(value?.alt, (a) =>
     value ? onChange({ ...value, alt: a ?? "" }, { merge: true, label: "Edit alt text" }) : null,
@@ -137,11 +145,7 @@ export function ImageControl({
           disabled={disabled}
           onClick={choose}
         >
-          {value?.src ? (
-            <img src={previewSrc(value.src)} alt="" />
-          ) : (
-            <ImageIcon aria-hidden="true" />
-          )}
+          {thumb ? <img src={thumb} alt="" /> : <ImageIcon aria-hidden="true" />}
         </button>
         <div className="st-ip-media__meta">
           <span className="st-ip-media__name" title={value?.src}>
@@ -213,6 +217,7 @@ export function ImageControl({
             hint={meta.aspect ? `Cropped to ${meta.aspect}` : undefined}
           >
             <FocalPointPicker
+              disabled={disabled}
               src={value.src}
               value={value.focal}
               label={`${label} focal point`}
@@ -238,6 +243,7 @@ export function MediaControl({
   disabled,
 }: ControlProps<MediaFieldMeta, MediaValue>) {
   const open = useOpenMediaPicker();
+  const poster = usePreviewSrc(value?.poster);
   const [error, setError] = useState<string | null>(null);
   const kind = value?.kind ?? meta.kinds[0] ?? "video";
   const title = useDraft<string>(value?.title, (t) => {
@@ -277,6 +283,7 @@ export function MediaControl({
     <div className="st-ip-imgfield">
       {meta.kinds.length > 1 && (
         <Segmented<"video" | "audio">
+          disabled={disabled}
           aria-label={`${label} type`}
           size="sm"
           block
@@ -296,11 +303,7 @@ export function MediaControl({
           disabled={disabled}
           onClick={() => choose()}
         >
-          {value?.poster ? (
-            <img src={previewSrc(value.poster)} alt="" />
-          ) : (
-            <Icon aria-hidden="true" />
-          )}
+          {poster ? <img src={poster} alt="" /> : <Icon aria-hidden="true" />}
         </button>
         <div className="st-ip-media__meta">
           <span className="st-ip-media__name" title={value?.src}>

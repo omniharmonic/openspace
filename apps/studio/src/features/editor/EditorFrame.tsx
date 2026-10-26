@@ -69,6 +69,7 @@ import {
 } from "./editor-store";
 import "./EditorFrame.css";
 import { useBlockMenu } from "../add-section/blockMenuStore";
+import { useCanvasDocument } from "../inspector/canvasDoc";
 import { InspectorRuntime } from "../inspector/Runtime";
 
 // The preset gallery and Site Styles load on first open (presets, pairings and palettes).
@@ -748,7 +749,13 @@ function EditorChrome({ site }: { site: Site }) {
             </div>
           </section>
         ) : (
-          <Canvas siteName={site.name} onFrameDocument={setFrameDoc} />
+          <Canvas
+            siteName={site.name}
+            onFrameDocument={(d) => {
+              setFrameDoc(d);
+              useCanvasDocument.setState({ doc: d });
+            }}
+          />
         )}
         <div className="st-ed-main__top">
           <PublishPill />

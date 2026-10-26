@@ -105,6 +105,16 @@ describe("stack layout edits (FR-13)", () => {
     });
   });
 
+  it("keeps tablet/phone stacking (GC 7) when the column count changes", () => {
+    const s = section([6, 6], [0, 1]);
+    (s.layout as StackLayout).columns = { d: [6, 6], t: [8, 4], m: [12] };
+    const three = setStackColumns(s, 3).layout;
+    expect(three.columns).toEqual({ d: [4, 4, 4], m: [12] });
+    expect(three.order?.m).toEqual([1, 0, 2]);
+    const one = setStackColumns(s, 1).layout;
+    expect(one.columns.m).toEqual([12]);
+  });
+
   it("keeps a valid stacking order and drops natural order", () => {
     expect(normaliseOrder([1, 0], 2)).toEqual([1, 0]);
     expect(normaliseOrder([0, 1], 2)).toBeUndefined();

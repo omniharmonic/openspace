@@ -266,7 +266,7 @@ export function LinkControl({
           {type === "item" && <ItemTarget doc={doc} link={v as never} commit={commit} />}
           {type === "url" && (
             <TextTarget
-              key="url"
+              key={`url:${(v as Extract<Link, { type: "url" }> | undefined)?.url ?? ""}`}
               label="Address"
               placeholder="https://example.com or /about"
               initial={(v as Extract<Link, { type: "url" }> | undefined)?.url ?? ""}
@@ -281,7 +281,7 @@ export function LinkControl({
           {type === "email" && (
             <>
               <TextTarget
-                key="email"
+                key={`email:${(v as Extract<Link, { type: "email" }> | undefined)?.email ?? ""}`}
                 label="Email address"
                 inputType="email"
                 placeholder="hello@example.com"
@@ -295,7 +295,7 @@ export function LinkControl({
               />
               {v && (
                 <TextTarget
-                  key="subject"
+                  key={`subject:${(v as Extract<Link, { type: "email" }>).subject ?? ""}`}
                   label="Subject (optional)"
                   placeholder="Hello from your site"
                   initial={(v as Extract<Link, { type: "email" }>).subject ?? ""}
@@ -310,7 +310,7 @@ export function LinkControl({
           )}
           {type === "phone" && (
             <TextTarget
-              key="phone"
+              key={`phone:${(v as Extract<Link, { type: "phone" }> | undefined)?.phone ?? ""}`}
               label="Phone number"
               inputType="tel"
               placeholder="+1 555 010 2030"

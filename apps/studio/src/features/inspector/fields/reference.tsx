@@ -9,7 +9,7 @@ import {
   scanForSecrets,
 } from "@openspace/schema";
 import { ArrowDown, ArrowUp, ShieldAlert } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input, NumberScrubInput, Segmented, Select, Toggle } from "../../../ui";
 import { PropRow } from "../ui";
 import { type ControlProps, useFieldsContext } from "./types";
@@ -92,6 +92,7 @@ export function ReferenceControl({
       </PropRow>
       <PropRow label="Show">
         <Segmented<"filter" | "pick">
+          disabled={disabled}
           aria-label="Which items"
           size="sm"
           block
@@ -140,7 +141,7 @@ export function ReferenceControl({
                       type="button"
                       className="st-ip-icon-btn"
                       aria-label={`Move ${it.frontmatter.title} up`}
-                      disabled={at === 0}
+                      disabled={disabled || at === 0}
                       onClick={() => {
                         const o = [...order];
                         [o[at - 1], o[at]] = [o[at] as string, o[at - 1] as string];
@@ -153,7 +154,7 @@ export function ReferenceControl({
                       type="button"
                       className="st-ip-icon-btn"
                       aria-label={`Move ${it.frontmatter.title} down`}
-                      disabled={at === order.length - 1}
+                      disabled={disabled || at === order.length - 1}
                       onClick={() => {
                         const o = [...order];
                         [o[at + 1], o[at]] = [o[at] as string, o[at + 1] as string];
@@ -189,6 +190,7 @@ export function ReferenceControl({
             <Input
               id={`${id}-tags`}
               size="sm"
+              key={(filter.tags ?? []).join(",")}
               defaultValue={(filter.tags ?? []).join(", ")}
               disabled={disabled}
               onBlur={(e) => {
@@ -307,7 +309,15 @@ export function EmbedControl({
     value?.type === "url" ? value.url : value?.type === "code" ? value.code : "",
   );
   const [error, setError] = useState<string | null>(null);
+  const focused = useRef(false);
+  // Follow outside changes (undo, collaborators) while the field isn't being edited.
+  useEffect(() => {
+    if (focused.current) return;
+    if (value) setMode(value.type);
+    setDraft(value?.type === "url" ? value.url : value?.type === "code" ? value.code : "");
+  }, [value]);
   const apply = () => {
+    focused.current = false;
     const candidate: EmbedValue =
       mode === "url" ? { type: "url", url: draft } : { type: "code", code: draft };
     const r = checkEmbed(candidate, meta.allow);
@@ -321,6 +331,7 @@ export function EmbedControl({
     <div className="st-ip-embed">
       {meta.allow.length > 1 && (
         <Segmented<"url" | "code">
+          disabled={disabled}
           aria-label="Embed from"
           size="sm"
           block
@@ -348,6 +359,9 @@ export function EmbedControl({
             setDraft(e.target.value);
             setError(null);
           }}
+          onFocus={() => {
+            focused.current = true;
+          }}
           onBlur={apply}
           onKeyDown={(e) => e.key === "Enter" && apply()}
         />
@@ -362,6 +376,9 @@ export function EmbedControl({
           onChange={(e) => {
             setDraft(e.target.value);
             setError(null);
+          }}
+          onFocus={() => {
+            focused.current = true;
           }}
           onBlur={apply}
         />

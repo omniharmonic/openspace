@@ -136,12 +136,21 @@ export function setStackColumns(
 } {
   const layout = section.layout as StackLayout;
   const spans = RATIO_PRESETS[count]?.[0]?.spans ?? [12];
-  const next: StackLayout = { ...layout, columns: { d: spans } };
-  const keepOrder = (o: number[] | undefined) => {
-    if (!o) return undefined;
-    const kept = o.filter((c) => c < count);
-    return kept.length === count ? kept : undefined;
-  };
+  // Tablet/phone overrides survive: "stacked" ([12]) always fits; multi-column ratios only
+  // when they still have one span per column.
+  const columns: StackLayout["columns"] = { d: spans };
+  for (const bp of ["t", "m"] as const) {
+    const v = layout.columns[bp];
+    if (v && (v.length === 1 || v.length === count)) columns[bp] = [...v];
+  }
+  const next: StackLayout = { ...layout, columns };
+  const keepOrder = (o: number[] | undefined) =>
+    o
+      ? normaliseOrder(
+          o.filter((c) => c < count),
+          count,
+        )
+      : undefined;
   const t = keepOrder(layout.order?.t);
   const m = keepOrder(layout.order?.m);
   if (t || m) next.order = { ...(t ? { t } : {}), ...(m ? { m } : {}) };

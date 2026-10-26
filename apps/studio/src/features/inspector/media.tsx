@@ -1,8 +1,10 @@
 import { HttpsUrlSchema, isMediaPath, type MediaMeta, type SiteDocument } from "@openspace/schema";
 import { ImageIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { Button, Dialog, Field, Input } from "../../ui";
+import { previewUrl, useMediaPreviewUrl, useMediaSources } from "../media/sources";
+import { type MediaPickRequest as ManageMediaPick, useManageUi } from "../site-mgmt/manage-ui";
 
 /**
  * The media picker seam. The full media library (upload, crop, alt text, usage) is Task 24's;
@@ -61,10 +63,61 @@ export function useOpenMediaPicker(): OpenMediaPicker {
   return impl ?? fallbackOpen;
 }
 
-/** Display URL for a media src in Studio (repo paths resolve against the site's media). */
+/** Display URL for a media src in Studio: this session's uploads, else the site's draft files. */
 export function previewSrc(src: string | undefined): string | undefined {
   if (!src) return undefined;
-  return isMediaPath(src) ? `/${src}` : src;
+  return previewUrl(src, useMediaSources.getState());
+}
+
+/** {@link previewSrc} that follows uploads and the site's file location as they change. */
+export function usePreviewSrc(src: string | undefined): string | undefined {
+  return useMediaPreviewUrl(src) ?? undefined;
+}
+
+/** A pick enriched with what the site's media metadata knows (size, alt, focal, id). */
+export function enrichPick(doc: SiteDocument, src: string): MediaPick {
+  const meta = doc.media[src as keyof SiteDocument["media"]];
+  if (!meta) return { src };
+  return {
+    src,
+    mediaId: meta.id,
+    ...(meta.alt !== undefined ? { alt: meta.alt } : {}),
+    ...(meta.width ? { width: meta.width } : {}),
+    ...(meta.height ? { height: meta.height } : {}),
+    ...(meta.focal ? { focal: meta.focal } : {}),
+  };
+}
+
+/**
+ * Adapter from the inspector's promise-based picker to the media library's dialog
+ * (`useManageUi.pickMedia`). Resolves with the chosen file (enriched from `doc.media`), or null
+ * when the dialog closes or another pick replaces it.
+ */
+export function libraryPicker(getDoc: () => SiteDocument): OpenMediaPicker {
+  return (request) =>
+    new Promise((resolve) => {
+      let settled = false;
+      const finish = (pick: MediaPick | null) => {
+        if (settled) return;
+        settled = true;
+        unsubscribe();
+        resolve(pick);
+      };
+      const req: ManageMediaPick = {
+        title: request.title ?? (request.accept === "image" ? "Choose an image" : "Choose a file"),
+        accept: request.accept === "image" ? "image" : "any",
+        onPick: (path) => finish(enrichPick(getDoc(), path)),
+      };
+      const unsubscribe = useManageUi.subscribe((s) => {
+        if (s.mediaPick !== req) finish(null);
+      });
+      useManageUi.getState().pickMedia(req);
+    });
+}
+
+/** Use the media library as the inspector's picker while mounted. */
+export function useMediaLibraryPicker(getDoc: () => SiteDocument) {
+  useEffect(() => registerMediaPicker(libraryPicker(getDoc)), [getDoc]);
 }
 
 function mediaOfKind(doc: SiteDocument, accept: MediaAccept): MediaMeta[] {

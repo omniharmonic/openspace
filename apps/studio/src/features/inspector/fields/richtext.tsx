@@ -126,6 +126,7 @@ export function RichTextControl({
               className="st-ip-icon-btn"
               aria-label={b.label}
               aria-pressed={e?.isActive(b.mark) ?? false}
+              disabled={disabled}
               onMouseDown={(ev) => ev.preventDefault()}
               onClick={() => run((ed) => ed.chain().focus().toggleMark(b.mark).run())}
             >
@@ -140,6 +141,7 @@ export function RichTextControl({
               className="st-ip-icon-btn"
               aria-label="Link"
               aria-pressed={e?.isActive("link") ?? false}
+              disabled={disabled}
               onMouseDown={(ev) => ev.preventDefault()}
               onClick={() =>
                 run((ed) => {
@@ -159,6 +161,7 @@ export function RichTextControl({
               className="st-ip-icon-btn"
               aria-label="Bulleted list"
               aria-pressed={e?.isActive("bulletList") ?? false}
+              disabled={disabled}
               onMouseDown={(ev) => ev.preventDefault()}
               onClick={() =>
                 run((ed) => ed.chain().focus().toggleList("bulletList", "listItem").run())
@@ -175,6 +178,7 @@ export function RichTextControl({
               className="st-ip-icon-btn"
               aria-label="Numbered list"
               aria-pressed={e?.isActive("orderedList") ?? false}
+              disabled={disabled}
               onMouseDown={(ev) => ev.preventDefault()}
               onClick={() =>
                 run((ed) => ed.chain().focus().toggleList("orderedList", "listItem").run())
@@ -191,6 +195,7 @@ export function RichTextControl({
               className="st-ip-icon-btn"
               aria-label="Quote"
               aria-pressed={e?.isActive("blockquote") ?? false}
+              disabled={disabled}
               onMouseDown={(ev) => ev.preventDefault()}
               onClick={() => run((ed) => ed.chain().focus().toggleWrap("blockquote").run())}
             >

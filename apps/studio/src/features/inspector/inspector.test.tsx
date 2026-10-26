@@ -423,11 +423,13 @@ describe("add section and block menu", () => {
   });
 
   it("renders thumbnails live, in the site's styles, once scrolled into view", async () => {
-    const seen = new Map<Element, () => void>();
+    const seen = new Map<Element, Array<() => void>>();
     class FakeIO {
       constructor(private cb: (e: Array<{ isIntersecting: boolean; target: Element }>) => void) {}
       observe(el: Element) {
-        seen.set(el, () => this.cb([{ isIntersecting: true, target: el }]));
+        const list = seen.get(el) ?? [];
+        list.push(() => this.cb([{ isIntersecting: true, target: el }]));
+        seen.set(el, list);
       }
       unobserve() {}
       disconnect() {}
@@ -440,7 +442,9 @@ describe("add section and block menu", () => {
       });
       const card = screen.getByRole("button", { name: /^Story with portrait/ });
       const holder = card.querySelector(".st-preview") as Element;
-      act(() => seen.get(holder)?.());
+      act(() => {
+        for (const f of seen.get(holder) ?? []) f();
+      });
       const frame = (await screen.findByTitle("Story with portrait preview")) as HTMLIFrameElement;
       await waitFor(() =>
         expect(frame.contentDocument?.querySelector("[data-os-section]")).toBeTruthy(),

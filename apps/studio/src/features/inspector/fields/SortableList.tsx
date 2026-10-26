@@ -74,6 +74,7 @@ function Row({
         <button
           type="button"
           className="st-ip-item__title"
+          data-ip-nav=""
           aria-label={row.title}
           aria-expanded={open}
           onClick={onToggle}

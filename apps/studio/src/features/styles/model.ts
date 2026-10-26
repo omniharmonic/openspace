@@ -69,7 +69,14 @@ export function overriddenRoles(styles: Styles): Set<string> {
 export interface ContrastIssue {
   failure: ContrastFailure;
   /** Override path + color that fixes it with the least change, if one can be set. */
-  fix: { path: string; value: string } | null;
+  fix: RoleFix | null;
+}
+
+export interface RoleFix {
+  path: string;
+  value: string;
+  /** False when no single color for this role passes against all its backgrounds. */
+  converged: boolean;
 }
 
 /**
@@ -82,7 +89,7 @@ export function contrastIssues(styles: Styles): ContrastIssue[] {
   if (!touched.size) return [];
   const raw = compileStyles(styles, { solve: false });
   const derived = new Set(["accent-hover", "accent-pressed"]);
-  const fixes = new Map<string, { path: string; value: string } | null>();
+  const fixes = new Map<string, RoleFix | null>();
   return raw.contrast.failures
     .filter((f) => touched.has(`${f.theme}:${f.fg}`) || touched.has(`${f.theme}:${f.bg}`))
     .map((failure) => {
@@ -112,22 +119,21 @@ function withOverride(styles: Styles, theme: string, role: string, value: string
  * The nearest accessible color for `role` in `theme` against every background it sits on:
  * start from the solver's suggestion for one pair and repeat until no pair with that role fails.
  */
-function solveRole(
-  styles: Styles,
-  theme: string,
-  role: string,
-  first: string,
-): { path: string; value: string } {
+function solveRole(styles: Styles, theme: string, role: string, first: string): RoleFix {
+  // Only failures whose adjusted side is this role carry a suggestion for it.
+  const adjusts = (f: ContrastFailure) => {
+    const pair = CONTRAST_PAIRS.find((p) => p.fg === f.fg && p.bg === f.bg);
+    return f.theme === theme && (pair?.adjust === "bg" ? f.bg : f.fg) === role;
+  };
   let value = first;
   for (let i = 0; i < 6; i++) {
     const next = withOverride(styles, theme, role, value);
-    const failing = compileStyles(next, { solve: false }).contrast.failures.find(
-      (f) => f.theme === theme && (f.fg === role || f.bg === role),
-    );
-    if (!failing) break;
+    const failing = compileStyles(next, { solve: false }).contrast.failures.find(adjusts);
+    if (!failing) return { path: `overrides.color.${theme}.${role}`, value, converged: true };
+    if (failing.suggestion === value) break;
     value = failing.suggestion;
   }
-  return { path: `overrides.color.${theme}.${role}`, value };
+  return { path: `overrides.color.${theme}.${role}`, value, converged: false };
 }
 
 export function fixPatch(issue: ContrastIssue): StylesSet | null {

@@ -78,6 +78,7 @@ describe("contrast warnings", () => {
     expect(issues.length).toBeGreaterThan(0);
     const issue = issues.find((i) => i.failure.fg === "text" && i.failure.theme === "dark");
     expect(issue?.fix?.path).toBe("overrides.color.dark.text");
+    expect(issue?.fix?.converged).toBe(true);
     const patch = fixPatch(issue as NonNullable<typeof issue>);
     expect(patch).toBeTruthy();
     expect(s.getState().commit([stylesOp(patch as Record<string, unknown>)]).ok).toBe(true);

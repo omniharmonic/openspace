@@ -123,6 +123,7 @@ function StackLayoutControls({
         <>
           <PropRow label="Columns">
             <Segmented<string>
+              disabled={disabled}
               aria-label="Number of columns"
               size="sm"
               block
@@ -159,6 +160,7 @@ function StackLayoutControls({
               overrides={overriddenBps(layout.columns)}
             >
               <Segmented<"side" | "stack">
+                disabled={disabled}
                 aria-label={`Columns on ${BP_LABEL[bp].toLowerCase()}`}
                 size="sm"
                 block
@@ -341,6 +343,7 @@ function BackgroundControls({
       tokens={tokens}
       value={toPickerValue(value)}
       allowExact={caps.exact}
+      disabled={disabled}
       onChange={(v) => onChange(fromPickerValue(v))}
     />
   );
@@ -400,6 +403,7 @@ function BackgroundControls({
                 <Button
                   size="sm"
                   variant="ghost"
+                  disabled={disabled}
                   onClick={() => {
                     const { via: _v, ...rest } = bg;
                     commit(rest, "Change gradient");
@@ -468,6 +472,7 @@ function BackgroundControls({
             hint="What stays in view when the photo is cropped on phones."
           >
             <FocalPointPicker
+              disabled={disabled}
               src={bg.type === "image" ? bg.src : bg.poster}
               value={bg.focal}
               label="Background focal point"
@@ -596,6 +601,7 @@ export function SectionDesign({
         title="Layout"
         actions={
           <Segmented<"stack" | "grid">
+            disabled={disabled}
             aria-label="Layout mode"
             size="sm"
             value={layout.mode}
@@ -677,6 +683,7 @@ export function SectionDesign({
           value={style.padding}
           bp={bp}
           base={SECTION_PAD_BASE}
+          baseHint="Setting this also fixes desktop at 3XL, close to the site’s spacing."
           disabled={disabled}
           onCommit={(v) =>
             setStyle(

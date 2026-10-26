@@ -44,25 +44,37 @@ function initFrame(d: Document): HTMLElement {
   return root;
 }
 
-/** One shared observer for every lazy thumbnail. */
-let observer: IntersectionObserver | null = null;
-const callbacks = new WeakMap<Element, () => void>();
-function observe(el: Element, cb: () => void): () => void {
+/**
+ * One shared observer for every thumbnail: a thumbnail mounts its frame when it comes within
+ * 300px of view and unmounts it once it is more than about two screens away, so a long gallery
+ * keeps only a few dozen live frames.
+ */
+let near: IntersectionObserver | null = null;
+let far: IntersectionObserver | null = null;
+const callbacks = new WeakMap<Element, (visible: boolean) => void>();
+function observe(el: Element, cb: (visible: boolean) => void): () => void {
   // Without IntersectionObserver (old browsers, jsdom) thumbnails stay placeholders.
   if (typeof IntersectionObserver === "undefined") return () => {};
-  observer ??= new IntersectionObserver(
+  near ??= new IntersectionObserver(
     (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        callbacks.get(e.target)?.();
-        observer?.unobserve(e.target);
-      }
+      for (const e of entries) if (e.isIntersecting) callbacks.get(e.target)?.(true);
     },
-    { rootMargin: "200px" },
+    { rootMargin: "300px" },
+  );
+  far ??= new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) if (!e.isIntersecting) callbacks.get(e.target)?.(false);
+    },
+    { rootMargin: "1600px" },
   );
   callbacks.set(el, cb);
-  observer.observe(el);
-  return () => observer?.unobserve(el);
+  near.observe(el);
+  far.observe(el);
+  return () => {
+    near?.unobserve(el);
+    far?.unobserve(el);
+    callbacks.delete(el);
+  };
 }
 
 export interface PreviewFrameProps {
@@ -103,9 +115,12 @@ export function PreviewFrame({
 
   useEffect(() => {
     const el = holder.current;
-    if (!el || visible) return;
-    return observe(el, () => setVisible(true));
-  }, [visible]);
+    if (!el) return;
+    return observe(el, (v) => {
+      setVisible(v);
+      if (!v) setRoot(null);
+    });
+  }, []);
 
   useLayoutEffect(() => {
     if (!visible) return;

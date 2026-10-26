@@ -8,6 +8,7 @@ import { BlockIcon } from "../editor/blockIcons";
 import { type Breakpoint, useEditorUi } from "../editor/editor-store";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import { blockLabel, blockName, locate, sectionLabel } from "../editor/model/selection";
+import { measureBlock } from "./canvasDoc";
 import { BlockDesign } from "./design/BlockDesign";
 import { SectionDesign } from "./design/SectionDesign";
 import { useEditBp, useInspectorRole, useInspectorTab } from "./env";
@@ -30,7 +31,7 @@ function BreakpointBar() {
   const breakpoint = useEditorUi((s) => s.breakpoint);
   const bp = useEditBp();
   return (
-    <div className="st-ip__bp">
+    <div className="st-ip__bp" data-ip-nav="">
       <Segmented<Breakpoint>
         aria-label="Edit styles for"
         size="sm"
@@ -59,12 +60,6 @@ function BreakpointBar() {
       )}
     </div>
   );
-}
-
-function canvasMeasure(blockId: string): number | undefined {
-  const frame = document.querySelector<HTMLIFrameElement>('iframe[title="Page canvas"]');
-  const el = frame?.contentDocument?.querySelector(`[data-os-id="${blockId}"]`);
-  return el ? el.getBoundingClientRect().height : undefined;
 }
 
 function BlockContent({
@@ -170,7 +165,7 @@ function SectionBlocks({ section, caps }: { section: Section; caps: Capabilities
   const api = useDocStoreApi();
   return (
     <PanelSection title="Blocks" count={section.blocks.length}>
-      <ul className="st-ip-choices" aria-label="Blocks in this section">
+      <ul className="st-ip-choices" aria-label="Blocks in this section" data-ip-nav="">
         {section.blocks.map((b) => (
           <li key={b.id}>
             <button
@@ -320,12 +315,7 @@ export function Inspector() {
         />
         <div className="st-ip__scroll">
           <BreakpointBar />
-          <SectionDesign
-            section={s}
-            container={loc.container}
-            caps={caps}
-            measure={canvasMeasure}
-          />
+          <SectionDesign section={s} container={loc.container} caps={caps} measure={measureBlock} />
           <SectionBlocks section={s} caps={caps} />
         </div>
       </>

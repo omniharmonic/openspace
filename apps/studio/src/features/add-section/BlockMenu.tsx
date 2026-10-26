@@ -8,6 +8,8 @@ import { Kbd, toast } from "../../ui";
 import { BlockIcon } from "../editor/blockIcons";
 import { useDocStoreApi } from "../editor/model/context";
 import { locate, sectionLabel } from "../editor/model/selection";
+import { useInspectorRole } from "../inspector/env";
+import { capabilities } from "../inspector/model/permissions";
 import { type BlockTarget, useBlockMenu } from "./blockMenuStore";
 import { insertBlockCommand, targetFromSelection } from "./insert";
 import "./add-section.css";
@@ -68,6 +70,14 @@ export function BlockMenu() {
     ? (explicit ?? targetFromSelection(s.doc, s.pageId, s.selection))
     : null;
   const loc = target ? locate(s.doc, s.pageId, { kind: "section", id: target.section }) : undefined;
+  const role = useInspectorRole();
+  const caps = loc ? capabilities(role, loc.section) : null;
+  const refusal =
+    role === "contributor"
+      ? "Contributors write posts and events. Ask an editor to change pages."
+      : loc?.section.locked
+        ? "This section is locked. You can change its words and images."
+        : "Blocks in grid sections are placed by the site’s designer.";
   const where = loc
     ? `${sectionLabel(s.doc, loc.section, loc.sectionIndex)}${
         loc.section.layout.mode === "stack" && loc.section.layout.columns.d.length > 1
@@ -83,6 +93,10 @@ export function BlockMenu() {
     const st = api.getState();
     if (!target) {
       toast({ title: "Add a section first", description: "Blocks go inside sections." });
+      return;
+    }
+    if (!caps?.structure) {
+      toast({ tone: "danger", title: "You can’t add blocks here", description: refusal });
       return;
     }
     const cmd = insertBlockCommand(st.doc, st.pageId, type, target);
@@ -102,7 +116,11 @@ export function BlockMenu() {
               <Command.Input className="st-palette__input" placeholder="Add a block…" autoFocus />
               <Kbd shortcut="esc" tone="key" />
             </div>
-            {where && <p className="st-blockmenu__where">Adding to {where}</p>}
+            {where && (
+              <p className="st-blockmenu__where">
+                {caps?.structure ? `Adding to ${where}` : refusal}
+              </p>
+            )}
             <Command.List className="st-palette__list st-blockmenu__list">
               <Command.Empty className="st-palette__empty">No matching blocks.</Command.Empty>
               {groups.map(([cat, defs]) => (

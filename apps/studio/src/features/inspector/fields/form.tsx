@@ -142,6 +142,7 @@ export function FormBuilder({ id, value, onChange, disabled }: ControlProps<Form
         </PropRow>
         <PropRow label="Width">
           <Segmented<"full" | "half">
+            disabled={disabled}
             aria-label="Field width"
             size="sm"
             block
@@ -191,6 +192,7 @@ export function FormBuilder({ id, value, onChange, disabled }: ControlProps<Form
             <textarea
               className="st-ip-textarea"
               aria-label="Options, one per line"
+              key={"options" in f && f.options ? f.options.join("\n") : ""}
               defaultValue={"options" in f && f.options ? f.options.join("\n") : ""}
               disabled={disabled}
               onBlur={(e) => {
@@ -350,6 +352,7 @@ export function FormBuilder({ id, value, onChange, disabled }: ControlProps<Form
         </PropRow>
         <PropRow label="Then">
           <Segmented<"message" | "redirect">
+            disabled={disabled}
             aria-label="After sending"
             size="sm"
             block
@@ -393,6 +396,7 @@ export function FormBuilder({ id, value, onChange, disabled }: ControlProps<Form
               id={`${id}-redirect`}
               meta={LINK_META as never}
               label="Redirect"
+              disabled={disabled}
               value={success.link}
               onChange={(l) => save({ ...form, success: { type: "redirect", link: l as Link } })}
             />

@@ -19,6 +19,7 @@ export function ResponsiveField<T extends string>({
   onCommit,
   render,
   allowUnset = true,
+  baseHint,
 }: {
   label: string;
   value: Responsive<T> | undefined;
@@ -29,13 +30,18 @@ export function ResponsiveField<T extends string>({
   onCommit: (next: Responsive<T> | undefined) => void;
   render: (current: T | undefined, set: (v: T | undefined) => void) => ReactNode;
   allowUnset?: boolean;
+  /** Shown before the first tablet/phone value when it also sets desktop to `base`. */
+  baseHint?: string;
 }) {
   const r = readAt(value, bp);
   const dots = overriddenBps(value);
   const set = (v: T | undefined) => {
     if (v === undefined) {
-      if (bp === "d") onCommit(allowUnset ? undefined : value);
-      else onCommit(clearAt(value, bp));
+      if (bp !== "d") onCommit(clearAt(value, bp));
+      // Desktop is the base: with tablet/phone values still set, keep them (desktop takes
+      // the base value) rather than silently deleting them.
+      else if (value?.t !== undefined || value?.m !== undefined) onCommit({ ...value, d: base });
+      else onCommit(allowUnset ? undefined : value);
       return;
     }
     onCommit(setAt(value, bp, v, base));
@@ -51,7 +57,13 @@ export function ResponsiveField<T extends string>({
             resetLabel: `Use the ${BP_LABEL[r.inheritedFrom ?? (bp === "m" && value?.t !== undefined ? "t" : "d")].toLowerCase()} value`,
           }
         : {})}
-      hint={linked ? `Same as ${BP_LABEL[r.inheritedFrom ?? "d"].toLowerCase()}` : undefined}
+      hint={
+        linked
+          ? value === undefined && baseHint
+            ? baseHint
+            : `Same as ${BP_LABEL[r.inheritedFrom ?? "d"].toLowerCase()}`
+          : undefined
+      }
     >
       {render(r.value, (v) => !disabled && set(v))}
       {bp !== "d" && (
@@ -107,6 +119,7 @@ export function AlignControl({
 }) {
   return (
     <Segmented<"start" | "center" | "end">
+      disabled={disabled}
       aria-label={label}
       size="sm"
       block

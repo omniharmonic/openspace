@@ -104,7 +104,11 @@ export function PresetGallery({
   const [category, setCategory] = useState<PresetCategory | "all">(
     layout === "dialog" ? "hero" : "all",
   );
-  const page = doc.pages[pageId as keyof SiteDocument["pages"]];
+  // Thumbnails depend on Site Styles and site chrome only: keep their doc stable across content
+  // edits so a hundred previews don't re-render on every keystroke.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deliberately keyed on styles and site
+  const thumbDoc = useMemo(() => doc, [doc.styles, doc.site, doc.config]);
+  const page = thumbDoc.pages[pageId as keyof SiteDocument["pages"]];
   const effective = query.trim() ? "all" : category;
   const presets = useMemo(() => filterPresets(query, effective), [query, effective]);
   const counts = useMemo(() => {
@@ -195,7 +199,7 @@ export function PresetGallery({
                       title={blocked ? "Your role can’t change the header or footer" : undefined}
                       onClick={() => onPick(p)}
                     >
-                      <PresetThumb preset={p} doc={doc} page={page} width={width} />
+                      <PresetThumb preset={p} doc={thumbDoc} page={page} width={width} />
                       <span className="st-gal__name">{p.label}</span>
                       <span className="st-gal__desc">{NOTE[p.target] ?? p.description}</span>
                     </button>

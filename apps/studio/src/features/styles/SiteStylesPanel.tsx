@@ -441,9 +441,14 @@ function ContrastWarnings({
                 size="sm"
                 variant="secondary"
                 disabled={disabled}
+                title={
+                  i.fix?.converged === false
+                    ? "No single color passes on every background; this gets closest"
+                    : "Use the nearest accessible color"
+                }
                 onClick={() => commit(patch, "Use nearest accessible color")}
               >
-                Fix
+                {i.fix?.converged === false ? "Improve" : "Fix"}
               </Button>
             ) : (
               <span className="st-ip-count">Adjusted on publish</span>
@@ -592,6 +597,7 @@ export function SiteStylesPanel() {
         </PropRow>
         <PropRow label="Neutrals">
           <Segmented
+            disabled={disabled}
             aria-label="Neutral tint"
             size="sm"
             block
@@ -608,6 +614,7 @@ export function SiteStylesPanel() {
         </PropRow>
         <PropRow label="Contrast">
           <Segmented
+            disabled={disabled}
             aria-label="Contrast"
             size="sm"
             block
@@ -628,6 +635,7 @@ export function SiteStylesPanel() {
       <PanelSection title="Spacing & shape">
         <PropRow label="Spacing" stacked>
           <Segmented
+            disabled={disabled}
             aria-label="Spacing density"
             size="sm"
             block
@@ -641,6 +649,7 @@ export function SiteStylesPanel() {
         </PropRow>
         <PropRow label="Corners" stacked>
           <Segmented
+            disabled={disabled}
             aria-label="Corner shape"
             size="sm"
             block
@@ -666,6 +675,7 @@ export function SiteStylesPanel() {
       </PanelSection>
       <PanelSection title="Motion">
         <Segmented
+          disabled={disabled}
           aria-label="Motion"
           size="sm"
           block
