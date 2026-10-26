@@ -36,7 +36,7 @@ The first run found 32 failures. They were fixed in the design rather than with 
 | Stat labels ("On-time invoices") broke mid-word in the screenshot callout's narrow stats box at 320 px | Stats stack in one column in boxes under 20rem; labels may wrap long words (`packages/blocks` data CSS) |
 | Large stats with long values squeezed their labels to one word per line | Large stats stack value over label in boxes under 30rem |
 | An email address in the newsletter footer overflowed its column at 834 px | Long words (emails, URLs) wrap anywhere on published pages (`overflow-wrap: break-word` on `body`) |
-| Five plans in the two-plan pricing preset squeezed prices out of their cards at 1440 and 1920 px | Plans flow into as many 15rem columns as fit and wrap into rows (`packages/blocks` pricing CSS) |
+| Five plans in the two-plan pricing preset squeezed prices out of their cards at 1440 and 1920 px | Columns follow the plan count and never leave one plan alone on a row: 4 plans as 2 × 2 in medium boxes (4 in a row when wide), 5 as 3 + 2 (`planColumns`, `packages/blocks` pricing) |
 
 No new guardrails were needed: the existing schema limits (plans ≤ 5, list maxima, field max
 lengths) already keep content within what the designs absorb.

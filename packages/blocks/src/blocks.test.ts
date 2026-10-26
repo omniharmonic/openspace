@@ -273,3 +273,16 @@ describe("BLOCKS_CSS", () => {
       expect(BLOCKS_CSS).toContain(`.${cls}`);
   });
 });
+
+describe("pricing columns", () => {
+  it("never leaves a plan alone on a row", async () => {
+    const { planColumns } = await import("./blocks/pricing");
+    for (let n = 1; n <= 5; n++) {
+      const c = planColumns(n);
+      for (const cols of [c["--pc-md"] as number, c["--pc-lg"] as number])
+        if (n > cols) expect(n % cols === 0 || n % cols >= 2).toBe(true);
+    }
+    expect(planColumns(4)).toMatchObject({ "--pc-md": 2, "--pc-lg": 4 });
+    expect(planColumns(5)).toMatchObject({ "--pc-md": 3, "--pc-lg": 3 });
+  });
+});

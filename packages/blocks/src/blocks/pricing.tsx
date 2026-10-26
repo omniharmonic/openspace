@@ -87,7 +87,7 @@ export const pricingBlock = defineBlock({
   },
   render: ({ fields, variant, style }) => (
     <div className={cx("os-pricing", `os-pricing--${variant}`)}>
-      <ul className="os-pricing__plans" style={{ "--n": fields.plans.length }}>
+      <ul className="os-pricing__plans" style={planColumns(fields.plans.length)}>
         {fields.plans.map((plan, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
           <li key={i} className={cx("os-pricing__plan", plan.featured && "is-featured")}>
@@ -133,7 +133,8 @@ export const pricingBlock = defineBlock({
 export const pricingCss = `
 .os-pricing{display:grid;gap:var(--os-space-sm)}
 .os-pricing__plans{display:grid;gap:var(--os-space-sm);margin:0;padding:0;list-style:none}
-@container block (min-width:48rem){.os-pricing__plans{grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));align-items:stretch}}
+@container block (min-width:48rem){.os-pricing__plans{grid-template-columns:repeat(var(--pc-md,2),minmax(0,1fr));align-items:stretch}}
+@container block (min-width:64rem){.os-pricing__plans{grid-template-columns:repeat(var(--pc-lg,3),minmax(0,1fr))}}
 .os-pricing__plan{display:flex;flex-direction:column;gap:var(--os-space-xs);padding:var(--os-space-md);border-radius:var(--os-radius-card);min-width:0}
 .os-block.has-radius .os-pricing__plan{border-radius:var(--radius)}
 .os-pricing__head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--os-space-2xs)}
@@ -167,3 +168,13 @@ export const pricingCss = `
 .os-pricing--compact .os-pricing__button{grid-column:2;grid-row:2 / span 3;align-self:center;margin:0}
 }
 `;
+
+/**
+ * Columns per row for n plans, never leaving one plan alone on a row: medium boxes show 1–3
+ * plans side by side, 4 as 2 × 2 and 5 as 3 + 2; wide boxes show up to 4 in a row, 5 as 3 + 2.
+ */
+export function planColumns(n: number): Record<string, number> {
+  const md = n <= 3 ? Math.max(1, n) : n === 4 ? 2 : 3;
+  const lg = n <= 4 ? Math.max(1, n) : 3;
+  return { "--n": n, "--pc-md": md, "--pc-lg": lg };
+}
