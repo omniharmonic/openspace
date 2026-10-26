@@ -1,6 +1,6 @@
 import { occurrenceDates } from "@openspace/renderer";
 import { Repeat as RepeatIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cx, Field, Input, Segmented, Select } from "../../ui";
 import { date as fmtDate } from "../workspace/format";
 import { SwitchRow } from "../workspace/ui";
@@ -200,8 +200,13 @@ export function RepeatEditor({
 }
 
 const RULE_RE = /^FREQ=(?:DAILY|WEEKLY|MONTHLY|YEARLY)(?:;[A-Z]+=[A-Za-z0-9,+-]+)*$/;
+/** Same limit as the schema's `recurrence`. */
+const RULE_MAX = 300;
 
-/** A rule from another calendar app: edited as text, saved only when it's a valid rule. */
+/**
+ * A rule from another calendar app: edited as text, saved only when it's a valid rule. Rules
+ * OpenSpace can't repeat (e.g. hourly) are shown read-only, with a note, and kept as they are.
+ */
 function CustomRule({
   value,
   onChange,
@@ -212,22 +217,60 @@ function CustomRule({
   onSimplify: () => void;
 }) {
   const [text, setText] = useState(value);
-  const bad = !RULE_RE.test(text.trim());
+  // Follow changes made elsewhere (undo, another person, the AI).
+  const last = useRef(value);
+  useEffect(() => {
+    if (value !== last.current) {
+      last.current = value;
+      setText(value);
+    }
+  }, [value]);
+  const supported = RULE_RE.test(value);
+  const t = text.trim();
+  const bad = !RULE_RE.test(t) || t.length > RULE_MAX;
+  const commit = () => {
+    if (!bad && t !== value) {
+      last.current = t;
+      onChange(t);
+    }
+  };
+  if (!supported)
+    return (
+      <div className="st-form">
+        <Field
+          label="Repeat rule"
+          hint="This rule repeats in a way OpenSpace can't show yet (such as every hour). It's kept exactly as it is."
+        >
+          <Input className="st-repeat__raw" value={value} readOnly />
+        </Field>
+        <button type="button" className="st-linklike" onClick={onSimplify}>
+          Use a simple weekly rule instead
+        </button>
+      </div>
+    );
   return (
     <div className="st-form">
       <Field
         label="Repeat rule"
         hint="This rule came from another calendar app, so it's shown as written. Change it here, or switch to a simple rule."
-        error={bad ? "That isn't a repeat rule (it should start with FREQ=)." : undefined}
+        error={
+          bad
+            ? t.length > RULE_MAX
+              ? `Keep it under ${RULE_MAX} characters.`
+              : "That isn't a repeat rule (it should start with FREQ=)."
+            : undefined
+        }
       >
         <Input
           className="st-repeat__raw"
           value={text}
+          maxLength={RULE_MAX}
           spellCheck={false}
-          onChange={(e) => {
-            setText(e.target.value);
-            const v = e.target.value.trim();
-            if (RULE_RE.test(v) && v !== value) onChange(v);
+          onChange={(e) => setText(e.target.value)}
+          // Saved when you leave the box (or press Enter), so half-typed rules never count.
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") commit();
           }}
         />
       </Field>

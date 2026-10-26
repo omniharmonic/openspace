@@ -6,7 +6,7 @@ import type {
 } from "@openspace/schema";
 import { createContext, useContext } from "react";
 import { useRenderContext } from "./context";
-import { eventOn, expandOccurrences, occurrenceDates } from "./recurrence";
+import { eventLengthDays, eventOn, expandOccurrences, occurrenceDates } from "./recurrence";
 
 /**
  * Collection data for blocks that list items (summary, events, product, social feed).
@@ -133,9 +133,9 @@ export function nextOccurrence(item: CollectionItem, now: Date): CollectionItem 
   if (item.kind !== "events" || !item.frontmatter.recurrence) return item;
   const rule = item.frontmatter.recurrence;
   const start = item.frontmatter.start;
-  // From a couple of days back (an event may still be running), the next few dates.
+  // From as far back as the event lasts (an occurrence may still be running), the next few dates.
   const soon = occurrenceDates(rule, start, {
-    from: plusDays(now, -2),
+    from: plusDays(now, -(eventLengthDays(item) + 1)),
     through: plusDays(now, RECURRENCE_HORIZON_DAYS),
     max: 4,
   });
@@ -194,6 +194,7 @@ export function queryCollection(
           ? expandOccurrences(live, {
               from: plusDays(now, -RECURRENCE_HORIZON_DAYS),
               through: isoDay(now),
+              newest: true,
             })
           : live.map((item) => nextOccurrence(item, now));
     items = expanded.filter((item) => {

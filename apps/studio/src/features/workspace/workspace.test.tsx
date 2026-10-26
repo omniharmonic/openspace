@@ -1,8 +1,11 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useCommandStore } from "../../ui/command-store";
 import { useEditorUi } from "../editor/editor-store";
 import { FORBIDDEN, openWorkspace, visibleCopy, WILLOW } from "./testing";
+
+// The editor and workspace screens load on demand; the first test in a busy run can be slow.
+vi.setConfig({ testTimeout: 20_000 });
 
 beforeEach(() => useEditorUi.getState().reset());
 

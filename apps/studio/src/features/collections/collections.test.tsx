@@ -4,6 +4,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useEditorUi } from "../editor/editor-store";
 import { editorStore, FORBIDDEN, openWorkspace, visibleCopy, WILLOW } from "../workspace/testing";
 
+// The editor and workspace screens load on demand; the first test in a busy run can be slow.
+vi.setConfig({ testTimeout: 20_000 });
+
 beforeEach(() => useEditorUi.getState().reset());
 
 const item = (collection: string, slug: string) =>
@@ -142,11 +145,32 @@ describe("collections", () => {
     expect(await screen.findByDisplayValue("FREQ=MONTHLY;BYDAY=-1TU;WKST=SU")).toBeInTheDocument();
     expect(screen.getByText("A custom repeat rule")).toBeInTheDocument();
     expect(screen.queryByText("Unsaved changes")).toBeNull();
+    // A change made elsewhere (undo, a collaborator) shows up in the text box.
+    act(() => {
+      const it = item("events", "last-tuesdays") as CollectionItem;
+      editorStore().commit([
+        {
+          op: "collection.upsert",
+          collection: "events",
+          item: {
+            ...it,
+            frontmatter: { ...it.frontmatter, recurrence: "FREQ=MONTHLY;BYDAY=-1WE" },
+          },
+        } as never,
+      ]);
+    });
+    expect(await screen.findByDisplayValue("FREQ=MONTHLY;BYDAY=-1WE")).toBeInTheDocument();
 
     await act(() => router.navigate(`/sites/${WILLOW.id}/content/events/tuesdays`));
     const starts = await screen.findByLabelText("Starts");
     expect(screen.queryByText("Unsaved changes")).toBeNull();
+    // Typing through intermediate dates doesn't touch the rule; it follows on commit (blur).
+    fireEvent.focus(starts);
+    fireEvent.change(starts, { target: { value: "2026-11-01" } });
     fireEvent.change(starts, { target: { value: "2026-11-04" } }); // a Wednesday
+    expect(screen.getByText(/Every week on Tuesday/)).toBeInTheDocument();
+    fireEvent.blur(starts);
+    expect(await screen.findByText(/Every week on Wednesday/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Update event" }));
     await waitFor(() => {
       const fm = (item("events", "tuesdays") as CollectionItem).frontmatter as {

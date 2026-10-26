@@ -226,13 +226,28 @@ export function eventOn(item: Extract<CollectionItem, { kind: "events" }>, date:
   } as typeof item;
 }
 
+/** Whole days an event spans (0 for a single-day event). */
+export function eventLengthDays(item: CollectionItem): number {
+  if (item.kind !== "events" || !item.frontmatter.end) return 0;
+  const fm = item.frontmatter;
+  return Math.max(
+    0,
+    Math.round(
+      (Date.parse(`${(fm.end as string).slice(0, 10)}T00:00:00Z`) -
+        Date.parse(`${fm.start.slice(0, 10)}T00:00:00Z`)) /
+        DAY_MS,
+    ),
+  );
+}
+
 /**
  * Repeating events as one item per occurrence between `from` and `through` (YYYY-MM-DD),
- * at most `perEvent` each. Other items pass through unchanged.
+ * at most `perEvent` each: the earliest ones, or with `newest` the most recent ones (for past
+ * lists). Other items pass through unchanged.
  */
 export function expandOccurrences(
   items: CollectionItem[],
-  window: { from: string; through: string; perEvent?: number },
+  window: { from: string; through: string; perEvent?: number; newest?: boolean },
 ): CollectionItem[] {
   const out: CollectionItem[] = [];
   for (const item of items) {
@@ -241,20 +256,18 @@ export function expandOccurrences(
       continue;
     }
     const fm = item.frontmatter;
-    const lengthDays = fm.end
-      ? Math.round(
-          (Date.parse(`${fm.end.slice(0, 10)}T00:00:00Z`) -
-            Date.parse(`${fm.start.slice(0, 10)}T00:00:00Z`)) /
-            DAY_MS,
-        )
-      : 0;
+    const lengthDays = eventLengthDays(item);
     // Keep occurrences that haven't ended before the window starts.
     const fromStart = iso(new Date(Date.parse(`${window.from}T00:00:00Z`) - lengthDays * DAY_MS));
-    const dates = occurrenceDates(fm.recurrence as string, fm.start, {
+    const per = window.perEvent ?? 12;
+    // A window is at most about a year, so every date in it is cheap to list; past lists keep the
+    // latest ones (counted back from the end of the window).
+    const all = occurrenceDates(fm.recurrence as string, fm.start, {
       from: fromStart,
       through: window.through,
-      max: window.perEvent ?? 12,
+      max: window.newest ? 2000 : per,
     });
+    const dates = window.newest ? all.slice(-per) : all;
     for (const date of dates) out.push(eventOn(item, date));
   }
   return out;

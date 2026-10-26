@@ -148,4 +148,34 @@ describe("repeating events", () => {
     );
     expect(zoneOffsetMinutes("Europe/London", Date.UTC(2026, 6, 1))).toBe(60);
   });
+
+  it("past lists show the most recent dates, not the oldest in the window", () => {
+    const weekly2020 = event("monday-circle", {
+      start: "2020-01-06T18:00:00-07:00", // a Monday
+      recurrence: "FREQ=WEEKLY;BYDAY=MO",
+    });
+    const now = new Date("2026-11-11T12:00:00Z");
+    const past = queryCollection(
+      { collection: "events", filter: { upcoming: false } },
+      { events: { "monday-circle": weekly2020 } },
+      { now },
+    );
+    const starts = past.map((i) => (i.frontmatter as { start: string }).start.slice(0, 10)).sort();
+    expect(starts).toHaveLength(12);
+    expect(starts.at(-1)).toBe("2026-11-09");
+    expect(starts[0]).toBe("2026-08-24");
+  });
+
+  it("shows a multi-day occurrence that is still running as the next one", () => {
+    const retreat = event("retreat", {
+      start: "2026-11-01",
+      end: "2026-11-05",
+      allDay: true,
+      recurrence: "FREQ=MONTHLY;BYMONTHDAY=1",
+    });
+    const now = new Date("2026-11-04T12:00:00Z");
+    expect((nextOccurrence(retreat, now).frontmatter as { start: string }).start).toBe(
+      "2026-11-01",
+    );
+  });
 });

@@ -1,7 +1,7 @@
 /* biome-ignore-all lint/suspicious/noExplicitAny: frontmatter is a union keyed by kind; each form reads its own keys. */
 import type { CollectionConfig, CollectionItem, ImageValue, SiteDocument } from "@openspace/schema";
 import { ArrowUpRight, Plus, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useInventoryActions, useProducts } from "../../api";
 import type { Site } from "../../api/types";
@@ -23,7 +23,7 @@ import { errorMessage, SwitchRow, TagInput } from "../workspace/ui";
 import { IntField, MediaField, MoneyField } from "./fields";
 import { fromInputDateTime, localDate, toInputDateTime } from "./itemOps";
 import { RepeatEditor } from "./RepeatEditor";
-import { retargetRule } from "./rrule";
+import { matchUntilType, retargetRule } from "./rrule";
 import { suggestSku, syncVariants, variantLabel } from "./variants";
 import "./collections.css";
 
@@ -230,14 +230,19 @@ export function EventFields({ item, onChange, problems }: FrontmatterProps) {
   const fm = item.frontmatter as FM;
   const allDay = Boolean(fm.allDay) || /^\d{4}-\d{2}-\d{2}$/.test(fm.start ?? "");
   const loc: FM = fm.location ?? {};
-  /** A new first date; a repeat rule that simply followed the old date follows the new one. */
-  const moveStart = (start: string) =>
-    set({
-      start,
-      ...(fm.recurrence
-        ? { recurrence: retargetRule(fm.recurrence, String(fm.start), start) }
-        : {}),
-    });
+  // The start being typed; the repeat rule follows only once the new date is committed (blur),
+  // not on every intermediate keystroke.
+  const editingFrom = useRef<string | null>(null);
+  const setStart = (start: string) => {
+    if (editingFrom.current === null) editingFrom.current = String(fm.start);
+    set({ start });
+  };
+  const commitStart = () => {
+    const from = editingFrom.current;
+    editingFrom.current = null;
+    if (from && fm.recurrence && from !== fm.start)
+      set({ recurrence: retargetRule(fm.recurrence, from, String(fm.start)) });
+  };
   const setLoc = (patch: FM) => {
     const next: FM = { ...loc };
     for (const [k, v] of Object.entries(patch)) {
@@ -252,19 +257,26 @@ export function EventFields({ item, onChange, problems }: FrontmatterProps) {
         label={<>All day</>}
         checked={allDay}
         onCheckedChange={(v) => {
+          const start = v
+            ? (fm.start ?? localDate(Date.now())).slice(0, 10)
+            : (fromInputDateTime(`${String(fm.start).slice(0, 10)}T18:00`) ?? fm.start);
+          // UNTIL has the same value type as the start (a date for all-day events).
+          const recurrence = fm.recurrence ? matchUntilType(fm.recurrence, start) : undefined;
           if (v)
             set({
               allDay: true,
-              start: (fm.start ?? localDate(Date.now())).slice(0, 10),
+              start,
               end: fm.end ? String(fm.end).slice(0, 10) : undefined,
+              recurrence,
             });
           else
             set({
               allDay: undefined,
-              start: fromInputDateTime(`${String(fm.start).slice(0, 10)}T18:00`) ?? fm.start,
+              start,
               end: fm.end
                 ? (fromInputDateTime(`${String(fm.end).slice(0, 10)}T19:30`) ?? undefined)
                 : undefined,
+              recurrence,
             });
         }}
       />
@@ -274,7 +286,8 @@ export function EventFields({ item, onChange, problems }: FrontmatterProps) {
             <Input
               type="date"
               value={String(fm.start ?? "").slice(0, 10)}
-              onChange={(e) => e.target.value && moveStart(e.target.value)}
+              onChange={(e) => e.target.value && setStart(e.target.value)}
+              onBlur={commitStart}
             />
           ) : (
             <Input
@@ -282,8 +295,9 @@ export function EventFields({ item, onChange, problems }: FrontmatterProps) {
               value={toInputDateTime(fm.start)}
               onChange={(e) => {
                 const v = fromInputDateTime(e.target.value, fm.start);
-                if (v) moveStart(v);
+                if (v) setStart(v);
               }}
+              onBlur={commitStart}
             />
           )}
         </Field>

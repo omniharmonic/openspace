@@ -100,6 +100,18 @@ export function isSimpleRule(rule: string, start: string): boolean {
   return canonical(rule, start) === canonical(toRRule(r, start), start);
 }
 
+/** UNTIL rewritten to the start's value type: a DATE for all-day starts, else a UTC date-time. */
+export function matchUntilType(rule: string, start: string): string {
+  return partsOf(rule)
+    .map(([k, v]) => {
+      if (k !== "UNTIL") return `${k}=${v}`;
+      const day = v.slice(0, 8);
+      if (isDateOnly(start)) return `UNTIL=${day}`;
+      return v.length > 8 ? `UNTIL=${v}` : `UNTIL=${day}T235959Z`;
+    })
+    .join(";");
+}
+
 /**
  * The rule after the event's first date moves from `from` to `to`: days that were simply "the
  * start's day" follow it (weekly BYDAY, monthly BYMONTHDAY or nth weekday). Everything else is

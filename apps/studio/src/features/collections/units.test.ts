@@ -25,6 +25,7 @@ import {
   defaultRepeat,
   describeRepeat,
   isSimpleRule,
+  matchUntilType,
   nextDates,
   parseRRule,
   retargetRule,
@@ -152,6 +153,16 @@ describe("repeat rules", () => {
     expect(toRRule({ ...r, interval: 2 }, tue)).toBe(
       "FREQ=WEEKLY;INTERVAL=2;BYDAY=TU;UNTIL=20261231T060000Z;WKST=SU",
     );
+  });
+
+  it("matches UNTIL to the start's value type", () => {
+    expect(matchUntilType("FREQ=WEEKLY;UNTIL=20261231T060000Z;COUNT=3", "2026-11-03")).toBe(
+      "FREQ=WEEKLY;UNTIL=20261231;COUNT=3",
+    );
+    expect(matchUntilType("FREQ=WEEKLY;UNTIL=20261231", "2026-11-03T18:00:00-07:00")).toBe(
+      "FREQ=WEEKLY;UNTIL=20261231T235959Z",
+    );
+    expect(matchUntilType("FREQ=DAILY", "2026-11-03")).toBe("FREQ=DAILY");
   });
 
   it("moves rules that followed the first date, and leaves the rest alone", () => {
