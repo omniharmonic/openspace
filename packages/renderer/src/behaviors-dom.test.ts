@@ -158,6 +158,27 @@ describe("form", () => {
     expect(status.textContent).toBe("Thanks!");
   });
 
+  it("announces success once: an earlier no-JS confirmation is hidden on JS submit", async () => {
+    document.body.innerHTML = markup.replace(
+      "</form>",
+      '<div class="os-form__status" role="status"></div><p class="os-formblock__sent" id="s1">Thanks!</p></form>',
+    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ message: "Thanks!" }), { status: 200 }),
+    );
+    const f = document.querySelector("form") as HTMLFormElement;
+    form(f);
+    (f.querySelector("input") as HTMLInputElement).value = "a@b.co";
+    f.dispatchEvent(new Event("submit", { cancelable: true }));
+    await flush();
+    await flush();
+    expect(f.querySelector<HTMLElement>(".os-formblock__sent")?.hidden).toBe(true);
+    const visible = [...f.querySelectorAll<HTMLElement>("p,div")].filter(
+      (el) => el.textContent === "Thanks!" && !el.hidden,
+    );
+    expect(visible).toHaveLength(1);
+  });
+
   it("queues the entry and shows the owner's email when the Hub is down", async () => {
     document.body.innerHTML = markup;
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("offline"));
@@ -264,6 +285,48 @@ describe("fix round 1 behaviors", () => {
     expect(status?.dataset.state).toBe("error");
     expect(status.textContent).toContain("couldn't be delivered (Form closed)");
     expect(JSON.parse(localStorage.getItem("os-form-queue") ?? "[]")).toEqual([]);
+  });
+
+  it("does not replay the queue while another tab holds the flush lease", async () => {
+    const action = "https://hub.test/f/st_01jb3q8w2n/frm_c0ntact003";
+    localStorage.setItem(
+      "os-form-queue",
+      JSON.stringify([{ action, fields: [["email", "a@b.co"]], at: Date.now() }]),
+    );
+    localStorage.setItem(
+      "os-form-queue-lease",
+      JSON.stringify({ by: "other-tab", until: Date.now() + 10_000 }),
+    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
+    document.body.innerHTML = `<form action="${action}"><input name="email"></form>`;
+    form(document.querySelector("form") as HTMLFormElement);
+    for (let i = 0; i < 5; i++) await flush();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    localStorage.removeItem("os-form-queue-lease");
+  });
+
+  it("uses Web Locks when available and skips the flush if the lock is held", async () => {
+    const action = "https://hub.test/f/st_01jb3q8w2n/frm_c0ntact004";
+    localStorage.setItem(
+      "os-form-queue",
+      JSON.stringify([{ action, fields: [["email", "a@b.co"]], at: Date.now() }]),
+    );
+    const request = vi.fn(async (_n: string, _o: unknown, cb: (l: unknown) => Promise<void>) =>
+      cb(null),
+    );
+    Object.defineProperty(navigator, "locks", { value: { request }, configurable: true });
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
+    document.body.innerHTML = `<form action="${action}"><input name="email"></form>`;
+    form(document.querySelector("form") as HTMLFormElement);
+    for (let i = 0; i < 5; i++) await flush();
+    expect(request).toHaveBeenCalledWith(
+      "os-form-queue",
+      { ifAvailable: true },
+      expect.any(Function),
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    Reflect.deleteProperty(navigator, "locks");
+    localStorage.removeItem("os-form-queue");
   });
 
   it("search registers a single global / shortcut", () => {

@@ -410,6 +410,7 @@ export const formCss = `
 .os-formblock__legend{font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}
 .os-formblock__sent{display:none;padding:var(--os-space-xs) var(--os-space-sm);border:1.5px solid currentColor;border-radius:var(--os-radius-input);color:var(--os-color-success)}
 .os-formblock__sent:target{display:block}
+.os-formblock__sent[hidden]{display:none}
 .os-formblock--card{padding:var(--os-space-md);background:var(--os-color-surface-raised);border-radius:var(--os-radius-card);box-shadow:var(--os-shadow-sm)}
 .os-block.has-radius .os-formblock--card{border-radius:var(--radius)}
 .os-block.os-themed .os-formblock--card{background:transparent;padding:0;box-shadow:none}
