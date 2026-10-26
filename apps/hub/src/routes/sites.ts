@@ -10,6 +10,7 @@ import {
   listSites,
   PatchSiteSchema,
   patchSite,
+  publishSite,
   readSiteDocument,
   siteForUser,
   TransferSiteSchema,
@@ -44,7 +45,13 @@ siteRoutes.patch("/:id", async (c) => {
   return c.json(await patchSite(c.var.services, c.req.param("id"), user, patch));
 });
 
-/** DELETE /api/sites/:id { confirm: "<site name>" } — archive with 30-day retention. */
+/** POST /api/sites/:id/publish — (re)publish; Task 15 turns this into squash-publish of the draft. */
+siteRoutes.post("/:id/publish", async (c) => {
+  const user = requireUser(c);
+  return c.json(await publishSite(c.var.services, c.req.param("id"), user, c.var.log));
+});
+
+/** DELETE /api/sites/:id { confirmName: "<site name>" } — archive with 30-day retention. */
 siteRoutes.delete("/:id", async (c) => {
   const user = requireUser(c);
   const { confirm } = await readJson(c, DeleteSiteSchema);

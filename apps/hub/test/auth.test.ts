@@ -2,7 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { bytesToBase64, decryptSecret } from "../src/lib/crypto";
-import { devLoginFor } from "../src/routes/auth";
+import { devLoginFor, safeReturnTo } from "../src/routes/auth";
 import { call, cookieFrom, devLogin, STUDIO } from "./helpers";
 import { generateAppKey, pem } from "./keys";
 import { mockFetch } from "./mock-fetch";
@@ -101,6 +101,24 @@ describe("dev sign-in and sessions", () => {
     expect(((await start.json()) as { error: { code: string } }).error.code).toBe(
       "github_not_configured",
     );
+  });
+
+  it("allowlists post-sign-in destinations to Studio", () => {
+    const studio = "https://studio.openspace.test";
+    expect(safeReturnTo("/sites/st_1?x=1", studio)).toBe(`${studio}/sites/st_1?x=1`);
+    expect(safeReturnTo(`${studio}/new/basic`, studio)).toBe(`${studio}/new/basic`);
+    for (const bad of [
+      "https://evil.example/sites",
+      "//evil.example/x",
+      "/\\evil.example",
+      "\\\\evil.example",
+      "javascript:alert(1)",
+      "https://studio.openspace.test.evil.example/",
+      "sites",
+      "/x\n",
+      undefined,
+    ])
+      expect(safeReturnTo(bad, studio)).toBeNull();
   });
 
   it("derives GitHub-shaped logins from names", () => {

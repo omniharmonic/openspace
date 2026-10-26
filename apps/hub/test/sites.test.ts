@@ -322,7 +322,7 @@ describe("sites API (dev GitHub)", () => {
     const ok = await call(app, `/api/sites/${site.id}`, {
       method: "DELETE",
       cookie,
-      json: { confirm: "Maya Yoga" },
+      json: { confirmName: "Maya Yoga" },
     });
     expect(ok.status).toBe(200);
     expect(await ok.json()).toEqual({
@@ -417,6 +417,18 @@ describe("sites API (dev GitHub)", () => {
       sites: SiteJson[];
     };
     expect(items[0]?.status).toBe("failed");
+
+    // Retrying the publish once GitHub is healthy brings the site live.
+    const healthy = createApp();
+    const retry = await call(healthy, `/api/sites/${site.id}/publish`, { method: "POST", cookie });
+    expect(retry.status).toBe(200);
+    expect(await retry.json()).toMatchObject({ id: site.id, status: "live", statusDetail: null });
+    expect((await call(healthy, `/s/${site.id}/`)).status).toBe(200);
+    const stranger = await devLogin(healthy, "Someone Else");
+    expect(
+      (await call(healthy, `/api/sites/${site.id}/publish`, { method: "POST", cookie: stranger }))
+        .status,
+    ).toBe(404);
   });
 
   it("reports updates when the template has a newer version", async () => {

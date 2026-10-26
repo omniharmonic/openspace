@@ -81,10 +81,13 @@ export const PatchSiteSchema = z.strictObject({
   name: z.string().trim().min(1).max(80).optional(),
 });
 
-export const DeleteSiteSchema = z.strictObject({
-  /** Typed confirmation: must equal the site's name (FR-4). */
-  confirm: z.string(),
-});
+export const DeleteSiteSchema = z
+  .strictObject({
+    /** Typed confirmation: must equal the site's name (FR-4). `confirm` is accepted as an alias. */
+    confirmName: z.string().optional(),
+    confirm: z.string().optional(),
+  })
+  .transform((v) => ({ confirm: v.confirmName ?? v.confirm ?? "" }));
 
 export const TransferSiteSchema = z.strictObject({
   to: z.string().trim().min(1).max(39),
@@ -375,6 +378,47 @@ export async function patchSite(
     await updateSite(services.db, id, { name: patch.name }, services.now());
   await audit(services.db, { siteId: id, actor: user.id, action: "site.update", meta: patch });
   return getSiteView(services, id, user);
+}
+
+/**
+ * Publish. In this task: (re)dispatch the publish workflow for main — e.g. to retry a failed first
+ * build. Task 15 extends this into the full flush + squash-publish of the draft.
+ */
+export async function publishSite(
+  services: Services,
+  id: string,
+  user: User,
+  log?: Logger,
+): Promise<SiteView> {
+  const site = await siteForUser(services, id, user);
+  requireRole(site, "designer");
+  const gh = services.github({ user, site });
+  const repo = parseRepo(site.repo);
+  let status: SiteStatus = "building";
+  let detail: string | null = null;
+  try {
+    if (!(await gh.getRef(repo, DRAFT_BRANCH))) {
+      const head = await gh.getRef(repo, MAIN_BRANCH);
+      if (head) await gh.createBranch(repo, DRAFT_BRANCH, head);
+    }
+    await gh.enablePages(repo);
+    await gh.dispatchWorkflow(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
+    const run = await gh.workflowStatus(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
+    if (run.state === "success") status = "live";
+    else if (run.state === "failure") status = "failed";
+  } catch (err) {
+    log?.error("publish failed", { siteId: id, err });
+    status = "failed";
+    detail = "We couldn't publish your site. Try again in a moment.";
+  }
+  await updateSite(services.db, id, { status, status_detail: detail }, services.now());
+  await audit(services.db, {
+    siteId: id,
+    actor: user.id,
+    action: "site.publish",
+    meta: { status },
+  });
+  return getSiteView(services, id, user, log);
 }
 
 /** Archive (FR-4): typed confirmation, repo archived, Hub data kept 30 days then purged. */

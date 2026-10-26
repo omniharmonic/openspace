@@ -70,6 +70,31 @@ authRoutes.post("/dev/login", async (c) => {
   return c.json({ user: publicUser(user) });
 });
 
+/**
+ * Post-sign-in destination, allowlisted to Studio: a same-origin absolute URL or a path like
+ * `/sites/x`. Other origins, protocol-relative (`//evil`) and backslash tricks are rejected.
+ */
+export function safeReturnTo(value: string | undefined, studioOrigin: string): string | null {
+  if (
+    !value ||
+    value.length > 2000 ||
+    value.includes("\\") ||
+    [...value].some((ch) => ch.charCodeAt(0) < 0x20)
+  )
+    return null;
+  if (value.startsWith("/")) {
+    if (value.startsWith("//")) return null;
+    const url = new URL(value, studioOrigin);
+    return url.origin === studioOrigin ? url.toString() : null;
+  }
+  try {
+    const url = new URL(value);
+    return url.origin === studioOrigin ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 interface OAuthIntent {
   template?: string;
   look?: string;
@@ -79,7 +104,7 @@ interface OAuthIntent {
   returnTo?: string;
 }
 
-/** GET /auth/github/start?template=&name=&look=&tagline=&brandColor=&return_to= */
+/** GET /auth/github/start?template=&name=&look=&tagline=&brandColor=&return_to=|next= */
 authRoutes.get("/github/start", async (c) => {
   const { config, services } = c.var;
   if (!config.github)
@@ -94,8 +119,8 @@ authRoutes.get("/github/start", async (c) => {
   const intent: OAuthIntent = {};
   for (const key of ["template", "look", "name", "tagline", "brandColor"] as const)
     if (q[key]) intent[key] = q[key].slice(0, 200);
-  const returnTo = q.return_to ?? q.returnTo;
-  if (returnTo?.startsWith(`${config.studioOrigin}/`)) intent.returnTo = returnTo;
+  const returnTo = safeReturnTo(q.return_to ?? q.next ?? q.returnTo, config.studioOrigin);
+  if (returnTo) intent.returnTo = returnTo;
   const state = randomToken(24);
   const now = services.now();
   await services.db
