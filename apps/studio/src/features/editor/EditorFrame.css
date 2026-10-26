@@ -36,6 +36,12 @@
   gap: 8px;
 }
 
+/* Over settings and workspace screens: keeps its place in the bar, out of sight. */
+.st-ed-top__center[hidden] {
+  display: flex;
+  visibility: hidden;
+}
+
 .st-ed-top__right {
   justify-content: flex-end;
 }
@@ -288,6 +294,34 @@
 
 .st-editor--bare .st-ed-rail {
   visibility: hidden;
+}
+
+/* ---------- Tablets: the top bar keeps every control, labels become icons ---------- */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .st-ed-top {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 8px;
+  }
+
+  .st-ed-page,
+  .st-ed-top__left .st-ed-top__sep {
+    display: none;
+  }
+
+  .st-ed-status {
+    gap: 0;
+    padding: 0 7px;
+  }
+
+  .st-ed-status__label,
+  .st-ed-top .st-sync > span {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 /* ---------- Narrow screens ---------- */

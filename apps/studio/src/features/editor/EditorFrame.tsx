@@ -32,7 +32,7 @@ import {
   ZoomIn,
 } from "lucide-react";
 import { lazy, type ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Navigate, useNavigate, useParams, useSearchParams } from "react-router";
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { useSession, useSite } from "../../api";
 import type { Site } from "../../api/types";
 import { useConfig } from "../../app/config";
@@ -88,6 +88,7 @@ const LookStage = lazy(() => import("../looks/LooksPanel").then((m) => ({ defaul
 import { DesignCheckBadge, DesignCheckPanel } from "../design-check/DesignCheckPanel";
 import { useDesignCheckRunner } from "../design-check/store";
 import { useLookTrial } from "../looks/trial";
+
 // Panels that aren't on screen when the editor opens load on demand (smaller first load).
 const MediaLibrary = lazy(() =>
   import("../media/MediaLibrary").then((m) => ({ default: m.MediaLibrary })),
@@ -101,6 +102,7 @@ const PagesManager = lazy(() =>
 const SiteChromePanel = lazy(() =>
   import("../site-chrome/SiteChromePanel").then((m) => ({ default: m.SiteChromePanel })),
 );
+
 import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
 import { UpdateBanner } from "../updates/UpdateBanner";
 import { WorkspaceHost, WorkspaceRail } from "../workspace/WorkspaceHost";
@@ -356,6 +358,8 @@ function EditorChrome({ site }: { site: Site }) {
   const session = useSession();
   const ui = useEditorUi();
   const narrow = useIsNarrow();
+  // Settings and workspace screens cover the canvas: its device and zoom controls step back.
+  const overCanvas = /^\/sites\/[^/]+\/./.test(useLocation().pathname);
   const checklist = useChecklist(site.id);
   const [frameDoc, setFrameDoc] = useState<Document | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -385,6 +389,19 @@ function EditorChrome({ site }: { site: Site }) {
   useEffect(() => {
     if (narrow) useEditorUi.getState().setBreakpoint("mobile");
   }, [narrow]);
+
+  // Tablets and small laptops: one side panel at a time, so the canvas keeps a usable size.
+  // The editor opens with the canvas, and selecting something trades the left panel for the
+  // inspector (the rail brings it back).
+  const compact = useIsNarrow("(min-width: 768px) and (max-width: 1099px)");
+  useEffect(() => {
+    if (compact) useEditorUi.getState().setLeftPanel(null);
+  }, [compact]);
+  useEffect(() => {
+    if (!compact || !hasSelection) return;
+    const ui = useEditorUi.getState();
+    if (ui.inspectorOpen && ui.leftPanel) ui.setLeftPanel(null);
+  }, [compact, hasSelection]);
 
   // The first-run checklist ticks itself when the home page's opening words or photo change.
   const complete = checklist.complete;
@@ -687,7 +704,7 @@ function EditorChrome({ site }: { site: Site }) {
           <span className="st-ed-page">{pageTitle}</span>
         </div>
 
-        <div className="st-ed-top__center">
+        <div className="st-ed-top__center" hidden={overCanvas || undefined}>
           <Segmented<Breakpoint>
             aria-label="Device preview"
             size="sm"
@@ -708,16 +725,21 @@ function EditorChrome({ site }: { site: Site }) {
             <PresenceAvatars self={{ id: user.id, name: user.name, avatarUrl: user.avatarUrl }} />
           )}
           {live ? (
-            <Badge tone="live" dot title={site.url}>
-              Live
+            <Badge tone="live" dot title={site.url} className="st-ed-status">
+              <span className="st-ed-status__label">Live</span>
             </Badge>
           ) : site.status === "building" ? (
-            <Badge tone="pending" dot pulse>
-              Setting up
+            <Badge tone="pending" dot pulse className="st-ed-status" title="Setting up">
+              <span className="st-ed-status__label">Setting up</span>
             </Badge>
           ) : (
-            <Badge tone="danger" dot title={site.statusDetail ?? undefined}>
-              Needs attention
+            <Badge
+              tone="danger"
+              dot
+              title={site.statusDetail ?? "Needs attention"}
+              className="st-ed-status"
+            >
+              <span className="st-ed-status__label">Needs attention</span>
             </Badge>
           )}
           {site.status !== "building" && <SyncStatus />}
