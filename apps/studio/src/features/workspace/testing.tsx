@@ -20,7 +20,8 @@ export async function openWorkspace(
     demoContent: true,
     ...options.hub,
   });
-  await screen.findByRole("region", { name: "Site content and business" });
+  // The editor and the workspace screens load on demand; the first open in a file can be slow.
+  await screen.findByRole("region", { name: "Site content and business" }, { timeout: 15_000 });
   return utils;
 }
 
