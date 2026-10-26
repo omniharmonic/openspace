@@ -51,7 +51,7 @@ function home() {
     "The Long Field is a fortnightly letter by Ruth Ellery about walking, rural places and paying attention. Free, with essays every other Sunday.",
     [
       fromPreset("hero/signup@1", {
-        theme: "light",
+        theme: "light-accent",
         style: { padding: { d: "3xl", m: "xl" } },
         edit: {
           heading: {
@@ -67,7 +67,7 @@ function home() {
         },
       }),
       fromPreset("blog/intro-list@1", {
-        theme: "light-accent",
+        theme: "light",
         collection: "essays",
         edit: {
           heading: { eyebrow: "Latest", text: "Recent essays" },
@@ -103,7 +103,10 @@ function home() {
               rt.p(
                 "I left a newspaper job in Boston in 2019 for forty acres of hill farm and a dog who refuses to walk in the rain. The Long Field began as letters to friends about what I was learning, and slowly found more readers than I ever expected.",
               ),
-              rt.p("I write about land, work and attention, and I answer every reply."),
+              rt.p([
+                "I write about land, work and attention, and ",
+                { type: "text", text: "I answer every reply.", marks: [{ type: "highlight" }] },
+              ]),
             ),
           },
           button: { label: "Read more about me", link: page(P.about), role: "tertiary" },
@@ -423,7 +426,7 @@ export const fieldNotes: TemplateSpec = {
     {
       id: "highlighter",
       name: "Highlighter",
-      description: "Paper and ink with a highlighter-yellow mark and Literata for long reading.",
+      description: "Paper and ink with highlighter-yellow washes and marks, and Literata for long reading.",
       choices: {
         palette: {
           brand: "oklch(0.9 0.17 100)",
@@ -437,6 +440,11 @@ export const fieldNotes: TemplateSpec = {
         buttons: "solid",
         motion: "none",
         imageTreatment: "none",
+      },
+      overrides: {
+        color: {
+          "light-accent": { background: { $value: "oklch(0.975 0.045 100)", $type: "color" } },
+        },
       },
     },
     {
@@ -528,7 +536,7 @@ export const fieldNotes: TemplateSpec = {
         seo: {
           titleTemplate: "%s · The Long Field",
           description: "Essays on walking, weather and paying attention, by Ruth Ellery.",
-          image: photoUrl("hills", 1200),
+          image: photoUrl("books", 1200),
         },
         locale: "en-US",
         integrations: { analytics: true, bookingUrl: null, stripeConnected: false },

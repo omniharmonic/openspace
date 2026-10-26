@@ -22,7 +22,7 @@
         "gap": "lg"
       },
       "style": {
-        "colorTheme": "light",
+        "colorTheme": "light-accent",
         "padding": {
           "d": "3xl",
           "m": "xl"
@@ -85,7 +85,7 @@
         "gap": "2xl"
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "light"
       },
       "blocks": [
         {
@@ -286,7 +286,16 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "I write about land, work and attention, and I answer every reply."
+                      "text": "I write about land, work and attention, and "
+                    },
+                    {
+                      "type": "text",
+                      "text": "I answer every reply.",
+                      "marks": [
+                        {
+                          "type": "highlight"
+                        }
+                      ]
                     }
                   ]
                 }

@@ -13,5 +13,15 @@
     "buttons": "solid",
     "motion": "none",
     "imageTreatment": "none"
+  },
+  "overrides": {
+    "color": {
+      "light-accent": {
+        "background": {
+          "$value": "oklch(0.975 0.045 100)",
+          "$type": "color"
+        }
+      }
+    }
   }
 }

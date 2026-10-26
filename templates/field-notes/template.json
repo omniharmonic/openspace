@@ -22,7 +22,7 @@
     {
       "id": "highlighter",
       "name": "Highlighter",
-      "description": "Paper and ink with a highlighter-yellow mark and Literata for long reading.",
+      "description": "Paper and ink with highlighter-yellow washes and marks, and Literata for long reading.",
       "choices": {
         "palette": {
           "brand": "oklch(0.9 0.17 100)",
@@ -36,6 +36,16 @@
         "buttons": "solid",
         "motion": "none",
         "imageTreatment": "none"
+      },
+      "overrides": {
+        "color": {
+          "light-accent": {
+            "background": {
+              "$value": "oklch(0.975 0.045 100)",
+              "$type": "color"
+            }
+          }
+        }
       }
     },
     {

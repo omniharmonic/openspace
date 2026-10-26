@@ -51,17 +51,6 @@
     },
     {
       "kind": "image",
-      "src": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
-      "title": "Three colleagues laughing around laptops at a shared table",
-      "author": "Brooke Cagle",
-      "authorUrl": "https://unsplash.com/@brookecagle",
-      "source": "Unsplash",
-      "sourceUrl": "https://unsplash.com/photos/three-people-sitting-in-front-of-table-laughing-together-g1Kr4Ozfoac",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
-    },
-    {
-      "kind": "image",
       "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
       "title": "Portrait of a woman in a black top against a soft violet wall",
       "author": "Aiony Haust",
@@ -101,6 +90,17 @@
       "authorUrl": "https://unsplash.com/@lukechesser",
       "source": "Unsplash",
       "sourceUrl": "https://unsplash.com/photos/graphs-of-performance-analytics-on-a-laptop-screen-JKUTrJ4vK00",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7",
+      "title": "A man presenting to colleagues in a brick-walled loft office",
+      "author": "Austin Distel",
+      "authorUrl": "https://unsplash.com/@austindistel",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-in-front-of-group-of-men-rxpThOwuVgE",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },

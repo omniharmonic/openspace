@@ -5,7 +5,7 @@
   "slug": "about",
   "seo": {
     "description": "Fernwood Yoga & Bodywork opened on SE Division Street in 2016. Meet founder Hana Moreau, our teachers and the story of the studio.",
-    "image": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&q=80"
+    "image": "https://images.unsplash.com/photo-1767605523281-8b54b3692078?w=1200&q=80"
   },
   "sections": [
     {
@@ -294,15 +294,6 @@
           "v": 1,
           "fields": {
             "images": [
-              {
-                "image": {
-                  "src": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1560&q=80",
-                  "alt": "Students stretching in the main studio",
-                  "width": 1560,
-                  "height": 1040
-                },
-                "caption": "The main studio, mid-morning"
-              },
               {
                 "image": {
                   "src": "https://images.unsplash.com/photo-1767605523281-8b54b3692078?w=840&q=80",

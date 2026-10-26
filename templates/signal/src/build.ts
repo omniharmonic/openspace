@@ -440,10 +440,10 @@ function about() {
         edit: {
           image: {
             image: photo(
-              "teamTable",
+              "coworking",
               520,
               "4:5",
-              "The Tidewire team working together around a table",
+              "A Tidewire engineer walking the team through an incident review",
             ),
           },
           heading: {

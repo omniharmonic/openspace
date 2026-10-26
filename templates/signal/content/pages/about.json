@@ -35,10 +35,10 @@
           "v": 1,
           "fields": {
             "image": {
-              "src": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80",
-              "alt": "The Tidewire team working together around a table",
-              "width": 1920,
-              "height": 1280
+              "src": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=2280&q=80",
+              "alt": "A Tidewire engineer walking the team through an incident review",
+              "width": 2280,
+              "height": 1282
             },
             "aspect": "4:5",
             "lightbox": false

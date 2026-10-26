@@ -37,6 +37,14 @@
         "buttons": "pill-solid",
         "motion": "subtle",
         "imageTreatment": "grain"
+      },
+      "overrides": {
+        "color": {
+          "accent": {
+            "$value": "oklch(0.55 0.12 40)",
+            "$type": "color"
+          }
+        }
       }
     },
     {

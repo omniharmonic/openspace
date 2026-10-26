@@ -129,10 +129,10 @@ function home() {
         edit: {
           "image:1": {
             image: photo(
-              "studioStretch",
+              "beachClass",
               640,
               "original",
-              "Two students stretching on mats in the bright brick-walled studio",
+              "A small group holding tree pose together on a misty morning",
             ),
           },
           "text:1": {
@@ -656,10 +656,6 @@ function about() {
           gallery: {
             images: [
               {
-                image: photo("studioStretch", 420, "4:5", "Students stretching in the main studio"),
-                caption: "The main studio, mid-morning",
-              },
-              {
                 image: photo("yogaMats", 420, "4:5", "Rolled mats in a woven basket by a plant"),
                 caption: "Mats and props for everyone",
               },
@@ -690,7 +686,7 @@ function about() {
         },
       }),
     ],
-    { image: photoUrl("studioStretch", 1200) },
+    { image: photoUrl("yogaMats", 1200) },
   );
 }
 
@@ -802,6 +798,7 @@ export const meadow: TemplateSpec = {
         motion: "subtle",
         imageTreatment: "grain",
       },
+      overrides: { color: { accent: { $value: "oklch(0.55 0.12 40)", $type: "color" } } },
     },
     {
       id: "clay-linen",
@@ -897,7 +894,7 @@ export const meadow: TemplateSpec = {
         ],
         seo: {
           titleTemplate: "%s · Fernwood Yoga",
-          description: "Unhurried yoga classes and therapeutic massage in SE Portland.",
+          description: "Sage on oat paper with clay-coloured buttons and links, Fraunces headings and arched photographs.",
           image: photoUrl("yogaDeck", 1200),
         },
         locale: "en-US",
@@ -942,8 +939,8 @@ export const meadow: TemplateSpec = {
               author: "Hana Moreau",
               categories: ["studio"],
               tags: ["teaching", "community"],
-              image: photoUrl("studioStretch", 1600),
-              imageAlt: "Students stretching on mats in the studio",
+              image: photoUrl("yogaMats", 1600),
+              imageAlt: "Rolled mats in a woven basket, ready for class",
               excerpt: "Twelve is a choice, not a limit. Here's what a small room makes possible.",
             },
             `People sometimes ask why we don't squeeze in a few more mats. The honest answer: twelve is the most people one teacher can really *see*.
@@ -1036,8 +1033,8 @@ Daniel takes deep tissue and sports massage appointments on Tuesday and Thursday
               },
               registrationUrl: BOOKING,
               price: "$120 for four Saturdays",
-              image: photoUrl("studioStretch", 1600),
-              imageAlt: "Two students stretching on mats in the studio",
+              image: photoUrl("yogaMats", 1600),
+              imageAlt: "Mats and props ready for the Saturday course",
               excerpt:
                 "Four Saturday mornings for complete beginners: breath, alignment and how to rest.",
             },
