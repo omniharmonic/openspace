@@ -240,7 +240,10 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
             { revert: r.revert, label: entry.label, selection: s.selection, at: now() },
           ],
           selection: prune(r.doc, s.pageId, entry.selection),
-          editing: null,
+          editing:
+            s.editing && locate(r.doc, s.pageId, { kind: "block", id: s.editing })
+              ? s.editing
+              : null,
           version: s.version + 1,
         });
         emit(r.ops, "undo", entry.label);
@@ -264,7 +267,10 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
             { revert: r.revert, label: entry.label, selection: s.selection, at: now() },
           ],
           selection: prune(r.doc, s.pageId, entry.selection),
-          editing: null,
+          editing:
+            s.editing && locate(r.doc, s.pageId, { kind: "block", id: s.editing })
+              ? s.editing
+              : null,
           version: s.version + 1,
         });
         emit(r.ops, "redo", entry.label);

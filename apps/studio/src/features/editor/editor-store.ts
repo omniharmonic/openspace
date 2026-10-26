@@ -1,8 +1,8 @@
 import { create } from "zustand";
 
 /**
- * Editor UI state (chrome only). Task 20 extends this store with the
- * SiteDocument, selection and the ops-based undo stack.
+ * Editor UI state (chrome: panels, device, zoom, panning). The document, page, selection,
+ * hover and undo history live in the per-site document store (`model/store.ts`).
  */
 export type LeftPanel = "pages" | "layers" | "add" | "styles" | "media";
 export type Breakpoint = "desktop" | "tablet" | "mobile";
@@ -19,7 +19,7 @@ export const DEVICE_HEIGHTS: Record<Breakpoint, number> = {
   tablet: 1112,
   mobile: 844,
 };
-export const ZOOM_STEPS = [0.25, 0.33, 0.5, 0.67, 0.75, 1, 1.25, 1.5, 2] as const;
+export const ZOOM_STEPS = [0.1, 0.25, 0.33, 0.5, 0.67, 0.75, 1, 1.25, 1.5, 2, 3, 4] as const;
 
 export interface EditorUiState {
   leftPanel: LeftPanel | null;
@@ -30,6 +30,10 @@ export interface EditorUiState {
   zoom: Zoom;
   /** Scale actually used when zoom is "fit" (reported by the canvas). */
   fitScale: number;
+  /** Space is held: dragging pans the canvas. */
+  panning: boolean;
+  /** The `?` keyboard shortcuts sheet. */
+  shortcutsOpen: boolean;
   toggleLeftPanel: (panel: LeftPanel) => void;
   setLeftPanel: (panel: LeftPanel | null) => void;
   toggleInspector: () => void;
@@ -39,6 +43,8 @@ export interface EditorUiState {
   zoomIn: () => void;
   zoomOut: () => void;
   setFitScale: (s: number) => void;
+  setPanning: (panning: boolean) => void;
+  setShortcutsOpen: (open: boolean) => void;
   reset: () => void;
 }
 
@@ -49,6 +55,8 @@ const initial = {
   breakpoint: "desktop" as Breakpoint,
   zoom: "fit" as Zoom,
   fitScale: 1,
+  panning: false,
+  shortcutsOpen: false,
 };
 
 export function effectiveZoom(s: Pick<EditorUiState, "zoom" | "fitScale">): number {
@@ -76,5 +84,9 @@ export const useEditorUi = create<EditorUiState>((set, get) => ({
     set({ zoom: [...ZOOM_STEPS].reverse().find((step) => step < z - 0.001) ?? ZOOM_STEPS[0] });
   },
   setFitScale: (fitScale) => set({ fitScale }),
+  setPanning: (panning) => {
+    if (get().panning !== panning) set({ panning });
+  },
+  setShortcutsOpen: (shortcutsOpen) => set({ shortcutsOpen }),
   reset: () => set(initial),
 }));

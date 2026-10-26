@@ -228,13 +228,16 @@ describe("editor commands", () => {
 
     s().setPage(I.about);
     s().select({ kind: "section", id: I.aboutText });
-    s().run(pasteItems(s().doc, I.about, s().selection, parseClip(text)!));
+    const parsed = parseClip(text);
+    if (!parsed) throw new Error("clipboard did not parse");
+    s().run(pasteItems(s().doc, I.about, s().selection, parsed));
     const about = sections(s().doc, I.about);
     expect(about).toHaveLength(3);
     expect(about[1]?.blocks.map((b) => b.type)).toEqual(["image", "quote", "testimonial"]);
     expect(about[1]?.id).not.toBe(I.story);
 
-    const blockClip = copyItems(s().doc, I.home, [{ kind: "block", id: I.heroButton }])!;
+    const blockClip = copyItems(s().doc, I.home, [{ kind: "block", id: I.heroButton }]);
+    if (!blockClip) throw new Error("nothing copied");
     s().select({ kind: "block", id: I.aboutHeading });
     s().run(pasteItems(s().doc, I.about, s().selection, blockClip));
     const first = sections(s().doc, I.about)[0] as Section;

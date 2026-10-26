@@ -1,3 +1,5 @@
+import type { SiteDocument } from "@openspace/schema";
+
 /**
  * Hub API contract as Studio consumes it (architecture §8.2).
  * The Hub (Task 14) implements these routes; until then the in-memory mock
@@ -134,6 +136,16 @@ export interface HubApi {
    * `confirmName` must equal the site's name (`DELETE /api/sites/:id`, body `{ confirm }`).
    */
   deleteSite(id: string, confirmName: string): Promise<void>;
+  /** The site's editable content (`GET /api/sites/:id/document`). */
+  getDocument(id: string): Promise<SiteDocumentResponse>;
+}
+
+/** `GET /api/sites/:id/document`: the draft content (falls back to what's published). */
+export interface SiteDocumentResponse {
+  document: SiteDocument;
+  /** Version of the draft the document was read at (opaque to Studio). */
+  head?: string | null;
+  branch?: string | null;
 }
 
 /** Error raised for non-2xx Hub responses. */

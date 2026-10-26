@@ -60,6 +60,14 @@ export function useChecklist(siteId: string) {
       update({
         done: state.done.includes(id) ? state.done.filter((d) => d !== id) : [...state.done, id],
       }),
+    /** Tick an item (no-op when already done); used when the editor sees the step happen. */
+    complete: (id: ChecklistItemId) =>
+      setState((s) => {
+        if (s.done.includes(id)) return s;
+        const next = { ...s, done: [...s.done, id] };
+        writeChecklist(siteId, next);
+        return next;
+      }),
     dismiss: () => update({ dismissed: true }),
     show: () => update({ dismissed: false, collapsed: false }),
     setCollapsed: (collapsed: boolean) => update({ collapsed }),

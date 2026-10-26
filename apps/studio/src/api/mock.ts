@@ -1,4 +1,5 @@
-import { newId } from "@openspace/schema";
+import { newId, type SiteDocument } from "@openspace/schema";
+import { devSiteDocument } from "../features/editor/model/dev-site";
 import { demoSites, TEMPLATE_FIXTURES } from "./fixtures";
 import {
   type CreateSiteInput,
@@ -40,6 +41,8 @@ interface MockState {
   /** Publish attempts per site. */
   attempts: Record<string, number>;
   seededFor: string[];
+  /** Site content by site id (created from the dev fixture on first read). */
+  documents?: Record<string, SiteDocument>;
 }
 
 export interface MockHub extends HubApi {
@@ -204,6 +207,21 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       const site = findSite(id);
       save();
       return clone(site);
+    },
+
+    async getDocument(id) {
+      calls.push({ method: "getDocument", args: [id] });
+      await wait();
+      requireUser();
+      const site = findSite(id);
+      state.documents ??= {};
+      state.documents[id] ??= devSiteDocument({
+        siteId: site.id,
+        name: site.name,
+        tagline: site.tagline ?? undefined,
+        url: site.url,
+      });
+      return { document: clone(state.documents[id]), head: "mock-head", branch: "os/draft" };
     },
 
     async createSite(input: CreateSiteInput) {
