@@ -1,0 +1,79 @@
+/* biome-ignore-all lint/complexity/noImportantStyles: the scrub cursor must win over every child while dragging */
+.st-scrub {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: var(--st-control);
+  border-radius: var(--st-r-sm);
+  background: var(--st-field);
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: box-shadow var(--st-fast) var(--st-ease);
+}
+
+.st-scrub:hover {
+  box-shadow: inset 0 0 0 1px var(--st-line-strong);
+}
+
+.st-scrub:focus-within {
+  background: var(--st-panel);
+  box-shadow:
+    inset 0 0 0 1px var(--st-accent),
+    0 0 0 3px var(--st-accent-soft);
+}
+
+.st-scrub__handle {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 100%;
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  font-weight: 500;
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.st-scrub__handle svg {
+  width: 12px;
+  height: 12px;
+}
+
+.st-scrub__handle:hover,
+.st-scrub--scrubbing .st-scrub__handle {
+  color: var(--st-text);
+}
+
+.st-scrub--scrubbing,
+.st-scrub--scrubbing * {
+  cursor: ew-resize !important;
+}
+
+.st-scrub__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 6px 0 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+
+.st-scrub__input:focus-visible {
+  box-shadow: none;
+}
+
+.st-scrub__unit {
+  padding-right: 8px;
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+}
+
+.st-scrub--disabled {
+  opacity: 0.5;
+}
+
+.st-scrub--disabled .st-scrub__handle {
+  cursor: default;
+}

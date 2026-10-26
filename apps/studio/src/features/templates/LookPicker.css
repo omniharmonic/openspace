@@ -1,0 +1,47 @@
+.st-looks {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.st-looks__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 3px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  cursor: default;
+}
+
+.st-looks__item:has(.st-looks__name) {
+  padding-right: 9px;
+}
+
+.st-looks__item:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-looks__item[data-state="checked"] {
+  color: var(--st-text);
+  background: var(--st-pressed);
+}
+
+.st-looks__chip {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.16);
+}
+
+.st-looks__item[data-state="checked"] .st-looks__chip {
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.16),
+    0 0 0 1.5px var(--st-panel),
+    0 0 0 3px var(--st-text);
+}

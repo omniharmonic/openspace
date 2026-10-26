@@ -1,0 +1,53 @@
+.st-signin {
+  display: grid;
+  gap: 16px;
+}
+
+.st-signin__explain {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: var(--st-r);
+  background: var(--st-field);
+  color: var(--st-text-2);
+  line-height: 1.55;
+}
+
+.st-signin__explain strong {
+  color: var(--st-text);
+  font-weight: 600;
+}
+
+.st-signin__public {
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  line-height: 1.5;
+}
+
+.st-signin__dev {
+  display: grid;
+  gap: 6px;
+  padding-top: 16px;
+  border-top: 1px solid var(--st-line);
+}
+
+.st-signin__dev-title {
+  font-weight: 600;
+}
+
+.st-signin__dev-hint {
+  color: var(--st-text-3);
+  font-size: var(--st-fs-sm);
+}
+
+.st-signin__dev-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.st-signin__error {
+  color: var(--st-danger);
+}

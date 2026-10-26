@@ -1,0 +1,42 @@
+.st-toggle {
+  --_w: 28px;
+  --_h: 16px;
+  position: relative;
+  flex: none;
+  width: var(--_w);
+  height: var(--_h);
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--st-line-strong);
+  cursor: default;
+  transition: background-color var(--st-med) var(--st-ease);
+}
+
+.st-toggle--sm {
+  --_w: 24px;
+  --_h: 14px;
+}
+
+.st-toggle[data-state="checked"] {
+  background: var(--st-accent);
+}
+
+.st-toggle:disabled {
+  opacity: 0.45;
+}
+
+.st-toggle__thumb {
+  display: block;
+  width: calc(var(--_h) - 4px);
+  height: calc(var(--_h) - 4px);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  transform: translateX(2px);
+  transition: transform var(--st-med) var(--st-ease-out);
+}
+
+.st-toggle__thumb[data-state="checked"] {
+  transform: translateX(calc(var(--_w) - var(--_h) + 2px));
+}

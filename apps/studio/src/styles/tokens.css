@@ -1,0 +1,146 @@
+/*
+ * Studio chrome tokens.
+ *
+ * Studio's own chrome uses the `--st-` prefix so it can never collide with a
+ * site's `--os-` design tokens rendered inside the canvas.
+ *
+ * Direction: "drafting table". Neutral graphite chrome that recedes so the
+ * person's site is always the most colorful thing on screen. One accent,
+ * ultramarine, reserved for selection, focus and the primary action — the
+ * same blue a draughtsman uses for non-reproducing guide lines.
+ * 4px grid, 1px hairlines, 13px UI type, 28px controls.
+ */
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --st-bg: #f3f3f1;
+  --st-canvas: #e9e9e6;
+  --st-panel: #ffffff;
+  --st-panel-raised: #ffffff;
+  --st-field: #ebebe8;
+  --st-hover: rgb(24 26 31 / 0.05);
+  --st-pressed: rgb(24 26 31 / 0.09);
+  --st-line: #e4e4e0;
+  --st-line-strong: #cfcfca;
+  --st-scrim: rgb(20 21 24 / 0.38);
+
+  /* Text */
+  --st-text: #1b1c1f;
+  --st-text-2: #4e5056;
+  /* ≥4.5:1 on bg, panel and field (WCAG AA for small text). */
+  --st-text-3: #686a70;
+  --st-text-inverse: #ffffff;
+
+  /* Accent — ultramarine */
+  --st-accent: #3347e6;
+  --st-accent-hover: #2536c9;
+  --st-accent-pressed: #1d2ca8;
+  --st-accent-soft: rgb(51 71 230 / 0.1);
+  --st-accent-text: #2f42d6;
+  --st-on-accent: #ffffff;
+
+  /* Status */
+  --st-live: #188350;
+  --st-live-soft: rgb(24 131 80 / 0.11);
+  --st-pending: #a8650d;
+  --st-pending-soft: rgb(196 125 20 / 0.13);
+  --st-danger: #c93636;
+  --st-danger-hover: #ad2a2a;
+  --st-danger-soft: rgb(201 54 54 / 0.1);
+
+  /* Elevation: hairline first, shadow second */
+  --st-shadow-pop:
+    0 0 0 1px rgb(18 20 26 / 0.07), 0 2px 4px rgb(18 20 26 / 0.05),
+    0 12px 32px -8px rgb(18 20 26 / 0.2);
+  --st-shadow-card: 0 0 0 1px var(--st-line), 0 1px 2px rgb(18 20 26 / 0.04);
+  --st-focus: 0 0 0 1px var(--st-panel), 0 0 0 3px rgb(51 71 230 / 0.55);
+
+  /* Type */
+  --st-font:
+    "Inter Variable", "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    system-ui, sans-serif;
+  --st-font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --st-fs-xs: 11px;
+  --st-fs-sm: 12px;
+  --st-fs: 13px;
+  --st-fs-md: 15px;
+  --st-fs-lg: 20px;
+  --st-fs-xl: 28px;
+  --st-fs-display: 40px;
+  --st-lh: 1.45;
+
+  /* 4px grid */
+  --st-1: 4px;
+  --st-2: 8px;
+  --st-3: 12px;
+  --st-4: 16px;
+  --st-5: 20px;
+  --st-6: 24px;
+  --st-8: 32px;
+  --st-10: 40px;
+  --st-12: 48px;
+  --st-16: 64px;
+
+  /* Shape + controls */
+  --st-r-xs: 3px;
+  --st-r-sm: 5px;
+  --st-r: 7px;
+  --st-r-lg: 11px;
+  --st-control: 28px;
+  --st-control-sm: 24px;
+  --st-control-lg: 36px;
+
+  /* Chrome geometry (editor frame) */
+  --st-topbar: 44px;
+  --st-rail: 48px;
+  --st-panel-w: 248px;
+  --st-inspector-w: 272px;
+
+  /* Motion */
+  --st-ease: cubic-bezier(0.2, 0, 0, 1);
+  --st-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --st-fast: 90ms;
+  --st-med: 180ms;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --st-bg: #151618;
+  --st-canvas: #0f1012;
+  --st-panel: #1c1d20;
+  --st-panel-raised: #232428;
+  --st-field: #26272b;
+  --st-hover: rgb(255 255 255 / 0.055);
+  --st-pressed: rgb(255 255 255 / 0.09);
+  --st-line: #2c2d31;
+  --st-line-strong: #3b3c41;
+  --st-scrim: rgb(0 0 0 / 0.55);
+
+  --st-text: #ededeb;
+  --st-text-2: #b0b2b7;
+  /* ≥4.5:1 on bg, panel, raised and field. */
+  --st-text-3: #8b8d93;
+  --st-text-inverse: #151618;
+
+  --st-accent: #5b6cff;
+  --st-accent-hover: #7381ff;
+  --st-accent-pressed: #4757f0;
+  --st-accent-soft: rgb(91 108 255 / 0.17);
+  --st-accent-text: #8f9bff;
+  --st-on-accent: #ffffff;
+
+  --st-live: #3cc483;
+  --st-live-soft: rgb(60 196 131 / 0.14);
+  --st-pending: #e3a644;
+  --st-pending-soft: rgb(227 166 68 / 0.15);
+  --st-danger: #f06464;
+  --st-danger-hover: #ff7b7b;
+  --st-danger-soft: rgb(240 100 100 / 0.14);
+
+  --st-shadow-pop:
+    0 0 0 1px rgb(255 255 255 / 0.08), 0 2px 4px rgb(0 0 0 / 0.3), 0 16px 40px -8px rgb(0 0 0 / 0.6);
+  --st-shadow-card: 0 0 0 1px var(--st-line), 0 1px 2px rgb(0 0 0 / 0.2);
+  --st-focus: 0 0 0 1px var(--st-panel), 0 0 0 3px rgb(91 108 255 / 0.7);
+}

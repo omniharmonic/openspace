@@ -1,0 +1,28 @@
+.st-tpreview {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--st-field);
+}
+
+.st-tpreview__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--_fw) * 1px);
+  height: calc(var(--_fw) * 0.75px);
+  border: 0;
+  transform-origin: 0 0;
+  /* Scale the full-width page down to the card width. */
+  transform: scale(calc(100cqw / (var(--_fw) * 1px)));
+}
+
+.st-tpreview__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: top;
+}

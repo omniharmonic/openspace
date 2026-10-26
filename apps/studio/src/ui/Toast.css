@@ -1,0 +1,152 @@
+.st-toast-viewport {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(420px, calc(100vw - 32px));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  outline: none;
+  transform: translateX(-50%);
+}
+
+.st-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 8px 10px 12px;
+  border-radius: var(--st-r);
+  background: #1e1f23;
+  color: #f1f1ef;
+  box-shadow:
+    0 10px 30px -6px rgb(0 0 0 / 0.35),
+    0 0 0 1px rgb(255 255 255 / 0.06);
+  animation: st-toast-in 260ms var(--st-ease-out);
+}
+
+:root[data-theme="dark"] .st-toast {
+  background: #2e2f34;
+}
+
+.st-toast[data-state="closed"] {
+  animation: st-toast-out 140ms var(--st-ease) forwards;
+}
+
+.st-toast[data-swipe="move"] {
+  transform: translateY(var(--radix-toast-swipe-move-y));
+}
+
+.st-toast__icon {
+  display: inline-flex;
+  padding-top: 1px;
+}
+
+.st-toast__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.st-toast--success .st-toast__icon {
+  color: #5fd69c;
+}
+
+.st-toast--danger .st-toast__icon {
+  color: #ff8a8a;
+}
+
+.st-toast--celebrate .st-toast__icon {
+  color: #ffd166;
+}
+
+.st-toast__text {
+  flex: 1;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.st-toast__title {
+  font-weight: 500;
+}
+
+.st-toast__desc {
+  margin-top: 2px;
+  color: rgb(255 255 255 / 0.66);
+  font-size: var(--st-fs-sm);
+  overflow-wrap: anywhere;
+}
+
+.st-toast__desc a {
+  color: #aeb8ff;
+}
+
+.st-toast__action {
+  flex: none;
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: rgb(255 255 255 / 0.12);
+  color: #fff;
+  font-size: var(--st-fs-sm);
+  font-weight: 500;
+}
+
+.st-toast__action:hover {
+  background: rgb(255 255 255 / 0.2);
+}
+
+.st-toast__close {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: transparent;
+  color: rgb(255 255 255 / 0.5);
+}
+
+.st-toast__close:hover {
+  color: #fff;
+  background: rgb(255 255 255 / 0.1);
+}
+
+.st-toast__close svg {
+  width: 14px;
+  height: 14px;
+}
+
+@keyframes st-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@keyframes st-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* In the editor, toasts sit at the bottom-right of the canvas, clear of the checklist. */
+:root[data-toast-anchor="canvas"] .st-toast-viewport {
+  left: auto;
+  right: calc(var(--st-inspector-w) + 16px);
+  width: min(400px, calc(100vw - 32px));
+  transform: none;
+}
+
+@media (max-width: 767px) {
+  :root[data-toast-anchor="canvas"] .st-toast-viewport {
+    right: 16px;
+    bottom: 64px;
+  }
+}

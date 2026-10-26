@@ -1,0 +1,22 @@
+.st-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 6px;
+  margin-left: -6px;
+  border-radius: var(--st-r-sm);
+  color: var(--st-text);
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.st-wordmark:hover {
+  text-decoration: none;
+  background: var(--st-hover);
+}
+
+.st-mark {
+  flex: none;
+}
