@@ -1,0 +1,298 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_xqtrkthjqy",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Naomi Calder spent fifteen years running operations at growing companies before founding Calder Advisory in 2019."
+  },
+  "sections": [
+    {
+      "id": "sec_a105vvfpd2",
+      "preset": "team/founder-overlap@1",
+      "label": "Founder spotlight",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 24,
+          "m": 30
+        },
+        "items": {
+          "blk_yyehnvw2rq": {
+            "d": {
+              "x": 13,
+              "y": 1,
+              "w": 10,
+              "h": 24
+            },
+            "m": {
+              "x": 2,
+              "y": 1,
+              "w": 7,
+              "h": 16
+            }
+          },
+          "blk_j4gvk73we1": {
+            "d": {
+              "x": 3,
+              "y": 5,
+              "w": 12,
+              "h": 14,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 13,
+              "w": 8,
+              "h": 14,
+              "z": 2
+            }
+          },
+          "blk_n8yw8t0wcb": {
+            "d": {
+              "x": 4,
+              "y": 20,
+              "w": 9,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 28,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_yyehnvw2rq",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1040&q=80",
+              "alt": "Portrait of Naomi Calder by a sunlit window",
+              "width": 1040,
+              "height": 1558
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_j4gvk73we1",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "About"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1,
+                    "preset": "h1"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Naomi Calder"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I spent fifteen years inside growing companies: first as an analyst at a regional grocery chain, then as COO of a 180-person outdoor retailer through three acquisitions. I started Calder Advisory in 2019 to help founders get through the awkward middle of growth with fewer scars than I collected."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I live in south Minneapolis with my partner, two teenagers and a very old dog."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            }
+          }
+        },
+        {
+          "id": "blk_n8yw8t0wcb",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book an intro call",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/calder-advisory/intro"
+            },
+            "role": "primary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_72f2qp0e77",
+      "preset": "about/two-column-text@1",
+      "label": "Heading with reading columns",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_xb7zk6j7fp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Fewer meetings, clearer owners",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Approach",
+            "subheading": "Most operational pain comes from decisions without owners. My work is mostly finding them and writing them down."
+          },
+          "variant": "split"
+        },
+        {
+          "id": "blk_f5pjng2ngb",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I don't arrive with a framework to install. I start by listening: to the founder, to the managers and to the people closest to customers. Patterns appear quickly. The same three decisions always wait on the same person, and the same weekly meeting always runs long."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Then we change as little as possible. A clear owner for each decision, a short weekly rhythm and a single page of numbers fix more than any software rollout. When I leave, the new way of working is written down and owned by your team, not by me."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "columns"
+        }
+      ]
+    },
+    {
+      "id": "sec_x7cfs1hr3v",
+      "preset": "about/milestones@1",
+      "label": "Milestones timeline",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_jf3j2vvhg0",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Before Calder Advisory",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Background",
+            "subheading": "Twenty years of operations work, mostly in retail and food."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_67xbc21vjb",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "2004",
+                "title": "Analyst, Kowalczyk Markets",
+                "text": "Store operations and supply planning for a 30-store regional grocery chain."
+              },
+              {
+                "date": "2011",
+                "title": "Head of operations, Twin Rivers Outfitters",
+                "text": "Grew the team from 40 to 180 people across retail, e-commerce and a warehouse."
+              },
+              {
+                "date": "2016",
+                "title": "COO, Twin Rivers Outfitters",
+                "text": "Led the business through three acquisitions and a move to a new distribution center."
+              },
+              {
+                "date": "2019",
+                "title": "Calder Advisory",
+                "text": "Forty-one clients since, from clinics and coffee roasters to software firms."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "vertical"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,258 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_0sbf72xqnm",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Tidewire is a small, remote company of engineers who have carried the pager for twenty years. Meet the team and what we believe."
+  },
+  "sections": [
+    {
+      "id": "sec_z594k10b37",
+      "preset": "about/story-split@1",
+      "label": "Story with portrait",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_fatbbxat1a",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=2280&q=80",
+              "alt": "A Tidewire engineer walking the team through an incident review",
+              "width": 2280,
+              "height": 1282
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_7j9j4s9n39",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Built by people who carried the pager",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_wbjp92rntp",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We spent a decade on call at startups and big companies alike, and the tools always felt built for someone else: enterprise dashboards, per-alert pricing and setup projects that took a quarter. Small teams just needed the right person woken up and a calm way to fix things together."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We started Tidewire in 2023 to build that tool. Today we're 18 people across nine time zones, profitable, and we still take turns on call for our own product every week."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_fdavwhah8t",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "We're hiring",
+            "link": {
+              "type": "page",
+              "page": "pg_khh7x3t3zt"
+            },
+            "role": "secondary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_xnfzgfcxn3",
+      "preset": "about/values@1",
+      "label": "Values",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_q66cv36nsn",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What we believe",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "How we work",
+            "subheading": "Three principles that shape every feature we ship."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_hbabkby4y8",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "moon",
+                "title": "Protect sleep",
+                "text": "Every alert that wakes someone up should be worth it. We help you remove the rest."
+              },
+              {
+                "icon": "users",
+                "title": "Blameless by default",
+                "text": "Incidents are system failures, so our tools describe what happened, not who did it."
+              },
+              {
+                "icon": "zap",
+                "title": "Fast to set up",
+                "text": "If it takes longer than an afternoon to get value, we've built it wrong."
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_6pth4ds48k",
+      "preset": "team/grid@1",
+      "label": "Team grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_051vk76z19",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The founders",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Team",
+            "subheading": "Three engineers and a designer who met on an incident bridge at 3am."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7rax7g7xwx",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Iris Nakamura",
+                "role": "CEO",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",
+                  "alt": "Portrait of Iris Nakamura",
+                  "width": 600,
+                  "height": 899
+                }
+              },
+              {
+                "name": "Daniel Okafor",
+                "role": "CTO",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80",
+                  "alt": "Portrait of Daniel Okafor",
+                  "width": 600,
+                  "height": 900
+                }
+              },
+              {
+                "name": "Clara Weiss",
+                "role": "Head of design",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80",
+                  "alt": "Portrait of Clara Weiss",
+                  "width": 600,
+                  "height": 900
+                }
+              },
+              {
+                "name": "Sam Ortega",
+                "role": "Head of reliability",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
+                  "alt": "Portrait of Sam Ortega",
+                  "width": 600,
+                  "height": 900
+                }
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "grid"
+        }
+      ]
+    }
+  ]
+}

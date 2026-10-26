@@ -1,0 +1,112 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "field-notes",
+  "name": "Field Notes",
+  "description": "A reading-first site for writers, newsletters and blogs: a newsletter-first home, long essays with footnotes and reading times, and a supporter page.",
+  "persona": "Writers, newsletters, blogs",
+  "mood": "Reading-first, literary",
+  "version": "1.0.0",
+  "tags": [
+    "writing",
+    "newsletter",
+    "blog",
+    "essays",
+    "publishing"
+  ],
+  "sample": {
+    "name": "The Long Field",
+    "tagline": "Essays on walking, weather and paying attention."
+  },
+  "thumbnailPage": "pg_at43pg8ew2",
+  "looks": [
+    {
+      "id": "highlighter",
+      "name": "Highlighter",
+      "description": "Paper and ink with highlighter-yellow washes and marks, and Literata for long reading.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.9 0.17 100)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "literata-manrope",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "none",
+        "imageTreatment": "none"
+      },
+      "overrides": {
+        "color": {
+          "light-accent": {
+            "background": {
+              "$value": "oklch(0.975 0.045 100)",
+              "$type": "color"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "ink",
+      "name": "Ink",
+      "description": "Fountain-pen blue with Crimson Pro and Figtree, quiet and serious.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.35 0.08 265)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "crimson-figtree",
+        "density": "comfortable",
+        "shape": "sharp",
+        "buttons": "underline",
+        "motion": "none",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "almanac",
+      "name": "Almanac",
+      "description": "Russet and parchment with Libre Caslon, like an old farm almanac.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.5 0.11 45)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "libre-caslon-nunito-sans",
+        "density": "airy",
+        "shape": "soft",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "grain"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_at43pg8ew2",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_99fmsxfec8",
+      "title": "Subscribe",
+      "slug": "subscribe"
+    },
+    {
+      "id": "pg_jb98pzwwr8",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_qgdxacc2d3",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

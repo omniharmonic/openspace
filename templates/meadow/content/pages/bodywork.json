@@ -1,0 +1,330 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_xmmxstbmvf",
+  "title": "Bodywork",
+  "slug": "bodywork",
+  "seo": {
+    "description": "Therapeutic, deep tissue, pregnancy and lymphatic massage with licensed therapists at Fernwood in SE Portland. Evening appointments available."
+  },
+  "sections": [
+    {
+      "id": "sec_z88vrtdeg3",
+      "preset": "hero/split-image@1",
+      "label": "Split with portrait image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_zzrndegt68",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Hands-on care, at your pace",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Massage & bodywork",
+            "subheading": "Licensed massage therapists in two quiet rooms above the studio. Every appointment starts with a conversation about what hurts, what helps and how you'd like to feel afterwards."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_w28z4kh448",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a treatment",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/fernwood-yoga"
+            },
+            "role": "primary",
+            "secondaryLabel": "Meet the therapists",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_xmmxstbmvf",
+              "anchor": "therapists"
+            },
+            "note": "Evening appointments Monday to Thursday."
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_k04d2wf945",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=2240&q=80",
+              "alt": "A therapist preparing warm oil for a massage",
+              "width": 2240,
+              "height": 1493
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "imageTreatment": "arch"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_b6vwyqbegq",
+      "preset": "services/price-list@1",
+      "label": "Service menu with prices",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_4az0sm6kr6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Treatments & prices",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Treatments",
+            "subheading": "Members save 15% on every treatment. Most extended health plans reimburse massage by a licensed therapist; ask for a receipt."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_gh8mfxs9d0",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a treatment",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/fernwood-yoga"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_66g41zgm6d",
+          "type": "restaurant-menu",
+          "v": 1,
+          "fields": {
+            "sections": [
+              {
+                "title": "Massage",
+                "items": [
+                  {
+                    "name": "Therapeutic massage · 60 min",
+                    "description": "Relaxing, whole-body work with long, steady strokes.",
+                    "price": "95",
+                    "dietary": []
+                  },
+                  {
+                    "name": "Deep tissue · 60 min",
+                    "description": "Slow, focused pressure for stubborn knots and old injuries.",
+                    "price": "110",
+                    "dietary": []
+                  },
+                  {
+                    "name": "Pregnancy massage · 60 min",
+                    "description": "Side-lying with plenty of pillows, from the second trimester.",
+                    "price": "100",
+                    "dietary": []
+                  }
+                ]
+              },
+              {
+                "title": "Bodywork",
+                "items": [
+                  {
+                    "name": "Lymphatic drainage · 60 min",
+                    "description": "Very light, rhythmic work that eases swelling after surgery or travel.",
+                    "price": "105",
+                    "dietary": []
+                  },
+                  {
+                    "name": "Yoga therapy · 60 min",
+                    "description": "One-to-one movement and breath work shaped around your body.",
+                    "price": "90",
+                    "dietary": []
+                  }
+                ]
+              }
+            ],
+            "currency": "$",
+            "legend": false,
+            "footnote": "Ninety-minute sessions are available for every massage. Cancel free up to 24 hours before."
+          },
+          "column": 1,
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_z3xf8pm4gh",
+      "preset": "team/bios@1",
+      "label": "Team with bios",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_06np22jssp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Your therapists",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Bodywork team"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_h2nk95bck3",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Daniel Reyes, LMT",
+                "role": "Deep tissue & sports massage",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=440&q=80",
+                  "alt": "Portrait of Daniel Reyes",
+                  "width": 440,
+                  "height": 660
+                },
+                "bio": "Daniel worked with runners and rock climbers for eight years before joining Fernwood. He is patient with old injuries and good at explaining what he finds."
+              },
+              {
+                "name": "Iris Okonjo, LMT",
+                "role": "Pregnancy & lymphatic massage",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=440&q=80",
+                  "alt": "Portrait of Iris Okonjo",
+                  "width": 440,
+                  "height": 550
+                },
+                "bio": "Iris is a certified prenatal massage therapist and also teaches our prenatal yoga classes, so she knows exactly what a tired, pregnant back needs."
+              }
+            ],
+            "columns": "2"
+          },
+          "variant": "list"
+        }
+      ],
+      "anchor": "therapists"
+    },
+    {
+      "id": "sec_wna3wqkhs7",
+      "preset": "cta/split@1",
+      "label": "Headline with action on the right",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            8,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_h60bmtpd3e",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Ready for an hour to yourself?",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Appointments"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_y7z2y5xhwp",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a treatment",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/fernwood-yoga"
+            },
+            "role": "primary",
+            "note": "Online booking, or call the front desk."
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

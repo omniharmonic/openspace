@@ -1,0 +1,236 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_jb98pzwwr8",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Ruth Ellery is a former newspaper reporter who writes The Long Field from a hill farm in Vermont. Her story, books and press."
+  },
+  "sections": [
+    {
+      "id": "sec_2sh4merhs0",
+      "preset": "about/story-editorial@1",
+      "label": "Editorial story",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_4fgfe4wxt4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A letter from a hill farm",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_1jmh80zk12",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "For twelve years I covered city hall for a Boston newspaper. I wrote fast, about meetings, and rarely looked up. In 2019 my partner and I bought a run-down hill farm in Vermont with a leaking barn, an orchard nobody had pruned since the eighties and a view that still stops me in the lane."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The Long Field started as emails to friends who wanted to know what we were doing up here. They forwarded them, and their friends forwarded them again. Today the letter goes to fourteen thousand people in sixty countries, and it is still written at the same kitchen table, usually on a Saturday night."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I write about land, work and attention: what a stone wall tells you about the people who built it, how to learn a field by walking it every day for a year. My first book, Small Weather, comes out from Harrow & Lane in the spring."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "drop-cap"
+        }
+      ]
+    },
+    {
+      "id": "sec_ddn19gjcr5",
+      "preset": "logos/marquee@1",
+      "label": "Scrolling press strip",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "full"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "md",
+          "m": "sm"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_6emhgyfrhy",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "label": "Writing has appeared in",
+            "logos": [
+              {
+                "name": "Quarry Quarterly"
+              },
+              {
+                "name": "The Hill Review"
+              },
+              {
+                "name": "Northern Almanac"
+              },
+              {
+                "name": "Field & Hedge"
+              },
+              {
+                "name": "The Sunday Letter"
+              },
+              {
+                "name": "Granite State Radio"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "marquee"
+        }
+      ]
+    },
+    {
+      "id": "sec_9m7repz36a",
+      "preset": "newsletter/split-image@1",
+      "label": "Signup beside photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_1x19thrpm7",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80",
+              "alt": "Writing notes in a notebook beside a mug of tea",
+              "width": 1920,
+              "height": 1280
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_9s5296weqw",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Read along every other Sunday",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The letter"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_fxemzn5746",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "book-open",
+                "title": "One long essay"
+              },
+              {
+                "icon": "mountain",
+                "title": "One walk worth taking"
+              },
+              {
+                "icon": "heart",
+                "title": "One good thing to read"
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 1,
+          "variant": "list"
+        },
+        {
+          "id": "blk_a63sm032jp",
+          "type": "newsletter",
+          "v": 1,
+          "fields": {
+            "askName": false,
+            "placeholder": "you@example.com",
+            "buttonLabel": "Subscribe",
+            "successMessage": "You're in. The next letter arrives on a Sunday morning.",
+            "note": "Free. Unsubscribe with one click."
+          },
+          "column": 1,
+          "variant": "stacked"
+        }
+      ]
+    }
+  ]
+}

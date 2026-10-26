@@ -1,0 +1,14 @@
+{
+  "kind": "products",
+  "label": "Shop",
+  "itemLabel": "Piece",
+  "list": {
+    "layout": "grid",
+    "pageSize": 24,
+    "sort": "manual"
+  },
+  "itemPage": {
+    "layout": "split",
+    "showRelated": true
+  }
+}

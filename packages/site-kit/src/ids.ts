@@ -4,7 +4,8 @@ import { CROCKFORD_ALPHABET } from "@openspace/schema";
  * Deterministic ids for content site-kit generates at build time (collection item pages,
  * Markdoc blocks, list pages). The same seed always yields the same id, so builds are
  * reproducible and the HTML only changes when content does. Pure JS (no node:crypto) so it
- * also runs inside the Cloudflare Worker.
+ * also runs inside the Cloudflare Worker. Dependency-free apart from `@openspace/schema`, and
+ * importable on its own as `@openspace/site-kit/ids`.
  */
 export function hash53(input: string, seed = 0): number {
   let h1 = 0xdeadbeef ^ seed;
@@ -35,7 +36,10 @@ export function stableSuffix(seed: string): string {
   return out;
 }
 
-export function stableId<P extends "pg" | "sec" | "blk">(
+/** Id prefixes `stableId` mints (pages, sections, blocks, forms, sites). */
+export type StableIdPrefix = "pg" | "sec" | "blk" | "frm" | "st";
+
+export function stableId<P extends StableIdPrefix>(
   prefix: P,
   seed: string,
 ): `${P}_${string}` {

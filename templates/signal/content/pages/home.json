@@ -1,0 +1,1062 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_36n915vc00",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Tidewire routes alerts, runs on-call schedules and writes the postmortem for you. Incident response for small engineering teams."
+  },
+  "sections": [
+    {
+      "id": "sec_bbdwdsmsk4",
+      "preset": "hero/marquee-launch@1",
+      "label": "Launch with ticker",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_zgq58fnexf",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Incident response for small engineering teams",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "New · Status pages that update themselves",
+            "subheading": "Tidewire routes alerts to the right person, runs your on-call rota and drafts the postmortem while you fix the problem. Set up in an afternoon, not a quarter."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_hhtsnxj2mm",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start free",
+            "link": {
+              "type": "url",
+              "url": "https://app.tidewire.example/signup"
+            },
+            "role": "primary",
+            "secondaryLabel": "See pricing",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_m6t2wx7vce"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_mgrygc8ask",
+          "type": "marquee",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "text": "Alerts in under 3 seconds"
+              },
+              {
+                "text": "Slack-native incidents"
+              },
+              {
+                "text": "99.99% uptime SLA"
+              },
+              {
+                "text": "SOC 2 Type II"
+              },
+              {
+                "text": "Free for 5 responders"
+              }
+            ],
+            "separator": "star",
+            "size": "h3",
+            "speed": "slow"
+          },
+          "variant": "text"
+        }
+      ]
+    },
+    {
+      "id": "sec_hbrq38cr8r",
+      "preset": "logos/row@1",
+      "label": "Logo row",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "md",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_rt3e9ym8xh",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "label": "On call with Tidewire",
+            "logos": [
+              {
+                "name": "Parcelly"
+              },
+              {
+                "name": "Northwind Health"
+              },
+              {
+                "name": "Kitebase"
+              },
+              {
+                "name": "Orchard Pay"
+              },
+              {
+                "name": "Ludo Labs"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_akj7n56j2x",
+      "preset": "features/bento@1",
+      "label": "Bento grid",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 20,
+          "m": 41
+        },
+        "items": {
+          "blk_7086c6vhap": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 10,
+              "h": 6
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_9nrek6sdce": {
+            "d": {
+              "x": 1,
+              "y": 9,
+              "w": 10,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_62eqp5x2qp": {
+            "d": {
+              "x": 12,
+              "y": 1,
+              "w": 13,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 17,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_63zy3xq5ze": {
+            "d": {
+              "x": 12,
+              "y": 13,
+              "w": 6,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 27,
+              "w": 8,
+              "h": 7
+            }
+          },
+          "blk_1y25eqt0qg": {
+            "d": {
+              "x": 19,
+              "y": 13,
+              "w": 6,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 35,
+              "w": 8,
+              "h": 7
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "dark-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_7086c6vhap",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Everything between the alert and the fix",
+            "level": "h2",
+            "size": "h2",
+            "eyebrow": "Product"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_9nrek6sdce",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Alerts that find the right person",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Route by service, severity and time of day. Escalate automatically if nobody acknowledges in five minutes."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "zap"
+          },
+          "column": 0,
+          "variant": "minimal",
+          "style": {
+            "colorTheme": "brand"
+          }
+        },
+        {
+          "id": "blk_62eqp5x2qp",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1280&q=80",
+              "alt": "A dashboard of service health charts on a monitor",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_63zy3xq5ze",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "On-call that's fair",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Rotas, overrides and swaps in two clicks, with a weekly report on who got woken up."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "calendar"
+          },
+          "column": 0,
+          "variant": "minimal",
+          "style": {
+            "colorTheme": "dark"
+          }
+        },
+        {
+          "id": "blk_1y25eqt0qg",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Postmortems drafted for you",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Tidewire turns the incident timeline into a first draft you can edit and share."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "book-open"
+          },
+          "column": 0,
+          "variant": "minimal",
+          "style": {
+            "colorTheme": "dark"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_ptdyspbqgg",
+      "preset": "features/screenshot-callout@1",
+      "label": "Photo with floating stats",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 20,
+          "m": 30
+        },
+        "items": {
+          "blk_684z8ss8pa": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 14,
+              "h": 20
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_j565dz7mmq": {
+            "d": {
+              "x": 7,
+              "y": 15,
+              "w": 9,
+              "h": 6,
+              "z": 2
+            },
+            "m": {
+              "x": 2,
+              "y": 9,
+              "w": 7,
+              "h": 5,
+              "z": 2
+            }
+          },
+          "blk_k0e96bk473": {
+            "d": {
+              "x": 17,
+              "y": 3,
+              "w": 8,
+              "h": 6
+            },
+            "m": {
+              "x": 1,
+              "y": 15,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_djj5esp59a": {
+            "d": {
+              "x": 17,
+              "y": 9,
+              "w": 8,
+              "h": 7
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 7
+            }
+          },
+          "blk_6v688wbcaf": {
+            "d": {
+              "x": 17,
+              "y": 16,
+              "w": 8,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 28,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_684z8ss8pa",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=1400&q=80",
+              "alt": "Standing desks by tall windows where the team works",
+              "width": 1400,
+              "height": 933
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_j565dz7mmq",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "3 s",
+                "label": "Median alert delivery"
+              },
+              {
+                "value": "41%",
+                "label": "Faster resolution"
+              }
+            ]
+          },
+          "variant": "row",
+          "style": {
+            "colorTheme": "brand",
+            "padding": {
+              "d": "md",
+              "m": "sm"
+            }
+          }
+        },
+        {
+          "id": "blk_k0e96bk473",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Know which services wake you up",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Insights"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_djj5esp59a",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Weekly reports show noisy alerts, slow acknowledgements and the services behind most incidents, so you can fix the causes instead of the symptoms."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_6v688wbcaf",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a demo",
+            "link": {
+              "type": "page",
+              "page": "pg_khh7x3t3zt"
+            },
+            "role": "secondary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_xeje4840b7",
+      "preset": "testimonials/three-cards@1",
+      "label": "Three testimonial cards",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 15,
+          "m": 41
+        },
+        "items": {
+          "blk_dw0wzpccpp": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_8e0ysm8e9j": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_psemyyxvbs": {
+            "d": {
+              "x": 9,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_7v0wh9nhge": {
+            "d": {
+              "x": 17,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 31,
+              "w": 8,
+              "h": 11
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_dw0wzpccpp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Quieter nights, faster fixes",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Customers"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_8e0ysm8e9j",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We replaced three tools and a spreadsheet. Our median time to acknowledge dropped from nine minutes to under two."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Maya Okonkwo",
+            "role": "Head of platform, Parcelly",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=320&q=80",
+              "alt": "Portrait of Maya Okonkwo",
+              "width": 320,
+              "height": 400
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_psemyyxvbs",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The postmortem drafts are uncanny. Our incident reviews now take twenty minutes instead of an afternoon."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Felix Andersson",
+            "role": "CTO, Kitebase",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=320&q=80",
+              "alt": "Portrait of Felix Andersson",
+              "width": 320,
+              "height": 480
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_7v0wh9nhge",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Set up on a Friday afternoon, paged us correctly on Saturday night. That's the whole review."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Rosa Lindgren",
+            "role": "Staff engineer, Orchard Pay",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Portrait of Rosa Lindgren",
+              "width": 320,
+              "height": 479
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_1jwjrdtzcd",
+      "preset": "pricing/three-plans@1",
+      "label": "Three plans",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_2dv1xdjjgk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Pay per responder, not per alert",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Pricing",
+            "subheading": "Free for small teams. Every paid plan starts with a 14-day trial, no card needed."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_12bw1drtm4",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Starter",
+                "price": "$0",
+                "period": "up to 5 responders",
+                "description": "For side projects and the first on-call rota.",
+                "features": [
+                  {
+                    "text": "Alerts by push, SMS and Slack"
+                  },
+                  {
+                    "text": "One on-call schedule"
+                  },
+                  {
+                    "text": "Public status page"
+                  }
+                ],
+                "buttonLabel": "Start free",
+                "link": {
+                  "type": "url",
+                  "url": "https://app.tidewire.example/signup"
+                },
+                "featured": false
+              },
+              {
+                "name": "Team",
+                "price": "$19",
+                "period": "per responder / month",
+                "description": "For engineering teams who share the pager every week.",
+                "features": [
+                  {
+                    "text": "Unlimited schedules and escalations"
+                  },
+                  {
+                    "text": "Incident timelines and postmortems"
+                  },
+                  {
+                    "text": "Phone-call alerts in 40 countries"
+                  }
+                ],
+                "buttonLabel": "Try Team free for 14 days",
+                "link": {
+                  "type": "url",
+                  "url": "https://app.tidewire.example/signup"
+                },
+                "featured": true,
+                "badge": "Most teams"
+              },
+              {
+                "name": "Scale",
+                "price": "$39",
+                "period": "per responder / month",
+                "description": "For companies with several teams and audit needs.",
+                "features": [
+                  {
+                    "text": "SSO and SCIM provisioning"
+                  },
+                  {
+                    "text": "Audit log and data residency"
+                  },
+                  {
+                    "text": "A named support engineer"
+                  }
+                ],
+                "buttonLabel": "Talk to us",
+                "link": {
+                  "type": "url",
+                  "url": "/contact/"
+                },
+                "featured": false
+              }
+            ],
+            "note": "Prices in USD, billed monthly. Save two months with annual billing."
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_rsmnmarj56",
+      "preset": "faq/split@1",
+      "label": "Questions beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_d326gnyqz5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Questions engineers ask",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "FAQ"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_y3a30wg0ve",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Can't find your answer? Our engineers answer support, not a script."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_tcb65h6y04",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Contact support",
+            "link": {
+              "type": "page",
+              "page": "pg_khh7x3t3zt"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_s1n0hv0gyh",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Which monitoring tools does Tidewire connect to?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Over 60, including Datadog, Grafana, Prometheus, Sentry, CloudWatch and any tool that can send a webhook."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can we migrate our existing schedules?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Import rotas from a CSV or from most on-call tools in a few minutes, overrides included."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Where is our data stored?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "In the US by default, or in the EU on the Scale plan. Everything is encrypted at rest and in transit."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What happens if Tidewire itself goes down?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Alerting runs in three regions with automatic failover. Our own status page is hosted independently."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_7vn8482gxm",
+      "preset": "cta/banner@1",
+      "label": "Centred banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_qkrhp6jwd8",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Sleep through the night again",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Free for up to five responders. Connect your first alert source in under ten minutes."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_t50xa9zhwj",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start free",
+            "link": {
+              "type": "url",
+              "url": "https://app.tidewire.example/signup"
+            },
+            "role": "primary",
+            "secondaryLabel": "Book a demo",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_khh7x3t3zt"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

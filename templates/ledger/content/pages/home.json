@@ -1,0 +1,621 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_haqyew0wc8",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Calder Advisory helps founder-led companies of 20 to 200 people fix operations, hire leaders and plan growth without the chaos."
+  },
+  "sections": [
+    {
+      "id": "sec_4qw9vm9eqt",
+      "preset": "hero/big-type@1",
+      "label": "Big type with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "3xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_ak7mgpd3k5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Calm operations for companies that grew fast",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Operations advisory · Minneapolis"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_s1z7cnj0mp",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I help founder-led businesses of 20 to 200 people untangle their operations, hire the right leaders and plan the next stage of growth, so the founder can stop being the bottleneck."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_871t56x6hv",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book an intro call",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/calder-advisory/intro"
+            },
+            "role": "primary",
+            "secondaryLabel": "Read the case studies",
+            "secondaryLink": {
+              "type": "url",
+              "url": "/case-studies/"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_7j788a8rra",
+      "preset": "logos/row@1",
+      "label": "Logo row",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "md",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_x1qqvfpkxe",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "label": "Recent clients",
+            "logos": [
+              {
+                "name": "Larkspur Foods"
+              },
+              {
+                "name": "Ostrander Clinics"
+              },
+              {
+                "name": "Twin Rivers Outfitters"
+              },
+              {
+                "name": "Mercer & Lowe"
+              },
+              {
+                "name": "Fieldwork Coffee"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_a2ymtrbw98",
+      "preset": "services/accordion-detail@1",
+      "label": "Services with expandable detail",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_sfq45p2z2d",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Three ways to work together",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Services",
+            "subheading": "Every engagement is scoped around one outcome you can measure, with a fixed fee agreed up front."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_cn6va91chj",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "See services and fees",
+            "link": {
+              "type": "page",
+              "page": "pg_5xz5p00ed7"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_w3v2bvk47k",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Operations reset",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "A twelve-week project to map how work really flows, remove the bottlenecks and set up the few rituals and dashboards that keep it running."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Outcome: ",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "the founder spends half as many hours on day-to-day decisions."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Leadership hiring",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Defining the role, running the search alongside your recruiter and onboarding your first COO, head of operations or finance lead."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Outcome: ",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "a leader in seat within four months, with a 90-day plan."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Fractional COO",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Two days a week inside your team for six months, running the operating cadence while you hire or grow into the role."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Outcome: ",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": "a steady quarter, and a playbook the next leader can inherit."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": true,
+            "openFirst": true,
+            "faqSchema": false
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_77q7w7t028",
+      "preset": "stats/cards@1",
+      "label": "Numbers on cards",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_zvy6mtz11y",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What changes for clients",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Outcomes",
+            "subheading": "Measured with each client twelve months after the engagement ends."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_69n56gwk4p",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "48%",
+                "label": "Fewer founder hours on operations",
+                "detail": "Average across 22 operations resets since 2021."
+              },
+              {
+                "value": "4 mo",
+                "label": "To a leader in seat",
+                "detail": "Median time from kickoff to a signed senior hire."
+              },
+              {
+                "value": "91%",
+                "label": "Hires still in role",
+                "detail": "Leaders placed since 2020 who are still there today."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_tw83xxatgj",
+      "preset": "blog/latest-grid@1",
+      "label": "Latest posts",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_h2dbhxmtcf",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "heading": "Case studies",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "case-studies",
+              "sort": "date-desc",
+              "limit": 3
+            },
+            "columns": "3",
+            "showImage": true,
+            "showDate": false,
+            "showExcerpt": true,
+            "showMeta": false,
+            "linkLabel": "All case studies",
+            "link": {
+              "type": "url",
+              "url": "/case-studies/"
+            },
+            "emptyMessage": "New case studies are being written up — check back soon."
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_thkktvfpxv",
+      "preset": "testimonials/pair@1",
+      "label": "Two testimonials",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 17,
+          "m": 29
+        },
+        "items": {
+          "blk_h3qszw675k": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_hgzmbstfck": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 11,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_kv51pmjje5": {
+            "d": {
+              "x": 14,
+              "y": 7,
+              "w": 11,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 11
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_h3qszw675k",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "In their words",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Clients"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_hgzmbstfck",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Naomi found the three meetings that were eating our week and the one report nobody read. Within a quarter I was back to working on the business instead of in it."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Priya Raman",
+            "role": "Founder & CEO, Larkspur Foods",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=320&q=80",
+              "alt": "Portrait of Priya Raman",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_kv51pmjje5",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We'd failed twice to hire a COO. Naomi helped us write the role we actually needed, and the person we hired is still here three years later."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Daniel Ostrander",
+            "role": "Managing partner, Ostrander Clinics",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=320&q=80",
+              "alt": "Portrait of Daniel Ostrander",
+              "width": 320,
+              "height": 480
+            }
+          },
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_hfwwv3fb9a",
+      "preset": "cta/split@1",
+      "label": "Headline with action on the right",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            8,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_fmtan8xxj4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Thirty minutes, no slides, no pitch",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Start here"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_f8c9y2wdk8",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book an intro call",
+            "link": {
+              "type": "url",
+              "url": "https://cal.com/calder-advisory/intro"
+            },
+            "role": "primary",
+            "note": "Free. Usually within the week."
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "kind": "portfolio",
+  "label": "Case studies",
+  "itemLabel": "Case study",
+  "list": {
+    "layout": "cards",
+    "pageSize": 12,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showRelated": true
+  }
+}

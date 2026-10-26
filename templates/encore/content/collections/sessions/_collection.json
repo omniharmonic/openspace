@@ -1,0 +1,19 @@
+{
+  "kind": "podcast",
+  "label": "Night Shift Sessions",
+  "itemLabel": "Episode",
+  "list": {
+    "layout": "list",
+    "pageSize": 20,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true
+  },
+  "feed": {
+    "enabled": true,
+    "title": "Night Shift Sessions",
+    "description": "Live studio instrumentals and the stories behind them, from Juno Vale."
+  }
+}

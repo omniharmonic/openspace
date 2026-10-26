@@ -1,0 +1,86 @@
+{
+  "$comment": "Licenses for the demo media in the Ledger template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1497215728101-856f4ea42174",
+      "title": "Standing desks by tall windows with a palm in the corner",
+      "author": "Alesia Kazantceva",
+      "authorUrl": "https://unsplash.com/@alesiaskaz",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/turned-off-laptop-computer-on-top-of-brown-wooden-table-VWcPlbHglYc",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+      "title": "Portrait of a man in a grey sweater, smiling softly",
+      "author": "Jurica Koletić",
+      "authorUrl": "https://unsplash.com/@juricakoletic",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-henley-top-portrait-7YVZYZeITc8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+      "title": "Three colleagues laughing around laptops at a shared table",
+      "author": "Brooke Cagle",
+      "authorUrl": "https://unsplash.com/@brookecagle",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/three-people-sitting-in-front-of-table-laughing-together-g1Kr4Ozfoac",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "title": "Portrait of a woman in a black top against a soft violet wall",
+      "author": "Aiony Haust",
+      "authorUrl": "https://unsplash.com/@aiony",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-wearing-black-crew-neck-shirt-3TLl_97HNJo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1542744173-8e7e53415bb0",
+      "title": "A team listening to a presentation around a boardroom table",
+      "author": "Campaign Creators",
+      "authorUrl": "https://unsplash.com/@campaign_creators",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-in-front-of-people-sitting-beside-table-with-laptop-computers-gMsnXqILjp4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
+      "title": "Portrait of a woman in a grey blazer by a sunlit window",
+      "author": "Christina @ wocintechchat.com M",
+      "authorUrl": "https://unsplash.com/@wocintechchat",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/shallow-focus-photo-of-woman-in-gray-jacket-0Zx1bDv5BNY",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1758876203195-69a51e4145f0",
+      "title": "Colleagues planning a project with sticky notes on a wall",
+      "author": "Vitaly Gariev",
+      "authorUrl": "https://unsplash.com/@silverkblack",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/two-people-brainstorming-with-sticky-notes-on-wall-ynkz9cpyvzI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

@@ -1,0 +1,499 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_3cz4x9rxbd",
+  "title": "Members",
+  "slug": "members",
+  "seo": {
+    "description": "The directory of Hudson Valley Food Commons members: farms, kitchens, food banks and grocers across nine counties."
+  },
+  "sections": [
+    {
+      "id": "sec_9fv9jgawj4",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_8fqtg32mrn",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Our members",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Directory",
+            "subheading": "Forty-two organizations who own the commons together. Buy from them, volunteer with them, or ask them what membership has changed."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_ntbc2a2cad",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Become a member",
+            "link": {
+              "type": "page",
+              "page": "pg_767k25afbn"
+            },
+            "role": "primary",
+            "secondaryLabel": "How we govern",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_n3zn43m479"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_3xfz2fq0he",
+      "preset": "faq/by-topic@1",
+      "label": "Member directory",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_8tvgp72nnp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Member directory",
+            "eyebrow": "By type",
+            "subheading": "A selection from the full directory, which members can download as a spreadsheet."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_bxvs6kppnc",
+          "type": "tabs",
+          "v": 1,
+          "fields": {
+            "label": "Member types",
+            "items": [
+              {
+                "label": "Farms",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Rondout Valley Growers",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Accord. Twelve acres of vegetables and a winter CSA."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Esopus Creek Farm",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Saugerties. Pastured eggs and poultry; runs the egg-washing line in the hub."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Wallkill Orchards",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · New Paltz. Heirloom apples, pears and fresh cider."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Shawangunk Dairy",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Gardiner. Grass-fed milk, yogurt and a cheese cave."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Kitchens",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Kingston Community Kitchen",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Kingston. Shared commercial kitchen and incubator for 30 food businesses."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Catskill Grain Co.",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Catskill. Stone-milled flour from member grain."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Hearth & Harvest Catering",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Hudson. Cooks surplus into 600 school lunches a week."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Food access",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Newburgh Food Pantry",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Newburgh. Serves 400 families weekly; first stop for surplus produce."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Beacon Free Fridge",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Beacon. Six community fridges restocked daily by volunteers."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Ulster Senior Meals",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Kingston. Delivers 900 meals a week to homebound neighbors."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Grocers",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Main Street Market",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Rosendale. A worker-owned grocery stocking 60 member products."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Hudson Co-op Grocery",
+                          "marks": [
+                            {
+                              "type": "bold"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "text": " · Hudson. Member-owned since 1974; hosts the Saturday market."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "underline"
+        }
+      ]
+    },
+    {
+      "id": "sec_varwwm30e7",
+      "preset": "testimonials/pair@1",
+      "label": "Two testimonials",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 17,
+          "m": 29
+        },
+        "items": {
+          "blk_nabq8p08ve": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_msdyt2jns6": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 11,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_06hjqsg74j": {
+            "d": {
+              "x": 14,
+              "y": 7,
+              "w": 11,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 11
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_nabq8p08ve",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What membership changed",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "In their words"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_msdyt2jns6",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The shared cooler let us sell to schools for the first time. That contract kept the farm open through a terrible August."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Lena Morales",
+            "role": "Rondout Valley Growers",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=320&q=80",
+              "alt": "Portrait of Lena Morales",
+              "width": 320,
+              "height": 403
+            }
+          },
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_06hjqsg74j",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We used to throw out produce on Mondays. Now it reaches the pantry by Tuesday morning, still cold."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Andre Wallace",
+            "role": "Newburgh Food Pantry",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=320&q=80",
+              "alt": "Portrait of Andre Wallace",
+              "width": 320,
+              "height": 480
+            }
+          },
+          "variant": "minimal"
+        }
+      ]
+    }
+  ]
+}

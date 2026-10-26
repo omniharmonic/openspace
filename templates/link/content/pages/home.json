@@ -1,0 +1,278 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_m8n27v4m94",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Kai Moreno writes fast, cheerful weeknight recipes. Get the cookbook, the Sunday newsletter, cooking classes in Austin and new videos."
+  },
+  "header": {
+    "hidden": true
+  },
+  "sections": [
+    {
+      "id": "sec_79n8cdy1fs",
+      "label": "Links",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_f96m134hb7",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h1",
+            "size": "h2",
+            "text": "Kai Moreno",
+            "eyebrow": "Home cook · Austin, Texas"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_e69s5tj0ps",
+          "type": "link-list",
+          "v": 1,
+          "fields": {
+            "showSocial": true,
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=480&q=80",
+              "alt": "Kai Moreno smiling in a white t-shirt",
+              "width": 480,
+              "height": 720
+            },
+            "bio": "Weeknight recipes with big flavour and few dishes. Cookbook out now; new videos every Thursday from my tiny Austin kitchen.",
+            "links": [
+              {
+                "label": "New video: 20-minute pantry pasta",
+                "link": {
+                  "type": "url",
+                  "url": "https://youtube.com/@kaimoreno.example",
+                  "newTab": true
+                },
+                "icon": "camera",
+                "highlight": true
+              },
+              {
+                "label": "Get the cookbook: Small Kitchen, Big Flavour",
+                "link": {
+                  "type": "url",
+                  "url": "https://kaimoreno.example/book",
+                  "newTab": true
+                },
+                "icon": "book-open",
+                "highlight": false
+              },
+              {
+                "label": "Cooking classes in Austin",
+                "link": {
+                  "type": "url",
+                  "url": "https://kaimoreno.example/classes",
+                  "newTab": true
+                },
+                "icon": "utensils",
+                "highlight": false
+              },
+              {
+                "label": "The Sunday supper newsletter",
+                "link": {
+                  "type": "page",
+                  "page": "pg_m8n27v4m94",
+                  "anchor": "newsletter"
+                },
+                "icon": "mail",
+                "highlight": false
+              },
+              {
+                "label": "Shop the knives and pans I actually use",
+                "link": {
+                  "type": "url",
+                  "url": "https://kaimoreno.example/kit",
+                  "newTab": true
+                },
+                "icon": "shopping-bag",
+                "highlight": false
+              },
+              {
+                "label": "Brand partnerships & press",
+                "link": {
+                  "type": "email",
+                  "email": "hello@kaimoreno.example",
+                  "subject": "Partnership"
+                },
+                "icon": "message-circle",
+                "highlight": false
+              }
+            ]
+          },
+          "variant": "stacked"
+        }
+      ]
+    },
+    {
+      "id": "sec_h9dtvjz0fr",
+      "label": "Instagram",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_w8h68k4345",
+          "type": "social-feed",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h2",
+            "network": "instagram",
+            "count": "6",
+            "heading": "Cooking this week",
+            "handle": "kaimoreno.example",
+            "followLabel": "Follow",
+            "posts": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1626263468007-a9e0cf83f1ac?w=960&q=80",
+                  "alt": "A chocolate drip cake topped with cookies",
+                  "width": 960,
+                  "height": 640
+                },
+                "url": {
+                  "type": "url",
+                  "url": "https://instagram.com/p/kai-cake"
+                },
+                "caption": "My sister's birthday cake. Recipe on page 212."
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80",
+                  "alt": "A golden croissant dusted with sugar",
+                  "width": 800,
+                  "height": 640
+                },
+                "url": {
+                  "type": "url",
+                  "url": "https://instagram.com/p/kai-croissant"
+                },
+                "caption": "Three-day croissants. Worth every fold."
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1650134973809-d8c3a2da59ba?w=960&q=80",
+                  "alt": "A tall stack of pancakes with blueberries",
+                  "width": 960,
+                  "height": 640
+                },
+                "url": {
+                  "type": "url",
+                  "url": "https://instagram.com/p/kai-pancakes"
+                },
+                "caption": "Sunday pancakes, no buttermilk needed."
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=960&q=80",
+                  "alt": "Pour-over coffee being brewed at the bar",
+                  "width": 960,
+                  "height": 640
+                },
+                "url": {
+                  "type": "url",
+                  "url": "https://instagram.com/p/kai-coffee"
+                },
+                "caption": "Slow coffee for a slow Saturday."
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=960&q=80",
+                  "alt": "Four friends raising lattes over a wooden table",
+                  "width": 960,
+                  "height": 640
+                },
+                "url": {
+                  "type": "url",
+                  "url": "https://instagram.com/p/kai-supper"
+                },
+                "caption": "Supper club regulars, toasting with lattes."
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=640&q=80",
+                  "alt": "Chocolate chip cookies on a linen cloth",
+                  "width": 640,
+                  "height": 800
+                },
+                "url": {
+                  "type": "url",
+                  "url": "https://instagram.com/p/kai-cookies"
+                },
+                "caption": "Brown-butter cookies. You know the ones."
+              }
+            ]
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_kxyfb5jt9h",
+      "preset": "newsletter/card@1",
+      "label": "Newsletter card",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_pfr31fb800",
+          "type": "newsletter",
+          "v": 1,
+          "fields": {
+            "heading": "Sunday supper, in your inbox",
+            "description": "One recipe, one shopping list and one thing I'm obsessed with, every Sunday morning. 48,000 cooks read along.",
+            "askName": false,
+            "placeholder": "you@example.com",
+            "buttonLabel": "Subscribe",
+            "successMessage": "You're in! Look out for Sunday's recipe.",
+            "note": "Free. Unsubscribe whenever you like."
+          },
+          "variant": "card"
+        }
+      ],
+      "anchor": "newsletter"
+    }
+  ]
+}

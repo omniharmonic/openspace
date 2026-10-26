@@ -1,0 +1,13 @@
+{
+  "kind": "events",
+  "label": "Workshops",
+  "itemLabel": "Workshop",
+  "list": {
+    "layout": "cards",
+    "pageSize": 12,
+    "sort": "date-asc"
+  },
+  "itemPage": {
+    "layout": "split"
+  }
+}
