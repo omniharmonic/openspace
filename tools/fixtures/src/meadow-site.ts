@@ -19,7 +19,7 @@ import type {
   Section,
   SiteDocument,
 } from "@openspace/schema";
-import { stableId, writeSiteDocument } from "@openspace/site-kit";
+import { requiredDefaults, stableId, writeSiteDocument } from "@openspace/site-kit";
 
 export const MEADOW_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "meadow-site");
 
@@ -54,6 +54,18 @@ function block(
       `${seed}: ${r.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ")}`,
     );
   return b;
+}
+
+/** A block with the library's required-field defaults filled in (blocks B list blocks). */
+function libraryBlock(
+  seed: string,
+  type: string,
+  fields: Record<string, unknown>,
+  variant?: string,
+): Block {
+  const def = blocksRegistry().get(type);
+  if (!def) throw new Error(`unknown block ${type}`);
+  return block(seed, type, { ...requiredDefaults(def.meta.fields), ...fields }, variant);
 }
 
 function section(
@@ -209,6 +221,29 @@ function pages(): Record<string, Page> {
         [12],
         "dark",
       ),
+      section("home-journal", [
+        libraryBlock(
+          "home-upcoming",
+          "events",
+          {
+            heading: "Coming up",
+            source: { collection: "events", filter: { upcoming: true }, limit: 3 },
+            structuredData: false,
+          },
+          "list",
+        ),
+        libraryBlock(
+          "home-summary",
+          "summary",
+          {
+            heading: "From the journal",
+            source: { collection: "journal", sort: "date-desc", limit: 3 },
+            linkLabel: "Read the journal",
+            link: { type: "url", url: "/journal/" },
+          },
+          "grid",
+        ),
+      ]),
       section("home-news", [
         block(
           "home-newsletter",

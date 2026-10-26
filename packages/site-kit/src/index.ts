@@ -54,6 +54,7 @@ export {
   IMAGE_WIDTHS,
   imageWidths,
   localImageSrcs,
+  pageImageSrcs,
   resolvedImage,
 } from "./runtime/images";
 export type { RuntimeOptions } from "./runtime-options";

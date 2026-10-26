@@ -148,6 +148,71 @@
       ]
     },
     {
+      "id": "sec_vx8nvm5bnb",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_25c3tczc9e",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "source": {
+              "collection": "events",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 3
+            },
+            "showImage": false,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "Reserve a spot",
+            "emptyMessage": "No events on the calendar right now — new dates are posted every month.",
+            "structuredData": false,
+            "heading": "Coming up"
+          },
+          "variant": "list"
+        },
+        {
+          "id": "blk_7rdvkwf2b1",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "source": {
+              "collection": "journal",
+              "sort": "date-desc",
+              "limit": 3
+            },
+            "columns": "3",
+            "showImage": true,
+            "showDate": true,
+            "showExcerpt": true,
+            "showMeta": false,
+            "emptyMessage": "Nothing here yet — check back soon.",
+            "heading": "From the journal",
+            "linkLabel": "Read the journal",
+            "link": {
+              "type": "url",
+              "url": "/journal/"
+            }
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
       "id": "sec_yxh7rytftw",
       "layout": {
         "mode": "stack",

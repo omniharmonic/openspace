@@ -14,6 +14,7 @@ import {
   deployLocation,
   imageWidths,
   loadSiteDocument,
+  pageImageSrcs,
   planSite,
   renderRoute,
   type SitePlan,
@@ -83,10 +84,10 @@ const normalizeImages = (html: string) =>
   html.replace(/(?:\/[a-z-]+)?\/_astro\/[A-Za-z0-9._-]+/g, "IMG");
 
 /** An image map with the same structure site-kit builds from `getImage()`, URLs tokenised. */
-function tokenImageMap(plan: SitePlan): Record<string, ResolvedImage> {
+function tokenImageMap(plan: SitePlan, srcs: Set<string>): Record<string, ResolvedImage> {
   const map: Record<string, ResolvedImage> = {};
   for (const [path, meta] of Object.entries(plan.doc.media)) {
-    if (meta.kind !== "image" || !meta.width || !meta.height) continue;
+    if (!srcs.has(path) || meta.kind !== "image" || !meta.width || !meta.height) continue;
     const srcset = imageWidths(meta.width)
       .map((w) => `/_astro/IMG ${w}w`)
       .join(", ");
@@ -142,8 +143,9 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
       tokens: /href="([^"]*\/_os\/tokens\.[a-f0-9]+\.css)"/.exec(html)?.[1] ?? "",
       blocks: /href="([^"]*\/_os\/blocks\.[a-f0-9]+\.css)"/.exec(html)?.[1] ?? "",
     });
-    const imageMap = tokenImageMap(plan);
     for (const route of plan.routes) {
+      const page = plan.doc.pages[route.pageId as keyof typeof plan.doc.pages];
+      const imageMap = tokenImageMap(plan, page ? pageImageSrcs(plan.doc, page) : new Set());
       const built = await read(out, htmlFile(route.path));
       const expected = renderRoute({
         plan,
@@ -166,6 +168,9 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
       /src="\/_astro\/morning-light\.[^"]+\.jpg"[^>]*width="2400" height="1600"/,
     );
     expect(all.some((f) => /^_astro\/morning-light\..+\.avif$/.test(f))).toBe(true);
+    // No local raster image is served unoptimised (the summary block's cards included).
+    for (const f of all.filter((x) => x.endsWith(".html")))
+      expect(await read(out, f), f).not.toMatch(/src="\/media\/[^"]+\.(?:jpe?g|png)"/);
     // Every <img> has width and height (no layout shift).
     for (const f of all.filter((x) => x.endsWith(".html"))) {
       for (const tag of (await read(out, f)).match(/<img [^>]*>/g) ?? []) {

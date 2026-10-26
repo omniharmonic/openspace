@@ -1,3 +1,4 @@
+import type { SocialFeedPost } from "@openspace/renderer";
 import type { DeployLocation } from "./deploy";
 import type { SiteAssets } from "./render";
 
@@ -13,5 +14,5 @@ export interface RuntimeOptions {
   turnstileSiteKey?: string | undefined;
   ogImages: boolean;
   /** Build-time social feed posts keyed by `feedKey(network, handle)`. */
-  socialFeeds?: Record<string, unknown[]> | undefined;
+  socialFeeds?: Record<string, SocialFeedPost[]> | undefined;
 }

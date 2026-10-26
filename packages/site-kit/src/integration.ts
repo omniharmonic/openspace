@@ -8,6 +8,7 @@
  */
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { SocialFeedPost } from "@openspace/renderer";
 import type { AstroIntegration } from "astro";
 import { loadSiteDocument } from "./content/index";
 import { type DeployLocation, deployLocation } from "./deploy";
@@ -35,7 +36,9 @@ export interface OpenSpaceOptions {
    * (`instagram:meadowyoga`). Fetching needs the owner's authorization, which lives in the Hub;
    * pass the data here (or a function returning it). Without it the block shows pinned posts.
    */
-  socialFeeds?: Record<string, unknown[]> | (() => Promise<Record<string, unknown[]>>);
+  socialFeeds?:
+    | Record<string, SocialFeedPost[]>
+    | (() => Promise<Record<string, SocialFeedPost[]>>);
 }
 
 /**

@@ -4,20 +4,22 @@
  * Every page goes through `renderPageHtml` — the one renderer (ADR-3).
  */
 import { BLOCKS_CSS, FormSecurityContext, registerAll } from "@openspace/blocks";
-import * as renderer from "@openspace/renderer";
 import {
   BASE_CSS,
   BEHAVIOR_LOADER,
   behaviorsInHtml,
+  CollectionsContext,
+  type CollectionsValue,
   compiledStylesFor,
   type ImageMap,
   PageView,
   type PageViewProps,
   type ResolvedImage,
   renderPageHtml,
+  type SocialFeedPost,
 } from "@openspace/renderer";
 import type { Page, SiteDocument } from "@openspace/schema";
-import { type Context, createElement, type ReactElement, type ReactNode } from "react";
+import { createElement, type ReactElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { DeployLocation } from "./deploy";
 import { feedLinks } from "./feeds";
@@ -121,7 +123,7 @@ export interface RenderRouteOptions {
   /** Generated share images for pages without their own (default true). */
   ogImages?: boolean;
   /** Build-time social feed posts for the social-feed block, keyed by `feedKey(network, handle)`. */
-  socialFeeds?: Record<string, unknown[]>;
+  socialFeeds?: Record<string, SocialFeedPost[]>;
   mode?: "production" | "preview";
 }
 
@@ -153,19 +155,8 @@ export interface PageContexts {
   turnstileSiteKey?: string;
 }
 
-/** Shape of the renderer's `CollectionsContext` value (blocks B). */
-export interface CollectionsContextValue {
-  collections?: SiteDocument["collections"];
-  configs?: NonNullable<SiteDocument["collectionConfigs"]>;
-  now?: string;
-  includeDrafts?: boolean;
-  feeds?: Record<string, unknown[]>;
-}
-
-/** The renderer's CollectionsContext when this renderer version has it. */
-function collectionsContext(): Context<unknown> | undefined {
-  return (renderer as unknown as { CollectionsContext?: Context<unknown> }).CollectionsContext;
-}
+/** The renderer's `CollectionsContext` value (blocks B). */
+export type CollectionsContextValue = CollectionsValue;
 
 function wrapContexts(node: ReactNode, contexts: PageContexts): ReactNode {
   let out = node;
@@ -175,9 +166,8 @@ function wrapContexts(node: ReactNode, contexts: PageContexts): ReactNode {
       { value: { turnstileSiteKey: contexts.turnstileSiteKey } },
       out,
     );
-  const cc = collectionsContext();
-  if (cc && contexts.collections)
-    out = createElement(cc.Provider, { value: contexts.collections }, out);
+  if (contexts.collections)
+    out = createElement(CollectionsContext.Provider, { value: contexts.collections }, out);
   return out;
 }
 
@@ -219,7 +209,7 @@ export function addTurnstileLoader(html: string, loaderHref: string): string {
 /** Collection data for list blocks: live items only, `now` = build time. */
 export function collectionsContextValue(
   plan: SitePlan,
-  feeds: Record<string, unknown[]> = {},
+  feeds: Record<string, SocialFeedPost[]> = {},
 ): CollectionsContextValue {
   return {
     collections: plan.doc.collections,

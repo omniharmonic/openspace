@@ -3,7 +3,8 @@
  * request for a local media image, and how `getImage()` results become a renderer
  * `ResolvedImage`.
  */
-import type { ResolvedImage } from "@openspace/renderer";
+import { collectImageSrcs, type ResolvedImage } from "@openspace/renderer";
+import type { Page, SiteDocument } from "@openspace/schema";
 
 /** Width ladder for responsive images (capped at the master's width, ≤ 2400px masters). */
 export const IMAGE_WIDTHS = [480, 960, 1600, 2400] as const;
@@ -54,4 +55,29 @@ export function localImageSrcs(srcs: Iterable<string>): string[] {
       !s.startsWith("media/_os-og/") &&
       /\.(?:jpe?g|png|webp|avif|gif)$/i.test(s),
   );
+}
+
+/** Collection names a page references (list blocks: `{ collection: "journal", … }`). */
+function referencedCollections(value: unknown, out: Set<string>): Set<string> {
+  if (Array.isArray(value)) for (const v of value) referencedCollections(v, out);
+  else if (value && typeof value === "object") {
+    const o = value as Record<string, unknown>;
+    if (typeof o.collection === "string") out.add(o.collection);
+    for (const v of Object.values(o)) referencedCollections(v, out);
+  }
+  return out;
+}
+
+/**
+ * Every image a page shows: its own, the site chrome's (logo, footer) and the items of any
+ * collection its list blocks reference (summary, events, product cards).
+ */
+export function pageImageSrcs(doc: SiteDocument, page: Page): Set<string> {
+  const srcs = collectImageSrcs(page);
+  collectImageSrcs(doc.site, srcs);
+  for (const name of referencedCollections(page, new Set())) {
+    for (const item of Object.values(doc.collections[name] ?? {}))
+      collectImageSrcs(item.frontmatter, srcs);
+  }
+  return srcs;
 }

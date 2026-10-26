@@ -17,7 +17,7 @@
 import { getImage } from "astro:assets";
 import { mediaImports } from "virtual:openspace/media";
 import { doc, options } from "virtual:openspace/site";
-import { collectImageSrcs, type ImageMap, type ResolvedImage } from "@openspace/renderer";
+import type { ImageMap, ResolvedImage } from "@openspace/renderer";
 import { renderRoute } from "../render";
 import { planSite, type SitePlan, type SiteRoute } from "../routes";
 import {
@@ -25,6 +25,7 @@ import {
   fallbackWidth,
   imageWidths,
   localImageSrcs,
+  pageImageSrcs,
   resolvedImage,
 } from "./images";
 
@@ -77,8 +78,7 @@ async function resolveOne(src: string): Promise<ResolvedImage | undefined> {
 export async function imageMapFor(route: SiteRoute): Promise<ImageMap> {
   const p = sitePlan();
   const page = p.doc.pages[route.pageId as keyof typeof p.doc.pages];
-  const srcs = collectImageSrcs(page);
-  collectImageSrcs(p.doc.site, srcs);
+  const srcs = page ? pageImageSrcs(p.doc, page) : new Set<string>();
   const map: Record<string, ResolvedImage> = {};
   await Promise.all(
     localImageSrcs(srcs).map(async (src) => {

@@ -5,7 +5,7 @@
  * so they render through `renderPageHtml` exactly like the owner's pages.
  */
 import { rt } from "@openspace/blocks";
-import { itemPath } from "@openspace/renderer";
+import { isLive, itemDate, itemPath } from "@openspace/renderer";
 import type {
   Block,
   BlockRegistry,
@@ -83,19 +83,8 @@ export function stackSection(
 
 const text = (s: string): RichTextDoc["content"][number] => rt.p(s);
 
-/** The item's primary date (post/episode/project date or event start). */
-export function itemDate(item: CollectionItem): string | undefined {
-  const fm = item.frontmatter as { date?: string; start?: string };
-  return item.kind === "events" ? fm.start : fm.date;
-}
-
-/** Published, or scheduled and due at `now`. */
-export function isLive(item: CollectionItem, now: Date): boolean {
-  const fm = item.frontmatter;
-  if (fm.status === "published") return true;
-  if (fm.status === "scheduled" && fm.publishAt) return Date.parse(fm.publishAt) <= now.getTime();
-  return false;
-}
+// Live/date rules are shared with the list blocks (renderer `collections`).
+export { isLive, itemDate };
 
 export function sortItems(
   items: CollectionItem[],
