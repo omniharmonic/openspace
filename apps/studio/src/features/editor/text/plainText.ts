@@ -76,6 +76,7 @@ export function startPlainTextEdit(
   const end = (commit: boolean) => {
     if (done) return;
     done = true;
+    unregister();
     const text = read();
     el.removeEventListener("keydown", onKey);
     el.removeEventListener("blur", onBlur);
@@ -134,6 +135,15 @@ export function startPlainTextEdit(
   el.addEventListener("keydown", onKey);
   el.addEventListener("blur", onBlur);
   el.addEventListener("paste", onPaste);
+  // A change from elsewhere touching this block ends the session first (sync layer), so React's
+  // own text nodes are back in place before React re-renders them.
+  const unregister = store.getState().registerTextSession({
+    kind: "plain",
+    blockId,
+    path,
+    flush: () => {},
+    end,
+  });
 
   return { blockId, path, end };
 }
