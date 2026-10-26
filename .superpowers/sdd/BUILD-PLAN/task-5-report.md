@@ -122,3 +122,24 @@ $ pnpm build (renderer)                          → built 16 behavior modules a
 $ npx biome check packages/renderer              → Checked 48 files, no errors
 ```
 Headless Chromium (private, not the shared MCP browser) on the transparent-overlay page at 1440px: the header sits below the announcement bar, overlaying the hero, and the first section's padding-top is 140px.
+
+---
+
+## Fix round 2
+
+1. **Unplaced grid items lost their position at ≥768px (Important).** The rule is now `.os-grid__item.os-grid__item--unplaced{grid-column:content-start/content-end;grid-row:auto}`. Its two classes beat the single-class tablet/desktop `.os-grid__item` placement rules, which sit in the same `os.layout` layer.
+   - New test (`css.test.ts`): the rule exists inside the `os.layout` layer, and every other `{grid-column:` rule in that layer is the single-class `.os-grid__item`.
+   - Headless Chromium check of a preview page with an unplaced block: computed `grid-column` is `content-start / content-end` at 390, 834 and 1440, with widths of 325, 749 and 1280px (the full content track).
+2. **Rejected queue entry dropped when its form wasn't on the page (minor).** `flush()` now marks a Hub-rejected entry with `rejected` (the Hub's message, or "") and does not resubmit it.
+   - If the entry's form is on the current page, the visitor sees the error there and the entry is removed.
+   - Otherwise the entry stays queued (up to 30 days) until a page with that form loads, where the error is shown once.
+   - New DOM test: the entry is kept while its form is absent, is not resubmitted, and is then reported and cleared once its form is present.
+
+Commands:
+```
+$ cd packages/renderer && npx vitest run   → Tests 66 passed (66)
+$ pnpm -w typecheck                          → Tasks: 18 successful, 18 total
+$ pnpm -w test                               → Tasks: 17 successful, 17 total
+$ pnpm build (renderer)                      → built 16 behavior modules and os.css
+$ npx biome check packages/renderer          → no errors
+```

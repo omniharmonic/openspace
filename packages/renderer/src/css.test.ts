@@ -49,4 +49,25 @@ describe("os.css", () => {
     expect(input).toContain("border:1px solid var(--os-color-text-muted)");
     expect(input).not.toContain("--os-color-border");
   });
+
+  it("unplaced grid items keep their full-width placement at every breakpoint", () => {
+    const rule =
+      ".os-grid__item.os-grid__item--unplaced{grid-column:content-start/content-end;grid-row:auto}";
+    const at = BASE_CSS.indexOf(rule);
+    expect(at).toBeGreaterThan(-1);
+    // Same cascade layer as the per-breakpoint .os-grid__item placement rules …
+    const layoutStart = BASE_CSS.indexOf("@layer os.layout {");
+    const nextLayer = BASE_CSS.indexOf("@layer os.components {");
+    expect(at).toBeGreaterThan(layoutStart);
+    expect(at).toBeLessThan(nextLayer);
+    // … and every placement rule is a single-class selector, so the two-class rule wins.
+    const placements = [
+      ...BASE_CSS.slice(layoutStart, nextLayer).matchAll(/([^{}\n]*)\{grid-column:/g),
+    ].map((m) => m[1]?.trim());
+    expect(placements.length).toBeGreaterThanOrEqual(4);
+    for (const sel of placements) {
+      if (sel === ".os-grid__item.os-grid__item--unplaced") continue;
+      expect(sel).toBe(".os-grid__item");
+    }
+  });
 });

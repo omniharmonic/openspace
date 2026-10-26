@@ -9,7 +9,13 @@ import { setBusy, status, submit } from "./submit";
  * (`data-os-owner-email`).
  */
 const QUEUE = "os-form-queue";
-type Queued = { action: string; fields: [string, string][]; at: number };
+type Queued = {
+  action: string;
+  fields: [string, string][];
+  at: number;
+  /** Set once the Hub rejected the entry (its message, or ""); shown on the form later. */
+  rejected?: string;
+};
 
 function errorEl(field: HTMLInputElement): HTMLElement | null {
   const ids = (field.getAttribute("aria-describedby") ?? "").split(/\s+/);
@@ -33,31 +39,38 @@ function validate(field: HTMLInputElement): boolean {
 }
 
 /**
- * Retry queued entries. Entries that still can't reach the Hub stay queued (up to a week);
- * entries the Hub rejects are removed and the visitor is told on the matching form, so nothing
- * is dropped silently.
+ * Retry queued entries. Entries that still can't reach the Hub stay queued (up to a week).
+ * Entries the Hub rejects are reported on their form; if that form isn't on the current page
+ * the rejection is kept (up to 30 days) and shown the next time the form is present, so
+ * nothing is dropped silently.
  */
 async function flush(): Promise<void> {
   const queue = load<Queued[]>(QUEUE, []);
   if (queue.length === 0) return;
   const left: Queued[] = [];
   for (const item of queue) {
-    const r = await submit(item.action, new URLSearchParams(item.fields));
-    if (r.ok) continue;
-    if (r.unreachable) {
-      if (Date.now() - item.at < 7 * 864e5) left.push(item);
-      continue;
+    if (item.rejected === undefined) {
+      const r = await submit(item.action, new URLSearchParams(item.fields));
+      if (r.ok) continue;
+      if (r.unreachable) {
+        if (Date.now() - item.at < 7 * 864e5) left.push(item);
+        continue;
+      }
+      item.rejected = r.body?.message ?? "";
     }
     const target = [...document.querySelectorAll<HTMLFormElement>("form")].find(
       (f) => f.action === item.action,
     );
-    const reason = r.body?.message ? ` (${r.body.message})` : "";
-    if (target)
+    if (target) {
+      const reason = item.rejected ? ` (${item.rejected})` : "";
       status(
         target,
         "error",
         `A message you sent earlier couldn't be delivered${reason}. Please send it again.`,
       );
+    } else if (Date.now() - item.at < 30 * 864e5) {
+      left.push(item);
+    }
   }
   save(QUEUE, left);
 }

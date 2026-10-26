@@ -121,7 +121,7 @@ ${typeClasses}
 .os-grid{--row-unit:1.25rem;--grid-gap:${v(T.space["2xs"])};display:grid;grid-template-columns:[full-start] ${v(T.section.gutter)} [content-start] repeat(8,minmax(0,1fr)) [content-end] ${v(T.section.gutter)} [full-end];grid-template-rows:repeat(var(--mrows,1),minmax(var(--row-unit),auto));grid-auto-rows:minmax(var(--row-unit),auto);column-gap:var(--grid-gap)}
 .os-grid__item{grid-column:var(--mcs,calc(var(--mx) + 1))/var(--mce,calc(var(--mx) + 1 + var(--mw)));grid-row:var(--my)/span var(--mh);z-index:var(--mz,1);min-width:0;display:flex;flex-direction:column}
 .os-grid__item>.os-block{flex:1}
-.os-grid__item--unplaced{grid-column:content-start/content-end;grid-row:auto}
+.os-grid__item.os-grid__item--unplaced{grid-column:content-start/content-end;grid-row:auto}
 
 @media (min-width:768px){
 .os-page{--bar-h:calc(max(var(--tlogo-h,2.5rem),2.75rem) + 2rem)}

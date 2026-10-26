@@ -248,4 +248,29 @@ describe("fix round 1 behaviors", () => {
     search(document.getElementById("s2") as HTMLElement);
     expect(spy.mock.calls.filter(([t]) => t === "keydown")).toHaveLength(1);
   });
+
+  it("keeps a rejected entry until its form is on the page, then reports it once", async () => {
+    const action = "https://hub.test/f/st_01jb3q8w2n/frm_c0ntact002";
+    localStorage.setItem(
+      "os-form-queue",
+      JSON.stringify([{ action, fields: [["email", "a@b.co"]], at: Date.now() }]),
+    );
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response("{}", { status: 400 }));
+    document.body.innerHTML = `<form action="https://hub.test/f/st_01jb3q8w2n/other"><input name="x"></form>`;
+    form(document.querySelector("form") as HTMLFormElement);
+    for (let i = 0; i < 5; i++) await flush();
+    const kept = JSON.parse(localStorage.getItem("os-form-queue") ?? "[]");
+    expect(kept).toHaveLength(1);
+    expect(kept[0].rejected).toBe("");
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    document.body.innerHTML = `<form action="${action}"><input name="email"></form>`;
+    const f = document.querySelector("form") as HTMLFormElement;
+    form(f);
+    for (let i = 0; i < 5; i++) await flush();
+    expect(fetchSpy).toHaveBeenCalledTimes(1); // not resubmitted
+    expect(f.querySelector(".os-form__status")?.textContent).toContain("couldn't be delivered");
+    expect(JSON.parse(localStorage.getItem("os-form-queue") ?? "[]")).toEqual([]);
+  });
 });
