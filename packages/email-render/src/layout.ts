@@ -44,7 +44,7 @@ export function renderEmail(input: RenderEmailInput): RenderedEmail {
   return renderWith(input, false);
 }
 
-const MERGE_TAG_RE = /^[A-Za-z0-9{}%$_[\]|:.*#!-]{3,200}$/;
+const MERGE_TAG_RE = /^(?![A-Za-z][A-Za-z0-9+.-]*:)[A-Za-z0-9{}%$_[\]|:.*#!-]{3,200}$/;
 
 function unsubscribeTarget(
   v: RenderEmailInput["unsubscribeUrl"],
@@ -116,7 +116,6 @@ export function renderWith(input: RenderEmailInput, allowRaw: boolean): Rendered
   const footerLines: string[] = [];
   if (input.footerNote) footerLines.push(esc(oneLine(input.footerNote)));
   if (siteTitle) footerLines.push(`Sent by ${esc(siteTitle)}`);
-  if (address.length) footerLines.push(address.map(esc).join(" &middot; "));
   if (address.length) footerLines.push(address.map(esc).join(" &middot; "));
   const unsubHtml = unsub
     ? `<a class="os-link" href="${esc(unsub)}" style="color:${L.link};text-decoration:underline;">Unsubscribe</a>`

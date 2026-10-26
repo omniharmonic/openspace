@@ -203,8 +203,21 @@ function renderButton(f: Fields, c: BlockCtx, a: RenderArgs, variant?: string): 
   };
 }
 
-function renderLine(f: Fields, c: BlockCtx, variant?: string): Rendered {
+function renderLine(f: Fields, c: BlockCtx, variant: string | undefined, path: string): Rendered {
   const t = c.theme;
+  for (const k of ["thickness", "length"] as const) {
+    const ok = k === "thickness" ? ["hairline", "regular", "bold"] : ["full", "half", "short"];
+    if (f[k] !== undefined && !ok.includes(String(f[k]))) {
+      c.warn(
+        "invalid-field",
+        `Unknown line ${k} "${String(f[k])}"; using default.`,
+        `${path}.${k}`,
+      );
+    }
+  }
+  if (str(f.color) && !c.theme.colors[str(f.color)]) {
+    c.warn("invalid-field", `Unknown line color "${str(f.color)}"; using border.`, `${path}.color`);
+  }
   const px = f.thickness === "bold" ? 4 : f.thickness === "regular" ? 2 : 1;
   const key = str(f.color);
   const given = key ? t.colors[key] : undefined;
@@ -237,10 +250,19 @@ const SPACER_PX: Record<string, number> = {
   "3xl": 96,
 };
 
-function renderSpacer(f: Fields): Rendered {
+function renderSpacer(f: Fields, c: BlockCtx, path: string): Rendered {
   const raw = f.height ?? f.size;
-  const px = typeof raw === "number" ? raw : typeof raw === "string" ? (SPACER_PX[raw] ?? 32) : 32;
-  const h = Math.max(4, Math.min(200, Math.round(px)));
+  let px = 32;
+  if (typeof raw === "number" && Number.isFinite(raw)) px = raw;
+  else if (typeof raw === "string" && raw in SPACER_PX) px = SPACER_PX[raw] as number;
+  else if (raw !== undefined)
+    c.warn(
+      "invalid-field",
+      `Unknown spacer height "${String(raw)}"; using 32px.`,
+      `${path}.height`,
+    );
+  const h = Math.max(0, Math.min(200, Math.round(px)));
+  if (h === 0) return { html: "", text: "" };
   return {
     html: `<div style="height:${h}px;line-height:${h}px;font-size:1px;mso-line-height-rule:exactly;">&nbsp;</div>`,
     text: "",
@@ -270,9 +292,9 @@ function renderQuote(f: Fields, c: BlockCtx, a: RenderArgs): Rendered {
 
 function renderSocial(f: Fields, c: BlockCtx, a: RenderArgs): Rendered {
   const custom = Array.isArray(f.profiles) ? f.profiles : Array.isArray(f.links) ? f.links : [];
-  const raw = f.source === "custom" || !c.site?.social?.length ? custom : c.site.social;
+  const raw = f.source === "custom" ? custom : (c.site?.social ?? []);
   const items: { name: string; href: string }[] = [];
-  for (const p of raw.length ? raw : (c.site?.social ?? [])) {
+  for (const p of raw) {
     if (!isObj(p)) continue;
     const href = safeUrl(p.url ?? p.href, c.baseUrl);
     if (href) items.push({ name: str(p.label) || label(str(p.network)), href });
@@ -345,7 +367,9 @@ function renderColumns(f: Fields, c: BlockCtx, a: RenderArgs): Rendered {
   const gutter = 24;
   const colW = Math.floor((c.width - gutter * (perRow - 1)) / perRow);
   const texts: string[] = [];
-  const rows = chunk(cells, perRow).map((row, ri) => {
+  const chunks = chunk(cells, perRow);
+  const rows = chunks.map((row, ri) => {
+    const lastRow = ri === chunks.length - 1;
     const tds = row
       .map((blocks, i) => {
         const r = renderBlocks(
@@ -354,7 +378,7 @@ function renderColumns(f: Fields, c: BlockCtx, a: RenderArgs): Rendered {
           `${a.path}.items[${ri * perRow + i}]`,
         );
         if (r.text) texts.push(r.text);
-        return `<td class="os-col" width="${colW}" valign="top" style="width:${colW}px;${i > 0 ? `padding-left:${gutter}px;` : ""}">${r.html}</td>`;
+        return `<td class="os-col" width="${colW}" valign="top" style="width:${colW}px;${i > 0 ? `padding-left:${gutter}px;` : ""}${lastRow ? "" : "padding-bottom:16px;"}">${r.html}</td>`;
       })
       .join("");
     return `<tr>${tds}</tr>`;
@@ -385,9 +409,9 @@ function renderOne(block: Block, c: BlockCtx, path: string): Rendered {
       return renderButton(f, c, args, block.variant);
     case "line":
     case "divider":
-      return renderLine(f, c, block.variant);
+      return renderLine(f, c, block.variant, path);
     case "spacer":
-      return renderSpacer(f);
+      return renderSpacer(f, c, path);
     case "quote":
       return renderQuote(f, c, args);
     case "columns":

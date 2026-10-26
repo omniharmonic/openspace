@@ -152,7 +152,8 @@ export interface MagicLinkInput extends Common {
 export function magicLinkEmail(i: MagicLinkInput): EmailResult {
   const title = oneLine(i.site.title);
   const url = absolute(i.url, i.baseUrl, "url");
-  const mins = Math.max(1, Math.round(i.expiresInMinutes ?? 15));
+  const rawMins = Number(i.expiresInMinutes ?? 15);
+  const mins = Number.isFinite(rawMins) ? Math.max(1, Math.round(rawMins)) : 15;
   const r = render(
     i,
     [

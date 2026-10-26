@@ -213,7 +213,7 @@ describe("rich text and blocks", () => {
   });
   it("renders the postal address in footer and text", () => {
     const r = renderEmail({ blocks: [], postalAddress: ["1 Main St", "Boulder, CO"] });
-    expect(r.html).toContain("1 Main St &middot; Boulder, CO");
+    expect(r.html.split("1 Main St &middot; Boulder, CO").length - 1).toBe(1);
     expect(r.text).toContain("1 Main St, Boulder, CO");
   });
   it("dark palette values come from the dark theme and are mirrored for Outlook", () => {
@@ -251,5 +251,57 @@ describe("template details", () => {
     expect(() =>
       formNotificationEmail({ site, baseUrl, formName: "C", entries: [], replyTo: "bad" }),
     ).toThrow(EmailRenderError);
+  });
+});
+
+describe("round 2", () => {
+  it("rejects scheme-prefixed merge tags", () => {
+    for (const tag of ["javascript:alert(1)", "data:x", "https:evil"]) {
+      expect(() => renderEmail({ blocks: [], unsubscribeUrl: { mergeTag: tag } })).toThrow(
+        EmailRenderError,
+      );
+    }
+  });
+  it("social-links follows source: site vs custom", () => {
+    const withSite = {
+      ...site,
+      social: [{ network: "instagram", url: "https://instagram.com/maya" }],
+    } as unknown as Site;
+    const custom = [{ network: "x", url: "https://x.com/custom" }];
+    const run = (source: string) =>
+      renderEmail({
+        baseUrl,
+        site: withSite,
+        blocks: [b("social-links", { source, profiles: custom })],
+      }).html;
+    expect(run("site")).toContain("instagram.com/maya");
+    expect(run("site")).not.toContain("x.com/custom");
+    expect(run("custom")).toContain("x.com/custom");
+    expect(run("custom")).not.toContain("instagram.com/maya");
+  });
+  it("spacer none is zero; unknown tokens warn", () => {
+    expect(htmlOf([b("spacer", { height: "none" })])).not.toContain("mso-line-height-rule");
+    const r = renderEmail({
+      baseUrl,
+      blocks: [b("spacer", { height: "huge" }), b("line", { thickness: "thick", color: "nope" })],
+    });
+    expect(r.warnings.filter((w) => w.code === "invalid-field").length).toBe(3);
+  });
+  it("NaN expiry falls back to 15 minutes", () => {
+    const m = magicLinkEmail({
+      site,
+      baseUrl,
+      url: "https://maya.example/a",
+      expiresInMinutes: Number.NaN,
+    });
+    expect(m.text).toContain("expires in 15 minutes");
+    expect(m.text).not.toContain("NaN");
+  });
+  it("adds row spacing in 2-per-row column layouts", () => {
+    const item = (h: string) => ({ heading: h, body: p(h) });
+    const html = htmlOf([
+      b("columns", { columns: "4", items: [item("a"), item("b"), item("c"), item("d")] }),
+    ]);
+    expect(html.split("padding-bottom:16px;").length - 1).toBe(2);
   });
 });
