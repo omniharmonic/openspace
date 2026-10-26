@@ -83,7 +83,9 @@ describe("templates API", () => {
 
     const preview = await call(app, "/t/meadow/");
     expect(preview.status).toBe(200);
-    expect(await preview.text()).toContain("Template preview");
+    const tplHtml = await preview.text();
+    expect(tplHtml).toContain("data-os-page=");
+    expect(tplHtml).toContain("Fernwood");
   });
 
   it("creates a site from a launch template with the starter shell", async () => {
@@ -194,7 +196,9 @@ describe("sites API (dev GitHub)", () => {
     );
     expect(live.headers.get("x-content-type-options")).toBe("nosniff");
     const html = await live.text();
-    expect(html).toContain("<title>Home — Maya Yoga</title>");
+    // The real renderer (ADR-3): the same document a published build produces.
+    expect(html).toMatch(/<title>Maya Yoga[^<]*<\/title>/);
+    expect(html).toContain('<style data-os="blocks">');
     expect(html).toContain("Slow, grounded yoga in Boulder.");
     expect(html).toContain(`data-os-page="${home?.id}"`);
     expect((await call(app, `/s/${site.id}`)).status).toBe(200);
@@ -210,7 +214,7 @@ describe("sites API (dev GitHub)", () => {
     const notFoundPage = await call(app, `/s/${site.id}/missing`);
     expect(notFoundPage.headers.get("content-security-policy")).toContain("sandbox");
     expect(draft.headers.get("cache-control")).toBe("no-store");
-    expect(await draft.text()).toContain("Draft preview");
+    expect(await draft.text()).toContain('<meta name="robots" content="noindex">');
     const stranger = await devLogin(app, "Stranger");
     expect((await call(app, `/p/${site.id}/`, { cookie: stranger })).status).toBe(404);
     expect((await call(app, `/api/sites/${site.id}`, { cookie: stranger })).status).toBe(404);

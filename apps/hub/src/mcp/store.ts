@@ -31,7 +31,7 @@ import { MAIN_BRANCH, parseRepo } from "../github/types";
 import { HttpError } from "../lib/errors";
 import { roomStub, unwrapRoom } from "../room";
 import type { Services } from "../services";
-import { listVersions } from "../services/publishing";
+import { listVersions, ROLLBACK_ROLE } from "../services/publishing";
 import { consumeQuota, quotaExceeded, siteQuotaLimits } from "../services/quotas";
 import { isDocumentPath, loadSiteDocument } from "../services/site-files";
 import { type AgentSessionRef, type GrantSite, recordAgentSession } from "./db";
@@ -87,6 +87,8 @@ async function wrap<T>(fn: () => Promise<T>): Promise<T> {
 export function agentSessionIdFor(mcpSessionId: string, siteId: string): string {
   return `${mcpSessionId.slice(-24)}-${siteId.replace(/^st_/, "")}`;
 }
+
+const ROLE_RANK = { contributor: 1, editor: 2, designer: 3, owner: 4 } as const;
 
 const sessionOf = (actor: string): string | undefined =>
   actor.startsWith("agent:") ? actor.slice("agent:".length) : undefined;
@@ -144,8 +146,13 @@ export class HubSiteStore implements SiteStore {
 
   async applyOps(siteId: string, ops: Op[], ctx: ApplyContext): Promise<ApplyResult> {
     this.site(siteId);
-    if (!ctx.session) throw new ToolError("Edits need an agent session.", "invalid_session");
     await this.countOperation(siteId);
+    return this.submitAsAgent(siteId, ops, ctx);
+  }
+
+  /** Submit ops as the connection's agent session (the caller counted the operation). */
+  private async submitAsAgent(siteId: string, ops: Op[], ctx: ApplyContext): Promise<ApplyResult> {
+    if (!ctx.session) throw new ToolError("Edits need an agent session.", "invalid_session");
     return wrap(async () => {
       const r = await unwrapRoom(
         this.room(siteId).submit(siteId, {
@@ -239,7 +246,13 @@ export class HubSiteStore implements SiteStore {
   }
 
   async rollback(siteId: string, version: string, ctx: ApplyContext): Promise<PublishResult> {
-    this.site(siteId);
+    const site = this.site(siteId);
+    // Same rule as Studio (ROLLBACK_ROLE): putting the live site back needs a designer or owner.
+    if (ROLE_RANK[site.role] < ROLE_RANK[ROLLBACK_ROLE])
+      throw new ToolError(
+        `Going back to an earlier version needs a designer or the owner (your role: ${site.role}).`,
+        "forbidden",
+      );
     await this.countOperation(siteId);
     return wrap(async () => {
       const r = await unwrapRoom(
@@ -299,6 +312,8 @@ export class HubSiteStore implements SiteStore {
   ): Promise<MediaMeta> {
     this.site(siteId);
     const { services } = this.o;
+    // One operation for the whole upload, counted before anything is fetched or stored.
+    await this.countOperation(siteId);
     const prepared = await prepareImage(input, {
       fetch: guardedFetch(services.fetch, services.pub.dns),
       ...(this.o.resize ? { resize: this.o.resize } : {}),
@@ -321,7 +336,7 @@ export class HubSiteStore implements SiteStore {
       path: prepared.meta.path,
       meta: prepared.meta,
     } as Op;
-    const r = await this.applyOps(siteId, [op], ctx);
+    const r = await this.submitAsAgent(siteId, [op], ctx);
     if (!r.ok)
       throw new ToolError(
         `The image was stored but couldn't be added to the library: ${r.errors.map((e) => e.message).join("; ")}`,

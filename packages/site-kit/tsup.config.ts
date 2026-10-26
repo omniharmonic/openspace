@@ -6,6 +6,7 @@ export default defineConfig({
     "src/content/index.ts",
     "src/agents-md.ts",
     "src/ids.ts",
+    "src/render-entry.ts",
     "src/runtime/route.ts",
     "src/runtime/images-manifest.ts",
     "src/cloudflare/index.ts",

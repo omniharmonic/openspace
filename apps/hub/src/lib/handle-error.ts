@@ -4,6 +4,7 @@ import { GitHubConflictError, GitHubInputError, GitHubNotFoundError } from "../g
 import { SiteFilesError } from "../services/site-files";
 import type { AppEnv } from "../types";
 import { errorBody, HttpError } from "./errors";
+import { redactSecrets } from "./log";
 
 /** Map any thrown error to the `{ error: { code, message } }` envelope; log unexpected ones. */
 export function handleError(err: Error, c: Context<AppEnv>): Response {
@@ -30,6 +31,10 @@ export function handleError(err: Error, c: Context<AppEnv>): Response {
       422,
     );
   }
-  c.var.log?.error("unhandled error", { err, path: c.req.path, method: c.req.method });
+  c.var.log?.error("unhandled error", {
+    err,
+    path: redactSecrets(c.req.path),
+    method: c.req.method,
+  });
   return c.json(errorBody("internal", "Something went wrong on our side."), 500);
 }

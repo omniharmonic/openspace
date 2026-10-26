@@ -6,7 +6,7 @@ import type { GitHubAccess } from "../github/types";
 import { basicTemplate } from "../templates/basic";
 import { createGrowthServices, type GrowthOverrides, type GrowthServices } from "./growth";
 import { createPublicServices, type PublicOverrides, type PublicServices } from "./public";
-import { type PageRenderer, PlaceholderRenderer } from "./renderer";
+import { type PageRenderer, SiteKitRenderer } from "./renderer";
 import { RegistryTemplateSource, type TemplateSource } from "./templates";
 
 /** Per-request service container (no module-level request state). */
@@ -50,8 +50,8 @@ export function createServices(
     config,
     // The 12 launch templates; the small "basic" fixture stays loadable (never listed) for tests.
     templates: overrides.templates ?? new RegistryTemplateSource([basicTemplate]),
-    // TODO(renderer): swap for an adapter over @openspace/renderer's renderPageHtml (ADR-3).
-    renderer: overrides.renderer ?? new PlaceholderRenderer(),
+    // The one renderer (ADR-3) through site-kit's publishing pipeline.
+    renderer: overrides.renderer ?? new SiteKitRenderer(),
     fetch: fetchFn,
     now,
     pub: createPublicServices(

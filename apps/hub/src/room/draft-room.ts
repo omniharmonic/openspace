@@ -1304,6 +1304,14 @@ export class DraftRoom extends DurableObject<HubBindings> {
   ): Promise<RoomResult<{ sha: string; summary: string; snapshot: string | null }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
+      // Defense in depth (Studio and MCP check too): rolling back needs a designer or the owner.
+      const role = await this.roleOf(this.services(), siteId, input.userId);
+      if (!role || ROLE_RANK[role] < ROLE_RANK.designer)
+        throw new HttpError(
+          403,
+          "forbidden",
+          "Going back to an earlier version needs a designer or the owner.",
+        );
       return this.exclusive(async () => {
         const services = this.services();
         const site = await this.site(services, siteId);

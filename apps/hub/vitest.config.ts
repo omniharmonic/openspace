@@ -17,6 +17,9 @@ export default defineWorkersConfig(async () => {
     for (const rel of walk(path.join(starter, dir)))
       files[`${dir}/${rel}`] = readFileSync(path.join(starter, dir, rel), "utf8");
   const STARTER_FILES = JSON.stringify(files);
+  // The renderer's behaviors, bundled now, to check the embedded copy is current.
+  const { bundleBehaviorSources } = await import("./scripts/behaviors-build.mjs");
+  const BEHAVIOR_BUNDLES = JSON.stringify(await bundleBehaviorSources());
   return {
     test: {
       include: ["src/**/*.test.ts", "test/**/*.test.ts"],
@@ -29,6 +32,7 @@ export default defineWorkersConfig(async () => {
             bindings: {
               TEST_MIGRATIONS: migrations,
               STARTER_FILES,
+              BEHAVIOR_BUNDLES,
               DEV_MODE: "true",
               LOG_LEVEL: "silent",
             },

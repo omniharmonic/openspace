@@ -4,7 +4,7 @@ import { readConfig } from "./env";
 import { studioCors, studioOrigins } from "./lib/cors";
 import { errorBody } from "./lib/errors";
 import { handleError } from "./lib/handle-error";
-import { createLogger } from "./lib/log";
+import { createLogger, redactSecrets } from "./lib/log";
 import { authRoutes } from "./routes/auth";
 import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
 import { growthRoutes } from "./routes/growth";
@@ -56,7 +56,7 @@ export function createApp(options: CreateAppOptions = {}) {
     c.header("X-Request-Id", requestId);
     log.info("request", {
       method: c.req.method,
-      path: c.req.path,
+      path: redactSecrets(c.req.path),
       status: c.res.status,
       ms: Date.now() - started,
     });
