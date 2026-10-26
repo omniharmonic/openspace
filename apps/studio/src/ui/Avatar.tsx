@@ -32,6 +32,22 @@ const PRESENCE = [
   "#b0710c",
 ];
 
+/**
+ * Initials color on a presence color: white where it reaches 4.5:1, else near-black (the orange,
+ * red, teal, pink and amber presence colors are too light for small white text).
+ */
+export function initialsColor(bg: string): string {
+  const m = /^#([0-9a-f]{6})$/i.exec(bg);
+  if (!m?.[1]) return "#fff";
+  const n = Number.parseInt(m[1], 16);
+  const lin = (c: number) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  const l = 0.2126 * lin((n >> 16) & 255) + 0.7152 * lin((n >> 8) & 255) + 0.0722 * lin(n & 255);
+  return 1.05 / (l + 0.05) >= 4.5 ? "#fff" : "#111113";
+}
+
 /** Stable presence color for a person id. */
 export function presenceColor(id: string): string {
   let h = 0;
@@ -57,6 +73,7 @@ export function Avatar({ person, size = 24, ring, className }: AvatarProps) {
         height: size,
         fontSize: Math.max(9, Math.round(size * 0.4)),
         ["--_c" as string]: color,
+        ["--_fg" as string]: initialsColor(color),
       }}
     >
       {person.avatarUrl && (

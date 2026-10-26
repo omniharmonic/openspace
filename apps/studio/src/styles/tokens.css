@@ -41,7 +41,7 @@
   --st-on-accent: #ffffff;
 
   /* Status */
-  --st-live: #188350;
+  --st-live: #136b41; /* 5.7:1 on --st-live-soft over the panel */
   --st-live-soft: rgb(24 131 80 / 0.11);
   --st-pending: #a8650d;
   --st-pending-soft: rgb(196 125 20 / 0.13);
