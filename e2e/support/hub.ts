@@ -243,3 +243,9 @@ export function textOf(value: unknown): string {
   if (value && typeof value === "object") return Object.values(value).map(textOf).join(" ");
   return "";
 }
+
+/** A compiled design token's value in rendered site HTML, e.g. `token(html, "color-brand")`. */
+export function token(html: string, name: string): string | null {
+  const m = new RegExp(`--os-${name}:\\s*([^;}]+)`).exec(html);
+  return m?.[1]?.trim() ?? null;
+}

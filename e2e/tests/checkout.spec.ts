@@ -12,19 +12,30 @@ test("cart on /s → DevStripe checkout → order in Studio → refund", async (
 
   // Visitor: product page → Add to cart → cart → Check out.
   await page.goto(`${HUB_URL}/s/${site.id}/shop/harbor-planter/`);
-  await page.locator('[data-os-add][data-os-sku="SMP-HARBORPLAN"]').click();
+  // Tamper with the price in the page: the cart may show it, but checkout charges the catalog.
+  const add = page.locator('[data-os-add][data-os-sku="SMP-HARBORPLAN"]');
+  await add.evaluate((el) => el.setAttribute("data-os-price", "100"));
+  await add.click();
   const cart = page.locator("dialog.os-cart");
   await expect(cart).toBeVisible();
   await expect(cart).toContainText("Harbor planter");
+  await expect(cart).toContainText("$1.00"); // the tampered display price
   await cart.getByRole("button", { name: "Check out" }).click();
 
   // The dev Stripe checkout page (prices come from the Hub's catalog, not the browser).
   await page.waitForURL(/\/dev\/stripe\/checkout\//);
   await expect(page.locator("body")).toContainText("48.00");
+  await expect(page.locator("body")).not.toContainText(/\$?1\.00\b/);
   await page.getByLabel("Email").fill(buyer);
   await page.getByRole("button", { name: "Pay (test)" }).click();
   await page.waitForURL(/os_checkout=success/);
   expect(page.url()).toContain(`/s/${site.id}/shop/harbor-planter/`);
+
+  // Charged the catalog price, not the tampered one.
+  const { orders: paid } = await owner.get<{ orders: Array<{ number: number; total: number }> }>(
+    `/api/sites/${site.id}/orders`,
+  );
+  expect(paid.find((o) => o.number === 1001)?.total).toBe(4800);
 
   // Owner: the order is in Studio's Orders; refund it in full.
   await signIn(context, owner.user.name);

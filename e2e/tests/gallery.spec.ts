@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { HUB_URL } from "../support/env";
-import { unique } from "../support/hub";
+import { token, unique } from "../support/hub";
 import { editorReady, siteIdFrom } from "../support/studio";
 
 // PRD §4.1 onboarding (FR-1, FR-2, FR-3): browse without an account → template + look → name and
@@ -41,5 +41,12 @@ test("gallery → new site → dev sign-in → setting up → editor → live si
   expect(html).toContain(tagline);
   // The real renderer (site-kit), not a placeholder: tokens + blocks CSS + a Meadow section.
   expect(html).toMatch(/--os-/);
+  // The chosen look (Clay), not the template's default one, is what's live.
+  const look = async (id: string) =>
+    token(await (await page.request.get(`${HUB_URL}/t/meadow/?look=${id}`)).text(), "color-brand");
+  const clay = await look("clay-linen");
+  expect(clay).toBeTruthy();
+  expect(token(html, "color-brand")).toBe(clay);
+  expect(clay).not.toBe(await look("oat-sage"));
   expect(html).toMatch(/data-os-section|class="os-section/);
 });

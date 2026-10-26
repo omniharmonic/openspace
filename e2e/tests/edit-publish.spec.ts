@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 import { HUB_URL } from "../support/env";
-import { Hub, homePage, runCron, type SiteDoc, textOf, unique } from "../support/hub";
+import { Hub, homePage, runCron, type SiteDoc, textOf, token, unique } from "../support/hub";
 import { hasExif, jpegWithGps } from "../support/images";
 import { canvas, canvasReady, closeChecklist, openEditor, signIn } from "../support/studio";
 
@@ -85,9 +85,12 @@ test("edit headline inline, replace an image (EXIF stripped), add a preset secti
       { timeout: 30_000 },
     )
     .toMatch(/studio-portrait/);
-  const stored = await page.request.get(`${HUB_URL}/api/sites/${siteId}/${mediaPath}`);
-  expect(stored.status()).toBe(200);
-  const bytes = Buffer.from(await stored.body());
+  // The upload finishes in the background (the canvas shows the local copy meanwhile).
+  const proxied = `${HUB_URL}/api/sites/${siteId}/${mediaPath}`;
+  await expect
+    .poll(async () => (await page.request.get(proxied)).status(), { timeout: 30_000 })
+    .toBe(200);
+  const bytes = Buffer.from(await (await page.request.get(proxied)).body());
   expect(bytes.length).toBeGreaterThan(1000);
   expect(hasExif(bytes)).toBe(false);
   // After a reload (no session blob any more) the canvas still shows the new photo.
@@ -163,6 +166,7 @@ test("publish → live site reflects the edits; history lists the version", asyn
   await openEditor(page, siteId);
   await closeChecklist(page);
   const doc = await draft();
+  const before = await published(page);
   await page.getByRole("button", { name: "Publish", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Publish changes" });
   await expect(dialog).toBeVisible();
@@ -174,6 +178,11 @@ test("publish → live site reflects the edits; history lists the version", asyn
     .toBe(true);
   const html = await published(page);
   expect(html).toContain("studio-portrait");
+  // Site Styles reached the rendered page: new brand color (palette) and heading font (pairing).
+  for (const t of ["color-brand", "font-heading"]) {
+    expect(token(html, t), t).toBeTruthy();
+    expect(token(html, t), t).not.toBe(token(before, t));
+  }
   const pub = await owner.get<{ document: SiteDoc }>(`/api/sites/${siteId}/document?ref=published`);
   expect(JSON.stringify(pub.document.styles)).toBe(JSON.stringify(doc.styles));
   expect(homePage(pub.document).sections.some((s) => s.preset?.startsWith("pricing/"))).toBe(true);
@@ -230,8 +239,8 @@ test("schedule publish runs when due (cron)", async ({ page }) => {
   await page.getByRole("button", { name: "Publish", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Publish changes" });
   await dialog.getByRole("radio", { name: "Schedule" }).click();
-  // The next whole minute at least 60 s ahead, in the browser's local time.
-  const at = new Date(Math.ceil((Date.now() + 61_000) / 60_000) * 60_000);
+  // The next whole minute at least 90 s ahead (Studio needs ≥ 60 s; margin for slow runs).
+  const at = new Date(Math.ceil((Date.now() + 90_000) / 60_000) * 60_000);
   const pad = (n: number) => String(n).padStart(2, "0");
   await dialog
     .getByLabel("Date")

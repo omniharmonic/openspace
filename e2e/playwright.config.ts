@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
+import { createRequire } from "node:module";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 import { HUB_PORT, HUB_URL, STUDIO_PORT, STUDIO_URL } from "./support/env";
 
@@ -15,17 +16,30 @@ import { HUB_PORT, HUB_URL, STUDIO_PORT, STUDIO_URL } from "./support/env";
  *
  * `E2E_REUSE=1` reuses already-running servers (fast local iteration; state then persists).
  */
+const require = createRequire(import.meta.url);
 const reuse = process.env.E2E_REUSE === "1";
 const MOBILE_SPECS = /(gallery|mobile)\.spec\.ts$/;
 
+/** WebKit present? Honors PLAYWRIGHT_BROWSERS_PATH (incl. "0" = inside node_modules). */
 function webkitInstalled(): boolean {
-  const dir =
-    process.env.PLAYWRIGHT_BROWSERS_PATH ?? join(homedir(), "Library/Caches/ms-playwright");
-  const linuxDir = join(homedir(), ".cache/ms-playwright");
-  for (const d of [dir, linuxDir]) {
-    if (existsSync(d) && readdirSync(d).some((n) => n.startsWith("webkit-"))) return true;
-  }
-  return false;
+  const env = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  const dirs =
+    env === "0"
+      ? [join(dirname(require.resolve("playwright-core/package.json")), ".local-browsers")]
+      : env
+        ? [env]
+        : [
+            join(homedir(), "Library/Caches/ms-playwright"),
+            join(homedir(), ".cache/ms-playwright"),
+          ];
+  const found = dirs.some(
+    (d) => existsSync(d) && readdirSync(d).some((n) => n.startsWith("webkit-")),
+  );
+  if (!found)
+    console.log(
+      `[e2e] WebKit not installed (looked in ${dirs.join(", ")}): skipping webkit-mobile`,
+    );
+  return found;
 }
 
 const mobileDevice = {
