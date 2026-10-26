@@ -7,7 +7,7 @@ import {
   WandSparkles,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { PublishSchedule } from "../../api/types";
 import {
   Button,
@@ -391,6 +391,9 @@ export function PublishButton() {
   );
 }
 
+/** How long the "Live" pill stays up. */
+export const LIVE_PILL_MS = 20_000;
+
 const FIX_COPY: Record<string, string> = {
   revert:
     "Went back to the last version that worked. Your changes are still in the draft, so you can correct them and publish again.",
@@ -403,6 +406,14 @@ export function PublishPill() {
   const { hub, site, session } = useSync();
   const publish = useSyncSession((s) => s.publish);
   const [fixing, setFixing] = useState(false);
+  // "Live" fades after a while; failures stay until fixed or dismissed.
+  useEffect(() => {
+    if (publish.phase !== "live") return;
+    const t = setTimeout(() => {
+      if (session.getState().publish.phase === "live") session.setState({ publish: IDLE_PUBLISH });
+    }, LIVE_PILL_MS);
+    return () => clearTimeout(t);
+  }, [publish.phase, session]);
   if (publish.phase === "idle") return null;
   const dismiss = () => session.setState({ publish: IDLE_PUBLISH });
   const fix = async () => {

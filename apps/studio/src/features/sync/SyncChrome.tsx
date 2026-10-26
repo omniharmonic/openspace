@@ -54,7 +54,7 @@ export function PresenceAvatars({
   self: { id: string; name: string; avatarUrl: string | null };
 }) {
   const members = useRoomState((s) => s.members);
-  const people = [{ id: self.id, name: `${self.name} (you)`, avatarUrl: self.avatarUrl }];
+  const people = [{ id: self.id, name: self.name, avatarUrl: self.avatarUrl }];
   const seen = new Set([self.id]);
   for (const m of members) {
     if (m.kind !== "human" || seen.has(m.userId)) continue;

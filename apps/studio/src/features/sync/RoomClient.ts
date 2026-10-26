@@ -609,6 +609,8 @@ export class RoomClient {
   }
 
   private reload(doc: SiteDocument, seq: number, head: string | null, reason: string): void {
+    // A text session may commit as it ends; hold sending until the new base is in place.
+    this.awaitingReload = true;
     this.opts.target.beforeExternalChange(null);
     this.confirmed = doc;
     this.seq = seq;
