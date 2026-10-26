@@ -194,24 +194,27 @@ describe("cart", () => {
 });
 
 describe("cart without storage", () => {
-  it("keeps the cart in the page when storage is blocked (sandboxed previews)", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("keeps the cart in the page when storage is blocked (sandboxed previews)", async () => {
     vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
       throw new DOMException("blocked", "SecurityError");
     });
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new DOMException("blocked", "SecurityError");
     });
+    // A fresh module: the storage probe runs once per page.
+    vi.resetModules();
+    const { default: freshCart } = await import("./behaviors/cart");
     document.body.innerHTML = `<button data-os-cart-toggle><span data-os-cart-count></span></button>
       <button data-os-add data-os-stay data-os-sku="block-1" data-os-name="Cork block" data-os-price="1800" data-os-currency="USD">Add</button>`;
     const add = document.querySelector("[data-os-add]") as HTMLElement;
-    cart(document.querySelector("[data-os-cart-toggle]") as HTMLElement);
-    cart(add);
+    freshCart(document.querySelector("[data-os-cart-toggle]") as HTMLElement);
+    freshCart(add);
     const count = () => Number(document.querySelector("[data-os-cart-count]")?.textContent || 0);
-    const before = count();
     add.click();
     add.click();
-    expect(count()).toBe(before + 2);
-    vi.restoreAllMocks();
+    expect(count()).toBe(2);
   });
 });
 

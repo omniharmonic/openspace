@@ -28,14 +28,19 @@ const key = () => `os-cart:${info().site}`;
  * cart and checking out still work within the page.
  */
 let memory: Line[] = [];
+let storable: boolean | undefined;
+/** Probed once per page: storage either works on this origin or it doesn't. */
 const canStore = (): boolean => {
-  try {
-    localStorage.setItem("os-probe", "1");
-    localStorage.removeItem("os-probe");
-    return true;
-  } catch {
-    return false;
+  if (storable === undefined) {
+    try {
+      localStorage.setItem("os-probe", "1");
+      localStorage.removeItem("os-probe");
+      storable = true;
+    } catch {
+      storable = false;
+    }
   }
+  return storable;
 };
 const read = (): Line[] =>
   (canStore() ? load<Line[]>(key(), []) : memory).filter((l) => l?.sku && l.qty > 0);
