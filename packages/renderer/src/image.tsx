@@ -13,7 +13,7 @@ import type { ImageMap, ResolvedImage } from "./image-map";
 import { mediaUrl } from "./link";
 
 /** Widths offered for remote images that support on-the-fly resizing (Unsplash, imgix). */
-export const REMOTE_WIDTHS = [480, 768, 1080, 1440, 1920, 2400] as const;
+export const REMOTE_WIDTHS = [480, 640, 768, 960, 1080, 1440, 1920, 2400] as const;
 
 export interface ImgProps {
   /** A media path / URL, or a full image value (src + alt + focal + dimensions). */

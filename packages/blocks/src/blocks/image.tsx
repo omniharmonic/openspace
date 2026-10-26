@@ -1,5 +1,5 @@
 import { cx, Img, Link, SectionContext } from "@openspace/renderer";
-import { type AspectRatio, defineBlock, f } from "@openspace/schema";
+import { type AspectRatio, defineBlock, f, GRID_COLUMNS, type Section } from "@openspace/schema";
 import { useContext } from "react";
 import { aspectField, DEMO, useImageUrl } from "../shared";
 
@@ -31,15 +31,40 @@ export const imageBlock = defineBlock({
       "To show the place, the people, the work or the product. Keep aspect ratios consistent within a section. `caption-overlay` suits atmospheric shots; `inset` frames an image on a soft surface.",
     avoid: "Stock photos that don't depict the business; text baked into images; missing alt text.",
   },
-  render: ({ fields, variant }) => <ImageView fields={fields} variant={variant} />,
+  render: ({ id, fields, variant }) => <ImageView id={id} fields={fields} variant={variant} />,
 });
 
 type ImageFields = Parameters<typeof imageBlock.render>[0]["fields"];
 
-function ImageView({ fields, variant }: { fields: ImageFields; variant: string }) {
-  const grid = useContext(SectionContext)?.layout.mode === "grid";
+/**
+ * `sizes` from where the block actually sits: its grid cell (24 columns on desktop and tablet,
+ * 8 on phones) or its stack column. Phones then download a photo the width of its cell, not of
+ * the screen.
+ */
+export function imageSizes(section: Section | null | undefined, blockId: string): string {
+  const pct = (n: number) => `${Math.min(100, Math.max(20, Math.ceil(n * 100)))}vw`;
+  const layout = section?.layout;
+  if (layout?.mode === "grid") {
+    const item = layout.items[blockId as keyof typeof layout.items];
+    if (!item) return "(min-width: 1200px) 60vw, 100vw";
+    const d = item.d.w / GRID_COLUMNS.d;
+    const t = (item.t ?? item.d).w / GRID_COLUMNS.t;
+    const m = item.m ? item.m.w / GRID_COLUMNS.m : 1;
+    return `(min-width: 1200px) ${pct(d)}, (min-width: 768px) ${pct(t)}, ${pct(m)}`;
+  }
+  if (layout?.mode === "stack") {
+    const block = section?.blocks.find((b) => b.id === blockId);
+    const span = layout.columns.d[block?.column ?? 0] ?? 12;
+    return `(min-width: 1200px) ${pct(span / 12)}, 100vw`;
+  }
+  return "(min-width: 1200px) 50vw, 100vw";
+}
+
+function ImageView({ id, fields, variant }: { id: string; fields: ImageFields; variant: string }) {
+  const section = useContext(SectionContext);
+  const grid = section?.layout.mode === "grid";
   const fullUrl = useImageUrl();
-  const sizes = grid ? "(min-width: 1200px) 60vw, 100vw" : "(min-width: 1200px) 50vw, 100vw";
+  const sizes = imageSizes(section, id);
   const img = grid ? (
     <Img src={fields.image} sizes={sizes} fill />
   ) : (

@@ -286,3 +286,24 @@ describe("pricing columns", () => {
     expect(planColumns(5)).toMatchObject({ "--pc-md": 3, "--pc-lg": 3 });
   });
 });
+
+describe("image sizes", () => {
+  it("follow the block's grid cell and stack column", async () => {
+    const { imageSizes } = await import("./blocks/image");
+    const grid = {
+      layout: {
+        mode: "grid",
+        items: { blk_a: { d: { x: 0, y: 0, w: 12, h: 4 }, m: { x: 0, y: 0, w: 4, h: 4 } } },
+      },
+      blocks: [],
+    } as never;
+    expect(imageSizes(grid, "blk_a")).toBe(
+      "(min-width: 1200px) 50vw, (min-width: 768px) 50vw, 50vw",
+    );
+    const stack = {
+      layout: { mode: "stack", columns: { d: [7, 5] } },
+      blocks: [{ id: "blk_b", column: 1 }],
+    } as never;
+    expect(imageSizes(stack, "blk_b")).toBe("(min-width: 1200px) 42vw, 100vw");
+  });
+});
