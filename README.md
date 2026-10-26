@@ -14,7 +14,7 @@ Other commands: `pnpm build`, `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm 
 
 ## Status
 
-OpenSpace is pre-release. [docs/PARITY.md](docs/PARITY.md) tracks every PRD capability as Done, Partial or Missing against the Squarespace feature set, with the evidence for each.
+OpenSpace is pre-release. [docs/PARITY.md](docs/PARITY.md) tracks every PRD capability as Implemented, Implemented (dev-emulated), Partial, Missing or Deferred (P6) against the Squarespace feature set, with the evidence for each.
 
 External services (GitHub, Cloudflare, Stripe, email providers, Turnstile, registrar DNS) are exercised end to end only through their dev emulations in this repo. The real implementations exist behind the same interfaces but have not yet been tested against live accounts, so treat production use as experimental until that verification lands.
 
