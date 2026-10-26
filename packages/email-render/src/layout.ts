@@ -1,7 +1,8 @@
 import type { Block, Site, Styles } from "@openspace/schema";
-import { renderBlocks } from "./blocks";
+import { type ResolveLink, renderBlocks } from "./blocks";
+import { EmailRenderError, type EmailWarning } from "./diag";
 import { esc, oneLine, safeUrl } from "./escape";
-import { buildEmailTheme, darkCss, darkCssOutlook, type EmailTheme } from "./theme";
+import { buildEmailTheme, darkCss, darkCssOutlook } from "./theme";
 
 export const EMAIL_WIDTH = 600;
 const GUTTER = 32;
@@ -12,9 +13,13 @@ export interface RenderEmailInput {
   site?: Pick<Site, "title" | "tagline" | "logo" | "social" | "locale"> | Site;
   /** Inbox preview text (hidden in the body). */
   preheader?: string;
-  /** Absolute URL. Rendered as the footer unsubscribe link (omit for transactional mail). */
-  unsubscribeUrl?: string;
-  /** Absolute URL of the web version; adds a "View in browser" link at the top. */
+  /**
+   * Footer unsubscribe link (omit for transactional mail). A usable http(s) URL, or
+   * `{ mergeTag }` for an ESP placeholder such as `{{unsubscribe}}` emitted verbatim in the href.
+   * An unusable value throws `EmailRenderError`.
+   */
+  unsubscribeUrl?: string | { mergeTag: string };
+  /** Absolute URL of the web version; adds a "View in browser" link at the top. Throws if unusable. */
   viewInBrowserUrl?: string;
   /** Public site origin; relative links and `media/...` images resolve against it. */
   baseUrl?: string;
@@ -22,23 +27,46 @@ export interface RenderEmailInput {
   title?: string;
   /** Extra footer note (e.g. why the recipient got this mail). Plain text. */
   footerNote?: string;
+  /** Postal address lines for the footer (required for commercial mail in many jurisdictions). */
+  postalAddress?: string | readonly string[];
+  /** Resolves page / item / anchor links to absolute URLs; unresolved ones are dropped with a warning. */
+  resolveLink?: ResolveLink;
 }
 
 export interface RenderedEmail {
   html: string;
   text: string;
+  /** Skipped blocks/fields, dropped links, theme fallbacks and substituted colors. */
+  warnings: EmailWarning[];
 }
 
 export function renderEmail(input: RenderEmailInput): RenderedEmail {
-  return renderWith(buildEmailTheme(input.styles), input, false);
+  return renderWith(input, false);
+}
+
+const MERGE_TAG_RE = /^[A-Za-z0-9{}%$_[\]|:.*#!-]{3,200}$/;
+
+function unsubscribeTarget(
+  v: RenderEmailInput["unsubscribeUrl"],
+  baseUrl: string | undefined,
+): string | null {
+  if (v === undefined) return null;
+  if (typeof v === "object") {
+    if (!v || !MERGE_TAG_RE.test(v.mergeTag ?? "")) {
+      throw new EmailRenderError("unsubscribeUrl.mergeTag is not a valid merge tag");
+    }
+    return v.mergeTag;
+  }
+  const u = safeUrl(v, baseUrl);
+  if (!u || u.startsWith("mailto:")) {
+    throw new EmailRenderError("unsubscribeUrl must be an absolute http(s) URL (or { mergeTag })");
+  }
+  return u;
 }
 
 /** @internal `allowRaw` lets templates inject pre-escaped `os-internal/html` blocks. */
-export function renderWith(
-  theme: EmailTheme,
-  input: RenderEmailInput,
-  allowRaw: boolean,
-): RenderedEmail {
+export function renderWith(input: RenderEmailInput, allowRaw: boolean): RenderedEmail {
+  const { theme, warnings } = buildEmailTheme(input.styles);
   const { baseUrl } = input;
   const site = input.site;
   const siteTitle = oneLine(site?.title);
@@ -53,10 +81,23 @@ export function renderWith(
     site,
     width: EMAIL_WIDTH - GUTTER * 2,
     allowRaw,
+    resolveLink: input.resolveLink,
+    warn: (code, message, path) => warnings.push({ code, message, path }),
   });
 
-  const unsub = safeUrl(input.unsubscribeUrl, baseUrl);
-  const browser = safeUrl(input.viewInBrowserUrl, baseUrl);
+  const unsub = unsubscribeTarget(input.unsubscribeUrl, baseUrl);
+  const browser =
+    input.viewInBrowserUrl === undefined ? null : safeUrl(input.viewInBrowserUrl, baseUrl);
+  if (input.viewInBrowserUrl !== undefined && (!browser || browser.startsWith("mailto:"))) {
+    throw new EmailRenderError("viewInBrowserUrl must be an absolute http(s) URL");
+  }
+  const address = (
+    typeof input.postalAddress === "string"
+      ? [input.postalAddress]
+      : [...(input.postalAddress ?? [])]
+  )
+    .map(oneLine)
+    .filter(Boolean);
   const L = theme.light;
   const muted = `font-family:${theme.bodyFont};font-size:13px;line-height:20px;color:${L.muted};`;
 
@@ -75,6 +116,8 @@ export function renderWith(
   const footerLines: string[] = [];
   if (input.footerNote) footerLines.push(esc(oneLine(input.footerNote)));
   if (siteTitle) footerLines.push(`Sent by ${esc(siteTitle)}`);
+  if (address.length) footerLines.push(address.map(esc).join(" &middot; "));
+  if (address.length) footerLines.push(address.map(esc).join(" &middot; "));
   const unsubHtml = unsub
     ? `<a class="os-link" href="${esc(unsub)}" style="color:${L.link};text-decoration:underline;">Unsubscribe</a>`
     : "";
@@ -108,7 +151,6 @@ a{word-break:break-word}
 }
 @media (prefers-color-scheme:dark){
 ${darkCss(theme)}
-.os-outline{border-color:${theme.dark.accent} !important}
 }
 ${darkCssOutlook(theme)}
 </style>
@@ -142,6 +184,7 @@ ${unsubHtml ? `<p class="os-muted" style="margin:0;${muted}text-align:center;">$
       "--",
       input.footerNote ? oneLine(input.footerNote) : "",
       siteTitle ? `Sent by ${siteTitle}` : "",
+      address.join(", "),
       unsub ? `Unsubscribe: ${unsub}` : "",
     ]
       .filter(Boolean)
@@ -151,5 +194,36 @@ ${unsubHtml ? `<p class="os-muted" style="margin:0;${muted}text-align:center;">$
     .join("\n\n")
     .concat("\n");
 
-  return { html, text };
+  return { html, text, warnings };
+}
+
+/**
+ * RFC 8058 one-click unsubscribe headers for the message (set them on the outgoing mail).
+ * `url` must be https; `mailto` optionally adds a fallback address.
+ */
+export function unsubscribeHeaders(
+  url: string,
+  opts: { mailto?: string } = {},
+): { "List-Unsubscribe": string; "List-Unsubscribe-Post": string } {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    throw new EmailRenderError("unsubscribeHeaders: url must be an absolute https URL");
+  }
+  if (u.protocol !== "https:" || /[<>\s]/.test(url)) {
+    throw new EmailRenderError("unsubscribeHeaders: url must be an absolute https URL");
+  }
+  const parts = [`<${u.toString()}>`];
+  if (opts.mailto !== undefined) {
+    const m = opts.mailto.replace(/^mailto:/i, "");
+    if (!/^[^\s@<>,"?]+@[^\s@<>,"?]+$/.test(m)) {
+      throw new EmailRenderError("unsubscribeHeaders: mailto is not a valid address");
+    }
+    parts.push(`<mailto:${m}>`);
+  }
+  return {
+    "List-Unsubscribe": parts.join(", "),
+    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+  };
 }

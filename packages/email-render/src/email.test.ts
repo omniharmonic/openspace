@@ -81,15 +81,24 @@ const blocks: Block[] = [
       ],
     },
   }),
-  b("image", { src: "media/hero.jpg", alt: "Studio", link: { type: "url", url: "/classes" } }),
+  b("image", {
+    image: { src: "media/hero.jpg", alt: "Studio", width: 400 },
+    link: { type: "url", url: "/classes" },
+  }),
   b("button", { label: "Book a class", link: { type: "url", url: "https://maya.example/book" } }),
   b("line", {}),
   b("spacer", { size: "md" }),
-  b("quote", { quote: doc("Life changing."), name: "Sam", role: "Student" }),
+  b("quote", { quote: doc("Life changing."), attribution: "Sam", source: "Member" }),
   b("columns", {
-    columns: [
-      [b("text", { content: doc("Left column") })],
-      [b("button", { label: "Right", link: { type: "url", url: "/right" }, variant: "secondary" })],
+    columns: "2",
+    items: [
+      { heading: "Left", body: doc("Left column") },
+      {
+        heading: "Right",
+        body: doc("Right column"),
+        link: { type: "url", url: "/right" },
+        linkLabel: "Go",
+      },
     ],
   }),
   b("social-links", {}),
@@ -141,6 +150,8 @@ describe("renderEmail", () => {
     expect(out.text).toContain("Book a class: https://maya.example/book");
     expect(out.text).toContain("Unsubscribe: https://maya.example/unsubscribe?t=abc");
     expect(out.text).toContain("studio (https://maya.example/studio)");
+    expect(out.text).toContain("LEFT\n\nLeft column");
+    expect(out.text).toContain("Go: https://maya.example/right");
     expect(out.text).not.toMatch(/<[a-z]/);
   });
 
@@ -183,13 +194,13 @@ describe("renderEmail", () => {
         b("nonexistent", { html: evil }),
         b("os-internal/html", { html: "<script>1</script>", text: "" }),
       ],
-      unsubscribeUrl: "javascript:alert(1)",
     });
     expectSafe(r.html);
     expect(r.html).not.toContain("<img src=x");
-    expect(r.html).not.toContain("Unsubscribe");
+    expect(r.warnings.some((w) => w.code === "unknown-block")).toBe(true);
     expect(r.html).toContain("&lt;script&gt;");
     expect(r.html).toContain("a=1&amp;b=%3C2%3E");
+    expect(r.warnings.length).toBeGreaterThan(0);
   });
 });
 

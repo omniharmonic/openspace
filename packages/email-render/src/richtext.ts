@@ -1,11 +1,12 @@
 import type { BlockNode, InlineNode, ListItemNode, Mark, RichTextDoc } from "@openspace/schema";
+import type { Warn } from "./diag";
 import { esc, safeUrl } from "./escape";
 import type { EmailTheme } from "./theme";
 
 export interface RtCtx {
   theme: EmailTheme;
   baseUrl?: string;
-  /** Plain-text footnote of links is not used; links are rendered inline as `text (url)`. */
+  warn?: Warn;
 }
 
 const HEADING_SIZE: Record<number, { size: number; line: number }> = {
@@ -36,11 +37,13 @@ function inlineHtml(nodes: InlineNode[] | undefined, ctx: RtCtx): string {
     if (hasMark(marks, "underline")) h = `<u>${h}</u>`;
     if (hasMark(marks, "strike")) h = `<s>${h}</s>`;
     if (hasMark(marks, "highlight")) {
-      h = `<span style="background-color:#fff3a3;color:#262626;">${h}</span>`;
+      const { highlight, highlightText } = ctx.theme.light;
+      h = `<span class="os-mark" style="background-color:${highlight};color:${highlightText};">${h}</span>`;
     }
     const link = hasMark(marks, "link");
     if (link) {
       const href = safeUrl(link.attrs.href, ctx.baseUrl);
+      if (!href) ctx.warn?.("unresolved-link", `Dropped rich text link "${link.attrs.href}".`);
       if (href) {
         const title = link.attrs.title ? ` title="${esc(link.attrs.title)}"` : "";
         h = `<a class="os-link" href="${esc(href)}"${title} style="color:${ctx.theme.light.link};text-decoration:underline;">${h}</a>`;
@@ -71,11 +74,14 @@ export interface RtOptions {
   size?: number;
   line?: number;
   align?: "left" | "center" | "right";
+  /** Use the heading font and italics (quotes). Does not touch code marks. */
+  display?: boolean;
 }
 
 function pStyle(ctx: RtCtx, o: RtOptions, extra = ""): string {
   const color = o.tone === "muted" ? ctx.theme.light.muted : ctx.theme.light.text;
-  return `margin:0 0 16px 0;font-family:${ctx.theme.bodyFont};font-size:${o.size ?? 16}px;line-height:${o.line ?? 26}px;color:${color};text-align:${o.align ?? "left"};${extra}`;
+  const font = o.display ? `${ctx.theme.headingFont};font-style:italic` : ctx.theme.bodyFont;
+  return `margin:0 0 16px 0;font-family:${font};font-size:${o.size ?? 16}px;line-height:${o.line ?? 26}px;color:${color};text-align:${o.align ?? "left"};${extra}`;
 }
 
 function blockHtml(node: BlockNode, ctx: RtCtx, o: RtOptions): string {
@@ -93,10 +99,12 @@ function blockHtml(node: BlockNode, ctx: RtCtx, o: RtOptions): string {
       return `<p class="${cls}" style="${pStyle(ctx, { ...o, size, line }, extra)}">${body}</p>`;
     }
     case "heading": {
+      const inner = inlineHtml(node.content, ctx);
+      if (!inner.trim()) return "";
       const lvl = [1, 2, 3, 4].includes(Number(node.attrs.level)) ? Number(node.attrs.level) : 2;
       const s = HEADING_SIZE[lvl] ?? { size: 24, line: 30 };
       const eyebrow = node.attrs.preset === "eyebrow";
-      return `<h${lvl} class="os-heading" style="margin:0 0 14px 0;font-family:${ctx.theme.headingFont};font-weight:700;font-size:${eyebrow ? 13 : s.size}px;line-height:${eyebrow ? 20 : s.line}px;color:${ctx.theme.light.heading};text-align:${o.align ?? "left"};${eyebrow ? "text-transform:uppercase;letter-spacing:0.12em;" : ""}">${inlineHtml(node.content, ctx)}</h${lvl}>`;
+      return `<h${lvl} class="os-heading" style="margin:0 0 14px 0;font-family:${ctx.theme.headingFont};font-weight:700;font-size:${eyebrow ? 13 : s.size}px;line-height:${eyebrow ? 20 : s.line}px;color:${ctx.theme.light.heading};text-align:${o.align ?? "left"};${eyebrow ? "text-transform:uppercase;letter-spacing:0.12em;" : ""}">${inner}</h${lvl}>`;
     }
     case "bulletList":
     case "orderedList": {

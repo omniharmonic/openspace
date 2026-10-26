@@ -5,7 +5,8 @@ import {
   type FontFamilySpec,
   getPairing,
 } from "@openspace/theme";
-import { esc, safeColor } from "./escape";
+import type { EmailWarning } from "./diag";
+import { safeColor } from "./escape";
 
 export interface EmailPalette {
   background: string;
@@ -17,15 +18,20 @@ export interface EmailPalette {
   accentText: string;
   border: string;
   link: string;
+  /** Highlight mark background / foreground. */
+  highlight: string;
+  highlightText: string;
 }
 
 /** Concrete (var-free) design tokens for email clients. */
 export interface EmailTheme {
   light: EmailPalette;
   dark: EmailPalette;
+  /** Every light-theme role plus `accent-<step>` / `neutral-<step>` scale colors, for token lookups. */
+  colors: Record<string, string>;
   headingFont: string;
   bodyFont: string;
-  /** Corner radius in px for buttons / images. */
+  /** Corner radius in px for images / container. */
   radius: number;
   buttonRadius: number;
   fontsUrl: string | null;
@@ -41,6 +47,8 @@ const DEFAULT_LIGHT: EmailPalette = {
   accentText: "#ffffff",
   border: "#e4e4e7",
   link: "#1d4ed8",
+  highlight: "#fff3a3",
+  highlightText: "#262626",
 };
 const DEFAULT_DARK: EmailPalette = {
   background: "#111111",
@@ -52,6 +60,8 @@ const DEFAULT_DARK: EmailPalette = {
   accentText: "#0b1020",
   border: "#333333",
   link: "#93b4ff",
+  highlight: "#5c4d00",
+  highlightText: "#fff3a3",
 };
 
 const WEB_SAFE = {
@@ -67,9 +77,30 @@ function stack(spec: FontFamilySpec | undefined, fallback: string): string {
   return `'${name}', ${WEB_SAFE[spec.category]}`;
 }
 
-function palette(raw: Record<string, string> | undefined, fb: EmailPalette): EmailPalette {
-  if (!raw) return fb;
-  const c = (k: string, d: string) => safeColor(raw[k], d);
+function palette(
+  raw: Record<string, string> | undefined,
+  fb: EmailPalette,
+  scheme: string,
+  warnings: EmailWarning[],
+  highlight: Pick<EmailPalette, "highlight" | "highlightText">,
+): EmailPalette {
+  if (!raw) {
+    warnings.push({ code: "theme", message: `No ${scheme} theme colors; using defaults.` });
+    return fb;
+  }
+  const c = (k: string, d: string) => {
+    const v = raw[k];
+    const ok = safeColor(v, "");
+    if (!ok) {
+      warnings.push({
+        code: "color-substituted",
+        message: `Unusable ${scheme} color "${k}" (${String(v)}); using ${d}.`,
+        path: `theme.${scheme}.${k}`,
+      });
+      return d;
+    }
+    return ok;
+  };
   return {
     background: c("background", fb.background),
     surface: c("surface", fb.surface),
@@ -80,73 +111,104 @@ function palette(raw: Record<string, string> | undefined, fb: EmailPalette): Ema
     accentText: c("accent-text", fb.accentText),
     border: c("border", fb.border),
     link: c("link", fb.link),
+    ...highlight,
   };
 }
 
-export function buildEmailTheme(styles?: Styles): EmailTheme {
-  const fallback: EmailTheme = {
-    light: DEFAULT_LIGHT,
-    dark: DEFAULT_DARK,
-    headingFont: WEB_SAFE.serif,
-    bodyFont: WEB_SAFE["sans-serif"],
-    radius: 6,
-    buttonRadius: 6,
-    fontsUrl: null,
-  };
-  if (!styles) return fallback;
+const FALLBACK: EmailTheme = {
+  light: DEFAULT_LIGHT,
+  dark: DEFAULT_DARK,
+  colors: { ...DEFAULT_LIGHT },
+  headingFont: WEB_SAFE.serif,
+  bodyFont: WEB_SAFE["sans-serif"],
+  radius: 6,
+  buttonRadius: 6,
+  fontsUrl: null,
+};
+
+export function buildEmailTheme(styles?: Styles): { theme: EmailTheme; warnings: EmailWarning[] } {
+  const warnings: EmailWarning[] = [];
+  if (!styles) return { theme: FALLBACK, warnings };
   try {
-    const { tokens } = compileStyles(styles);
+    const { tokens, warnings: compileWarnings } = compileStyles(styles);
+    for (const w of compileWarnings) {
+      warnings.push({ code: "theme", message: w.message, path: w.path });
+    }
     const pairing = getPairing(tokens.choices.pairing) ?? getPairing(DEFAULT_PAIRING_ID);
     const shape = tokens.choices.shape;
     const radius = shape === "sharp" ? 0 : shape === "soft" ? 6 : 12;
     const pill = /pill/.test(String(tokens.choices.buttons));
+    const lightRaw = tokens.themes.light as unknown as Record<string, string>;
+    const darkRaw = tokens.themes.dark as unknown as Record<string, string>;
+    const neutral = tokens.palette.neutral;
+    const accent = tokens.palette.accent;
+    const light = palette(lightRaw, DEFAULT_LIGHT, "light", warnings, {
+      highlight: accent[100],
+      highlightText: neutral[900],
+    });
+    const dark = palette(darkRaw, DEFAULT_DARK, "dark", warnings, {
+      highlight: accent[800],
+      highlightText: neutral[50],
+    });
+    const colors: Record<string, string> = { ...lightRaw };
+    for (const [step, v] of Object.entries(accent)) colors[`accent-${step}`] = v;
+    for (const [step, v] of Object.entries(neutral)) colors[`neutral-${step}`] = v;
     return {
-      light: palette(tokens.themes.light as unknown as Record<string, string>, DEFAULT_LIGHT),
-      dark: palette(tokens.themes.dark as unknown as Record<string, string>, DEFAULT_DARK),
-      headingFont: stack(pairing?.heading, fallback.headingFont),
-      bodyFont: stack(pairing?.body, fallback.bodyFont),
-      radius,
-      buttonRadius: pill ? 999 : radius,
-      fontsUrl: /^https:\/\/fonts\.googleapis\.com\//.test(tokens.fonts.googleFontsUrl)
-        ? tokens.fonts.googleFontsUrl
-        : null,
+      theme: {
+        light,
+        dark,
+        colors,
+        headingFont: stack(pairing?.heading, FALLBACK.headingFont),
+        bodyFont: stack(pairing?.body, FALLBACK.bodyFont),
+        radius,
+        buttonRadius: pill ? 999 : radius,
+        fontsUrl: /^https:\/\/fonts\.googleapis\.com\//.test(tokens.fonts.googleFontsUrl)
+          ? tokens.fonts.googleFontsUrl
+          : null,
+      },
+      warnings,
     };
-  } catch {
-    return fallback;
+  } catch (e) {
+    warnings.push({
+      code: "theme-error",
+      message: `Styles could not be compiled (${e instanceof Error ? e.message : String(e)}); using default email theme.`,
+    });
+    return { theme: FALLBACK, warnings };
   }
 }
 
-/** Dark-mode override stylesheet (class hooks are applied inline by the block renderers). */
-export function darkCss(t: EmailTheme): string {
+/** Dark-mode override rules (class hooks are applied inline by the block renderers). */
+function darkRules(t: EmailTheme): string[][] {
   const d = t.dark;
-  const rules = [
-    `.os-bg{background-color:${d.background} !important}`,
-    `.os-surface{background-color:${d.surface} !important}`,
-    `.os-text{color:${d.text} !important}`,
-    `.os-muted{color:${d.muted} !important}`,
-    `.os-heading{color:${d.heading} !important}`,
-    `.os-link{color:${d.link} !important}`,
-    `.os-btn{background-color:${d.accent} !important;border-color:${d.accent} !important}`,
-    `.os-btn-text{color:${d.accentText} !important}`,
-    `.os-rule{border-color:${d.border} !important}`,
-    `.os-hr{background-color:${d.border} !important}`,
+  return [
+    [".os-bg", `background-color:${d.background}`],
+    [".os-surface", `background-color:${d.surface}`],
+    [".os-text", `color:${d.text}`],
+    [".os-muted", `color:${d.muted}`],
+    [".os-heading", `color:${d.heading}`],
+    [".os-link", `color:${d.link}`],
+    [".os-btn", `background-color:${d.accent};border-color:${d.accent}`],
+    [".os-btn-text", `color:${d.accentText}`],
+    [".os-outline", `border-color:${d.accent}`],
+    [".os-rule", `border-color:${d.border}`],
+    [".os-hr", `background-color:${d.border}`],
+    [".os-mark", `background-color:${d.highlight};color:${d.highlightText}`],
   ];
-  return rules.join("\n");
+}
+
+export function darkCss(t: EmailTheme): string {
+  return darkRules(t)
+    .map(([sel, decl]) => `${sel}{${decl?.split(";").join(" !important;")} !important}`)
+    .join("\n");
 }
 
 /** Outlook.com / Gmail app attribute-based dark-mode selectors mirror the media query. */
 export function darkCssOutlook(t: EmailTheme): string {
-  const d = t.dark;
-  return [
-    `[data-ogsb] .os-bg{background-color:${d.background} !important}`,
-    `[data-ogsb] .os-surface{background-color:${d.surface} !important}`,
-    `[data-ogsc] .os-text{color:${d.text} !important}`,
-    `[data-ogsc] .os-muted{color:${d.muted} !important}`,
-    `[data-ogsc] .os-heading{color:${d.heading} !important}`,
-    `[data-ogsc] .os-link{color:${d.link} !important}`,
-    `[data-ogsb] .os-btn{background-color:${d.accent} !important}`,
-    `[data-ogsc] .os-btn-text{color:${d.accentText} !important}`,
-  ].join("\n");
+  return darkRules(t)
+    .map(([sel, decl]) => {
+      const attr = decl?.startsWith("color:") ? "data-ogsc" : "data-ogsb";
+      const imp = `${decl?.split(";").join(" !important;")} !important`;
+      return `[${attr}] ${sel}{${imp}}`;
+    })
+    .join("\n");
 }
-
-export { esc };
