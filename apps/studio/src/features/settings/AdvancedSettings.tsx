@@ -1,11 +1,10 @@
-import { buttonBlock, rt, textBlock } from "@openspace/blocks";
+import { buttonBlock, rt, starterSection, textBlock } from "@openspace/blocks";
 import type { Section } from "@openspace/schema";
 import { ArrowUpRight, FileWarning, GitBranch, TriangleAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Site } from "../../api/types";
 import { Button, toast } from "../../ui";
-import { cloneSection } from "../editor/model/actions";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import { createPage } from "../pages/pageOps";
 import type { PageTemplate } from "../pages/pageTemplates";
@@ -23,12 +22,9 @@ export const NOT_FOUND_TEMPLATE: PageTemplate = {
   slug: "404",
   outline: ["text"],
   build: (): Section[] => [
-    cloneSection({
-      id: "sec_0000000000",
-      label: "Not found",
-      layout: { mode: "stack", columns: { d: [12], m: [12] }, align: "center" },
-      style: { colorTheme: "light" },
-      blocks: [
+    starterSection(
+      "Not found",
+      [
         textBlock.create({
           fields: {
             content: rt.doc(
@@ -41,7 +37,8 @@ export const NOT_FOUND_TEMPLATE: PageTemplate = {
           fields: { label: "Go to the home page", link: { type: "url", url: "/" } },
         }),
       ],
-    } as Section),
+      { align: "center" },
+    ),
   ],
 };
 

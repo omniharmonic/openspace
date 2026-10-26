@@ -392,7 +392,7 @@ describe("forms manifest and validation", () => {
       site: { footer: { blocks: [{ fields: { form } }] } },
       pages: { pg_0kwdyvhkbk: { slug: "thanks", sections: [] } },
     } as never;
-    expect(formsInDocument(doc)).toEqual([{ form, redirectHref: "/thanks" }]);
+    expect(formsInDocument(doc)).toEqual([{ form, redirectHref: "/thanks/" }]);
   });
 
   it("validates each FR-30 field type", () => {

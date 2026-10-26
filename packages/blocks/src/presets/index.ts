@@ -1,3 +1,4 @@
+import type { ColorTheme, Section } from "@openspace/schema";
 import { aboutPresets } from "./categories/about";
 import { contactPresets, ctaPresets, newsletterPresets } from "./categories/action";
 import { footerPresets, headerPresets as headers } from "./categories/chrome";
@@ -18,6 +19,10 @@ import type { HeaderPreset, Preset, PresetCategory, PresetMeta, SectionPreset } 
  */
 
 export * from "./copy";
+export { type StarterLook, starterLook, starterRef, starterSection } from "./starter";
+
+import { starterLook, starterSection } from "./starter";
+
 export {
   type CropAspect,
   type DemoPhoto,
@@ -74,3 +79,21 @@ export function presetsIn(category: PresetCategory): Preset[] {
 export const presetCatalog: readonly PresetMeta[] = allPresets.map(
   ({ build: _build, ...meta }) => meta,
 );
+
+/**
+ * The section a page/footer preset (or a Studio starter look, `starter/…`) builds in a color
+ * theme, or undefined for an unknown preset or a header preset. `transformForRole` uses it to check
+ * that Editors only insert sections whose layout and style come from the design.
+ */
+export function presetSection(ref: string, colorTheme?: ColorTheme): Section | undefined {
+  const starter = starterLook(ref);
+  if (starter)
+    return starterSection("", [], {
+      columns: starter.columns,
+      theme: colorTheme ?? "light",
+      ...(starter.layout.align ? { align: starter.layout.align as "center" | "start" } : {}),
+    });
+  const preset = getPreset(ref);
+  if (!preset || preset.target === "header") return undefined;
+  return preset.build(colorTheme ? { colorTheme } : {});
+}

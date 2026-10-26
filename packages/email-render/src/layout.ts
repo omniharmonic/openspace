@@ -31,6 +31,11 @@ export interface RenderEmailInput {
   postalAddress?: string | readonly string[];
   /** Resolves page / item / anchor links to absolute URLs; unresolved ones are dropped with a warning. */
   resolveLink?: ResolveLink;
+  /**
+   * Where recipients report abuse (the Hub operator's `ABUSE_EMAIL`, PRD §9.3); adds a "Report
+   * abuse" mailto line to the footer. Ignored unless it looks like an email address.
+   */
+  abuseEmail?: string;
 }
 
 export interface RenderedEmail {
@@ -120,6 +125,14 @@ export function renderWith(input: RenderEmailInput, allowRaw: boolean): Rendered
   const unsubHtml = unsub
     ? `<a class="os-link" href="${esc(unsub)}" style="color:${L.link};text-decoration:underline;">Unsubscribe</a>`
     : "";
+  const abuse =
+    input.abuseEmail && /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(input.abuseEmail)
+      ? input.abuseEmail
+      : null;
+  if (abuse)
+    footerLines.push(
+      `Report abuse: <a class="os-link" href="mailto:${esc(abuse)}" style="color:${L.link};text-decoration:underline;">${esc(abuse)}</a>`,
+    );
   const browserHtml = browser
     ? `<a class="os-link" href="${esc(browser)}" style="color:${L.link};text-decoration:underline;">View in browser</a>`
     : "";
@@ -185,6 +198,7 @@ ${unsubHtml ? `<p class="os-muted" style="margin:0;${muted}text-align:center;">$
       siteTitle ? `Sent by ${siteTitle}` : "",
       address.join(", "),
       unsub ? `Unsubscribe: ${unsub}` : "",
+      abuse ? `Report abuse: ${abuse}` : "",
     ]
       .filter(Boolean)
       .join("\n"),

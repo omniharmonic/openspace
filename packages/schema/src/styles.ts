@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SlugSchema } from "./primitives";
+import { MediaPathSchema, SlugSchema } from "./primitives";
 import { named } from "./registry";
 import { CssColorSchema, ImageTreatmentSchema } from "./tokens";
 
@@ -111,18 +111,92 @@ export const StyleChoicesSchema = named(
     buttons: z.enum(BUTTON_STYLES),
     motion: z.enum(MOTION_LEVELS),
     imageTreatment: ImageTreatmentSchema,
+    /** An uploaded font family (`Styles.fonts`) used for headings instead of the pairing's. */
+    headingFont: z.string().max(60).optional(),
+    /** An uploaded font family used for body text instead of the pairing's. */
+    bodyFont: z.string().max(60).optional(),
   }),
 );
 export type StyleChoices = z.infer<typeof StyleChoicesSchema>;
+
+/** Uploadable font formats (PRD §5.1 "Font uploads"). */
+export const FONT_FILE_FORMATS = { woff2: "woff2", ttf: "truetype", otf: "opentype" } as const;
+export const FONT_CATEGORIES = [
+  "serif",
+  "sans-serif",
+  "display",
+  "monospace",
+  "handwriting",
+] as const;
+
+/**
+ * A font the site owns or licensed (PRD §5.1): its files live in `media/fonts/` and publish with
+ * the site; `license.webUse` records that a designer confirmed the right to use it on the web.
+ */
+export const CustomFontSchema = named(
+  "CustomFont",
+  "An uploaded font family: files in media/fonts/ (WOFF2, TTF or OTF) with weights, and a web-use license confirmation.",
+  z.strictObject({
+    family: z
+      .string()
+      .regex(/^[A-Za-z0-9][A-Za-z0-9 _-]{0,59}$/, { message: "Use letters, numbers and spaces" }),
+    category: z.enum(FONT_CATEGORIES),
+    files: z
+      .array(
+        z.strictObject({
+          src: MediaPathSchema.refine(
+            (p) => p.startsWith("media/fonts/") && /\.(woff2|ttf|otf)$/.test(p),
+            { message: "Font files live in media/fonts/ as .woff2, .ttf or .otf" },
+          ),
+          weight: z.int().min(100).max(900),
+          style: z.enum(["normal", "italic"]),
+        }),
+      )
+      .min(1)
+      .max(18),
+    license: z.strictObject({
+      /** The uploader confirmed the license allows web use (self-hosting on a website). */
+      webUse: z.literal(true),
+      confirmedBy: z.string().max(80).optional(),
+      confirmedAt: z.string().max(40).optional(),
+    }),
+  }),
+);
+export type CustomFont = z.infer<typeof CustomFontSchema>;
 
 /** `content/styles.json` (doc 04 §2.1): choices + exact DTCG overrides (Designer mode). */
 export const StylesSchema = named(
   "Styles",
   "content/styles.json: Site Styles choices plus DTCG token overrides.",
-  z.strictObject({
-    $schema: z.string().optional(),
-    choices: StyleChoicesSchema,
-    overrides: DtcgGroupSchema.optional(),
-  }),
+  z
+    .strictObject({
+      $schema: z.string().optional(),
+      choices: StyleChoicesSchema,
+      overrides: DtcgGroupSchema.optional(),
+      /** Uploaded font families (PRD §5.1 "Font uploads"). */
+      fonts: z.array(CustomFontSchema).max(8).optional(),
+    })
+    .superRefine((styles, ctx) => {
+      const families = new Set<string>();
+      styles.fonts?.forEach((f, i) => {
+        const key = f.family.toLowerCase();
+        if (families.has(key))
+          ctx.addIssue({
+            code: "custom",
+            path: ["fonts", i, "family"],
+            message: `Two uploaded fonts are named ${f.family}`,
+          });
+        families.add(key);
+      });
+      for (const key of ["headingFont", "bodyFont"] as const) {
+        const name = styles.choices[key];
+        if (name !== undefined && !families.has(name.toLowerCase()))
+          ctx.addIssue({
+            code: "custom",
+            path: ["choices", key],
+            message: `No uploaded font is named ${name}`,
+          });
+      }
+    }),
 );
 export type Styles = z.infer<typeof StylesSchema>;

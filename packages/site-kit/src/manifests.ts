@@ -7,7 +7,14 @@
  *   never trusted from the browser (arch §9.5, GC12).
  * Both are deterministic (no timestamps) so unchanged content yields byte-identical files.
  */
-import type { Block, Form, Money, Page, SiteDocument } from "@openspace/schema";
+import {
+  type Block,
+  type Form,
+  formRedirectHref,
+  type Money,
+  type Page,
+  type SiteDocument,
+} from "@openspace/schema";
 import { contentHash } from "./ids";
 import type { SitePlan } from "./routes";
 
@@ -40,23 +47,6 @@ function blocksOf(doc: SiteDocument): { block: Block; page: string | undefined }
   return out;
 }
 
-function redirectHref(form: Form, doc: SiteDocument): string | null {
-  if (form.success.type !== "redirect") return null;
-  const l = form.success.link;
-  switch (l.type) {
-    case "url":
-      return l.url;
-    case "page": {
-      const page = doc.pages[l.page];
-      return page ? `${pagePath(page)}${l.anchor ? `#${l.anchor}` : ""}` : null;
-    }
-    case "item":
-      return `/${l.collection}/${l.slug}/`;
-    default:
-      return null;
-  }
-}
-
 export function formsManifest(plan: SitePlan): FormsManifest {
   const forms: Record<string, Form> = {};
   const pages: Record<string, string[]> = {};
@@ -82,7 +72,7 @@ export function formsManifest(plan: SitePlan): FormsManifest {
   const sorted = Object.fromEntries(
     ids.map((id) => [
       id,
-      { ...(forms[id] as Form), redirectHref: redirectHref(forms[id] as Form, plan.doc) },
+      { ...(forms[id] as Form), redirectHref: formRedirectHref(forms[id] as Form, plan.doc.pages) },
     ]),
   );
   return {
@@ -98,6 +88,8 @@ export interface CatalogVariant {
   sku: string;
   options: Record<string, string>;
   price: Money;
+  /** Shipping weight in grams. */
+  weight?: number;
   available: boolean;
 }
 
@@ -112,6 +104,10 @@ export interface CatalogProduct {
   compareAtPrice?: Money;
   available: boolean;
   digital: boolean;
+  /** Shipping weight in grams (weight-based shipping, server-side). */
+  weight?: number;
+  /** Subscription products: billed every month or year. */
+  interval?: "month" | "year";
   image?: string;
   options?: { name: string; values: string[] }[];
   variants?: CatalogVariant[];
@@ -157,6 +153,8 @@ export function catalogManifest(plan: SitePlan): CatalogManifest {
         digital: fm.digital === true,
       };
       if (fm.compareAtPrice) product.compareAtPrice = fm.compareAtPrice;
+      if (fm.weight !== undefined) product.weight = fm.weight;
+      if (fm.subscription) product.interval = fm.subscription.interval;
       const image = fm.image ?? fm.images?.[0]?.src;
       if (image) product.image = image;
       if (fm.options?.length) product.options = fm.options;
@@ -170,6 +168,7 @@ export function catalogManifest(plan: SitePlan): CatalogManifest {
             price: v.price ?? fm.price,
             available: available && v.available !== false,
           };
+          if (v.weight !== undefined) variant.weight = v.weight;
           claimSku(skus, vsku, `${collection}/${item.slug}`);
           skus[vsku] = {
             price: variant.price,

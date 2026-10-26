@@ -200,6 +200,22 @@ describe("collections", () => {
     expect(hub.calls.some((c) => c.method === "listProducts")).toBe(true);
   });
 
+  it("sets a product's shipping weight and sells it as a monthly subscription", async () => {
+    const { user } = await openWorkspace("content/shop/cork-block");
+    await screen.findByDisplayValue("Cork yoga block");
+    const weight = screen.getByRole("spinbutton", { name: "Shipping weight in grams" });
+    await user.clear(weight);
+    await user.type(weight, "680");
+    await user.click(screen.getByRole("radio", { name: "Monthly" }));
+    await user.click(screen.getByRole("button", { name: "Update product" }));
+    await waitFor(() =>
+      expect(item("shop", "cork-block")?.frontmatter).toMatchObject({
+        weight: 680,
+        subscription: { interval: "month" },
+      }),
+    );
+  });
+
   it("won't save an episode without audio", async () => {
     const { user } = await openWorkspace("content/podcast/new");
     await screen.findByRole("textbox", { name: "Title" });

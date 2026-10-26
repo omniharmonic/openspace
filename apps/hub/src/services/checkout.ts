@@ -9,7 +9,7 @@ import type { SiteRow } from "../db/sites";
 import { randomId } from "../lib/crypto";
 import { HttpError } from "../lib/errors";
 import { type Catalog, type CatalogEntry, loadCatalog } from "./catalog";
-import { growthSettings, inventoryFor, stripeForSite } from "./commerce";
+import { growthSettings, inventoryFor, shippingRatesFor, stripeForSite } from "./commerce";
 import type { Services } from "./index";
 import type { CheckoutSessionParams } from "./stripe";
 
@@ -36,6 +36,10 @@ export interface OrderItem {
   qty: number;
   unitAmount: number;
   digital: boolean;
+  /** Shipping weight per unit in grams (from the catalog). */
+  weight?: number;
+  /** Subscription products: billed every month or year. */
+  interval?: "month" | "year";
 }
 
 const fail = (status: 409 | 422, code: string, message: string, errors?: Record<string, string>) =>
@@ -151,13 +155,18 @@ export async function priceCart(
   }
   if (Object.keys(errors).length)
     throw fail(409, "out_of_stock", "Some items don't have enough stock.", errors);
-  const lines = entries.map(([e, qty]) => ({
+  const lines: OrderItem[] = entries.map(([e, qty]) => ({
     sku: e.sku,
     title: e.title,
     qty,
     unitAmount: e.price.amount,
     digital: e.digital,
+    ...(e.weight ? { weight: e.weight } : {}),
+    ...(e.interval ? { interval: e.interval } : {}),
   }));
+  const intervals = new Set(lines.map((l) => l.interval).filter(Boolean));
+  if (intervals.size > 1)
+    throw fail(422, "mixed_intervals", "Monthly and yearly subscriptions need separate checkouts.");
   return {
     lines,
     currency: [...currencies][0] as string,
@@ -253,50 +262,113 @@ export async function createCheckout(
     currency = priced.currency;
     total = priced.subtotal;
     const physical = items.some((l) => !l.digital);
-    params = {
-      mode: "payment",
-      line_items: items.map((l) => ({
-        quantity: l.qty,
-        price_data: {
-          currency: currency.toLowerCase(),
-          unit_amount: l.unitAmount,
-          product_data: { name: l.title, metadata: { sku: l.sku } },
-        },
-      })),
-      success_url: urls.success,
-      cancel_url: urls.cancel,
-      client_reference_id: orderId,
-      metadata,
-      submit_type: "pay",
-      allow_promotion_codes: settings.allowPromotionCodes,
-      automatic_tax: { enabled: settings.taxEnabled },
-      payment_intent_data: { metadata },
-    };
-    if (physical) {
-      params.shipping_address_collection = { allowed_countries: settings.shippingCountries };
-      const opts = settings.shippingOptions.map((s) => ({
-        shipping_rate_data: {
-          type: "fixed_amount" as const,
-          display_name: s.label,
-          fixed_amount: {
-            amount: s.freeOver !== undefined && total >= s.freeOver ? 0 : s.amount,
-            currency: currency.toLowerCase(),
-          },
-          ...(s.minDays !== undefined || s.maxDays !== undefined
-            ? {
-                delivery_estimate: {
-                  ...(s.minDays !== undefined
-                    ? { minimum: { unit: "business_day" as const, value: s.minDays } }
-                    : {}),
-                  ...(s.maxDays !== undefined
-                    ? { maximum: { unit: "business_day" as const, value: s.maxDays } }
-                    : {}),
+    // Parcel weight from the catalog (grams); the browser's cart carries SKUs and quantities only.
+    const weightGrams = items.reduce((n, l) => n + (l.digital ? 0 : (l.weight ?? 0) * l.qty), 0);
+    const rates = physical
+      ? shippingRatesFor(settings.shippingOptions, { subtotal: total, weightGrams })
+      : [];
+    if (physical && settings.shippingOptions.length > 0 && rates.length === 0)
+      throw fail(
+        422,
+        "too_heavy",
+        "This order is heavier than the shop ships. Please contact the shop, or order fewer items.",
+      );
+    const interval = items.find((l) => l.interval)?.interval;
+    meta.weightGrams = weightGrams;
+    if (interval) {
+      // Subscription products (Stripe Billing): recurring prices for them, one-time prices for
+      // anything else in the cart. Checkout can't offer shipping choices in subscription mode,
+      // so the cheapest rate for the parcel is added as a recurring shipping line (each
+      // renewal ships again).
+      meta.subscription = interval;
+      const shipping = rates.reduce<(typeof rates)[number] | null>(
+        (best, r) => (!best || r.amount < best.amount ? r : best),
+        null,
+      );
+      params = {
+        mode: "subscription",
+        line_items: [
+          ...items.map((l) => ({
+            quantity: l.qty,
+            price_data: {
+              currency: currency.toLowerCase(),
+              unit_amount: l.unitAmount,
+              product_data: { name: l.title, metadata: { sku: l.sku } },
+              ...(l.interval ? { recurring: { interval: l.interval } } : {}),
+            },
+          })),
+          ...(shipping && shipping.amount > 0
+            ? [
+                {
+                  quantity: 1,
+                  price_data: {
+                    currency: currency.toLowerCase(),
+                    unit_amount: shipping.amount,
+                    product_data: { name: `Shipping: ${shipping.label}` },
+                    // Shipped every period, so shipping is charged every period too.
+                    recurring: { interval },
+                  },
                 },
-              }
-            : {}),
-        },
-      }));
-      if (opts.length) params.shipping_options = opts;
+              ]
+            : []),
+        ],
+        success_url: urls.success,
+        cancel_url: urls.cancel,
+        client_reference_id: orderId,
+        metadata,
+        allow_promotion_codes: settings.allowPromotionCodes,
+        automatic_tax: { enabled: settings.taxEnabled },
+        subscription_data: { metadata },
+      };
+      if (shipping) meta.shipping = { label: shipping.label, amount: shipping.amount };
+      if (physical)
+        params.shipping_address_collection = { allowed_countries: settings.shippingCountries };
+    } else {
+      params = {
+        mode: "payment",
+        line_items: items.map((l) => ({
+          quantity: l.qty,
+          price_data: {
+            currency: currency.toLowerCase(),
+            unit_amount: l.unitAmount,
+            product_data: { name: l.title, metadata: { sku: l.sku } },
+          },
+        })),
+        success_url: urls.success,
+        cancel_url: urls.cancel,
+        client_reference_id: orderId,
+        metadata,
+        submit_type: "pay",
+        allow_promotion_codes: settings.allowPromotionCodes,
+        automatic_tax: { enabled: settings.taxEnabled },
+        payment_intent_data: { metadata },
+      };
+      if (physical) {
+        params.shipping_address_collection = { allowed_countries: settings.shippingCountries };
+        const opts = rates.map((s) => ({
+          shipping_rate_data: {
+            type: "fixed_amount" as const,
+            display_name: s.label,
+            fixed_amount: {
+              amount: s.amount,
+              currency: currency.toLowerCase(),
+            },
+            ...(s.minDays !== undefined || s.maxDays !== undefined
+              ? {
+                  delivery_estimate: {
+                    ...(s.minDays !== undefined
+                      ? { minimum: { unit: "business_day" as const, value: s.minDays } }
+                      : {}),
+                    ...(s.maxDays !== undefined
+                      ? { maximum: { unit: "business_day" as const, value: s.maxDays } }
+                      : {}),
+                  },
+                }
+              : {}),
+          },
+        }));
+        if (opts.length) params.shipping_options = opts;
+      }
     }
   } else if (input.kind === "donation") {
     currency = input.currency;

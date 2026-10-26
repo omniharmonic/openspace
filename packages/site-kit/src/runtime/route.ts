@@ -43,7 +43,9 @@ export function staticPaths() {
 export async function imageMapFor(route: SiteRoute): Promise<ImageMap> {
   const p = sitePlan();
   const page = p.doc.pages[route.pageId as keyof typeof p.doc.pages];
-  return resolveImages(page ? pageImageSrcs(p.doc, page) : []);
+  const local = await resolveImages(page ? pageImageSrcs(p.doc, page) : []);
+  // Remote demo photos the build self-hosted (publish builds), then the site's own media.
+  return { ...(options.remoteImages ?? {}), ...local };
 }
 
 /** Render the page for `Astro.props` to a full HTML document. */

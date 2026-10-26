@@ -292,6 +292,8 @@ export interface CampaignEmailInput extends Common {
   unsubscribeUrl: string | { mergeTag: string };
   viewInBrowserUrl?: string;
   resolveLink?: RenderEmailInput["resolveLink"];
+  /** Operator's abuse-report address, shown in the footer (PRD §9.3). */
+  abuseEmail?: string;
 }
 
 export function campaignEmail(i: CampaignEmailInput): EmailResult {
@@ -308,6 +310,7 @@ export function campaignEmail(i: CampaignEmailInput): EmailResult {
       footerNote: "You are receiving this because you subscribed to our newsletter.",
       postalAddress: i.postalAddress,
       resolveLink: i.resolveLink,
+      ...(i.abuseEmail ? { abuseEmail: i.abuseEmail } : {}),
     },
     false,
   );

@@ -92,6 +92,51 @@ describe("renderPageHtml", () => {
     expect(html).toContain("<!-- footer -->\n</body>");
   });
 
+  it("adds a page's own head/footer code after the site's, only on that page", () => {
+    const d = siteFixture();
+    d.site.headInjection = '<meta name="x-site" content="1">';
+    d.site.footerInjection = "<!-- site footer -->";
+    const about = must(d.pages[IDS.about]);
+    about.headInjection = '<link rel="preconnect" href="https://cal.example">';
+    about.footerInjection = "<!-- about footer -->";
+    const html = renderPageHtml({ doc: d, pageId: IDS.about });
+    const head = html.slice(0, html.indexOf("</head>"));
+    expect(head.indexOf('<meta name="x-site"')).toBeLessThan(
+      head.indexOf('<link rel="preconnect" href="https://cal.example">'),
+    );
+    expect(html).toContain("<!-- site footer --><!-- about footer -->\n</body>");
+    const home = renderPageHtml({ doc: d, pageId: IDS.home });
+    expect(home).not.toContain("cal.example");
+    expect(home).not.toContain("about footer");
+  });
+
+  it("self-hosts uploaded fonts with @font-face and a preload, dropping unused web fonts", () => {
+    const d = siteFixture();
+    d.styles = {
+      ...d.styles,
+      choices: { ...d.styles.choices, headingFont: "Studio Grotesk", bodyFont: "Studio Grotesk" },
+      fonts: [
+        {
+          family: "Studio Grotesk",
+          category: "sans-serif",
+          files: [
+            { src: "media/fonts/studio-grotesk-400-1a2b3c4d.woff2", weight: 400, style: "normal" },
+            { src: "media/fonts/studio-grotesk-700-5e6f7a8b.woff2", weight: 700, style: "normal" },
+          ],
+          license: { webUse: true },
+        },
+      ],
+    };
+    const html = renderPageHtml({ doc: d, pageId: IDS.home, basePath: "/maya" });
+    expect(html).toContain('<style data-os="fonts">@font-face{font-family:"Studio Grotesk";');
+    expect(html).toContain('url("/maya/media/fonts/studio-grotesk-700-5e6f7a8b.woff2")');
+    expect(html).toMatch(
+      /<link rel="preload" as="font" type="font\/woff2" href="\/maya\/media\/fonts\/studio-grotesk-[0-9a-z-]+\.woff2" crossorigin>/,
+    );
+    expect(html).not.toContain("fonts.googleapis.com");
+    expect(html).toContain('--os-font-heading: "Studio Grotesk"');
+  });
+
   it("detects behaviors from a document or from HTML", () => {
     const d = siteFixture();
     const home = must(d.pages[IDS.home]);
@@ -199,6 +244,25 @@ describe("published page details", () => {
     } as never;
     // Placed blocks in reading order first; one without a layout item comes after them.
     expect([...leadImages(grid)]).toEqual(["media/left.jpg", "media/right.jpg"]);
+    // Phones may stack the grid differently: their first image leads (mobile LCP), then the
+    // desktop one.
+    const phoneFirst = {
+      ...(grid as object),
+      layout: {
+        mode: "grid",
+        items: {
+          b2: { d: { x: 0, y: 0, w: 12, h: 4 }, m: { x: 0, y: 5, w: 8, h: 4 } },
+          b3: { d: { x: 12, y: 0, w: 12, h: 4 }, m: { x: 0, y: 0, w: 8, h: 4 } },
+          b4: { d: { x: 0, y: 5, w: 12, h: 4 }, m: { x: 0, y: 9, w: 8, h: 4 } },
+        },
+      },
+      blocks: [
+        { id: "b4", type: "image", fields: { image: { src: "media/third.jpg", alt: "" } } },
+        { id: "b3", type: "image", fields: { image: { src: "media/right.jpg", alt: "" } } },
+        { id: "b2", type: "image", fields: { image: { src: "media/left.jpg", alt: "" } } },
+      ],
+    } as never;
+    expect([...leadImages(phoneFirst)]).toEqual(["media/right.jpg", "media/left.jpg"]);
   });
 
   it("gives sites without a tab icon an inline monogram (no /favicon.ico 404)", () => {

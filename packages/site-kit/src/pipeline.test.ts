@@ -411,4 +411,21 @@ describe("Hub manifests", () => {
     });
     expect(c.products.find((p) => p.slug === "linen-bolster")?.variants).toHaveLength(2);
   });
+
+  it("catalog.json carries shipping weights and subscription intervals for the Hub", () => {
+    const items = structuredClone(plan.items);
+    const bolster = Object.values(items)
+      .flat()
+      .find((i) => i.slug === "linen-bolster");
+    if (bolster?.kind !== "products") throw new Error("fixture");
+    bolster.frontmatter.weight = 900;
+    bolster.frontmatter.subscription = { interval: "month" };
+    const first = bolster.frontmatter.variants?.[0];
+    if (first) first.weight = 1100;
+    const c = catalogManifest({ ...plan, items });
+    const p = c.products.find((x) => x.slug === "linen-bolster");
+    expect(p).toMatchObject({ weight: 900, interval: "month" });
+    expect(p?.variants?.[0]?.weight).toBe(1100);
+    expect(p?.variants?.[1]?.weight).toBeUndefined();
+  });
 });

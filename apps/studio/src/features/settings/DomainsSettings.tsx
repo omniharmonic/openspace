@@ -24,6 +24,7 @@ import {
 import type { Site } from "../../api/types";
 import { useConfig } from "../../app/config";
 import { Badge, Button, cx, Field, IconButton, Input, Spinner, toast } from "../../ui";
+import { RegistrarDiagram } from "./RegistrarDiagram";
 
 async function copy(text: string, what: string) {
   try {
@@ -83,7 +84,15 @@ export function RecordsTable({
   );
 }
 
-function Guide({ guide, lookup }: { guide: RegistrarGuide; lookup?: DomainLookup | null }) {
+function Guide({
+  guide,
+  lookup,
+  records,
+}: {
+  guide: RegistrarGuide;
+  lookup?: DomainLookup | null;
+  records: DnsRecord[];
+}) {
   const known = guide.id !== "other";
   return (
     <div className="st-guide">
@@ -113,11 +122,14 @@ function Guide({ guide, lookup }: { guide: RegistrarGuide; lookup?: DomainLookup
           </a>
         )}
       </div>
-      <ol className="st-steps">
-        {guide.steps.map((s) => (
-          <li key={s}>{s}</li>
-        ))}
-      </ol>
+      <div className="st-guide__body">
+        <RegistrarDiagram guide={guide} records={records} />
+        <ol className="st-steps">
+          {guide.steps.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
+        </ol>
+      </div>
       {guide.watchOut.length > 0 && (
         <div className="st-callout st-callout--pending" role="note">
           <TriangleAlert aria-hidden="true" />
@@ -269,7 +281,7 @@ export function DomainsSettings({ site }: { site: Site }) {
         </div>
         {!active && (
           <div className="st-card">
-            {guide && <Guide guide={guide} />}
+            {guide && <Guide guide={guide} records={view.records} />}
             <RecordsTable records={view.records} guide={guide} />
           </div>
         )}
@@ -358,7 +370,7 @@ export function DomainsSettings({ site }: { site: Site }) {
             <h3>
               <span>2</span> Add these records
             </h3>
-            <Guide guide={lookup.guide} lookup={lookup} />
+            <Guide guide={lookup.guide} lookup={lookup} records={lookup.records} />
             <RecordsTable records={lookup.records} guide={lookup.guide} />
           </li>
         )}

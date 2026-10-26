@@ -61,6 +61,7 @@ export default defineConfig({
           items: [
             { label: "Architecture overview", slug: "architecture" },
             { label: "Self-hosting the Hub", slug: "self-hosting" },
+            { label: "Budget alerts & abuse", slug: "operators/budget-and-abuse" },
             { label: "The openspace CLI", slug: "developers/cli" },
             { label: "Block development", slug: "developers/block-development" },
             { label: "Contributing templates", slug: "contributing/templates" },

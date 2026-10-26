@@ -28,6 +28,7 @@ import { previewSrc } from "../inspector/media";
 import { stylesOp } from "../inspector/model/edits";
 import { isDesigner } from "../inspector/model/permissions";
 import { PanelSection, PropRow, RoleNote } from "../inspector/ui";
+import { CustomFonts } from "./CustomFonts";
 import {
   brandPatch,
   type ContrastIssue,
@@ -632,6 +633,15 @@ export function SiteStylesPanel() {
       </PanelSection>
       <PanelSection title="Fonts">
         <Pairings styles={styles} commit={commit} disabled={disabled} />
+        {can && (
+          <PropRow
+            label="Your fonts"
+            stacked
+            hint="Licensed fonts you upload publish with your site."
+          >
+            <CustomFonts styles={styles} disabled={disabled} />
+          </PropRow>
+        )}
       </PanelSection>
       <PanelSection title="Spacing & shape">
         <PropRow label="Spacing" stacked>

@@ -24,6 +24,12 @@ Choose a **type pairing** from more than thirty, shown in the real fonts. Every 
 
 Two typefaces are plenty; change the pairing here rather than styling blocks one by one.
 
+### Your own fonts
+
+Owners and designers can **upload a licensed font** under **Fonts → Your fonts → Upload a font**: choose one or more **WOFF2, TTF or OTF** files (one per weight or style), check the weight and style of each, name the family and say what kind of font it is (serif, sans serif, display, monospace or handwriting). You must confirm that **you own the font or its license allows using it on a website**; fonts licensed only for desktop use or print can't be self-hosted.
+
+Then choose whether the font is used for **headings**, **text**, or both. The files publish with your site (`media/fonts/`), load with `font-display: swap` so text never disappears while they arrive, and the main weight is preloaded for a fast first paint. Prefer WOFF2: it's the smallest.
+
 ## Spacing and shape
 
 - **Density** — *compact*, *comfortable* or *airy* — scales section padding and gaps together, keeping the rhythm consistent.

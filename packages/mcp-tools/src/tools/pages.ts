@@ -128,6 +128,16 @@ export const updatePage = defineTool({
     const { id } = resolvePage(doc, input.page);
     if (!input.set && !input.unset?.length)
       throw new ToolError("Give set or unset.", "invalid_arguments");
+    const code = [...Object.keys(input.set ?? {}), ...(input.unset ?? [])].filter((p) =>
+      /^(headInjection|footerInjection)(\.|$)/.test(p),
+    );
+    if (code.length)
+      throw new ToolError(
+        `These settings can't be changed here: ${code.join(", ")}.`,
+        "forbidden",
+        [],
+        "Per-page custom code is changed by the owner in Studio's page settings (Advanced).",
+      );
     const body: Record<string, unknown> = { op: "page.update", page: id };
     if (input.set) body.set = input.set;
     if (input.unset?.length) body.unset = input.unset;

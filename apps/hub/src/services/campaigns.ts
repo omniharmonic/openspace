@@ -18,6 +18,7 @@ import { conflict, HttpError, notFound } from "../lib/errors";
 import type { Logger } from "../lib/log";
 import { hmacB64 } from "../lib/seal";
 import { requireHmacKey } from "../public-env";
+import { campaignQuota } from "./campaign-limits";
 import { DevOutboxSender, type EmailSender, emailSite, siteBaseUrl } from "./email";
 import type { Services } from "./index";
 import { listUnsubscribeHeaders, TagSchema, unsubscribeUrl } from "./newsletter";
@@ -293,6 +294,7 @@ export function renderCampaign(
     blocks: b.blocks,
     ...(r.preheader ? { preheader: r.preheader } : {}),
     unsubscribeUrl: { mergeTag: UNSUB_TAG },
+    ...(services.operator.abuseEmail ? { abuseEmail: services.operator.abuseEmail } : {}),
   });
   const links: string[] = [];
   let html = out.html;
@@ -465,6 +467,8 @@ export async function startCampaign(
   const r = await requireCampaign(services.db, site.id, id);
   await campaignSender(services, site, r);
   if (!body(r).blocks.length) throw new HttpError(422, "empty_campaign", "Add some content first.");
+  const quota = await campaignQuota(services, site.id);
+  if (quota.paused) throw new HttpError(422, "sending_paused", quota.paused.message);
   const now = services.now();
   const rendered = renderCampaign(services, site, r, {
     track: true,
@@ -527,6 +531,16 @@ export async function runCampaign(
   } catch (err) {
     await finish(services, id, "failed", err instanceof Error ? err.message : "sender unavailable");
     return { sent: 0, failed: 0, done: true };
+  }
+  // Daily volume cap with warm-up; paused sites send nothing (recipients stay queued).
+  const quota = await campaignQuota(services, siteId);
+  budget = Math.min(budget, quota.remaining);
+  if (budget <= 0) {
+    log?.info("campaign waiting for its daily sending limit", {
+      campaign: id,
+      paused: quota.paused?.reason ?? null,
+    });
+    return { sent: 0, failed: 0, done: false };
   }
   const rendered = renderCampaign(services, site, r, {
     track: true,
@@ -685,7 +699,27 @@ export async function runDueCampaigns(services: Services, now: number, log?: Log
     .bind(now, now, now - 60_000)
     .run();
   let continued = 0;
-  if (!services.growth.queue) {
+  if (services.growth.queue) {
+    // Queue consumers stop when a campaign hits its daily limit; pick stalled ones back up.
+    const stalled = await services.db
+      .prepare(
+        `SELECT c.id, c.site_id FROM campaigns c WHERE c.status = 'sending'
+           AND EXISTS (SELECT 1 FROM campaign_recipients r WHERE r.campaign_id = c.id AND r.status = 'queued')
+           AND NOT EXISTS (SELECT 1 FROM campaign_recipients r WHERE r.campaign_id = c.id AND r.sent_at > ?)
+         LIMIT 20`,
+      )
+      .bind(now - 5 * 60_000)
+      .all<{ id: string; site_id: string }>();
+    for (const c of stalled.results) {
+      if ((await campaignQuota(services, c.site_id)).remaining <= 0) continue;
+      await services.growth.queue.send({
+        kind: "campaign-batch",
+        campaignId: c.id,
+        siteId: c.site_id,
+      });
+      continued++;
+    }
+  } else {
     const sending = await services.db
       .prepare("SELECT id, site_id FROM campaigns WHERE status = 'sending' LIMIT 5")
       .all<{ id: string; site_id: string }>();

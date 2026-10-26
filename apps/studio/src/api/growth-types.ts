@@ -64,6 +64,15 @@ export interface Submission {
   createdAt: string;
   /** When retention deletes it. */
   purgeAt: string | null;
+  /** Files sent with the entry (file upload fields); `url` is a short-lived download link. */
+  files?: Array<{
+    field: string;
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    url?: string;
+  }>;
 }
 
 export interface SubmissionQuery {
@@ -165,6 +174,11 @@ export interface ShippingOption {
   maxDays?: number;
   /** Free when the order subtotal (minor units) is at least this. */
   freeOver?: number;
+  /**
+   * Weight tiers: the parcel (computed by OpenSpace from product weights) pays the first tier it
+   * fits in; heavier parcels can't use this option.
+   */
+  byWeight?: Array<{ upToGrams: number; amount: number }>;
 }
 
 export interface GrowthSettings {
@@ -246,6 +260,8 @@ export interface OrderItem {
   qty: number;
   unitAmount: number;
   digital: boolean;
+  /** Subscription products: billed every month or year. */
+  interval?: "month" | "year";
 }
 
 export interface OrderView {
@@ -270,6 +286,8 @@ export interface OrderView {
   fulfilledAt: string | null;
   /** Something needs the owner's attention (a follow-up kept failing). */
   problem?: { message: string; attempts: number; gaveUp: boolean } | null;
+  /** Subscription products: billed every month or year until canceled. */
+  subscription?: { interval: "month" | "year"; id: string | null; ended: boolean } | null;
 }
 
 export interface OrderQuery {
@@ -596,4 +614,18 @@ export interface GrowthApi {
   unscheduleCampaign(siteId: string, campaignId: string): Promise<CampaignView>;
   sendCampaign(siteId: string, campaignId: string): Promise<CampaignView>;
   getCampaignStats(siteId: string, campaignId: string): Promise<CampaignStats>;
+  /** Today's sending limit (warm-up) and whether sending is paused. */
+  getCampaignLimits(siteId: string): Promise<CampaignLimits>;
+}
+
+/** Campaign volume cap with warm-up (PRD §9.3). */
+export interface CampaignLimits {
+  limit: number;
+  sentToday: number;
+  remaining: number;
+  cleanDays: number;
+  window: { sent: number; bounced: number; complained: number };
+  paused: { reason: "bounces" | "complaints"; rate: number; message: string } | null;
+  /** The Hub operator's abuse-report address (shown in every email's footer). */
+  abuseEmail: string | null;
 }

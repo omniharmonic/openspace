@@ -64,6 +64,13 @@ export const PageSchema = named(
         .regex(/^[a-z0-9]{16,64}$/)
         .optional(),
       sections: z.array(SectionSchema),
+      /**
+       * Per-page code injection (PRD §5.1 "per-page head/footer injection"): raw HTML added to
+       * this page's `<head>` after the site's head code, and before `</body>` after the site's
+       * footer code. Owners and designers only; never rendered live in the Studio canvas.
+       */
+      headInjection: z.string().max(50_000).optional(),
+      footerInjection: z.string().max(50_000).optional(),
     })
     .superRefine((page, ctx) => {
       const sectionIds = new Set<string>();

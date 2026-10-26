@@ -13,6 +13,7 @@ import type { User } from "../db/users";
 import { toCsv } from "../lib/csv";
 import { HttpError, notFound } from "../lib/errors";
 import { readJson } from "../lib/validate";
+import { campaignQuota } from "../services/campaign-limits";
 import {
   CampaignInputSchema,
   CampaignPatchSchema,
@@ -562,6 +563,13 @@ growthRoutes.get("/:id/segments/count", async (c) => {
   const tags = c.req.queries("tag") ?? [];
   const seg = SegmentSchema.parse({ tags, match: c.req.query("match") ?? "any" });
   return c.json({ count: await segmentCount(c.var.services.db, site.id, seg) });
+});
+
+/** Today's campaign sending limit (warm-up), pause state and the operator's abuse address. */
+growthRoutes.get("/:id/campaign-limits", async (c) => {
+  const { site } = await siteWith(c, "editor");
+  const quota = await campaignQuota(c.var.services, site.id);
+  return c.json({ ...quota, abuseEmail: c.var.services.operator.abuseEmail });
 });
 
 growthRoutes.get("/:id/campaigns", async (c) => {

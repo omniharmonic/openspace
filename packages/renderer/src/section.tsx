@@ -179,15 +179,22 @@ export interface SectionViewProps {
   children?: ReactNode;
 }
 
-/** The first two image sources of a section in reading order (background first). */
+/**
+ * The section's lead image sources (background first): the first image in reading order on
+ * desktop and the first on phones (grid sections place blocks separately per breakpoint, and
+ * phones are where LCP is hardest), then more in desktop order, `count` in all.
+ */
 export function leadImages(section: Section, count = 2): ReadonlySet<string> {
   const layout = section.layout;
-  const blocks =
+  const order = (bp: "d" | "m") =>
     layout.mode === "stack"
       ? [...section.blocks].sort((a, b) => (a.column ?? 0) - (b.column ?? 0))
       : section.blocks
           // Placed blocks by row then column; any without a layout item keep their order after.
-          .map((b, i) => ({ b, i, r: layout.items[b.id]?.d }))
+          .map((b, i) => {
+            const item = layout.items[b.id];
+            return { b, i, r: bp === "m" ? (item?.m ?? item?.d) : item?.d };
+          })
           .sort((p, q) =>
             p.r && q.r
               ? p.r.y - q.r.y || p.r.x - q.r.x || p.i - q.i
@@ -198,11 +205,19 @@ export function leadImages(section: Section, count = 2): ReadonlySet<string> {
                   : p.i - q.i,
           )
           .map((p) => p.b);
-  const srcs = new Set<string>();
+  const images = (blocks: Section["blocks"]) => {
+    const srcs = new Set<string>();
+    for (const b of blocks) collectImageSrcs(b.fields, srcs);
+    return [...srcs];
+  };
+  const desktop = images(order("d"));
+  const phone = layout.mode === "grid" ? images(order("m")) : desktop;
+  const out: string[] = [];
   const bg = section.style.background;
-  if (bg?.type === "image" && bg.src) srcs.add(bg.src);
-  for (const b of blocks) collectImageSrcs(b.fields, srcs);
-  return new Set([...srcs].slice(0, count));
+  if (bg?.type === "image" && bg.src) out.push(bg.src);
+  for (const src of [phone[0], desktop[0], ...desktop])
+    if (src && !out.includes(src) && out.length < count) out.push(src);
+  return new Set(out);
 }
 
 /**

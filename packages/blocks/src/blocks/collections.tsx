@@ -52,7 +52,10 @@ export function itemImage(item: CollectionItem): ImageValue | undefined {
   return fm.images?.[0] ?? fm.gallery?.[0];
 }
 
-/** Display price for a product item: "$68", "From $60", with a compare-at price if set. */
+/**
+ * Display price for a product item: "$68", "From $60", "$15 / month" for subscriptions, with a
+ * compare-at price if set.
+ */
 export function productPrice(
   item: CollectionItem,
   locale: string,
@@ -65,7 +68,12 @@ export function productPrice(
   ];
   const min = Math.min(...prices);
   const from = new Set(prices).size > 1;
-  const text = `${from ? "From " : ""}${formatMoney(min, fm.price.currency, locale)}`;
+  const every = fm.subscription
+    ? fm.subscription.interval === "year"
+      ? " / year"
+      : " / month"
+    : "";
+  const text = `${from ? "From " : ""}${formatMoney(min, fm.price.currency, locale)}${every}`;
   return fm.compareAtPrice && fm.compareAtPrice.amount > min
     ? { text, was: formatMoney(fm.compareAtPrice.amount, fm.compareAtPrice.currency, locale) }
     : { text };

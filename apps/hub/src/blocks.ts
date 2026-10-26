@@ -32,3 +32,6 @@ export function blockRegistry(): BlockRegistry {
 export function registryForValidate(): BlockRegistry | undefined {
   return definitions.length ? registry : undefined;
 }
+
+/** Preset builds for the Editor section-insert check (M-5). */
+export { presetSection } from "@openspace/blocks";

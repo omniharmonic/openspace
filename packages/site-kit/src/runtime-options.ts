@@ -1,4 +1,4 @@
-import type { SocialFeedPost } from "@openspace/renderer";
+import type { ImageMap, SocialFeedPost } from "@openspace/renderer";
 import type { DeployLocation } from "./deploy";
 import type { SiteAssets } from "./render";
 
@@ -17,6 +17,8 @@ export interface RuntimeOptions {
   ogImages: boolean;
   /** `astro dev` (not a build): gated pages may fall back to the working copy's content. */
   dev?: boolean | undefined;
+  /** Self-hosted copies of remote demo photos (`OPENSPACE_REMOTE_IMAGES=download`). */
+  remoteImages?: ImageMap | undefined;
   /** Build-time social feed posts keyed by `feedKey(network, handle)`. */
   socialFeeds?: Record<string, SocialFeedPost[]> | undefined;
 }

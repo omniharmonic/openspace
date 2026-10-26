@@ -1,5 +1,10 @@
 import type { Page, SiteDocument } from "@openspace/schema";
-import { googleFontsUrl } from "@openspace/theme";
+import {
+  chosenCustomFont,
+  customFontFaces,
+  customFontPreloads,
+  googleFontsUrl,
+} from "@openspace/theme";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BEHAVIOR_LOADER, type BehaviorName, behaviorsInHtml } from "./behaviors-manifest";
@@ -64,6 +69,55 @@ export function monogramIcon(
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
+const attr = (tag: string, name: string) => new RegExp(`\\s${name}="([^"]*)"`).exec(tag)?.[1];
+
+/** Share of a phone screen an image's `sizes` gives it (its last, unconditional length). */
+function phoneShare(sizes: string | undefined): number {
+  const last = (sizes ?? "100vw").split(",").pop()?.trim() ?? "100vw";
+  const vw = /^(\d+(?:\.\d+)?)vw$/.exec(last);
+  if (vw) return Number(vw[1]) / 100;
+  const times = /\*\s*(\d+(?:\.\d+)?)\s*\)$/.exec(last);
+  if (times) return Number(times[1]);
+  return /^calc\(100vw/.test(last) ? 1 : 0.5;
+}
+
+/**
+ * `<link rel="preload" as="image">` for the page's likely LCP image. Of the images the renderer
+ * marked `fetchpriority="high"` (the first section's lead images), it picks the one that covers
+ * most of a phone screen (from its `sizes` and aspect ratio), since mobile LCP is what's
+ * measured. With `imagesrcset`/`imagesizes` the browser fetches exactly the candidate the `<img>`
+ * will use, before stylesheets and fonts compete for the connection. When its `<picture>` offers
+ * modern formats, the preload names the first `<source>` (with its `type`, so browsers without
+ * that format skip it). Attribute values are taken from the already-escaped markup.
+ */
+export function lcpImagePreload(body: string): string {
+  const imgs = [...body.matchAll(/<img\b[^>]*\bfetchpriority="high"[^>]*>/gi)].slice(0, 4);
+  let best: { m: RegExpMatchArray; score: number } | null = null;
+  for (const m of imgs) {
+    const share = phoneShare(attr(m[0], "sizes"));
+    const w = Number(attr(m[0], "width")) || 1;
+    const h = Number(attr(m[0], "height")) || w;
+    const score = share * share * (h / w);
+    if (!best || score > best.score) best = { m, score };
+  }
+  if (!best || best.m.index === undefined) return "";
+  const img = best.m;
+  const at = best.m.index;
+  const pictureStart = body.lastIndexOf("<picture", at);
+  const between = pictureStart >= 0 ? body.slice(pictureStart, at) : "";
+  const source =
+    pictureStart >= 0 && !between.includes("</picture>")
+      ? /<source\b[^>]*>/i.exec(between)?.[0]
+      : undefined;
+  const tag = source ?? img[0];
+  const srcset = attr(tag, "srcset") ?? attr(tag, "srcSet");
+  const sizes = attr(tag, "sizes");
+  const src = attr(img[0], "src");
+  const type = source ? attr(source, "type") : undefined;
+  if (!srcset && !src) return "";
+  return `<link rel="preload" as="image"${srcset ? ` imagesrcset="${srcset}"` : ` href="${src}"`}${srcset && sizes ? ` imagesizes="${sizes}"` : ""}${type ? ` type="${type}"` : ""} fetchpriority="high">`;
+}
+
 /**
  * Render a complete HTML document for a page: head (title, meta, Open Graph, canonical, JSON-LD,
  * fonts, token CSS, base CSS, custom CSS, head injection), the rendered body, and behavior
@@ -104,7 +158,19 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
   const noindex = mode === "preview" || page.seo?.noindex || site.seo?.noindex;
   const ogImageSrc = page.seo?.image ?? site.seo?.image;
   const ogImage = ogImageSrc ? ogImageUrl(ogImageSrc, siteUrl, opts.imageMap) : undefined;
-  const fonts = opts.fontStylesheets ?? [googleFontsUrl(styles.tokens.pairing)];
+  // Uploaded fonts (PRD §5.1) publish with the site; when they replace both the heading and the
+  // body family, the pairing's web fonts aren't loaded at all.
+  const customHeading = chosenCustomFont(doc.styles, doc.styles.choices.headingFont);
+  const customBody = chosenCustomFont(doc.styles, doc.styles.choices.bodyFont);
+  const fonts =
+    customHeading && customBody
+      ? []
+      : (opts.fontStylesheets ?? [googleFontsUrl(styles.tokens.pairing)]);
+  const fontFaces = customFontFaces(doc.styles, (src) => mediaUrl(src, basePath));
+  const fontPreloads = customFontPreloads(doc.styles, {
+    heading: styles.tokens.pairing.headingWeight,
+    body: styles.tokens.pairing.bodyWeight,
+  });
   const usesGoogle = fonts.some((f) => f.startsWith("https://fonts.googleapis.com/"));
 
   const meta = (name: string, content: string | undefined, attr = "name") =>
@@ -113,6 +179,8 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     `<title>${escapeHtml(title)}</title>`,
+    // The LCP image first: discovered before the stylesheets and fonts below.
+    lcpImagePreload(body),
     meta("description", description),
     noindex ? '<meta name="robots" content="noindex">' : "",
     `<link rel="canonical" href="${escapeHtml(canonical)}">`,
@@ -130,7 +198,12 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     usesGoogle
       ? '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
       : "",
+    ...fontPreloads.map(
+      (src) =>
+        `<link rel="preload" as="font" type="font/woff2" href="${escapeHtml(mediaUrl(src, basePath))}" crossorigin>`,
+    ),
     ...fonts.map((href) => `<link rel="stylesheet" href="${escapeHtml(href)}">`),
+    fontFaces ? `<style data-os="fonts">${safeCss(fontFaces)}</style>` : "",
     opts.stylesheets?.tokens
       ? `<link rel="stylesheet" href="${escapeHtml(opts.stylesheets.tokens)}">`
       : `<style data-os="tokens">${styles.css}</style>`,
@@ -146,6 +219,7 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     ),
     opts.extraHead ?? "",
     site.headInjection ?? "",
+    page.headInjection ?? "",
   ];
 
   const bodyAttrs = [
@@ -170,7 +244,7 @@ ${head.filter(Boolean).join("\n")}
 </head>
 <body ${bodyAttrs}>
 ${body}
-${scripts}${site.footerInjection ?? ""}
+${scripts}${site.footerInjection ?? ""}${page.footerInjection ?? ""}
 </body>
 </html>
 `;

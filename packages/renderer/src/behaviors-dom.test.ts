@@ -158,6 +158,78 @@ describe("form", () => {
     expect(status.textContent).toBe("Thanks!");
   });
 
+  it("announces success once: an earlier no-JS confirmation is hidden on JS submit", async () => {
+    document.body.innerHTML = markup.replace(
+      "</form>",
+      '<div class="os-form__status" role="status"></div><p class="os-formblock__sent" id="s1">Thanks!</p></form>',
+    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ message: "Thanks!" }), { status: 200 }),
+    );
+    const f = document.querySelector("form") as HTMLFormElement;
+    form(f);
+    (f.querySelector("input") as HTMLInputElement).value = "a@b.co";
+    f.dispatchEvent(new Event("submit", { cancelable: true }));
+    await flush();
+    await flush();
+    expect(f.querySelector<HTMLElement>(".os-formblock__sent")?.hidden).toBe(true);
+    const visible = [...f.querySelectorAll<HTMLElement>("p,div")].filter(
+      (el) => el.textContent === "Thanks!" && !el.hidden,
+    );
+    expect(visible).toHaveLength(1);
+  });
+
+  it("uploads chosen files to the Hub first and submits their ids", async () => {
+    document.body.innerHTML = `<form action="https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001">
+      <div class="os-field"><input type="file" name="cv" data-os-max-bytes="1048576" aria-describedby="e2"><p id="e2" class="os-field__error"></p></div>
+      <button type="submit">Send</button></form>`;
+    const calls: Array<{ url: string; method: string; body: unknown }> = [];
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (url, init) => {
+      calls.push({ url: String(url), method: init?.method ?? "GET", body: init?.body });
+      if (String(url).endsWith("/uploads"))
+        return new Response(JSON.stringify({ id: "upl_abc", uploadUrl: "https://hub.test/u/1" }));
+      return new Response(JSON.stringify({ message: "Thanks!" }));
+    });
+    const f = document.querySelector("form") as HTMLFormElement;
+    form(f);
+    const input = f.querySelector("input") as HTMLInputElement;
+    const file = new File(["%PDF-1.4"], "cv.pdf", { type: "application/pdf" });
+    Object.defineProperty(input, "files", { value: [file], configurable: true });
+    f.dispatchEvent(new Event("submit", { cancelable: true }));
+    for (let i = 0; i < 8; i++) await flush();
+    expect(calls.map((c) => `${c.method} ${c.url}`)).toEqual([
+      "POST https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001/uploads",
+      "PUT https://hub.test/u/1",
+      "POST https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001",
+    ]);
+    expect(JSON.parse(calls[0]?.body as string)).toMatchObject({
+      field: "cv",
+      name: "cv.pdf",
+      type: "application/pdf",
+    });
+    expect(calls[1]?.body).toBe(file);
+    expect((calls[2]?.body as FormData | undefined)?.get("cv")).toBe("upl_abc");
+    expect(f.querySelector(".os-form__status")?.textContent).toBe("Thanks!");
+  });
+
+  it("refuses an oversized file before uploading", async () => {
+    document.body.innerHTML = `<form action="https://hub.test/f/st_01jb3q8w2n/frm_c0ntact001">
+      <div class="os-field"><input type="file" name="cv" data-os-max-bytes="4" aria-describedby="e3"><p id="e3" class="os-field__error"></p></div></form>`;
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const f = document.querySelector("form") as HTMLFormElement;
+    form(f);
+    const input = f.querySelector("input") as HTMLInputElement;
+    Object.defineProperty(input, "files", {
+      value: [new File(["0123456789"], "big.pdf", { type: "application/pdf" })],
+      configurable: true,
+    });
+    f.dispatchEvent(new Event("submit", { cancelable: true }));
+    for (let i = 0; i < 4; i++) await flush();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(f.querySelector("#e3")?.textContent).toMatch(/larger than/);
+  });
+
   it("queues the entry and shows the owner's email when the Hub is down", async () => {
     document.body.innerHTML = markup;
     vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("offline"));
@@ -264,6 +336,48 @@ describe("fix round 1 behaviors", () => {
     expect(status?.dataset.state).toBe("error");
     expect(status.textContent).toContain("couldn't be delivered (Form closed)");
     expect(JSON.parse(localStorage.getItem("os-form-queue") ?? "[]")).toEqual([]);
+  });
+
+  it("does not replay the queue while another tab holds the flush lease", async () => {
+    const action = "https://hub.test/f/st_01jb3q8w2n/frm_c0ntact003";
+    localStorage.setItem(
+      "os-form-queue",
+      JSON.stringify([{ action, fields: [["email", "a@b.co"]], at: Date.now() }]),
+    );
+    localStorage.setItem(
+      "os-form-queue-lease",
+      JSON.stringify({ by: "other-tab", until: Date.now() + 10_000 }),
+    );
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
+    document.body.innerHTML = `<form action="${action}"><input name="email"></form>`;
+    form(document.querySelector("form") as HTMLFormElement);
+    for (let i = 0; i < 5; i++) await flush();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    localStorage.removeItem("os-form-queue-lease");
+  });
+
+  it("uses Web Locks when available and skips the flush if the lock is held", async () => {
+    const action = "https://hub.test/f/st_01jb3q8w2n/frm_c0ntact004";
+    localStorage.setItem(
+      "os-form-queue",
+      JSON.stringify([{ action, fields: [["email", "a@b.co"]], at: Date.now() }]),
+    );
+    const request = vi.fn(async (_n: string, _o: unknown, cb: (l: unknown) => Promise<void>) =>
+      cb(null),
+    );
+    Object.defineProperty(navigator, "locks", { value: { request }, configurable: true });
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}"));
+    document.body.innerHTML = `<form action="${action}"><input name="email"></form>`;
+    form(document.querySelector("form") as HTMLFormElement);
+    for (let i = 0; i < 5; i++) await flush();
+    expect(request).toHaveBeenCalledWith(
+      "os-form-queue",
+      { ifAvailable: true },
+      expect.any(Function),
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    Reflect.deleteProperty(navigator, "locks");
+    localStorage.removeItem("os-form-queue");
   });
 
   it("search registers a single global / shortcut", () => {

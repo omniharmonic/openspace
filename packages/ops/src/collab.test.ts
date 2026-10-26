@@ -1,4 +1,4 @@
-import { newId, type SiteDocument } from "@openspace/schema";
+import { newId, type Section, type SiteDocument } from "@openspace/schema";
 import { describe, expect, it } from "vitest";
 import { stackSection, stampOp, textBlock } from "./__fixtures__/arbitrary";
 import { IDS, siteFixture } from "./__fixtures__/site";
@@ -93,6 +93,19 @@ describe("transformForRole", () => {
     );
     expect(
       check({ op: "page.update", page: about, set: { title: "Story" } }, "editor").allowed,
+    ).toBe(true);
+    expect(
+      check(
+        { op: "page.update", page: about, set: { headInjection: "<script></script>" } },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check({ op: "page.update", page: about, unset: ["footerInjection"] }, "editor").allowed,
+    ).toBe(false);
+    expect(
+      check({ op: "page.update", page: about, set: { headInjection: "<meta name=x>" } }, "designer")
+        .allowed,
     ).toBe(true);
     expect(
       check(
@@ -218,6 +231,105 @@ describe("transformForRole", () => {
         { op: "collection.delete", collection: "journal", slug: "2026-10-26-opening-day" },
         "contributor",
       ).allowed,
+    ).toBe(false);
+  });
+});
+
+describe("transformForRole — contributor authorship (M-4)", () => {
+  const draft = {
+    kind: "blog" as const,
+    slug: "retreat-notes",
+    frontmatter: { title: "Retreat notes", date: "2026-11-02", status: "draft" as const },
+    body: "",
+  };
+  const withDraft = () => {
+    const doc = lockedDoc();
+    const journal = { ...(doc.collections.journal ?? {}), [draft.slug]: draft };
+    return { ...doc, collections: { ...doc.collections, journal } } as SiteDocument;
+  };
+  const edit = (ctx: Parameters<typeof transformForRole>[3]) =>
+    transformForRole(
+      stampOp({
+        op: "collection.upsert",
+        collection: "journal",
+        item: { ...draft, body: "Rewritten" },
+      }),
+      "contributor",
+      [],
+      { doc: withDraft(), ...ctx },
+    );
+
+  it("lets a contributor revise a draft they started", () => {
+    expect(edit({ userId: "u_cora", itemAuthor: () => "u_cora" }).allowed).toBe(true);
+  });
+  it("refuses overwriting another person's draft", () => {
+    expect(edit({ userId: "u_cora", itemAuthor: () => "u_maya" })).toMatchObject({
+      allowed: false,
+      reason: expect.stringMatching(/Someone else started this draft/),
+    });
+  });
+  it("fails safe when the author or actor is unknown", () => {
+    expect(edit({ userId: "u_cora" }).allowed).toBe(false);
+    expect(edit({ itemAuthor: () => "u_cora" }).allowed).toBe(false);
+  });
+});
+
+describe("transformForRole — editor visuals (M-5)", () => {
+  it("editors can't change header settings", () => {
+    expect(check({ op: "site.update", set: { "header.sticky": false } }, "editor")).toMatchObject({
+      allowed: false,
+      reason: expect.stringMatching(/header/),
+    });
+    expect(check({ op: "site.update", set: { title: "New name" } }, "editor").allowed).toBe(true);
+  });
+
+  it("editors insert only preset builds or copies of existing sections", () => {
+    const doc = lockedDoc();
+    const existing = doc.pages[home]?.sections[1] as Section;
+    const copy = {
+      ...structuredClone(existing),
+      id: newId("sec") as Section["id"],
+      locked: undefined,
+    };
+    // a copy whose blocks have new ids keeps the same look
+    const ids = new Map(copy.blocks.map((b) => [b.id, newId("blk")]));
+    copy.blocks = copy.blocks.map((b) => ({ ...b, id: ids.get(b.id) as typeof b.id }));
+    if (copy.layout.mode === "grid")
+      copy.layout = {
+        ...copy.layout,
+        items: Object.fromEntries(
+          Object.entries(copy.layout.items).map(([k, v]) => [ids.get(k as never) as string, v]),
+        ),
+      };
+    const ins = (section: Section, ctx = {}) =>
+      transformForRole(
+        stampOp({ op: "section.insert", page: home, at: "end", section }),
+        "editor",
+        lockedSectionsOf(doc),
+        { doc, ...ctx },
+      );
+    expect(ins(copy).allowed).toBe(true);
+    const restyled = {
+      ...copy,
+      style: { ...copy.style, minHeight: { d: "full" } },
+    } as unknown as Section;
+    expect(ins(restyled)).toMatchObject({
+      allowed: false,
+      reason: expect.stringMatching(/gallery/),
+    });
+
+    const built = stackSection(newId("sec") as Section["id"], [], [6, 6]);
+    const fromPreset = { ...built, preset: "about/two-column@1" } as Section;
+    expect(ins(fromPreset).allowed).toBe(false);
+    const presetSection = (ref: string) =>
+      ref === "about/two-column@1"
+        ? stackSection(newId("sec") as Section["id"], [], [6, 6])
+        : undefined;
+    expect(ins(fromPreset, { presetSection }).allowed).toBe(true);
+    expect(
+      ins({ ...fromPreset, layout: { mode: "stack", columns: { d: [4, 8] } } } as Section, {
+        presetSection,
+      }).allowed,
     ).toBe(false);
   });
 });

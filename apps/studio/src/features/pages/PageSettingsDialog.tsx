@@ -206,7 +206,12 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
         return;
       }
     }
-    const cmd = updatePageSettings(doc, page.id, form);
+    // Only owners and designers send page code (the Hub refuses it from everyone else).
+    const cmd = updatePageSettings(
+      doc,
+      page.id,
+      designer ? form : { ...form, headCode: undefined, footerCode: undefined },
+    );
     const bodies: OpBody[] = [...(cmd?.bodies ?? [])];
     // Navigation visibility (after an unlisted change, which already removed the entry).
     if (!form.unlisted) {
@@ -522,6 +527,42 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
             />
           </fieldset>
           <SeoPreview doc={doc} page={draft} />
+          {designer && (
+            <details
+              className="st-fieldset st-page-code"
+              open={Boolean(page.headInjection || page.footerInjection)}
+            >
+              <summary>Advanced: code on this page</summary>
+              <p className="st-muted-note">
+                Added only to this page, after your site-wide code. It runs on your published site
+                only, never in the editor. A broken or untrusted script can break the page or expose
+                your visitors.
+              </p>
+              <Field
+                label="Code in the page head"
+                hint="For example a verification or preload tag."
+              >
+                <TextArea
+                  rows={3}
+                  spellCheck={false}
+                  className="st-code-input"
+                  value={form.headCode ?? ""}
+                  placeholder={'<link rel="preconnect" href="https://cal.com">'}
+                  onChange={(e) => set("headCode", e.target.value)}
+                />
+              </Field>
+              <Field label="Code before </body>" hint="For example a booking or chat widget.">
+                <TextArea
+                  rows={3}
+                  spellCheck={false}
+                  className="st-code-input"
+                  value={form.footerCode ?? ""}
+                  placeholder={'<script src="https://widget.example.com/embed.js" defer></script>'}
+                  onChange={(e) => set("footerCode", e.target.value)}
+                />
+              </Field>
+            </details>
+          )}
           {seoIssues.length > 0 ? (
             <ul className="st-seo-hints" aria-label="Search check">
               {seoIssues.map((i) => (

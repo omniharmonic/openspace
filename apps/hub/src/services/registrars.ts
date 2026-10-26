@@ -1,7 +1,8 @@
 /**
  * Registrar-specific instructions for the custom domain wizard (PRD FR-50): the top 8 registrars.
  * Studio renders `steps` next to the exact records; `hostApex` is what that registrar's "Host" /
- * "Name" field wants for the bare domain. Screenshots are Studio assets keyed by `id`.
+ * "Name" field wants for the bare domain. Studio draws each registrar's DNS screen as an illustrated
+ * inline-SVG diagram keyed by `id` (`RegistrarDiagram`), so there are no screenshots to go stale.
  */
 
 export interface RegistrarGuide {

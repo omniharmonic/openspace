@@ -310,6 +310,38 @@ describe("DraftRoom", () => {
       approvals: Array<{ status: string }>;
     };
     expect(mine.approvals.map((x) => x.status).sort()).toEqual(["approved", "rejected"]);
+
+    // Contributors revise their own drafts but never someone else's (M-4).
+    const draftBy = (slug: string, body: string) =>
+      op({
+        op: "collection.upsert",
+        collection: "journal",
+        item: {
+          kind: "blog",
+          slug,
+          frontmatter: { title: "Draft", status: "draft", date: "2026-10-03" },
+          body,
+        },
+      });
+    expect((await submit(cora, [draftBy("second", "With a photo now.")]))[0]?.status).toBe(
+      "accepted",
+    );
+    expect((await submit(maya, [draftBy("mayas-notes", "Owner's draft.")]))[0]?.status).toBe(
+      "accepted",
+    );
+    expect((await submit(cora, [draftBy("mayas-notes", "Overwritten.")]))[0]).toMatchObject({
+      code: "forbidden",
+    });
+    // Drafts saved before authors were recorded: the first saver in the op log is the author.
+    await runInDurableObject(rawRoom(site.id), async (_i, state) => {
+      state.storage.sql.exec("DELETE FROM meta WHERE key LIKE 'item-author:%'");
+    });
+    expect((await submit(cora, [draftBy("second", "Legacy draft, revised.")]))[0]?.status).toBe(
+      "accepted",
+    );
+    expect((await submit(cora, [draftBy("mayas-notes", "Overwritten.")]))[0]).toMatchObject({
+      code: "forbidden",
+    });
   });
 
   it("lets an Editor undo their own op even when the inverse needs layout rights", async () => {

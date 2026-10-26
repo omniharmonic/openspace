@@ -50,7 +50,7 @@ import {
   toast,
 } from "../../ui";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
-import { useManageUi } from "../site-mgmt/manage-ui";
+import { can, useCurrentSite, useManageUi } from "../site-mgmt/manage-ui";
 import {
   buildNav,
   flattenNav,
@@ -412,6 +412,8 @@ function LinkDialog({
  */
 export function PagesManager() {
   const api = useDocStoreApi();
+  // Editors' copies leave out the page's own code (the Hub refuses it from them).
+  const designer = can(useCurrentSite(), "designer");
   const doc = useDocStore((s) => s.doc);
   const current = useDocStore((s) => s.pageId);
   const rows = useMemo(() => flattenNav(doc.site.nav), [doc.site.nav]);
@@ -453,7 +455,7 @@ export function PagesManager() {
   const onCommand = (row: NavRow) => (label: string, tree: Nav) => {
     const s = api.getState();
     if (label === "duplicate" && row.item.type === "page") {
-      const cmd = duplicatePage(s.doc, row.item.page);
+      const cmd = duplicatePage(s.doc, row.item.page, { keepCode: designer });
       if (cmd && commit(cmd.label, cmd.bodies)) {
         s.setPage(cmd.pageId);
         toast({
@@ -624,7 +626,7 @@ export function PagesManager() {
                     label: "Duplicate",
                     icon: <Copy />,
                     onSelect: () => {
-                      const cmd = duplicatePage(api.getState().doc, p.id);
+                      const cmd = duplicatePage(api.getState().doc, p.id, { keepCode: designer });
                       if (cmd && commit(cmd.label, cmd.bodies)) {
                         api.getState().setPage(cmd.pageId);
                         if (cmd.droppedPassword)

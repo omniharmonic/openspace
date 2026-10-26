@@ -3,6 +3,7 @@ import type { HubBindings, HubConfig } from "../env";
 import { type GitHubContext, selectGitHubAccess } from "../github";
 import type { FetchLike } from "../github/http";
 import type { GitHubAccess } from "../github/types";
+import { type OperatorConfig, readOperatorConfig } from "../operator-env";
 import { basicTemplate } from "../templates/basic";
 import { createGrowthServices, type GrowthOverrides, type GrowthServices } from "./growth";
 import { createPublicServices, type PublicOverrides, type PublicServices } from "./public";
@@ -25,6 +26,8 @@ export interface Services {
   pub: PublicServices;
   /** Growth + commerce (Task 18): Stripe, campaign queue, update source. */
   growth: GrowthServices;
+  /** Operator settings: abuse address, budget alerts, campaign warm-up. */
+  operator: OperatorConfig;
 }
 
 export interface ServiceOverrides {
@@ -35,6 +38,7 @@ export interface ServiceOverrides {
   now?: () => number;
   public?: PublicOverrides;
   growth?: GrowthOverrides;
+  operator?: Partial<OperatorConfig>;
 }
 
 export function createServices(
@@ -66,6 +70,7 @@ export function createServices(
       { db: env.HUB_DB, fetch: fetchFn, now },
       overrides.growth,
     ),
+    operator: { ...readOperatorConfig(env), ...overrides.operator },
     github: (ctx = {}) =>
       overrides.github
         ? overrides.github(ctx, services)

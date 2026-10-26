@@ -85,6 +85,8 @@ export function createPage(
 export function duplicatePage(
   doc: SiteDocument,
   pageId: string,
+  /** Owners and designers keep the page's own head/footer code; editors can't send it. */
+  opts: { keepCode?: boolean } = {},
 ): (Command & { pageId: string; droppedPassword: boolean }) | null {
   const src = doc.pages[pageId as keyof SiteDocument["pages"]];
   if (!src) return null;
@@ -93,9 +95,17 @@ export function duplicatePage(
   const { id: _id, sections, slug: _s, title: _t, ...rest } = structuredClone(src);
   // Passwords live in the Hub per page: a copy can't inherit one, so it starts public (members-
   // only gating needs no secret and is kept).
-  const { access, ...restNoAccess } = rest;
+  const { access, headInjection, footerInjection, ...restNoAccess } = rest;
+  const code =
+    opts.keepCode === false
+      ? {}
+      : {
+          ...(headInjection !== undefined ? { headInjection } : {}),
+          ...(footerInjection !== undefined ? { footerInjection } : {}),
+        };
   const page = {
     ...restNoAccess,
+    ...code,
     ...(access?.members
       ? { access: { members: true, ...(access.tiers?.length ? { tiers: access.tiers } : {}) } }
       : {}),
@@ -142,6 +152,9 @@ export interface PageSettingsInput {
   tiers: string[];
   /** Add a redirect from the old address when the slug changes. */
   redirectOld: boolean;
+  /** Per-page code (Advanced; owners and designers). Absent: leave unchanged. */
+  headCode?: string;
+  footerCode?: string;
 }
 
 export function pageSettingsOf(page: Page): Omit<PageSettingsInput, "redirectOld"> {
@@ -154,6 +167,8 @@ export function pageSettingsOf(page: Page): Omit<PageSettingsInput, "redirectOld
     noindex: page.seo?.noindex ?? false,
     unlisted: page.hidden ?? false,
     access: page.access?.members ? "members" : page.access?.password ? "password" : "public",
+    headCode: page.headInjection ?? "",
+    footerCode: page.footerInjection ?? "",
     tiers: page.access?.members ? [...(page.access.tiers ?? [])] : [],
   };
 }
@@ -193,6 +208,13 @@ export function updatePageSettings(
         input.access === "members"
           ? { members: true, ...(tiers.length ? { tiers } : {}) }
           : { password: true };
+  }
+  for (const [key, path] of [
+    ["headCode", "headInjection"],
+    ["footerCode", "footerInjection"],
+  ] as const) {
+    const v = input[key];
+    if (v !== undefined && v.trim() !== (cur[key] ?? "").trim()) put(path, v, !v.trim());
   }
   // Paths inside a patch must not overlap: an emptied seo object is dropped whole instead.
   const seoKeys = ["title", "description", "image", "noindex", "canonical"] as const;

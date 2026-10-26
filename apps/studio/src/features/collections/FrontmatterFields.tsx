@@ -637,6 +637,53 @@ export function ProductFields({ item, onChange, problems, site, collection }: Fr
           hasFile={Boolean(stockFor(fm.sku ?? baseSku)?.hasFile)}
         />
       )}
+      {!fm.digital && (
+        <Field
+          label="Shipping weight"
+          hint="In grams, packed. Used for weight-based shipping rates."
+        >
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={1_000_000}
+            step={1}
+            suffix="g"
+            aria-label="Shipping weight in grams"
+            value={fm.weight ?? ""}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              set({
+                weight:
+                  e.target.value === "" || !Number.isFinite(n)
+                    ? undefined
+                    : Math.max(0, Math.min(1_000_000, Math.round(n))),
+              });
+            }}
+          />
+        </Field>
+      )}
+      <Field
+        label="Sold as"
+        hint={
+          fm.subscription
+            ? "Buyers are charged again every period until they cancel (in Stripe)."
+            : "A one-time purchase."
+        }
+      >
+        <Segmented<"once" | "month" | "year">
+          aria-label="Sold as"
+          size="sm"
+          block
+          value={fm.subscription?.interval ?? "once"}
+          onValueChange={(v) => set({ subscription: v === "once" ? undefined : { interval: v } })}
+          options={[
+            { value: "once", label: "One-time" },
+            { value: "month", label: "Monthly" },
+            { value: "year", label: "Yearly" },
+          ]}
+        />
+      </Field>
       <ImageList label="Photos" images={fm.images ?? []} onChange={(images) => set({ images })} />
 
       <fieldset className="st-fieldset">

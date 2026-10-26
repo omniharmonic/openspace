@@ -240,6 +240,42 @@ describe("page commands (ops)", () => {
     ).toBeNull();
   });
 
+  it("saves and clears per-page head and footer code (M-8)", () => {
+    const store = session();
+    const doc = store.getState().doc;
+    const target = Object.values(doc.pages).find((p) => p.slug !== "");
+    if (!target) throw new Error("page");
+    const cmd = updatePageSettings(doc, target.id, {
+      ...pageSettingsOf(target),
+      headCode: '<link rel="preconnect" href="https://cal.com">',
+      footerCode: '<script src="https://cal.com/embed.js" defer></script>',
+      redirectOld: false,
+    });
+    expect(store.getState().commit(cmd?.bodies ?? []).ok).toBe(true);
+    const p = store.getState().doc.pages[target.id];
+    expect(p?.headInjection).toContain("cal.com");
+    expect(p?.footerInjection).toContain("embed.js");
+    // Leaving code undefined (non-designers) never touches it.
+    expect(
+      updatePageSettings(store.getState().doc, target.id, {
+        ...pageSettingsOf(p as never),
+        headCode: undefined,
+        footerCode: undefined,
+        redirectOld: false,
+      }),
+    ).toBeNull();
+    const clear = updatePageSettings(store.getState().doc, target.id, {
+      ...pageSettingsOf(p as never),
+      headCode: "  ",
+      footerCode: "",
+      redirectOld: false,
+    });
+    expect(store.getState().commit(clear?.bodies ?? []).ok).toBe(true);
+    const cleared = store.getState().doc.pages[target.id];
+    expect(cleared?.headInjection).toBeUndefined();
+    expect(cleared?.footerInjection).toBeUndefined();
+  });
+
   it("members-only pages can be limited to membership plans", () => {
     const store = session();
     const doc = store.getState().doc;
@@ -263,6 +299,23 @@ describe("page commands (ops)", () => {
     });
     expect(store.getState().commit(open?.bodies ?? []).ok).toBe(true);
     expect(store.getState().doc.pages[target.id]?.access).toEqual({ members: true });
+  });
+
+  it("duplicates a page without its own code for editors", () => {
+    const store = session();
+    const doc = store.getState().doc;
+    const target = Object.values(doc.pages).find((p) => p.slug !== "");
+    if (!target) throw new Error("page");
+    const withCode = {
+      ...doc,
+      pages: { ...doc.pages, [target.id]: { ...target, headInjection: "<meta name=x>" } },
+    } as typeof doc;
+    const page = (cmd: ReturnType<typeof duplicatePage>) =>
+      (cmd?.bodies[0] as { page: { headInjection?: string } } | undefined)?.page;
+    expect(page(duplicatePage(withCode, target.id))?.headInjection).toBe("<meta name=x>");
+    expect(page(duplicatePage(withCode, target.id, { keepCode: false }))?.headInjection).toBe(
+      undefined,
+    );
   });
 
   it("explains address problems in plain words", () => {

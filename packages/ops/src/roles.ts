@@ -1,4 +1,4 @@
-import type { BlockRegistry, SiteDocument } from "@openspace/schema";
+import type { BlockRegistry, ColorTheme, Section, SiteDocument } from "@openspace/schema";
 import { findBlock, findSection, locateBlock } from "./doc";
 import { invert } from "./invert";
 import type { Op } from "./ops";
@@ -10,8 +10,10 @@ import { deepEqual, isPathPrefix, isPlainObject, patchPaths } from "./paths";
  * - **owner**, **designer**: every op.
  * - **editor**: content, pages, navigation, media and collections — but no `styles.patch`, no
  *   `grid.place`, no section layout/style/lock changes, no code injection; and on locked
- *   sections only text/image field updates.
- * - **contributor**: only `collection.upsert` of a draft item (never over a non-draft item).
+ *   sections only text/image field updates; no header settings; new sections only as a preset
+ *   build or a copy of an existing section's layout and style.
+ * - **contributor**: only `collection.upsert` of a draft item (never over a non-draft item, and
+ *   never over a draft someone else started).
  */
 export const ROLES = ["owner", "designer", "editor", "contributor"] as const;
 export type Role = (typeof ROLES)[number];
@@ -30,6 +32,50 @@ export interface RoleContext {
    * only same-shape changes to existing text/image fields are allowed (fail safe).
    */
   registry?: BlockRegistry;
+  /** The person submitting the op (user id). Needed for contributor edits to existing items. */
+  userId?: string;
+  /**
+   * Who started a collection item (user id), as recorded by the Hub when the item was created.
+   * Contributors may only change existing drafts they started; without this (or `userId`)
+   * edits to existing items are denied (fail safe).
+   */
+  itemAuthor?: (collection: string, slug: string) => string | undefined;
+  /**
+   * Builds the section a preset (`section.preset`, e.g. `hero/split-image@2`) produces in a color
+   * theme, or undefined for an unknown preset or a theme the preset isn't designed for. Editors may
+   * only insert sections whose layout and style match a preset build or an existing section
+   * (duplicate / paste); without this, only the latter.
+   */
+  presetSection?: (preset: string, colorTheme: ColorTheme | undefined) => Section | undefined;
+}
+
+/**
+ * A section's designer-owned look: its layout (grid rects keyed by block order, since a built or
+ * duplicated section has fresh block ids) and its style.
+ */
+function sectionLook(section: Section): unknown {
+  const layout = section.layout;
+  if (layout.mode !== "grid") return { layout, style: section.style };
+  const order = new Map(section.blocks.map((b, i) => [b.id as string, i]));
+  const items = Object.entries(layout.items)
+    .map(([id, item]) => [order.get(id) ?? -1, item] as const)
+    .sort((a, b) => a[0] - b[0]);
+  return { layout: { ...layout, items }, style: section.style };
+}
+
+/** True if `section` looks exactly like a preset build or a section already in the document. */
+export function isKnownSectionLook(section: Section, context: RoleContext): boolean {
+  const look = sectionLook(section);
+  if (section.preset && context.presetSection) {
+    const built = context.presetSection(section.preset, section.style?.colorTheme);
+    if (built && deepEqual(sectionLook(built), look)) return true;
+  }
+  const doc = context.doc;
+  if (!doc) return false;
+  if (deepEqual(sectionLook(doc.site.footer), look)) return true;
+  for (const page of Object.values(doc.pages))
+    for (const s of page.sections) if (deepEqual(sectionLook(s), look)) return true;
+  return false;
 }
 
 /** Ids of locked sections in a document (pages + footer). */
@@ -121,6 +167,11 @@ export function transformForRole(
     const existing = doc.collections[op.collection]?.[op.item.slug];
     if (existing && existing.frontmatter.status !== "draft")
       return deny("This item is already published or scheduled; only editors can change it");
+    if (existing) {
+      const author = context.itemAuthor?.(op.collection, op.item.slug);
+      if (!context.userId || !author || author !== context.userId)
+        return deny("Someone else started this draft; only they or an editor can change it");
+    }
     return allow;
   }
 
@@ -158,6 +209,10 @@ export function transformForRole(
       return allow;
     case "section.insert":
       if (op.section.locked) return deny("Only owners and designers can lock sections");
+      if (!isKnownSectionLook(op.section, context))
+        return deny(
+          "Editors add sections from the section gallery (or duplicate one); its layout and style come from the design",
+        );
       return allow;
     case "block.insert":
       if (locked.has(op.section)) return deny("This section is locked");
@@ -213,8 +268,24 @@ export function transformForRole(
         return deny("Editors can't change custom code");
       if (paths.some((p) => isPathPrefix("footer", p)))
         return deny("Editors change the footer through its blocks");
+      if (paths.some((p) => isPathPrefix("header", p)))
+        return deny("Editors can't change the header layout; ask a designer");
       return allow;
     }
+    case "page.update":
+      if (patchPaths(op).some((p) => /^(headInjection|footerInjection)(\.|$)/.test(p)))
+        return deny("Editors can't change custom code");
+      return allow;
+    case "page.create":
+      if (op.page.headInjection !== undefined || op.page.footerInjection !== undefined)
+        return deny("Editors can't change custom code");
+      if (op.page.sections.some((s) => s.locked))
+        return deny("Only owners and designers can lock sections");
+      if (!op.page.sections.every((s) => isKnownSectionLook(s, context)))
+        return deny(
+          "Editors build pages from the section gallery; layout and style come from the design",
+        );
+      return allow;
     case "page.delete": {
       const page = doc?.pages[op.page];
       if (!page) return deny("Can't check this page without the current document");
@@ -223,7 +294,7 @@ export function transformForRole(
       return allow;
     }
     default:
-      // page.create/update, nav.update, media.*, collection.*, collectionConfig.upsert
+      // nav.update, media.*, collection.*, collectionConfig.upsert
       return allow;
   }
 }

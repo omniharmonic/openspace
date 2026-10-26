@@ -120,6 +120,8 @@ export interface OrderView {
   fulfilledAt: string | null;
   /** Something the owner must resolve (failed delivery or refund after retries), else null. */
   problem: { message: string; attempts: number; gaveUp: boolean } | null;
+  /** Subscription products (Stripe Billing): the interval and whether it has ended. */
+  subscription: { interval: "month" | "year"; id: string | null; ended: boolean } | null;
 }
 
 export function toOrderView(o: OrderRow): OrderView {
@@ -151,7 +153,17 @@ export function toOrderView(o: OrderRow): OrderView {
           gaveUp: o.followup_attempts >= MAX_FOLLOWUP_ATTEMPTS,
         }
       : null,
+    subscription: subscriptionOf(o),
   };
+}
+
+function subscriptionOf(o: OrderRow): OrderView["subscription"] {
+  if (o.kind !== "order") return null;
+  const meta = parse<{ subscription?: unknown; subscriptionEnded?: unknown }>(o.meta_json, {});
+  const interval =
+    meta.subscription === "month" || meta.subscription === "year" ? meta.subscription : null;
+  if (!interval) return null;
+  return { interval, id: o.subscription_id, ended: meta.subscriptionEnded === true };
 }
 
 export async function getOrder(db: D1Database, siteId: string, id: string) {
@@ -355,8 +367,27 @@ export async function completeSession(
     discount: totals.amount_discount ?? 0,
     total: amountTotal,
   };
-  const pi = typeof session.payment_intent === "string" ? session.payment_intent : null;
   const sub = typeof session.subscription === "string" ? session.subscription : null;
+  const invoice = typeof session.invoice === "string" ? session.invoice : null;
+  // Subscription sessions are paid through their first invoice: its payment intent is what
+  // refunds use and what `charge.refunded` events name.
+  const fromInvoice =
+    typeof session.payment_intent !== "string" && invoice
+      ? await invoicePaymentIntent(services, site.id, invoice, log)
+      : null;
+  const pi =
+    typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : (fromInvoice?.paymentIntent ?? null);
+  if (invoice)
+    await db
+      .prepare(
+        `UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.invoice', ?,
+           '$.noPayment', json(?)) WHERE id = ?`,
+      )
+      // A $0 first invoice (full discount, trial) has no payment to refund: nothing to look up.
+      .bind(invoice, fromInvoice?.read && !fromInvoice.paymentIntent ? "true" : "false", order.id)
+      .run();
   const common = [
     email,
     name,
@@ -420,7 +451,7 @@ export async function completeSession(
     claimed = (results[0]?.meta.changes ?? 0) === 1;
   } catch (err) {
     if (!isOversell(err)) throw err;
-    return outOfStock(services, site, order, { email, name, pi, amountTotal, amounts }, log);
+    return outOfStock(services, site, order, { email, name, pi, sub, amountTotal, amounts }, log);
   }
   const current = (await getOrder(db, site.id, order.id)) as OrderRow;
   if (!claimed && (current.status !== "paid" || current.followups_at))
@@ -529,6 +560,7 @@ async function outOfStock(
     email: string | null;
     name: string | null;
     pi: string | null;
+    sub: string | null;
     amountTotal: number;
     amounts: Record<string, number>;
   },
@@ -539,10 +571,11 @@ async function outOfStock(
   const res = await db
     .prepare(
       `UPDATE orders SET status = 'out_of_stock', email = ?, customer_name = ?, payment_intent = ?,
-         total = ?, amounts_json = ?, note = 'Sold out before payment finished', updated_at = ?
+         subscription_id = ?, total = ?, amounts_json = ?, note = 'Sold out before payment finished',
+         updated_at = ?
        WHERE id = ? AND status IN ('pending', 'processing', 'expired')`,
     )
-    .bind(p.email, p.name, p.pi, p.amountTotal, JSON.stringify(p.amounts), now, order.id)
+    .bind(p.email, p.name, p.pi, p.sub, p.amountTotal, JSON.stringify(p.amounts), now, order.id)
     .run();
   if ((res.meta.changes ?? 0) !== 1) return { order: order.id, duplicate: true };
   const refunded = await autoRefund(services, site, order.id, log);
@@ -554,6 +587,66 @@ async function outOfStock(
         : "We'll refund your payment in full shortly.",
     ]).catch(() => undefined);
   return { order: order.id, status: refunded ? "refunded" : "out_of_stock", outOfStock: true };
+}
+
+/** The payment intent of a subscription's invoice, or null when Stripe can't be asked now. */
+async function invoicePaymentIntent(
+  services: Services,
+  siteId: string,
+  invoice: string,
+  log?: Logger,
+): Promise<{ read: boolean; paymentIntent: string | null }> {
+  try {
+    const { api } = await stripeForSite(services, siteId);
+    return { read: true, paymentIntent: (await api.retrieveInvoice(invoice)).paymentIntent };
+  } catch (err) {
+    log?.warn("couldn't read a subscription invoice; the daily cron retries", { invoice, err });
+    return { read: false, paymentIntent: null };
+  }
+}
+
+/** Retries of subscription housekeeping (invoice lookups, cancels) before giving up. */
+export const MAX_SUBSCRIPTION_ATTEMPTS = 7;
+
+async function noteSubscriptionAttempt(services: Services, orderId: string) {
+  await services.db
+    .prepare(
+      `UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.subAttempts',
+         COALESCE(json_extract(meta_json, '$.subAttempts'), 0) + 1) WHERE id = ?`,
+    )
+    .bind(orderId)
+    .run();
+}
+
+/**
+ * A fully refunded (or sold-out) subscription product order: cancel the subscription so the
+ * buyer isn't charged again. Failures are noted for the daily cron.
+ */
+async function cancelRefundedSubscription(services: Services, orderId: string, log?: Logger) {
+  const order = await services.db
+    .prepare("SELECT * FROM orders WHERE id = ?")
+    .bind(orderId)
+    .first<OrderRow>();
+  if (!order?.subscription_id || order.kind !== "order" || order.refunded < order.total) return;
+  const meta = parse<{ subscriptionEnded?: boolean }>(order.meta_json, {});
+  if (meta.subscriptionEnded) return;
+  try {
+    const { api } = await stripeForSite(services, order.site_id);
+    await api.cancelSubscription(order.subscription_id, `cancel-${order.id}`);
+    await services.db
+      .prepare(
+        "UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.subscriptionEnded', json('true')) WHERE id = ?",
+      )
+      .bind(order.id)
+      .run();
+  } catch (err) {
+    log?.error("couldn't cancel a refunded subscription", { order: order.id, err });
+    await services.db
+      .prepare("UPDATE orders SET followup_error = ? WHERE id = ?")
+      .bind(failureNote("Canceling the subscription failed", err), order.id)
+      .run();
+    await noteSubscriptionAttempt(services, order.id);
+  }
 }
 
 /**
@@ -577,6 +670,7 @@ export async function autoRefund(
       idempotencyKey: `oos-${order.id}-${order.refunded}`,
     });
     await recordRefund(services, order, r.id, r.amount || order.total - order.refunded, false);
+    await cancelRefundedSubscription(services, order.id, log);
     return true;
   } catch (err) {
     log?.error("automatic refund for a sold-out order failed", { err, order: order.id });
@@ -648,6 +742,47 @@ async function recordRefund(
 /** Daily: retry follow-ups that failed and refunds of sold-out orders. */
 export async function retryOrderFollowups(services: Services, log?: Logger) {
   const now = services.now();
+  // Subscription orders whose invoice couldn't be read at payment: find their payment intent
+  // (refunds need it), and cancel refunded subscriptions that are still running.
+  const subs = await services.db
+    .prepare(
+      `SELECT * FROM orders WHERE kind = 'order' AND subscription_id IS NOT NULL
+         AND COALESCE(json_extract(meta_json, '$.subAttempts'), 0) < ?
+         AND (
+           (payment_intent IS NULL AND json_extract(meta_json, '$.invoice') IS NOT NULL
+             AND COALESCE(json_extract(meta_json, '$.noPayment'), 0) = 0
+             AND status IN ('paid', 'out_of_stock', 'partially_refunded'))
+           OR (refunded >= total AND total > 0
+             AND COALESCE(json_extract(meta_json, '$.subscriptionEnded'), 0) = 0))
+       ORDER BY created_at LIMIT 100`,
+    )
+    .bind(MAX_SUBSCRIPTION_ATTEMPTS)
+    .all<OrderRow>();
+  let subscriptions = 0;
+  for (const o of subs.results) {
+    if (!o.payment_intent) {
+      const invoice = parse<{ invoice?: string }>(o.meta_json, {}).invoice;
+      const r = invoice ? await invoicePaymentIntent(services, o.site_id, invoice, log) : null;
+      if (r?.paymentIntent) {
+        await services.db
+          .prepare("UPDATE orders SET payment_intent = ? WHERE id = ? AND payment_intent IS NULL")
+          .bind(r.paymentIntent, o.id)
+          .run();
+        subscriptions++;
+      } else if (r?.read) {
+        // Read, but nothing was charged ($0 invoice): leave the queue for good.
+        await services.db
+          .prepare(
+            "UPDATE orders SET meta_json = json_set(COALESCE(meta_json, '{}'), '$.noPayment', json('true')) WHERE id = ?",
+          )
+          .bind(o.id)
+          .run();
+      } else await noteSubscriptionAttempt(services, o.id);
+    } else {
+      await cancelRefundedSubscription(services, o.id, log);
+      subscriptions++;
+    }
+  }
   const stuck = await services.db
     .prepare(
       `SELECT * FROM orders WHERE followup_attempts < ? AND (
@@ -676,7 +811,7 @@ export async function retryOrderFollowups(services: Services, log?: Logger) {
       log?.warn("order follow-up retry failed", { order: o.id, err });
     }
   }
-  return { followups, refunds, failed };
+  return { followups, refunds, failed, subscriptions };
 }
 
 /**
@@ -687,14 +822,18 @@ export async function retryOrderFollowups(services: Services, log?: Logger) {
  */
 async function refundedCharge(services: Services, siteId: string, charge: Record<string, unknown>) {
   const pi = typeof charge.payment_intent === "string" ? charge.payment_intent : null;
+  // Subscription charges also name their invoice (matched when the order's payment intent
+  // isn't known yet).
+  const invoice = typeof charge.invoice === "string" ? charge.invoice : null;
   const total = typeof charge.amount_refunded === "number" ? charge.amount_refunded : null;
-  if (!pi || total === null) return { order: null };
+  if ((!pi && !invoice) || total === null) return { order: null };
   const order = await services.db
     .prepare(
-      `SELECT * FROM orders WHERE site_id = ? AND payment_intent = ?
+      `SELECT * FROM orders WHERE site_id = ? AND (payment_intent = ?
+           OR (? IS NOT NULL AND json_extract(meta_json, '$.invoice') = ?))
          AND status IN ('paid', 'partially_refunded', 'refunded', 'out_of_stock')`,
     )
-    .bind(siteId, pi)
+    .bind(siteId, pi, invoice, invoice)
     .first<OrderRow>();
   if (!order) return { order: null };
   const listed = (
@@ -717,6 +856,8 @@ async function refundedCharge(services: Services, siteId: string, charge: Record
     if (delta > 0)
       await recordRefund(services, order, `ext:${String(charge.id ?? pi)}:${total}`, delta, false);
   }
+  // Refunded in full from Stripe's dashboard: stop the subscription too.
+  await cancelRefundedSubscription(services, order.id);
   return { order: order.id, refundedPaymentIntent: pi };
 }
 
@@ -993,6 +1134,7 @@ export async function refundOrder(
         : `refund-${order.id}-${order.refunded}-${amount}`,
   });
   await recordRefund(services, order, r.id, r.amount || amount, input.restock === true);
+  await cancelRefundedSubscription(services, order.id);
   return toOrderView((await getOrder(services.db, site.id, order.id)) as OrderRow);
 }
 

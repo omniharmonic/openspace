@@ -5,6 +5,7 @@ import { strToU8, zipSync } from "fflate";
 import type { SiteRow } from "../db/sites";
 import { toCsv } from "../lib/csv";
 import { rotateSalts } from "./analytics";
+import { purgeUploads } from "./form-uploads";
 import { allSubmissions, type SubmissionData, toSubmissionView } from "./forms";
 import type { Services } from "./index";
 import { allSubscribers, parseTags } from "./newsletter";
@@ -281,6 +282,8 @@ export async function runRetentionPurge(services: Services): Promise<Record<stri
       new Date(now - 400 * DAY).toISOString().slice(0, 7),
     ),
     expiredDomainClaims: await expireDomainClaims(db, now),
+    // Files of purged or deleted entries, and uploads never attached to an entry.
+    formUploads: await purgeUploads(services),
   };
   await rotateSalts(db, now);
   return counts;

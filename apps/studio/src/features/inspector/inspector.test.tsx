@@ -213,6 +213,28 @@ describe("link picker", () => {
 });
 
 describe("form builder", () => {
+  it("adds a file upload field with accepted kinds and a size limit", async () => {
+    const t = setup(<Inspector />, { select: { kind: "block", id: I.contactForm } });
+    const form = () => t.block(I.contactForm)?.fields.form as Form;
+    const ip = panel();
+    await t.user.click(within(ip).getByRole("button", { name: "Add field" }));
+    await t.user.click(
+      within(await screen.findByRole("menu")).getByRole("menuitem", { name: "File upload" }),
+    );
+    expect(form().fields.at(-1)).toMatchObject({ type: "file", label: "Attach a file" });
+    const kinds = within(ip).getByRole("group", { name: "Accepted files" });
+    expect(within(kinds).getByRole("button", { name: "PDF" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await t.user.click(within(kinds).getByRole("button", { name: "Audio" }));
+    expect(form().fields.at(-1)).toMatchObject({
+      type: "file",
+      accept: ["image", "pdf", "document", "audio"],
+    });
+    expect(within(ip).getByText(/never published with your site/)).toBeInTheDocument();
+  });
+
   it("offers only the allowed field types and refuses password or card fields", async () => {
     const t = setup(<Inspector />, { select: { kind: "block", id: I.contactForm } });
     const form = () => t.block(I.contactForm)?.fields.form as Form;
@@ -232,6 +254,7 @@ describe("form builder", () => {
       "Checkbox",
       "Choice",
       "Date",
+      "File upload",
     ]);
     expect(types.join(" ")).not.toMatch(/password|card/i);
     await t.user.click(within(menu).getByRole("menuitem", { name: "Date" }));

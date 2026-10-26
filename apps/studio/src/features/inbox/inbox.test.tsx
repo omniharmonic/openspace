@@ -43,6 +43,10 @@ describe("form inbox", () => {
     await openWorkspace("inbox?entry=sub_r1");
     const entry = await screen.findByRole("article");
     expect(within(entry).getByText("Vegetarian, please.")).toBeInTheDocument();
+    // Uploaded files are download links, never inline content (PRD 5.2 file uploads).
+    const file = within(entry).getByRole("link", { name: /health-questionnaire\.pdf/ });
+    expect(file).toHaveAttribute("download", "health-questionnaire.pdf");
+    expect(within(file).getByText("178 KB")).toBeInTheDocument();
   });
 
   it("filters by form, unread and search; shows spam separately", async () => {

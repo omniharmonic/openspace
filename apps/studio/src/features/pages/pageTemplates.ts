@@ -15,11 +15,11 @@ import {
   quoteBlock,
   rt,
   socialLinksBlock,
+  starterSection,
   summaryBlock,
   textBlock,
 } from "@openspace/blocks";
 import type { Block, ColorTheme, Section } from "@openspace/schema";
-import { cloneSection } from "../editor/model/actions";
 
 /**
  * Page templates for "Add page" (Task 24): each builds real sections from library blocks with
@@ -37,22 +37,12 @@ export interface PageTemplate {
   build: () => Section[];
 }
 
+/** A plain stacked section with a starter look (editors may add these; see `starterSection`). */
 const section = (
   label: string,
   blocks: Block[],
   options: { columns?: number[]; theme?: ColorTheme; align?: "start" | "center" } = {},
-): Section =>
-  cloneSection({
-    id: "sec_0000000000",
-    label,
-    layout: {
-      mode: "stack",
-      columns: { d: options.columns ?? [12], m: [12] },
-      ...(options.align ? { align: options.align } : {}),
-    },
-    style: { colorTheme: options.theme ?? "light" },
-    blocks,
-  } as Section);
+): Section => starterSection(label, blocks, options);
 
 const intro = (heading: string, body: string, theme: ColorTheme = "light") =>
   section(

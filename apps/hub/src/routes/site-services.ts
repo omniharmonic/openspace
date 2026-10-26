@@ -31,7 +31,14 @@ import {
   removeDomain,
 } from "../services/domains";
 import { siteBaseUrl } from "../services/email";
-import { getSubmission, listSubmissions, loadManifest, toSubmissionView } from "../services/forms";
+import { deleteUploadsFor } from "../services/form-uploads";
+import {
+  getSubmission,
+  listSubmissions,
+  loadManifest,
+  toSubmissionView,
+  withFileLinks,
+} from "../services/forms";
 import { analyticsReport } from "../services/insights";
 import {
   getSubscriber,
@@ -178,7 +185,13 @@ siteServiceRoutes.get("/:id/submissions", async (c) => {
       cursor: z.string().max(80).optional(),
     })
     .parse(c.req.query());
-  return c.json(await listSubmissions(c.var.services.db, site.id, q));
+  return c.json(
+    await withFileLinks(
+      c.var.services,
+      site.id,
+      await listSubmissions(c.var.services.db, site.id, q),
+    ),
+  );
 });
 
 siteServiceRoutes.get("/:id/submissions.csv", async (c) => {
@@ -196,7 +209,9 @@ siteServiceRoutes.get("/:id/submissions/:subId", async (c) => {
   const { site } = await siteWith(c, "editor");
   const row = await getSubmission(c.var.services.db, site.id, c.req.param("subId"));
   if (!row) throw notFound("We couldn't find that entry.");
-  return c.json({ submission: toSubmissionView(row) });
+  return c.json({
+    submission: await withFileLinks(c.var.services, site.id, toSubmissionView(row)),
+  });
 });
 
 siteServiceRoutes.patch("/:id/submissions/:subId", async (c) => {
@@ -254,6 +269,10 @@ siteServiceRoutes.post("/:id/submissions/mark-read", async (c) => {
 
 siteServiceRoutes.delete("/:id/submissions/:subId", async (c) => {
   const { site, user } = await siteWith(c, "editor");
+  await deleteUploadsFor(c.var.services, {
+    siteId: site.id,
+    submissionIds: [c.req.param("subId")],
+  });
   const r = await c.var.services.db
     .prepare("DELETE FROM submissions WHERE site_id = ? AND id = ?")
     .bind(site.id, c.req.param("subId"))
@@ -266,6 +285,7 @@ siteServiceRoutes.delete("/:id/submissions/:subId", async (c) => {
 siteServiceRoutes.post("/:id/submissions/delete", async (c) => {
   const { site, user } = await siteWith(c, "editor");
   const { ids } = await readJson(c, z.strictObject({ ids: IdsSchema }));
+  await deleteUploadsFor(c.var.services, { siteId: site.id, submissionIds: ids });
   let deleted = 0;
   for (const id of ids) {
     const r = await c.var.services.db

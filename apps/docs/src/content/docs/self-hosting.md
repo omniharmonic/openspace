@@ -81,6 +81,10 @@ Set with `npx wrangler secret put NAME --env production`:
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe Connect checkout (no platform fee). |
 | `MEMBER_JWT_PRIVATE_KEY` | Optional signing key for member sign-in tokens (otherwise generated and stored encrypted). |
 | `QUOTAS_JSON` | Optional limit overrides, e.g. `{"formSubmissions":5000}`. |
+| `ABUSE_EMAIL` | The abuse-report address shown in every campaign email ([details](/operators/budget-and-abuse/)). |
+| `ALERT_EMAIL` | Who gets [budget alerts](/operators/budget-and-abuse/) at 80% of the plan allowances. |
+| `PLAN_ALLOWANCES_JSON` | Optional plan allowances for budget alerts, e.g. `{"emails":200000}`. |
+| `CAMPAIGN_DAILY_BASE`, `CAMPAIGN_DAILY_MAX` | Optional campaign warm-up: daily recipients for new senders, and the ceiling. |
 
 Without the optional ones, those features are simply unavailable on a production Hub — it never fakes payments or email.
 

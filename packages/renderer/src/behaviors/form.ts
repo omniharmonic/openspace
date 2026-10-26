@@ -92,11 +92,100 @@ async function flush(): Promise<void> {
   save(QUEUE, left);
 }
 
+const LEASE = "os-form-queue-lease";
+
+/**
+ * Run `fn` only if no other tab is flushing the queue right now (two tabs replaying the same
+ * entries would submit them twice). Web Locks when available; otherwise a short localStorage
+ * lease, re-read after writing so the last writer wins a race.
+ */
+async function exclusive(fn: () => Promise<void>): Promise<void> {
+  const locks = (navigator as Navigator & { locks?: LockManager }).locks;
+  if (locks?.request) {
+    await locks.request(QUEUE, { ifAvailable: true }, async (lock) => {
+      if (lock) await fn();
+    });
+    return;
+  }
+  const me = Math.random().toString(36).slice(2);
+  const held = load<{ by: string; until: number } | null>(LEASE, null);
+  if (held && held.until > Date.now()) return;
+  save(LEASE, { by: me, until: Date.now() + 30_000 });
+  if (load<{ by?: string } | null>(LEASE, null)?.by !== me) return;
+  try {
+    await fn();
+  } finally {
+    try {
+      localStorage.removeItem(LEASE);
+    } catch {
+      /* storage blocked */
+    }
+  }
+}
+
+/**
+ * File fields: upload each chosen file to the Hub first (`<action>/uploads` hands out a one-time
+ * upload address), then send the upload's id in place of the file. Returns false (after marking
+ * the field) when a file can't be uploaded.
+ */
+async function uploadFiles(f: HTMLFormElement, data: FormData): Promise<boolean> {
+  // The first reservation spends the form's Turnstile token; later ones show it as proof.
+  const token = data.get("cf-turnstile-response");
+  let proof = "";
+  for (const input of f.querySelectorAll<HTMLInputElement>("input[type=file][name]")) {
+    const file = input.files?.[0];
+    data.delete(input.name);
+    if (!file) continue;
+    const max = Number(input.dataset.osMaxBytes) || 0;
+    let message = max && file.size > max ? `This file is larger than ${max >> 20} MB.` : "";
+    if (!message) {
+      try {
+        const res = await fetch(`${f.action}/uploads`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            field: input.name,
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            ...(proof ? { proof } : typeof token === "string" && token ? { token } : {}),
+          }),
+        });
+        const b = (await res.json().catch(() => ({}))) as {
+          id?: string;
+          uploadUrl?: string;
+          type?: string;
+          message?: string;
+        };
+        if (res.ok && b.id && b.uploadUrl) {
+          const put = await fetch(b.uploadUrl, {
+            method: "PUT",
+            body: file,
+            headers: { "Content-Type": b.type || file.type || "application/octet-stream" },
+          });
+          if (put.ok) {
+            data.set(input.name, b.id);
+            proof ||= b.id;
+            continue;
+          }
+        }
+        message = b.message ?? "We couldn't upload this file. Please try again.";
+      } catch {
+        message = "We couldn't upload this file. Please check your connection and try again.";
+      }
+    }
+    mark(input, message);
+    input.focus();
+    return false;
+  }
+  return true;
+}
+
 let flushing = false;
 function scheduleFlush(): void {
   if (flushing) return;
   flushing = true;
-  flush().finally(() => {
+  exclusive(flush).finally(() => {
     flushing = false;
   });
 }
@@ -150,7 +239,15 @@ export default function form(el: HTMLElement): void {
     }
     setBusy(f, true);
     status(f, "", "");
+    // A no-JS confirmation still showing from an earlier submission (`#…-sent` target) would
+    // repeat the status region's announcement; the live region is the single source from here.
+    for (const p of f.querySelectorAll<HTMLElement>(".os-formblock__sent")) p.hidden = true;
     const data = new FormData(f);
+    if (!(await uploadFiles(f, data))) {
+      setBusy(f, false);
+      status(f, "error", "Please fix the highlighted field.");
+      return;
+    }
     const r = await submit(f.action, data);
     setBusy(f, false);
     if (r.ok) {

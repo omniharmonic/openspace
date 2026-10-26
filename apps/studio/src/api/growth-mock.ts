@@ -180,7 +180,22 @@ function seed(site: Site, now: number): GrowthSiteState {
         email: p.email,
         dates: i % 2 ? ["Feb 6–8"] : ["Feb 6–8", "Mar 13–15"],
         notes: i === 0 ? "Vegetarian, please." : "",
+        ...(i === 0 ? { health_form: "health-questionnaire.pdf" } : {}),
       },
+      ...(i === 0
+        ? {
+            files: [
+              {
+                field: "health_form",
+                id: "upl_mockhealth01",
+                name: "health-questionnaire.pdf",
+                type: "application/pdf",
+                size: 182_400,
+                url: "data:application/pdf;base64,JVBERi0xLjQK",
+              },
+            ],
+          }
+        : {}),
       read: i > 0,
       spam: false,
       source: "/retreats",
@@ -298,6 +313,24 @@ function seed(site: Site, now: number): GrowthSiteState {
       2,
     ),
     order(5, { status: "refunded", items: [block(1)], refunded: 3000 }, 6),
+    order(
+      9,
+      {
+        status: "paid",
+        items: [
+          {
+            sku: "TEA-CLUB",
+            title: "Studio tea of the month",
+            qty: 1,
+            unitAmount: 1500,
+            digital: false,
+            interval: "month",
+          },
+        ],
+        subscription: { interval: "month", id: "sub_dev_tea", ended: false },
+      },
+      3,
+    ),
     order(
       6,
       {
@@ -1658,6 +1691,23 @@ export function createGrowthMock(ctx: GrowthMockContext): {
       };
       s.campaigns.push(c);
       return view(c);
+    },
+    async getCampaignLimits(siteId) {
+      await call("getCampaignLimits", [siteId]);
+      const today = iso(now()).slice(0, 10);
+      const sentToday = of(siteId)
+        .campaigns.filter((c) => (c.startedAt ?? "").slice(0, 10) === today)
+        .reduce((n, c) => n + c.recipients, 0);
+      const limit = 100;
+      return {
+        limit,
+        sentToday,
+        remaining: Math.max(0, limit - sentToday),
+        cleanDays: 0,
+        window: { sent: sentToday, bounced: 0, complained: 0 },
+        paused: null,
+        abuseEmail: "abuse@openspace.dev",
+      };
     },
     async getCampaign(siteId, campaignId) {
       await call("getCampaign", [siteId, campaignId]);

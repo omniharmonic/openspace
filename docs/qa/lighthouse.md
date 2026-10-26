@@ -14,20 +14,23 @@ CLS < 0.05, JavaScript < 30 KB gzipped.
 
 | Template | Perf | A11y | Best practices | SEO | FCP | LCP | TBT | CLS | JS (KB, transfer) |
 |---|---|---|---|---|---|---|---|---|---|
-| atelier | 98 | 100 | 100 | 100 | 1.36 s | 2.29 s | 0 ms | 0.000 | 4.5 |
-| commons | 98 | 100 | 100 | 100 | 1.36 s | 2.43 s | 0 ms | 0.000 | 2.5 |
-| encore | 99 | 100 | 100 | 100 | 1.20 s | 1.98 s | 0 ms | 0.000 | 3.6 |
-| field-notes | 100 | 100 | 100 | 100 | 1.20 s | 1.66 s | 0 ms | 0.000 | 4.3 |
-| harbor | 99 | 100 | 100 | 100 | 1.21 s | 2.13 s | 0 ms | 0.000 | 3.1 |
-| hearth | 98 | 100 | 100 | 100 | 1.22 s | 2.45 s | 0 ms | 0.000 | 4.5 |
-| kiln | 99 | 100 | 100 | 100 | 1.21 s | 1.83 s | 0 ms | 0.000 | 6.5 |
-| ledger | 99 | 100 | 100 | 100 | 1.66 s | 1.96 s | 0 ms | 0.000 | 3.3 |
-| link | 100 | 100 | 100 | 100 | 1.21 s | 1.68 s | 0 ms | 0.000 | 2.4 |
-| meadow | 99 | 100 | 100 | 100 | 1.21 s | 2.13 s | 0 ms | 0.000 | 3.6 |
-| signal | 100 | 100 | 100 | 100 | 1.21 s | 1.67 s | 0 ms | 0.000 | 4.2 |
-| vow | 99 | 100 | 100 | 100 | 1.20 s | 1.99 s | 0 ms | 0.000 | 2.6 |
+| atelier | 100 | 100 | 100 | 100 | 1.05 s | 1.80 s | 0 ms | 0.000 | 3.3 |
+| commons | 100 | 100 | 100 | 100 | 1.20 s | 1.65 s | 0 ms | 0.001 | 1.8 |
+| encore | 100 | 100 | 100 | 100 | 1.05 s | 1.73 s | 0 ms | 0.000 | 2.6 |
+| field-notes | 100 | 100 | 100 | 100 | 1.05 s | 1.35 s | 0 ms | 0.000 | 3.1 |
+| harbor | 100 | 100 | 100 | 100 | 1.05 s | 1.65 s | 0 ms | 0.000 | 2.1 |
+| hearth | 99 | 100 | 100 | 100 | 1.05 s | 1.95 s | 0 ms | 0.000 | 3.3 |
+| kiln | 100 | 100 | 100 | 100 | 1.05 s | 1.43 s | 0 ms | 0.000 | 5.2 |
+| ledger | 100 | 100 | 100 | 100 | 1.20 s | 1.65 s | 0 ms | 0.001 | 2.3 |
+| link | 100 | 100 | 100 | 100 | 1.05 s | 1.20 s | 0 ms | 0.000 | 1.6 |
+| meadow | 100 | 100 | 100 | 100 | 1.05 s | 1.73 s | 0 ms | 0.000 | 2.6 |
+| signal | 100 | 100 | 100 | 100 | 1.05 s | 1.35 s | 0 ms | 0.000 | 3.0 |
+| vow | 100 | 100 | 100 | 100 | 1.05 s | 1.65 s | 0 ms | 0.000 | 1.9 |
 
-All twelve meet every target (Lighthouse run with `OPENSPACE_GOOGLE_FONTS=download`, as published).
+Median of 3 runs, served over HTTP/2 (TLS, like GitHub Pages and Cloudflare), built as published
+(`OPENSPACE_GOOGLE_FONTS=download OPENSPACE_REMOTE_IMAGES=download`). **All twelve meet every
+target, including LCP under 2.0 s** (hearth, the closest, at 1.95 s).
+
 
 ### Before this pass
 
@@ -50,6 +53,43 @@ The first run (same harness) had:
 | Image blocks' `sizes` follow their grid cell or stack column at each breakpoint; remote photos offer 640 and 960 px widths too | `packages/blocks/src/blocks/image.tsx`, renderer `REMOTE_WIDTHS` | Phones download a photo the width of its cell (hearth 94 → 98) |
 | Sites without a tab icon get an inline SVG monogram (the site's initial on its brand color) | `packages/renderer/src/html.ts` | No `/favicon.ico` 404; Best practices 100 |
 | Collection and event item titles never skip a heading level | `packages/blocks/src/blocks/collections.tsx` | Accessibility 100 on field-notes |
+
+### LCP pass (final wave B)
+
+Before: atelier 2.42 s, commons 2.12 s, harbor 2.13 s, hearth 2.43 s, meadow 2.44 s (encore,
+vow and ledger 1.95–1.99 s).
+
+| Fix | Where | Effect |
+|---|---|---|
+| `<link rel="preload" as="image" imagesrcset imagesizes fetchpriority="high">` for the likely LCP image, placed right after `<title>`: of the first section's high-priority images, the one covering most of a phone screen (from `sizes` and its aspect ratio); a `<picture>`'s first modern `<source>` with its `type` | `packages/renderer/src/html.ts` (`lcpImagePreload`) | The LCP candidate is requested with the document, ahead of stylesheets and fonts |
+| Phone `sizes` subtract the page gutters (`calc(100vw - 48px)`, grid cells `calc((100vw - 48px) * share)`; bleeding items keep `vw`) | `packages/blocks/src/blocks/image.tsx` | At Lighthouse's 412 px × 1.75 DPR, photos pick the 640 px file instead of 768 px (meadow 2.44 → 1.98 s) |
+| Lead images include the first image in the grid's **phone** order as well as the desktop one | `packages/renderer/src/section.tsx` (`leadImages`) | The image that is LCP on phones is eager + high priority (hearth's collage) |
+
+**Self-hosted demo photos (follow-up).** The remaining four were held back by their LCP photo
+coming from `images.unsplash.com` (a new connection plus the CDN's real latency). Publish builds
+now download each demo photo once per width (480–1080 px) as AVIF and JPEG from the CDN into
+`_os/img/` (`packages/site-kit/src/node/remote-images.ts`, `OPENSPACE_REMOTE_IMAGES=download`,
+set in the starter's publish workflows next to the fonts' download; credits stay in the content),
+and the harness serves HTTP/2 like production hosts (`serve.mjs`, `lighthouse.mjs --http1` for
+the old setup). Result: atelier 2.15 → 1.80 s, commons 2.13 → 1.65 s, harbor 2.13 → 1.65 s,
+hearth 2.43 → 1.95 s.
+
+**Earlier analysis: LCP on remote demo photos.** The four templates still over 2.0 s show their LCP photo from
+`images.unsplash.com`. Lighthouse's simulation adds a new connection to that origin (DNS + TCP +
+TLS at 150 ms RTT) and its real, variable latency; experiments put the floor at about 2.1 s even
+with every lazy image removed from the page, and single runs vary by ±0.3 s (hearth: 2.31–2.77 s
+on identical HTML). Lower image quality (q=60), dropping font preloads and `content-visibility`
+on later sections did not move the median. Self-hosting the demo photos through the build
+pipeline was tried too; with the harness's HTTP/1.1 static server the extra same-origin
+requests made LCP worse (3.0 s), so a fair test needed an HTTP/2 server (now the default). Owners' own photos
+already go through Astro's image pipeline (same origin, AVIF/WebP) and don't pay this cost.
+
+### Lighthouse in CI
+
+`.github/workflows/lighthouse.yml` builds the twelve demos (with self-hosted fonts) and runs
+`node scripts/lighthouse.mjs --runs=3 --min-perf=95 --min-a11y=100 --max-lcp=2000`, which exits non-zero when any
+template's median misses a threshold. It runs nightly and on demand, not as a required check, and uploads the JSON
+summaries.
 
 ### What's left
 

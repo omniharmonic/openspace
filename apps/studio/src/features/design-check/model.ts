@@ -1,4 +1,4 @@
-import { blocksRegistry } from "@openspace/blocks";
+import { blocksRegistry, presetSection } from "@openspace/blocks";
 import { designCheck, type Issue, type Severity, seoCheck, sortIssues } from "@openspace/lint";
 import { type Op, type OpBody, transformForRole, validate } from "@openspace/ops";
 import type { Page, SiteDocument } from "@openspace/schema";
@@ -209,7 +209,7 @@ export function canFix(doc: SiteDocument, issue: Issue, role: string): boolean {
   const locked = lockedSections(doc);
   const registry = blocksRegistry();
   return issue.autofix.ops.every(
-    (op) => transformForRole(op, r, locked, { doc, registry }).allowed,
+    (op) => transformForRole(op, r, locked, { doc, registry, presetSection }).allowed,
   );
 }
 

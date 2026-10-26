@@ -215,7 +215,20 @@ export async function quotaReport(
   return [
     ...counted,
     { resource: "subscribers", limit: limits.subscribers, used: subs?.n ?? 0, period: "total" },
-    { resource: "uploadBytes", limit: limits.uploadBytes, used: 0, period: "total" },
+    {
+      resource: "uploadBytes",
+      limit: limits.uploadBytes,
+      used:
+        (
+          await db
+            .prepare(
+              "SELECT COALESCE(SUM(size), 0) AS n FROM form_uploads WHERE site_id = ? AND status != 'pending'",
+            )
+            .bind(siteId)
+            .first<{ n: number }>()
+        )?.n ?? 0,
+      period: "total",
+    },
     {
       resource: "storedSubmissionsMonths",
       limit: limits.storedSubmissionsMonths,

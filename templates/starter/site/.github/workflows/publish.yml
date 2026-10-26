@@ -26,6 +26,7 @@ jobs:
           OPENSPACE_TURNSTILE_SITE_KEY: ${{ vars.OPENSPACE_TURNSTILE_SITE_KEY }}
           # Self-host the font pairing (downloaded once from Google Fonts during the build).
           OPENSPACE_GOOGLE_FONTS: download
+          OPENSPACE_REMOTE_IMAGES: download
       - uses: actions/upload-pages-artifact@v5
         with: { path: dist }
   deploy:

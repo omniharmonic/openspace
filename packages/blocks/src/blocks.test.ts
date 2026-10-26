@@ -297,13 +297,24 @@ describe("image sizes", () => {
       },
       blocks: [],
     } as never;
+    // Phones: inside the page gutters (the LCP photo is fetched no wider than it shows).
     expect(imageSizes(grid, "blk_a")).toBe(
-      "(min-width: 1200px) 50vw, (min-width: 768px) 50vw, 50vw",
+      "(min-width: 1200px) 50vw, (min-width: 768px) 50vw, calc((100vw - 48px) * 0.5)",
+    );
+    const bleeding = {
+      layout: {
+        mode: "grid",
+        items: { blk_a: { d: { x: 0, y: 0, w: 24, h: 4, bleed: "both" } } },
+      },
+      blocks: [],
+    } as never;
+    expect(imageSizes(bleeding, "blk_a")).toBe(
+      "(min-width: 1200px) 100vw, (min-width: 768px) 100vw, 100vw",
     );
     const stack = {
       layout: { mode: "stack", columns: { d: [7, 5] } },
       blocks: [{ id: "blk_b", column: 1 }],
     } as never;
-    expect(imageSizes(stack, "blk_b")).toBe("(min-width: 1200px) 42vw, 100vw");
+    expect(imageSizes(stack, "blk_b")).toBe("(min-width: 1200px) 42vw, calc(100vw - 48px)");
   });
 });

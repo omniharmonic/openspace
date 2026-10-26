@@ -24,6 +24,10 @@ export interface CatalogEntry {
   collection: string;
   slug: string;
   path: string;
+  /** Shipping weight in grams (0 when not given). */
+  weight: number;
+  /** Subscription products: the billing interval; null for one-time purchases. */
+  interval: "month" | "year" | null;
 }
 
 export interface Catalog {
@@ -51,6 +55,8 @@ const ManifestSchema = z.object({
       price: MoneyZ,
       available: z.boolean().optional(),
       digital: z.boolean().optional(),
+      weight: z.number().int().min(0).max(1_000_000).optional(),
+      interval: z.enum(["month", "year"]).optional(),
       variants: z
         .array(
           z.object({
@@ -58,6 +64,7 @@ const ManifestSchema = z.object({
             options: z.record(z.string(), z.string()),
             price: MoneyZ,
             available: z.boolean().optional(),
+            weight: z.number().int().min(0).max(1_000_000).optional(),
           }),
         )
         .optional(),
@@ -78,11 +85,14 @@ function fromManifest(m: z.infer<typeof ManifestSchema>): Catalog {
       slug: p.slug,
       digital: p.digital === true,
       path: p.path ?? `/${p.collection}/${p.slug}/`,
+      weight: p.weight ?? 0,
+      interval: p.interval ?? null,
     };
     if (p.variants?.length)
       for (const v of p.variants)
         skus.set(v.sku, {
           ...base,
+          weight: v.weight ?? base.weight,
           sku: v.sku,
           title: variantTitle(p.title, v.options),
           price: v.price,
@@ -118,12 +128,15 @@ export function catalogFromDocument(doc: SiteDocument, now: number): Catalog {
         slug: item.slug,
         digital: fm.digital === true,
         path: `/${collection}/${item.slug}/`,
+        weight: fm.weight ?? 0,
+        interval: fm.subscription?.interval ?? null,
       };
       if (fm.variants?.length)
         fm.variants.forEach((v, i) => {
           const vsku = v.sku ?? `${sku}#${i + 1}`;
           skus.set(vsku, {
             ...base,
+            weight: v.weight ?? base.weight,
             sku: vsku,
             title: variantTitle(fm.title, v.options),
             price: v.price ?? fm.price,

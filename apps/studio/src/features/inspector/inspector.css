@@ -1067,3 +1067,41 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* Toggle chips (file upload kinds). */
+.st-ip-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.st-ip-chip {
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--st-line);
+  border-radius: var(--st-r-sm);
+  background: var(--st-panel);
+  color: var(--st-text-2);
+  font: inherit;
+  font-size: var(--st-fs-sm);
+  cursor: pointer;
+}
+.st-ip-chip:hover:not(:disabled) {
+  color: var(--st-text);
+}
+.st-ip-chip[aria-pressed="true"] {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+  color: var(--st-text);
+}
+.st-ip-chip:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+.st-ip-chip:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 1px;
+}

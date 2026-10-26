@@ -12,7 +12,7 @@ import {
   validate,
 } from "@openspace/ops";
 import type { SiteDocument } from "@openspace/schema";
-import { blockRegistry, registryForValidate } from "../blocks";
+import { blockRegistry, presetSection, registryForValidate } from "../blocks";
 import type { ActorKind, ConflictNotice, LoggedOp, SubmitResult } from "./protocol";
 
 /**
@@ -126,6 +126,8 @@ const toStored = (r: OpRow): StoredOp => ({
   flushed: r.flushed === 1,
   published: r.published === 1,
 });
+
+const itemAuthorKey = (collection: string, slug: string) => `item-author:${collection}/${slug}`;
 
 export class RoomState {
   /** The current draft document (head + every op after it). */
@@ -465,7 +467,13 @@ export class RoomState {
       if (this.opById(parsed.op.id)) continue;
       let op = parsed.op;
       if (role !== "owner" && role !== "designer") {
-        const d = transformForRole(op, role, locked, { doc, registry: blockRegistry() });
+        const d = transformForRole(op, role, locked, {
+          doc,
+          registry: blockRegistry(),
+          userId,
+          itemAuthor: this.itemAuthor,
+          presetSection,
+        });
         if (!d.allowed) return { ok: false, index, code: "forbidden", message: d.reason };
         op = d.op;
       }
@@ -491,6 +499,26 @@ export class RoomState {
     }
     return { ok: true };
   }
+
+  /** Who started a collection item (user id), recorded when its first upsert was accepted. */
+  readonly itemAuthor = (collection: string, slug: string): string | undefined => {
+    const known = this.getMeta(itemAuthorKey(collection, slug));
+    if (known) return known;
+    // Only items that exist can be legacy drafts (a new item has no author yet: no log scan).
+    if (!this.doc?.collections[collection]?.[slug]) return undefined;
+    // Drafts started before authors were recorded: whoever first saved the item in the op log.
+    const first = this.sql
+      .exec<{ user_id: string }>(
+        `SELECT user_id FROM ops WHERE json_extract(op, '$.op') = 'collection.upsert'
+           AND json_extract(op, '$.collection') = ? AND json_extract(op, '$.item.slug') = ?
+         ORDER BY seq LIMIT 1`,
+        collection,
+        slug,
+      )
+      .toArray()[0]?.user_id;
+    if (first) this.setMeta(itemAuthorKey(collection, slug), first);
+    return first;
+  };
 
   /** Ops an agent session made that are still in the log. */
   agentSessionOpCount(sessionId: string): number {
@@ -603,6 +631,9 @@ export class RoomState {
         const decision = transformForRole(op, input.role, this.lockedFor(input.actor.userId), {
           doc,
           registry: blockRegistry(),
+          userId: input.actor.userId,
+          itemAuthor: this.itemAuthor,
+          presetSection,
         });
         if (!decision.allowed)
           return {
@@ -644,6 +675,8 @@ export class RoomState {
       input.actor.session ?? null,
       op.ts,
     );
+    if (op.op === "collection.upsert" && !doc.collections[op.collection]?.[op.item.slug])
+      this.setMeta(itemAuthorKey(op.collection, op.item.slug), input.actor.userId);
     this.doc = v.doc;
     return {
       status: "accepted",

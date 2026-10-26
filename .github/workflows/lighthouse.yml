@@ -1,0 +1,42 @@
+name: Lighthouse
+
+permissions:
+  contents: read
+
+# Lighthouse (mobile, simulated 4G) on every template's demo home page, built through site-kit the
+# way owners publish (self-hosted fonts) and served statically. Fails below Performance 95 or
+# Accessibility 100, or LCP over 2.0 s (doc 04 §8.3, PRD §5.4 / §7.1), served over HTTP/2 like
+# the hosts sites publish to. Manual and nightly; not a required check.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 5 * * *"
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @openspace/e2e exec playwright install --with-deps chromium
+      - name: Build the template demos
+        working-directory: tools/visual-tests
+        run: node scripts/build-templates.mjs
+        env:
+          OPENSPACE_GOOGLE_FONTS: download
+          OPENSPACE_REMOTE_IMAGES: download
+      - name: Lighthouse (median of 3, fails below 95 performance / 100 accessibility or over 2.0 s LCP)
+        working-directory: tools/visual-tests
+        run: node scripts/lighthouse.mjs --runs=3 --min-perf=95 --min-a11y=100 --max-lcp=2000 | tee "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: tools/visual-tests/out/lighthouse
+          retention-days: 14

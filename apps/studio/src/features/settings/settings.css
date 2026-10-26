@@ -863,3 +863,107 @@
 .st-steps .st-host-form {
   margin-top: 8px;
 }
+
+/* FR-50: illustrated registrar DNS screens (inline SVG, follows the chrome theme). */
+.st-guide__body {
+  display: grid;
+  gap: 12px;
+}
+.st-regd {
+  margin: 0;
+}
+.st-regd__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--st-font, system-ui, sans-serif);
+}
+.st-regd__frame {
+  fill: var(--st-panel);
+  stroke: var(--st-line);
+}
+.st-regd__bar {
+  fill: var(--st-field);
+  stroke: var(--st-line);
+}
+.st-regd__dot {
+  fill: var(--st-line);
+}
+.st-regd__url {
+  fill: var(--st-panel);
+  stroke: var(--st-line);
+}
+.st-regd__small,
+.st-regd__crumb {
+  fill: var(--st-text-3);
+  font-size: 9px;
+}
+.st-regd__crumb {
+  font-size: 10px;
+}
+.st-regd__tab {
+  fill: var(--st-text-2);
+  font-size: 11px;
+}
+.st-regd__tab.is-active {
+  fill: var(--st-text);
+  font-weight: 600;
+}
+.st-regd__accent {
+  fill: var(--st-accent);
+}
+.st-regd__rule {
+  stroke: var(--st-line);
+}
+.st-regd__section {
+  fill: var(--st-text);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.st-regd__button,
+.st-regd__save {
+  fill: var(--st-accent);
+}
+.st-regd__buttontext {
+  fill: var(--st-text-inverse);
+  font-size: 10px;
+  font-weight: 600;
+}
+.st-regd__head {
+  fill: var(--st-field);
+}
+.st-regd__th {
+  fill: var(--st-text-2);
+  font-size: 10px;
+  font-weight: 600;
+}
+.st-regd__row {
+  fill: var(--st-accent-soft);
+  stroke: var(--st-accent);
+}
+.st-regd__input {
+  fill: var(--st-panel);
+  stroke: var(--st-line);
+}
+.st-regd__value {
+  fill: var(--st-text);
+  font-family: var(--st-font-mono);
+  font-size: 10px;
+}
+.st-regd__ghost {
+  fill: var(--st-field);
+}
+.st-regd__marker circle {
+  fill: var(--st-text);
+}
+.st-regd__marker text {
+  fill: var(--st-panel);
+  font-size: 10px;
+  font-weight: 700;
+}
+.st-regd__caption {
+  margin-top: 6px;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+}

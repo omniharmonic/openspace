@@ -1,4 +1,13 @@
-import { Download, Inbox, Mail, MailOpen, Settings2, ShieldAlert, Trash2 } from "lucide-react";
+import {
+  Download,
+  Inbox,
+  Mail,
+  MailOpen,
+  Paperclip,
+  Settings2,
+  ShieldAlert,
+  Trash2,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import {
@@ -357,6 +366,11 @@ export function InboxView({ site }: AreaProps) {
   );
 }
 
+const fileSize = (bytes: number) =>
+  bytes >= 1024 * 1024
+    ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+
 function Entry({
   entry,
   onClose,
@@ -385,12 +399,27 @@ function Entry({
       </div>
       {entry.spam && <Badge tone="danger">Marked as spam</Badge>}
       <dl className="st-ws-kv">
-        {Object.entries(entry.data).map(([k, v]) => (
-          <div key={k} className="st-ws-kv__row">
-            <dt>{humanize(k)}</dt>
-            <dd>{Array.isArray(v) ? v.join(", ") : v || "—"}</dd>
-          </div>
-        ))}
+        {Object.entries(entry.data).map(([k, v]) => {
+          const file = entry.files?.find((f) => f.field === k);
+          return (
+            <div key={k} className="st-ws-kv__row">
+              <dt>{humanize(k)}</dt>
+              <dd>
+                {file?.url ? (
+                  <a className="st-inbox__file" href={file.url} download={file.name} rel="noopener">
+                    <Paperclip aria-hidden="true" />
+                    <span>{file.name}</span>
+                    <span className="st-inbox__file-size">{fileSize(file.size)}</span>
+                  </a>
+                ) : Array.isArray(v) ? (
+                  v.join(", ")
+                ) : (
+                  v || "—"
+                )}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
       <div className="st-ws-actions">
         {email && (

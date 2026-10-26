@@ -49,6 +49,7 @@ const REQUIRED = [
   "grow/collaborators",
   "templates",
   "self-hosting",
+  "operators/budget-and-abuse",
   "architecture",
   "developers/block-development",
   "developers/cli",

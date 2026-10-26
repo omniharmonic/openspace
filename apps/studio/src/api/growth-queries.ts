@@ -40,6 +40,7 @@ export const growthKeys = {
   tiers: (id: string) => ["growth", id, "tiers"] as const,
   senders: (id: string) => ["growth", id, "senders"] as const,
   campaigns: (id: string) => ["growth", id, "campaigns"] as const,
+  campaignLimits: (id: string) => ["growth", id, "campaign-limits"] as const,
   campaign: (id: string, cid: string) => ["growth", id, "campaign", cid] as const,
   segment: (id: string, s: CampaignSegment) => ["growth", id, "segment", s] as const,
 };
@@ -458,6 +459,14 @@ export function useCampaigns(siteId: string) {
   return useQuery({
     queryKey: growthKeys.campaigns(siteId),
     queryFn: () => hub.listCampaigns(siteId),
+  });
+}
+
+export function useCampaignLimits(siteId: string) {
+  const hub = useHub();
+  return useQuery({
+    queryKey: growthKeys.campaignLimits(siteId),
+    queryFn: () => hub.getCampaignLimits(siteId),
   });
 }
 
