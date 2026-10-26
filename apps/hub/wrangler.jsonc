@@ -30,8 +30,9 @@
   ],
   // "* * * * *": scheduled publishes, transfer/invitation expiry, archived-site purges (Task 15).
   // "0 3 * * *": retention purge + daily form digests; "0 8 * * 1": weekly analytics digests
-  // (Task 16). The `scheduled` handler dispatches by cron string.
-  "triggers": { "crons": ["* * * * *", "0 3 * * *", "0 8 * * 1"] },
+  // (Task 16). "0 4 * * *": update-bot checks + growth housekeeping (Task 18). The `scheduled`
+  // handler dispatches by cron string; the minute cron also starts due campaigns (Task 18).
+  "triggers": { "crons": ["* * * * *", "0 3 * * *", "0 8 * * 1", "0 4 * * *"] },
   "d1_databases": [
     {
       "binding": "HUB_DB",
@@ -63,7 +64,7 @@
           { "name": "RATE_LIMITER", "class_name": "RateLimiter" }
         ]
       },
-      "triggers": { "crons": ["* * * * *", "0 3 * * *", "0 8 * * 1"] },
+      "triggers": { "crons": ["* * * * *", "0 3 * * *", "0 8 * * 1", "0 4 * * *"] },
       "d1_databases": [
         {
           "binding": "HUB_DB",
@@ -87,6 +88,15 @@
       // (or RESEND_API_KEY / POSTMARK_TOKEN with EMAIL_PROVIDER).
       "send_email": [{ "name": "EMAIL" }],
       "analytics_engine_datasets": [{ "binding": "ANALYTICS", "dataset": "openspace_analytics" }]
+      // Task 18 (optional): campaign fan-out through a Queue. Create it first
+      // (`wrangler queues create openspace-campaigns`), then add:
+      //   "queues": {
+      //     "producers": [{ "binding": "CAMPAIGN_QUEUE", "queue": "openspace-campaigns" }],
+      //     "consumers": [{ "queue": "openspace-campaigns", "max_batch_size": 5, "max_retries": 3 }]
+      //   }
+      // Without it, campaigns send inline in batches and the minute cron finishes large lists.
+      // Secrets: STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET (Connect), MEMBER_JWT_PRIVATE_KEY
+      // (optional; else generated and sealed with TOKEN_ENC_KEY).
     }
   }
 }

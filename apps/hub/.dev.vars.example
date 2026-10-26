@@ -19,3 +19,12 @@
 # CF_ANALYTICS_TOKEN=
 # HUB_SECRET=              # HMAC key for unsubscribe links (falls back to TOKEN_ENC_KEY)
 # QUOTAS_JSON='{"formSubmissions":5000}'   # self-hosted quota overrides
+
+# Growth + commerce (Task 18). All optional; in DEV_MODE checkout uses DevStripe (a fake checkout
+# page on the Hub), campaigns go to the dev outbox and the update bot uses a built-in release.
+# STRIPE_SECRET_KEY=        # platform key for Stripe Connect (Standard accounts, no fee)
+# STRIPE_WEBHOOK_SECRET=    # signing secret of the Connect endpoint POST /c/stripe/webhook
+# MEMBER_JWT_PRIVATE_KEY=   # optional ES256 private JWK (JSON) for member tokens
+# SITE_KIT_LATEST=          # pin the update bot's latest site-kit version (else npm registry)
+# SITE_KIT_CHANGELOG='[{"version":"0.2.0","notes":["…"]}]'
+# NPM_REGISTRY=https://registry.npmjs.org

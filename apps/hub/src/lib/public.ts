@@ -99,6 +99,13 @@ function expandIpv6(ip: string): string[] | null {
  * or device usually controls a whole /64, so per-address keys are trivially evaded).
  */
 export function rateKeyIp(ip: string): string {
+  // IPv4-mapped IPv6 (`::ffff:1.2.3.4`, `0:0:0:0:0:ffff:1.2.3.4`) is the IPv4 client: key by it,
+  // so the same visitor can't get a second budget by switching notation.
+  const mapped = ip
+    .trim()
+    .toLowerCase()
+    .match(/^(?:0{0,4}:){0,5}:?(?:0{0,4}:)?ffff:(\d{1,3}(?:\.\d{1,3}){3})$/);
+  if (mapped) return mapped[1] as string;
   const v6 = expandIpv6(ip);
   return v6 ? `${v6.slice(0, 4).join(":")}::/64` : ip;
 }
@@ -308,7 +315,9 @@ export function background(c: Context<AppEnv>, p: Promise<unknown>): Promise<voi
  * Re-shape Hub errors on public routes into what the site behaviors read (`message`, `errors`)
  * while keeping the `error` envelope.
  */
-export function publicErrors(param?: "os_form" | "os_newsletter"): MiddlewareHandler<AppEnv> {
+export function publicErrors(
+  param?: "os_form" | "os_newsletter" | "os_member" | "os_checkout",
+): MiddlewareHandler<AppEnv> {
   return async (c, next) => {
     await next();
     const err = c.error;

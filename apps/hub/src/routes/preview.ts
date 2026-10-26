@@ -1,6 +1,21 @@
-import type { SiteDocument } from "@openspace/schema";
+import { esc } from "@openspace/email-render";
+import type { Page, SiteDocument } from "@openspace/schema";
 import { type Context, Hono } from "hono";
+import { getCookie } from "hono/cookie";
 import { getSite, getSiteForUser } from "../db/sites";
+import { sha256Hex } from "../lib/crypto";
+import { clientIp, parseFields, rateKeyIp, single } from "../lib/public";
+import { requireHmacKey } from "../public-env";
+import { verifyJwt } from "../services/member-keys";
+import {
+  checkPagePassword,
+  getMember,
+  PREVIEW_MEMBER_COOKIE,
+  PREVIEW_PASSWORD_COOKIE,
+  PREVIEW_SESSION_TTL_SEC,
+  readPreviewValue,
+  signPreviewValue,
+} from "../services/members";
 import { escapeHtml, type RenderMode } from "../services/renderer";
 import { loadSiteDocument } from "../services/site-files";
 import { findPageBySlug, readSiteDocument } from "../services/sites";
@@ -37,7 +52,12 @@ for (const prefix of ["/s/*", "/p/*", "/t/*"]) {
   });
 }
 
-function htmlPage(c: Context<AppEnv>, status: 401 | 403 | 404, title: string, message: string) {
+function htmlPage(
+  c: Context<AppEnv>,
+  status: 401 | 403 | 404 | 429,
+  title: string,
+  message: string,
+) {
   return c.html(
     `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(title)}</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:560px;margin:15vh auto;padding:0 16px;color:#1d1d1f}</style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(message)}</p></body></html>`,
     status,
@@ -57,8 +77,13 @@ async function render(
   basePath: string,
 ) {
   const page = findPageBySlug(doc, path);
-  if (!page || (mode === "published" && page.access?.password))
-    return htmlPage(c, 404, "Page not found", "There's no page at this address.");
+  if (!page) return htmlPage(c, 404, "Page not found", "There's no page at this address.");
+  if (mode === "published") {
+    // Dev preview enforces the same gates as the Cloudflare site Worker (arch §9.4): gated content
+    // is never served without a member session / the page password.
+    const gated = await gate(c, page, basePath);
+    if (gated) return gated;
+  }
   const html = await c.var.services.renderer.renderPage({
     doc,
     page,
@@ -66,10 +91,150 @@ async function render(
     basePath,
     behaviorsBase: BEHAVIORS_BASE,
   });
-  c.header("Cache-Control", mode === "draft" ? "no-store" : "public, max-age=10");
+  const isGated = !!(page.access?.members || page.access?.password || isMembersPath(page.slug));
+  c.header(
+    "Cache-Control",
+    mode === "draft" ? "no-store" : isGated ? "private, no-store" : "public, max-age=10",
+  );
   if (mode === "draft") c.header("X-Robots-Tag", "noindex");
   return c.html(html);
 }
+
+const PASSWORD_RULE = { name: "page-password", limit: 10, windowSec: 600 };
+const PASSWORD_PAGE_RULE = { name: "page-password-page", limit: 300, windowSec: 600 };
+
+// ---- dev preview gating (Task 18) -------------------------------------------------------------
+
+const isMembersPath = (slug: string) => slug === "members" || slug.startsWith("members/");
+
+function cookieAttrs(c: Context<AppEnv>, basePath: string, maxAge: number): string {
+  return `Path=${basePath}/; Max-Age=${maxAge}; HttpOnly; SameSite=Lax${c.var.config.secureCookies ? "; Secure" : ""}`;
+}
+
+/** A path below this preview site (the only allowed post-sign-in destination). */
+function previewReturn(basePath: string, raw: string | null | undefined): string {
+  const v = (raw ?? "").trim();
+  if (
+    v.startsWith(`${basePath}/`) &&
+    !v.includes("\\") &&
+    !v.includes("//") &&
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: reject control characters
+    !/[\u0000-\u001f]/.test(v)
+  )
+    return v;
+  return `${basePath}/`;
+}
+
+async function memberSession(c: Context<AppEnv>, siteId: string): Promise<boolean> {
+  const v = await readPreviewValue(c.var.services, siteId, getCookie(c, PREVIEW_MEMBER_COOKIE));
+  if (!v || typeof v.sub !== "string") return false;
+  const m = await getMember(c.var.services.db, siteId, v.sub);
+  return m?.status === "active";
+}
+
+async function gate(c: Context<AppEnv>, page: Page, basePath: string): Promise<Response | null> {
+  const siteId = basePath.split("/")[2] as string;
+  const path = c.req.path;
+  if (page.access?.members || isMembersPath(page.slug)) {
+    if (await memberSession(c, siteId)) return null;
+    const login = new URL(`${c.var.config.hubUrl}/m/${siteId}/login`);
+    login.searchParams.set("return", path);
+    c.header("Cache-Control", "private, no-store");
+    return c.redirect(login.toString(), 303);
+  }
+  if (page.access?.password) {
+    const v = await readPreviewValue(c.var.services, siteId, getCookie(c, PREVIEW_PASSWORD_COOKIE));
+    if (Array.isArray(v?.pages) && (v.pages as unknown[]).includes(page.id)) return null;
+    const error = c.req.query("os_password") === "error";
+    c.header("Cache-Control", "private, no-store");
+    return c.html(
+      `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(page.title)}</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:28rem;margin:15vh auto;padding:0 16px;color:#1d1d1f}input,button{font:inherit;padding:8px 12px}</style></head><body><h1>${escapeHtml(page.title)}</h1><p>This page is protected. Enter the password to continue.</p><form method="post" action="${esc(`${basePath}/_os/auth/password`)}"><input type="hidden" name="page" value="${esc(page.id)}"><input type="hidden" name="return" value="${esc(path)}"><label for="os-pw">Password</label><br><input id="os-pw" name="password" type="password" required autocomplete="current-password"${error ? ' aria-invalid="true" aria-describedby="os-pw-error"' : ""}>${error ? '<p id="os-pw-error">That password didn&#39;t work. Try again.</p>' : ""} <button type="submit">Continue</button></form></body></html>`,
+      401,
+    );
+  }
+  return null;
+}
+
+/** Magic-link landing for the dev preview: what the site Worker's `/_os/auth/callback` does. */
+previewRoutes.get("/s/:siteId/_os/auth/callback", async (c) => {
+  const siteId = c.req.param("siteId");
+  const basePath = `/s/${siteId}`;
+  const site = await getSite(c.var.services.db, siteId);
+  const claims = site
+    ? await verifyJwt(c.var.services, c.req.query("token") ?? "", { audience: siteId })
+    : null;
+  const member =
+    claims && typeof claims.sub === "string"
+      ? await getMember(c.var.services.db, siteId, claims.sub)
+      : null;
+  if (member?.status !== "active")
+    return htmlPage(
+      c,
+      401,
+      "Sign-in link",
+      "This sign-in link has expired or isn't valid. Please request a new one.",
+    );
+  const value = await signPreviewValue(c.var.services, siteId, { sub: member.id });
+  c.header(
+    "Set-Cookie",
+    `${PREVIEW_MEMBER_COOKIE}=${value}; ${cookieAttrs(c, basePath, PREVIEW_SESSION_TTL_SEC)}`,
+  );
+  c.header("Cache-Control", "private, no-store");
+  return c.redirect(previewReturn(basePath, c.req.query("return")), 303);
+});
+
+previewRoutes.post("/s/:siteId/_os/auth/password", async (c) => {
+  const siteId = c.req.param("siteId");
+  const basePath = `/s/${siteId}`;
+  const f = await parseFields(c);
+  const pageId = single(f.page) ?? "";
+  const back = previewReturn(basePath, single(f.return));
+  // Password guessing: per visitor (IPv4 / IPv6 /64), plus a ceiling per real protected page
+  // (only once the page id is known to have a password, so junk ids can't burn a real page's
+  // budget or create limiter state).
+  const who = (
+    await sha256Hex(`${requireHmacKey(c.var.services.pub.config)}|${rateKeyIp(clientIp(c))}`)
+  ).slice(0, 24);
+  const hasPage =
+    /^pg_[0-9a-z]{10}$/.test(pageId) &&
+    !!(await c.var.services.db
+      .prepare("SELECT 1 AS x FROM page_passwords WHERE site_id = ? AND page_id = ?")
+      .bind(siteId, pageId)
+      .first());
+  const rules: Array<readonly [string, typeof PASSWORD_RULE]> = [
+    [`${siteId}|${who}`, PASSWORD_RULE],
+  ];
+  if (hasPage) rules.push([`${siteId}|${pageId}|*`, PASSWORD_PAGE_RULE]);
+  for (const [key, rule] of rules) {
+    const rate = await c.var.services.pub.rateLimit.hit(key, rule);
+    if (!rate.ok) {
+      c.header("Retry-After", String(rate.retryAfter));
+      return htmlPage(c, 429, "Too many attempts", "Please wait a few minutes and try again.");
+    }
+  }
+  const row = /^pg_[0-9a-z]{10}$/.test(pageId)
+    ? await c.var.services.db
+        .prepare("SELECT hash FROM page_passwords WHERE site_id = ? AND page_id = ?")
+        .bind(siteId, pageId)
+        .first<{ hash: string }>()
+    : null;
+  if (!row || !(await checkPagePassword(single(f.password) ?? "", row.hash)))
+    return c.redirect(`${back}${back.includes("?") ? "&" : "?"}os_password=error`, 303);
+  const prev = await readPreviewValue(
+    c.var.services,
+    siteId,
+    getCookie(c, PREVIEW_PASSWORD_COOKIE),
+  );
+  const pages = [
+    ...new Set([...(Array.isArray(prev?.pages) ? (prev.pages as string[]) : []), pageId]),
+  ].slice(-50);
+  const value = await signPreviewValue(c.var.services, siteId, { pages });
+  c.header(
+    "Set-Cookie",
+    `${PREVIEW_PASSWORD_COOKIE}=${value}; ${cookieAttrs(c, basePath, PREVIEW_SESSION_TTL_SEC)}`,
+  );
+  return c.redirect(back.replace(/[?&]os_password=error/, ""), 303);
+});
 
 const published = async (c: Context<AppEnv>) => {
   const siteId = c.req.param("siteId") as string;

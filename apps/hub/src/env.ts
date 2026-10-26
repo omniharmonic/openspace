@@ -1,3 +1,4 @@
+import type { GrowthEnv } from "./growth-env";
 import type { PublicServiceEnv } from "./public-env";
 
 /**
@@ -24,7 +25,7 @@ export interface HubSecrets {
   ALLOW_DEV_MODE?: string;
 }
 
-export type HubBindings = Env & HubSecrets & PublicServiceEnv;
+export type HubBindings = Env & HubSecrets & PublicServiceEnv & GrowthEnv;
 
 export interface GitHubAppConfig {
   appId: string;
