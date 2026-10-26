@@ -15,6 +15,8 @@ export interface DraftBootstrap {
   seq: number;
   head: string | null;
   pending: Op[];
+  /** The seq each recovered edit was made on (sent with it, so the room applies its rules). */
+  pendingBase: Record<string, number>;
   /** Opened from this device's copy because OpenSpace couldn't be reached. */
   offline: boolean;
   /** The site as last seen (for opening offline). */
@@ -44,6 +46,9 @@ function mergeRecords(records: DraftRecord[]): DraftRecord | undefined {
     : pool.reduce((a, b) => (b.seq > a.seq ? b : a));
   const seen = new Set<string>();
   const pending: Op[] = [];
+  const pendingBase: Record<string, number> = {};
+  for (const r of withPending)
+    for (const o of r.pending) pendingBase[o.id] ??= r.pendingBase?.[o.id] ?? r.seq;
   for (const op of withPending
     .flatMap((r) => r.pending.map((o, i) => ({ o, i, at: r.savedAt })))
     .sort((a, b) => a.o.ts - b.o.ts || a.at - b.at || a.i - b.i)
@@ -56,7 +61,7 @@ function mergeRecords(records: DraftRecord[]): DraftRecord | undefined {
     (a, b) => (b.site && (!a?.site || b.savedAt > a.savedAt) ? b : a),
     undefined,
   )?.site;
-  return { ...base, pending, ...(site ? { site } : {}) };
+  return { ...base, pending, pendingBase, ...(site ? { site } : {}) };
 }
 
 /**
@@ -104,6 +109,7 @@ export async function loadDraft(
       seq: c.seq,
       head: c.head,
       pending: c.pending,
+      pendingBase: c.pendingBase ?? {},
       offline,
       ...(c.site ? { site: c.site } : {}),
     };
@@ -126,6 +132,7 @@ export async function loadDraft(
       seq: r.seq,
       head: r.head,
       pending: [],
+      pendingBase: {},
       offline: false,
     };
   } catch (err) {

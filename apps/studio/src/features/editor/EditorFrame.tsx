@@ -762,6 +762,7 @@ const PENDING_BOOT: DraftBootstrap = {
   seq: 0,
   head: null,
   pending: [],
+  pendingBase: {},
   offline: false,
 };
 

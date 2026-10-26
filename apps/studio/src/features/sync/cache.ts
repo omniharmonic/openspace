@@ -26,6 +26,8 @@ export interface DraftRecord {
   seq: number;
   head: string | null;
   pending: Op[];
+  /** Recovered edits made on an older seq than `seq` (op id → seq); others were made on `seq`. */
+  pendingBase?: Record<string, number>;
   /** The site as last seen, so the editor can open while the Hub is unreachable. */
   site?: Site;
   savedAt: number;

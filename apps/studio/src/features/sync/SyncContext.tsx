@@ -78,7 +78,13 @@ export function useRoomClient(
         target: storeTarget(store),
         connect: (since) => hub.connectRoom(site.id, since),
         fetchDocument: () => hub.getRoomDocument(site.id),
-        initial: { doc: boot.confirmed, seq: boot.seq, head: boot.head, pending: boot.pending },
+        initial: {
+          doc: boot.confirmed,
+          seq: boot.seq,
+          head: boot.head,
+          pending: boot.pending,
+          pendingBase: boot.pendingBase,
+        },
         cache,
         owner: { userId, tabId },
         probeAuth: async () => {

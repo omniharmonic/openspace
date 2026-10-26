@@ -115,7 +115,14 @@ export interface RoomClientOptions {
   /** Re-read the room's document (`GET /api/sites/:id/room/document`) after a `stale` reject. */
   fetchDocument: () => Promise<{ document: SiteDocument; seq: number; head?: string | null }>;
   /** Starting point: the room's document at `seq`, plus unconfirmed local edits. */
-  initial: { doc: SiteDocument; seq: number; head?: string | null; pending?: Op[] };
+  initial: {
+    doc: SiteDocument;
+    seq: number;
+    head?: string | null;
+    /** Recovered edits; each was made on `pendingBase[id]` (default: `seq`). */
+    pending?: Op[];
+    pendingBase?: Record<string, number>;
+  };
   cache?: DraftCache;
   /** Whose device record this is (records are per person and per tab). */
   owner?: { userId: string; tabId: string };
@@ -132,6 +139,15 @@ export interface RoomClientOptions {
 interface PendingOp {
   op: Op;
   sent: boolean;
+  /**
+   * Recovered edits (from this device's saved queue, possibly merged from several tabs) keep
+   * the seq they were made on and are sent with it, so the ROOM rebases them and applies its
+   * last-writer-wins and delete rules. Live edits have no `base`: they are rebased here as
+   * remote ops arrive and sent at the current seq.
+   */
+  base?: number;
+  /** The room said `stale` for this recovered edit: resolve it locally after the reload. */
+  stale?: boolean;
 }
 
 const registry = blocksRegistry();
@@ -188,6 +204,12 @@ export class RoomClient {
   private awaitingReload = false;
   private presence: { page: string | null; selection: string[] } | null = null;
   private lastFrameAt = 0;
+  /** Room ops applied while recovered edits are waiting (for resolving them after `stale`). */
+  private replayed: LoggedOp[] = [];
+  /** Seqs this client has seen in order since it started (remote and own). */
+  private readonly seen = new Set<number>();
+  /** Actor → display name, from everyone seen in the room. */
+  private readonly names = new Map<string, string>();
   /** A document fetch after `stale` is in flight (one per burst). */
   private refetching = false;
   /** The seq a `sync` was last asked from; asking again from it means sync didn't help. */
@@ -216,7 +238,15 @@ export class RoomClient {
     this.confirmed = options.initial.doc;
     this.seq = options.initial.seq;
     this.head = options.initial.head ?? null;
-    this.pending = (options.initial.pending ?? []).map((op) => ({ op, sent: false }));
+    this.pending = (options.initial.pending ?? []).map((op) => ({
+      op,
+      sent: false,
+      base: Math.max(
+        options.initial.pendingBase?.[op.id] ?? options.initial.seq,
+        options.initial.seq,
+      ),
+    }));
+    this.seen.add(options.initial.seq);
     this.site = options.site;
     this.state = createStore<RoomSyncState>(() => ({
       status: "connecting",
@@ -381,6 +411,8 @@ export class RoomClient {
     const hadHello = this.ready;
     this.socket = null;
     this.ready = false;
+    // We can't know what reached the room: everything counts as unsent until hello says.
+    for (const p of this.pending) p.sent = false;
     clearTimeout(this.helloTimer);
     if (this.stopped) return;
     if (code === 4003) {
@@ -476,10 +508,19 @@ export class RoomClient {
   /** Send every unsent pending op, based on the current seq. */
   private flush(): void {
     if (!this.socket || !this.ready || this.awaitingReload) return;
-    const unsent = this.pending.filter((p) => !p.sent);
-    for (let i = 0; i < unsent.length; i += MAX_OPS_PER_FRAME) {
-      const chunk = unsent.slice(i, i + MAX_OPS_PER_FRAME);
-      if (!this.send({ type: "ops", ops: chunk.map((p) => p.op), baseSeq: this.seq })) return;
+    const unsent = this.pending.filter((p) => !p.sent && !p.stale);
+    // Consecutive ops with the same base go in one frame (recovered ops carry their own base).
+    let i = 0;
+    while (i < unsent.length) {
+      const baseSeq = (unsent[i] as PendingOp).base ?? this.seq;
+      const chunk: PendingOp[] = [];
+      while (
+        i < unsent.length &&
+        chunk.length < MAX_OPS_PER_FRAME &&
+        ((unsent[i] as PendingOp).base ?? this.seq) === baseSeq
+      )
+        chunk.push(unsent[i++] as PendingOp);
+      if (!this.send({ type: "ops", ops: chunk.map((p) => p.op), baseSeq })) return;
       for (const p of chunk) p.sent = true;
     }
   }
@@ -511,6 +552,7 @@ export class RoomClient {
         this.emit({ type: "conflict", notice: msg });
         return;
       case "presence":
+        this.learnNames(msg.members);
         this.patch({ members: msg.members });
         return;
       case "flushed":
@@ -540,6 +582,7 @@ export class RoomClient {
     this.attempt = 0;
     this.failures = 0;
     this.authProbed = false;
+    this.learnNames(msg.members);
     // A fresh hello is a fresh base: whatever reload we were waiting for is superseded (its
     // `ops` bring us up to date, or its `doc` replaces the document below).
     this.awaitingReload = false;
@@ -616,6 +659,7 @@ export class RoomClient {
     const at = this.pending.findIndex((p) => p.op.id === stored.id);
     this.confirmed = next;
     this.seq = seq;
+    this.seen.add(seq);
     if (at >= 0) this.pending.splice(at, 1);
     this.afterPendingChange(changed);
   }
@@ -631,19 +675,29 @@ export class RoomClient {
     }
     this.confirmed = next;
     this.seq = o.seq;
-    if (this.pending.length) {
+    this.seen.add(o.seq);
+    if (this.pending.some((p) => p.base !== undefined)) this.replayed.push(o);
+    else this.replayed = [];
+    // Live edits are rebased here with the room's rules: one that loses (last writer wins,
+    // or its target was deleted) is removed, and the person gets "X changed this too" with a
+    // one-click restore that re-applies their value as a new edit. Recovered edits are left
+    // to the room (sent with their own base).
+    const live = this.pending.filter((p) => p.base === undefined);
+    if (live.length) {
       const r = rebase(
-        this.pending.map((p) => p.op),
+        live.map((p) => p.op),
         [o.op],
         { base, doc: next },
       );
-      // Transformed ops replace the originals. An op the rebase would drop is kept as it was:
-      // only the room may discard an edit (it rejects it with a conflict notice to restore).
       const byId = new Map(r.ops.map((op) => [op.id, op]));
-      this.pending = this.pending.map((p) => {
-        const next = byId.get(p.op.id);
-        return next ? { ...p, op: next } : p;
-      });
+      // Ops already sent get the room's own notice (it rejects them as `dropped`); the room
+      // never sees unsent ones, so their notice comes from here.
+      const unsent = new Set(live.filter((p) => !p.sent).map((p) => p.op.id));
+      const dropped = new Set(r.dropped.map((d) => d.id).filter((id) => unsent.has(id)));
+      this.pending = this.pending
+        .filter((p) => p.base !== undefined || byId.has(p.op.id))
+        .map((p) => (p.base !== undefined ? p : { ...p, op: byId.get(p.op.id) as Op }));
+      for (const c of r.conflicts) if (dropped.has(c.local.id)) this.emitConflict(c);
     }
     this.afterPendingChange(true);
     this.emit({ type: "remote", logged: o });
@@ -651,6 +705,9 @@ export class RoomClient {
 
   private reject(opId: string | null, code: RejectCode, message: string): void {
     if (code === "stale") {
+      // A recovered edit older than the room's history: resolve it here after the reload.
+      const rec = opId ? this.pending.find((p) => p.op.id === opId && p.base !== undefined) : null;
+      if (rec) rec.stale = true;
       // The room will send a reload; fetch the document as well in case it doesn't.
       this.awaitingReload = true;
       for (const p of this.pending) p.sent = false;
@@ -713,6 +770,9 @@ export class RoomClient {
     this.seq = seq;
     this.head = head;
     this.awaitingReload = false;
+    // A whole-document jump is not "seen" op by op: recovered edits older than it can't be
+    // checked against what they missed.
+    this.resolveStaleRecovered();
     for (const p of this.pending) p.sent = false;
     const resetHistory = !["hello", "stale", "resync"].includes(reason);
     this.recompute(resetHistory);
@@ -722,6 +782,86 @@ export class RoomClient {
       this.emit({ type: "reload", reason });
       this.flush();
     }
+  }
+
+  /**
+   * Recovered edits the room called `stale` (made before the room's history begins). Rebase
+   * each one here over the room ops this client replayed since its base, with its original ts
+   * and actor, so last-writer-wins and deletes still decide: a loser is removed with a conflict
+   * notice (restore re-applies it as a new edit), a survivor is sent at the current seq. If this
+   * client didn't see every op since the edit's base, it can't tell who wins, so the edit is set
+   * aside the same way, never sent over a newer value.
+   */
+  private resolveStaleRecovered(): void {
+    const stale = this.pending.filter((p) => p.stale && p.base !== undefined);
+    if (!stale.length) return;
+    for (const p of stale) {
+      const from = p.base as number;
+      let covered = true;
+      for (let q = from + 1; q <= this.seq; q++) if (!this.seen.has(q)) covered = false;
+      const remotes = this.replayed.filter((o) => o.seq > from).map((o) => o.op);
+      if (covered) {
+        const r = rebase([p.op], remotes, { doc: this.confirmed });
+        const next = r.ops[0];
+        if (next) {
+          p.op = next;
+          p.base = undefined;
+          p.stale = false;
+          p.sent = false;
+          continue;
+        }
+        for (const c of r.conflicts) this.emitConflict(c);
+        if (!r.conflicts.length) this.setAside(p.op);
+      } else this.setAside(p.op);
+      this.pending = this.pending.filter((x) => x !== p);
+    }
+  }
+
+  /** A recovered edit that can't be merged safely: offer it back instead of overwriting. */
+  private setAside(op: Op): void {
+    this.emit({
+      type: "conflict",
+      notice: {
+        type: "conflict",
+        opId: op.id,
+        reason: "concurrent-edit",
+        message: "An older change from this device couldn’t be merged",
+        paths: [],
+        winner: "them",
+        by: { actor: "", name: "Someone" },
+        restore: op,
+      },
+    });
+  }
+
+  private learnNames(members: RoomMember[]): void {
+    for (const m of members) this.names.set(m.actor, m.name);
+  }
+
+  /** A local edit lost to a remote op: the same notice the room would send. */
+  private emitConflict(c: ReturnType<typeof rebase>["conflicts"][number]): void {
+    const name = c.remote ? (this.names.get(c.remote.actor) ?? "Someone") : "Someone";
+    const message =
+      c.reason === "deleted"
+        ? `${name} deleted this`
+        : c.reason === "duplicate"
+          ? `${name} already added this`
+          : c.reason === "invalid"
+            ? "This change no longer fits"
+            : `${name} changed this too`;
+    this.emit({
+      type: "conflict",
+      notice: {
+        type: "conflict",
+        opId: c.local.id,
+        reason: c.reason,
+        message,
+        paths: c.paths,
+        winner: c.winner === "local" ? "you" : "them",
+        by: { actor: c.remote?.actor ?? "", name },
+        ...(c.winner === "remote" && c.reason === "concurrent-edit" ? { restore: c.local } : {}),
+      },
+    });
   }
 
   // --- local view -----------------------------------------------------------------------------------
@@ -778,6 +918,11 @@ export class RoomClient {
           seq: this.seq,
           head: this.head,
           pending: this.pending.map((p) => p.op),
+          pendingBase: Object.fromEntries(
+            this.pending
+              .filter((p) => p.base !== undefined)
+              .map((p) => [p.op.id, p.base as number]),
+          ),
           ...(this.site ? { site: this.site } : {}),
           savedAt: this.now(),
         });

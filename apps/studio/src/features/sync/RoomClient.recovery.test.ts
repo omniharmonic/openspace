@@ -8,8 +8,8 @@ import { createEditorStore } from "../editor/model/store";
 import { loadDraft } from "./bootstrap";
 import { createMemoryDraftCache, type DraftCache, draftKey } from "./cache";
 import type { RoomSocket } from "./protocol";
-import { RoomClient, type RoomClientOptions } from "./RoomClient";
-import { storeTarget } from "./SyncContext";
+import { RoomClient, type RoomClientOptions, type RoomEvent } from "./RoomClient";
+import { asBody, storeTarget } from "./SyncContext";
 
 const SAM = { userId: "u_sam", name: "Sam Rivera" };
 const FAST = {
@@ -435,5 +435,173 @@ describe("several tabs on one device", () => {
     expect(cache.records.has(key)).toBe(true);
     expect(await cache.deleteIfUnchanged(key, 10)).toBe(true);
     expect(cache.records.has(key)).toBe(false);
+  });
+});
+
+describe("last writer wins across offline edits", () => {
+  const ANA = { userId: "u_ana", name: "Ana Ruiz" };
+
+  function live(room: MockRoom, storeNow?: () => number) {
+    const store = createEditorStore({
+      doc: room.doc,
+      actor: `user:${SAM.userId}`,
+      ...(storeNow ? { now: storeNow } : {}),
+    });
+    const events: RoomEvent[] = [];
+    const client = new RoomClient({
+      siteId: "st_l",
+      target: storeTarget(store),
+      connect: (since) => room.connect(SAM, since),
+      fetchDocument: async () => ({ document: room.doc, seq: room.seq }),
+      initial: { doc: room.doc, seq: room.seq },
+      timing: FAST,
+      watchNetwork: false,
+    });
+    client.on((e) => events.push(e));
+    clients.push(client);
+    client.start();
+    return { store, client, events };
+  }
+
+  const conflicts = (events: RoomEvent[]) =>
+    events.flatMap((e) => (e.type === "conflict" ? [e.notice] : []));
+
+  it("Sam's older offline edit loses to Ana's newer one; Sam is offered his version back", async () => {
+    const room = new MockRoom({ doc: devSiteDocument() });
+    room.connect(ANA, null); // Ana is in the room, so Sam knows her name
+    const sam = live(room, () => 1000);
+    await tick();
+    room.setDown(true);
+    await tick();
+    sam.store.getState().commit([setLabel("Sam, offline")]);
+    room.setDown(false);
+    room.connect(ANA, null);
+    room.collaborator(ANA).edit([setLabel("Ana, newer")]);
+    await vi.waitFor(() => expect(sam.client.state.getState().status).toBe("online"), {
+      timeout: 500,
+    });
+    await vi.waitFor(() => expect(sam.client.state.getState().pending).toBe(0));
+    expect(label(room.doc).label).toBe("Ana, newer");
+    expect(label(sam.store.getState().doc).label).toBe("Ana, newer");
+    const notice = conflicts(sam.events)[0];
+    expect(notice).toMatchObject({ message: "Ana Ruiz changed this too", winner: "them" });
+    // Restore re-applies Sam's value deliberately, as a new edit.
+    sam.store.getState().commit([asBody(notice?.restore as Op)]);
+    await vi.waitFor(() => expect(label(room.doc).label).toBe("Sam, offline"));
+  });
+
+  it("a block deleted by someone else wins over an offline edit to it, with “X deleted this”", async () => {
+    const room = new MockRoom({ doc: devSiteDocument() });
+    room.connect(ANA, null);
+    const sam = live(room);
+    await tick();
+    room.setDown(true);
+    await tick();
+    sam.store.getState().commit([setLabel("Edited offline")]);
+    room.setDown(false);
+    room.connect(ANA, null);
+    room
+      .collaborator(ANA)
+      .edit([{ op: "block.delete", page: I.home, block: I.heroButton } as OpBody]);
+    await vi.waitFor(() => expect(sam.client.state.getState().status).toBe("online"), {
+      timeout: 500,
+    });
+    await vi.waitFor(() => expect(sam.client.state.getState().pending).toBe(0));
+    expect(conflicts(sam.events)).toEqual([
+      expect.objectContaining({ message: "Ana Ruiz deleted this", reason: "deleted" }),
+    ]);
+    expect(sam.events.some((e) => e.type === "rejected")).toBe(false);
+    expect(sam.store.getState().doc).toEqual(room.doc);
+  });
+
+  async function recovered(room: MockRoom, base: SiteDocument, seq: number, op: Op) {
+    const cache = createMemoryDraftCache();
+    await cache.put({
+      key: draftKey(SAM.userId, "st_r", "old"),
+      userId: SAM.userId,
+      siteId: "st_r",
+      tabId: "old",
+      doc: base,
+      seq,
+      head: null,
+      pending: [op],
+      savedAt: 1,
+    });
+    const hub = {
+      getRoomDocument: async () => ({ document: room.doc, seq: room.seq, head: null }),
+    } as unknown as HubApi;
+    const boot = await loadDraft(hub, cache, "st_r", { userId: SAM.userId, tabId: "new" });
+    expect(boot.pendingBase).toEqual({ [op.id]: seq });
+    const sent: Array<Record<string, unknown>> = [];
+    const store = createEditorStore({ doc: boot.doc, actor: `user:${SAM.userId}` });
+    const events: RoomEvent[] = [];
+    const client = new RoomClient({
+      siteId: "st_r",
+      target: storeTarget(store),
+      connect: (since) => {
+        const sock = room.connect(SAM, since);
+        const send = sock.send;
+        sock.send = (d) => {
+          if (d !== "ping") sent.push(JSON.parse(d));
+          send(d);
+        };
+        return sock;
+      },
+      fetchDocument: async () => ({ document: room.doc, seq: room.seq }),
+      initial: {
+        doc: boot.confirmed,
+        seq: boot.seq,
+        pending: boot.pending,
+        pendingBase: boot.pendingBase,
+      },
+      timing: FAST,
+      watchNetwork: false,
+    });
+    client.on((e) => events.push(e));
+    clients.push(client);
+    client.start();
+    await vi.waitFor(() => expect(client.state.getState().pending).toBe(0), { timeout: 1000 });
+    return { client, store, events, sent };
+  }
+
+  const oldOp = (value: string, ts: number) =>
+    ({ ...setLabel(value), id: `rec-${value}`, actor: `user:${SAM.userId}`, ts }) as unknown as Op;
+
+  it("a recovered edit is sent with the seq it was made on, so the room rebases it (newer value wins)", async () => {
+    const room = new MockRoom({ doc: devSiteDocument() });
+    room.connect(ANA, null);
+    const base = room.doc;
+    room.collaborator(ANA).edit([setLabel("Ana, later")]);
+    const r = await recovered(room, base, 0, oldOp("Sam, earlier", 1));
+    expect(r.sent).toContainEqual(expect.objectContaining({ type: "ops", baseSeq: 0 }));
+    expect(label(room.doc).label).toBe("Ana, later");
+    expect(conflicts(r.events)[0]).toMatchObject({
+      message: "Ana Ruiz changed this too",
+      winner: "them",
+    });
+    expect(r.store.getState().doc).toEqual(room.doc);
+  });
+
+  it("…and a recovered edit that really is newer is applied by the room", async () => {
+    const room = new MockRoom({ doc: devSiteDocument() });
+    const base = room.doc;
+    room.collaborator(ANA).edit([setLabel("Ana, earlier")]);
+    // Its ts is newer than Ana's (clamped by the room to now at most).
+    const r = await recovered(room, base, 0, oldOp("Sam, newest", Date.now() + 1000));
+    expect(label(room.doc).label).toBe("Sam, newest");
+    expect(r.store.getState().doc).toEqual(room.doc);
+  });
+
+  it("a recovered edit older than the room's history is set aside with restore, never sent over a newer value", async () => {
+    const room = new MockRoom({ doc: devSiteDocument() });
+    const base = room.doc;
+    room.collaborator(ANA).edit([setLabel("Ana, kept")]);
+    room.compact(); // the room no longer has the ops since seq 0
+    const r = await recovered(room, base, 0, oldOp("Sam, too old", 1));
+    expect(label(room.doc).label).toBe("Ana, kept");
+    expect(room.log.some((o) => o.op.id === "rec-Sam, too old")).toBe(false);
+    const notice = conflicts(r.events).at(-1);
+    expect(notice?.restore?.id).toBe("rec-Sam, too old");
+    expect(r.store.getState().doc).toEqual(room.doc);
   });
 });
