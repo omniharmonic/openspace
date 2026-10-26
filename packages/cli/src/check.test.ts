@@ -1,0 +1,201 @@
+import { readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { newId } from "@openspace/schema";
+import { afterAll, describe, expect, it } from "vitest";
+import { type CheckReport, runCheck } from "./check";
+import { cleanup, cli, editJson, meadowCopy } from "./test-helpers";
+
+afterAll(cleanup);
+
+const rules = (r: CheckReport, severity = "error") =>
+  r.findings.filter((f) => f.severity === severity).map((f) => f.rule);
+
+describe("openspace check", () => {
+  it("passes on the Meadow fixture site", async () => {
+    const root = await meadowCopy();
+    const report = await runCheck(root);
+    expect(report.findings.filter((f) => f.severity === "error")).toEqual([]);
+    expect(report.ok).toBe(true);
+    expect(report.stats.pages).toBeGreaterThan(3);
+    expect(report.stats.mediaFiles).toBeGreaterThan(3);
+    const r = await cli(root, ["check"]);
+    expect(r.code).toBe(0);
+    expect(r.out).toMatch(/^OK:/m);
+  });
+
+  it("fails on invalid schema, naming the file and field", async () => {
+    const root = await meadowCopy();
+    await editJson(join(root, "content/pages/about.json"), (p) => {
+      p.title = "";
+    });
+    const r = await cli(root, ["check"]);
+    expect(r.code).toBe(1);
+    expect(r.out).toContain("content/pages/about.json");
+    expect(r.out).toMatch(/error\s+schema\s+title/);
+    expect(r.out).toMatch(/FAILED: 1 error/);
+  });
+
+  it("fails on unparseable JSON and a missing openspace.json", async () => {
+    const root = await meadowCopy();
+    await writeFile(join(root, "content/pages/about.json"), "{ nope");
+    const report = await runCheck(root);
+    expect(report.ok).toBe(false);
+    expect(report.findings.some((f) => /Invalid JSON/.test(f.message))).toBe(true);
+  });
+
+  it("reports broken page, item, nav, internal-url and redirect links", async () => {
+    const root = await meadowCopy();
+    const ghost = newId("pg");
+    await editJson(join(root, "content/site.json"), (s) => {
+      s.nav.push({ type: "page", page: ghost });
+      s.nav.push({ type: "collection", collection: "nothing-here", label: "Nope" });
+      s.nav.push({
+        type: "button",
+        label: "Go",
+        style: "primary",
+        link: { type: "item", collection: "journal", slug: "no-such-post" },
+      });
+      s.nav.push({
+        type: "button",
+        label: "Go2",
+        style: "primary",
+        link: { type: "url", url: "/nowhere-at-all" },
+      });
+      s.redirects = [
+        ...(s.redirects ?? []),
+        { from: "/old-page", to: "/missing-target", status: 301 },
+        { from: "/loop", to: "/loop/", status: 301 },
+      ];
+    });
+    const report = await runCheck(root);
+    const msgs = report.findings.map((f) => `${f.rule}:${f.message}`).join("\n");
+    expect(msgs).toContain(`link:Link to page ${ghost} but no such page exists`);
+    expect(msgs).toContain('Navigation points at collection "nothing-here"');
+    expect(msgs).toContain("journal/no-such-post but no such item exists");
+    expect(msgs).toContain("Link to /nowhere-at-all does not lead to any page");
+    expect(msgs).toContain("destination does not lead to any page");
+    expect(msgs).toContain("points at itself");
+    expect(report.ok).toBe(false);
+    expect((await cli(root, ["check"])).code).toBe(1);
+  });
+
+  it("reports broken links inside Markdoc post bodies", async () => {
+    const root = await meadowCopy();
+    const file = join(root, "content/collections/journal");
+    const { readdir } = await import("node:fs/promises");
+    const post = (await readdir(file)).find((f) => f.endsWith(".mdoc"))!;
+    const text = await readFile(join(file, post), "utf8");
+    await writeFile(join(file, post), `${text}\nSee [the gone page](/definitely-gone).\n`);
+    const report = await runCheck(root);
+    const hit = report.findings.find((f) => f.message.includes("/definitely-gone"));
+    expect(hit?.file).toBe(`content/collections/journal/${post}`);
+  });
+
+  it("reports images missing from media/ and from media.json", async () => {
+    const root = await meadowCopy();
+    const pageFile = join(root, "content/pages/about.json");
+    const text = await readFile(pageFile, "utf8");
+    const refs = [...new Set(text.match(/media\/[A-Za-z0-9_\-./]+\.[a-z]+/g) ?? [])];
+    expect(refs.length).toBeGreaterThan(0);
+    await writeFile(pageFile, text.replaceAll(refs[0] as string, "media/gone/missing.jpg"));
+    // A real file that nobody described in media.json.
+    const other = [...new Set(text.match(/media\/[A-Za-z0-9_\-./]+\.[a-z]+/g) ?? [])][1];
+    if (other) {
+      await editJson(join(root, "content/media.json"), (m) => {
+        delete m[other];
+      });
+    }
+    const report = await runCheck(root);
+    expect(
+      report.findings.some(
+        (f) => f.rule === "image" && f.message.includes("media/gone/missing.jpg"),
+      ),
+    ).toBe(true);
+    expect(report.ok).toBe(false);
+    if (other)
+      expect(report.findings.some((f) => f.rule === "media" && f.message.includes(other))).toBe(
+        true,
+      );
+  });
+
+  it("enforces the media size meter (warn, then fail) and the per-image edge cap", async () => {
+    const root = await meadowCopy();
+    const base = await runCheck(root);
+    expect(base.stats.mediaBytes).toBeGreaterThan(10_000);
+    // Just above warn threshold, below fail.
+    const warn = await runCheck(root, {
+      budgets: { mediaWarnBytes: 1000, mediaFailBytes: 1e12 },
+    });
+    expect(warn.ok).toBe(true);
+    expect(warn.findings.filter((f) => f.rule === "size" && f.severity === "warning")).toHaveLength(
+      1,
+    );
+    // Above fail threshold through the CLI flags.
+    const r = await cli(root, ["check", "--media-warn-mb", "0.001", "--media-fail-mb", "0.002"]);
+    expect(r.code).toBe(1);
+    expect(r.out).toMatch(/error\s+size\s+media\/ is/);
+
+    await editJson(join(root, "content/media.json"), (m) => {
+      const first = Object.values(m).find((e: any) => e.kind === "image") as any;
+      first.width = 6000;
+      first.height = 4000;
+    });
+    const edge = await runCheck(root);
+    expect(edge.findings.some((f) => f.rule === "size" && /at most 2400px/.test(f.message))).toBe(
+      true,
+    );
+  });
+
+  it("finds secrets anywhere in content/ without echoing them", async () => {
+    const root = await meadowCopy();
+    const secret = ["sk", "live", "A1b2C3d4E5f6G7h8I9j0K1l2"].join("_");
+    await writeFile(join(root, "content/notes.md"), `intro\nstripe: ${secret}\n`);
+    const r = await cli(root, ["check"]);
+    expect(r.code).toBe(1);
+    expect(r.out).toContain("content/notes.md");
+    expect(r.out).toMatch(/secret\s+line 2:/);
+    expect(r.out).not.toContain(secret);
+    const json = await cli(root, ["check", "--json"]);
+    expect(JSON.stringify(JSON.parse(json.out))).not.toContain(secret);
+  });
+
+  it("rejects gated pages on the github-pages target, allows them on cloudflare", async () => {
+    const root = await meadowCopy();
+    await editJson(join(root, "content/pages/about.json"), (p) => {
+      p.access = { members: true };
+    });
+    const pages = await runCheck(root);
+    expect(rules(pages)).toContain("gating");
+    expect(pages.findings.find((f) => f.rule === "gating")?.file).toBe("content/pages/about.json");
+
+    await editJson(join(root, "openspace.json"), (c) => {
+      c.deploy.target = "cloudflare";
+    });
+    const cf = await runCheck(root);
+    expect(rules(cf)).not.toContain("gating");
+  });
+
+  it("prints JSON and GitHub annotations", async () => {
+    const root = await meadowCopy();
+    await editJson(join(root, "content/pages/about.json"), (p) => {
+      p.title = "";
+    });
+    const json = await cli(root, ["check", "--json"]);
+    const parsed = JSON.parse(json.out) as CheckReport;
+    expect(parsed.ok).toBe(false);
+    expect(parsed.errors).toBe(1);
+    expect(json.code).toBe(1);
+    const ci = await cli(root, ["check", "--ci"]);
+    expect(ci.out).toMatch(/^::error file=content\/pages\/about\.json,title=schema::/m);
+  });
+
+  it("emits no colour escapes under NO_COLOR", async () => {
+    const root = await meadowCopy();
+    await editJson(join(root, "content/pages/about.json"), (p) => {
+      p.title = "";
+    });
+    const r = await cli(root, ["check"], { NO_COLOR: "1" });
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: asserting absence of ANSI
+    expect(r.out).not.toMatch(/\u001b\[/);
+  });
+});

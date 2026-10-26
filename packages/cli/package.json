@@ -1,7 +1,7 @@
 {
   "name": "@openspace/cli",
   "version": "0.1.0",
-  "description": "OpenSpace cli package.",
+  "description": "The openspace command line: check, dev, migrate, new, eject, agents-md.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -21,6 +21,9 @@
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
+    },
+    "bin": {
+      "openspace": "./dist/bin.js"
     }
   },
   "scripts": {
@@ -33,5 +36,15 @@
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@openspace/blocks": "workspace:*",
+    "@openspace/schema": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
+    "@openspace/template-starter": "workspace:*",
+    "commander": "^14.0.3"
+  },
+  "bin": {
+    "openspace": "./dist/bin.js"
   }
 }
