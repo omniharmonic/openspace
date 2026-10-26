@@ -101,6 +101,8 @@
 
 .st-tcard__body {
   display: grid;
+  flex: 1;
+  grid-template-rows: auto auto 1fr auto;
   gap: 4px;
   padding: 14px 2px 0;
 }
@@ -128,8 +130,10 @@
   line-height: 1.45;
 }
 
+/* Actions sit on one line across a row of cards, however long each description is. */
 .st-tcard__actions {
   display: flex;
+  align-self: end;
   align-items: center;
   justify-content: space-between;
   gap: 8px;

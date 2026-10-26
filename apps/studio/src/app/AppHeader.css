@@ -35,6 +35,7 @@
   border-radius: var(--st-r-sm);
   color: var(--st-text-2);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .st-header__link:hover {
@@ -107,5 +108,12 @@
 
   .st-header__nav {
     margin-left: 4px;
+  }
+}
+
+/* Small phones: the mark alone carries the brand so the navigation stays on one line. */
+@media (max-width: 419px) {
+  .st-header .st-wordmark > span {
+    display: none;
   }
 }

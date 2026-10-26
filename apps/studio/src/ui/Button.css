@@ -5,6 +5,7 @@
   justify-content: center;
   gap: 6px;
   height: var(--_h);
+  max-width: 100%;
   padding: 0 10px;
   border: 0;
   border-radius: var(--st-r-sm);
@@ -18,6 +19,17 @@
     background-color var(--st-fast) var(--st-ease),
     box-shadow var(--st-fast) var(--st-ease),
     color var(--st-fast) var(--st-ease);
+}
+
+/* A long label never pushes a narrow panel wider: it ends in an ellipsis instead. */
+.st-button__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-button__icon {
+  flex: none;
 }
 
 .st-button--sm {

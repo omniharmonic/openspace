@@ -63,6 +63,8 @@
 .st-ss-brand__swatch input {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   cursor: pointer;
 }
@@ -110,14 +112,15 @@
   align-items: center;
   gap: 6px;
   min-width: 0;
-  height: 30px;
-  padding: 0 6px;
+  min-height: 30px;
+  padding: 4px 6px;
   border: 0;
   border-radius: var(--st-r-sm);
   background: var(--st-field);
   color: var(--st-text);
   font: inherit;
   font-size: var(--st-fs-xs);
+  line-height: 1.25;
   text-align: left;
   cursor: default;
 }
@@ -149,7 +152,7 @@
 }
 
 .st-ss-palette__chips span + span {
-  margin-left: -4px;
+  margin-left: -7px;
 }
 
 .st-ss-palette__n[data-neutral="warm"] {
@@ -164,10 +167,10 @@
   background: #ececec;
 }
 
+/* Names are whole words ("Electric Violet"): two short lines read better than an ellipsis. */
 .st-ss-palette__name {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 /* Font pairings, rendered in their own fonts */
