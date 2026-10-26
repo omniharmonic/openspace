@@ -316,7 +316,12 @@
   .st-ed-rail {
     flex-direction: row;
     justify-content: space-around;
-    padding: 0 8px env(safe-area-inset-bottom);
+    /* Never wider than the screen: nine panels at 44px overflowed 390px phones and scrolled the
+       whole editor sideways (top bar and canvas cut off on the left). */
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 4px env(safe-area-inset-bottom);
     border-right: 0;
     border-top: 1px solid var(--st-line);
   }
@@ -326,7 +331,8 @@
   }
 
   .st-ed-rail .st-icon-button {
-    width: 44px;
+    flex: 0 1 44px;
+    min-width: 36px;
     height: 44px;
   }
 
