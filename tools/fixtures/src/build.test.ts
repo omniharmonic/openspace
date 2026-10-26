@@ -30,6 +30,7 @@ const BUILD_TIME = "2026-10-27T12:00:00Z";
 async function assemble(
   name: string,
   edit?: (config: Record<string, unknown>) => void,
+  variant?: string,
 ): Promise<string> {
   const root = join(FIXTURES, ".build", name);
   await rm(root, { recursive: true, force: true });
@@ -38,6 +39,10 @@ async function assemble(
     await cp(join(MEADOW_DIR, entry), join(root, entry), { recursive: true });
   await cp(join(STARTER, "astro.config.mjs"), join(root, "astro.config.mjs"));
   await cp(join(STARTER, "src"), join(root, "src"), { recursive: true });
+  if (variant) {
+    const dir = join(STARTER, "..", "variants", variant);
+    for (const f of ["astro.config.mjs", "wrangler.jsonc"]) await cp(join(dir, f), join(root, f));
+  }
   if (edit) {
     const cfgPath = join(root, "openspace.json");
     const cfg = JSON.parse(await readFile(cfgPath, "utf8")) as Record<string, unknown>;
@@ -394,4 +399,54 @@ describe("astro build on a GitHub project site (base /meadow-yoga)", () => {
     expect(all).not.toContain("pagefind/pagefind.js");
     expect(await exists(join(out, "_os", "forms.json"))).toBe(true);
   });
+});
+
+describe("astro build on the Cloudflare target", () => {
+  let root = "";
+  let out = "";
+
+  beforeAll(async () => {
+    root = await assemble(
+      "meadow-cloudflare",
+      (cfg) => {
+        (cfg.deploy as Record<string, unknown>).target = "cloudflare";
+        (cfg.features as Record<string, unknown>).search = false;
+      },
+      "cloudflare",
+    );
+    out = await astroBuild(root);
+  }, 240_000);
+
+  it("prerenders pages as static assets and adds real redirects", async () => {
+    const client = join(out, "client");
+    expect(await exists(join(client, "index.html"))).toBe(true);
+    expect(await exists(join(client, "journal/2026-10-26-opening-day/index.html"))).toBe(true);
+    expect(await read(client, "_redirects")).toBe(
+      "/schedule /classes/ 301\n/old/blog /journal/ 301\n",
+    );
+    expect(await exists(join(client, "_os/forms.json"))).toBe(true);
+  });
+
+  it("builds a Worker for members, sign-in and password routes with the gated-content bucket", async () => {
+    const wrangler = JSON.parse(await read(out, "server/wrangler.json")) as {
+      r2_buckets: { binding: string }[];
+      assets: { directory: string };
+    };
+    expect(wrangler.r2_buckets.map((b) => b.binding)).toContain("OS_GATED");
+    expect(wrangler.assets.directory).toBe("../client");
+    const chunks = await files(join(out, "server"));
+    expect(chunks.some((f) => /chunks\/gated_.*\.mjs$/.test(f))).toBe(true);
+    expect(chunks.some((f) => /chunks\/auth-callback_.*\.mjs$/.test(f))).toBe(true);
+    const { stdout } = await run(
+      join(FIXTURES, "node_modules", ".bin", "wrangler"),
+      ["deploy", "--dry-run"],
+      {
+        cwd: root,
+        env: { ...process.env, WRANGLER_SEND_METRICS: "false" },
+        maxBuffer: 16 * 1024 * 1024,
+      },
+    );
+    expect(stdout).toContain("env.OS_GATED");
+    expect(stdout).toContain("--dry-run: exiting now.");
+  }, 120_000);
 });

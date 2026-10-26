@@ -14,10 +14,12 @@
     "fixtures:update": "UPDATE_FIXTURES=1 vitest run src/meadow-site.test.ts"
   },
   "devDependencies": {
+    "@astrojs/cloudflare": "^14.4.2",
     "@types/node": "catalog:",
     "sharp": "^0.35.5",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "wrangler": "^4.152.0"
   },
   "dependencies": {
     "@openspace/blocks": "workspace:*",

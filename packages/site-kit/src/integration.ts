@@ -3,8 +3,8 @@
  * `openspace.json` + `content/**`, derives `site`/`base` from the deploy config, serves the
  * content to the page route through virtual modules, and after the build writes stylesheets,
  * behaviors, feeds, sitemap, robots.txt, redirects, Hub manifests, share images, raw media,
- * fonts and the search index. On the Cloudflare target it adds `@astrojs/cloudflare` and the
- * Worker routes for members, magic-link sign-in and password pages.
+ * fonts and the search index. On the Cloudflare target (with `@astrojs/cloudflare` as the adapter) it adds
+ * the Worker routes for members, magic-link sign-in and password pages.
  */
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -29,8 +29,6 @@ export interface OpenSpaceOptions {
   search?: boolean;
   /** Build time (default now, or `OPENSPACE_BUILD_TIME`); decides scheduled posts. */
   now?: Date | string;
-  /** Options passed to `@astrojs/cloudflare` on the Cloudflare target. */
-  cloudflare?: Record<string, unknown>;
   podcast?: PodcastOptions;
   /**
    * Build-time posts for the social-feed block, keyed by `feedKey(network, handle)`
@@ -39,6 +37,16 @@ export interface OpenSpaceOptions {
    */
   socialFeeds?: Record<string, unknown[]> | (() => Promise<Record<string, unknown[]>>);
 }
+
+/**
+ * `@astrojs/cloudflare` options for the Cloudflare target: pages prerender in Node (so the
+ * image pipeline, share images and Pagefind run exactly as on GitHub Pages) and images are
+ * optimised at build time. Only members / sign-in / password routes run on the Worker.
+ */
+export const CLOUDFLARE_ADAPTER_OPTIONS = {
+  prerenderEnvironment: "node",
+  imageService: "compile",
+} as const;
 
 const VIRTUAL_SITE = "virtual:openspace/site";
 const VIRTUAL_MEDIA = "virtual:openspace/media";
@@ -97,20 +105,11 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
         };
 
         addWatchFile(join(rootDir, "openspace.json"));
-        const integrations: AstroIntegration[] = [];
         if (cloudflare) {
-          const mod = (await import("@astrojs/cloudflare").catch(() => {
+          if (config.adapter?.name !== "@astrojs/cloudflare")
             throw new Error(
-              'openspace.json deploys to Cloudflare, but "@astrojs/cloudflare" is not installed. Run: npm install @astrojs/cloudflare wrangler',
+              'openspace.json deploys to Cloudflare: set `adapter: cloudflare(CLOUDFLARE_ADAPTER_OPTIONS)` (from "@astrojs/cloudflare") in astro.config.mjs, as the starter\'s Cloudflare variant does.',
             );
-          })) as { default: (o?: Record<string, unknown>) => AstroIntegration };
-          integrations.push(
-            mod.default({
-              prerenderEnvironment: "node",
-              imageService: "compile",
-              ...options.cloudflare,
-            }),
-          );
           injectRoute({
             pattern: "/members/[...path]",
             entrypoint: ENTRY("cloudflare/gated"),
@@ -140,7 +139,6 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
           site: location.site,
           base: location.base,
           build: { format: "directory" },
-          ...(integrations.length ? { integrations } : {}),
           vite: {
             plugins: [
               {

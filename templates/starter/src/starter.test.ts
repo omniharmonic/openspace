@@ -86,6 +86,7 @@ describe("starter site shell", () => {
     ]);
     const cf = await starterFiles("cloudflare");
     expect(cf["wrangler.jsonc"]).toBeDefined();
+    expect(cf["astro.config.mjs"]).toContain("adapter: cloudflare(CLOUDFLARE_ADAPTER_OPTIONS)");
     expect(JSON.parse(cf["package.json"] ?? "{}").dependencies).toHaveProperty(
       "@astrojs/cloudflare",
     );
