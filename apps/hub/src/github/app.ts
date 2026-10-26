@@ -642,4 +642,31 @@ export class GitHubAppAccess implements GitHubAccess {
     if (!pr) throw new GitHubApiError("Pull request creation returned nothing", 502);
     return { number: pr.number, url: pr.html_url };
   }
+
+  async mergePullRequest(
+    repo: RepoRef,
+    number: number,
+    input: { title: string; sha?: string },
+  ): Promise<{ sha: string }> {
+    try {
+      const r = await this.rest<{ sha: string; merged: boolean }>(
+        `${this.repoPath(repo)}/pulls/${number}/merge`,
+        {
+          method: "PUT",
+          body: {
+            merge_method: "squash",
+            commit_title: input.title,
+            ...(input.sha ? { sha: input.sha } : {}),
+          },
+        },
+      );
+      if (!r?.merged) throw new GitHubApiError("Pull request was not merged", 409);
+      return { sha: r.sha };
+    } catch (err) {
+      // 405: not mergeable; 409: head moved (`sha` mismatch).
+      if (err instanceof GitHubApiError && (err.status === 405 || err.status === 409))
+        throw new GitHubConflictError(err.message);
+      throw err;
+    }
+  }
 }

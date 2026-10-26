@@ -185,14 +185,25 @@ export async function erasePerson(
     .prepare("DELETE FROM members WHERE site_id = ? AND lower(email) = ?")
     .bind(siteId, e)
     .run();
-  // Copies of mail to or about them (confirmations, notifications quoting their entry).
-  const like = `%${e.replace(/[\\%_]/g, (m) => `\\${m}`)}%`;
+  // Copies of mail to them or with them as reply-to (confirmations, notifications of their own
+  // entries). Exact address matches only: a substring match would also delete mail of other
+  // people whose address merely contains this one (ana@x.com inside hana@x.com).
   const mail = await db
     .prepare(
-      `DELETE FROM outbox WHERE site_id = ? AND (lower(to_addr) = ? OR lower(reply_to) = ?
-         OR lower(text) LIKE ? ESCAPE '\\')`,
+      "DELETE FROM outbox WHERE site_id = ? AND (lower(trim(to_addr)) = ? OR lower(trim(reply_to)) = ?)",
     )
-    .bind(siteId, e, e, like)
+    .bind(siteId, e, e)
+    .run();
+  // Task 18: their campaign deliveries and sign-in links (orders stay: financial records).
+  await db
+    .prepare(
+      "DELETE FROM campaign_clicks WHERE recipient_id IN (SELECT id FROM campaign_recipients WHERE site_id = ? AND lower(email) = ?)",
+    )
+    .bind(siteId, e)
+    .run();
+  await db
+    .prepare("DELETE FROM campaign_recipients WHERE site_id = ? AND lower(email) = ?")
+    .bind(siteId, e)
     .run();
   return {
     subscribers: subs.meta.changes ?? 0,
@@ -207,10 +218,19 @@ export async function erasePerson(
 /** Unverified custom-domain claims older than this are released (so nobody can squat a name). */
 export const DOMAIN_CLAIM_TTL_MS = 7 * 86_400_000;
 
+/**
+ * Release unverified claims older than `DOMAIN_CLAIM_TTL_MS` (Hub rows and `sites.domain`).
+ * Verified/live domains are never released. NOTE: the GitHub Pages custom-domain setting (CNAME)
+ * on the site's repository stays as it was — the Hub only drops its own claim so another site
+ * can connect the name; the owner removes it from their repository by disconnecting the domain
+ * (DELETE /api/sites/:id/domain), which also clears the Pages setting.
+ */
 export async function expireDomainClaims(db: D1Database, now: number): Promise<number> {
   const stale = (
     await db
-      .prepare("SELECT site_id, hostname FROM domains WHERE status != 'active' AND created_at < ?")
+      .prepare(
+        "SELECT site_id, hostname FROM domains WHERE status != 'active' AND verified_at IS NULL AND created_at < ?",
+      )
       .bind(now - DOMAIN_CLAIM_TTL_MS)
       .all<{ site_id: string; hostname: string }>()
   ).results;

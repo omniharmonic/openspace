@@ -3,6 +3,7 @@ import type { HubBindings, HubConfig } from "../env";
 import { type GitHubContext, selectGitHubAccess } from "../github";
 import type { FetchLike } from "../github/http";
 import type { GitHubAccess } from "../github/types";
+import { createGrowthServices, type GrowthOverrides, type GrowthServices } from "./growth";
 import { createPublicServices, type PublicOverrides, type PublicServices } from "./public";
 import { type PageRenderer, PlaceholderRenderer } from "./renderer";
 import { BuiltinTemplateSource, type TemplateSource } from "./templates";
@@ -21,6 +22,8 @@ export interface Services {
   now(): number;
   /** Public services (Task 16): email, Turnstile, rate limits, analytics, DNS, RDAP. */
   pub: PublicServices;
+  /** Growth + commerce (Task 18): Stripe, campaign queue, update source. */
+  growth: GrowthServices;
 }
 
 export interface ServiceOverrides {
@@ -30,6 +33,7 @@ export interface ServiceOverrides {
   fetch?: FetchLike;
   now?: () => number;
   public?: PublicOverrides;
+  growth?: GrowthOverrides;
 }
 
 export function createServices(
@@ -53,6 +57,12 @@ export function createServices(
       config,
       { db: env.HUB_DB, fetch: fetchFn, now },
       overrides.public,
+    ),
+    growth: createGrowthServices(
+      env,
+      config,
+      { db: env.HUB_DB, fetch: fetchFn, now },
+      overrides.growth,
     ),
     github: (ctx = {}) =>
       overrides.github

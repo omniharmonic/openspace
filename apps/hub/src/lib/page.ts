@@ -35,3 +35,14 @@ export const PAGE_HEADERS = {
   "X-Content-Type-Options": "nosniff",
   "Cache-Control": "no-store",
 };
+
+/**
+ * For pages whose form POST answers with a redirect to another origin (DevStripe → the shop,
+ * magic link → the site's callback). Browsers apply `form-action` to redirect targets, so it is
+ * left out; the forms post to the page's own URL.
+ */
+export const PAGE_HEADERS_REDIRECTING = {
+  ...PAGE_HEADERS,
+  "Content-Security-Policy":
+    "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
+};

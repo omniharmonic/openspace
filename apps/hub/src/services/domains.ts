@@ -166,8 +166,8 @@ export class HttpRdapClient implements RdapClient {
 
 // ---- DNS over HTTPS --------------------------------------------------------------------------------
 
-export type DnsType = "A" | "AAAA" | "CNAME";
-const TYPE_NUM: Record<DnsType, number> = { A: 1, CNAME: 5, AAAA: 28 };
+export type DnsType = "A" | "AAAA" | "CNAME" | "TXT";
+const TYPE_NUM: Record<DnsType, number> = { A: 1, CNAME: 5, AAAA: 28, TXT: 16 };
 
 export interface DnsResolver {
   /** Record data for `name`/`type` (CNAME targets without the trailing dot). */
@@ -188,7 +188,15 @@ export class DohResolver implements DnsResolver {
     const body = (await res.json()) as { Answer?: Array<{ type: number; data: string }> };
     return (body.Answer ?? [])
       .filter((a) => a.type === TYPE_NUM[type])
-      .map((a) => a.data.replace(/\.$/, "").toLowerCase());
+      .map((a) =>
+        type === "TXT"
+          ? // TXT data comes quoted and may be split into several strings: "v=spf1 " "-all".
+            (a.data
+              .match(/"((?:[^"\\]|\\.)*)"/g)
+              ?.map((q) => q.slice(1, -1))
+              .join("") ?? a.data)
+          : a.data.replace(/\.$/, "").toLowerCase(),
+      );
   }
 }
 
@@ -205,7 +213,19 @@ export class DevDnsResolver implements DnsResolver {
   async resolve(name: string, type: DnsType): Promise<string[]> {
     if (!/\.(test|example|localhost|invalid)$/.test(name)) return this.next.resolve(name, type);
     if (type === "A") return name.startsWith("www.") ? [] : [...GITHUB_PAGES_IPV4];
-    if (type === "CNAME") return name.startsWith("www.") ? [await this.pagesHost(name)] : [];
+    if (type === "CNAME") {
+      if (name.startsWith("pm-bounces.")) return ["pm.mtasv.net"];
+      return name.startsWith("www.") ? [await this.pagesHost(name)] : [];
+    }
+    if (type === "TXT") {
+      // Email authentication for owner senders (Task 18), configured as a provider would ask.
+      if (name.startsWith("_dmarc.")) return ["v=DMARC1; p=none"];
+      if (name.includes("._domainkey."))
+        return ["v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC0"];
+      return [
+        "v=spf1 include:amazonses.com include:spf.mtasv.net include:_spf.mx.cloudflare.net ~all",
+      ];
+    }
     return [];
   }
 }
@@ -459,7 +479,12 @@ export async function connectDomain(
       .prepare(
         `INSERT INTO domains (site_id, hostname, status, https, created_at, registrar)
          VALUES (?, ?, 'pending', 0, ?, ?)
-         ON CONFLICT (site_id, hostname) DO UPDATE SET status = 'pending', registrar = excluded.registrar`,
+         ON CONFLICT (site_id, hostname) DO UPDATE SET
+           -- Re-submitting a live domain keeps it live; an unverified claim restarts its 7-day
+           -- clock (created_at), so the daily cron never releases a domain that is in use.
+           status = CASE WHEN domains.status = 'active' THEN 'active' ELSE 'pending' END,
+           created_at = CASE WHEN domains.status = 'active' THEN domains.created_at ELSE excluded.created_at END,
+           registrar = excluded.registrar`,
       )
       .bind(site.id, hostname, now, rdap?.registrar ?? null),
   ]);

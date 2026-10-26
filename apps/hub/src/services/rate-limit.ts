@@ -16,6 +16,11 @@ export const RATE_RULES = {
   formSite: { name: "form-site", limit: 200, windowSec: 600 },
   subscribe: { name: "subscribe", limit: 5, windowSec: 600 },
   subscribeSite: { name: "subscribe-site", limit: 60, windowSec: 600 },
+  // Task 18: member sign-in links and checkout sessions.
+  login: { name: "login", limit: 5, windowSec: 600 },
+  loginSite: { name: "login-site", limit: 100, windowSec: 600 },
+  checkout: { name: "checkout", limit: 20, windowSec: 600 },
+  checkoutSite: { name: "checkout-site", limit: 300, windowSec: 600 },
 } satisfies Record<string, RateRule>;
 
 /** Beacons per visitor per minute (Workers Rate Limiting binding — local, no storage call). */
