@@ -1,0 +1,33 @@
+# .github/workflows/publish.yml (generated; managed by site-kit updates) — Cloudflare target.
+# Prerendered pages deploy as static assets of a Worker in the owner's Cloudflare account; the
+# Worker serves members pages, sign-in and password pages. The R2 bucket and D1 database are
+# provisioned automatically on the first deploy.
+name: Publish
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: read }
+concurrency: { group: publish, cancel-in-progress: true }
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        # package.json keys the npm cache: Hub-created sites have no lockfile at first.
+        with: { node-version: 22, cache: npm, cache-dependency-path: package.json }
+      - uses: actions/cache@v6
+        with:
+          path: node_modules/.astro
+          key: os-assets-${{ hashFiles('media/**') }}
+          restore-keys: os-assets-
+      # Sites created by the Hub start without a lockfile.
+      - run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - run: npx openspace check --ci # schema, links, budgets, secret scan
+      - run: npm run build # astro build (+ pagefind, og images, Worker)
+        env:
+          OPENSPACE_TURNSTILE_SITE_KEY: ${{ vars.OPENSPACE_TURNSTILE_SITE_KEY }}
+      - run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

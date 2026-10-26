@@ -14,6 +14,7 @@ import {
   GitHubInputError,
   GitHubNotFoundError,
   normalizeRef,
+  type PagesInfo,
   type PullRequestInput,
   type RepoInfo,
   type RepoRef,
@@ -51,6 +52,7 @@ interface RepoRow {
   archived: number;
   pages_enabled: number;
   pages_url: string | null;
+  pages_domain: string | null;
 }
 
 export interface DevGitHubOptions {
@@ -541,6 +543,30 @@ export class DevGitHubAccess implements GitHubAccess {
     await this.db
       .prepare("UPDATE dev_repos SET pages_domain = ? WHERE full_name = ?")
       .bind(domain, key(repo))
+      .run();
+  }
+
+  async getPages(repo: RepoRef): Promise<PagesInfo | null> {
+    const row = await this.requireRepo(repo);
+    if (!row.pages_enabled) return null;
+    const https = await this.db
+      .prepare("SELECT pages_https FROM dev_repos WHERE full_name = ?")
+      .bind(key(repo))
+      .first<{ pages_https: number | null }>();
+    return {
+      url: row.pages_url,
+      cname: row.pages_domain,
+      httpsEnforced: https?.pages_https === 1,
+      // Dev: the "certificate" is issued as soon as a domain is set.
+      certificate: row.pages_domain ? "approved" : "none",
+    };
+  }
+
+  async setPagesHttps(repo: RepoRef, enforced: boolean): Promise<void> {
+    await this.requireRepo(repo);
+    await this.db
+      .prepare("UPDATE dev_repos SET pages_https = ? WHERE full_name = ?")
+      .bind(enforced ? 1 : 0, key(repo))
       .run();
   }
 

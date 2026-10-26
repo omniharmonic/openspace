@@ -1,0 +1,119 @@
+{
+  "id": "pg_f7jcnz65me",
+  "title": "Classes",
+  "slug": "classes",
+  "sections": [
+    {
+      "id": "sec_mmmaszazhr",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_2fern5pwkx",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Classes"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Six days a week, never more than twelve mats. Drop in, or buy a card of ten."
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_m41mnbbr28",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_nk041yc1pa",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "I've never done yoga. Which class should I take?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Saturday Foundations. We go slowly and explain every pose."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do I need to bring a mat?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "No — mats, blocks and blankets are provided."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": true,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "lines"
+        }
+      ]
+    }
+  ]
+}

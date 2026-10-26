@@ -1,7 +1,9 @@
+import { renderEmail } from "@openspace/email-render";
 import { ROLES, type Role } from "@openspace/ops";
+import type { Block } from "@openspace/schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
-import { getSite, type SiteWithRole, setRole } from "../db/sites";
+import { getSite, type SiteRow, type SiteWithRole, setRole } from "../db/sites";
 import { getUserByLogin, type User } from "../db/users";
 import type { HubBindings } from "../env";
 import { parseRepo } from "../github/types";
@@ -9,6 +11,7 @@ import { randomId, randomToken, sha256Hex } from "../lib/crypto";
 import { forbidden, HttpError, notFound } from "../lib/errors";
 import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
+import { emailSite, sendTransactional, siteBaseUrl } from "./email";
 import type { Services } from "./index";
 import { cancelSchedulesBy } from "./publishing";
 import { ownerOf, requireRole, siteForUser } from "./sites";
@@ -156,6 +159,48 @@ export async function listCollaborators(
  * Invite someone. Returns the invitation and its one-time accept URL (Studio shows it to copy;
  * an email with the same link is queued in the outbox when an address was given).
  */
+/** The invitation email (Hub-domain transactional mail). */
+export async function sendInvitationEmail(
+  services: Services,
+  site: Pick<SiteRow, "id" | "name" | "tagline" | "url" | "domain">,
+  to: string,
+  i: { inviter: string; role: string; acceptUrl: string },
+) {
+  let seq = 0;
+  const blk = (type: string, fields: Record<string, unknown>): Block => ({
+    id: `blk_inv${(++seq).toString(36).padStart(7, "0")}` as Block["id"],
+    type,
+    v: 1,
+    fields,
+  });
+  const para = (text: string) =>
+    blk("text", {
+      content: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text }] }] },
+    });
+  const mail = renderEmail({
+    site: emailSite(site),
+    baseUrl: siteBaseUrl(site, services.config.hubUrl),
+    preheader: `${i.inviter} invited you to help with ${site.name}`,
+    title: `Join ${site.name}`,
+    footerNote: "You are receiving this because someone invited this address to a site.",
+    blocks: [
+      blk("heading", { text: `Help with ${site.name}`, level: 1 }),
+      para(`${i.inviter} invited you to help with ${site.name} as ${i.role}.`),
+      blk("button", { label: "Accept invitation", link: { type: "url", url: i.acceptUrl } }),
+      para(`Or open this link: ${i.acceptUrl}`),
+      para("This link works for 14 days."),
+    ],
+  });
+  return sendTransactional(services, {
+    siteId: site.id,
+    to,
+    subject: `${i.inviter} invited you to work on ${site.name}`,
+    html: mail.html,
+    text: mail.text,
+    kind: "invitation",
+  });
+}
+
 export async function inviteCollaborator(
   services: Services,
   id: string,
@@ -208,20 +253,15 @@ export async function inviteCollaborator(
     )
     .run();
   const acceptUrl = `${services.config.studioOrigin}/invite/${token}`;
+  // Task 16: sent through the Hub's EmailSender (dev outbox in DEV_MODE), counted against the
+  // site's transactional-email quota. A failed send never blocks the invitation: Studio shows
+  // the link to copy either way.
   if (row.email)
-    await services.db
-      .prepare(
-        "INSERT INTO outbox (id, site_id, to_addr, subject, text, kind, created_at) VALUES (?, ?, ?, ?, ?, 'invitation', ?)",
-      )
-      .bind(
-        randomId("out"),
-        id,
-        row.email,
-        `${user.name ?? user.login} invited you to work on ${site.name}`,
-        `${user.name ?? user.login} invited you to help with ${site.name} as ${input.role}.\n\nAccept: ${acceptUrl}\n\nThis link works for 14 days.`,
-        now,
-      )
-      .run();
+    await sendInvitationEmail(services, site, row.email, {
+      inviter: user.name ?? user.login,
+      role: input.role,
+      acceptUrl,
+    }).catch(() => undefined);
   await audit(services.db, {
     siteId: id,
     actor: user.id,

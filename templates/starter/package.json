@@ -1,12 +1,14 @@
 {
   "name": "@openspace/template-starter",
   "version": "0.1.0",
-  "description": "OpenSpace starter site shell (Astro) template.",
+  "description": "OpenSpace starter: the thin Astro site shell (astro.config, page route, publish workflows, AGENTS.md).",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "src",
+    "site",
+    "variants"
   ],
   "exports": {
     ".": {
@@ -15,23 +17,21 @@
     }
   },
   "publishConfig": {
-    "access": "public",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      }
-    }
+    "access": "public"
   },
   "scripts": {
-    "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "agents-md": "UPDATE_AGENTS_MD=1 vitest run src/starter.test.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@openspace/site-kit": "workspace:*",
+    "yaml": "^2.9.1"
   }
 }

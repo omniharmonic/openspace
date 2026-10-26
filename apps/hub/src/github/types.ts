@@ -109,6 +109,14 @@ export interface PullRequestInput {
   body?: string;
 }
 
+export interface PagesInfo {
+  url: string | null;
+  cname: string | null;
+  httpsEnforced: boolean;
+  /** GitHub's certificate state: none | new | authorization_created | … | approved | errored. */
+  certificate: "none" | "pending" | "approved" | "errored";
+}
+
 export type CollaboratorPermission = "pull" | "triage" | "push" | "maintain" | "admin";
 
 export interface GitHubAccess {
@@ -146,6 +154,10 @@ export interface GitHubAccess {
 
   enablePages(repo: RepoRef): Promise<{ url: string }>;
   setPagesDomain(repo: RepoRef, domain: string | null): Promise<void>;
+  /** Pages custom-domain + certificate state (Task 16 domains wizard); null if Pages is off. */
+  getPages(repo: RepoRef): Promise<PagesInfo | null>;
+  /** Turn "Enforce HTTPS" on or off (only possible once the certificate is issued). */
+  setPagesHttps(repo: RepoRef, enforced: boolean): Promise<void>;
   dispatchWorkflow(
     repo: RepoRef,
     input: { workflow: string; ref: string; inputs?: Record<string, string> },

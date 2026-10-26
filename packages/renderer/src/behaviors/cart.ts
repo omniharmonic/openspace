@@ -3,7 +3,9 @@ import { h, ICON_CLOSE, icon, load, save, siteInfo } from "./shared";
 /**
  * Cart (Phase 5 commerce). One shared cart per site in localStorage. Elements:
  * - `[data-os-add]` buttons with `data-os-sku`, `data-os-name`, `data-os-price` (minor units,
- *   display only), `data-os-currency`, optional `data-os-qty-input` (selector of a qty input);
+ *   display only), `data-os-currency`, optional `data-os-qty-input` (selector of a qty input)
+ *   and optional `data-os-sku-input` (selector of a variant `<select>` whose option values are
+ *   SKUs; the selected option's `data-os-name` / `data-os-price` override the button's);
  * - `[data-os-cart-toggle]` opens the drawer; `[data-os-cart-count]` shows the item count.
  * Checkout POSTs only SKUs and quantities to the Hub; prices are re-read server-side from the
  * published catalog, never trusted from the browser.
@@ -194,7 +196,14 @@ export default function cart(el: HTMLElement): void {
   if (el.hasAttribute("data-os-cart-toggle")) el.addEventListener("click", openCart);
   if (el.hasAttribute("data-os-add")) {
     el.addEventListener("click", () => {
-      const d = el.dataset;
+      const d = { ...el.dataset };
+      const pick = d.osSkuInput ? document.querySelector<HTMLSelectElement>(d.osSkuInput) : null;
+      const opt = pick?.selectedOptions[0];
+      if (opt?.value) {
+        d.osSku = opt.value;
+        d.osName = opt.dataset.osName ?? d.osName;
+        d.osPrice = opt.dataset.osPrice ?? d.osPrice;
+      }
       if (!d.osSku) return;
       const qtyInput = d.osQtyInput ? document.querySelector<HTMLInputElement>(d.osQtyInput) : null;
       const qty = Math.max(1, Number(qtyInput?.value ?? 1) || 1);

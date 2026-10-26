@@ -5,7 +5,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { BEHAVIOR_LOADER, BEHAVIORS, type BehaviorName } from "./behaviors-manifest";
 import { BASE_CSS } from "./styles/base-css";
 
@@ -82,6 +82,23 @@ export async function writeAssets(
   await writeFile(cssPath, BASE_CSS);
   written.push(cssPath);
   return written;
+}
+
+/** A behavior's `init(el)` (the module's default export). */
+export type BehaviorInit = (el: HTMLElement) => void;
+
+/**
+ * Import a behavior module and return its `init`. Loads the TypeScript source when present
+ * (monorepo, vitest) and the built `dist/` module otherwise — for tests that run behaviors in a
+ * DOM environment such as happy-dom. The same modules are importable by specifier as
+ * `@openspace/renderer/behavior-source/<name>`.
+ */
+export async function importBehavior(name: BehaviorFile): Promise<BehaviorInit> {
+  const src = behaviorSourcePath(name);
+  const path = existsSync(src) ? src : behaviorDistPath(name);
+  if (!path) throw new Error(`behavior "${name}" not found (build @openspace/renderer first)`);
+  const mod = (await import(pathToFileURL(path).href)) as { default: BehaviorInit };
+  return mod.default;
 }
 
 export { BASE_CSS };

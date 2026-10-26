@@ -3,6 +3,7 @@ import type { HubBindings, HubConfig } from "../env";
 import { type GitHubContext, selectGitHubAccess } from "../github";
 import type { FetchLike } from "../github/http";
 import type { GitHubAccess } from "../github/types";
+import { createPublicServices, type PublicOverrides, type PublicServices } from "./public";
 import { type PageRenderer, PlaceholderRenderer } from "./renderer";
 import { BuiltinTemplateSource, type TemplateSource } from "./templates";
 
@@ -18,6 +19,8 @@ export interface Services {
   /** Outbound fetch (GitHub OAuth etc.); injectable for tests. */
   fetch: FetchLike;
   now(): number;
+  /** Public services (Task 16): email, Turnstile, rate limits, analytics, DNS, RDAP. */
+  pub: PublicServices;
 }
 
 export interface ServiceOverrides {
@@ -26,6 +29,7 @@ export interface ServiceOverrides {
   github?: (ctx: GitHubContext, services: Services) => GitHubAccess;
   fetch?: FetchLike;
   now?: () => number;
+  public?: PublicOverrides;
 }
 
 export function createServices(
@@ -44,6 +48,12 @@ export function createServices(
     renderer: overrides.renderer ?? new PlaceholderRenderer(),
     fetch: fetchFn,
     now,
+    pub: createPublicServices(
+      env,
+      config,
+      { db: env.HUB_DB, fetch: fetchFn, now },
+      overrides.public,
+    ),
     github: (ctx = {}) =>
       overrides.github
         ? overrides.github(ctx, services)

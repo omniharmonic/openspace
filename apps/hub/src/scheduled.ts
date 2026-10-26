@@ -20,6 +20,10 @@ const SITE_TABLES = [
   "inventory",
   "orders",
   "schedules",
+  // Task 16 public-services tables.
+  "service_settings",
+  "quota_usage",
+  "domains",
 ];
 
 /** Purge archived sites past `purge_at`: setup uploads in R2, room storage, Hub rows. */

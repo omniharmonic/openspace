@@ -15,6 +15,7 @@ import {
   GitHubConflictError,
   GitHubNotFoundError,
   normalizeRef,
+  type PagesInfo,
   type PullRequestInput,
   type RepoInfo,
   type RepoRef,
@@ -511,6 +512,36 @@ export class GitHubAppAccess implements GitHubAccess {
 
   async setPagesDomain(repo: RepoRef, domain: string | null): Promise<void> {
     await this.rest(`${this.repoPath(repo)}/pages`, { method: "PUT", body: { cname: domain } });
+  }
+
+  async getPages(repo: RepoRef): Promise<PagesInfo | null> {
+    const data = await this.rest<{
+      html_url?: string;
+      cname?: string | null;
+      https_enforced?: boolean;
+      https_certificate?: { state?: string } | null;
+    }>(`${this.repoPath(repo)}/pages`, { allow404: true });
+    if (!data) return null;
+    const state = data.https_certificate?.state ?? null;
+    return {
+      url: data.html_url ?? null,
+      cname: data.cname ?? null,
+      httpsEnforced: data.https_enforced === true,
+      certificate: !state
+        ? "none"
+        : state === "approved"
+          ? "approved"
+          : state === "errored" || state === "bad_authz" || state === "destroy_pending"
+            ? "errored"
+            : "pending",
+    };
+  }
+
+  async setPagesHttps(repo: RepoRef, enforced: boolean): Promise<void> {
+    await this.rest(`${this.repoPath(repo)}/pages`, {
+      method: "PUT",
+      body: { https_enforced: enforced },
+    });
   }
 
   async dispatchWorkflow(
