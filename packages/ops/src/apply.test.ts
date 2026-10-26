@@ -557,6 +557,17 @@ describe("apply / invert / validate", () => {
     ).toMatch(/events collection/);
   });
 
+  it("rejects prototype-polluting keys", () => {
+    const doc = siteFixture();
+    const op = JSON.parse(
+      JSON.stringify(
+        stampOp({ op: "block.update", page: home, block: IDS.heading, set: {} }),
+      ).replace('"set":{}', '"set":{"__proto__":{"polluted":true}}'),
+    );
+    expect(validate(doc, op).ok).toBe(false);
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+  });
+
   it("rejects non-JSON values", () => {
     const doc = siteFixture();
     const op = stampOp({

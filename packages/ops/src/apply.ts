@@ -13,7 +13,15 @@ import {
   sectionsOf,
 } from "./doc";
 import { type ContainerId, FOOTER, type Op, type Patch } from "./ops";
-import { applyPatch, checkPath, clone, type Obj, overlappingPaths, patchPaths } from "./paths";
+import {
+  applyPatch,
+  checkPath,
+  clone,
+  isForbiddenKey,
+  type Obj,
+  overlappingPaths,
+  patchPaths,
+} from "./paths";
 
 /** Top-level keys that path patches may not touch, per target. */
 export const PROTECTED_PATHS = {
@@ -87,6 +95,8 @@ function placeInGrid(section: Section, blockId: string, item: GridItem | undefin
 export function mutate(doc: SiteDocument, op: Op): void {
   switch (op.op) {
     case "block.update": {
+      for (const k of [...(op.unset ?? []), ...Object.keys(op.set ?? {})])
+        if (isForbiddenKey(k)) throw new OpError(`Forbidden field key "${k}"`, ["set", k]);
       requireSections(doc, op.page);
       const loc = findBlock(doc, op.page, op.block);
       if (!loc)

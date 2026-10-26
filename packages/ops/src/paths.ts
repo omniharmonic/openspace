@@ -4,6 +4,29 @@ export type Obj = Record<string, unknown>;
 
 const FORBIDDEN_SEGMENTS = new Set(["__proto__", "prototype", "constructor"]);
 
+/** The first own key anywhere in a JSON value that could reach a prototype, if any. */
+export function findForbiddenKey(value: unknown, depth = 0): string | undefined {
+  if (depth > 64 || value === null || typeof value !== "object") return undefined;
+  if (Array.isArray(value)) {
+    for (const v of value) {
+      const k = findForbiddenKey(v, depth + 1);
+      if (k) return k;
+    }
+    return undefined;
+  }
+  for (const key of Object.keys(value)) {
+    if (FORBIDDEN_SEGMENTS.has(key)) return key;
+    const k = findForbiddenKey((value as Obj)[key], depth + 1);
+    if (k) return k;
+  }
+  return undefined;
+}
+
+/** True for object keys that could reach a prototype (rejected in every op). */
+export function isForbiddenKey(key: string): boolean {
+  return FORBIDDEN_SEGMENTS.has(key);
+}
+
 /** True for plain objects (and Immer drafts of them, which proxy a plain object). */
 export function isPlainObject(value: unknown): value is Obj {
   if (value === null || typeof value !== "object" || Array.isArray(value)) return false;

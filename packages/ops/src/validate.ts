@@ -15,7 +15,7 @@ import type { z } from "zod";
 import { mutate } from "./apply";
 import { containerPath, indexIds, OpError, sectionsOf } from "./doc";
 import { type ContainerId, FOOTER, type Op, parseOp } from "./ops";
-import { isJson, isPathPrefix, isPlainObject, patchPaths } from "./paths";
+import { findForbiddenKey, isJson, isPathPrefix, isPlainObject, patchPaths } from "./paths";
 
 export interface OpIssue {
   path: (string | number)[];
@@ -259,6 +259,9 @@ export function validate(
   input: Op | unknown,
   options: ValidateOptions = {},
 ): ValidationResult {
+  const forbidden = findForbiddenKey(input);
+  if (forbidden)
+    return { ok: false, errors: [{ path: [], message: `Forbidden key "${forbidden}"` }] };
   let op: Op;
   if (options.trusted) op = input as Op;
   else {
