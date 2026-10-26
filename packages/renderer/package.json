@@ -1,10 +1,13 @@
 {
   "name": "@openspace/renderer",
   "version": "0.1.0",
-  "description": "OpenSpace renderer package.",
+  "description": "OpenSpace renderer: React page/section/block renderer, base stylesheet, HTML documents and vanilla behaviors.",
   "license": "MIT",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/behaviors/*",
+    "./dist/behaviors/*"
+  ],
   "files": [
     "dist"
   ],
@@ -12,7 +15,13 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
-    }
+    },
+    "./node": {
+      "types": "./src/node.ts",
+      "default": "./src/node.ts"
+    },
+    "./os.css": "./dist/os.css",
+    "./behaviors/*": "./dist/behaviors/*"
   },
   "publishConfig": {
     "access": "public",
@@ -20,18 +29,34 @@
       ".": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
-      }
+      },
+      "./node": {
+        "types": "./dist/node.d.ts",
+        "default": "./dist/node.js"
+      },
+      "./os.css": "./dist/os.css",
+      "./behaviors/*": "./dist/behaviors/*"
     }
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node scripts/build-assets.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "happy-dom": "^21.0.4",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@openspace/schema": "workspace:*",
+    "@openspace/theme": "workspace:*",
+    "esbuild": "^0.27.7",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   }
 }
