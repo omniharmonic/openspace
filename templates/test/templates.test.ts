@@ -82,7 +82,8 @@ describe.each(TEMPLATE_IDS)("template %s", (id) => {
     expect(slugs).toContain("");
     if (id !== "link") {
       expect(slugs).toContain("about");
-      expect(slugs).toContain("contact");
+      // A way to get in touch: contact, visit (restaurants), RSVP (weddings), join (movements).
+      expect(slugs.some((s) => /^(?:contact|visit|rsvp|join)$/.test(s))).toBe(true);
       expect(pages.length).toBeGreaterThanOrEqual(4);
     }
   });
@@ -92,7 +93,7 @@ describe.each(TEMPLATE_IDS)("template %s", (id) => {
     const shown = issues
       .filter((i) => i.severity !== "info")
       .map((i) => `${i.severity} ${i.rule} ${i.page ?? ""} ${i.section ?? ""}: ${i.message}`);
-    expect(shown).toEqual([]);
+    expect(shown.join("\n")).toBe("");
   });
 
   it("passes the SEO check (no warnings; descriptions 50–160 characters, unique)", () => {
@@ -109,7 +110,7 @@ describe.each(TEMPLATE_IDS)("template %s", (id) => {
             ].includes(i.rule),
         )
         .map((i) => `${p.slug || "home"} ${i.rule}: ${i.message}`);
-      expect(bad).toEqual([]);
+      expect(bad.join("\n")).toBe("");
     }
   });
 
@@ -144,8 +145,8 @@ describe.each(TEMPLATE_IDS)("template %s", (id) => {
 
   it("is written for its owner: no placeholders, no library demo copy", () => {
     const all = strings({ site: doc.site, pages: doc.pages, collections: doc.collections });
-    expect(all.filter((s) => PLACEHOLDER_RE.test(s))).toEqual([]);
-    expect(all.filter((s) => DEMO_COPY.has(s))).toEqual([]);
+    expect(all.filter((s) => PLACEHOLDER_RE.test(s)).join("\n")).toBe("");
+    expect(all.filter((s) => DEMO_COPY.has(s)).join("\n")).toBe("");
   });
 
   it("passes `openspace check` and scaffolds with `openspace new`", async () => {

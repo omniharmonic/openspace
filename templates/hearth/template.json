@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "hearth",
+  "name": "Hearth",
+  "description": "A warm, appetizing site for restaurants, cafés and bakeries, with a real menu, opening hours and map, reservations and a strip of food photography.",
+  "persona": "Restaurants, cafés, bakeries",
+  "mood": "Warm, appetizing",
+  "version": "1.0.0",
+  "tags": [
+    "restaurant",
+    "café",
+    "bakery",
+    "menu",
+    "reservations",
+    "hospitality"
+  ],
+  "sample": {
+    "name": "Ember & Olive",
+    "tagline": "Wood-fired cooking, made to share."
+  },
+  "thumbnailPage": "pg_dqfe0kfhjq",
+  "looks": [
+    {
+      "id": "tomato",
+      "name": "Tomato",
+      "description": "Ripe tomato red on cream with an olive accent and Young Serif headings.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.6 0.2 30)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "young-serif-work-sans",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "olive-grove",
+      "name": "Olive Grove",
+      "description": "Olive and cream with Playfair Display, for a quieter, wine-bar mood.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.55 0.09 115)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "playfair-source-sans",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "bistro-noir",
+      "name": "Bistro Noir",
+      "description": "Deep wine red with Abril Fatface headings and sharp corners, for a late-night bistro.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.38 0.11 18)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "abril-lato",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "outline",
+        "motion": "subtle",
+        "imageTreatment": "grain"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_dqfe0kfhjq",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_fs2y203dqx",
+      "title": "Menu",
+      "slug": "menu"
+    },
+    {
+      "id": "pg_03vfj29ssd",
+      "title": "Visit & reservations",
+      "slug": "visit"
+    },
+    {
+      "id": "pg_q3e0j2pp60",
+      "title": "Private dining",
+      "slug": "private-dining"
+    },
+    {
+      "id": "pg_86kv6qr4yt",
+      "title": "About",
+      "slug": "about"
+    }
+  ]
+}

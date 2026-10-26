@@ -1,0 +1,214 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Ember & Olive",
+  "tagline": "Wood-fired cooking, made to share.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_fs2y203dqx",
+      "label": "Menu"
+    },
+    {
+      "type": "page",
+      "page": "pg_q3e0j2pp60",
+      "label": "Private dining"
+    },
+    {
+      "type": "page",
+      "page": "pg_86kv6qr4yt",
+      "label": "Our story"
+    },
+    {
+      "type": "page",
+      "page": "pg_03vfj29ssd",
+      "label": "Visit"
+    },
+    {
+      "type": "button",
+      "label": "Reserve",
+      "link": {
+        "type": "page",
+        "page": "pg_03vfj29ssd",
+        "anchor": "reserve"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-center",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "dropdown",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_8pxgp51tg6",
+    "preset": "footer/visit@1",
+    "label": "Footer with hours and address",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          4,
+          4,
+          4
+        ],
+        "m": [
+          12
+        ]
+      },
+      "gap": "xl"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_3e8khp8cyt",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Ember & Olive"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Wood-fired Italian cooking on Federal Hill. Dinner Tuesday to Sunday, lunch at weekends."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_acypg692v5",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "column": 0,
+        "variant": "icons"
+      },
+      {
+        "id": "blk_an0sbh3f7f",
+        "type": "contact-info",
+        "v": 1,
+        "fields": {
+          "heading": "Find us",
+          "headingLevel": "h2",
+          "address": "214 Atwells Avenue\nProvidence, RI 02903",
+          "phone": "+1 (401) 555-0158",
+          "email": "ciao@emberandolive.example",
+          "directions": true
+        },
+        "column": 1,
+        "variant": "list"
+      },
+      {
+        "id": "blk_jzc92r5da2",
+        "type": "hours",
+        "v": 1,
+        "fields": {
+          "heading": "Hours",
+          "headingLevel": "h2",
+          "rows": [
+            {
+              "day": "mon",
+              "closed": true
+            },
+            {
+              "day": "tue",
+              "opens": "17:00",
+              "closes": "22:00",
+              "closed": false
+            },
+            {
+              "day": "wed",
+              "opens": "17:00",
+              "closes": "22:00",
+              "closed": false
+            },
+            {
+              "day": "thu",
+              "opens": "17:00",
+              "closes": "22:00",
+              "closed": false
+            },
+            {
+              "day": "fri",
+              "opens": "17:00",
+              "closes": "23:00",
+              "closed": false
+            },
+            {
+              "day": "sat",
+              "opens": "12:00",
+              "closes": "23:00",
+              "closed": false
+            },
+            {
+              "day": "sun",
+              "opens": "12:00",
+              "closes": "21:00",
+              "closed": false
+            }
+          ]
+        },
+        "column": 2,
+        "variant": "compact"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/emberandolive.example"
+    },
+    {
+      "network": "tripadvisor",
+      "url": "https://tripadvisor.com/emberandolive-example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:ciao@emberandolive.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Ember & Olive, Providence",
+    "description": "Wood-fired Italian cooking on Federal Hill, Providence.",
+    "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

@@ -1,0 +1,257 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_03vfj29ssd",
+  "title": "Visit & reservations",
+  "slug": "visit",
+  "seo": {
+    "description": "Book a table at Ember & Olive, 214 Atwells Avenue, Providence. Opening hours, directions, parking and reservation requests."
+  },
+  "sections": [
+    {
+      "id": "sec_g2m03x9rnb",
+      "preset": "contact/location@1",
+      "label": "Map, hours and address",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_p2hs0vj2f0",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Ember & Olive",
+            "address": "214 Atwells Avenue, Providence, RI 02903",
+            "latitude": 41.8205,
+            "longitude": -71.4245,
+            "zoom": 15,
+            "linkLabel": "Open in Maps",
+            "aspect": "4:3"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_yxe2vhsfz4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Find us on Federal Hill",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Visit"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_94tehb5vez",
+          "type": "hours",
+          "v": 1,
+          "fields": {
+            "heading": "Opening hours",
+            "headingLevel": "h2",
+            "rows": [
+              {
+                "day": "mon",
+                "closed": true
+              },
+              {
+                "day": "tue",
+                "opens": "17:00",
+                "closes": "22:00",
+                "closed": false
+              },
+              {
+                "day": "wed",
+                "opens": "17:00",
+                "closes": "22:00",
+                "closed": false
+              },
+              {
+                "day": "thu",
+                "opens": "17:00",
+                "closes": "22:00",
+                "closed": false
+              },
+              {
+                "day": "fri",
+                "opens": "17:00",
+                "closes": "23:00",
+                "closed": false
+              },
+              {
+                "day": "sat",
+                "opens": "12:00",
+                "closes": "23:00",
+                "closed": false
+              },
+              {
+                "day": "sun",
+                "opens": "12:00",
+                "closes": "21:00",
+                "closed": false
+              }
+            ],
+            "note": "Valet parking on Friday and Saturday evenings; metered parking on Atwells Avenue."
+          },
+          "column": 1,
+          "variant": "compact"
+        },
+        {
+          "id": "blk_scey3fatap",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h2",
+            "address": "214 Atwells Avenue\nProvidence, RI 02903",
+            "phone": "+1 (401) 555-0158",
+            "email": "ciao@emberandolive.example",
+            "directions": true
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_mnyqv4e6a1",
+      "preset": "contact/booking-request@1",
+      "label": "Booking request form",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_bpbr2m2hxc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Reserve a table",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Reservations",
+            "subheading": "Book up to 30 days ahead. We keep the bar and counter seats for walk-ins every night."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_wsjpb0tq35",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_eeb0czcbd1",
+              "name": "Reservation request",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "date",
+                  "name": "date",
+                  "label": "Date",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "time",
+                  "label": "Time",
+                  "required": true,
+                  "width": "half",
+                  "options": [
+                    "5:00",
+                    "5:30",
+                    "6:00",
+                    "6:30",
+                    "7:00",
+                    "7:30",
+                    "8:00",
+                    "8:30",
+                    "9:00"
+                  ]
+                },
+                {
+                  "type": "select",
+                  "name": "guests",
+                  "label": "Guests",
+                  "required": true,
+                  "width": "half",
+                  "options": [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7 or more"
+                  ]
+                },
+                {
+                  "type": "phone",
+                  "name": "phone",
+                  "label": "Phone",
+                  "width": "half"
+                },
+                {
+                  "type": "textarea",
+                  "name": "notes",
+                  "label": "Allergies or occasions",
+                  "maxLength": 1000
+                }
+              ],
+              "submitLabel": "Request a table",
+              "success": {
+                "type": "message",
+                "message": "Grazie! We'll confirm your table by email within a few hours."
+              },
+              "notifyOwner": true
+            }
+          },
+          "variant": "card"
+        }
+      ],
+      "anchor": "reserve"
+    }
+  ]
+}

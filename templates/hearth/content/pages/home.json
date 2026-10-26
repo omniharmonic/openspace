@@ -1,0 +1,937 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_dqfe0kfhjq",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Ember & Olive is a wood-fired trattoria on Federal Hill in Providence: handmade pasta, pizza from the oven and natural wine."
+  },
+  "sections": [
+    {
+      "id": "sec_37kw8g9nn0",
+      "preset": "hero/staggered-photos@1",
+      "label": "Staggered photographs",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 25,
+          "m": 35
+        },
+        "items": {
+          "blk_a4meqxh68d": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 24
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 5,
+              "h": 12
+            }
+          },
+          "blk_h50q5khsft": {
+            "d": {
+              "x": 10,
+              "y": 4,
+              "w": 6,
+              "h": 16
+            },
+            "m": {
+              "x": 6,
+              "y": 5,
+              "w": 3,
+              "h": 9
+            }
+          },
+          "blk_vwthesw75p": {
+            "d": {
+              "x": 17,
+              "y": 1,
+              "w": 8,
+              "h": 13
+            },
+            "m": {
+              "x": 1,
+              "y": 14,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_bsnb863e5r": {
+            "d": {
+              "x": 14,
+              "y": 11,
+              "w": 11,
+              "h": 11,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 11,
+              "z": 2
+            }
+          },
+          "blk_h36k1ysah5": {
+            "d": {
+              "x": 15,
+              "y": 23,
+              "w": 10,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 33,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_a4meqxh68d",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=840&q=80",
+              "alt": "Grilled steak, herbs and sauces shared across the table",
+              "width": 840,
+              "height": 560
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_h50q5khsft",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=640&q=80",
+              "alt": "Our cook chopping fresh herbs before service",
+              "width": 640,
+              "height": 960,
+              "focal": [
+                0.5,
+                0.4
+              ]
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_vwthesw75p",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=840&q=80",
+              "alt": "A wood-fired pizza cut into slices",
+              "width": 840,
+              "height": 560
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_bsnb863e5r",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Federal Hill · Providence"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1,
+                    "preset": "h1"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Wood-fired cooking, made to share"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Handmade pasta, blistered pizza and whatever the market brought in that morning, cooked over oak and served to the middle of the table."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            }
+          }
+        },
+        {
+          "id": "blk_h36k1ysah5",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Reserve a table",
+            "link": {
+              "type": "page",
+              "page": "pg_03vfj29ssd",
+              "anchor": "reserve"
+            },
+            "role": "primary",
+            "secondaryLabel": "See the menu",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_fs2y203dqx"
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_ad4fw5b85a",
+      "preset": "services/price-list@1",
+      "label": "Service menu with prices",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_4j1q5t3193",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A few things we're known for",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "From the oven",
+            "subheading": "The menu changes with the season; these never leave it. Everything is made in our kitchen each afternoon."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_m6bgm7v311",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "The full menu",
+            "link": {
+              "type": "page",
+              "page": "pg_fs2y203dqx"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_bb0xjbxg3a",
+          "type": "restaurant-menu",
+          "v": 1,
+          "fields": {
+            "sections": [
+              {
+                "title": "Favourites",
+                "items": [
+                  {
+                    "name": "Cacio e pepe",
+                    "description": "Hand-rolled tonnarelli, pecorino romano, cracked black pepper.",
+                    "price": "24",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Margherita DOP",
+                    "description": "San Marzano tomato, fior di latte, basil, olive oil.",
+                    "price": "19",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Spiedini di gamberi",
+                    "description": "Oak-grilled shrimp, salsa verde, charred lemon.",
+                    "price": "27",
+                    "dietary": [
+                      {
+                        "tag": "gf"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Tiramisù",
+                    "description": "Espresso-soaked savoiardi, mascarpone, cocoa.",
+                    "price": "12",
+                    "dietary": [
+                      {
+                        "tag": "v"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "currency": "$",
+            "legend": true,
+            "footnote": "Most dishes can be made gluten-free; please tell your server about any allergies."
+          },
+          "column": 1,
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_p7wdm13ttb",
+      "preset": "about/quote-and-image@1",
+      "label": "Founder quote with photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            1,
+            0
+          ],
+          "t": [
+            1,
+            0
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_9mmr8p3fd8",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1280&q=80",
+              "alt": "The dining room at Ember & Olive, lit low before service",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "3:2",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_e15s2f7ece",
+          "type": "quote",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "My grandmother cooked for twelve every Sunday on a wood stove in Calabria. I just wanted a room where it feels like that every night."
+                    }
+                  ]
+                }
+              ]
+            },
+            "attribution": "Lucia Ferrante",
+            "source": "Chef and owner"
+          },
+          "column": 1,
+          "variant": "classic"
+        }
+      ]
+    },
+    {
+      "id": "sec_7vsavv6jv4",
+      "preset": "gallery/carousel@1",
+      "label": "Scrolling carousel",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_ymz4q0k7h5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "This week at the pass",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "From the kitchen"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_wh2gm6xz81",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "images": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1560&q=80",
+                  "alt": "Pizza fresh from the wood oven",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "caption": "Diavola, hot honey"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1560&q=80",
+                  "alt": "A bowl of greens and roasted vegetables",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "caption": "Market greens"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1560&q=80",
+                  "alt": "A plated dish on a candlelit table",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "caption": "Branzino, capers, lemon"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1560&q=80",
+                  "alt": "Two rustic loaves dusted with flour",
+                  "width": 1560,
+                  "height": 1038
+                },
+                "caption": "Our daily bread"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=840&q=80",
+                  "alt": "Chopping herbs for salsa verde",
+                  "width": 840,
+                  "height": 1260,
+                  "focal": [
+                    0.5,
+                    0.4
+                  ]
+                },
+                "caption": "Salsa verde, 4pm"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1560&q=80",
+                  "alt": "Friends sharing dinner on the terrace",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "caption": "Sunday on the terrace"
+              }
+            ],
+            "aspect": "4:5",
+            "columns": "3",
+            "lightbox": true,
+            "showCaptions": true
+          },
+          "variant": "carousel"
+        }
+      ]
+    },
+    {
+      "id": "sec_nd9vw9jb37",
+      "preset": "contact/hours-overlap@1",
+      "label": "Hours card over photo",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 24,
+          "m": 30
+        },
+        "items": {
+          "blk_0reed522b2": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 15,
+              "h": 24,
+              "bleed": "left"
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12,
+              "bleed": "both"
+            }
+          },
+          "blk_e0j63k0zn3": {
+            "d": {
+              "x": 13,
+              "y": 3,
+              "w": 11,
+              "h": 13,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 13,
+              "z": 2
+            }
+          },
+          "blk_vtgrpgd2bv": {
+            "d": {
+              "x": 13,
+              "y": 17,
+              "w": 11,
+              "h": 7,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 24,
+              "w": 8,
+              "h": 7
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_0reed522b2",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1720&q=80",
+              "alt": "Wooden tables and pendant lights in the dining room",
+              "width": 1720,
+              "height": 1290
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_e0j63k0zn3",
+          "type": "hours",
+          "v": 1,
+          "fields": {
+            "heading": "Opening hours",
+            "headingLevel": "h2",
+            "rows": [
+              {
+                "day": "mon",
+                "closed": true
+              },
+              {
+                "day": "tue",
+                "opens": "17:00",
+                "closes": "22:00",
+                "closed": false
+              },
+              {
+                "day": "wed",
+                "opens": "17:00",
+                "closes": "22:00",
+                "closed": false
+              },
+              {
+                "day": "thu",
+                "opens": "17:00",
+                "closes": "22:00",
+                "closed": false
+              },
+              {
+                "day": "fri",
+                "opens": "17:00",
+                "closes": "23:00",
+                "closed": false
+              },
+              {
+                "day": "sat",
+                "opens": "12:00",
+                "closes": "23:00",
+                "closed": false
+              },
+              {
+                "day": "sun",
+                "opens": "12:00",
+                "closes": "21:00",
+                "closed": false
+              }
+            ],
+            "note": "Kitchen closes 30 minutes before the doors. Walk-ins welcome at the bar."
+          },
+          "variant": "card",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            }
+          }
+        },
+        {
+          "id": "blk_vtgrpgd2bv",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Ember & Olive",
+            "address": "214 Atwells Avenue, Providence, RI 02903",
+            "phone": "+1 (401) 555-0158",
+            "directions": true
+          },
+          "variant": "list",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_gzr4zjy40k",
+      "preset": "testimonials/three-cards@1",
+      "label": "Three testimonial cards",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 15,
+          "m": 41
+        },
+        "items": {
+          "blk_hnedfy8a1q": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_t3h1qyb1dv": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_137y685a6v": {
+            "d": {
+              "x": 9,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_k1hj87symj": {
+            "d": {
+              "x": 17,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 31,
+              "w": 8,
+              "h": 11
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_hnedfy8a1q",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Why people keep coming back",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Guests"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_t3h1qyb1dv",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The cacio e pepe is the best I've had outside Rome, and they remembered our anniversary."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Jules Moreno",
+            "role": "Regular since opening",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&q=80",
+              "alt": "Portrait of Jules Moreno",
+              "width": 320,
+              "height": 480
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_137y685a6v",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We booked the long table for my mother's 70th. Family-style platters, perfect pacing, no rush at all."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Nadia Sorensen",
+            "role": "Private dining, March",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Portrait of Nadia Sorensen",
+              "width": 320,
+              "height": 479
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_k1hj87symj",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Sit at the counter and watch the oven. Order whatever the chef says is good tonight."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Theo Grant",
+            "role": "Food writer, Providence Weekly",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=320&q=80",
+              "alt": "Portrait of Theo Grant",
+              "width": 320,
+              "height": 480
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_m1vrena6pm",
+      "preset": "cta/photo-background@1",
+      "label": "Photo background",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "3xl",
+          "m": "2xl"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=2880&q=80",
+          "overlay": {
+            "color": "background",
+            "opacity": 0.62
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_3f7rh54txj",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A long table for your celebration",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Private dining for 10 to 24 guests in the back room, with a family-style menu cooked over the fire."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_m2fj4fd88z",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Plan a private dinner",
+            "link": {
+              "type": "page",
+              "page": "pg_q3e0j2pp60"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

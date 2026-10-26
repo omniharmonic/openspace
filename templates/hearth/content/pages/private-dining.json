@@ -1,0 +1,288 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_q3e0j2pp60",
+  "title": "Private dining",
+  "slug": "private-dining",
+  "seo": {
+    "description": "Host a birthday, rehearsal dinner or work celebration in the Ember & Olive back room, for 10 to 24 guests, family style."
+  },
+  "sections": [
+    {
+      "id": "sec_cavjwv7t7e",
+      "preset": "hero/split-landscape@1",
+      "label": "Split with landscape image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            1,
+            0
+          ],
+          "t": [
+            1,
+            0
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_rh8aqvhcgd",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1520&q=80",
+              "alt": "Friends talking over a long shared table",
+              "width": 1520,
+              "height": 1013
+            },
+            "aspect": "3:2",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_ecgj8r63w6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The long table is yours",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Private dining",
+            "subheading": "Our back room seats up to 24 at one long table beside the oven. We'll plan a family-style menu with you and pour wines to match."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_qmtbzxc9rj",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Send an enquiry",
+            "link": {
+              "type": "page",
+              "page": "pg_q3e0j2pp60",
+              "anchor": "enquire"
+            },
+            "role": "primary",
+            "secondaryLabel": "See the menu",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_fs2y203dqx"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_4p94qw40h1",
+      "preset": "pricing/compact-list@1",
+      "label": "Compact price list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_56zmfbw1b8",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Family-style menus",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Menus"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_femt4c07qe",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "La Tavola",
+                "price": "$68",
+                "period": "per guest",
+                "description": "Antipasti to share, two pastas, wood-fired chicken and dessert.",
+                "features": [],
+                "buttonLabel": "Enquire",
+                "link": {
+                  "type": "page",
+                  "page": "pg_q3e0j2pp60",
+                  "anchor": "enquire"
+                },
+                "featured": false
+              },
+              {
+                "name": "Il Fuoco",
+                "price": "$92",
+                "period": "per guest",
+                "description": "Crudo and burrata, three pastas, bistecca for the table and dolci.",
+                "features": [],
+                "buttonLabel": "Enquire",
+                "link": {
+                  "type": "page",
+                  "page": "pg_q3e0j2pp60",
+                  "anchor": "enquire"
+                },
+                "featured": false
+              },
+              {
+                "name": "Wine pairing",
+                "price": "$45",
+                "period": "per guest",
+                "description": "Four Italian wines chosen by our sommelier to match your menu.",
+                "features": [],
+                "buttonLabel": "Add pairing",
+                "link": {
+                  "type": "page",
+                  "page": "pg_q3e0j2pp60",
+                  "anchor": "enquire"
+                },
+                "featured": false
+              }
+            ],
+            "note": "Minimum spend of $1,200 on Friday and Saturday evenings."
+          },
+          "variant": "compact"
+        }
+      ]
+    },
+    {
+      "id": "sec_y6rycjpra4",
+      "preset": "contact/booking-request@1",
+      "label": "Booking request form",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_n77zg0vjsg",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Tell us about your dinner",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Groups of 10 – 24",
+            "subheading": "Share the date, the occasion and any dietary needs. We'll reply with menus and availability within a day."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_g4pdazjkz6",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_a77j2wk2a6",
+              "name": "Private dining",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "date",
+                  "name": "date",
+                  "label": "Preferred date",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "guests",
+                  "label": "Guests",
+                  "width": "half",
+                  "options": [
+                    "10 – 14",
+                    "15 – 19",
+                    "20 – 24"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "occasion",
+                  "label": "The occasion",
+                  "maxLength": 2000
+                }
+              ],
+              "submitLabel": "Send enquiry",
+              "success": {
+                "type": "message",
+                "message": "Thank you! Our events manager will reply within a day."
+              },
+              "notifyOwner": true
+            }
+          },
+          "variant": "card"
+        }
+      ],
+      "anchor": "enquire"
+    }
+  ]
+}

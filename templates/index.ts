@@ -18,6 +18,7 @@ import {
 import { documentFiles, formatJson } from "./lib/files";
 import { atelier } from "./atelier/src/build";
 import { harbor } from "./harbor/src/build";
+import { hearth } from "./hearth/src/build";
 import { ledger } from "./ledger/src/build";
 import { meadow } from "./meadow/src/build";
 
@@ -34,7 +35,7 @@ export { documentFiles, templateFolderFiles, templateJson } from "./lib/files";
 export const name = "@openspace/templates";
 
 /** Template specs in gallery order (the six MVP templates first, doc 04 §7). */
-export const templateSpecs: readonly TemplateSpec[] = [meadow, harbor, atelier, ledger];
+export const templateSpecs: readonly TemplateSpec[] = [meadow, harbor, atelier, ledger, hearth];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);
 

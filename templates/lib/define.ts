@@ -210,7 +210,7 @@ export function buildTemplate(spec: TemplateSpec): BuiltTemplate {
     styles,
     pages,
     collections,
-    collectionConfigs: content.collectionConfigs ?? {},
+    ...(content.collectionConfigs ? { collectionConfigs: content.collectionConfigs } : {}),
     media: {},
   };
   const doc = stabilizeIds(raw, spec.id);

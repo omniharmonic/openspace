@@ -1,0 +1,196 @@
+{
+  "$comment": "Licenses for the demo media in the Hearth template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0",
+      "title": "A plated dish on a candlelit dinner table set for friends",
+      "author": "Jay Wennington",
+      "authorUrl": "https://unsplash.com/@jaywennington",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/dish-on-white-ceramic-plate-N_Y88TWmGwA",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      "title": "Portrait of a woman in a red sweater, laughing",
+      "author": "Michael Dam",
+      "authorUrl": "https://unsplash.com/@michaeldam",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/closeup-photography-of-woman-smiling-mEZ3PoFGs_k",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+      "title": "Portrait of a man in a grey sweater, smiling softly",
+      "author": "Jurica Koletić",
+      "authorUrl": "https://unsplash.com/@juricakoletic",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-henley-top-portrait-7YVZYZeITc8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
+      "title": "Seared steak, herbs and dipping sauces shared across the table",
+      "author": "Lily Banse",
+      "authorUrl": "https://unsplash.com/@lvnatikk",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/three-plates-of-asian-food-on-wood-table--YHSwy6uqvk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+      "title": "Portrait of a smiling man in a white t-shirt",
+      "author": "Joseph Gonzalez",
+      "authorUrl": "https://unsplash.com/@miracletwentyone",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-white-v-neck-shirt-iFgRcqHznqg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1509440159596-0249088772ff",
+      "title": "Two rustic sourdough loaves dusted with flour beside wheat stalks",
+      "author": "Wesual Click",
+      "authorUrl": "https://unsplash.com/@wesual",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/rustic-bread-loaves-with-wheat-stalks-rsWZ-P9FbQ4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd",
+      "title": "A bowl of greens, avocado, chickpeas and roasted vegetables",
+      "author": "Anna Pelzer",
+      "authorUrl": "https://unsplash.com/@annapelzer",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/bowl-of-vegetable-salads-IGfIGP5ONV0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1513104890138-7c749659a591",
+      "title": "A wood-fired pizza cut into slices on a dark table",
+      "author": "Ivan Torres",
+      "authorUrl": "https://unsplash.com/@iavnt",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/cheese-pizza-with-tomatoes-and-rosemary-MQUqbmszGGM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
+      "title": "A warm, dimly lit restaurant dining room before service",
+      "author": "Jason Leung",
+      "authorUrl": "https://unsplash.com/@ninjason",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/photo-of-pub-set-in-room-during-daytime-poI7DelFiVA",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1528605248644-14dd04022da1",
+      "title": "Friends talking over a long shared table on a rooftop",
+      "author": "Priscilla Du Preez 🇨🇦",
+      "authorUrl": "https://unsplash.com/@priscilladupreez",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/people-sitting-in-front-of-table-talking-and-eating-W3SEyZODn8U",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6",
+      "title": "Portrait of a young man in a black hat, smiling",
+      "author": "ian dooley",
+      "authorUrl": "https://unsplash.com/@sadswim",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-near-white-wall-d1UPkiFd04A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1551218808-94e220e084d2",
+      "title": "A cook chopping fresh herbs on a white board",
+      "author": "Jonathan Borba",
+      "authorUrl": "https://unsplash.com/@jonathanborba",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/person-slicing-vegetable-uB7q7aipU2o",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5",
+      "title": "A rustic café with wooden tables and pendant lights",
+      "author": "Shawn",
+      "authorUrl": "https://unsplash.com/@shawnanggg",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/interior-of-rustic-cafe-with-wooden-tables-nmpW_WwwVSc",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1559339352-11d035aa65de",
+      "title": "A covered restaurant terrace with blue chairs overlooking the water",
+      "author": "Albert",
+      "authorUrl": "https://unsplash.com/@picturesbyalbert",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-restaurant-with-a-view-of-the-water-YYZU0Lo1uXE",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a",
+      "title": "Portrait of a man in a dark suit and glasses",
+      "author": "LinkedIn Sales Solutions",
+      "authorUrl": "https://unsplash.com/@linkedinsalesnavigator",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-beside-wall-pAtA8xe_iVM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956",
+      "title": "Portrait of a woman with dark hair pinned up, smiling",
+      "author": "Jake Nackos",
+      "authorUrl": "https://unsplash.com/@jakenackos",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}
