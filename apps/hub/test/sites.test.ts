@@ -108,6 +108,51 @@ describe("templates API", () => {
   });
 });
 
+describe("template personalization slots", () => {
+  const headings = (doc: SiteDocument) =>
+    Object.values(doc.pages)
+      .find((p) => p.slug === "")
+      ?.sections.slice(0, 2)
+      .flatMap((s) => s.blocks)
+      .filter((b) => b.type === "heading")
+      .map((b) => (b.fields as { text?: string }).text) ?? [];
+
+  async function created(template: string, name: string, tagline?: string) {
+    const app = createApp();
+    const cookie = await devLogin(app, `Owner ${template}`);
+    const { res, site } = await create(app, cookie, {
+      template,
+      name,
+      ...(tagline ? { tagline } : {}),
+    });
+    expect(res.status, JSON.stringify(site)).toBe(201);
+    const body = (await (await call(app, `/api/sites/${site.id}/document`, { cookie })).json()) as {
+      document: SiteDocument;
+    };
+    return body.document;
+  }
+
+  it("puts the tagline in the hero headline that carried the demo tagline", async () => {
+    const doc = await created("meadow", "Cedar Yoga", "Gentle classes for tired bodies.");
+    expect(headings(doc)).toContain("Gentle classes for tired bodies.");
+    expect(headings(doc)).not.toContain("Slow yoga and bodywork for real bodies");
+    expect(doc.site.title).toBe("Cedar Yoga");
+  });
+
+  it("replaces the demo owner's name, whole or inside a headline", async () => {
+    const link = await created("link", "Ana Ruiz");
+    expect(headings(link)).toContain("Ana Ruiz");
+    expect(headings(link)).not.toContain("Kai Moreno");
+    const vow = await created("vow", "Sam & Lee");
+    expect(headings(vow)).toContain("Sam & Lee are getting married");
+  });
+
+  it("leaves headlines alone when no tagline is given", async () => {
+    const doc = await created("meadow", "Cedar Yoga");
+    expect(headings(doc)).toContain("Slow yoga and bodywork for real bodies");
+  });
+});
+
 describe("sites API (dev GitHub)", () => {
   it("creates a site end to end: repo, draft branch, live dev URL, personalized content", async () => {
     const app = createApp();

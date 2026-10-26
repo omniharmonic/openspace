@@ -18,9 +18,18 @@ export interface TemplateLook {
 }
 
 /** Blocks the Hub personalizes on creation (rich-text blocks whose text becomes name/tagline). */
+export interface TemplateSlot {
+  page: PageId;
+  block: BlockId;
+  /** Field holding the text: a rich-text `content` (default) or a plain string (`text`). */
+  field?: string;
+  /** Replace only this phrase (the demo owner's name inside a longer headline). */
+  replace?: string;
+}
+
 export interface TemplateSlots {
-  title?: { page: PageId; block: BlockId };
-  tagline?: { page: PageId; block: BlockId };
+  title?: TemplateSlot;
+  tagline?: TemplateSlot;
 }
 
 export interface TemplateMeta {
@@ -67,6 +76,51 @@ export class BuiltinTemplateSource implements TemplateSource {
   }
 }
 
+const norm = (t: string) =>
+  t
+    .trim()
+    .replace(/[.!…]+$/, "")
+    .toLowerCase();
+
+/**
+ * Personalization slots for a registry template (which declares none): the home page headings
+ * (first two sections) that carry the template's own demo owner — the heading that *is* the
+ * sample tagline becomes the tagline slot; the heading that is, or names, the sample owner
+ * becomes the title slot (only that phrase is replaced inside a longer headline). Headings that
+ * don't carry the sample are left alone.
+ */
+export function derivedSlots(
+  files: Record<string, string>,
+  sample: TemplateMeta["sample"],
+): TemplateSlots | undefined {
+  if (!sample) return undefined;
+  let home: {
+    id: PageId;
+    sections: Array<{
+      blocks: Array<{ id: BlockId; type: string; fields: Record<string, unknown> }>;
+    }>;
+  };
+  try {
+    home = JSON.parse(files["content/pages/home.json"] ?? "null");
+  } catch {
+    return undefined;
+  }
+  if (!home?.sections) return undefined;
+  const slots: TemplateSlots = {};
+  for (const section of home.sections.slice(0, 2))
+    for (const b of section.blocks) {
+      const text = b.type === "heading" ? b.fields.text : undefined;
+      if (typeof text !== "string") continue;
+      if (!slots.tagline && norm(text) === norm(sample.tagline))
+        slots.tagline = { page: home.id, block: b.id, field: "text" };
+      else if (!slots.title && text.trim() === sample.name)
+        slots.title = { page: home.id, block: b.id, field: "text" };
+      else if (!slots.title && text.includes(sample.name))
+        slots.title = { page: home.id, block: b.id, field: "text", replace: sample.name };
+    }
+  return slots.title || slots.tagline ? slots : undefined;
+}
+
 /** First https image in a template's files (its home page first): the gallery thumbnail. */
 function firstImage(files: Record<string, string>): string | null {
   const ordered = [
@@ -98,7 +152,12 @@ export class RegistryTemplateSource implements TemplateSource {
 
   private withThumb(meta: TemplateMeta, files: Record<string, string>): TemplateMeta {
     if (!this.thumbs.has(meta.id)) this.thumbs.set(meta.id, firstImage(files));
-    return { ...meta, thumbnailUrl: meta.thumbnailUrl ?? this.thumbs.get(meta.id) ?? null };
+    const slots = meta.slots ?? derivedSlots(files, meta.sample);
+    return {
+      ...meta,
+      thumbnailUrl: meta.thumbnailUrl ?? this.thumbs.get(meta.id) ?? null,
+      ...(slots ? { slots } : {}),
+    };
   }
 
   async list(): Promise<TemplateMeta[]> {

@@ -1,7 +1,8 @@
 import { env } from "cloudflare:test";
 import type { SiteDocument } from "@openspace/schema";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app";
+import { redactSecrets } from "../src/lib/log";
 import { MCP_BURST, MCP_DAILY_OPS } from "../src/mcp/transport";
 import { runScheduled } from "../src/scheduled";
 import { MemoryRateLimiter } from "../src/services/rate-limit";
@@ -514,5 +515,81 @@ describe("limits", () => {
     const res = await mcp.post({ jsonrpc: "2.0", id: 4, method: "tools/list" });
     expect(res.status).toBe(404);
     studio.close();
+  });
+});
+
+describe("fix round 1", () => {
+  it("MCP rollback needs designer+ even with publishing allowed", async () => {
+    const { app, owner, site } = await setupMcp();
+    const ana = await devLogin(app, "Ana Ruiz");
+    const anaId = await userId(app, ana);
+    await addMember(site.id, anaId, "editor");
+    const conn = await oauthConnect(app, ana, { sites: [site.id], publish: true });
+    const mcp = new McpTestClient(app, `${HUB}/mcp`, conn.accessToken);
+    await mcp.initialize();
+    const versions = (await mcp.tool("list_versions", {})).result?.structuredContent as {
+      versions: Array<{ version: string }>;
+    };
+    const target = versions.versions[0]?.version as string;
+    const r = await mcp.tool("rollback", { version: target, confirm: true });
+    expect(r.result?.isError).toBe(true);
+    expect(r.result?.structuredContent).toMatchObject({ error: { code: "forbidden" } });
+    // The room refuses it too (defense in depth).
+    const direct = await room(site.id).rollback(site.id, { userId: anaId, sha: target });
+    expect(direct).toMatchObject({ ok: false, error: { status: 403 } });
+    void owner;
+  });
+
+  it("counts upload_image before fetching (no work once the quota is spent)", async () => {
+    let fetched = 0;
+    const { app, owner, site } = await setupMcp({
+      services: {
+        fetch: async () => {
+          fetched++;
+          return new Response("x", { status: 404 });
+        },
+      },
+    });
+    await env.HUB_DB.prepare("UPDATE sites SET plan_flags = ? WHERE id = ?")
+      .bind(JSON.stringify({ quotas: { mcpOperations: 0 } }), site.id)
+      .run();
+    const conn = await oauthConnect(app, owner, { sites: [site.id] });
+    const mcp = new McpTestClient(app, `${HUB}/mcp`, conn.accessToken);
+    await mcp.initialize();
+    const r = await mcp.tool("upload_image", { url: "https://images.example.com/a.png", alt: "x" });
+    expect(r.result?.isError).toBe(true);
+    expect(r.result?.structuredContent).toMatchObject({ error: { code: "quota_exceeded" } });
+    expect(fetched).toBe(0);
+  });
+
+  it("never logs a personal token in full", async () => {
+    const { app, owner, site } = await setupMcp();
+    const created = await call(app, `/api/sites/${site.id}/mcp/tokens`, {
+      method: "POST",
+      cookie: owner,
+      headers: { Origin: STUDIO_ORIGIN },
+      json: { label: "Claude" },
+    });
+    const { token } = (await created.json()) as { token: { url: string } };
+    const secret = token.url.split("/mcp/t/")[1] as string;
+    const lines: string[] = [];
+    const spies = (["log", "warn", "error"] as const).map((k) =>
+      vi.spyOn(console, k).mockImplementation((...a: unknown[]) => {
+        lines.push(a.map(String).join(" "));
+      }),
+    );
+    try {
+      const bindings = { ...(env as unknown as Record<string, unknown>), LOG_LEVEL: "debug" };
+      await call(app, new URL(token.url).pathname, { method: "POST", json: {} }, bindings);
+      await call(app, `${new URL(token.url).pathname}x`, { method: "GET" }, bindings);
+    } finally {
+      for (const s of spies) s.mockRestore();
+    }
+    const all = lines.join("\n");
+    expect(all).toContain("/mcp/t/osmcp_…");
+    expect(all).not.toContain(secret.slice(6, 20));
+    expect(redactSecrets(`GET /mcp/t/${secret}?x=1`)).toBe(
+      `GET /mcp/t/osmcp_…${secret.slice(-4)}?x=1`,
+    );
   });
 });
