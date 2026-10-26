@@ -78,3 +78,9 @@ export function useFrameTick(frameDoc: Document | null, deps: unknown[] = []): n
   }, [frameDoc, ...deps]);
   return tick;
 }
+
+/**
+ * Whether the pointer is over canvas chrome (toolbars, "+" buttons). Moving from the page onto
+ * that chrome leaves the iframe, which must not clear the hover the chrome belongs to.
+ */
+export const overlayPointer = { inside: false };

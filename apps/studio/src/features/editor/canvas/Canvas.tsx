@@ -5,6 +5,7 @@ import { useDocStore, useDocStoreApi } from "../model/context";
 import { locate, type SelItem } from "../model/selection";
 import { canEditInline, setPendingCaret } from "../text/InlineText";
 import { CanvasFrame } from "./CanvasFrame";
+import { overlayPointer } from "./geometry";
 import { Overlay } from "./Overlay";
 
 export const MIN_ZOOM = 0.1;
@@ -122,7 +123,13 @@ export function Canvas({
       if (useEditorUi.getState().panning) return;
       api.getState().setHover(itemAt(e.target));
     };
-    const onLeave = () => api.getState().setHover(null);
+    let leaveTimer: ReturnType<typeof setTimeout> | undefined;
+    const onLeave = () => {
+      clearTimeout(leaveTimer);
+      leaveTimer = setTimeout(() => {
+        if (!overlayPointer.inside) api.getState().setHover(null);
+      }, 120);
+    };
     const onClick = (e: MouseEvent) => {
       const s = api.getState();
       const item = itemAt(e.target);
@@ -171,6 +178,7 @@ export function Canvas({
       frameDoc.removeEventListener("click", onClick, true);
       frameDoc.removeEventListener("dblclick", onDblClick, true);
       frameDoc.removeEventListener("submit", stop, true);
+      clearTimeout(leaveTimer);
     };
   }, [frameDoc, scale, api]);
 

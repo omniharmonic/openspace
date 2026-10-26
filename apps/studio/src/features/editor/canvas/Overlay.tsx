@@ -40,7 +40,7 @@ import { blockLabel, locate, type SelItem, sameItem, sectionLabel } from "../mod
 import { STARTERS } from "../model/starters";
 import { canEditInline } from "../text/InlineText";
 import { TextToolbar } from "../text/TextToolbar";
-import { cssSize, elementFor, type Rect, rectFor, useFrameTick } from "./geometry";
+import { cssSize, elementFor, overlayPointer, type Rect, rectFor, useFrameTick } from "./geometry";
 
 export const THEME_LABEL: Record<ColorTheme, string> = {
   light: "Light",
@@ -58,7 +58,7 @@ interface OverlayProps {
   height: number;
 }
 
-const visible = (r: Rect | null, h: number): r is Rect => Boolean(r && r.y + r.h > 0 && r.y < h);
+const visible = (r: Rect | null, h: number): r is Rect => Boolean(r && r.y + r.h >= 0 && r.y <= h);
 
 /**
  * Canvas chrome drawn in the Studio document over the iframe: hover outlines with labels,
@@ -66,6 +66,7 @@ const visible = (r: Rect | null, h: number): r is Rect => Boolean(r && r.y + r.h
  * and the "+" affordances between sections.
  */
 export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
+  const api = useDocStoreApi();
   const version = useDocStore((s) => s.version);
   const pageId = useDocStore((s) => s.pageId);
   const hover = useDocStore((s) => s.hover);
@@ -90,7 +91,20 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
   const focusRect = focusSection ? rectFor(frameDoc, focusSection, scale) : null;
 
   return (
-    <div className="st-ov" style={{ width, height }} aria-hidden={false}>
+    <div
+      className="st-ov"
+      style={{ width, height }}
+      onPointerOver={(e) => {
+        if (e.target !== e.currentTarget) overlayPointer.inside = true;
+      }}
+      onPointerOut={(e) => {
+        overlayPointer.inside = false;
+        const to = e.relatedTarget as Element | null;
+        // Back onto the page (the iframe) or onto other chrome: the hover carries on.
+        if (to?.tagName === "IFRAME" || to?.closest?.(".st-ov")) return;
+        api.getState().setHover(null);
+      }}
+    >
       <div className="st-ov__clip">
         {visible(hoverRect, height) && hover && (
           <Outline rect={hoverRect} kind={hover.kind} variant="hover">
