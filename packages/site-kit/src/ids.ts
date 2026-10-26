@@ -39,10 +39,7 @@ export function stableSuffix(seed: string): string {
 /** Id prefixes `stableId` mints (pages, sections, blocks, forms, sites). */
 export type StableIdPrefix = "pg" | "sec" | "blk" | "frm" | "st";
 
-export function stableId<P extends StableIdPrefix>(
-  prefix: P,
-  seed: string,
-): `${P}_${string}` {
+export function stableId<P extends StableIdPrefix>(prefix: P, seed: string): `${P}_${string}` {
   return `${prefix}_${stableSuffix(`${prefix}:${seed}`)}`;
 }
 
