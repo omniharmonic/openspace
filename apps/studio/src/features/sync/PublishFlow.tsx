@@ -123,6 +123,7 @@ function PublishDialog({
             ...IDLE_PUBLISH,
             phase: "publishing",
             summary: "Finishing setting up your site",
+            startedAt: Date.now(),
           },
         });
       } else if (r.publish.status === "no_changes") {
@@ -409,8 +410,13 @@ const FIX_COPY: Record<string, string> = {
  * mid-publish, no status from the host, someone else's publish), so while publishing the
  * versions list is polled too, and after `timeoutMs` the pill says it's taking longer.
  */
+/** Allowed difference between this device's clock and the Hub's when matching by date. */
+const CLOCK_SKEW_MS = 60_000;
+
 function usePublishReconcile() {
   const { hub, site, session } = useSync();
+  const siteId = site.id;
+  const siteUrl = site.url;
   const queryClient = useQueryClient();
   const { publishing } = useConfig();
   const pollMs = publishing?.pollMs ?? 5000;
@@ -422,15 +428,21 @@ function usePublishReconcile() {
     let cancelled = false;
     const check = async () => {
       try {
-        const versions = await hub.listVersions(site.id);
+        const versions = await hub.listVersions(siteId);
         const p = session.getState().publish;
         if (cancelled || (p.phase !== "publishing" && p.phase !== "slow")) return;
+        // Only a version we know is this publish counts: by sha, or (when the Hub didn't give
+        // one) the live version published after this publish started. Never an older one.
         const v = p.sha
           ? versions.find((x) => x.sha === p.sha || x.sha.startsWith(p.sha as string))
-          : versions.find((x) => x.current);
+          : p.startedAt !== null
+            ? versions.find(
+                (x) => x.current && Date.parse(x.date) >= (p.startedAt as number) - CLOCK_SKEW_MS,
+              )
+            : undefined;
         if (v?.status === "success") {
           session.setState({
-            publish: { ...p, phase: "live", sha: v.sha, url: site.url, error: null },
+            publish: { ...p, phase: "live", sha: v.sha, url: siteUrl, error: null },
           });
         } else if (v?.status === "failure") {
           session.setState({
@@ -447,8 +459,8 @@ function usePublishReconcile() {
             },
           });
         } else return;
-        void queryClient.invalidateQueries({ queryKey: ["versions", site.id] });
-        void queryClient.invalidateQueries({ queryKey: ["sites", site.id] });
+        void queryClient.invalidateQueries({ queryKey: ["versions", siteId] });
+        void queryClient.invalidateQueries({ queryKey: ["sites", siteId] });
       } catch {
         // Offline: try again on the next tick.
       }
@@ -466,7 +478,8 @@ function usePublishReconcile() {
       clearInterval(poll);
       clearTimeout(slow);
     };
-  }, [active, phase, hub, site, session, pollMs, timeoutMs, queryClient]);
+    // Keyed on the site's id/url, not the object: site polls must not restart the timeout.
+  }, [active, phase, hub, siteId, siteUrl, session, pollMs, timeoutMs, queryClient]);
 }
 
 export function PublishPill() {

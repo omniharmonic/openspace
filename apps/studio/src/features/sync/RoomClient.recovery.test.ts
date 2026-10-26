@@ -1,12 +1,12 @@
 import type { Op, OpBody } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import { newId, type SiteDocument } from "@openspace/schema";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MockRoom } from "../../api/mockRoom";
 import { type HubApi, HubError, type Site } from "../../api/types";
 import { devSiteDocument, DEV_IDS as I } from "../editor/model/dev-site";
 import { createEditorStore } from "../editor/model/store";
 import { loadDraft } from "./bootstrap";
-import { createMemoryDraftCache, type DraftCache } from "./cache";
+import { createMemoryDraftCache, type DraftCache, draftKey } from "./cache";
 import type { RoomSocket } from "./protocol";
 import { RoomClient, type RoomClientOptions } from "./RoomClient";
 import { storeTarget } from "./SyncContext";
@@ -202,6 +202,19 @@ describe("RoomClient recovery", () => {
     expect(t.client.state.getState().authRequired).toBe(false);
   });
 
+  it("doesn't suspect the sign-in when connections said hello before dropping", async () => {
+    const probeAuth = vi.fn(async () => false);
+    const t = scripted({ probeAuth });
+    for (let i = 0; i < 4; i++) {
+      await vi.waitFor(() => expect(t.sockets.length).toBeGreaterThan(i));
+      t.hello(0);
+      t.last().sock.onclose?.(1006, "network blip");
+    }
+    await tick();
+    expect(probeAuth).not.toHaveBeenCalled();
+    expect(t.client.state.getState().authRequired).toBe(false);
+  });
+
   it("“Try again” closes a connection that never said hello and opens a new one", () => {
     const t = scripted();
     expect(t.sockets).toHaveLength(1);
@@ -271,6 +284,8 @@ describe("several tabs on one device", () => {
     await b.client.flushCache();
     a.client.stop();
     b.client.stop();
+    await a.client.flushCache();
+    await b.client.flushCache();
     // Both queues survived side by side (no last-writer-wins).
     expect([...cache.records.values()].map((r) => r.pending.length)).toEqual([1, 1]);
 
@@ -309,5 +324,116 @@ describe("several tabs on one device", () => {
     expect(boot.pending).toHaveLength(0);
     expect(label(boot.doc).label).toBe("See the schedule");
     expect(cache.records.has("u_ana:st_t:A")).toBe(true);
+  });
+
+  it("keeps edits made on a newer base: a tab at seq 9 editing a block that a tab at seq 5 doesn't have", async () => {
+    const room = new MockRoom({ doc: devSiteDocument() });
+    const ana = room.collaborator({ userId: "u_ana", name: "Ana" });
+    for (let i = 1; i <= 5; i++) ana.edit([setLabel(`Ana ${i}`, "secondaryLabel")]);
+    const docAt5 = room.doc;
+    for (let i = 6; i <= 8; i++) ana.edit([setLabel(`Ana ${i}`, "secondaryLabel")]);
+    const hero = docAt5.pages[I.home as keyof SiteDocument["pages"]]?.sections[0];
+    const button = hero?.blocks.find((b) => b.id === I.heroButton);
+    const newBlock = { ...structuredClone(button), id: newId("blk") } as NonNullable<typeof button>;
+    ana.edit([
+      { op: "block.insert", page: I.home, section: I.hero, at: "end", block: newBlock } as OpBody,
+    ]);
+    expect(room.seq).toBe(9);
+    const docAt9 = room.doc;
+
+    const stamp = (body: OpBody, id: string, ts: number) =>
+      ({ ...body, id, actor: `user:${SAM.userId}`, ts }) as unknown as Op;
+    const cache = createMemoryDraftCache();
+    const rec = (tabId: string, doc: SiteDocument, seq: number, pending: Op[], savedAt: number) =>
+      cache.put({
+        key: draftKey(SAM.userId, "st_t", tabId),
+        userId: SAM.userId,
+        siteId: "st_t",
+        tabId,
+        doc,
+        seq,
+        head: null,
+        pending,
+        savedAt,
+      });
+    await rec("old", docAt5, 5, [stamp(setLabel("From the old tab"), "opA", Date.now())], 1);
+    await rec(
+      "new",
+      docAt9,
+      9,
+      [
+        stamp(
+          {
+            op: "block.update",
+            page: I.home,
+            block: newBlock.id,
+            set: { label: "Offline on the new block" },
+          } as OpBody,
+          "opB",
+          Date.now() + 1,
+        ),
+      ],
+      2,
+    );
+
+    const down = {
+      getRoomDocument: async () => {
+        throw new HubError(0, "network", "offline");
+      },
+    } as unknown as HubApi;
+    const boot = await loadDraft(down, cache, "st_t", { userId: SAM.userId, tabId: "C" });
+    // Started from the older base, but the newer tab's edit is still queued (not dropped).
+    expect(boot.seq).toBe(5);
+    expect(boot.pending.map((o) => o.id)).toEqual(["opA", "opB"]);
+    expect((await cache.list(SAM.userId, "st_t")).map((r) => r.pending.length)).toEqual([2]);
+
+    const c = tab(room, cache, "C", SAM.userId, boot, boot.doc);
+    await vi.waitFor(() => expect(c.client.state.getState().pending).toBe(0));
+    const blocks = room.doc.pages[I.home as keyof SiteDocument["pages"]]?.sections[0]?.blocks ?? [];
+    expect(blocks.find((b) => b.id === newBlock.id)?.fields).toMatchObject({
+      label: "Offline on the new block",
+    });
+    expect(label(room.doc).label).toBe("From the old tab");
+    expect(c.store.getState().doc).toEqual(room.doc);
+  });
+
+  it("doesn't pile up a device record per page load", async () => {
+    const room = new MockRoom({ doc: devSiteDocument() });
+    const cache = createMemoryDraftCache();
+    const hub = {
+      getRoomDocument: async () => ({ document: room.doc, seq: room.seq, head: null }),
+    } as unknown as HubApi;
+    for (let load = 0; load < 6; load++) {
+      const tabId = `load${load}`;
+      const boot = await loadDraft(hub, cache, "st_t", { userId: SAM.userId, tabId });
+      const t = tab(room, cache, tabId, SAM.userId, boot);
+      await tick();
+      await t.client.flushCache();
+      t.client.stop();
+      await t.client.flushCache();
+      expect(cache.records.size).toBeLessThanOrEqual(2);
+    }
+    expect([...cache.records.keys()]).toEqual(["u_sam:st_t:load5"]);
+  });
+
+  it("only removes another tab's record if it hasn't been saved again since it was read", async () => {
+    const cache = createMemoryDraftCache();
+    const doc = devSiteDocument();
+    const key = draftKey("u", "s", "t");
+    await cache.put({
+      key,
+      userId: "u",
+      siteId: "s",
+      tabId: "t",
+      doc,
+      seq: 1,
+      head: null,
+      pending: [],
+      savedAt: 10,
+    });
+    expect(await cache.deleteIfUnchanged(key, 9)).toBe(false);
+    expect(cache.records.has(key)).toBe(true);
+    expect(await cache.deleteIfUnchanged(key, 10)).toBe(true);
+    expect(cache.records.has(key)).toBe(false);
   });
 });

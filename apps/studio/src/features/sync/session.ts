@@ -29,6 +29,8 @@ export interface PublishPillState {
   error: PublishError | null;
   /** The version being published. */
   sha: string | null;
+  /** When this publish started (ms), for matching a version when the sha isn't known. */
+  startedAt: number | null;
 }
 
 export interface SyncSessionState {
@@ -44,6 +46,7 @@ export const IDLE_PUBLISH: PublishPillState = {
   url: null,
   error: null,
   sha: null,
+  startedAt: null,
 };
 
 export function createSyncSession(): SyncSessionStore {

@@ -378,6 +378,7 @@ export class RoomClient {
 
   private closed(sock: RoomSocket | null, code: number): void {
     if (sock && sock !== this.socket) return;
+    const hadHello = this.ready;
     this.socket = null;
     this.ready = false;
     clearTimeout(this.helloTimer);
@@ -387,7 +388,8 @@ export class RoomClient {
       this.stop();
       return;
     }
-    this.failures++;
+    // Only connections that never got as far as hello count towards the sign-in check.
+    if (!hadHello) this.failures++;
     if (this.failures >= this.timing.authProbeAfter && !this.authProbed && this.opts.probeAuth) {
       this.authProbed = true;
       void this.opts
@@ -635,10 +637,13 @@ export class RoomClient {
         [o.op],
         { base, doc: next },
       );
+      // Transformed ops replace the originals. An op the rebase would drop is kept as it was:
+      // only the room may discard an edit (it rejects it with a conflict notice to restore).
       const byId = new Map(r.ops.map((op) => [op.id, op]));
-      this.pending = this.pending
-        .filter((p) => byId.has(p.op.id))
-        .map((p) => ({ ...p, op: byId.get(p.op.id) as Op }));
+      this.pending = this.pending.map((p) => {
+        const next = byId.get(p.op.id);
+        return next ? { ...p, op: next } : p;
+      });
     }
     this.afterPendingChange(true);
     this.emit({ type: "remote", logged: o });
@@ -732,16 +737,17 @@ export class RoomClient {
     this.settled();
   }
 
-  /** Local view = confirmed + pending (dropping edits that no longer apply). */
+  /**
+   * Local view = confirmed + pending. Edits that don't apply right now are skipped in the view
+   * but stay pending (they may apply once the room's history has been replayed, e.g. edits from
+   * another tab made on a newer base); they are still sent, and only the room's reject removes
+   * them.
+   */
   private recompute(resetHistory: boolean): void {
-    const { doc, kept } = foldOps(
+    const { doc } = foldOps(
       this.confirmed,
       this.pending.map((p) => p.op),
     );
-    if (kept.length !== this.pending.length) {
-      const ids = new Set(kept.map((o) => o.id));
-      this.pending = this.pending.filter((p) => ids.has(p.op.id));
-    }
     if (resetHistory || !deepEqual(doc, this.opts.target.getDoc()))
       this.opts.target.setDocument(doc, { resetHistory });
   }

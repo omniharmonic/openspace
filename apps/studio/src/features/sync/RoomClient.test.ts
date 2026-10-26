@@ -310,13 +310,13 @@ describe("RoomClient", () => {
     const hub = {
       getRoomDocument: async () => ({ document: doc, seq: 9, head: "h" }),
     } as unknown as HubApi;
-    expect(await loadDraft(hub, cache, "s", me)).toMatchObject({ seq: 9, offline: false });
     const down = {
       getRoomDocument: async () => {
         throw new HubError(0, "network", "offline");
       },
     } as unknown as HubApi;
     expect(await loadDraft(down, cache, "s", me)).toMatchObject({ seq: 4, offline: true });
+    expect(await loadDraft(hub, cache, "s", me)).toMatchObject({ seq: 9, offline: false });
     const denied = {
       getRoomDocument: async () => {
         throw new HubError(404, "not_found", "gone");

@@ -87,7 +87,7 @@ export async function loadDraft(
     const key = draftKey(owner.userId, siteId, owner.tabId);
     try {
       await cache.put({ ...cached, key, tabId: owner.tabId, userId: owner.userId, siteId });
-      for (const r of records) if (r.key !== key) await cache.delete(r.key);
+      for (const r of records) if (r.key !== key) await cache.deleteIfUnchanged(r.key, r.savedAt);
     } catch {
       // Storage blocked: the other records stay where they are.
     }
@@ -95,13 +95,15 @@ export async function loadDraft(
   const fromCache = async (offline: boolean): Promise<DraftBootstrap> => {
     const c = cached as DraftRecord;
     await adopt();
-    const { doc, kept } = foldOps(c.doc, c.pending);
+    // Every pending edit is kept, even ones that don't apply to this base yet (made by a tab
+    // on a newer base): they apply once connecting replays the room's history.
+    const { doc } = foldOps(c.doc, c.pending);
     return {
       doc,
       confirmed: c.doc,
       seq: c.seq,
       head: c.head,
-      pending: kept,
+      pending: c.pending,
       offline,
       ...(c.site ? { site: c.site } : {}),
     };
@@ -109,6 +111,15 @@ export async function loadDraft(
   if (cached?.pending.length) return fromCache(false);
   try {
     const r = await hub.getRoomDocument(siteId);
+    // Nothing unsaved anywhere: other tabs' leftover copies go (one record per page load would
+    // otherwise pile up). This tab writes its own copy once it starts.
+    try {
+      for (const rec of records)
+        if (rec.tabId !== owner.tabId && rec.pending.length === 0)
+          await cache.deleteIfUnchanged(rec.key, rec.savedAt);
+    } catch {
+      // Storage blocked: nothing to clean.
+    }
     return {
       doc: r.document,
       confirmed: r.document,

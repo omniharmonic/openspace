@@ -39,6 +39,11 @@ export interface DraftCache {
   list(userId: string, siteId: string): Promise<DraftRecord[]>;
   put(record: DraftRecord): Promise<void>;
   delete(key: string): Promise<void>;
+  /**
+   * Delete a record only if it is still the version that was read (same `savedAt`), in one
+   * transaction, so a tab that saved new edits in the meantime keeps them.
+   */
+  deleteIfUnchanged(key: string, savedAt: number): Promise<boolean>;
 }
 
 interface DraftDB extends DBSchema {
@@ -73,6 +78,17 @@ export function createIdbDraftCache(name = DB_NAME): DraftCache {
     async delete(key) {
       await (await open()).delete("drafts", key);
     },
+    async deleteIfUnchanged(key, savedAt) {
+      const tx = (await open()).transaction("drafts", "readwrite");
+      const current = await tx.store.get(key);
+      let deleted = false;
+      if (current && current.savedAt === savedAt) {
+        await tx.store.delete(key);
+        deleted = true;
+      }
+      await tx.done;
+      return deleted;
+    },
   };
 }
 
@@ -91,6 +107,11 @@ export function createMemoryDraftCache(): DraftCache & { records: Map<string, Dr
     },
     async delete(key) {
       records.delete(key);
+    },
+    async deleteIfUnchanged(key, savedAt) {
+      if (records.get(key)?.savedAt !== savedAt) return false;
+      records.delete(key);
+      return true;
     },
   };
 }
