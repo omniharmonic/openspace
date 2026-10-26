@@ -6,6 +6,7 @@ import type {
 } from "@openspace/schema";
 import { createContext, useContext } from "react";
 import { useRenderContext } from "./context";
+import { eventOn, expandOccurrences, occurrenceDates } from "./recurrence";
 
 /**
  * Collection data for blocks that list items (summary, events, product, social feed).
@@ -121,6 +122,22 @@ const time = (item: CollectionItem) => {
   return d ? Date.parse(d) : 0;
 };
 
+const isoDay = (d: Date) => d.toISOString().slice(0, 10);
+const plusDays = (d: Date, n: number) => isoDay(new Date(d.getTime() + n * 86_400_000));
+
+/** How far ahead (and back, for past events) repeating events are listed. */
+export const RECURRENCE_HORIZON_DAYS = 366;
+
+/** A repeating event shown at its next date (or its last one, once the series is over). */
+export function nextOccurrence(item: CollectionItem, now: Date): CollectionItem {
+  if (item.kind !== "events" || !item.frontmatter.recurrence) return item;
+  const dates = occurrenceDates(item.frontmatter.recurrence, item.frontmatter.start, {
+    through: plusDays(now, RECURRENCE_HORIZON_DAYS),
+  });
+  const upcoming = dates.map((d) => eventOn(item, d)).find((e) => isUpcoming(e, now));
+  return upcoming ?? (dates.length ? eventOn(item, dates[dates.length - 1] as string) : item);
+}
+
 export interface QueryOptions {
   now?: Date;
   includeDrafts?: boolean;
@@ -143,23 +160,39 @@ export function queryCollection(
 
   let items: CollectionItem[];
   if (ref.items) {
-    items = ref.items.map((slug) => all[slug]).filter(visible);
+    items = ref.items
+      .map((slug) => all[slug])
+      .filter(visible)
+      .map((item) => nextOccurrence(item, now));
   } else {
     const f = ref.filter;
-    items = Object.values(all)
-      .filter(visible)
-      .filter((item) => {
-        const fm = item.frontmatter;
-        if (f?.categories?.length && !f.categories.some((c) => fm.categories?.includes(c)))
-          return false;
-        if (f?.tags?.length) {
-          const tags = (fm.tags ?? []).map((t) => t.toLowerCase());
-          if (!f.tags.some((t) => tags.includes(t.toLowerCase()))) return false;
-        }
-        if (f?.featured !== undefined && (fm.featured === true) !== f.featured) return false;
-        if (f?.upcoming !== undefined && isUpcoming(item, now) !== f.upcoming) return false;
-        return true;
-      });
+    const live = Object.values(all).filter(visible);
+    // Repeating events list once per date: upcoming ones for the next year, past ones for the last
+    // year; without a date filter each series shows at its next date.
+    const expanded =
+      f?.upcoming === true
+        ? expandOccurrences(live, {
+            from: isoDay(now),
+            through: plusDays(now, RECURRENCE_HORIZON_DAYS),
+          })
+        : f?.upcoming === false
+          ? expandOccurrences(live, {
+              from: plusDays(now, -RECURRENCE_HORIZON_DAYS),
+              through: isoDay(now),
+            })
+          : live.map((item) => nextOccurrence(item, now));
+    items = expanded.filter((item) => {
+      const fm = item.frontmatter;
+      if (f?.categories?.length && !f.categories.some((c) => fm.categories?.includes(c)))
+        return false;
+      if (f?.tags?.length) {
+        const tags = (fm.tags ?? []).map((t) => t.toLowerCase());
+        if (!f.tags.some((t) => tags.includes(t.toLowerCase()))) return false;
+      }
+      if (f?.featured !== undefined && (fm.featured === true) !== f.featured) return false;
+      if (f?.upcoming !== undefined && isUpcoming(item, now) !== f.upcoming) return false;
+      return true;
+    });
   }
 
   const sort = ref.sort ?? (ref.items ? "manual" : ref.filter?.upcoming ? "date-asc" : "date-desc");

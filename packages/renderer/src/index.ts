@@ -31,8 +31,10 @@ export {
   isLive,
   isUpcoming,
   itemDate,
+  nextOccurrence,
   type QueryOptions,
   queryCollection,
+  RECURRENCE_HORIZON_DAYS,
   type ResolvedCollections,
   type SocialFeedPost,
   useCollectionQuery,
@@ -104,6 +106,14 @@ export {
   SocialIcon,
   SocialLinks,
 } from "./primitives";
+export {
+  eventOn,
+  expandOccurrences,
+  itemKey,
+  occurrenceDates,
+  parseRecurrence,
+  type RecurrenceRule,
+} from "./recurrence";
 export {
   getBlock,
   globalRegistry,

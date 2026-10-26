@@ -4,6 +4,7 @@ import {
   cx,
   Img,
   itemDate,
+  itemKey,
   itemPath,
   jsonForScript,
   siteUrlFor,
@@ -226,7 +227,7 @@ export const summaryBlock = defineBlock({
       const price = productPrice(item, locale);
       const fm = item.frontmatter;
       return (
-        <li key={item.slug} className="os-summary__item">
+        <li key={itemKey(item)} className="os-summary__item">
           <article className="os-summary__card">
             {image ? (
               <Img
@@ -452,7 +453,7 @@ export const eventsBlock = defineBlock({
           const month = formatDate(fm.start, locale, { month: "short" }, fm.timezone);
           const image = fields.showImage ? itemImage(e) : undefined;
           return (
-            <li key={e.slug} className="os-events__item">
+            <li key={itemKey(e)} className="os-events__item">
               <p className="os-events__badge" aria-hidden="true">
                 <span className="os-events__month">{month}</span>
                 <span className="os-events__day">{day}</span>
@@ -560,7 +561,7 @@ export const eventsBlock = defineBlock({
                         <td key={di} className={cx(!d && "is-blank", list && "has-events")}>
                           {d ? <span className="os-events__date">{d}</span> : null}
                           {list?.map((e) => (
-                            <a key={e.slug} className="os-events__chip" href={href(e)}>
+                            <a key={itemKey(e)} className="os-events__chip" href={href(e)}>
                               {e.frontmatter.title}
                             </a>
                           ))}

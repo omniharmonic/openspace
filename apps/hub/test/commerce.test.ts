@@ -496,7 +496,10 @@ describe("orders dashboard, refunds, discounts, stock API", () => {
       status: "paid",
       fulfillment: "fulfilled",
     });
-    expect((await orderRow(digital.orderId))?.fulfilled_at).toBeTruthy();
+    expect(
+      ((await orderRow(digital.orderId)) as unknown as { fulfilled_at: number | null })
+        .fulfilled_at,
+    ).toBeTruthy();
     expect(await orderRow(parcel.orderId)).toMatchObject({
       status: "paid",
       fulfillment: "unfulfilled",

@@ -317,6 +317,7 @@ function seed(site: Site, now: number): GrowthSiteState {
         status: "paid",
         items: [{ sku: "donation", title: "Donation", qty: 1, unitAmount: 5000, digital: true }],
         fulfillment: "fulfilled",
+        fulfilledAt: iso(now - 3 * DAY),
       },
       3,
     ),

@@ -1,3 +1,5 @@
+import { occurrenceDates } from "@openspace/renderer";
+
 /**
  * Repeat rules for events: a friendly model ⇄ RFC 5545 RRULE bodies (`FREQ=WEEKLY;BYDAY=TU`),
  * a plain-language description, and the next few dates for a preview.
@@ -153,56 +155,7 @@ function dayOrdinal(d: number): string {
   return `${d}${last === 1 ? "st" : last === 2 ? "nd" : last === 3 ? "rd" : "th"}`;
 }
 
-/** The first `n` dates (YYYY-MM-DD) the rule produces from `start`. */
+/** The first `n` dates (YYYY-MM-DD) the rule produces from `start` (the renderer's expander). */
 export function nextDates(r: Repeat, start: string, n = 5): string[] {
-  const p = ymd(start);
-  if (!p) return [];
-  const first = utc(p.y, p.m, p.d);
-  const until = r.end.type === "until" ? Date.parse(`${r.end.date}T23:59:59Z`) : Infinity;
-  const max = r.end.type === "count" ? Math.min(n, r.end.count) : n;
-  const out: string[] = [];
-  const push = (d: Date) => {
-    if (d.getTime() >= first.getTime() && d.getTime() <= until && out.length < max)
-      out.push(d.toISOString().slice(0, 10));
-  };
-  const step = Math.max(1, r.interval);
-  for (let i = 0; out.length < max && i < 600; i++) {
-    if (r.freq === "DAILY") push(utc(p.y, p.m, p.d + i * step));
-    else if (r.freq === "WEEKLY") {
-      // Week starts on Monday (RFC 5545 default WKST=MO).
-      const mondayOffset = (first.getUTCDay() + 6) % 7;
-      const weekStart = utc(p.y, p.m, p.d - mondayOffset + i * 7 * step);
-      for (const day of WEEKDAYS)
-        if (r.byDay.includes(day))
-          push(
-            utc(
-              weekStart.getUTCFullYear(),
-              weekStart.getUTCMonth() + 1,
-              weekStart.getUTCDate() + WEEKDAYS.indexOf(day),
-            ),
-          );
-    } else if (r.freq === "MONTHLY") {
-      const m0 = p.m + i * step;
-      if (r.monthMode === "date") {
-        const d = utc(p.y, m0, p.d);
-        if (d.getUTCDate() === p.d) push(d); // skip months without that date
-      } else {
-        const nth = nthOfMonth(first);
-        const wd = first.getUTCDay();
-        const firstOfMonth = utc(p.y, m0, 1);
-        const offset = (wd - firstOfMonth.getUTCDay() + 7) % 7;
-        const d = utc(
-          firstOfMonth.getUTCFullYear(),
-          firstOfMonth.getUTCMonth() + 1,
-          1 + offset + (nth - 1) * 7,
-        );
-        if (d.getUTCMonth() === firstOfMonth.getUTCMonth()) push(d);
-      }
-    } else {
-      const d = utc(p.y + i * step, p.m, p.d);
-      if (d.getUTCDate() === p.d) push(d);
-    }
-    if (out.length && Date.parse(`${out.at(-1)}T00:00:00Z`) > until) break;
-  }
-  return out;
+  return occurrenceDates(toRRule(r, start), start, { max: n });
 }
