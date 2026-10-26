@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_c4k6drheg0",
+      "id": "sec_k01k35w44j",
       "preset": "contact/form-split@1",
       "label": "Contact form with details",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_a2c98h4kzs",
+          "id": "blk_7pqqywj8yk",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -43,7 +43,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_tvn9xfhnch",
+          "id": "blk_yh3qbtevgc",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -58,12 +58,12 @@
           "variant": "list"
         },
         {
-          "id": "blk_3jfsxswsd9",
+          "id": "blk_09c0g5yd6r",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_yw2s4gyh9d",
+              "id": "frm_7xkazzg202",
               "name": "Studio enquiry",
               "fields": [
                 {

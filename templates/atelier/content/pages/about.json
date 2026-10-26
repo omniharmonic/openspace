@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_s89q65ff87",
+      "id": "sec_f0bnekkq85",
       "preset": "about/story-split@1",
       "label": "Story with portrait",
       "layout": {
@@ -30,7 +30,7 @@
       },
       "blocks": [
         {
-          "id": "blk_bzdnh42yff",
+          "id": "blk_js8zwd5hff",
           "type": "image",
           "v": 1,
           "fields": {
@@ -47,7 +47,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_hve7ymxe2e",
+          "id": "blk_qfk3h8z7ve",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -60,7 +60,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_rmmfgv8z80",
+          "id": "blk_83r60tpwnc",
           "type": "text",
           "v": 1,
           "fields": {
@@ -92,7 +92,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_rqygd6h4p7",
+          "id": "blk_g65wqxa9y4",
           "type": "button",
           "v": 1,
           "fields": {
@@ -109,7 +109,7 @@
       ]
     },
     {
-      "id": "sec_ym8yf3b1a0",
+      "id": "sec_st2tzbz12y",
       "preset": "about/milestones@1",
       "label": "Milestones timeline",
       "layout": {
@@ -130,7 +130,7 @@
       },
       "blocks": [
         {
-          "id": "blk_6743tty2am",
+          "id": "blk_xhsve10pt1",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -144,7 +144,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_pc6dnfp8h2",
+          "id": "blk_sjqb42c4j3",
           "type": "timeline",
           "v": 1,
           "fields": {

@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_5c3pnwckbs",
+      "id": "sec_bxxesme010",
       "preset": "contact/booking-request@1",
       "label": "Booking request form",
       "layout": {
@@ -26,7 +26,7 @@
       },
       "blocks": [
         {
-          "id": "blk_fedfrkz2vp",
+          "id": "blk_0f6523kg4s",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -44,12 +44,12 @@
           }
         },
         {
-          "id": "blk_4j3bgarj62",
+          "id": "blk_fadtdd7mvf",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_2cszqbarv3",
+              "id": "frm_q6stv7gtkd",
               "name": "RSVP",
               "fields": [
                 {

@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_h79tfjqtx6",
+      "id": "sec_zbtb38y1f1",
       "preset": "hero/centered@1",
       "label": "Centered statement",
       "layout": {
@@ -28,7 +28,7 @@
       },
       "blocks": [
         {
-          "id": "blk_9atbhrhvs5",
+          "id": "blk_paksgfr0dk",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_mywc01mvs1",
+          "id": "blk_1dy5sa370a",
           "type": "button",
           "v": 1,
           "fields": {
@@ -72,7 +72,7 @@
       ]
     },
     {
-      "id": "sec_myt0gj9ntr",
+      "id": "sec_pqwntt35jf",
       "preset": "pricing/three-plans@1",
       "label": "Three plans",
       "layout": {
@@ -89,7 +89,7 @@
       },
       "blocks": [
         {
-          "id": "blk_8h0pt7eezs",
+          "id": "blk_y6xys3qzw5",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -107,7 +107,7 @@
           }
         },
         {
-          "id": "blk_dbaz2naz81",
+          "id": "blk_t02yva0977",
           "type": "pricing",
           "v": 1,
           "fields": {
@@ -190,7 +190,7 @@
       ]
     },
     {
-      "id": "sec_92bxjvg8bn",
+      "id": "sec_g0nab4tahc",
       "preset": "features/icon-row@1",
       "label": "Four benefits with icons",
       "layout": {
@@ -207,7 +207,7 @@
       },
       "blocks": [
         {
-          "id": "blk_34bwsbqg8b",
+          "id": "blk_etz6v61qxr",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -225,7 +225,7 @@
           }
         },
         {
-          "id": "blk_af15r8kztd",
+          "id": "blk_rwaa74g4jr",
           "type": "icon-list",
           "v": 1,
           "fields": {
@@ -258,7 +258,7 @@
       ]
     },
     {
-      "id": "sec_q6wbhxt5nx",
+      "id": "sec_3wm143h901",
       "preset": "faq/by-topic@1",
       "label": "Questions by topic",
       "layout": {
@@ -276,7 +276,7 @@
       },
       "blocks": [
         {
-          "id": "blk_r220qyhbbk",
+          "id": "blk_w5py7n5xe5",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -288,7 +288,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_dy4yrxcjhe",
+          "id": "blk_116y3jr7tr",
           "type": "tabs",
           "v": 1,
           "fields": {

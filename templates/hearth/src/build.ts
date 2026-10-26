@@ -1,15 +1,15 @@
 import type { TemplateSpec } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   block,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
   heading,
   makePage,
+  PHOTO_SCRIM,
   page,
   photo,
-  PHOTO_SCRIM,
   photoBackground,
   photoUrl,
   rt,
@@ -25,13 +25,15 @@ import {
  */
 
 const T = "hearth";
-const P = {
-  home: pageId(T, "home"),
-  menu: pageId(T, "menu"),
-  visit: pageId(T, "visit"),
-  privateDining: pageId(T, "private-dining"),
-  about: pageId(T, "about"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  menu: "menu",
+  visit: "visit",
+  privateDining: "private-dining",
+  about: "about",
+});
+const P = PAGES.id;
+const _href = PAGES.href;
 
 const NAME = "Ember & Olive";
 const ADDRESS = "214 Atwells Avenue\nProvidence, RI 02903";
@@ -107,7 +109,7 @@ function home() {
     [
       fromPreset("hero/staggered-photos@1", {
         edit: {
-          0: {
+          "image:1": {
             image: photo(
               "plates",
               420,
@@ -115,7 +117,7 @@ function home() {
               "Grilled steak, herbs and sauces shared across the table",
             ),
           },
-          1: {
+          "image:2": {
             image: photo(
               "chefPrep",
               320,
@@ -123,8 +125,10 @@ function home() {
               "Our cook chopping fresh herbs before service",
             ),
           },
-          2: { image: photo("pizza", 420, "original", "A wood-fired pizza cut into slices") },
-          3: {
+          "image:3": {
+            image: photo("pizza", 420, "original", "A wood-fired pizza cut into slices"),
+          },
+          text: {
             content: rt.doc(
               rt.p("Federal Hill · Providence", "eyebrow"),
               rt.h(1, "Wood-fired cooking, made to share", "h1"),
@@ -133,7 +137,7 @@ function home() {
               ),
             ),
           },
-          4: {
+          button: {
             label: "Reserve a table",
             link: page(P.visit, "reserve"),
             secondaryLabel: "See the menu",
@@ -144,14 +148,14 @@ function home() {
       fromPreset("services/price-list@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "From the oven",
             text: "A few things we're known for",
             subheading:
               "The menu changes with the season; these never leave it. Everything is made in our kitchen each afternoon.",
           },
-          1: { label: "The full menu", link: page(P.menu), role: "secondary" },
-          2: {
+          button: { label: "The full menu", link: page(P.menu), role: "secondary" },
+          "restaurant-menu": {
             sections: [
               {
                 title: "Favourites",
@@ -187,7 +191,7 @@ function home() {
       }),
       fromPreset("about/quote-and-image@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "dining",
               640,
@@ -195,7 +199,7 @@ function home() {
               "The dining room at Ember & Olive, lit low before service",
             ),
           },
-          1: {
+          quote: {
             quote: rt.doc(
               rt.p(
                 "My grandmother cooked for twelve every Sunday on a wood stove in Calabria. I just wanted a room where it feels like that every night.",
@@ -208,8 +212,8 @@ function home() {
       }),
       fromPreset("gallery/carousel@1", {
         edit: {
-          0: { eyebrow: "From the kitchen", text: "This week at the pass" },
-          1: {
+          heading: { eyebrow: "From the kitchen", text: "This week at the pass" },
+          gallery: {
             images: [
               {
                 image: photo("pizza", 420, "4:5", "Pizza fresh from the wood oven"),
@@ -242,7 +246,7 @@ function home() {
       }),
       fromPreset("contact/hours-overlap@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "cafeInterior",
               860,
@@ -250,18 +254,22 @@ function home() {
               "Wooden tables and pendant lights in the dining room",
             ),
           },
-          1: {
+          hours: {
             heading: "Opening hours",
             rows: HOURS,
             note: "Kitchen closes 30 minutes before the doors. Walk-ins welcome at the bar.",
           },
-          2: { name: NAME, address: "214 Atwells Avenue, Providence, RI 02903", phone: PHONE },
+          "contact-info": {
+            name: NAME,
+            address: "214 Atwells Avenue, Providence, RI 02903",
+            phone: PHONE,
+          },
         },
       }),
       fromPreset("testimonials/three-cards@1", {
         edit: {
-          0: { eyebrow: "Guests", text: "Why people keep coming back" },
-          1: {
+          heading: { eyebrow: "Guests", text: "Why people keep coming back" },
+          "testimonial:1": {
             quote: rt.doc(
               rt.p(
                 "The cacio e pepe is the best I've had outside Rome, and they remembered our anniversary.",
@@ -271,7 +279,7 @@ function home() {
             role: "Regular since opening",
             photo: photo("portraitSam", 120, "1:1", "Portrait of Jules Moreno"),
           },
-          2: {
+          "testimonial:2": {
             quote: rt.doc(
               rt.p(
                 "We booked the long table for my mother's 70th. Family-style platters, perfect pacing, no rush at all.",
@@ -281,7 +289,7 @@ function home() {
             role: "Private dining, March",
             photo: photo("portraitClara", 120, "1:1", "Portrait of Nadia Sorensen"),
           },
-          3: {
+          "testimonial:3": {
             quote: rt.doc(
               rt.p(
                 "Sit at the counter and watch the oven. Order whatever the chef says is good tonight.",
@@ -296,12 +304,12 @@ function home() {
       fromPreset("cta/photo-background@1", {
         style: { background: photoBackground(photo("terrace", 1440, "original"), PHOTO_SCRIM) },
         edit: {
-          0: {
+          heading: {
             text: "A long table for your celebration",
             subheading:
               "Private dining for 10 to 24 guests in the back room, with a family-style menu cooked over the fire.",
           },
-          1: { label: "Plan a private dinner", link: page(P.privateDining) },
+          button: { label: "Plan a private dinner", link: page(P.privateDining) },
         },
       }),
     ],
@@ -470,31 +478,31 @@ function visit() {
     [
       fromPreset("contact/location@1", {
         edit: {
-          0: {
+          map: {
             name: NAME,
             address: "214 Atwells Avenue, Providence, RI 02903",
             latitude: 41.8205,
             longitude: -71.4245,
           },
-          1: { eyebrow: "Visit", text: "Find us on Federal Hill", level: "h1" },
-          2: {
+          heading: { eyebrow: "Visit", text: "Find us on Federal Hill", level: "h1" },
+          hours: {
             rows: HOURS,
             headingLevel: "h2",
             note: "Valet parking on Friday and Saturday evenings; metered parking on Atwells Avenue.",
           },
-          3: { address: ADDRESS, phone: PHONE, email: EMAIL, headingLevel: "h2" },
+          "contact-info": { address: ADDRESS, phone: PHONE, email: EMAIL, headingLevel: "h2" },
         },
       }),
       fromPreset("contact/booking-request@1", {
         anchor: "reserve",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Reservations",
             text: "Reserve a table",
             subheading:
               "Book up to 30 days ahead. We keep the bar and counter seats for walk-ins every night.",
           },
-          1: reservationForm(),
+          form: reservationForm(),
         },
       }),
     ],
@@ -510,16 +518,16 @@ function privateDining() {
     [
       fromPreset("hero/split-landscape@1", {
         edit: {
-          0: {
+          image: {
             image: photo("sharedTable", 760, "3:2", "Friends talking over a long shared table"),
           },
-          1: {
+          heading: {
             eyebrow: "Private dining",
             text: "The long table is yours",
             subheading:
               "Our back room seats up to 24 at one long table beside the oven. We'll plan a family-style menu with you and pour wines to match.",
           },
-          2: {
+          button: {
             label: "Send an enquiry",
             link: page(P.privateDining, "enquire"),
             secondaryLabel: "See the menu",
@@ -530,8 +538,8 @@ function privateDining() {
       fromPreset("pricing/compact-list@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "Menus", text: "Family-style menus" },
-          1: {
+          heading: { eyebrow: "Menus", text: "Family-style menus" },
+          pricing: {
             plans: [
               {
                 name: "La Tavola",
@@ -571,13 +579,13 @@ function privateDining() {
       fromPreset("contact/booking-request@1", {
         anchor: "enquire",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Groups of 10 – 24",
             text: "Tell us about your dinner",
             subheading:
               "Share the date, the occasion and any dietary needs. We'll reply with menus and availability within a day.",
           },
-          1: {
+          form: {
             form: {
               id: formId(),
               name: "Private dining",
@@ -623,16 +631,16 @@ function about() {
     [
       fromPreset("about/story-split@1", {
         edit: {
-          0: {
+          image: {
             image: photo("portraitMaya", 520, "4:5", "Portrait of chef Lucia Ferrante, smiling"),
           },
-          1: {
+          heading: {
             eyebrow: "Our story",
             text: "Cooking the way my nonna did",
             level: "h1",
             size: "h1",
           },
-          2: {
+          text: {
             content: rt.doc(
               rt.p(
                 "I grew up between Providence and my grandmother's village in Calabria, where dinner was cooked on a wood stove and nobody left the table early. After fifteen years cooking in Boston and Rome, I came home to Federal Hill to open the kind of place I always wanted to eat in.",
@@ -642,19 +650,19 @@ function about() {
               ),
             ),
           },
-          3: { label: "Meet the team", link: page(P.about, "team"), role: "secondary" },
+          button: { label: "Meet the team", link: page(P.about, "team"), role: "secondary" },
         },
       }),
       fromPreset("team/grid@1", {
         theme: "light-accent",
         anchor: "team",
         edit: {
-          0: {
+          heading: {
             eyebrow: "The team",
             text: "Around the fire",
             subheading: "A small crew who cook, pour and look after you every night.",
           },
-          1: {
+          team: {
             people: [
               {
                 name: "Lucia Ferrante",
@@ -682,7 +690,7 @@ function about() {
       }),
       fromPreset("logos/row@1", {
         edit: {
-          0: {
+          "logo-strip": {
             label: "We cook with",
             logos: [
               { name: "Hurricane Hill Farm" },
@@ -784,7 +792,7 @@ export const hearth: TemplateSpec = {
         header: headerFrom("header/centered-nav@1", { sticky: true }),
         footer: fromPreset("footer/visit@1", {
           edit: {
-            0: {
+            text: {
               content: rt.doc(
                 rt.p(NAME, "lead"),
                 rt.p(
@@ -793,9 +801,9 @@ export const hearth: TemplateSpec = {
                 ),
               ),
             },
-            1: { profiles: [] },
-            2: { heading: "Find us", address: ADDRESS, phone: PHONE, email: EMAIL },
-            3: { heading: "Hours", rows: HOURS },
+            "social-links": { profiles: [] },
+            "contact-info": { heading: "Find us", address: ADDRESS, phone: PHONE, email: EMAIL },
+            hours: { heading: "Hours", rows: HOURS },
           },
         }),
         social: [

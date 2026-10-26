@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_p0w2zrrqe4",
+      "id": "sec_vn3fdtb695",
       "layout": {
         "mode": "stack",
         "columns": {
@@ -27,7 +27,7 @@
       },
       "blocks": [
         {
-          "id": "blk_243mnpexbh",
+          "id": "blk_hd1zzey0zp",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -42,7 +42,7 @@
       ]
     },
     {
-      "id": "sec_qap2p2wh8r",
+      "id": "sec_sw775ewj6p",
       "preset": "gallery/project-feature@1",
       "label": "Featured project",
       "layout": {
@@ -52,7 +52,7 @@
           "m": 35
         },
         "items": {
-          "blk_wcb539tm78": {
+          "blk_1scjqhj8pp": {
             "d": {
               "x": 1,
               "y": 1,
@@ -67,7 +67,7 @@
               "bleed": "both"
             }
           },
-          "blk_ss84termq3": {
+          "blk_bdfwq7tm7p": {
             "d": {
               "x": 15,
               "y": 16,
@@ -83,7 +83,7 @@
               "z": 2
             }
           },
-          "blk_fpdjf122r3": {
+          "blk_att1gb7859": {
             "d": {
               "x": 2,
               "y": 24,
@@ -97,7 +97,7 @@
               "h": 10
             }
           },
-          "blk_h07y3gsrve": {
+          "blk_z7ht85yj0w": {
             "d": {
               "x": 15,
               "y": 29,
@@ -119,7 +119,7 @@
       },
       "blocks": [
         {
-          "id": "blk_wcb539tm78",
+          "id": "blk_1scjqhj8pp",
           "type": "image",
           "v": 1,
           "fields": {
@@ -135,7 +135,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_ss84termq3",
+          "id": "blk_bdfwq7tm7p",
           "type": "text",
           "v": 1,
           "fields": {
@@ -189,7 +189,7 @@
           }
         },
         {
-          "id": "blk_fpdjf122r3",
+          "id": "blk_att1gb7859",
           "type": "image",
           "v": 1,
           "fields": {
@@ -205,7 +205,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_h07y3gsrve",
+          "id": "blk_z7ht85yj0w",
           "type": "button",
           "v": 1,
           "fields": {
@@ -222,7 +222,7 @@
       ]
     },
     {
-      "id": "sec_qx8hbwe66b",
+      "id": "sec_xjszn7099v",
       "preset": "gallery/masonry@1",
       "label": "Masonry wall",
       "layout": {
@@ -240,7 +240,7 @@
       },
       "blocks": [
         {
-          "id": "blk_sq9zt3vvvq",
+          "id": "blk_a5k2y7k96s",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -257,7 +257,7 @@
           }
         },
         {
-          "id": "blk_j97v9849ge",
+          "id": "blk_8nghvzx73t",
           "type": "gallery",
           "v": 1,
           "fields": {

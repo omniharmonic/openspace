@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_641x11bs66",
+      "id": "sec_b2a3wg3b2q",
       "preset": "contact/form-split@1",
       "label": "Contact form with details",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_b26gw7mna4",
+          "id": "blk_6632zhxzm8",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -43,7 +43,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_63zdk9ygc7",
+          "id": "blk_0dqm65f9bx",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -58,12 +58,12 @@
           "variant": "list"
         },
         {
-          "id": "blk_py6s4p147t",
+          "id": "blk_ggwmn0j09s",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_vts7jn22wa",
+              "id": "frm_9q5m88re8g",
               "name": "Contact",
               "fields": [
                 {
@@ -115,7 +115,7 @@
       ]
     },
     {
-      "id": "sec_ccd3dd5yfn",
+      "id": "sec_may7hh6a6b",
       "preset": "contact/location@1",
       "label": "Map, hours and address",
       "layout": {
@@ -136,7 +136,7 @@
       },
       "blocks": [
         {
-          "id": "blk_dnvxgb1phy",
+          "id": "blk_407rr6y2q2",
           "type": "map",
           "v": 1,
           "fields": {
@@ -152,7 +152,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_7beffmzc7j",
+          "id": "blk_zkszr4z45v",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -165,7 +165,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_xsd0e7zhcs",
+          "id": "blk_qrzkgbhw34",
           "type": "hours",
           "v": 1,
           "fields": {
@@ -221,7 +221,7 @@
           "variant": "compact"
         },
         {
-          "id": "blk_48a8rfqtj4",
+          "id": "blk_kmpr0f6npc",
           "type": "contact-info",
           "v": 1,
           "fields": {

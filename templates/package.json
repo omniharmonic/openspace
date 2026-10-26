@@ -32,6 +32,7 @@
   "dependencies": {
     "@openspace/blocks": "workspace:*",
     "@openspace/schema": "workspace:*",
+    "@openspace/site-kit": "workspace:*",
     "@openspace/theme": "workspace:*",
     "yaml": "^2.9.1"
   },
@@ -39,7 +40,6 @@
     "@openspace/cli": "workspace:*",
     "@openspace/lint": "workspace:*",
     "@openspace/renderer": "workspace:*",
-    "@openspace/site-kit": "workspace:*",
     "@types/jsdom": "^30.0.0",
     "@types/node": "catalog:",
     "axe-core": "^4.14.0",

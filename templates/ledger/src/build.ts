@@ -1,9 +1,10 @@
 import type { TemplateSpec } from "../../lib/define";
 import { post, project } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   block,
   body,
+  collectionPath,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
@@ -27,12 +28,14 @@ import {
  */
 
 const T = "ledger";
-const P = {
-  home: pageId(T, "home"),
-  services: pageId(T, "services"),
-  about: pageId(T, "about"),
-  contact: pageId(T, "contact"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  services: "services",
+  about: "about",
+  contact: "contact",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const NAME = "Calder Advisory";
 const EMAIL = "naomi@calderadvisory.example";
@@ -48,11 +51,11 @@ function home() {
       fromPreset("hero/big-type@1", {
         style: { padding: { d: "3xl", m: "xl" } },
         edit: {
-          0: {
+          heading: {
             eyebrow: "Operations advisory · Minneapolis",
             text: "Calm operations for companies that grew fast",
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.p(
                 "I help founder-led businesses of 20 to 200 people untangle their operations, hire the right leaders and plan the next stage of growth, so the founder can stop being the bottleneck.",
@@ -60,18 +63,18 @@ function home() {
               ),
             ),
           },
-          2: {
+          button: {
             label: "Book an intro call",
             link: url(BOOKING),
             secondaryLabel: "Read the case studies",
-            secondaryLink: url("/case-studies/"),
+            secondaryLink: url(collectionPath("case-studies")),
           },
         },
       }),
       fromPreset("logos/row@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          "logo-strip": {
             label: "Recent clients",
             logos: [
               { name: "Larkspur Foods" },
@@ -85,14 +88,14 @@ function home() {
       }),
       fromPreset("services/accordion-detail@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Services",
             text: "Three ways to work together",
             subheading:
               "Every engagement is scoped around one outcome you can measure, with a fixed fee agreed up front.",
           },
-          1: { label: "See services and fees", link: page(P.services) },
-          2: {
+          button: { label: "See services and fees", link: page(P.services) },
+          accordion: {
             items: [
               {
                 question: "Operations reset",
@@ -131,12 +134,12 @@ function home() {
       fromPreset("stats/cards@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Outcomes",
             text: "What changes for clients",
             subheading: "Measured with each client twelve months after the engagement ends.",
           },
-          1: {
+          stats: {
             items: [
               {
                 value: "48%",
@@ -160,11 +163,11 @@ function home() {
       fromPreset("blog/latest-grid@1", {
         collection: "case-studies",
         edit: {
-          0: {
+          summary: {
             heading: "Case studies",
             source: { collection: "case-studies", sort: "date-desc", limit: 3 },
             linkLabel: "All case studies",
-            link: url("/case-studies/"),
+            link: url(collectionPath("case-studies")),
             showDate: false,
             showExcerpt: true,
             emptyMessage: "New case studies are being written up — check back soon.",
@@ -174,8 +177,8 @@ function home() {
       fromPreset("testimonials/pair@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "Clients", text: "In their words" },
-          1: {
+          heading: { eyebrow: "Clients", text: "In their words" },
+          "testimonial:1": {
             quote: rt.doc(
               rt.p(
                 "Naomi found the three meetings that were eating our week and the one report nobody read. Within a quarter I was back to working on the business instead of in it.",
@@ -185,7 +188,7 @@ function home() {
             role: "Founder & CEO, Larkspur Foods",
             photo: photo("portraitIris", 160, "1:1", "Portrait of Priya Raman"),
           },
-          2: {
+          "testimonial:2": {
             quote: rt.doc(
               rt.p(
                 "We'd failed twice to hire a COO. Naomi helped us write the role we actually needed, and the person we hired is still here three years later.",
@@ -199,8 +202,8 @@ function home() {
       }),
       fromPreset("cta/split@1", {
         edit: {
-          0: { eyebrow: "Start here", text: "Thirty minutes, no slides, no pitch" },
-          1: {
+          heading: { eyebrow: "Start here", text: "Thirty minutes, no slides, no pitch" },
+          button: {
             label: "Book an intro call",
             link: url(BOOKING),
             note: "Free. Usually within the week.",
@@ -221,20 +224,20 @@ function services() {
       fromPreset("hero/split-image@1", {
         theme: "light",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Services",
             text: "Fixed fees, measurable outcomes",
             subheading:
               "Before we start, we agree on one result you'll be able to see in a year. Then I scope the smallest piece of work that gets you there.",
           },
-          1: {
+          button: {
             label: "Book an intro call",
             link: url(BOOKING),
             secondaryLabel: "How engagements run",
             secondaryLink: page(P.services, "process"),
             note: "Taking two new clients for spring 2027.",
           },
-          2: {
+          image: {
             image: photo("workshop", 600, "4:5", "Planning a project with sticky notes on a wall"),
           },
         },
@@ -242,13 +245,13 @@ function services() {
       fromPreset("services/tabs@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Engagements",
             text: "Choose the shape of the work",
             subheading:
               "Most clients start with an operations reset. Some go on to hire, and a few keep me on as a fractional COO.",
           },
-          1: {
+          tabs: {
             label: "Engagement types",
             items: [
               {
@@ -301,8 +304,8 @@ function services() {
         anchor: "process",
         theme: "light",
         edit: {
-          0: { eyebrow: "Process", text: "How every engagement runs" },
-          1: {
+          heading: { eyebrow: "Process", text: "How every engagement runs" },
+          columns: {
             items: [
               {
                 heading: "Diagnose",
@@ -324,20 +327,20 @@ function services() {
               },
             ],
           },
-          2: { label: "Book an intro call", link: url(BOOKING) },
+          button: { label: "Book an intro call", link: url(BOOKING) },
         },
       }),
       fromPreset("faq/split@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "FAQ", text: "Good questions to ask" },
-          1: {
+          heading: { eyebrow: "FAQ", text: "Good questions to ask" },
+          text: {
             content: rt.doc(
               rt.p("Anything else? Ask on the intro call; there's no obligation to go further."),
             ),
           },
-          2: { label: "Book a call", link: url(BOOKING) },
-          3: {
+          button: { label: "Book a call", link: url(BOOKING) },
+          accordion: {
             items: [
               {
                 question: "What size of company do you work with?",
@@ -374,7 +377,7 @@ function about() {
     [
       fromPreset("team/founder-overlap@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "portraitNina",
               520,
@@ -382,7 +385,7 @@ function about() {
               "Portrait of Naomi Calder by a sunlit window",
             ),
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.p("About", "eyebrow"),
               rt.h(1, "Naomi Calder", "h1"),
@@ -394,19 +397,19 @@ function about() {
               ),
             ),
           },
-          2: { label: "Book an intro call", link: url(BOOKING), role: "primary" },
+          button: { label: "Book an intro call", link: url(BOOKING), role: "primary" },
         },
       }),
       fromPreset("about/two-column-text@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Approach",
             text: "Fewer meetings, clearer owners",
             subheading:
               "Most operational pain comes from decisions without owners. My work is mostly finding them and writing them down.",
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.p(
                 "I don't arrive with a framework to install. I start by listening: to the founder, to the managers and to the people closest to customers. Patterns appear quickly. The same three decisions always wait on the same person, and the same weekly meeting always runs long.",
@@ -420,12 +423,12 @@ function about() {
       }),
       fromPreset("about/milestones@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Background",
             text: "Before Calder Advisory",
             subheading: "Twenty years of operations work, mostly in retail and food.",
           },
-          1: {
+          timeline: {
             items: [
               {
                 date: "2004",
@@ -465,20 +468,20 @@ function contact() {
       fromPreset("contact/form-split@1", {
         theme: "light",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Contact",
             text: "Let's talk about your company",
             level: "h1",
             subheading:
               "A few sentences about your company and what's getting in the way is plenty. I reply within two working days.",
           },
-          1: {
+          "contact-info": {
             name: NAME,
             address: "Minneapolis, Minnesota",
             phone: "+1 (612) 555-0107",
             email: EMAIL,
           },
-          2: {
+          form: {
             form: {
               id: formId(),
               name: "Enquiry",
@@ -667,7 +670,7 @@ export const ledger: TemplateSpec = {
         header: headerFrom("header/classic@1"),
         footer: fromPreset("footer/columns@1", {
           edit: {
-            0: {
+            "text:1": {
               content: rt.doc(
                 rt.p(NAME, "lead"),
                 rt.p(
@@ -675,30 +678,30 @@ export const ledger: TemplateSpec = {
                 ),
               ),
             },
-            1: { profiles: [] },
-            2: {
+            "social-links": { profiles: [] },
+            "text:2": {
               content: rt.doc(
                 ...linkColumn("Work", [
-                  ["Services", "/services/"],
-                  ["Case studies", "/case-studies/"],
-                  ["Insights", "/insights/"],
+                  ["Services", href("services")],
+                  ["Case studies", collectionPath("case-studies")],
+                  ["Insights", collectionPath("insights")],
                 ]),
               ),
             },
-            3: {
+            "text:3": {
               content: rt.doc(
                 ...linkColumn("Studio", [
-                  ["About", "/about/"],
-                  ["Contact", "/contact/"],
+                  ["About", href("about")],
+                  ["Contact", href("contact")],
                 ]),
               ),
             },
-            4: {
+            "text:4": {
               content: rt.doc(
                 rt.p("Monthly letter", "eyebrow"),
                 rt.p([
                   "One short essay on running a growing company, the first Monday of each month. ",
-                  rt.link("Read past letters", "/insights/"),
+                  rt.link("Read past letters", collectionPath("insights")),
                 ]),
                 rt.p("© 2026 Calder Advisory LLC", "small"),
               ),

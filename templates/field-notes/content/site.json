@@ -36,7 +36,7 @@
     "colorTheme": "light"
   },
   "footer": {
-    "id": "sec_y8fgyw7y5j",
+    "id": "sec_59gxy4kdr3",
     "preset": "footer/centered@1",
     "label": "Centred footer",
     "layout": {
@@ -58,7 +58,7 @@
     },
     "blocks": [
       {
-        "id": "blk_v3cbrenr6x",
+        "id": "blk_ed4xf956m4",
         "type": "text",
         "v": 1,
         "fields": {
@@ -100,7 +100,7 @@
         }
       },
       {
-        "id": "blk_rkqk8n2hxc",
+        "id": "blk_bw6ms3295x",
         "type": "social-links",
         "v": 1,
         "fields": {
@@ -115,7 +115,7 @@
         }
       },
       {
-        "id": "blk_gg2nc7ref7",
+        "id": "blk_cq4h3rvg4m",
         "type": "text",
         "v": 1,
         "fields": {

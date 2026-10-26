@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_sevwwz1y7b",
+      "id": "sec_3a43tc0dem",
       "preset": "hero/split-image@1",
       "label": "Split with portrait image",
       "layout": {
@@ -34,7 +34,7 @@
       },
       "blocks": [
         {
-          "id": "blk_4mza0aapzt",
+          "id": "blk_pdjtsd60qv",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_e4ymm0w2b8",
+          "id": "blk_2a647jbgcr",
           "type": "button",
           "v": 1,
           "fields": {
@@ -70,7 +70,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_634nkm9mq8",
+          "id": "blk_w2h6tnt4s7",
           "type": "image",
           "v": 1,
           "fields": {
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "id": "sec_ky2eqzkzc6",
+      "id": "sec_x46m0kv32b",
       "preset": "services/tabs@1",
       "label": "Services in tabs",
       "layout": {
@@ -106,7 +106,7 @@
       },
       "blocks": [
         {
-          "id": "blk_j45yjk33pv",
+          "id": "blk_xzgq7ryz0x",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -119,7 +119,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_avxrhrpnqt",
+          "id": "blk_7p91veg6mv",
           "type": "tabs",
           "v": 1,
           "fields": {
@@ -378,7 +378,7 @@
       ]
     },
     {
-      "id": "sec_dq2yppbfsk",
+      "id": "sec_9sxksszgfk",
       "preset": "services/steps@1",
       "label": "How it works in three steps",
       "layout": {
@@ -395,7 +395,7 @@
       },
       "blocks": [
         {
-          "id": "blk_kyexg21t9v",
+          "id": "blk_e13c29tsae",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -412,7 +412,7 @@
           }
         },
         {
-          "id": "blk_x49b7d5awe",
+          "id": "blk_w8xszhar6z",
           "type": "columns",
           "v": 1,
           "fields": {
@@ -475,7 +475,7 @@
           "variant": "steps"
         },
         {
-          "id": "blk_9179ypcvew",
+          "id": "blk_914pyxvggk",
           "type": "button",
           "v": 1,
           "fields": {
@@ -497,7 +497,7 @@
       "anchor": "process"
     },
     {
-      "id": "sec_29zmtq3wxh",
+      "id": "sec_a95cha8wny",
       "preset": "faq/split@1",
       "label": "Questions beside heading",
       "layout": {
@@ -518,7 +518,7 @@
       },
       "blocks": [
         {
-          "id": "blk_qwezzbtw1e",
+          "id": "blk_x1v2ngsh3x",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -531,7 +531,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_st5vmavyxn",
+          "id": "blk_ee1hwz3nfj",
           "type": "text",
           "v": 1,
           "fields": {
@@ -554,7 +554,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_8hr5vh81vb",
+          "id": "blk_wnk1wmd1ra",
           "type": "button",
           "v": 1,
           "fields": {
@@ -569,7 +569,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_c2gcj354v8",
+          "id": "blk_jq5t61vpxp",
           "type": "accordion",
           "v": 1,
           "fields": {

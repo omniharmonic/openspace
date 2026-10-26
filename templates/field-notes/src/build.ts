@@ -1,8 +1,9 @@
 import type { TemplateSpec } from "../../lib/define";
 import { post } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   body,
+  collectionPath,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
@@ -23,12 +24,14 @@ import {
  */
 
 const T = "field-notes";
-const P = {
-  home: pageId(T, "home"),
-  subscribe: pageId(T, "subscribe"),
-  about: pageId(T, "about"),
-  contact: pageId(T, "contact"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  subscribe: "subscribe",
+  about: "about",
+  contact: "contact",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const NAME = "The Long Field";
 const EMAIL = "ruth@thelongfield.example";
@@ -51,29 +54,32 @@ function home() {
         theme: "light",
         style: { padding: { d: "3xl", m: "xl" } },
         edit: {
-          0: {
+          heading: {
             eyebrow: "A letter every other Sunday",
             text: "Essays on walking, weather and paying attention",
             subheading:
               "The Long Field is a free letter from a hill farm in Vermont: one essay, one walk and one good thing to read. Joined by 14,000 readers.",
           },
-          1: { ...signup, note: "Free. One click to unsubscribe, and I never share your address." },
+          newsletter: {
+            ...signup,
+            note: "Free. One click to unsubscribe, and I never share your address.",
+          },
         },
       }),
       fromPreset("blog/intro-list@1", {
         theme: "light-accent",
         collection: "essays",
         edit: {
-          0: { eyebrow: "Latest", text: "Recent essays" },
-          1: {
+          heading: { eyebrow: "Latest", text: "Recent essays" },
+          text: {
             content: rt.doc(
               rt.p(
                 "Long-form pieces about land, work and the small rituals of rural life. Each one also arrives in your inbox, if you'd like it there.",
               ),
             ),
           },
-          2: { label: "Browse the archive", link: url("/essays/") },
-          3: {
+          button: { label: "Browse the archive", link: url(collectionPath("essays")) },
+          summary: {
             source: { collection: "essays", sort: "date-desc", limit: 4 },
             showImage: false,
             emptyMessage: "The next essay is being written. Subscribe to get it first.",
@@ -82,7 +88,7 @@ function home() {
       }),
       fromPreset("about/portrait-overlap@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "portraitLake",
               520,
@@ -90,7 +96,7 @@ function home() {
               "Portrait of the writer Ruth Ellery beside a lake",
             ),
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.p("About the writer", "eyebrow"),
               rt.h(2, "Hello, I'm Ruth", "h2"),
@@ -100,12 +106,12 @@ function home() {
               rt.p("I write about land, work and attention, and I answer every reply."),
             ),
           },
-          2: { label: "Read more about me", link: page(P.about), role: "tertiary" },
+          button: { label: "Read more about me", link: page(P.about), role: "tertiary" },
         },
       }),
       fromPreset("testimonials/carousel@1", {
         edit: {
-          0: {
+          "quote-carousel": {
             label: "What readers say",
             quotes: [
               {
@@ -136,7 +142,7 @@ function home() {
       fromPreset("newsletter/card@1", {
         theme: "brand",
         edit: {
-          0: {
+          newsletter: {
             heading: "Get the next letter",
             description:
               "One essay every other Sunday morning, plus the occasional photograph from the farm.",
@@ -159,13 +165,13 @@ function subscribe() {
     [
       fromPreset("hero/centered@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Subscribe",
             text: "Free to read, kept alive by readers",
             subheading:
               "Every essay is free. Supporters pay what a coffee costs each month, which pays for the writing time, the printing of the yearly anthology and nothing else.",
           },
-          1: {
+          button: {
             label: "Subscribe free",
             link: page(P.home),
             secondaryLabel: "Become a supporter",
@@ -176,13 +182,13 @@ function subscribe() {
       fromPreset("pricing/two-plans@1", {
         anchor: "support",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Two ways to read",
             text: "Choose how you read",
             subheading:
               "Both get every essay. Supporters get a little more, and my lasting gratitude.",
           },
-          1: {
+          pricing: {
             plans: [
               {
                 name: "Reader",
@@ -219,8 +225,8 @@ function subscribe() {
       }),
       fromPreset("faq/centered@1", {
         edit: {
-          0: { eyebrow: "Questions", text: "Before you subscribe" },
-          1: {
+          heading: { eyebrow: "Questions", text: "Before you subscribe" },
+          accordion: {
             items: [
               {
                 question: "How often will I hear from you?",
@@ -255,8 +261,8 @@ function about() {
     [
       fromPreset("about/story-editorial@1", {
         edit: {
-          0: { eyebrow: "About", text: "A letter from a hill farm", level: "h1", size: "h1" },
-          1: {
+          heading: { eyebrow: "About", text: "A letter from a hill farm", level: "h1", size: "h1" },
+          text: {
             content: rt.doc(
               rt.p(
                 "For twelve years I covered city hall for a Boston newspaper. I wrote fast, about meetings, and rarely looked up. In 2019 my partner and I bought a run-down hill farm in Vermont with a leaking barn, an orchard nobody had pruned since the eighties and a view that still stops me in the lane.",
@@ -273,7 +279,7 @@ function about() {
       }),
       fromPreset("logos/marquee@1", {
         edit: {
-          0: {
+          "logo-strip": {
             label: "Writing has appeared in",
             logos: [
               { name: "Quarry Quarterly" },
@@ -288,18 +294,22 @@ function about() {
       }),
       fromPreset("newsletter/split-image@1", {
         edit: {
-          0: {
+          image: {
             image: photo("writing", 520, "4:5", "Writing notes in a notebook beside a mug of tea"),
           },
-          1: { eyebrow: "The letter", text: "Read along every other Sunday" },
-          2: {
+          heading: { eyebrow: "The letter", text: "Read along every other Sunday" },
+          "icon-list": {
             items: [
               { icon: "book-open", title: "One long essay" },
               { icon: "mountain", title: "One walk worth taking" },
               { icon: "heart", title: "One good thing to read" },
             ],
           },
-          3: { ...signup, buttonLabel: "Subscribe", note: "Free. Unsubscribe with one click." },
+          newsletter: {
+            ...signup,
+            buttonLabel: "Subscribe",
+            note: "Free. Unsubscribe with one click.",
+          },
         },
       }),
     ],
@@ -315,15 +325,20 @@ function contact() {
     [
       fromPreset("contact/form-split@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Contact",
             text: "Write to me",
             level: "h1",
             subheading:
               "Replying to any letter reaches me too. For press, reprints and speaking, the form below is quickest.",
           },
-          1: { name: "Ruth Ellery", address: "Peacham, Vermont", phone: undefined, email: EMAIL },
-          2: {
+          "contact-info": {
+            name: "Ruth Ellery",
+            address: "Peacham, Vermont",
+            phone: undefined,
+            email: EMAIL,
+          },
+          form: {
             form: {
               id: formId(),
               name: "Contact",
@@ -478,7 +493,7 @@ export const fieldNotes: TemplateSpec = {
         header: headerFrom("header/logo-above@1", { sticky: false }),
         footer: fromPreset("footer/centered@1", {
           edit: {
-            0: {
+            "text:1": {
               content: rt.doc(
                 rt.p(NAME, "lead"),
                 rt.p(
@@ -487,15 +502,15 @@ export const fieldNotes: TemplateSpec = {
                 ),
               ),
             },
-            1: { profiles: [] },
-            2: {
+            "social-links": { profiles: [] },
+            "text:2": {
               content: rt.doc(
                 rt.p(
                   [
                     "© 2026 Ruth Ellery · ",
-                    rt.link("Essays", "/essays/"),
+                    rt.link("Essays", collectionPath("essays")),
                     " · ",
-                    rt.link("Subscribe", "/subscribe/"),
+                    rt.link("Subscribe", href("subscribe")),
                     " · ",
                     rt.link("RSS", "/essays/rss.xml"),
                   ],

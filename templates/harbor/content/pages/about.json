@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_kc2ew8esqk",
+      "id": "sec_79bj3wq00n",
       "preset": "hero/centered@1",
       "label": "Centered statement",
       "layout": {
@@ -28,7 +28,7 @@
       },
       "blocks": [
         {
-          "id": "blk_w660vaadj4",
+          "id": "blk_vd2xsj5bq8",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_emhnb0dhbn",
+          "id": "blk_ng3x59jhrb",
           "type": "button",
           "v": 1,
           "fields": {
@@ -73,7 +73,7 @@
       ]
     },
     {
-      "id": "sec_tx5efs0gg6",
+      "id": "sec_vcmsnrt80p",
       "preset": "about/story-editorial@1",
       "label": "Editorial story",
       "layout": {
@@ -94,7 +94,7 @@
       },
       "blocks": [
         {
-          "id": "blk_yv1zp3c1t1",
+          "id": "blk_qa4160hvv1",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -111,7 +111,7 @@
           }
         },
         {
-          "id": "blk_zdvsjd6dqe",
+          "id": "blk_4qgrvdr8jd",
           "type": "text",
           "v": 1,
           "fields": {
@@ -144,7 +144,7 @@
       ]
     },
     {
-      "id": "sec_xyx9gd8b4v",
+      "id": "sec_vvfv1jw0p2",
       "preset": "team/grid@1",
       "label": "Team grid",
       "layout": {
@@ -161,7 +161,7 @@
       },
       "blocks": [
         {
-          "id": "blk_a68dfb03p5",
+          "id": "blk_kxrx0v8823",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -174,7 +174,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_perdh292jk",
+          "id": "blk_f926azbabk",
           "type": "team",
           "v": 1,
           "fields": {
@@ -228,7 +228,7 @@
       "anchor": "team"
     },
     {
-      "id": "sec_21r8tk7d4j",
+      "id": "sec_b23bj2h1h4",
       "preset": "stats/cards@1",
       "label": "Numbers on cards",
       "layout": {
@@ -249,7 +249,7 @@
       },
       "blocks": [
         {
-          "id": "blk_by77naz768",
+          "id": "blk_ajkq1yy3nb",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -263,7 +263,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_qysx1ts7sa",
+          "id": "blk_0zdjt8afte",
           "type": "stats",
           "v": 1,
           "fields": {
@@ -291,7 +291,7 @@
       ]
     },
     {
-      "id": "sec_0rfp7662z5",
+      "id": "sec_b51zj2cce2",
       "preset": "logos/grid@1",
       "label": "Partner grid",
       "layout": {
@@ -308,7 +308,7 @@
       },
       "blocks": [
         {
-          "id": "blk_9p58n1fwv0",
+          "id": "blk_qwsc8jt38w",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -326,7 +326,7 @@
           }
         },
         {
-          "id": "blk_cjdxfk6k5y",
+          "id": "blk_gwh4s2bzrd",
           "type": "logo-strip",
           "v": 1,
           "fields": {

@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_te982ctypv",
+      "id": "sec_k15h2k90jf",
       "layout": {
         "mode": "stack",
         "columns": {
@@ -27,7 +27,7 @@
       },
       "blocks": [
         {
-          "id": "blk_z1fvapg8re",
+          "id": "blk_cpgv8g3ntp",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "id": "sec_7yd7e874tc",
+      "id": "sec_gts8rpp5qt",
       "preset": "services/price-list@1",
       "label": "Dinner menu",
       "layout": {
@@ -64,7 +64,7 @@
       },
       "blocks": [
         {
-          "id": "blk_1xqmkys50k",
+          "id": "blk_syt9zy28f4",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -81,7 +81,7 @@
           }
         },
         {
-          "id": "blk_n089d719t6",
+          "id": "blk_yv2y8w12jz",
           "type": "restaurant-menu",
           "v": 1,
           "fields": {
@@ -301,7 +301,7 @@
       ]
     },
     {
-      "id": "sec_15yg86xr7a",
+      "id": "sec_41ahsyr9pj",
       "label": "Drinks",
       "layout": {
         "mode": "stack",
@@ -316,7 +316,7 @@
       },
       "blocks": [
         {
-          "id": "blk_04m60xtyp9",
+          "id": "blk_6p9yxfzk5p",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -333,7 +333,7 @@
           }
         },
         {
-          "id": "blk_k3qwvsk40x",
+          "id": "blk_d0jbst6p36",
           "type": "restaurant-menu",
           "v": 1,
           "fields": {

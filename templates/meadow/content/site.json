@@ -51,7 +51,7 @@
     "colorTheme": "light"
   },
   "footer": {
-    "id": "sec_jng46hqt7a",
+    "id": "sec_bvnzd7252z",
     "preset": "footer/newsletter@1",
     "label": "Footer with newsletter",
     "layout": {
@@ -77,7 +77,7 @@
     },
     "blocks": [
       {
-        "id": "blk_qbk3gyja4e",
+        "id": "blk_skztgd3xta",
         "type": "newsletter",
         "v": 1,
         "fields": {
@@ -92,7 +92,7 @@
         "variant": "stacked"
       },
       {
-        "id": "blk_1wh5h78v8j",
+        "id": "blk_dspzjcncdw",
         "type": "text",
         "v": 1,
         "fields": {
@@ -186,7 +186,7 @@
         "variant": "default"
       },
       {
-        "id": "blk_p3qcad05ad",
+        "id": "blk_63xrte7q4d",
         "type": "text",
         "v": 1,
         "fields": {
@@ -250,7 +250,7 @@
         "variant": "default"
       },
       {
-        "id": "blk_3khtg42xbt",
+        "id": "blk_37zmz1gf1c",
         "type": "social-links",
         "v": 1,
         "fields": {

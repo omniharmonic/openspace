@@ -1,8 +1,9 @@
 import type { TemplateSpec } from "../../lib/define";
 import { post } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   body,
+  collectionPath,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
@@ -24,12 +25,14 @@ import {
  */
 
 const T = "signal";
-const P = {
-  home: pageId(T, "home"),
-  pricing: pageId(T, "pricing"),
-  about: pageId(T, "about"),
-  contact: pageId(T, "contact"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  pricing: "pricing",
+  about: "about",
+  contact: "contact",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const NAME = "Tidewire";
 const SIGNUP = "https://app.tidewire.example/signup";
@@ -75,7 +78,7 @@ const plans = [
       { text: "A named support engineer" },
     ],
     buttonLabel: "Talk to us",
-    link: url("/contact/"),
+    link: url(href("contact")),
     featured: false,
   },
 ];
@@ -89,19 +92,19 @@ function home() {
     [
       fromPreset("hero/marquee-launch@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "New · Status pages that update themselves",
             text: "Incident response for small engineering teams",
             subheading:
               "Tidewire routes alerts to the right person, runs your on-call rota and drafts the postmortem while you fix the problem. Set up in an afternoon, not a quarter.",
           },
-          1: {
+          button: {
             label: "Start free",
             link: url(SIGNUP),
             secondaryLabel: "See pricing",
             secondaryLink: page(P.pricing),
           },
-          2: {
+          marquee: {
             items: [
               { text: "Alerts in under 3 seconds" },
               { text: "Slack-native incidents" },
@@ -114,7 +117,7 @@ function home() {
       }),
       fromPreset("logos/row@1", {
         edit: {
-          0: {
+          "logo-strip": {
             label: "On call with Tidewire",
             logos: [
               { name: "Parcelly" },
@@ -128,15 +131,15 @@ function home() {
       }),
       fromPreset("features/bento@1", {
         edit: {
-          0: { eyebrow: "Product", text: "Everything between the alert and the fix" },
-          1: {
+          heading: { eyebrow: "Product", text: "Everything between the alert and the fix" },
+          "card:1": {
             heading: "Alerts that find the right person",
             body: body(
               "Route by service, severity and time of day. Escalate automatically if nobody acknowledges in five minutes.",
             ),
             icon: "zap",
           },
-          2: {
+          image: {
             image: photo(
               "analytics",
               640,
@@ -144,14 +147,14 @@ function home() {
               "A dashboard of service health charts on a monitor",
             ),
           },
-          3: {
+          "card:2": {
             heading: "On-call that's fair",
             body: body(
               "Rotas, overrides and swaps in two clicks, with a weekly report on who got woken up.",
             ),
             icon: "calendar",
           },
-          4: {
+          "card:3": {
             heading: "Postmortems drafted for you",
             body: body(
               "Tidewire turns the incident timeline into a first draft you can edit and share.",
@@ -163,7 +166,7 @@ function home() {
       fromPreset("features/screenshot-callout@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          image: {
             image: photo(
               "officeDesks",
               700,
@@ -171,28 +174,28 @@ function home() {
               "Standing desks by tall windows where the team works",
             ),
           },
-          1: {
+          stats: {
             items: [
               { value: "3 s", label: "Median alert delivery" },
               { value: "41%", label: "Faster resolution" },
             ],
           },
-          2: { eyebrow: "Insights", text: "Know which services wake you up" },
-          3: {
+          heading: { eyebrow: "Insights", text: "Know which services wake you up" },
+          text: {
             content: rt.doc(
               rt.p(
                 "Weekly reports show noisy alerts, slow acknowledgements and the services behind most incidents, so you can fix the causes instead of the symptoms.",
               ),
             ),
           },
-          4: { label: "Book a demo", link: page(P.contact) },
+          button: { label: "Book a demo", link: page(P.contact) },
         },
       }),
       fromPreset("testimonials/three-cards@1", {
         theme: "light",
         edit: {
-          0: { eyebrow: "Customers", text: "Quieter nights, faster fixes" },
-          1: {
+          heading: { eyebrow: "Customers", text: "Quieter nights, faster fixes" },
+          "testimonial:1": {
             quote: rt.doc(
               rt.p(
                 "We replaced three tools and a spreadsheet. Our median time to acknowledge dropped from nine minutes to under two.",
@@ -203,7 +206,7 @@ function home() {
             photo: photo("portraitIris", 120, "1:1", "Portrait of Maya Okonkwo"),
             rating: 5,
           },
-          2: {
+          "testimonial:2": {
             quote: rt.doc(
               rt.p(
                 "The postmortem drafts are uncanny. Our incident reviews now take twenty minutes instead of an afternoon.",
@@ -214,7 +217,7 @@ function home() {
             photo: photo("portraitTheo", 120, "1:1", "Portrait of Felix Andersson"),
             rating: 5,
           },
-          3: {
+          "testimonial:3": {
             quote: rt.doc(
               rt.p(
                 "Set up on a Friday afternoon, paged us correctly on Saturday night. That's the whole review.",
@@ -230,25 +233,28 @@ function home() {
       fromPreset("pricing/three-plans@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Pricing",
             text: "Pay per responder, not per alert",
             subheading:
               "Free for small teams. Every paid plan starts with a 14-day trial, no card needed.",
           },
-          1: { plans, note: "Prices in USD, billed monthly. Save two months with annual billing." },
+          pricing: {
+            plans,
+            note: "Prices in USD, billed monthly. Save two months with annual billing.",
+          },
         },
       }),
       fromPreset("faq/split@1", {
         edit: {
-          0: { eyebrow: "FAQ", text: "Questions engineers ask" },
-          1: {
+          heading: { eyebrow: "FAQ", text: "Questions engineers ask" },
+          text: {
             content: rt.doc(
               rt.p("Can't find your answer? Our engineers answer support, not a script."),
             ),
           },
-          2: { label: "Contact support", link: page(P.contact) },
-          3: {
+          button: { label: "Contact support", link: page(P.contact) },
+          accordion: {
             items: [
               {
                 question: "Which monitoring tools does Tidewire connect to?",
@@ -281,12 +287,12 @@ function home() {
       fromPreset("cta/banner@1", {
         theme: "dark-accent",
         edit: {
-          0: {
+          heading: {
             text: "Sleep through the night again",
             subheading:
               "Free for up to five responders. Connect your first alert source in under ten minutes.",
           },
-          1: {
+          button: {
             label: "Start free",
             link: url(SIGNUP),
             secondaryLabel: "Book a demo",
@@ -307,13 +313,13 @@ function pricing() {
     [
       fromPreset("hero/centered@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Pricing",
             text: "Simple pricing that grows with your team",
             subheading:
               "Pay for the people who carry the pager, not for alerts, integrations or status page subscribers. Change plans whenever you like.",
           },
-          1: {
+          button: {
             label: "Start free",
             link: url(SIGNUP),
             secondaryLabel: "Talk to sales",
@@ -324,23 +330,23 @@ function pricing() {
       fromPreset("pricing/three-plans@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Plans",
             text: "Choose a plan",
             subheading:
               "All plans include unlimited alerts, integrations and status page subscribers.",
           },
-          1: { plans, note: "Non-profits and open-source projects get Team free. Ask us." },
+          pricing: { plans, note: "Non-profits and open-source projects get Team free. Ask us." },
         },
       }),
       fromPreset("features/icon-row@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Every plan",
             text: "Included, whatever you pay",
             subheading: "The basics of a good incident process shouldn't be an upsell.",
           },
-          1: {
+          "icon-list": {
             items: [
               {
                 icon: "zap",
@@ -369,8 +375,8 @@ function pricing() {
       fromPreset("faq/by-topic@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "FAQ", text: "Billing questions" },
-          1: {
+          heading: { eyebrow: "FAQ", text: "Billing questions" },
+          tabs: {
             label: "Question topics",
             items: [
               {
@@ -421,7 +427,7 @@ function about() {
     [
       fromPreset("about/story-split@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "teamTable",
               520,
@@ -429,13 +435,13 @@ function about() {
               "The Tidewire team working together around a table",
             ),
           },
-          1: {
+          heading: {
             eyebrow: "About",
             text: "Built by people who carried the pager",
             level: "h1",
             size: "h1",
           },
-          2: {
+          text: {
             content: rt.doc(
               rt.p(
                 "We spent a decade on call at startups and big companies alike, and the tools always felt built for someone else: enterprise dashboards, per-alert pricing and setup projects that took a quarter. Small teams just needed the right person woken up and a calm way to fix things together.",
@@ -445,17 +451,17 @@ function about() {
               ),
             ),
           },
-          3: { label: "We're hiring", link: page(P.contact), role: "secondary" },
+          button: { label: "We're hiring", link: page(P.contact), role: "secondary" },
         },
       }),
       fromPreset("about/values@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "How we work",
             text: "What we believe",
             subheading: "Three principles that shape every feature we ship.",
           },
-          1: {
+          "icon-list": {
             items: [
               {
                 icon: "moon",
@@ -479,12 +485,12 @@ function about() {
       fromPreset("team/grid@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Team",
             text: "The founders",
             subheading: "Three engineers and a designer who met on an incident bridge at 3am.",
           },
-          1: {
+          team: {
             people: [
               {
                 name: "Iris Nakamura",
@@ -523,20 +529,20 @@ function contact() {
     [
       fromPreset("contact/form-split@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Contact",
             text: "Talk to an engineer, not a script",
             level: "h1",
             subheading:
               "Demos, migrations, security questionnaires or pricing for larger teams. We reply within one business day.",
           },
-          1: {
+          "contact-info": {
             name: "Tidewire, Inc.",
             address: "Remote · incorporated in Delaware",
             phone: undefined,
             email: "hello@tidewire.example",
           },
-          2: {
+          form: {
             form: {
               id: formId(),
               name: "Sales enquiry",
@@ -667,7 +673,7 @@ export const signal: TemplateSpec = {
         header: headerFrom("header/centered-nav@1", { sticky: true }),
         footer: fromPreset("footer/columns@1", {
           edit: {
-            0: {
+            "text:1": {
               content: rt.doc(
                 rt.p(NAME, "lead"),
                 rt.p(
@@ -675,30 +681,30 @@ export const signal: TemplateSpec = {
                 ),
               ),
             },
-            1: { profiles: [] },
-            2: {
+            "social-links": { profiles: [] },
+            "text:2": {
               content: rt.doc(
                 ...linkColumn("Product", [
-                  ["Pricing", "/pricing/"],
-                  ["Changelog", "/changelog/"],
+                  ["Pricing", href("pricing")],
+                  ["Changelog", collectionPath("changelog")],
                   ["Status", "https://status.tidewire.example"],
                 ]),
               ),
             },
-            3: {
+            "text:3": {
               content: rt.doc(
                 ...linkColumn("Company", [
-                  ["About", "/about/"],
-                  ["Contact", "/contact/"],
+                  ["About", href("about")],
+                  ["Contact", href("contact")],
                 ]),
               ),
             },
-            4: {
+            "text:4": {
               content: rt.doc(
                 rt.p("Product updates", "eyebrow"),
                 rt.p([
                   "New features every two weeks, written by the engineers who built them. ",
-                  rt.link("Read the changelog", "/changelog/"),
+                  rt.link("Read the changelog", collectionPath("changelog")),
                 ]),
                 rt.p("© 2026 Tidewire, Inc.", "small"),
               ),

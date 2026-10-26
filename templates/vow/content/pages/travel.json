@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_715ktgqcw6",
+      "id": "sec_nt1b2sdyth",
       "preset": "hero/split-landscape@1",
       "label": "Split with landscape image",
       "layout": {
@@ -44,7 +44,7 @@
       },
       "blocks": [
         {
-          "id": "blk_caembnph61",
+          "id": "blk_yd1sj2tgey",
           "type": "image",
           "v": 1,
           "fields": {
@@ -61,7 +61,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_kcn15xtygs",
+          "id": "blk_t0742bdb2j",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -75,7 +75,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_4ctpg2x47r",
+          "id": "blk_m16gyb0nxp",
           "type": "button",
           "v": 1,
           "fields": {
@@ -99,7 +99,7 @@
       ]
     },
     {
-      "id": "sec_p9r7veskqt",
+      "id": "sec_akh46x852x",
       "preset": "contact/two-locations@1",
       "label": "Two locations",
       "layout": {
@@ -120,7 +120,7 @@
       },
       "blocks": [
         {
-          "id": "blk_t39rcd9sd6",
+          "id": "blk_y420rfmzz5",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -133,7 +133,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_sa2ymwx8bq",
+          "id": "blk_2bxs0s0e0w",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -148,7 +148,7 @@
           "variant": "card"
         },
         {
-          "id": "blk_va87w0hzbd",
+          "id": "blk_h4xw2cbppm",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -166,7 +166,7 @@
       "anchor": "hotels"
     },
     {
-      "id": "sec_r9ce3q3k18",
+      "id": "sec_vxw1mfas10",
       "preset": "faq/split@1",
       "label": "Questions beside heading",
       "layout": {
@@ -187,7 +187,7 @@
       },
       "blocks": [
         {
-          "id": "blk_5qqpbh0zdn",
+          "id": "blk_ew2wkj7tfd",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -200,7 +200,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_309bf4m37s",
+          "id": "blk_001xpfsamg",
           "type": "text",
           "v": 1,
           "fields": {
@@ -223,7 +223,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_1s0mwv4scw",
+          "id": "blk_1jtbcnahrw",
           "type": "button",
           "v": 1,
           "fields": {
@@ -238,7 +238,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_cps66a8rhc",
+          "id": "blk_fpgkcwqppd",
           "type": "accordion",
           "v": 1,
           "fields": {

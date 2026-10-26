@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_he0c8gnpwx",
+      "id": "sec_m67pft6xd9",
       "preset": "hero/split-landscape@1",
       "label": "Split with landscape image",
       "layout": {
@@ -44,7 +44,7 @@
       },
       "blocks": [
         {
-          "id": "blk_pkk4y5p5w0",
+          "id": "blk_fnza0ezwx9",
           "type": "image",
           "v": 1,
           "fields": {
@@ -61,7 +61,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_rc8j0kwnm6",
+          "id": "blk_rsnjdn33hd",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -75,7 +75,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_7s3han4bf6",
+          "id": "blk_aarrsbssgd",
           "type": "button",
           "v": 1,
           "fields": {
@@ -98,7 +98,7 @@
       ]
     },
     {
-      "id": "sec_ph77revape",
+      "id": "sec_csy0nxe6qs",
       "preset": "services/steps@1",
       "label": "How it works in three steps",
       "layout": {
@@ -115,7 +115,7 @@
       },
       "blocks": [
         {
-          "id": "blk_jpjc8akxvj",
+          "id": "blk_pf3qayteze",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -132,7 +132,7 @@
           }
         },
         {
-          "id": "blk_4v9rfvdcz2",
+          "id": "blk_mbajzgknda",
           "type": "columns",
           "v": 1,
           "fields": {
@@ -195,7 +195,7 @@
           "variant": "steps"
         },
         {
-          "id": "blk_xmh0s5b729",
+          "id": "blk_3gxr8nt5t1",
           "type": "button",
           "v": 1,
           "fields": {
@@ -216,7 +216,7 @@
       ]
     },
     {
-      "id": "sec_ykc4yvjnpk",
+      "id": "sec_2d9vv8qyc5",
       "preset": "pricing/compact-list@1",
       "label": "Compact price list",
       "layout": {
@@ -234,7 +234,7 @@
       },
       "blocks": [
         {
-          "id": "blk_9bheqcfqh9",
+          "id": "blk_66chf4zjmx",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -251,7 +251,7 @@
           }
         },
         {
-          "id": "blk_rwd3e05r14",
+          "id": "blk_h7rdfv665y",
           "type": "pricing",
           "v": 1,
           "fields": {

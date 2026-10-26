@@ -11,7 +11,7 @@
     "colorTheme": "light"
   },
   "footer": {
-    "id": "sec_6pda72z5r3",
+    "id": "sec_z3fv5p3b0m",
     "preset": "footer/minimal-row@1",
     "label": "One-line footer",
     "layout": {
@@ -37,7 +37,7 @@
     },
     "blocks": [
       {
-        "id": "blk_5n3kf5x6p1",
+        "id": "blk_dvw0xgc2f8",
         "type": "text",
         "v": 1,
         "fields": {
@@ -63,7 +63,7 @@
         "variant": "default"
       },
       {
-        "id": "blk_t5f2sak8zw",
+        "id": "blk_365q45f1pv",
         "type": "text",
         "v": 1,
         "fields": {

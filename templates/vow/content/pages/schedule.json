@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_mydamnw6zb",
+      "id": "sec_046h7ggea6",
       "preset": "hero/centered@1",
       "label": "Centered statement",
       "layout": {
@@ -28,7 +28,7 @@
       },
       "blocks": [
         {
-          "id": "blk_vaf2pxs42b",
+          "id": "blk_88z3z8znk5",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_6jr3rfd4km",
+          "id": "blk_9jz2e0csz7",
           "type": "button",
           "v": 1,
           "fields": {
@@ -72,7 +72,7 @@
       ]
     },
     {
-      "id": "sec_s8dpq2wry2",
+      "id": "sec_dr76r4qsgh",
       "preset": "about/milestones@1",
       "label": "Milestones timeline",
       "layout": {
@@ -93,7 +93,7 @@
       },
       "blocks": [
         {
-          "id": "blk_d001gnh45n",
+          "id": "blk_yk86kdm5wc",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -107,7 +107,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_gzbesbxjh6",
+          "id": "blk_kcqbpv6j6r",
           "type": "timeline",
           "v": 1,
           "fields": {
@@ -150,7 +150,7 @@
       ]
     },
     {
-      "id": "sec_00x052c9h2",
+      "id": "sec_cynm1gj09w",
       "preset": "services/image-cards@1",
       "label": "Three services with photos",
       "layout": {
@@ -167,7 +167,7 @@
       },
       "blocks": [
         {
-          "id": "blk_y28075m0x5",
+          "id": "blk_c3jtsqrta1",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -180,7 +180,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_5hgs7at4tk",
+          "id": "blk_dh94rvyz91",
           "type": "columns",
           "v": 1,
           "fields": {

@@ -1,16 +1,17 @@
 import type { TemplateSpec } from "../../lib/define";
 import { event, post } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   body,
+  collectionPath,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
   linkColumn,
   makePage,
+  PHOTO_SCRIM,
   page,
   photo,
-  PHOTO_SCRIM,
   photoBackground,
   photoUrl,
   rt,
@@ -26,13 +27,15 @@ import {
  */
 
 const T = "harbor";
-const P = {
-  home: pageId(T, "home"),
-  programs: pageId(T, "programs"),
-  involved: pageId(T, "get-involved"),
-  about: pageId(T, "about"),
-  contact: pageId(T, "contact"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  programs: "programs",
+  involved: "get-involved",
+  about: "about",
+  contact: "contact",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const NAME = "Riverbend Neighbors";
 const ADDRESS = "3120 Penn Avenue\nPittsburgh, PA 15201";
@@ -60,13 +63,13 @@ function home() {
           ),
         },
         edit: {
-          0: {
+          heading: {
             eyebrow: "Lawrenceville, Pittsburgh · Since 2004",
             text: "Neighbors keeping neighbors fed and home",
             subheading:
               "Free groceries, homework help and safe repairs for older homeowners, run by 300 volunteers who live on the same streets.",
           },
-          1: {
+          button: {
             label: "Donate today",
             link: page(P.involved, "donate"),
             secondaryLabel: "See our programs",
@@ -76,8 +79,8 @@ function home() {
       }),
       fromPreset("stats/row@1", {
         edit: {
-          0: { eyebrow: "Our 2025 report", text: "One year on Penn Avenue" },
-          1: {
+          heading: { eyebrow: "Our 2025 report", text: "One year on Penn Avenue" },
+          stats: {
             items: [
               { value: "41,200", label: "Grocery visits" },
               { value: "318", label: "Volunteers" },
@@ -89,13 +92,13 @@ function home() {
       }),
       fromPreset("services/image-cards@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "What we do",
             text: "Three programs, one neighborhood",
             subheading:
               "Everything we run is free, open to anyone in the 15201 and 15224 zip codes, and shaped by the people who use it.",
           },
-          1: {
+          columns: {
             items: [
               {
                 image: photo(
@@ -146,7 +149,7 @@ function home() {
       fromPreset("events/list@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          events: {
             heading: "Coming up in the neighborhood",
             registerLabel: "Sign up",
             emptyMessage: "New volunteer days are posted every month — check back soon.",
@@ -155,7 +158,7 @@ function home() {
       }),
       fromPreset("testimonials/photo-overlap@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "gardenTrowel",
               960,
@@ -163,7 +166,7 @@ function home() {
               "Volunteer hands planting seedlings in the community garden",
             ),
           },
-          1: {
+          testimonial: {
             quote: rt.doc(
               rt.p(
                 "When my husband passed, I didn't know who to call about the furnace. Riverbend sent two volunteers that week, and they still check in every winter.",
@@ -178,15 +181,15 @@ function home() {
       }),
       fromPreset("cta/donate@1", {
         edit: {
-          0: { eyebrow: "Give", text: "Keep the pantry shelves full" },
-          1: {
+          heading: { eyebrow: "Give", text: "Keep the pantry shelves full" },
+          text: {
             content: rt.doc(
               rt.p(
                 "Every week we welcome more than 800 families. $40 stocks one family's groceries for a week, and a monthly gift lets us buy fresh produce from local farms at wholesale prices.",
               ),
             ),
           },
-          2: {
+          donation: {
             amounts: [{ amount: 20 }, { amount: 40 }, { amount: 100 }, { amount: 250 }],
             buttonLabel: "Give now",
             note: "Riverbend Neighbors is a 501(c)(3). Gifts are tax-deductible; your receipt arrives by email.",
@@ -206,7 +209,7 @@ function programs() {
     [
       fromPreset("hero/split-landscape@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "kidsSmiling",
               760,
@@ -214,13 +217,13 @@ function programs() {
               "Children at Homework Harbor making peace signs",
             ),
           },
-          1: {
+          heading: {
             eyebrow: "Programs",
             text: "Help that starts with listening",
             subheading:
               "Each program began when neighbors told us what was missing. They're all free, and most are run by people who once used them.",
           },
-          2: {
+          button: {
             label: "Volunteer with us",
             link: page(P.involved),
             secondaryLabel: "Ask for help",
@@ -231,7 +234,7 @@ function programs() {
       fromPreset("services/alternating@1", {
         anchor: "pantry",
         edit: {
-          0: {
+          "image:1": {
             image: photo(
               "sharedTable",
               640,
@@ -239,17 +242,17 @@ function programs() {
               "Neighbors chatting at a long table at the pantry",
             ),
           },
-          1: {
+          "text:1": {
             content: rt.doc(
               rt.p("Tuesday, Thursday & Saturday", "eyebrow"),
               rt.h(2, "Penn Avenue Pantry", "h2"),
               rt.p(
                 "A choice pantry set up like a small grocery store, with fresh produce from three local farms, milk, eggs and pantry staples. Bring a bag; we'll bring the coffee.",
               ),
-              rt.p([rt.link("Pantry hours and address →", "/contact/")]),
+              rt.p([rt.link("Pantry hours and address →", href("contact"))]),
             ),
           },
-          2: {
+          "image:2": {
             image: photo(
               "kidsSmiling",
               640,
@@ -257,14 +260,14 @@ function programs() {
               "Kids from Homework Harbor smiling together",
             ),
           },
-          3: {
+          "text:2": {
             content: rt.doc(
               rt.p("School days, 3–6pm", "eyebrow"),
               rt.h(2, "Homework Harbor", "h2"),
               rt.p(
                 "Volunteer tutors, a hot snack and a calm place to work for students in grades 3 to 8. Parents can pick up groceries from the pantry on the same visit.",
               ),
-              rt.p([rt.link("Enroll a student →", "/contact/")]),
+              rt.p([rt.link("Enroll a student →", href("contact"))]),
             ),
           },
         },
@@ -272,8 +275,8 @@ function programs() {
       fromPreset("services/steps@1", {
         anchor: "repairs",
         edit: {
-          0: { eyebrow: "Safe at Home", text: "How a free repair works" },
-          1: {
+          heading: { eyebrow: "Safe at Home", text: "How a free repair works" },
+          columns: {
             items: [
               {
                 heading: "Call or write to us",
@@ -295,21 +298,21 @@ function programs() {
               },
             ],
           },
-          2: { label: "Request a repair", link: page(P.contact) },
+          button: { label: "Request a repair", link: page(P.contact) },
         },
       }),
       fromPreset("faq/split@1", {
         edit: {
-          0: { eyebrow: "Questions", text: "Getting help" },
-          1: {
+          heading: { eyebrow: "Questions", text: "Getting help" },
+          text: {
             content: rt.doc(
               rt.p(
                 "Not sure if a program is right for you? Call the front desk and we'll talk it through.",
               ),
             ),
           },
-          2: { label: "Contact us", link: page(P.contact) },
-          3: {
+          button: { label: "Contact us", link: page(P.contact) },
+          accordion: {
             items: [
               {
                 question: "Do I need ID or proof of income for the pantry?",
@@ -353,13 +356,13 @@ function involved() {
       fromPreset("hero/centered@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Get involved",
             text: "There's a place for you here",
             subheading:
               "Give once or every month, spend a Saturday morning at the pantry, or lend your skills to the repair crew. Every hour and every dollar stays in the neighborhood.",
           },
-          1: {
+          button: {
             label: "Donate",
             link: page(P.involved, "donate"),
             secondaryLabel: "Volunteer",
@@ -371,15 +374,15 @@ function involved() {
         theme: "light",
         anchor: "donate",
         edit: {
-          0: { eyebrow: "Donate", text: "A monthly gift goes furthest" },
-          1: {
+          heading: { eyebrow: "Donate", text: "A monthly gift goes furthest" },
+          text: {
             content: rt.doc(
               rt.p(
                 "Monthly donors let us buy produce in bulk, plan repair crews a season ahead and say yes when a family needs us. Choose an amount and how often to give.",
               ),
             ),
           },
-          2: {
+          donation: {
             amounts: [{ amount: 15 }, { amount: 40 }, { amount: 75 }, { amount: 150 }],
             buttonLabel: "Donate",
             note: "Secure checkout. You can change or cancel a monthly gift any time.",
@@ -389,7 +392,7 @@ function involved() {
       fromPreset("cta/card-over-photo@1", {
         anchor: "volunteer",
         edit: {
-          0: {
+          image: {
             image: photo(
               "friendsSunset",
               1100,
@@ -397,7 +400,7 @@ function involved() {
               "Volunteers with their arms around each other at sunset",
             ),
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.h(2, "Spend a Saturday with us", "h2"),
               rt.p(
@@ -405,14 +408,14 @@ function involved() {
               ),
             ),
           },
-          2: { label: "Sign up to volunteer", link: page(P.contact) },
+          button: { label: "Sign up to volunteer", link: page(P.contact) },
         },
       }),
       fromPreset("faq/cards@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "Giving", text: "Questions donors ask" },
-          1: {
+          heading: { eyebrow: "Giving", text: "Questions donors ask" },
+          accordion: {
             items: [
               {
                 question: "How much of my gift goes to programs?",
@@ -434,7 +437,7 @@ function involved() {
               },
             ],
           },
-          2: {
+          button: {
             label: "Talk to our development team",
             link: page(P.contact),
             note: "We reply within two working days.",
@@ -454,15 +457,15 @@ function about() {
     [
       fromPreset("hero/centered@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "About us",
             text: "Twenty years on Penn Avenue",
             subheading:
               "We started with a folding table and six bags of groceries. Today Riverbend is a staff of nine, three hundred volunteers and one stubborn idea: nobody here should go without.",
           },
-          1: {
+          button: {
             label: "Read the 2025 report",
-            link: url("/news/"),
+            link: url(collectionPath("news")),
             secondaryLabel: "Meet the team",
             secondaryLink: page(P.about, "team"),
           },
@@ -471,8 +474,8 @@ function about() {
       fromPreset("about/story-editorial@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "Our story", text: "How a church basement became a pantry" },
-          1: {
+          heading: { eyebrow: "Our story", text: "How a church basement became a pantry" },
+          text: {
             content: rt.doc(
               rt.p(
                 "In the winter of 2004, the steel-mill pensions on our block were cut in half. Margaret Oyelaran, a retired school nurse, noticed that her neighbors were skipping meals so they could heat their homes. She set up a folding table in the basement of St. Augustine's, borrowed a van, and started giving away groceries on Saturday mornings.",
@@ -487,13 +490,13 @@ function about() {
       fromPreset("team/grid@1", {
         anchor: "team",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Staff",
             text: "The people behind the programs",
             subheading:
               "Nine staff, most of whom first came to Riverbend as volunteers or neighbors.",
           },
-          1: {
+          team: {
             people: [
               {
                 name: "Simone Achterberg",
@@ -522,12 +525,12 @@ function about() {
       fromPreset("stats/cards@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Accountability",
             text: "Where the money goes",
             subheading: "From our audited 2025 accounts. The full report is free to download.",
           },
-          1: {
+          stats: {
             items: [
               {
                 value: "94%",
@@ -550,13 +553,13 @@ function about() {
       }),
       fromPreset("logos/grid@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Partners",
             text: "Good work is never done alone",
             subheading:
               "Farms, schools, congregations and businesses who share food, space and expertise.",
           },
-          1: {
+          "logo-strip": {
             logos: [
               { name: "Allegheny Food Network" },
               { name: "Three Rivers Farm Co-op" },
@@ -583,15 +586,15 @@ function contact() {
     [
       fromPreset("contact/form-split@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Contact",
             text: "Ask for help, or offer it",
             level: "h1",
             subheading:
               "Write to us about any program, volunteering or a donation. Someone will reply within two working days.",
           },
-          1: { name: NAME, address: ADDRESS, phone: PHONE, email: EMAIL },
-          2: {
+          "contact-info": { name: NAME, address: ADDRESS, phone: PHONE, email: EMAIL },
+          form: {
             form: {
               id: formId(),
               name: "Contact",
@@ -632,14 +635,14 @@ function contact() {
       }),
       fromPreset("contact/location@1", {
         edit: {
-          0: {
+          map: {
             name: NAME,
             address: "3120 Penn Avenue, Pittsburgh, PA 15201",
             latitude: 40.4627,
             longitude: -79.9671,
           },
-          1: { eyebrow: "Visit", text: "Pantry & office hours" },
-          2: {
+          heading: { eyebrow: "Visit", text: "Pantry & office hours" },
+          hours: {
             heading: "Pantry hours",
             rows: [
               { day: "mon", closed: true },
@@ -652,7 +655,7 @@ function contact() {
             ],
             note: "The office is open weekdays 9 to 5. The 54 and 93 buses stop at the corner of 32nd Street.",
           },
-          3: { address: ADDRESS, phone: PHONE, email: EMAIL },
+          "contact-info": { address: ADDRESS, phone: PHONE, email: EMAIL },
         },
       }),
     ],
@@ -755,7 +758,7 @@ export const harbor: TemplateSpec = {
         },
         footer: fromPreset("footer/columns@1", {
           edit: {
-            0: {
+            "text:1": {
               content: rt.doc(
                 rt.p(NAME, "lead"),
                 rt.p(
@@ -763,30 +766,30 @@ export const harbor: TemplateSpec = {
                 ),
               ),
             },
-            1: { profiles: [] },
-            2: {
+            "social-links": { profiles: [] },
+            "text:2": {
               content: rt.doc(
                 ...linkColumn("Programs", [
-                  ["Penn Avenue Pantry", "/programs/#pantry"],
-                  ["Homework Harbor", "/programs/"],
-                  ["Safe at Home", "/programs/#repairs"],
+                  ["Penn Avenue Pantry", href("programs", "pantry")],
+                  ["Homework Harbor", href("programs")],
+                  ["Safe at Home", href("programs", "repairs")],
                 ]),
               ),
             },
-            3: {
+            "text:3": {
               content: rt.doc(
                 ...linkColumn("Organization", [
-                  ["About", "/about/"],
-                  ["News", "/news/"],
-                  ["Events", "/events/"],
+                  ["About", href("about")],
+                  ["News", collectionPath("news")],
+                  ["Events", collectionPath("events")],
                 ]),
               ),
             },
-            4: {
+            "text:4": {
               content: rt.doc(
                 rt.p("Visit", "eyebrow"),
                 rt.p("3120 Penn Avenue, Pittsburgh, PA 15201. "),
-                rt.p([rt.link("Volunteer or donate", "/get-involved/")]),
+                rt.p([rt.link("Volunteer or donate", href("involved"))]),
                 rt.p("© 2026 Riverbend Neighbors", "small"),
               ),
             },

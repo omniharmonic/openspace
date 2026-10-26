@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_ppy5k19fjd",
+      "id": "sec_gqkp5bw94e",
       "preset": "about/story-split@1",
       "label": "Story with portrait",
       "layout": {
@@ -30,7 +30,7 @@
       },
       "blocks": [
         {
-          "id": "blk_bxvmh2q3ex",
+          "id": "blk_t3var9mgat",
           "type": "image",
           "v": 1,
           "fields": {
@@ -47,7 +47,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_de5pnvcywq",
+          "id": "blk_nhn7gzzdyk",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -60,7 +60,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_jnmf1nbgnj",
+          "id": "blk_m5f6w9mdkn",
           "type": "text",
           "v": 1,
           "fields": {
@@ -92,7 +92,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_a3ngfghcxv",
+          "id": "blk_by1fc428rh",
           "type": "button",
           "v": 1,
           "fields": {
@@ -110,7 +110,7 @@
       ]
     },
     {
-      "id": "sec_fvppahg0g0",
+      "id": "sec_aghpxd55jy",
       "preset": "team/grid@1",
       "label": "Team grid",
       "layout": {
@@ -127,7 +127,7 @@
       },
       "blocks": [
         {
-          "id": "blk_bca8cjqdvp",
+          "id": "blk_k3h1pf7a9t",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -140,7 +140,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_hr146j0f60",
+          "id": "blk_zwsp9ds31g",
           "type": "team",
           "v": 1,
           "fields": {
@@ -194,7 +194,7 @@
       "anchor": "team"
     },
     {
-      "id": "sec_0s33pzh3ya",
+      "id": "sec_q0xje777ma",
       "preset": "logos/row@1",
       "label": "Logo row",
       "layout": {
@@ -214,7 +214,7 @@
       },
       "blocks": [
         {
-          "id": "blk_7mb3rqj72t",
+          "id": "blk_qjme428jp1",
           "type": "logo-strip",
           "v": 1,
           "fields": {

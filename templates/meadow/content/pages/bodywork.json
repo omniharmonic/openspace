@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_c33pe0xrh6",
+      "id": "sec_z88vrtdeg3",
       "preset": "hero/split-image@1",
       "label": "Split with portrait image",
       "layout": {
@@ -34,7 +34,7 @@
       },
       "blocks": [
         {
-          "id": "blk_k858dwepg2",
+          "id": "blk_zzrndegt68",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_2gq51885aw",
+          "id": "blk_w28z4kh448",
           "type": "button",
           "v": 1,
           "fields": {
@@ -70,7 +70,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_7be6k09108",
+          "id": "blk_k04d2wf945",
           "type": "image",
           "v": 1,
           "fields": {
@@ -92,7 +92,7 @@
       ]
     },
     {
-      "id": "sec_9m6tz6a293",
+      "id": "sec_b6vwyqbegq",
       "preset": "services/price-list@1",
       "label": "Service menu with prices",
       "layout": {
@@ -113,7 +113,7 @@
       },
       "blocks": [
         {
-          "id": "blk_9czeb4bckj",
+          "id": "blk_4az0sm6kr6",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -127,7 +127,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_wbytpk5t19",
+          "id": "blk_gh8mfxs9d0",
           "type": "button",
           "v": 1,
           "fields": {
@@ -142,7 +142,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_mmazy1d8yf",
+          "id": "blk_66g41zgm6d",
           "type": "restaurant-menu",
           "v": 1,
           "fields": {
@@ -198,7 +198,7 @@
       ]
     },
     {
-      "id": "sec_tp54yk30w9",
+      "id": "sec_z3xf8pm4gh",
       "preset": "team/bios@1",
       "label": "Team with bios",
       "layout": {
@@ -216,7 +216,7 @@
       },
       "blocks": [
         {
-          "id": "blk_1864qa8cda",
+          "id": "blk_06np22jssp",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -228,7 +228,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_b7z6dhfn0a",
+          "id": "blk_h2nk95bck3",
           "type": "team",
           "v": 1,
           "fields": {
@@ -264,7 +264,7 @@
       "anchor": "therapists"
     },
     {
-      "id": "sec_wyq4tnw85y",
+      "id": "sec_wna3wqkhs7",
       "preset": "cta/split@1",
       "label": "Headline with action on the right",
       "layout": {
@@ -290,7 +290,7 @@
       },
       "blocks": [
         {
-          "id": "blk_sy79em1sx3",
+          "id": "blk_h60bmtpd3e",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -303,7 +303,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_z2d8rcxnzt",
+          "id": "blk_y7z2y5xhwp",
           "type": "button",
           "v": 1,
           "fields": {

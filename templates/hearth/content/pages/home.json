@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_37kw8g9nn0",
+      "id": "sec_5b9zq3pv83",
       "preset": "hero/staggered-photos@1",
       "label": "Staggered photographs",
       "layout": {
@@ -18,7 +18,7 @@
           "m": 35
         },
         "items": {
-          "blk_a4meqxh68d": {
+          "blk_6j1d3r08z1": {
             "d": {
               "x": 1,
               "y": 1,
@@ -32,7 +32,7 @@
               "h": 12
             }
           },
-          "blk_h50q5khsft": {
+          "blk_xv8ydcx29x": {
             "d": {
               "x": 10,
               "y": 4,
@@ -46,7 +46,7 @@
               "h": 9
             }
           },
-          "blk_vwthesw75p": {
+          "blk_71zkpbyk12": {
             "d": {
               "x": 17,
               "y": 1,
@@ -60,7 +60,7 @@
               "h": 9
             }
           },
-          "blk_bsnb863e5r": {
+          "blk_jpecr9bw5z": {
             "d": {
               "x": 14,
               "y": 11,
@@ -76,7 +76,7 @@
               "z": 2
             }
           },
-          "blk_h36k1ysah5": {
+          "blk_h3yx4gyzee": {
             "d": {
               "x": 15,
               "y": 23,
@@ -101,7 +101,7 @@
       },
       "blocks": [
         {
-          "id": "blk_a4meqxh68d",
+          "id": "blk_6j1d3r08z1",
           "type": "image",
           "v": 1,
           "fields": {
@@ -117,7 +117,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_h50q5khsft",
+          "id": "blk_xv8ydcx29x",
           "type": "image",
           "v": 1,
           "fields": {
@@ -137,7 +137,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_vwthesw75p",
+          "id": "blk_71zkpbyk12",
           "type": "image",
           "v": 1,
           "fields": {
@@ -153,7 +153,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_bsnb863e5r",
+          "id": "blk_jpecr9bw5z",
           "type": "text",
           "v": 1,
           "fields": {
@@ -207,7 +207,7 @@
           }
         },
         {
-          "id": "blk_h36k1ysah5",
+          "id": "blk_h3yx4gyzee",
           "type": "button",
           "v": 1,
           "fields": {
@@ -229,7 +229,7 @@
       ]
     },
     {
-      "id": "sec_ad4fw5b85a",
+      "id": "sec_ty1wj6jk1d",
       "preset": "services/price-list@1",
       "label": "Service menu with prices",
       "layout": {
@@ -250,7 +250,7 @@
       },
       "blocks": [
         {
-          "id": "blk_4j1q5t3193",
+          "id": "blk_x65zkjxs6n",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -264,7 +264,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_m6bgm7v311",
+          "id": "blk_xshwqzzpa3",
           "type": "button",
           "v": 1,
           "fields": {
@@ -279,7 +279,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_bb0xjbxg3a",
+          "id": "blk_jfn3k3wmy1",
           "type": "restaurant-menu",
           "v": 1,
           "fields": {
@@ -340,7 +340,7 @@
       ]
     },
     {
-      "id": "sec_p7wdm13ttb",
+      "id": "sec_t9n62hphpg",
       "preset": "about/quote-and-image@1",
       "label": "Founder quote with photo",
       "layout": {
@@ -372,7 +372,7 @@
       },
       "blocks": [
         {
-          "id": "blk_9mmr8p3fd8",
+          "id": "blk_f1frkfd8h3",
           "type": "image",
           "v": 1,
           "fields": {
@@ -389,7 +389,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_e15s2f7ece",
+          "id": "blk_4zyvhpjdh9",
           "type": "quote",
           "v": 1,
           "fields": {
@@ -416,7 +416,7 @@
       ]
     },
     {
-      "id": "sec_7vsavv6jv4",
+      "id": "sec_v8hasj7wk8",
       "preset": "gallery/carousel@1",
       "label": "Scrolling carousel",
       "layout": {
@@ -433,7 +433,7 @@
       },
       "blocks": [
         {
-          "id": "blk_ymz4q0k7h5",
+          "id": "blk_g8krggry01",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -445,7 +445,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_wh2gm6xz81",
+          "id": "blk_fkrzq81km9",
           "type": "gallery",
           "v": 1,
           "fields": {
@@ -519,7 +519,7 @@
       ]
     },
     {
-      "id": "sec_nd9vw9jb37",
+      "id": "sec_0jnc7s3gva",
       "preset": "contact/hours-overlap@1",
       "label": "Hours card over photo",
       "layout": {
@@ -529,7 +529,7 @@
           "m": 30
         },
         "items": {
-          "blk_0reed522b2": {
+          "blk_f522edxv8c": {
             "d": {
               "x": 1,
               "y": 1,
@@ -545,7 +545,7 @@
               "bleed": "both"
             }
           },
-          "blk_e0j63k0zn3": {
+          "blk_hqd1dkrj7m": {
             "d": {
               "x": 13,
               "y": 3,
@@ -561,7 +561,7 @@
               "z": 2
             }
           },
-          "blk_vtgrpgd2bv": {
+          "blk_0v2gg58257": {
             "d": {
               "x": 13,
               "y": 17,
@@ -583,7 +583,7 @@
       },
       "blocks": [
         {
-          "id": "blk_0reed522b2",
+          "id": "blk_f522edxv8c",
           "type": "image",
           "v": 1,
           "fields": {
@@ -599,7 +599,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_e0j63k0zn3",
+          "id": "blk_hqd1dkrj7m",
           "type": "hours",
           "v": 1,
           "fields": {
@@ -659,7 +659,7 @@
           }
         },
         {
-          "id": "blk_vtgrpgd2bv",
+          "id": "blk_0v2gg58257",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -681,7 +681,7 @@
       ]
     },
     {
-      "id": "sec_gzr4zjy40k",
+      "id": "sec_5wwg1bzzj2",
       "preset": "testimonials/three-cards@1",
       "label": "Three testimonial cards",
       "layout": {
@@ -691,7 +691,7 @@
           "m": 41
         },
         "items": {
-          "blk_hnedfy8a1q": {
+          "blk_hg5bdrq7ch": {
             "d": {
               "x": 5,
               "y": 1,
@@ -705,7 +705,7 @@
               "h": 5
             }
           },
-          "blk_t3h1qyb1dv": {
+          "blk_4a0gwan0c5": {
             "d": {
               "x": 1,
               "y": 7,
@@ -719,7 +719,7 @@
               "h": 11
             }
           },
-          "blk_137y685a6v": {
+          "blk_y1ypegpr9p": {
             "d": {
               "x": 9,
               "y": 7,
@@ -733,7 +733,7 @@
               "h": 11
             }
           },
-          "blk_k1hj87symj": {
+          "blk_s3y33v1w6n": {
             "d": {
               "x": 17,
               "y": 7,
@@ -754,7 +754,7 @@
       },
       "blocks": [
         {
-          "id": "blk_hnedfy8a1q",
+          "id": "blk_hg5bdrq7ch",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -771,7 +771,7 @@
           }
         },
         {
-          "id": "blk_t3h1qyb1dv",
+          "id": "blk_4a0gwan0c5",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -802,7 +802,7 @@
           "variant": "card"
         },
         {
-          "id": "blk_137y685a6v",
+          "id": "blk_y1ypegpr9p",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -833,7 +833,7 @@
           "variant": "card"
         },
         {
-          "id": "blk_k1hj87symj",
+          "id": "blk_s3y33v1w6n",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -866,7 +866,7 @@
       ]
     },
     {
-      "id": "sec_m1vrena6pm",
+      "id": "sec_mcm5pnf2wz",
       "preset": "cta/photo-background@1",
       "label": "Photo background",
       "layout": {
@@ -890,13 +890,13 @@
           "src": "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=2880&q=80",
           "overlay": {
             "color": "background",
-            "opacity": 0.62
+            "opacity": 0.78
           }
         }
       },
       "blocks": [
         {
-          "id": "blk_3f7rh54txj",
+          "id": "blk_h69b036hzp",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -913,7 +913,7 @@
           }
         },
         {
-          "id": "blk_m2fj4fd88z",
+          "id": "blk_zr2jajac6m",
           "type": "button",
           "v": 1,
           "fields": {

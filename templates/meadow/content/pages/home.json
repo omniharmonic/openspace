@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_t9wf5a20t0",
+      "id": "sec_h9tnehxdvb",
       "preset": "hero/arch-window@1",
       "label": "Arched image",
       "layout": {
@@ -34,7 +34,7 @@
       },
       "blocks": [
         {
-          "id": "blk_yfsf54gbp9",
+          "id": "blk_vct7gw95n1",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_2p4a0svq4g",
+          "id": "blk_e5hr89w7pd",
           "type": "button",
           "v": 1,
           "fields": {
@@ -69,7 +69,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_1zrvfa7z1e",
+          "id": "blk_40we6p1z3t",
           "type": "image",
           "v": 1,
           "fields": {
@@ -91,7 +91,7 @@
       ]
     },
     {
-      "id": "sec_1w8ezam27t",
+      "id": "sec_410jh9fyhr",
       "preset": "about/values@1",
       "label": "Values",
       "layout": {
@@ -108,7 +108,7 @@
       },
       "blocks": [
         {
-          "id": "blk_vvg1a5pwf7",
+          "id": "blk_7psjscjt6v",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -126,7 +126,7 @@
           }
         },
         {
-          "id": "blk_5jx8dz66t5",
+          "id": "blk_mv4z5w22bh",
           "type": "icon-list",
           "v": 1,
           "fields": {
@@ -154,7 +154,7 @@
       ]
     },
     {
-      "id": "sec_fenz6tbea6",
+      "id": "sec_fa4k8m8p03",
       "preset": "services/alternating@1",
       "label": "Alternating image and text",
       "layout": {
@@ -164,7 +164,7 @@
           "m": 43
         },
         "items": {
-          "blk_w6d1as053j": {
+          "blk_cb635hcq7q": {
             "d": {
               "x": 1,
               "y": 1,
@@ -178,7 +178,7 @@
               "h": 11
             }
           },
-          "blk_mbnbpb4wkz": {
+          "blk_bjf6j96tvq": {
             "d": {
               "x": 15,
               "y": 4,
@@ -192,7 +192,7 @@
               "h": 10
             }
           },
-          "blk_qgqexcs9xf": {
+          "blk_k8k73t543t": {
             "d": {
               "x": 13,
               "y": 18,
@@ -206,7 +206,7 @@
               "h": 11
             }
           },
-          "blk_9wt4rm0kxp": {
+          "blk_rh0p0k8tdv": {
             "d": {
               "x": 2,
               "y": 21,
@@ -227,7 +227,7 @@
       },
       "blocks": [
         {
-          "id": "blk_w6d1as053j",
+          "id": "blk_cb635hcq7q",
           "type": "image",
           "v": 1,
           "fields": {
@@ -243,7 +243,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_mbnbpb4wkz",
+          "id": "blk_bjf6j96tvq",
           "type": "text",
           "v": 1,
           "fields": {
@@ -307,7 +307,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_qgqexcs9xf",
+          "id": "blk_k8k73t543t",
           "type": "image",
           "v": 1,
           "fields": {
@@ -323,7 +323,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_9wt4rm0kxp",
+          "id": "blk_rh0p0k8tdv",
           "type": "text",
           "v": 1,
           "fields": {
@@ -389,7 +389,7 @@
       ]
     },
     {
-      "id": "sec_xnk53tfbrr",
+      "id": "sec_pc46zd5vz0",
       "preset": "testimonials/large-single@1",
       "label": "One big testimonial",
       "layout": {
@@ -410,7 +410,7 @@
       },
       "blocks": [
         {
-          "id": "blk_t0vgrb7exg",
+          "id": "blk_7tkvwpv9hf",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -447,7 +447,7 @@
       ]
     },
     {
-      "id": "sec_zphc5b22hc",
+      "id": "sec_p13sa37w5e",
       "preset": "events/cards@1",
       "label": "Event cards",
       "layout": {
@@ -463,7 +463,7 @@
       },
       "blocks": [
         {
-          "id": "blk_zm1g8rbyt4",
+          "id": "blk_h18g7jk3by",
           "type": "events",
           "v": 1,
           "fields": {
@@ -488,7 +488,7 @@
       ]
     },
     {
-      "id": "sec_1vk5s9bfv5",
+      "id": "sec_yz86mmmw5k",
       "preset": "cta/banner@1",
       "label": "Centred banner",
       "layout": {
@@ -510,7 +510,7 @@
       },
       "blocks": [
         {
-          "id": "blk_1g28jawmvm",
+          "id": "blk_2pwm6s19me",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -527,7 +527,7 @@
           }
         },
         {
-          "id": "blk_ts60s25x1c",
+          "id": "blk_9fm50v7anj",
           "type": "button",
           "v": 1,
           "fields": {

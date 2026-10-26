@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_qebtnabn00",
+      "id": "sec_9fv9jgawj4",
       "preset": "hero/centered@1",
       "label": "Centered statement",
       "layout": {
@@ -28,7 +28,7 @@
       },
       "blocks": [
         {
-          "id": "blk_85v207m8q0",
+          "id": "blk_8fqtg32mrn",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_b52y8nqna3",
+          "id": "blk_ntbc2a2cad",
           "type": "button",
           "v": 1,
           "fields": {
@@ -72,7 +72,7 @@
       ]
     },
     {
-      "id": "sec_zzxpk2hkt0",
+      "id": "sec_3xfz2fq0he",
       "preset": "faq/by-topic@1",
       "label": "Member directory",
       "layout": {
@@ -89,7 +89,7 @@
       },
       "blocks": [
         {
-          "id": "blk_29n8f2vk0p",
+          "id": "blk_8tvgp72nnp",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -102,7 +102,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_chh1sqpqb3",
+          "id": "blk_bxvs6kppnc",
           "type": "tabs",
           "v": 1,
           "fields": {
@@ -363,7 +363,7 @@
       ]
     },
     {
-      "id": "sec_ey3wq7zg0m",
+      "id": "sec_varwwm30e7",
       "preset": "testimonials/pair@1",
       "label": "Two testimonials",
       "layout": {
@@ -373,7 +373,7 @@
           "m": 29
         },
         "items": {
-          "blk_3tzfjdjfbm": {
+          "blk_nabq8p08ve": {
             "d": {
               "x": 1,
               "y": 1,
@@ -387,7 +387,7 @@
               "h": 5
             }
           },
-          "blk_y2nyg3yhdy": {
+          "blk_msdyt2jns6": {
             "d": {
               "x": 1,
               "y": 7,
@@ -401,7 +401,7 @@
               "h": 11
             }
           },
-          "blk_4dnp1hv44d": {
+          "blk_06hjqsg74j": {
             "d": {
               "x": 14,
               "y": 7,
@@ -422,7 +422,7 @@
       },
       "blocks": [
         {
-          "id": "blk_3tzfjdjfbm",
+          "id": "blk_nabq8p08ve",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -434,7 +434,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_y2nyg3yhdy",
+          "id": "blk_msdyt2jns6",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -464,7 +464,7 @@
           "variant": "minimal"
         },
         {
-          "id": "blk_4dnp1hv44d",
+          "id": "blk_06hjqsg74j",
           "type": "testimonial",
           "v": 1,
           "fields": {

@@ -42,7 +42,7 @@
     "colorTheme": "light"
   },
   "footer": {
-    "id": "sec_8pxgp51tg6",
+    "id": "sec_5rw9wsxnc1",
     "preset": "footer/visit@1",
     "label": "Footer with hours and address",
     "layout": {
@@ -68,7 +68,7 @@
     },
     "blocks": [
       {
-        "id": "blk_3e8khp8cyt",
+        "id": "blk_rzbrxyfztm",
         "type": "text",
         "v": 1,
         "fields": {
@@ -106,7 +106,7 @@
         "variant": "default"
       },
       {
-        "id": "blk_acypg692v5",
+        "id": "blk_9bfsn8bg2y",
         "type": "social-links",
         "v": 1,
         "fields": {
@@ -117,7 +117,7 @@
         "variant": "icons"
       },
       {
-        "id": "blk_an0sbh3f7f",
+        "id": "blk_0c89mbt818",
         "type": "contact-info",
         "v": 1,
         "fields": {
@@ -132,7 +132,7 @@
         "variant": "list"
       },
       {
-        "id": "blk_jzc92r5da2",
+        "id": "blk_ve974e80mx",
         "type": "hours",
         "v": 1,
         "fields": {

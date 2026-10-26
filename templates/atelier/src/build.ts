@@ -1,8 +1,8 @@
 import type { TemplateSpec } from "../../lib/define";
 import { project } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   body,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
@@ -25,13 +25,15 @@ import {
  */
 
 const T = "atelier";
-const P = {
-  home: pageId(T, "home"),
-  work: pageId(T, "work"),
-  commissions: pageId(T, "commissions"),
-  about: pageId(T, "about"),
-  contact: pageId(T, "contact"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  work: "work",
+  commissions: "commissions",
+  about: "about",
+  contact: "contact",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const EMAIL = "studio@eliasvarga.example";
 
@@ -87,7 +89,7 @@ function home() {
         style: { padding: { d: "none", m: "none" } },
         width: "full",
         edit: {
-          0: {
+          gallery: {
             images: [
               {
                 image: photo(
@@ -136,11 +138,11 @@ function home() {
       }),
       fromPreset("hero/big-type@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Elias Varga · Photographer",
             text: "Land, light and the buildings between",
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.p(
                 "Landscape and architecture photography for publishers, architects and hotels, made slowly and printed by hand in my Denver studio.",
@@ -148,7 +150,7 @@ function home() {
               ),
             ),
           },
-          2: {
+          button: {
             label: "See the work",
             link: page(P.work),
             secondaryLabel: "Commission a series",
@@ -158,8 +160,8 @@ function home() {
       }),
       fromPreset("gallery/project-cards@1", {
         edit: {
-          0: { eyebrow: "Index", text: "Selected projects" },
-          1: {
+          heading: { eyebrow: "Index", text: "Selected projects" },
+          columns: {
             columns: "2",
             items: projects.map((p) => ({
               image: photo(p.cover, 620, "4:5", `${p.title}: ${p.excerpt.split(":")[0]}`),
@@ -174,7 +176,7 @@ function home() {
       fromPreset("testimonials/large-single@1", {
         theme: "dark",
         edit: {
-          0: {
+          testimonial: {
             quote: rt.doc(
               rt.p(
                 "Elias spent four days on a building we thought we knew, and found angles none of us had noticed in ten years. The book sold out in a month.",
@@ -188,7 +190,7 @@ function home() {
       }),
       fromPreset("logos/row@1", {
         edit: {
-          0: {
+          "logo-strip": {
             label: "Published and exhibited by",
             logos: [
               { name: "Halden Press" },
@@ -203,8 +205,8 @@ function home() {
       fromPreset("cta/split@1", {
         theme: "dark",
         edit: {
-          0: { eyebrow: "Commissions", text: "Booking spring 2027 commissions now" },
-          1: {
+          heading: { eyebrow: "Commissions", text: "Booking spring 2027 commissions now" },
+          button: {
             label: "Start a conversation",
             link: page(P.contact),
             note: "Architecture, hospitality and editorial.",
@@ -237,7 +239,7 @@ function work() {
       ),
       fromPreset("gallery/project-feature@1", {
         edit: {
-          0: {
+          "image:1": {
             image: photo(
               "lake",
               1440,
@@ -245,7 +247,7 @@ function work() {
               "A rowing boat on a turquoise lake below jagged peaks",
             ),
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.p("Project · 2026", "eyebrow"),
               rt.h(2, "Cordillera", "h2"),
@@ -254,14 +256,16 @@ function work() {
               ),
             ),
           },
-          2: { image: photo("valley", 520, "original", "Mist rising from a river valley at dawn") },
-          3: { label: "View the series", link: item("projects", "cordillera") },
+          "image:2": {
+            image: photo("valley", 520, "original", "Mist rising from a river valley at dawn"),
+          },
+          button: { label: "View the series", link: item("projects", "cordillera") },
         },
       }),
       fromPreset("gallery/masonry@1", {
         edit: {
-          0: { eyebrow: "Single frames", text: "From the contact sheets" },
-          1: {
+          heading: { eyebrow: "Single frames", text: "From the contact sheets" },
+          gallery: {
             images: [
               {
                 image: photo(
@@ -332,7 +336,7 @@ function commissions() {
     [
       fromPreset("hero/split-landscape@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "poolHouse",
               760,
@@ -340,13 +344,13 @@ function commissions() {
               "A white villa with a pool framed by palms, shot for a hotel commission",
             ),
           },
-          1: {
+          heading: {
             eyebrow: "Commissions & prints",
             text: "Photographs made for a place",
             subheading:
               "I take on six commissions a year, for architects, hotels and publishers who want their buildings and landscapes seen slowly and honestly.",
           },
-          2: {
+          button: {
             label: "Enquire about a commission",
             link: page(P.contact),
             secondaryLabel: "Buy a print",
@@ -356,8 +360,8 @@ function commissions() {
       }),
       fromPreset("services/steps@1", {
         edit: {
-          0: { eyebrow: "Working together", text: "How a commission runs" },
-          1: {
+          heading: { eyebrow: "Working together", text: "How a commission runs" },
+          columns: {
             items: [
               {
                 heading: "A walk-through",
@@ -379,14 +383,14 @@ function commissions() {
               },
             ],
           },
-          2: { label: "Ask about availability", link: page(P.contact) },
+          button: { label: "Ask about availability", link: page(P.contact) },
         },
       }),
       fromPreset("pricing/compact-list@1", {
         anchor: "prints",
         edit: {
-          0: { eyebrow: "Editions", text: "Signed prints" },
-          1: {
+          heading: { eyebrow: "Editions", text: "Signed prints" },
+          pricing: {
             plans: [
               {
                 name: "Small · 30 × 40 cm",
@@ -436,11 +440,11 @@ function about() {
     [
       fromPreset("about/story-split@1", {
         edit: {
-          0: {
+          image: {
             image: photo("portraitTheo", 520, "4:5", "Portrait of the photographer Elias Varga"),
           },
-          1: { eyebrow: "About", text: "Elias Varga", level: "h1", size: "h1" },
-          2: {
+          heading: { eyebrow: "About", text: "Elias Varga", level: "h1", size: "h1" },
+          text: {
             content: rt.doc(
               rt.p(
                 "I grew up in Golden, Colorado, and spent my twenties drawing buildings for an architecture firm in Chicago. Photography started as a way to remember the places I was drawing. It became the work when I realised I cared more about how light moved across a wall than about the wall itself.",
@@ -450,18 +454,18 @@ function about() {
               ),
             ),
           },
-          3: { label: "Get in touch", link: page(P.contact), role: "secondary" },
+          button: { label: "Get in touch", link: page(P.contact), role: "secondary" },
         },
       }),
       fromPreset("about/milestones@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Selected",
             text: "Exhibitions & books",
             subheading: "Solo shows, publications and awards since 2018.",
           },
-          1: {
+          timeline: {
             items: [
               {
                 date: "2026",
@@ -500,20 +504,20 @@ function contact() {
     [
       fromPreset("contact/form-split@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Contact",
             text: "Tell me about the place",
             level: "h1",
             subheading:
               "Commissions, licensing and print orders all start here. I reply personally within two working days.",
           },
-          1: {
+          "contact-info": {
             name: "Elias Varga Studio",
             address: "3301 Walnut Street, Studio 12\nDenver, CO 80205",
             phone: "+1 (720) 555-0131",
             email: EMAIL,
           },
-          2: {
+          form: {
             form: {
               id: formId(),
               name: "Studio enquiry",
@@ -636,7 +640,7 @@ export const atelier: TemplateSpec = {
         header: headerFrom("header/minimal@1", { sticky: false }),
         footer: fromPreset("footer/minimal-row@1", {
           edit: {
-            0: {
+            "text:1": {
               content: rt.doc(
                 rt.p(
                   "© 2026 Elias Varga. All photographs are the property of the artist.",
@@ -644,7 +648,7 @@ export const atelier: TemplateSpec = {
                 ),
               ),
             },
-            1: {
+            "text:2": {
               content: rt.doc(
                 rt.p(
                   [
@@ -652,7 +656,7 @@ export const atelier: TemplateSpec = {
                     " · ",
                     rt.link("Email", `mailto:${EMAIL}`),
                     " · ",
-                    rt.link("Prints", "/commissions/#prints"),
+                    rt.link("Prints", href("commissions", "prints")),
                   ],
                   "small",
                 ),

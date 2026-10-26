@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_g2m03x9rnb",
+      "id": "sec_m9sjxgrveg",
       "preset": "contact/location@1",
       "label": "Map, hours and address",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_p2hs0vj2f0",
+          "id": "blk_0ckekvkvez",
           "type": "map",
           "v": 1,
           "fields": {
@@ -45,7 +45,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_yxe2vhsfz4",
+          "id": "blk_9rxd2425v1",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -58,7 +58,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_94tehb5vez",
+          "id": "blk_dh09g747qc",
           "type": "hours",
           "v": 1,
           "fields": {
@@ -112,7 +112,7 @@
           "variant": "compact"
         },
         {
-          "id": "blk_scey3fatap",
+          "id": "blk_g2m69p81za",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -128,7 +128,7 @@
       ]
     },
     {
-      "id": "sec_mnyqv4e6a1",
+      "id": "sec_qzzg29j65p",
       "preset": "contact/booking-request@1",
       "label": "Booking request form",
       "layout": {
@@ -146,7 +146,7 @@
       },
       "blocks": [
         {
-          "id": "blk_bpbr2m2hxc",
+          "id": "blk_ryymj2n43p",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -164,12 +164,12 @@
           }
         },
         {
-          "id": "blk_wsjpb0tq35",
+          "id": "blk_v33kzh71dz",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_eeb0czcbd1",
+              "id": "frm_95rm4ga7db",
               "name": "Reservation request",
               "fields": [
                 {

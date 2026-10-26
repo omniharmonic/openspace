@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_mtrqtb5pdg",
+      "id": "sec_zqjasq73kg",
       "preset": "hero/split-image@1",
       "label": "Split with portrait image",
       "layout": {
@@ -34,7 +34,7 @@
       },
       "blocks": [
         {
-          "id": "blk_fdna7dj99g",
+          "id": "blk_dy1esh2x4k",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_w61wqj3zbd",
+          "id": "blk_gxy65ebv38",
           "type": "button",
           "v": 1,
           "fields": {
@@ -69,7 +69,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_95b6pb8zsm",
+          "id": "blk_fan12bb22m",
           "type": "image",
           "v": 1,
           "fields": {
@@ -88,7 +88,7 @@
       ]
     },
     {
-      "id": "sec_rs3f9n845g",
+      "id": "sec_3cm44mbv4e",
       "preset": "events/list@1",
       "label": "Upcoming events list",
       "layout": {
@@ -105,7 +105,7 @@
       },
       "blocks": [
         {
-          "id": "blk_jdbzn06h2c",
+          "id": "blk_wn19zxfend",
           "type": "events",
           "v": 1,
           "fields": {
@@ -130,7 +130,7 @@
       ]
     },
     {
-      "id": "sec_2k75481p78",
+      "id": "sec_36dvvsqw31",
       "preset": "services/steps@1",
       "label": "How it works in three steps",
       "layout": {
@@ -147,7 +147,7 @@
       },
       "blocks": [
         {
-          "id": "blk_he1ar39n5j",
+          "id": "blk_80bqyjeb7k",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -164,7 +164,7 @@
           }
         },
         {
-          "id": "blk_jh08jczcwe",
+          "id": "blk_k4grr5bxpf",
           "type": "columns",
           "v": 1,
           "fields": {
@@ -227,7 +227,7 @@
           "variant": "steps"
         },
         {
-          "id": "blk_vzms9hpb8c",
+          "id": "blk_s7fev3v0hh",
           "type": "button",
           "v": 1,
           "fields": {
@@ -248,7 +248,7 @@
       ]
     },
     {
-      "id": "sec_2k1z8dq2g1",
+      "id": "sec_bh4ht8zvf8",
       "preset": "faq/centered@1",
       "label": "Centred questions",
       "layout": {
@@ -266,7 +266,7 @@
       },
       "blocks": [
         {
-          "id": "blk_6bxrjjcw2x",
+          "id": "blk_py1sba9dy3",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -283,7 +283,7 @@
           }
         },
         {
-          "id": "blk_pe9pdt6ahg",
+          "id": "blk_1j118sxa1a",
           "type": "accordion",
           "v": 1,
           "fields": {

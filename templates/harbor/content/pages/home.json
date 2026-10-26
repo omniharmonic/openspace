@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_3jejsyj0v6",
+      "id": "sec_8f51nysdg6",
       "preset": "hero/full-bleed-photo@1",
       "label": "Full-bleed photograph",
       "layout": {
@@ -39,13 +39,13 @@
           ],
           "overlay": {
             "color": "background",
-            "opacity": 0.5
+            "opacity": 0.78
           }
         }
       },
       "blocks": [
         {
-          "id": "blk_tk5t5e1r6t",
+          "id": "blk_wnf166f134",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -63,7 +63,7 @@
           }
         },
         {
-          "id": "blk_3k8cgbjgvn",
+          "id": "blk_38mbe3fn7x",
           "type": "button",
           "v": 1,
           "fields": {
@@ -90,7 +90,7 @@
       ]
     },
     {
-      "id": "sec_8fbt3serpr",
+      "id": "sec_jd2vhrmdm6",
       "preset": "stats/row@1",
       "label": "Numbers in a row",
       "layout": {
@@ -107,7 +107,7 @@
       },
       "blocks": [
         {
-          "id": "blk_my0ret8fxe",
+          "id": "blk_tbdbd4xzh3",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -124,7 +124,7 @@
           }
         },
         {
-          "id": "blk_0mefsgx4wm",
+          "id": "blk_j17z2np129",
           "type": "stats",
           "v": 1,
           "fields": {
@@ -157,7 +157,7 @@
       ]
     },
     {
-      "id": "sec_k95m461nn4",
+      "id": "sec_fb9zcrtnsm",
       "preset": "services/image-cards@1",
       "label": "Three services with photos",
       "layout": {
@@ -174,7 +174,7 @@
       },
       "blocks": [
         {
-          "id": "blk_dnrytgdg6q",
+          "id": "blk_nezd0tv27h",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -187,7 +187,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_rnxfa4y33q",
+          "id": "blk_yj0he6zk0z",
           "type": "columns",
           "v": 1,
           "fields": {
@@ -287,7 +287,7 @@
       ]
     },
     {
-      "id": "sec_hy9gpbe4z0",
+      "id": "sec_7n5aznz1gy",
       "preset": "events/list@1",
       "label": "Upcoming events list",
       "layout": {
@@ -304,7 +304,7 @@
       },
       "blocks": [
         {
-          "id": "blk_4spg7fax38",
+          "id": "blk_7zz11zk3s1",
           "type": "events",
           "v": 1,
           "fields": {
@@ -329,7 +329,7 @@
       ]
     },
     {
-      "id": "sec_myc7emkzxv",
+      "id": "sec_hxxdc47gkz",
       "preset": "testimonials/photo-overlap@1",
       "label": "Testimonial over photo",
       "layout": {
@@ -339,7 +339,7 @@
           "m": 22
         },
         "items": {
-          "blk_krg5thstta": {
+          "blk_26zgk4trzt": {
             "d": {
               "x": 1,
               "y": 1,
@@ -353,7 +353,7 @@
               "h": 12
             }
           },
-          "blk_x74t8t2da8": {
+          "blk_xkbqph40yg": {
             "d": {
               "x": 13,
               "y": 7,
@@ -376,7 +376,7 @@
       },
       "blocks": [
         {
-          "id": "blk_krg5thstta",
+          "id": "blk_26zgk4trzt",
           "type": "image",
           "v": 1,
           "fields": {
@@ -392,7 +392,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_x74t8t2da8",
+          "id": "blk_xkbqph40yg",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -431,7 +431,7 @@
       ]
     },
     {
-      "id": "sec_sacyra3jgn",
+      "id": "sec_jwg6jrwd2r",
       "preset": "cta/donate@1",
       "label": "Donation appeal",
       "layout": {
@@ -453,7 +453,7 @@
       },
       "blocks": [
         {
-          "id": "blk_6fbt52pr6g",
+          "id": "blk_6en9g2wgxb",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -466,7 +466,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_e0chfdw6a3",
+          "id": "blk_7c8348jmsy",
           "type": "text",
           "v": 1,
           "fields": {
@@ -489,7 +489,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_xvwbs8whrs",
+          "id": "blk_p92jcgqz7g",
           "type": "donation",
           "v": 1,
           "fields": {

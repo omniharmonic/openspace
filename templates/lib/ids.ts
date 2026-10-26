@@ -1,66 +1,58 @@
-import { CROCKFORD_ALPHABET, type PageId } from "@openspace/schema";
+import type { PageId, Section, SiteDocument } from "@openspace/schema";
+import { stableId } from "@openspace/site-kit/ids";
 
 /**
- * Deterministic ids for template content. Template sections are composed from section presets,
- * whose `build()` mints fresh random ids; {@link stabilizeIds} renames every section, block and
- * form id by order of appearance so the generated files are byte-stable between runs. Same hash
- * as site-kit's `stableId` (pure JS, so the registry also runs in a Worker).
+ * Deterministic ids for template content. Section presets mint fresh random ids on every
+ * `build()`; {@link stabilizeIds} replaces them with ids seeded from where each thing lives —
+ * page slug, the section's preset (or label) and its occurrence on the page, the block's type and
+ * occurrence in the section — so the generated files are byte-stable between runs, and inserting
+ * a section elsewhere on a page doesn't renumber the rest.
  */
-function hash53(input: string, seed = 0): number {
-  let h1 = 0xdeadbeef ^ seed;
-  let h2 = 0x41c6ce57 ^ seed;
-  for (let i = 0; i < input.length; i++) {
-    const ch = input.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
-  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
-  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
-}
 
-function suffix(seed: string): string {
-  let a = hash53(seed);
-  let b = hash53(seed, 7);
-  let out = "";
-  for (let i = 0; i < 10; i++) {
-    const src = i < 5 ? a : b;
-    out += CROCKFORD_ALPHABET[src % 32];
-    if (i < 5) a = Math.floor(a / 32);
-    else b = Math.floor(b / 32);
-  }
-  return out;
-}
+export { stableId };
 
-export function stableId<P extends string>(prefix: P, seed: string): `${P}_${string}` {
-  return `${prefix}_${suffix(`${prefix}:${seed}`)}`;
-}
+/** A page id for a template page, seeded from its slug (`""` → `home`). */
+export const pageId = (template: string, slug: string): PageId =>
+  stableId("pg", `${template}:${slug || "home"}`) as PageId;
 
-/** A page id for a template page (`meadow`, `about`). */
-export const pageId = (template: string, key: string): PageId =>
-  stableId("pg", `${template}:${key}`) as PageId;
+const ID_RE = /\b(?:sec|blk|frm)_[0-9a-hjkmnp-tv-z]{10}\b/g;
 
-const RANDOM_ID_RE = /\b(sec|blk|frm)_[0-9a-hjkmnp-tv-z]{10}\b/g;
-
-/**
- * Rename every `sec_`/`blk_`/`frm_` id in a JSON-safe value by order of first appearance,
- * consistently everywhere it occurs (grid item keys, references). Page ids are left alone:
- * templates mint those with {@link pageId}.
- */
-export function stabilizeIds<T>(value: T, template: string): T {
-  const json = JSON.stringify(value);
+/** Replace every section, block and form id with one seeded from its path in the document. */
+export function stabilizeIds(doc: SiteDocument, template: string): SiteDocument {
   const map = new Map<string, string>();
-  const counters: Record<string, number> = {};
-  for (const m of json.matchAll(RANDOM_ID_RE)) {
-    const id = m[0];
-    const prefix = m[1] as string;
-    if (map.has(id)) continue;
-    counters[prefix] = (counters[prefix] ?? 0) + 1;
-    map.set(id, stableId(prefix, `${template}:${counters[prefix]}`));
-  }
-  const values = new Set(map.values());
-  if (values.size !== map.size) throw new Error(`stabilizeIds(${template}): id collision`);
-  return JSON.parse(json.replace(RANDOM_ID_RE, (id) => map.get(id) ?? id)) as T;
+  const used = new Set<string>();
+  const assign = (old: string, prefix: "sec" | "blk" | "frm", seed: string) => {
+    const id = stableId(prefix, `${template}:${seed}`);
+    if (used.has(id)) throw new Error(`stabilizeIds(${template}): duplicate seed ${seed}`);
+    used.add(id);
+    map.set(old, id);
+  };
+  const count = (m: Map<string, number>, key: string) => {
+    const n = (m.get(key) ?? 0) + 1;
+    m.set(key, n);
+    return n;
+  };
+  const sections = (owner: string, list: readonly Section[]) => {
+    const kinds = new Map<string, number>();
+    for (const s of list) {
+      const kind = s.preset ?? `custom:${s.label ?? "section"}`;
+      const sSeed = `${owner}/${kind}#${count(kinds, kind)}`;
+      assign(s.id, "sec", sSeed);
+      const types = new Map<string, number>();
+      for (const b of s.blocks) {
+        const bSeed = `${sSeed}/${b.type}#${count(types, b.type)}`;
+        assign(b.id, "blk", bSeed);
+        const form = (b.fields as { form?: { id?: string } }).form;
+        if (form?.id) assign(form.id, "frm", `${bSeed}/form`);
+      }
+    }
+  };
+  for (const p of Object.values(doc.pages)) sections(`page:${p.slug || "home"}`, p.sections);
+  sections("footer", [doc.site.footer]);
+  const json = JSON.stringify(doc).replace(ID_RE, (id) => {
+    const next = map.get(id);
+    if (!next) throw new Error(`stabilizeIds(${template}): id ${id} has no owner`);
+    return next;
+  });
+  return JSON.parse(json) as SiteDocument;
 }

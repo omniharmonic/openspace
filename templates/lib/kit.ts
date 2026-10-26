@@ -23,6 +23,7 @@ import {
   type SectionStyle,
   type SpaceToken,
 } from "@openspace/schema";
+import { pageId } from "./ids";
 
 /**
  * Authoring kit for templates: terse block and section builders over the real block library,
@@ -269,6 +270,21 @@ export type Placed = [block: Block, d: GridRect, m: GridRect];
 export const r = (x: number, y: number, w: number, h: number, extra: Partial<GridRect> = {}) =>
   ({ x, y, w, h, ...extra }) as GridRect;
 
+/** Rows a grid needs to hold its items at each breakpoint. */
+export function gridRows(items: Record<string, { d: GridRect; t?: GridRect; m?: GridRect }>) {
+  let d = 1;
+  let m = 1;
+  let hasM = false;
+  for (const it of Object.values(items)) {
+    d = Math.max(d, it.d.y + it.d.h - 1, it.t ? it.t.y + it.t.h - 1 : 1);
+    if (it.m) {
+      hasM = true;
+      m = Math.max(m, it.m.y + it.m.h - 1);
+    }
+  }
+  return hasM ? { d, m } : { d };
+}
+
 export function grid(
   placed: Placed[],
   width?: "narrow" | "content" | "wide" | "full",
@@ -357,10 +373,14 @@ export interface FromPresetOpts {
   collection?: string;
   label?: string;
   anchor?: string;
-  /** Per-block edits by index in the preset's block list. */
-  edit?: Record<number, BlockEdit | Fields>;
-  /** Block indexes to remove (their grid items go too). */
-  drop?: number[];
+  /**
+   * Per-block edits keyed by block type, with a 1-based occurrence when the preset has several
+   * blocks of that type: `heading`, `button`, `image:2`. A key that doesn't match the preset's
+   * blocks throws, so presets that change shape fail loudly instead of editing the wrong block.
+   */
+  edit?: Record<string, BlockEdit | Fields>;
+  /** Blocks to remove, keyed the same way (their grid items go too). */
+  drop?: string[];
   /** Section style overrides (padding, background, min height). */
   style?: Omit<SectionStyle, "colorTheme">;
   /** Section layout width override. */
@@ -390,10 +410,23 @@ export function fromPreset(id: string, o: FromPresetOpts = {}): Section {
     ...(o.secondary ? { secondaryLink: o.secondary } : {}),
     ...(o.collection ? { collection: o.collection } : {}),
   });
+  const find = (key: string) => {
+    const m = /^([a-z][a-z-]*)(?::(\d+))?$/.exec(key);
+    if (!m) throw new Error(`${id}: edit key "${key}" must be a block type, optionally with :n`);
+    const type = m[1] as string;
+    const nth = Number(m[2] ?? 1);
+    const matches = s.blocks.filter((b) => b.type === type);
+    if (!m[2] && matches.length > 1)
+      throw new Error(`${id}: "${type}" is ambiguous (${matches.length} blocks); use ${type}:1…`);
+    const b = matches[nth - 1];
+    if (!b)
+      throw new Error(
+        `${id}: no ${type} #${nth} to edit (blocks: ${s.blocks.map((x) => x.type).join(", ")})`,
+      );
+    return b;
+  };
   for (const [k, e] of Object.entries(o.edit ?? {})) {
-    const i = Number(k);
-    const b = s.blocks[i];
-    if (!b) throw new Error(`${id}: no block ${i} to edit`);
+    const b = find(k);
     const edit = toEdit(e);
     if (edit.fields)
       for (const [f, v] of Object.entries(edit.fields)) {
@@ -406,10 +439,12 @@ export function fromPreset(id: string, o: FromPresetOpts = {}): Section {
     check(b);
   }
   if (o.drop?.length) {
-    const dropIds = new Set(o.drop.map((i) => s.blocks[i]?.id));
+    const dropIds = new Set(o.drop.map((k) => find(k).id));
     s.blocks = s.blocks.filter((b) => !dropIds.has(b.id));
-    if (s.layout.mode === "grid")
-      for (const id of dropIds) if (id) delete s.layout.items[id as Block["id"]];
+    if (s.layout.mode === "grid") {
+      for (const id of dropIds) delete s.layout.items[id as Block["id"]];
+      s.layout.rows = gridRows(s.layout.items);
+    }
   }
   if (o.label) s.label = o.label;
   if (o.anchor) s.anchor = o.anchor;
@@ -471,3 +506,22 @@ export function linkColumn(title: string, links: [label: string, href: string][]
 /** The social-links block reading the site's profiles. */
 export const siteSocial = (o: BlockOpts = {}) =>
   block("social-links", { source: "site", profiles: [] }, { variant: "icons", ...o });
+
+// --- page paths ----------------------------------------------------------------------------------
+
+/** Site-relative path of a collection's index page. */
+export const collectionPath = (name: string) => `/${name}/`;
+
+/**
+ * A template's pages by key: stable ids seeded from the slugs, and `href(key, anchor?)` for
+ * rich-text links, so internal links always follow the page's actual slug.
+ */
+export function definePages<K extends string>(template: string, slugs: Record<K, string>) {
+  const id = {} as Record<K, PageId>;
+  for (const [k, slug] of Object.entries(slugs) as [K, string][]) id[k] = pageId(template, slug);
+  const href = (key: K, anchor?: string) => {
+    const slug = slugs[key];
+    return `${slug ? `/${slug}/` : "/"}${anchor ? `#${anchor}` : ""}`;
+  };
+  return { id, slug: slugs, href };
+}

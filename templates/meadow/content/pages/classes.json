@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_0q6rrtghh7",
+      "id": "sec_f1fz664hep",
       "layout": {
         "mode": "stack",
         "columns": {
@@ -27,7 +27,7 @@
       },
       "blocks": [
         {
-          "id": "blk_k902dhfyn5",
+          "id": "blk_y087v53wfp",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -47,7 +47,7 @@
       ]
     },
     {
-      "id": "sec_wwsgd5d5gc",
+      "id": "sec_pxtkm0d9nk",
       "preset": "services/tabs@1",
       "label": "Weekly schedule",
       "layout": {
@@ -68,7 +68,7 @@
       },
       "blocks": [
         {
-          "id": "blk_tve5vwqwr2",
+          "id": "blk_88qjn3rq9x",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -82,7 +82,7 @@
           "column": 0
         },
         {
-          "id": "blk_8jtrxc1e4p",
+          "id": "blk_rzm2sdzv8b",
           "type": "text",
           "v": 1,
           "fields": {
@@ -105,7 +105,7 @@
           "column": 0
         },
         {
-          "id": "blk_k6kzx6mmvv",
+          "id": "blk_hsf8kqj1ge",
           "type": "button",
           "v": 1,
           "fields": {
@@ -120,7 +120,7 @@
           "column": 0
         },
         {
-          "id": "blk_7s8xsqkbhn",
+          "id": "blk_j88ee4v2bn",
           "type": "tabs",
           "v": 1,
           "fields": {
@@ -550,7 +550,7 @@
       ]
     },
     {
-      "id": "sec_8zca0vch71",
+      "id": "sec_0nyqvaw41w",
       "preset": "pricing/three-plans@1",
       "label": "Three plans",
       "layout": {
@@ -567,7 +567,7 @@
       },
       "blocks": [
         {
-          "id": "blk_wptz78ymgn",
+          "id": "blk_nyvbjp4m8r",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -585,7 +585,7 @@
           }
         },
         {
-          "id": "blk_p0p1yntf9t",
+          "id": "blk_eymc8s4vsd",
           "type": "pricing",
           "v": 1,
           "fields": {
@@ -668,7 +668,7 @@
       ]
     },
     {
-      "id": "sec_4vv8056vr3",
+      "id": "sec_vekr7s2zcr",
       "layout": {
         "mode": "stack",
         "columns": {
@@ -682,7 +682,7 @@
       },
       "blocks": [
         {
-          "id": "blk_mm22xrjfgj",
+          "id": "blk_z5knwfx55t",
           "type": "booking",
           "v": 1,
           "fields": {
@@ -699,7 +699,7 @@
       ]
     },
     {
-      "id": "sec_dvkgdc361b",
+      "id": "sec_079zgxntzr",
       "preset": "faq/centered@1",
       "label": "Centred questions",
       "layout": {
@@ -717,7 +717,7 @@
       },
       "blocks": [
         {
-          "id": "blk_hxcgdjyzvy",
+          "id": "blk_4v43qnc3dw",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -734,7 +734,7 @@
           }
         },
         {
-          "id": "blk_ptg113p3ns",
+          "id": "blk_dnxcwdxze7",
           "type": "accordion",
           "v": 1,
           "fields": {

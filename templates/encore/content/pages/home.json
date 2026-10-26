@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_qk1wg8gyvg",
+      "id": "sec_8yckr0h7ky",
       "preset": "hero/photo-corner-text@1",
       "label": "Photograph with corner headline",
       "layout": {
@@ -43,13 +43,13 @@
           ],
           "overlay": {
             "color": "background",
-            "opacity": 0.58
+            "opacity": 0.78
           }
         }
       },
       "blocks": [
         {
-          "id": "blk_hmr9y2yjt4",
+          "id": "blk_tnex5nfkvs",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -63,7 +63,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_v6hg93mgcd",
+          "id": "blk_30tjz04e8s",
           "type": "button",
           "v": 1,
           "fields": {
@@ -85,7 +85,7 @@
       ]
     },
     {
-      "id": "sec_10j4hqccmy",
+      "id": "sec_kt9qvgq1wz",
       "label": "Latest single",
       "layout": {
         "mode": "stack",
@@ -106,7 +106,7 @@
       },
       "blocks": [
         {
-          "id": "blk_mzxn93tmx0",
+          "id": "blk_389xtfa3fm",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -120,7 +120,7 @@
           "column": 0
         },
         {
-          "id": "blk_gvdframytm",
+          "id": "blk_qmfbj87jpa",
           "type": "button",
           "v": 1,
           "fields": {
@@ -135,7 +135,7 @@
           "column": 0
         },
         {
-          "id": "blk_q5yfs8abyn",
+          "id": "blk_krkzb59g33",
           "type": "audio",
           "v": 1,
           "fields": {
@@ -185,7 +185,7 @@
       ]
     },
     {
-      "id": "sec_zg899c81r6",
+      "id": "sec_xwv7vs5wa5",
       "preset": "events/list@1",
       "label": "Upcoming events list",
       "layout": {
@@ -202,7 +202,7 @@
       },
       "blocks": [
         {
-          "id": "blk_dzn6smb8z5",
+          "id": "blk_thv3z3zd99",
           "type": "events",
           "v": 1,
           "fields": {
@@ -227,7 +227,7 @@
       ]
     },
     {
-      "id": "sec_4p777833wq",
+      "id": "sec_a0dk61e0fp",
       "preset": "testimonials/large-single@1",
       "label": "One big testimonial",
       "layout": {
@@ -248,7 +248,7 @@
       },
       "blocks": [
         {
-          "id": "blk_6sfhf3n6rg",
+          "id": "blk_rq3szj4k6k",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -279,7 +279,7 @@
       ]
     },
     {
-      "id": "sec_eb1529je5p",
+      "id": "sec_30044qmwr1",
       "preset": "blog/list@1",
       "label": "Post list",
       "layout": {
@@ -296,7 +296,7 @@
       },
       "blocks": [
         {
-          "id": "blk_x72ns1gy1y",
+          "id": "blk_73z4wzyh3w",
           "type": "summary",
           "v": 1,
           "fields": {
@@ -324,7 +324,7 @@
       ]
     },
     {
-      "id": "sec_6ab7mvf6xr",
+      "id": "sec_1zszyhscq1",
       "preset": "newsletter/banner@1",
       "label": "Newsletter banner",
       "layout": {
@@ -344,7 +344,7 @@
       },
       "blocks": [
         {
-          "id": "blk_0gqpc2y7qx",
+          "id": "blk_t46jny5cz8",
           "type": "newsletter",
           "v": 1,
           "fields": {

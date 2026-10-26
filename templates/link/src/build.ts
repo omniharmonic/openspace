@@ -1,5 +1,4 @@
 import type { TemplateSpec } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   block,
   fromPreset,
@@ -12,6 +11,7 @@ import {
   rt,
   section,
   url,
+  definePages,
 } from "../../lib/kit";
 
 /**
@@ -22,7 +22,8 @@ import {
  */
 
 const T = "link";
-const P = { home: pageId(T, "home") };
+const PAGES = definePages(T, { home: "" });
+const P = PAGES.id;
 
 const NAME = "Kai Moreno";
 
@@ -159,7 +160,7 @@ function home() {
         theme: "light-accent",
         width: "narrow",
         edit: {
-          0: {
+          newsletter: {
             heading: "Sunday supper, in your inbox",
             description:
               "One recipe, one shopping list and one thing I'm obsessed with, every Sunday morning. 48,000 cooks read along.",
@@ -254,8 +255,8 @@ export const link: TemplateSpec = {
         header: headerFrom("header/minimal@1", { sticky: false }),
         footer: fromPreset("footer/minimal-row@1", {
           edit: {
-            0: { content: rt.doc(rt.p("© 2026 Kai Moreno · Austin, Texas", "small")) },
-            1: {
+            "text:1": { content: rt.doc(rt.p("© 2026 Kai Moreno · Austin, Texas", "small")) },
+            "text:2": {
               content: rt.doc(
                 rt.p(
                   [

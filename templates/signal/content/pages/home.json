@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_64ne6fz2nh",
+      "id": "sec_bbdwdsmsk4",
       "preset": "hero/marquee-launch@1",
       "label": "Launch with ticker",
       "layout": {
@@ -30,7 +30,7 @@
       },
       "blocks": [
         {
-          "id": "blk_bz7x0szmsy",
+          "id": "blk_zgq58fnexf",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           }
         },
         {
-          "id": "blk_sdbvnmq4xh",
+          "id": "blk_hhtsnxj2mm",
           "type": "button",
           "v": 1,
           "fields": {
@@ -72,7 +72,7 @@
           }
         },
         {
-          "id": "blk_wnxympf8mr",
+          "id": "blk_mgrygc8ask",
           "type": "marquee",
           "v": 1,
           "fields": {
@@ -102,7 +102,7 @@
       ]
     },
     {
-      "id": "sec_ytjbvpzn7d",
+      "id": "sec_hbrq38cr8r",
       "preset": "logos/row@1",
       "label": "Logo row",
       "layout": {
@@ -122,7 +122,7 @@
       },
       "blocks": [
         {
-          "id": "blk_0qxepznepf",
+          "id": "blk_rt3e9ym8xh",
           "type": "logo-strip",
           "v": 1,
           "fields": {
@@ -151,7 +151,7 @@
       ]
     },
     {
-      "id": "sec_jzc6n6jtgv",
+      "id": "sec_akj7n56j2x",
       "preset": "features/bento@1",
       "label": "Bento grid",
       "layout": {
@@ -161,7 +161,7 @@
           "m": 41
         },
         "items": {
-          "blk_72znb1aqa2": {
+          "blk_7086c6vhap": {
             "d": {
               "x": 1,
               "y": 1,
@@ -175,7 +175,7 @@
               "h": 5
             }
           },
-          "blk_ezd52vkdsh": {
+          "blk_9nrek6sdce": {
             "d": {
               "x": 1,
               "y": 9,
@@ -189,7 +189,7 @@
               "h": 9
             }
           },
-          "blk_qv2xexswym": {
+          "blk_62eqp5x2qp": {
             "d": {
               "x": 12,
               "y": 1,
@@ -203,7 +203,7 @@
               "h": 9
             }
           },
-          "blk_x9tym3p1bq": {
+          "blk_63zy3xq5ze": {
             "d": {
               "x": 12,
               "y": 13,
@@ -217,7 +217,7 @@
               "h": 7
             }
           },
-          "blk_necsqpayzf": {
+          "blk_1y25eqt0qg": {
             "d": {
               "x": 19,
               "y": 13,
@@ -238,7 +238,7 @@
       },
       "blocks": [
         {
-          "id": "blk_72znb1aqa2",
+          "id": "blk_7086c6vhap",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -250,7 +250,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_ezd52vkdsh",
+          "id": "blk_9nrek6sdce",
           "type": "card",
           "v": 1,
           "fields": {
@@ -279,7 +279,7 @@
           }
         },
         {
-          "id": "blk_qv2xexswym",
+          "id": "blk_62eqp5x2qp",
           "type": "image",
           "v": 1,
           "fields": {
@@ -295,7 +295,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_x9tym3p1bq",
+          "id": "blk_63zy3xq5ze",
           "type": "card",
           "v": 1,
           "fields": {
@@ -324,7 +324,7 @@
           }
         },
         {
-          "id": "blk_necsqpayzf",
+          "id": "blk_1y25eqt0qg",
           "type": "card",
           "v": 1,
           "fields": {
@@ -355,7 +355,7 @@
       ]
     },
     {
-      "id": "sec_t0rj1fftr7",
+      "id": "sec_ptdyspbqgg",
       "preset": "features/screenshot-callout@1",
       "label": "Photo with floating stats",
       "layout": {
@@ -365,7 +365,7 @@
           "m": 30
         },
         "items": {
-          "blk_g7y075j33r": {
+          "blk_684z8ss8pa": {
             "d": {
               "x": 1,
               "y": 1,
@@ -379,7 +379,7 @@
               "h": 11
             }
           },
-          "blk_jbfb7x8rt6": {
+          "blk_j565dz7mmq": {
             "d": {
               "x": 7,
               "y": 15,
@@ -395,7 +395,7 @@
               "z": 2
             }
           },
-          "blk_3brnnpcqvn": {
+          "blk_k0e96bk473": {
             "d": {
               "x": 17,
               "y": 3,
@@ -409,7 +409,7 @@
               "h": 6
             }
           },
-          "blk_zxweakzkn7": {
+          "blk_djj5esp59a": {
             "d": {
               "x": 17,
               "y": 9,
@@ -423,7 +423,7 @@
               "h": 7
             }
           },
-          "blk_98qtmth4ex": {
+          "blk_6v688wbcaf": {
             "d": {
               "x": 17,
               "y": 16,
@@ -444,7 +444,7 @@
       },
       "blocks": [
         {
-          "id": "blk_g7y075j33r",
+          "id": "blk_684z8ss8pa",
           "type": "image",
           "v": 1,
           "fields": {
@@ -460,7 +460,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_jbfb7x8rt6",
+          "id": "blk_j565dz7mmq",
           "type": "stats",
           "v": 1,
           "fields": {
@@ -485,7 +485,7 @@
           }
         },
         {
-          "id": "blk_3brnnpcqvn",
+          "id": "blk_k0e96bk473",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -497,7 +497,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_zxweakzkn7",
+          "id": "blk_djj5esp59a",
           "type": "text",
           "v": 1,
           "fields": {
@@ -519,7 +519,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_98qtmth4ex",
+          "id": "blk_6v688wbcaf",
           "type": "button",
           "v": 1,
           "fields": {
@@ -535,7 +535,7 @@
       ]
     },
     {
-      "id": "sec_3js1axbd22",
+      "id": "sec_xeje4840b7",
       "preset": "testimonials/three-cards@1",
       "label": "Three testimonial cards",
       "layout": {
@@ -545,7 +545,7 @@
           "m": 41
         },
         "items": {
-          "blk_7vte04c22v": {
+          "blk_dw0wzpccpp": {
             "d": {
               "x": 5,
               "y": 1,
@@ -559,7 +559,7 @@
               "h": 5
             }
           },
-          "blk_2kzee8t8nc": {
+          "blk_8e0ysm8e9j": {
             "d": {
               "x": 1,
               "y": 7,
@@ -573,7 +573,7 @@
               "h": 11
             }
           },
-          "blk_mw0vg6fgzr": {
+          "blk_psemyyxvbs": {
             "d": {
               "x": 9,
               "y": 7,
@@ -587,7 +587,7 @@
               "h": 11
             }
           },
-          "blk_89d7akgnbb": {
+          "blk_7v0wh9nhge": {
             "d": {
               "x": 17,
               "y": 7,
@@ -608,7 +608,7 @@
       },
       "blocks": [
         {
-          "id": "blk_7vte04c22v",
+          "id": "blk_dw0wzpccpp",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -625,7 +625,7 @@
           }
         },
         {
-          "id": "blk_2kzee8t8nc",
+          "id": "blk_8e0ysm8e9j",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -656,7 +656,7 @@
           "variant": "card"
         },
         {
-          "id": "blk_mw0vg6fgzr",
+          "id": "blk_psemyyxvbs",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -687,7 +687,7 @@
           "variant": "card"
         },
         {
-          "id": "blk_89d7akgnbb",
+          "id": "blk_7v0wh9nhge",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -720,7 +720,7 @@
       ]
     },
     {
-      "id": "sec_06xksrajy2",
+      "id": "sec_1jwjrdtzcd",
       "preset": "pricing/three-plans@1",
       "label": "Three plans",
       "layout": {
@@ -737,7 +737,7 @@
       },
       "blocks": [
         {
-          "id": "blk_0m0vnpsfyz",
+          "id": "blk_2dv1xdjjgk",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -755,7 +755,7 @@
           }
         },
         {
-          "id": "blk_0w4y2ytmay",
+          "id": "blk_12bw1drtm4",
           "type": "pricing",
           "v": 1,
           "fields": {
@@ -838,7 +838,7 @@
       ]
     },
     {
-      "id": "sec_n0meevdbjv",
+      "id": "sec_rsmnmarj56",
       "preset": "faq/split@1",
       "label": "Questions beside heading",
       "layout": {
@@ -859,7 +859,7 @@
       },
       "blocks": [
         {
-          "id": "blk_v5rxzq33rd",
+          "id": "blk_d326gnyqz5",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -872,7 +872,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_xevv157ndt",
+          "id": "blk_y3a30wg0ve",
           "type": "text",
           "v": 1,
           "fields": {
@@ -895,7 +895,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_5y8sqngvkq",
+          "id": "blk_tcb65h6y04",
           "type": "button",
           "v": 1,
           "fields": {
@@ -910,7 +910,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_bbzz7qg5bd",
+          "id": "blk_s1n0hv0gyh",
           "type": "accordion",
           "v": 1,
           "fields": {
@@ -994,7 +994,7 @@
       ]
     },
     {
-      "id": "sec_y2fegyzm58",
+      "id": "sec_7vn8482gxm",
       "preset": "cta/banner@1",
       "label": "Centred banner",
       "layout": {
@@ -1016,7 +1016,7 @@
       },
       "blocks": [
         {
-          "id": "blk_1q6ae5qq6e",
+          "id": "blk_qkrhp6jwd8",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -1033,7 +1033,7 @@
           }
         },
         {
-          "id": "blk_6wq1wcbsvx",
+          "id": "blk_t50xa9zhwj",
           "type": "button",
           "v": 1,
           "fields": {

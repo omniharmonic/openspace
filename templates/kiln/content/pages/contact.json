@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_ce8ysg8s5s",
+      "id": "sec_jr06vf2gr0",
       "preset": "contact/form-split@1",
       "label": "Contact form with details",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_735446053p",
+          "id": "blk_8c97hhmby9",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -43,7 +43,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_f34gey0ezs",
+          "id": "blk_fnt20gdrc0",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -58,12 +58,12 @@
           "variant": "list"
         },
         {
-          "id": "blk_xyy2bppq7g",
+          "id": "blk_6zchern50k",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_wk6vkxzqfc",
+              "id": "frm_s0kk9shy00",
               "name": "Studio enquiry",
               "fields": [
                 {
@@ -115,7 +115,7 @@
       ]
     },
     {
-      "id": "sec_j5rj3w827f",
+      "id": "sec_1cpx51htzd",
       "preset": "contact/location@1",
       "label": "Map, hours and address",
       "layout": {
@@ -136,7 +136,7 @@
       },
       "blocks": [
         {
-          "id": "blk_k0mkg59vkb",
+          "id": "blk_ec59kjgt6r",
           "type": "map",
           "v": 1,
           "fields": {
@@ -152,7 +152,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_p0pd8zbxzj",
+          "id": "blk_tsqye304bq",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -165,7 +165,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_dv2gqsd6m0",
+          "id": "blk_g5p5v9m0ya",
           "type": "hours",
           "v": 1,
           "fields": {
@@ -213,7 +213,7 @@
           "variant": "compact"
         },
         {
-          "id": "blk_bp4yzk5xd6",
+          "id": "blk_hwgbeff7yp",
           "type": "contact-info",
           "v": 1,
           "fields": {

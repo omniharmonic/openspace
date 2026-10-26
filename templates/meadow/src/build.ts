@@ -1,10 +1,11 @@
 import type { TemplateSpec } from "../../lib/define";
 import { event, post } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   block,
   body,
   button,
+  collectionPath,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
@@ -30,13 +31,15 @@ import {
  */
 
 const T = "meadow";
-const P = {
-  home: pageId(T, "home"),
-  classes: pageId(T, "classes"),
-  bodywork: pageId(T, "bodywork"),
-  about: pageId(T, "about"),
-  contact: pageId(T, "contact"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  classes: "classes",
+  bodywork: "bodywork",
+  about: "about",
+  contact: "contact",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const ADDRESS = "2418 SE Division Street\nPortland, OR 97202";
 const PHONE = "+1 (503) 555-0142";
@@ -68,20 +71,20 @@ function home() {
     [
       fromPreset("hero/arch-window@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Yoga & bodywork · SE Portland",
             text: "Slow yoga and bodywork for real bodies",
             subheading:
               "Small, patient classes for every kind of body, and massage therapists who listen first. Twelve mats a class, tea afterwards, and nobody in a hurry.",
           },
-          1: {
+          button: {
             label: "See the class schedule",
             link: page(P.classes),
             secondaryLabel: "Book a massage",
             secondaryLink: page(P.bodywork),
             note: "New here? Your first week is $25.",
           },
-          2: {
+          image: {
             image: photo(
               "yogaDeck",
               520,
@@ -94,13 +97,13 @@ function home() {
       fromPreset("about/values@1", {
         theme: "light",
         edit: {
-          0: {
+          heading: {
             eyebrow: "The Fernwood way",
             text: "Come exactly as you are",
             subheading:
               "No mirrors, no performance, no perfect poses. Just a warm room and teachers who meet you where you are today.",
           },
-          1: {
+          "icon-list": {
             items: [
               {
                 icon: "users",
@@ -124,7 +127,7 @@ function home() {
       fromPreset("services/alternating@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          "image:1": {
             image: photo(
               "studioStretch",
               640,
@@ -132,17 +135,17 @@ function home() {
               "Two students stretching on mats in the bright brick-walled studio",
             ),
           },
-          1: {
+          "text:1": {
             content: rt.doc(
               rt.p("Group classes", "eyebrow"),
               rt.h(2, "Thirty classes a week", "h2"),
               rt.p(
                 "From a gentle 6:30am flow to Friday-night restorative with bolsters and blankets. Every class offers options, so beginners and long-time students share the same room happily.",
               ),
-              rt.p([rt.link("See this week's schedule →", "/classes/")]),
+              rt.p([rt.link("See this week's schedule →", href("classes"))]),
             ),
           },
-          2: {
+          "image:2": {
             image: photo(
               "massage",
               640,
@@ -150,21 +153,21 @@ function home() {
               "A therapist warming oil in her hands before a back massage",
             ),
           },
-          3: {
+          "text:2": {
             content: rt.doc(
               rt.p("Bodywork", "eyebrow"),
               rt.h(2, "Massage that listens", "h2"),
               rt.p(
                 "Therapeutic, deep tissue and pregnancy massage with licensed therapists in two quiet rooms upstairs. Sixty or ninety minutes, with evening appointments four nights a week.",
               ),
-              rt.p([rt.link("Treatments and prices →", "/bodywork/")]),
+              rt.p([rt.link("Treatments and prices →", href("bodywork"))]),
             ),
           },
         },
       }),
       fromPreset("testimonials/large-single@1", {
         edit: {
-          0: {
+          testimonial: {
             quote: rt.doc(
               rt.p(
                 "I walked in with a stiff back and a lot of nerves. A year later I practise three mornings a week, and the people on the mats beside me have become friends.",
@@ -180,7 +183,7 @@ function home() {
         theme: "light",
         collection: "workshops",
         edit: {
-          0: {
+          events: {
             heading: "Workshops & retreats",
             registerLabel: "Save a place",
             emptyMessage: "New workshops are posted at the start of each season — check back soon.",
@@ -190,12 +193,12 @@ function home() {
       }),
       fromPreset("cta/banner@1", {
         edit: {
-          0: {
+          heading: {
             text: "New to Fernwood? Start with a week",
             subheading:
               "Seven days of unlimited classes for $25, so you can find the teachers and times that feel right.",
           },
-          1: {
+          button: {
             label: "Claim your intro week",
             link: url(BOOKING),
             secondaryLabel: "Gift a class card",
@@ -314,12 +317,12 @@ function classes() {
       fromPreset("pricing/three-plans@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Memberships & passes",
             text: "Practise as often as you like",
             subheading: "No joining fee and no contracts. Pause or cancel with a month's notice.",
           },
-          1: {
+          pricing: {
             plans: [
               {
                 name: "Drop-in",
@@ -392,8 +395,8 @@ function classes() {
       fromPreset("faq/centered@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "First class", text: "Before you come" },
-          1: {
+          heading: { eyebrow: "First class", text: "Before you come" },
+          accordion: {
             items: [
               {
                 question: "I've never done yoga. Which class should I take?",
@@ -437,20 +440,20 @@ function bodywork() {
       fromPreset("hero/split-image@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Massage & bodywork",
             text: "Hands-on care, at your pace",
             subheading:
               "Licensed massage therapists in two quiet rooms above the studio. Every appointment starts with a conversation about what hurts, what helps and how you'd like to feel afterwards.",
           },
-          1: {
+          button: {
             label: "Book a treatment",
             link: url(BOOKING),
             secondaryLabel: "Meet the therapists",
             secondaryLink: page(P.bodywork, "therapists"),
             note: "Evening appointments Monday to Thursday.",
           },
-          2: {
+          image: {
             image: photo("massage", 600, "4:5", "A therapist preparing warm oil for a massage"),
             style: { imageTreatment: "arch" },
           },
@@ -459,14 +462,14 @@ function bodywork() {
       fromPreset("services/price-list@1", {
         theme: "light",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Treatments",
             text: "Treatments & prices",
             subheading:
               "Members save 15% on every treatment. Most extended health plans reimburse massage by a licensed therapist; ask for a receipt.",
           },
-          1: { label: "Book a treatment", link: url(BOOKING) },
-          2: {
+          button: { label: "Book a treatment", link: url(BOOKING) },
+          "restaurant-menu": {
             sections: [
               {
                 title: "Massage",
@@ -520,8 +523,8 @@ function bodywork() {
         theme: "light-accent",
         anchor: "therapists",
         edit: {
-          0: { eyebrow: "Bodywork team", text: "Your therapists" },
-          1: {
+          heading: { eyebrow: "Bodywork team", text: "Your therapists" },
+          team: {
             people: [
               {
                 name: "Daniel Reyes, LMT",
@@ -541,8 +544,8 @@ function bodywork() {
       }),
       fromPreset("cta/split@1", {
         edit: {
-          0: { eyebrow: "Appointments", text: "Ready for an hour to yourself?" },
-          1: {
+          heading: { eyebrow: "Appointments", text: "Ready for an hour to yourself?" },
+          button: {
             label: "Book a treatment",
             link: url(BOOKING),
             note: "Online booking, or call the front desk.",
@@ -563,17 +566,17 @@ function about() {
       fromPreset("about/story-split@1", {
         theme: "light",
         edit: {
-          0: {
+          image: {
             image: photo("portraitAna", 520, "4:5", "Portrait of Hana Moreau, founder of Fernwood"),
             style: { imageTreatment: "arch" },
           },
-          1: {
+          heading: {
             eyebrow: "Our story",
             text: "A studio built around slowing down",
             level: "h1",
             size: "h1",
           },
-          2: {
+          text: {
             content: rt.doc(
               rt.p(
                 "Hana Moreau taught her first class in 2012, in a borrowed church hall with eight mats and a space heater. She had spent ten years as a nurse and had seen how rarely people are given time to notice their own bodies.",
@@ -583,18 +586,18 @@ function about() {
               ),
             ),
           },
-          3: { label: "Meet the teachers", link: page(P.about, "teachers") },
+          button: { label: "Meet the teachers", link: page(P.about, "teachers") },
         },
       }),
       fromPreset("about/milestones@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Ten years on Division Street",
             text: "How Fernwood grew",
             subheading: "One room became two, and a weekly class became a small community.",
           },
-          1: {
+          timeline: {
             items: [
               {
                 date: "2016",
@@ -624,8 +627,8 @@ function about() {
         theme: "light",
         anchor: "teachers",
         edit: {
-          0: { eyebrow: "Meet us", text: "Your teachers" },
-          1: {
+          heading: { eyebrow: "Meet us", text: "Your teachers" },
+          team: {
             people: [
               {
                 name: "Hana Moreau",
@@ -649,8 +652,8 @@ function about() {
       fromPreset("gallery/carousel@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "The studio", text: "A look around" },
-          1: {
+          heading: { eyebrow: "The studio", text: "A look around" },
+          gallery: {
             images: [
               {
                 image: photo("studioStretch", 420, "4:5", "Students stretching in the main studio"),
@@ -701,15 +704,20 @@ function contact() {
       fromPreset("contact/form-split@1", {
         theme: "light",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Contact",
             text: "Questions? We'd love to hear from you",
             level: "h1",
             subheading:
               "The front desk answers messages within a day, usually sooner. For bookings, the online calendar is quickest.",
           },
-          1: { name: "Fernwood Yoga & Bodywork", address: ADDRESS, phone: PHONE, email: EMAIL },
-          2: {
+          "contact-info": {
+            name: "Fernwood Yoga & Bodywork",
+            address: ADDRESS,
+            phone: PHONE,
+            email: EMAIL,
+          },
+          form: {
             form: {
               id: formId(),
               name: "Contact",
@@ -746,18 +754,18 @@ function contact() {
       }),
       fromPreset("contact/location@1", {
         edit: {
-          0: {
+          map: {
             name: "Fernwood Yoga & Bodywork",
             address: "2418 SE Division Street, Portland, OR 97202",
             latitude: 45.5048,
             longitude: -122.6406,
           },
-          1: { eyebrow: "Visit", text: "Find the studio" },
-          2: {
+          heading: { eyebrow: "Visit", text: "Find the studio" },
+          hours: {
             rows: hours,
             note: "Front desk hours. Bike racks out front; street parking on 24th and 25th.",
           },
-          3: { address: ADDRESS, phone: PHONE, email: EMAIL },
+          "contact-info": { address: ADDRESS, phone: PHONE, email: EMAIL },
         },
       }),
     ],
@@ -854,24 +862,24 @@ export const meadow: TemplateSpec = {
         header: headerFrom("header/classic@1"),
         footer: fromPreset("footer/newsletter@1", {
           edit: {
-            0: {
+            newsletter: {
               heading: "Letters from the studio",
               description:
                 "One short email a month: new classes, workshops and the occasional recipe for the tea.",
               buttonLabel: "Subscribe",
               successMessage: "Thank you — check your inbox to confirm.",
             },
-            1: {
+            "text:1": {
               content: rt.doc(
                 ...linkColumn("Practice", [
-                  ["Class schedule", "/classes/"],
-                  ["Bodywork", "/bodywork/"],
-                  ["Workshops", "/workshops/"],
-                  ["Journal", "/journal/"],
+                  ["Class schedule", href("classes")],
+                  ["Bodywork", href("bodywork")],
+                  ["Workshops", collectionPath("workshops")],
+                  ["Journal", collectionPath("journal")],
                 ]),
               ),
             },
-            2: {
+            "text:2": {
               content: rt.doc(
                 rt.p("Visit", "eyebrow"),
                 rt.p("2418 SE Division Street, Portland"),
@@ -879,7 +887,7 @@ export const meadow: TemplateSpec = {
                 rt.p("© 2026 Fernwood Yoga & Bodywork", "small"),
               ),
             },
-            3: { profiles: [] },
+            "social-links": { profiles: [] },
           },
         }),
         social: [

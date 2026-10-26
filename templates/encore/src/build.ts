@@ -1,17 +1,18 @@
 import type { TemplateSpec } from "../../lib/define";
 import { episode, event } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   block,
   body,
+  collectionPath,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
   heading,
   makePage,
+  PHOTO_SCRIM,
   page,
   photo,
-  PHOTO_SCRIM,
   photoBackground,
   photoUrl,
   rt,
@@ -29,12 +30,14 @@ import {
  */
 
 const T = "encore";
-const P = {
-  home: pageId(T, "home"),
-  music: pageId(T, "music"),
-  about: pageId(T, "about"),
-  contact: pageId(T, "contact"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  music: "music",
+  about: "about",
+  contact: "contact",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const NAME = "Juno Vale";
 const TICKETS = "https://tickets.junovale.example";
@@ -74,17 +77,17 @@ function home() {
           ),
         },
         edit: {
-          0: {
+          heading: {
             eyebrow: "New album · Afterglow · Out now",
             text: "Songs for driving home after midnight",
             subheading:
               "Afterglow is Juno Vale's second album: ten songs of warm synths, drum machines and city lights, recorded over one long Chicago winter.",
           },
-          1: {
+          button: {
             label: "Listen to Afterglow",
             link: page(P.music),
             secondaryLabel: "Tour dates",
-            secondaryLink: url("/tour/"),
+            secondaryLink: url(collectionPath("tour")),
           },
         },
       }),
@@ -130,7 +133,7 @@ function home() {
         theme: "dark",
         collection: "tour",
         edit: {
-          0: {
+          events: {
             heading: "Afterglow tour",
             source: { collection: "tour", filter: { upcoming: true }, limit: 6 },
             registerLabel: "Tickets",
@@ -141,7 +144,7 @@ function home() {
       fromPreset("testimonials/large-single@1", {
         theme: "brand",
         edit: {
-          0: {
+          testimonial: {
             quote: rt.doc(
               rt.p(
                 "Afterglow sounds like the last train home: tired, glowing and quietly euphoric. Vale's best work yet.",
@@ -157,18 +160,18 @@ function home() {
         theme: "dark",
         collection: "sessions",
         edit: {
-          0: {
+          summary: {
             heading: "Night Shift Sessions",
             source: { collection: "sessions", sort: "date-desc", limit: 3 },
             linkLabel: "All episodes",
-            link: url("/sessions/"),
+            link: url(collectionPath("sessions")),
             emptyMessage: "A new session is being recorded. Subscribe to hear it first.",
           },
         },
       }),
       fromPreset("newsletter/banner@1", {
         edit: {
-          0: {
+          newsletter: {
             heading: "Join the night shift",
             description:
               "Presale codes, new music and the occasional voice memo from the studio. Once a month at most.",
@@ -238,8 +241,8 @@ function music() {
       fromPreset("gallery/project-cards@1", {
         theme: "dark",
         edit: {
-          0: { eyebrow: "Discography", text: "Records" },
-          1: {
+          heading: { eyebrow: "Discography", text: "Records" },
+          columns: {
             items: [
               {
                 image: photo("stageLights", 420, "4:5", "Afterglow album artwork"),
@@ -290,11 +293,11 @@ function about() {
       fromPreset("about/story-split@1", {
         theme: "dark",
         edit: {
-          0: {
+          image: {
             image: photo("portraitIris", 520, "4:5", "Portrait of Juno Vale against a violet wall"),
           },
-          1: { eyebrow: "About", text: "Juno Vale", level: "h1", size: "h1" },
-          2: {
+          heading: { eyebrow: "About", text: "Juno Vale", level: "h1", size: "h1" },
+          text: {
             content: rt.doc(
               rt.p(
                 "Juno Vale grew up in Rockford, Illinois, playing church organ on Sundays and her brother's synthesizers the rest of the week. She moved to Chicago at nineteen and spent five years playing keys in other people's bands before releasing the Night Shift EP in 2021.",
@@ -304,7 +307,7 @@ function about() {
               ),
             ),
           },
-          3: {
+          button: {
             label: "Download the press kit",
             link: url("https://junovale.example/press-kit.zip"),
             role: "secondary",
@@ -314,7 +317,7 @@ function about() {
       fromPreset("testimonials/carousel@1", {
         theme: "dark-accent",
         edit: {
-          0: {
+          "quote-carousel": {
             label: "Press",
             quotes: [
               {
@@ -341,12 +344,12 @@ function about() {
       fromPreset("gallery/grid@1", {
         theme: "dark",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Press photos",
             text: "Photos for press",
             subheading: "High-resolution images for editorial use. Please credit Lena Ortiz.",
           },
-          1: {
+          gallery: {
             images: [
               { image: photo("portraitIris", 400, "1:1", "Juno Vale portrait, violet background") },
               { image: photo("concert", 400, "1:1", "Juno Vale live, crowd with hands raised") },
@@ -394,20 +397,20 @@ function contact() {
       fromPreset("contact/form-split@1", {
         theme: "dark",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Contact",
             text: "Booking, press and licensing",
             level: "h1",
             subheading:
               "For shows, interviews and sync requests. Fan mail is welcome too; it all gets read.",
           },
-          1: {
+          "contact-info": {
             name: "Management · Lakefront Artists",
             address: "Chicago, Illinois",
             phone: undefined,
             email: "team@junovale.example",
           },
-          2: {
+          form: {
             form: {
               id: formId(),
               name: "Booking enquiry",
@@ -584,22 +587,22 @@ export const encore: TemplateSpec = {
           { type: "collection", collection: "sessions", label: "Podcast" },
           { type: "page", page: P.about, label: "Press" },
           { type: "page", page: P.contact, label: "Contact" },
-          { type: "button", label: "Tickets", link: url("/tour/"), style: "primary" },
+          { type: "button", label: "Tickets", link: url(collectionPath("tour")), style: "primary" },
         ],
         header: headerFrom("header/overlay@1", { sticky: true, colorTheme: "dark" }),
         footer: fromPreset("footer/big-name@1", {
           theme: "dark-accent",
           edit: {
-            0: { text: NAME },
-            2: {
+            heading: { text: NAME },
+            "text:1": {
               content: rt.doc(
-                rt.p([rt.link("Music", "/music/")]),
-                rt.p([rt.link("Tour", "/tour/")]),
-                rt.p([rt.link("Press kit", "/about/")]),
+                rt.p([rt.link("Music", href("music"))]),
+                rt.p([rt.link("Tour", collectionPath("tour"))]),
+                rt.p([rt.link("Press kit", href("about"))]),
               ),
             },
-            3: { profiles: [] },
-            4: {
+            "social-links": { profiles: [] },
+            "text:2": {
               content: rt.doc(
                 rt.p("© 2026 Juno Vale · Management: Lakefront Artists, Chicago", "small"),
               ),

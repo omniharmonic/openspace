@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_vjwa39r93a",
+      "id": "sec_4qw9vm9eqt",
       "preset": "hero/big-type@1",
       "label": "Big type with details",
       "layout": {
@@ -34,7 +34,7 @@
       },
       "blocks": [
         {
-          "id": "blk_zvzhmvkk4m",
+          "id": "blk_ak7mgpd3k5",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -47,7 +47,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_577dbtfarg",
+          "id": "blk_s1z7cnj0mp",
           "type": "text",
           "v": 1,
           "fields": {
@@ -73,7 +73,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_pktxb8gvqa",
+          "id": "blk_871t56x6hv",
           "type": "button",
           "v": 1,
           "fields": {
@@ -95,7 +95,7 @@
       ]
     },
     {
-      "id": "sec_de0y9cg4h4",
+      "id": "sec_7j788a8rra",
       "preset": "logos/row@1",
       "label": "Logo row",
       "layout": {
@@ -115,7 +115,7 @@
       },
       "blocks": [
         {
-          "id": "blk_edrrsdywee",
+          "id": "blk_x1qqvfpkxe",
           "type": "logo-strip",
           "v": 1,
           "fields": {
@@ -144,7 +144,7 @@
       ]
     },
     {
-      "id": "sec_b0dsb893j7",
+      "id": "sec_a2ymtrbw98",
       "preset": "services/accordion-detail@1",
       "label": "Services with expandable detail",
       "layout": {
@@ -165,7 +165,7 @@
       },
       "blocks": [
         {
-          "id": "blk_k2g9knz6wp",
+          "id": "blk_sfq45p2z2d",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -179,7 +179,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_xk4sqz52r1",
+          "id": "blk_cn6va91chj",
           "type": "button",
           "v": 1,
           "fields": {
@@ -194,7 +194,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_rc6nm573qp",
+          "id": "blk_w3v2bvk47k",
           "type": "accordion",
           "v": 1,
           "fields": {
@@ -315,7 +315,7 @@
       ]
     },
     {
-      "id": "sec_hgvfmcdhmt",
+      "id": "sec_77q7w7t028",
       "preset": "stats/cards@1",
       "label": "Numbers on cards",
       "layout": {
@@ -336,7 +336,7 @@
       },
       "blocks": [
         {
-          "id": "blk_d9pykb6h0z",
+          "id": "blk_zvy6mtz11y",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -350,7 +350,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_w6nqgbr7yn",
+          "id": "blk_69n56gwk4p",
           "type": "stats",
           "v": 1,
           "fields": {
@@ -378,7 +378,7 @@
       ]
     },
     {
-      "id": "sec_75d7w874nj",
+      "id": "sec_tw83xxatgj",
       "preset": "blog/latest-grid@1",
       "label": "Latest posts",
       "layout": {
@@ -394,7 +394,7 @@
       },
       "blocks": [
         {
-          "id": "blk_benchhh9md",
+          "id": "blk_h2dbhxmtcf",
           "type": "summary",
           "v": 1,
           "fields": {
@@ -422,7 +422,7 @@
       ]
     },
     {
-      "id": "sec_mt5fm1efmz",
+      "id": "sec_thkktvfpxv",
       "preset": "testimonials/pair@1",
       "label": "Two testimonials",
       "layout": {
@@ -432,7 +432,7 @@
           "m": 29
         },
         "items": {
-          "blk_zm1s9rrqpn": {
+          "blk_h3qszw675k": {
             "d": {
               "x": 1,
               "y": 1,
@@ -446,7 +446,7 @@
               "h": 5
             }
           },
-          "blk_05191cr56a": {
+          "blk_hgzmbstfck": {
             "d": {
               "x": 1,
               "y": 7,
@@ -460,7 +460,7 @@
               "h": 11
             }
           },
-          "blk_9szsqm8vfw": {
+          "blk_kv51pmjje5": {
             "d": {
               "x": 14,
               "y": 7,
@@ -481,7 +481,7 @@
       },
       "blocks": [
         {
-          "id": "blk_zm1s9rrqpn",
+          "id": "blk_h3qszw675k",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -493,7 +493,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_05191cr56a",
+          "id": "blk_hgzmbstfck",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -523,7 +523,7 @@
           "variant": "minimal"
         },
         {
-          "id": "blk_9szsqm8vfw",
+          "id": "blk_kv51pmjje5",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -555,7 +555,7 @@
       ]
     },
     {
-      "id": "sec_qek1d04d6x",
+      "id": "sec_hfwwv3fb9a",
       "preset": "cta/split@1",
       "label": "Headline with action on the right",
       "layout": {
@@ -581,7 +581,7 @@
       },
       "blocks": [
         {
-          "id": "blk_72vysmszdv",
+          "id": "blk_fmtan8xxj4",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -594,7 +594,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_zb7dyne2qr",
+          "id": "blk_f8c9y2wdk8",
           "type": "button",
           "v": 1,
           "fields": {

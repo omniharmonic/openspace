@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_ne0a1fh7fa",
+      "id": "sec_tff660tx9p",
       "layout": {
         "mode": "stack",
         "columns": {
@@ -26,7 +26,7 @@
       },
       "blocks": [
         {
-          "id": "blk_0hjnt817t3",
+          "id": "blk_y25n4vjkfj",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -41,7 +41,7 @@
       ]
     },
     {
-      "id": "sec_zn4eg9z4y5",
+      "id": "sec_2y2z0pgyn0",
       "label": "Tracks",
       "layout": {
         "mode": "stack",
@@ -57,7 +57,7 @@
       },
       "blocks": [
         {
-          "id": "blk_ngrt84ywec",
+          "id": "blk_ykphhrjrm7",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -69,7 +69,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_7b29gcgnsk",
+          "id": "blk_rgvs28z1hc",
           "type": "audio",
           "v": 1,
           "fields": {
@@ -117,7 +117,7 @@
           "variant": "episode"
         },
         {
-          "id": "blk_k4jqp17t75",
+          "id": "blk_2a4mbmtr8d",
           "type": "audio",
           "v": 1,
           "fields": {
@@ -167,7 +167,7 @@
       ]
     },
     {
-      "id": "sec_pr7bzkefps",
+      "id": "sec_9ed5bnby5t",
       "preset": "gallery/project-cards@1",
       "label": "Project index",
       "layout": {
@@ -184,7 +184,7 @@
       },
       "blocks": [
         {
-          "id": "blk_mnav1t4xk2",
+          "id": "blk_kra63qjcew",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -196,7 +196,7 @@
           "variant": "underline"
         },
         {
-          "id": "blk_prjfs37637",
+          "id": "blk_ev87b87mfg",
           "type": "columns",
           "v": 1,
           "fields": {

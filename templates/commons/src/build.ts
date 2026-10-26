@@ -1,8 +1,9 @@
 import type { TemplateSpec } from "../../lib/define";
 import { event } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   block,
+  collectionPath,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
@@ -26,12 +27,14 @@ import {
  */
 
 const T = "commons";
-const P = {
-  home: pageId(T, "home"),
-  members: pageId(T, "members"),
-  join: pageId(T, "join"),
-  about: pageId(T, "about"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  members: "members",
+  join: "join",
+  about: "about",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const NAME = "Hudson Valley Food Commons";
 const EMAIL = "hello@hvfoodcommons.example";
@@ -49,28 +52,30 @@ function home() {
     [
       fromPreset("hero/image-below@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "A cooperative of 42 farms, kitchens and food banks",
             text: "Feeding the valley, together",
             subheading:
               "We share cold storage, delivery trucks and buying power so that small farms stay in business and good food reaches every town from Kingston to Beacon.",
           },
-          1: {
+          button: {
             label: "Join the commons",
             link: page(P.join),
             secondaryLabel: "Meet our members",
             secondaryLink: page(P.members),
           },
-          2: { image: photo("hills", 1280, "21:9", "Green hills of the valley seen from above") },
+          image: {
+            image: photo("hills", 1280, "21:9", "Green hills of the valley seen from above"),
+          },
         },
       }),
       fromPreset("stats/with-image@1", {
         edit: {
-          0: {
+          image: {
             image: photo("seedlings", 480, "4:5", "Seedlings sprouting in a tray at a member farm"),
           },
-          1: { eyebrow: "Since 2019", text: "What we've built by sharing" },
-          2: {
+          heading: { eyebrow: "Since 2019", text: "What we've built by sharing" },
+          stats: {
             items: [
               { value: "42", label: "Member organizations" },
               { value: "1.2M lbs", label: "Food moved in 2025" },
@@ -82,13 +87,13 @@ function home() {
       fromPreset("services/icon-grid@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "How it works",
             text: "Shared infrastructure, owned in common",
             subheading:
               "Every member owns one share and gets one vote. Together we own what none of us could afford alone.",
           },
-          1: {
+          "icon-list": {
             items: [
               {
                 icon: "home",
@@ -151,13 +156,13 @@ function home() {
       fromPreset("logos/grid@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Members",
             text: "Some of the 42 members",
             subheading:
               "Farms, kitchens, food banks and grocers, from one-acre market gardens to a 400-family pantry.",
           },
-          1: {
+          "logo-strip": {
             logos: [
               { name: "Rondout Valley Growers" },
               { name: "Esopus Creek Farm" },
@@ -173,7 +178,7 @@ function home() {
       fromPreset("events/list@1", {
         collection: "gatherings",
         edit: {
-          0: {
+          events: {
             heading: "Gatherings & assemblies",
             source: { collection: "gatherings", filter: { upcoming: true }, limit: 4 },
             registerLabel: "RSVP",
@@ -183,7 +188,7 @@ function home() {
       }),
       fromPreset("cta/card-over-photo@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "friendsSunset",
               1100,
@@ -191,7 +196,7 @@ function home() {
               "Members of the cooperative together at sunset",
             ),
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.h(2, "There's room at the table", "h2"),
               rt.p(
@@ -199,7 +204,7 @@ function home() {
               ),
             ),
           },
-          2: { label: "Apply to join", link: page(P.join) },
+          button: { label: "Apply to join", link: page(P.join) },
         },
       }),
     ],
@@ -216,13 +221,13 @@ function members() {
       fromPreset("hero/centered@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Directory",
             text: "Our members",
             subheading:
               "Forty-two organizations who own the commons together. Buy from them, volunteer with them, or ask them what membership has changed.",
           },
-          1: {
+          button: {
             label: "Become a member",
             link: page(P.join),
             secondaryLabel: "How we govern",
@@ -332,8 +337,8 @@ function members() {
       fromPreset("testimonials/pair@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "In their words", text: "What membership changed" },
-          1: {
+          heading: { eyebrow: "In their words", text: "What membership changed" },
+          "testimonial:1": {
             quote: rt.doc(
               rt.p(
                 "The shared cooler let us sell to schools for the first time. That contract kept the farm open through a terrible August.",
@@ -343,7 +348,7 @@ function members() {
             role: "Rondout Valley Growers",
             photo: photo("portraitMaya", 160, "1:1", "Portrait of Lena Morales"),
           },
-          2: {
+          "testimonial:2": {
             quote: rt.doc(
               rt.p(
                 "We used to throw out produce on Mondays. Now it reaches the pantry by Tuesday morning, still cold.",
@@ -369,20 +374,20 @@ function join() {
       fromPreset("hero/split-image@1", {
         theme: "light",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Membership",
             text: "Own a share of the valley's food system",
             subheading:
               "Any farm, kitchen, food bank or grocer in our nine counties can join. Members buy one share, get one vote at the general assembly and use everything the commons owns.",
           },
-          1: {
+          button: {
             label: "Apply now",
             link: page(P.join, "apply"),
             secondaryLabel: "Read the bylaws",
             secondaryLink: page(P.about),
             note: "Applications are reviewed at the next monthly members' meeting.",
           },
-          2: {
+          image: {
             image: photo(
               "gardenTrowel",
               600,
@@ -395,8 +400,8 @@ function join() {
       fromPreset("pricing/compact-list@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "Dues", text: "Sliding-scale membership" },
-          1: {
+          heading: { eyebrow: "Dues", text: "Sliding-scale membership" },
+          pricing: {
             plans: [
               {
                 name: "Member share",
@@ -436,19 +441,19 @@ function join() {
       fromPreset("contact/form-split@1", {
         anchor: "apply",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Apply",
             text: "Tell us about your organization",
             subheading:
               "A member of the steering committee will call you within two weeks to talk it through.",
           },
-          1: {
+          "contact-info": {
             name: NAME,
             address: "61 Prince Street\nKingston, NY 12401",
             phone: "+1 (845) 555-0119",
             email: EMAIL,
           },
-          2: {
+          form: {
             form: {
               id: formId(),
               name: "Membership application",
@@ -508,8 +513,13 @@ function about() {
     [
       fromPreset("about/story-editorial@1", {
         edit: {
-          0: { eyebrow: "About", text: "Owned together, run in the open", level: "h1", size: "h1" },
-          1: {
+          heading: {
+            eyebrow: "About",
+            text: "Owned together, run in the open",
+            level: "h1",
+            size: "h1",
+          },
+          text: {
             content: rt.doc(
               rt.p(
                 "In the spring of 2019, eleven farmers met in the back room of the Kingston library to talk about a problem none of them could solve alone. Each had lost a wholesale buyer because they couldn't keep produce cold long enough to deliver it. Together, they could afford a cooler. Within a year they had a cooler, a truck and twenty more members.",
@@ -524,12 +534,12 @@ function about() {
       fromPreset("about/milestones@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "History",
             text: "Six years of sharing",
             subheading: "From a borrowed back room to the valley's largest food cooperative.",
           },
-          1: {
+          timeline: {
             items: [
               {
                 date: "2019",
@@ -557,8 +567,8 @@ function about() {
       }),
       fromPreset("team/circles@1", {
         edit: {
-          0: { eyebrow: "Steering committee", text: "Elected by members" },
-          1: {
+          heading: { eyebrow: "Steering committee", text: "Elected by members" },
+          team: {
             people: [
               {
                 name: "Lena Morales",
@@ -673,7 +683,7 @@ export const commons: TemplateSpec = {
         footer: fromPreset("footer/columns@1", {
           theme: "dark-accent",
           edit: {
-            0: {
+            "text:1": {
               content: rt.doc(
                 rt.p(NAME, "lead"),
                 rt.p(
@@ -681,18 +691,18 @@ export const commons: TemplateSpec = {
                 ),
               ),
             },
-            1: { profiles: [] },
-            2: {
+            "social-links": { profiles: [] },
+            "text:2": {
               content: rt.doc(
                 ...linkColumn("Commons", [
-                  ["Members", "/members/"],
-                  ["Gatherings", "/gatherings/"],
-                  ["Join", "/join/"],
+                  ["Members", href("members")],
+                  ["Gatherings", collectionPath("gatherings")],
+                  ["Join", href("join")],
                 ]),
               ),
             },
-            3: { content: rt.doc(...linkColumn("About", [["Our story", "/about/"]])) },
-            4: {
+            "text:3": { content: rt.doc(...linkColumn("About", [["Our story", href("about")]])) },
+            "text:4": {
               content: rt.doc(
                 rt.p("The hub", "eyebrow"),
                 rt.p("61 Prince Street, Kingston, NY 12401. Deliveries Monday to Thursday."),

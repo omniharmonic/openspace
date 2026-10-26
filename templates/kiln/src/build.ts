@@ -1,8 +1,9 @@
 import type { TemplateSpec } from "../../lib/define";
 import { event, product } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   body,
+  collectionPath,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
@@ -25,12 +26,14 @@ import {
  */
 
 const T = "kiln";
-const P = {
-  home: pageId(T, "home"),
-  workshops: pageId(T, "workshops"),
-  about: pageId(T, "about"),
-  contact: pageId(T, "contact"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  workshops: "workshops",
+  about: "about",
+  contact: "contact",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const NAME = "Saltmarsh Pottery";
 const EMAIL = "studio@saltmarshpottery.example";
@@ -47,7 +50,7 @@ function home() {
     [
       fromPreset("hero/collage@1", {
         edit: {
-          0: {
+          "image:1": {
             image: photo(
               "pottery",
               640,
@@ -55,7 +58,7 @@ function home() {
               "Handmade stoneware vases in soft clay colours on a studio shelf",
             ),
           },
-          1: {
+          "image:2": {
             image: photo(
               "plantPot",
               380,
@@ -63,15 +66,15 @@ function home() {
               "A small cactus in one of our terracotta planters",
             ),
           },
-          2: {
+          heading: {
             eyebrow: "Stoneware · Mystic, Connecticut",
             text: "Pots for everyday rituals",
             subheading:
               "Cups, vases and planters thrown by hand in a boatshed by the river, glazed in colours borrowed from the salt marsh at low tide.",
           },
-          3: {
+          button: {
             label: "Shop the latest firing",
-            link: url("/shop/"),
+            link: url(collectionPath("shop")),
             secondaryLabel: "Weekend workshops",
             secondaryLink: page(P.workshops),
           },
@@ -79,12 +82,12 @@ function home() {
       }),
       fromPreset("products/grid@1", {
         edit: {
-          0: {
+          summary: {
             heading: "Fresh from the kiln",
             source: { collection: "shop", sort: "date-desc", limit: 8 },
             columns: "3",
             linkLabel: "Shop everything",
-            link: url("/shop/"),
+            link: url(collectionPath("shop")),
             emptyMessage:
               "The next firing is cooling. New pieces arrive on the first Friday of the month.",
           },
@@ -93,7 +96,7 @@ function home() {
       fromPreset("about/workshop-layers@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          "image:1": {
             image: photo(
               "ceramics",
               640,
@@ -101,24 +104,24 @@ function home() {
               "Three matte grey bud vases with dried stems",
             ),
           },
-          1: {
+          "image:2": {
             image: photo("pottery", 360, "original", "Glazed vases drying on the studio shelf"),
           },
-          2: { eyebrow: "The studio", text: "Made slowly, a few at a time" },
-          3: {
+          heading: { eyebrow: "The studio", text: "Made slowly, a few at a time" },
+          text: {
             content: rt.doc(
               rt.p(
                 "Every piece is thrown, trimmed and glazed by Wren in a 1920s boatshed on the Mystic River. Glazes are mixed in small batches from local clay and wood ash, so no two firings come out of the kiln quite alike.",
               ),
             ),
           },
-          4: { label: "Read the maker's story", link: page(P.about) },
+          button: { label: "Read the maker's story", link: page(P.about) },
         },
       }),
       fromPreset("products/story-overlap@1", {
         theme: "light",
         edit: {
-          0: {
+          image: {
             image: photo(
               "coffeeTable",
               600,
@@ -126,7 +129,7 @@ function home() {
               "Two of our morning cups on a small table with herbs",
             ),
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.p("Bestseller", "eyebrow"),
               rt.h(2, "The morning cup", "h2"),
@@ -135,7 +138,7 @@ function home() {
               ),
             ),
           },
-          2: {
+          product: {
             product: { collection: "shop", items: ["morning-cup-pair"] },
             buttonLabel: "Add to cart",
             detailsLabel: "See details",
@@ -146,7 +149,7 @@ function home() {
         theme: "light-accent",
         collection: "classes",
         edit: {
-          0: {
+          events: {
             heading: "Weekend workshops",
             source: { collection: "classes", filter: { upcoming: true }, limit: 4 },
             registerLabel: "Book a place",
@@ -158,8 +161,8 @@ function home() {
       fromPreset("testimonials/three-cards@1", {
         theme: "light",
         edit: {
-          0: { eyebrow: "Kind words", text: "From people who use them daily" },
-          1: {
+          heading: { eyebrow: "Kind words", text: "From people who use them daily" },
+          "testimonial:1": {
             quote: rt.doc(
               rt.p(
                 "My morning cup is the first thing I reach for every day. It feels like it was made for my hands.",
@@ -169,7 +172,7 @@ function home() {
             role: "Customer, Providence",
             photo: photo("portraitClara", 120, "1:1", "Portrait of Elise Thornton"),
           },
-          2: {
+          "testimonial:2": {
             quote: rt.doc(
               rt.p(
                 "The wheel workshop was the best Saturday I've had in years. I came home with two wobbly bowls I love.",
@@ -179,7 +182,7 @@ function home() {
             role: "Workshop student",
             photo: photo("portraitSam", 120, "1:1", "Portrait of Ben Akintola"),
           },
-          3: {
+          "testimonial:3": {
             quote: rt.doc(
               rt.p(
                 "We stock Saltmarsh planters in both our shops and they sell out within a week of every firing.",
@@ -204,20 +207,20 @@ function workshops() {
     [
       fromPreset("hero/split-image@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Workshops",
             text: "Get your hands in the clay",
             subheading:
               "Small weekend workshops in the boatshed, for complete beginners and anyone who misses the wheel. Six students, all materials and two firings included.",
           },
-          1: {
+          button: {
             label: "See upcoming dates",
-            link: url("/classes/"),
+            link: url(collectionPath("classes")),
             secondaryLabel: "Private groups",
             secondaryLink: page(P.contact),
             note: "Gift vouchers available for any workshop.",
           },
-          2: {
+          image: {
             image: photo(
               "pottery",
               600,
@@ -230,7 +233,7 @@ function workshops() {
       fromPreset("events/list@1", {
         collection: "classes",
         edit: {
-          0: {
+          events: {
             heading: "Upcoming workshops",
             source: { collection: "classes", filter: { upcoming: true }, limit: 8 },
             registerLabel: "Book a place",
@@ -240,8 +243,8 @@ function workshops() {
       }),
       fromPreset("services/steps@1", {
         edit: {
-          0: { eyebrow: "What to expect", text: "From lump of clay to finished pot" },
-          1: {
+          heading: { eyebrow: "What to expect", text: "From lump of clay to finished pot" },
+          columns: {
             items: [
               {
                 heading: "Saturday: make",
@@ -263,13 +266,13 @@ function workshops() {
               },
             ],
           },
-          2: { label: "Book a workshop", link: url("/classes/") },
+          button: { label: "Book a workshop", link: url(collectionPath("classes")) },
         },
       }),
       fromPreset("faq/centered@1", {
         edit: {
-          0: { eyebrow: "Workshops", text: "Good to know" },
-          1: {
+          heading: { eyebrow: "Workshops", text: "Good to know" },
+          accordion: {
             items: [
               {
                 question: "I've never touched clay. Is that OK?",
@@ -306,7 +309,7 @@ function about() {
     [
       fromPreset("about/story-split@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "portraitOwen",
               520,
@@ -314,8 +317,8 @@ function about() {
               "Portrait of Wren Adeyemi, potter and founder of Saltmarsh",
             ),
           },
-          1: { eyebrow: "The maker", text: "Hello, I'm Wren", level: "h1", size: "h1" },
-          2: {
+          heading: { eyebrow: "The maker", text: "Hello, I'm Wren", level: "h1", size: "h1" },
+          text: {
             content: rt.doc(
               rt.p(
                 "I learned to throw at a night class in New Haven when I was forty-three, after twenty years as a school librarian. Within a year I'd bought a second-hand wheel; within three, I'd given notice and rented a leaking boatshed on the Mystic River.",
@@ -325,18 +328,18 @@ function about() {
               ),
             ),
           },
-          3: { label: "Visit the studio", link: page(P.contact), role: "secondary" },
+          button: { label: "Visit the studio", link: page(P.contact), role: "secondary" },
         },
       }),
       fromPreset("about/values@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "How it's made",
             text: "Small batches, honest materials",
             subheading: "A few promises that shape every piece that leaves the studio.",
           },
-          1: {
+          "icon-list": {
             items: [
               {
                 icon: "leaf",
@@ -359,13 +362,19 @@ function about() {
       }),
       fromPreset("gallery/mosaic@1", {
         edit: {
-          0: { image: photo("pottery", 640, "original", "A shelf of finished vases") },
-          1: { image: photo("ceramics", 320, "original", "Grey bud vases with dried stems") },
-          2: { image: photo("plantPot", 320, "original", "A terracotta planter with a cactus") },
-          3: {
+          "image:1": { image: photo("pottery", 640, "original", "A shelf of finished vases") },
+          "image:2": {
+            image: photo("ceramics", 320, "original", "Grey bud vases with dried stems"),
+          },
+          "image:3": {
+            image: photo("plantPot", 320, "original", "A terracotta planter with a cactus"),
+          },
+          "image:4": {
             image: photo("succulent", 320, "original", "A mint-glazed planter with a succulent"),
           },
-          4: { image: photo("coffeeTable", 320, "original", "Morning cups on a small table") },
+          "image:5": {
+            image: photo("coffeeTable", 320, "original", "Morning cups on a small table"),
+          },
         },
       }),
     ],
@@ -381,15 +390,20 @@ function contact() {
     [
       fromPreset("contact/form-split@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Contact",
             text: "Visit, commission or stock our work",
             level: "h1",
             subheading:
               "The studio is open on Saturdays, and by appointment. For wholesale, commissions or private workshops, write below.",
           },
-          1: { name: NAME, address: ADDRESS, phone: "+1 (860) 555-0174", email: EMAIL },
-          2: {
+          "contact-info": {
+            name: NAME,
+            address: ADDRESS,
+            phone: "+1 (860) 555-0174",
+            email: EMAIL,
+          },
+          form: {
             form: {
               id: formId(),
               name: "Studio enquiry",
@@ -430,14 +444,14 @@ function contact() {
       }),
       fromPreset("contact/location@1", {
         edit: {
-          0: {
+          map: {
             name: NAME,
             address: "12 Holmes Street, Mystic, CT 06355",
             latitude: 41.3543,
             longitude: -71.9665,
           },
-          1: { eyebrow: "Visit", text: "Studio hours" },
-          2: {
+          heading: { eyebrow: "Visit", text: "Studio hours" },
+          hours: {
             rows: [
               { day: "mon", closed: true },
               { day: "tue", closed: true },
@@ -449,7 +463,7 @@ function contact() {
             ],
             note: "Closed on firing days; check Instagram before a long drive. Free parking by the boat ramp.",
           },
-          3: { address: ADDRESS, phone: "+1 (860) 555-0174", email: EMAIL },
+          "contact-info": { address: ADDRESS, phone: "+1 (860) 555-0174", email: EMAIL },
         },
       }),
     ],
@@ -565,28 +579,28 @@ export const kiln: TemplateSpec = {
         announcement: {
           enabled: true,
           message: "The December firing opens in the shop on Friday the 4th at 10am.",
-          link: url("/shop/"),
+          link: url(collectionPath("shop")),
           dismissible: true,
         },
         header: headerFrom("header/split@1", { sticky: true }),
         footer: fromPreset("footer/newsletter@1", {
           edit: {
-            0: {
+            newsletter: {
               heading: "News from the boatshed",
               description: "New firings, workshop dates and studio sales, about once a month.",
               buttonLabel: "Subscribe",
               successMessage: "Thank you! Check your inbox to confirm.",
             },
-            1: {
+            "text:1": {
               content: rt.doc(
                 ...linkColumn("Shop", [
-                  ["All pottery", "/shop/"],
-                  ["Workshops", "/workshops/"],
-                  ["About", "/about/"],
+                  ["All pottery", collectionPath("shop")],
+                  ["Workshops", href("workshops")],
+                  ["About", href("about")],
                 ]),
               ),
             },
-            2: {
+            "text:2": {
               content: rt.doc(
                 rt.p("Visit", "eyebrow"),
                 rt.p("12 Holmes Street, Mystic, Connecticut"),
@@ -594,7 +608,7 @@ export const kiln: TemplateSpec = {
                 rt.p("© 2026 Saltmarsh Pottery", "small"),
               ),
             },
-            3: { profiles: [] },
+            "social-links": { profiles: [] },
           },
         }),
         social: [

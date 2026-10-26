@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_3rfjwyq1rt",
+      "id": "sec_5dy4rfgx3d",
       "preset": "contact/form-split@1",
       "label": "Contact form with details",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_qwjyw8s24r",
+          "id": "blk_s1pkyhxknc",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -43,7 +43,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_21y02cmcx6",
+          "id": "blk_54qhy0jp1j",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -57,12 +57,12 @@
           "variant": "list"
         },
         {
-          "id": "blk_95snhaw3cm",
+          "id": "blk_gemf9saqev",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_b5yaxxk2fz",
+              "id": "frm_sb3anc16rg",
               "name": "Booking enquiry",
               "fields": [
                 {

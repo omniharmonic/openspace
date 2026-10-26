@@ -46,7 +46,7 @@
     "colorTheme": "dark"
   },
   "footer": {
-    "id": "sec_6p31833fmp",
+    "id": "sec_ps8ny3d114",
     "preset": "footer/big-name@1",
     "label": "Big name footer",
     "layout": {
@@ -56,7 +56,7 @@
         "m": 15
       },
       "items": {
-        "blk_3nv2vxxer2": {
+        "blk_sgcjdhe64r": {
           "d": {
             "x": 1,
             "y": 1,
@@ -70,7 +70,7 @@
             "h": 3
           }
         },
-        "blk_g7630xva7w": {
+        "blk_mavqqkp9k9": {
           "d": {
             "x": 1,
             "y": 5,
@@ -84,7 +84,7 @@
             "h": 1
           }
         },
-        "blk_gt20tjk8cj": {
+        "blk_670aks2mf9": {
           "d": {
             "x": 1,
             "y": 7,
@@ -98,7 +98,7 @@
             "h": 5
           }
         },
-        "blk_cq1d15tqmr": {
+        "blk_35hp4ataas": {
           "d": {
             "x": 9,
             "y": 7,
@@ -112,7 +112,7 @@
             "h": 3
           }
         },
-        "blk_0ge2trexqw": {
+        "blk_91y2c3tvs2": {
           "d": {
             "x": 17,
             "y": 7,
@@ -137,7 +137,7 @@
     },
     "blocks": [
       {
-        "id": "blk_3nv2vxxer2",
+        "id": "blk_sgcjdhe64r",
         "type": "heading",
         "v": 1,
         "fields": {
@@ -148,7 +148,7 @@
         "variant": "plain"
       },
       {
-        "id": "blk_g7630xva7w",
+        "id": "blk_mavqqkp9k9",
         "type": "line",
         "v": 1,
         "fields": {
@@ -159,7 +159,7 @@
         "variant": "solid"
       },
       {
-        "id": "blk_gt20tjk8cj",
+        "id": "blk_670aks2mf9",
         "type": "text",
         "v": 1,
         "fields": {
@@ -223,7 +223,7 @@
         "variant": "default"
       },
       {
-        "id": "blk_cq1d15tqmr",
+        "id": "blk_35hp4ataas",
         "type": "social-links",
         "v": 1,
         "fields": {
@@ -233,7 +233,7 @@
         "variant": "icons"
       },
       {
-        "id": "blk_0ge2trexqw",
+        "id": "blk_91y2c3tvs2",
         "type": "text",
         "v": 1,
         "fields": {

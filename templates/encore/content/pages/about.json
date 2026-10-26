@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_y271bhc7b6",
+      "id": "sec_26523h2g83",
       "preset": "about/story-split@1",
       "label": "Story with portrait",
       "layout": {
@@ -30,7 +30,7 @@
       },
       "blocks": [
         {
-          "id": "blk_h01fhnb62s",
+          "id": "blk_svt7wm5vps",
           "type": "image",
           "v": 1,
           "fields": {
@@ -47,7 +47,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_756898jp4m",
+          "id": "blk_nzgq9x5nvj",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -60,7 +60,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_mnfbe816f4",
+          "id": "blk_8aea9d0s7a",
           "type": "text",
           "v": 1,
           "fields": {
@@ -92,7 +92,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_3v7jbhtey4",
+          "id": "blk_kfqd896ak9",
           "type": "button",
           "v": 1,
           "fields": {
@@ -109,7 +109,7 @@
       ]
     },
     {
-      "id": "sec_dxydfjh7sx",
+      "id": "sec_072hapkgj5",
       "preset": "testimonials/carousel@1",
       "label": "Testimonial slides",
       "layout": {
@@ -126,7 +126,7 @@
       },
       "blocks": [
         {
-          "id": "blk_e0mbvvpx23",
+          "id": "blk_mfejcs1n2m",
           "type": "quote-carousel",
           "v": 1,
           "fields": {
@@ -154,7 +154,7 @@
       ]
     },
     {
-      "id": "sec_fe67mt4h1h",
+      "id": "sec_c1hz3ktn3f",
       "preset": "gallery/grid@1",
       "label": "Photo grid",
       "layout": {
@@ -171,7 +171,7 @@
       },
       "blocks": [
         {
-          "id": "blk_ty2c5t5r3s",
+          "id": "blk_xqkerbz0ts",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -184,7 +184,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_z923tzc5qb",
+          "id": "blk_zc555vygcx",
           "type": "gallery",
           "v": 1,
           "fields": {

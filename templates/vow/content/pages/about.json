@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_xnvcjthp49",
+      "id": "sec_j0haescs8x",
       "preset": "about/story-editorial@1",
       "label": "Editorial story",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_8vyfeaw1bq",
+          "id": "blk_k1brdntras",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_w2k14zdqwb",
+          "id": "blk_v24zg0zrdm",
           "type": "text",
           "v": 1,
           "fields": {
@@ -88,7 +88,7 @@
       ]
     },
     {
-      "id": "sec_pj2x4knafw",
+      "id": "sec_fpk4gypthk",
       "preset": "gallery/layered-pair@1",
       "label": "Layered pair",
       "layout": {
@@ -98,7 +98,7 @@
           "m": 30
         },
         "items": {
-          "blk_myptddwj9d": {
+          "blk_w3dews5483": {
             "d": {
               "x": 1,
               "y": 1,
@@ -112,7 +112,7 @@
               "h": 11
             }
           },
-          "blk_9jv8tyjpfy": {
+          "blk_pc7nsyfhm5": {
             "d": {
               "x": 10,
               "y": 12,
@@ -128,7 +128,7 @@
               "z": 2
             }
           },
-          "blk_7d5b7e0rce": {
+          "blk_fqbwy7jt6v": {
             "d": {
               "x": 18,
               "y": 6,
@@ -142,7 +142,7 @@
               "h": 6
             }
           },
-          "blk_7j2wxsqgg8": {
+          "blk_ashhzhqb4v": {
             "d": {
               "x": 18,
               "y": 12,
@@ -163,7 +163,7 @@
       },
       "blocks": [
         {
-          "id": "blk_myptddwj9d",
+          "id": "blk_w3dews5483",
           "type": "image",
           "v": 1,
           "fields": {
@@ -179,7 +179,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_9jv8tyjpfy",
+          "id": "blk_pc7nsyfhm5",
           "type": "image",
           "v": 1,
           "fields": {
@@ -198,7 +198,7 @@
           }
         },
         {
-          "id": "blk_7d5b7e0rce",
+          "id": "blk_fqbwy7jt6v",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -210,7 +210,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_7j2wxsqgg8",
+          "id": "blk_ashhzhqb4v",
           "type": "text",
           "v": 1,
           "fields": {
@@ -234,7 +234,7 @@
       ]
     },
     {
-      "id": "sec_w7ttfpxpc7",
+      "id": "sec_qe98axyw8s",
       "preset": "team/circles@1",
       "label": "Team in circles",
       "layout": {
@@ -251,7 +251,7 @@
       },
       "blocks": [
         {
-          "id": "blk_9m9xqvxmmn",
+          "id": "blk_8p450x8jek",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -268,7 +268,7 @@
           }
         },
         {
-          "id": "blk_yxsj11pdsc",
+          "id": "blk_x7da20a8eq",
           "type": "team",
           "v": 1,
           "fields": {

@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_fxp5kmde2y",
+      "id": "sec_eqz1q2xxfc",
       "preset": "hero/split-landscape@1",
       "label": "Split with landscape image",
       "layout": {
@@ -44,7 +44,7 @@
       },
       "blocks": [
         {
-          "id": "blk_d0mg2ev0gx",
+          "id": "blk_06n4y17vhb",
           "type": "image",
           "v": 1,
           "fields": {
@@ -61,7 +61,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_jw3nfwpfp0",
+          "id": "blk_23fvzy5nre",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -75,7 +75,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_rrv1hrvkcc",
+          "id": "blk_pt1b3agmev",
           "type": "button",
           "v": 1,
           "fields": {
@@ -97,7 +97,7 @@
       ]
     },
     {
-      "id": "sec_ejaqcge7rm",
+      "id": "sec_v4s7sy3gad",
       "preset": "services/alternating@1",
       "label": "Alternating image and text",
       "layout": {
@@ -107,7 +107,7 @@
           "m": 43
         },
         "items": {
-          "blk_q1c9vwf2qc": {
+          "blk_z6dj0wexfc": {
             "d": {
               "x": 1,
               "y": 1,
@@ -121,7 +121,7 @@
               "h": 11
             }
           },
-          "blk_d3vcjv6d7c": {
+          "blk_7c5z3qd77x": {
             "d": {
               "x": 15,
               "y": 4,
@@ -135,7 +135,7 @@
               "h": 10
             }
           },
-          "blk_yp8pv9nmz4": {
+          "blk_17kkhb8nx1": {
             "d": {
               "x": 13,
               "y": 18,
@@ -149,7 +149,7 @@
               "h": 11
             }
           },
-          "blk_atsan28dgw": {
+          "blk_vv7vwp1eew": {
             "d": {
               "x": 2,
               "y": 21,
@@ -170,7 +170,7 @@
       },
       "blocks": [
         {
-          "id": "blk_q1c9vwf2qc",
+          "id": "blk_z6dj0wexfc",
           "type": "image",
           "v": 1,
           "fields": {
@@ -186,7 +186,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_d3vcjv6d7c",
+          "id": "blk_7c5z3qd77x",
           "type": "text",
           "v": 1,
           "fields": {
@@ -250,7 +250,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_yp8pv9nmz4",
+          "id": "blk_17kkhb8nx1",
           "type": "image",
           "v": 1,
           "fields": {
@@ -266,7 +266,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_atsan28dgw",
+          "id": "blk_vv7vwp1eew",
           "type": "text",
           "v": 1,
           "fields": {
@@ -333,7 +333,7 @@
       "anchor": "pantry"
     },
     {
-      "id": "sec_tp43rf4tzy",
+      "id": "sec_2mwv6gfv1m",
       "preset": "services/steps@1",
       "label": "How it works in three steps",
       "layout": {
@@ -350,7 +350,7 @@
       },
       "blocks": [
         {
-          "id": "blk_hcr02k9gf1",
+          "id": "blk_rb9e8g6mje",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -367,7 +367,7 @@
           }
         },
         {
-          "id": "blk_0gag11r98p",
+          "id": "blk_nnadvtch76",
           "type": "columns",
           "v": 1,
           "fields": {
@@ -430,7 +430,7 @@
           "variant": "steps"
         },
         {
-          "id": "blk_syngnba1h8",
+          "id": "blk_1vpr77h9fg",
           "type": "button",
           "v": 1,
           "fields": {
@@ -452,7 +452,7 @@
       "anchor": "repairs"
     },
     {
-      "id": "sec_bvhhh2t6gh",
+      "id": "sec_r7wr2rk1yt",
       "preset": "faq/split@1",
       "label": "Questions beside heading",
       "layout": {
@@ -473,7 +473,7 @@
       },
       "blocks": [
         {
-          "id": "blk_95gsb2qzeb",
+          "id": "blk_5f053qx56z",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -486,7 +486,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_0hzw05f6j2",
+          "id": "blk_xpjhgcesxb",
           "type": "text",
           "v": 1,
           "fields": {
@@ -509,7 +509,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_ker00nw03y",
+          "id": "blk_tvtzak0k69",
           "type": "button",
           "v": 1,
           "fields": {
@@ -524,7 +524,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_dte53zcz8d",
+          "id": "blk_hz7m2q9wst",
           "type": "accordion",
           "v": 1,
           "fields": {

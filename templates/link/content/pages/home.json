@@ -11,7 +11,7 @@
   },
   "sections": [
     {
-      "id": "sec_47xhc9bz6k",
+      "id": "sec_79n8cdy1fs",
       "label": "Links",
       "layout": {
         "mode": "stack",
@@ -31,7 +31,7 @@
       },
       "blocks": [
         {
-          "id": "blk_599prn5rvp",
+          "id": "blk_f96m134hb7",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           }
         },
         {
-          "id": "blk_e4kadsh8gp",
+          "id": "blk_e69s5tj0ps",
           "type": "link-list",
           "v": 1,
           "fields": {
@@ -128,7 +128,7 @@
       ]
     },
     {
-      "id": "sec_qtw2xb2dg8",
+      "id": "sec_h9dtvjz0fr",
       "label": "Instagram",
       "layout": {
         "mode": "stack",
@@ -144,7 +144,7 @@
       },
       "blocks": [
         {
-          "id": "blk_pkna9kgp7e",
+          "id": "blk_w8h68k4345",
           "type": "social-feed",
           "v": 1,
           "fields": {
@@ -240,7 +240,7 @@
       ]
     },
     {
-      "id": "sec_91ze70pzf6",
+      "id": "sec_kxyfb5jt9h",
       "preset": "newsletter/card@1",
       "label": "Newsletter card",
       "layout": {
@@ -257,7 +257,7 @@
       },
       "blocks": [
         {
-          "id": "blk_zbdz0hnbxr",
+          "id": "blk_pfr31fb800",
           "type": "newsletter",
           "v": 1,
           "fields": {

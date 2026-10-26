@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_8kvea2j4qb",
+      "id": "sec_xp1kx5j16f",
       "preset": "contact/form-split@1",
       "label": "Contact form with details",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_46hcyjxwzx",
+          "id": "blk_br9bbtghjk",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -43,7 +43,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_s19xx1xvye",
+          "id": "blk_r53bxyyhdc",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -57,12 +57,12 @@
           "variant": "list"
         },
         {
-          "id": "blk_rnyzks8de1",
+          "id": "blk_8wwax3j1b3",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_4s3ybfynaw",
+              "id": "frm_f55jx5y178",
               "name": "Sales enquiry",
               "fields": [
                 {

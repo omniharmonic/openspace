@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_a8bg2sbpxj",
+      "id": "sec_a105vvfpd2",
       "preset": "team/founder-overlap@1",
       "label": "Founder spotlight",
       "layout": {
@@ -18,7 +18,7 @@
           "m": 30
         },
         "items": {
-          "blk_2t0yjmbs27": {
+          "blk_yyehnvw2rq": {
             "d": {
               "x": 13,
               "y": 1,
@@ -32,7 +32,7 @@
               "h": 16
             }
           },
-          "blk_yej5bvddye": {
+          "blk_j4gvk73we1": {
             "d": {
               "x": 3,
               "y": 5,
@@ -48,7 +48,7 @@
               "z": 2
             }
           },
-          "blk_xnjc5pgkds": {
+          "blk_n8yw8t0wcb": {
             "d": {
               "x": 4,
               "y": 20,
@@ -69,7 +69,7 @@
       },
       "blocks": [
         {
-          "id": "blk_2t0yjmbs27",
+          "id": "blk_yyehnvw2rq",
           "type": "image",
           "v": 1,
           "fields": {
@@ -85,7 +85,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_yej5bvddye",
+          "id": "blk_j4gvk73we1",
           "type": "text",
           "v": 1,
           "fields": {
@@ -148,7 +148,7 @@
           }
         },
         {
-          "id": "blk_xnjc5pgkds",
+          "id": "blk_n8yw8t0wcb",
           "type": "button",
           "v": 1,
           "fields": {
@@ -164,7 +164,7 @@
       ]
     },
     {
-      "id": "sec_dsm4vbcwha",
+      "id": "sec_72f2qp0e77",
       "preset": "about/two-column-text@1",
       "label": "Heading with reading columns",
       "layout": {
@@ -181,7 +181,7 @@
       },
       "blocks": [
         {
-          "id": "blk_fcr56tbdt8",
+          "id": "blk_xb7zk6j7fp",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -194,7 +194,7 @@
           "variant": "split"
         },
         {
-          "id": "blk_0n5ztz6k2q",
+          "id": "blk_f5pjng2ngb",
           "type": "text",
           "v": 1,
           "fields": {
@@ -227,7 +227,7 @@
       ]
     },
     {
-      "id": "sec_q2qcjnfvny",
+      "id": "sec_x7cfs1hr3v",
       "preset": "about/milestones@1",
       "label": "Milestones timeline",
       "layout": {
@@ -248,7 +248,7 @@
       },
       "blocks": [
         {
-          "id": "blk_ydph26z22f",
+          "id": "blk_jf3j2vvhg0",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -262,7 +262,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_y0p98pe1fk",
+          "id": "blk_67xbc21vjb",
           "type": "timeline",
           "v": 1,
           "fields": {

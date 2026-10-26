@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_g454mr3qqy",
+      "id": "sec_vgb30yft8z",
       "preset": "contact/form-split@1",
       "label": "Contact form with details",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_q2ss02pgxk",
+          "id": "blk_rap0vbx0yf",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -43,7 +43,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_dz0m1vca3w",
+          "id": "blk_d4x5x6wpm1",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -57,12 +57,12 @@
           "variant": "list"
         },
         {
-          "id": "blk_9mhj1es30s",
+          "id": "blk_t0t31fgnew",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_c2r4bmby3v",
+              "id": "frm_ggkhg2vbcz",
               "name": "Contact",
               "fields": [
                 {

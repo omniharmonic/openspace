@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_9m1ayx4vec",
+      "id": "sec_3qhky4bqtt",
       "preset": "hero/collage@1",
       "label": "Photo collage",
       "layout": {
@@ -18,7 +18,7 @@
           "m": 31
         },
         "items": {
-          "blk_jc86vm3rgc": {
+          "blk_0pj18h3rbs": {
             "d": {
               "x": 1,
               "y": 1,
@@ -32,7 +32,7 @@
               "h": 14
             }
           },
-          "blk_k1573y9s1z": {
+          "blk_4bn5n70h7m": {
             "d": {
               "x": 8,
               "y": 12,
@@ -48,7 +48,7 @@
               "z": 2
             }
           },
-          "blk_8r2ngf91ks": {
+          "blk_p27vd6rmp9": {
             "d": {
               "x": 15,
               "y": 4,
@@ -62,7 +62,7 @@
               "h": 10
             }
           },
-          "blk_2p5m0916z5": {
+          "blk_w76p1b5x3j": {
             "d": {
               "x": 15,
               "y": 18,
@@ -87,7 +87,7 @@
       },
       "blocks": [
         {
-          "id": "blk_jc86vm3rgc",
+          "id": "blk_0pj18h3rbs",
           "type": "image",
           "v": 1,
           "fields": {
@@ -103,7 +103,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_k1573y9s1z",
+          "id": "blk_4bn5n70h7m",
           "type": "image",
           "v": 1,
           "fields": {
@@ -122,7 +122,7 @@
           }
         },
         {
-          "id": "blk_8r2ngf91ks",
+          "id": "blk_p27vd6rmp9",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -135,7 +135,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_2p5m0916z5",
+          "id": "blk_w76p1b5x3j",
           "type": "button",
           "v": 1,
           "fields": {
@@ -156,7 +156,7 @@
       ]
     },
     {
-      "id": "sec_t92hbksa3v",
+      "id": "sec_85tgsawzaj",
       "preset": "products/grid@1",
       "label": "Product grid",
       "layout": {
@@ -172,7 +172,7 @@
       },
       "blocks": [
         {
-          "id": "blk_xzr6w3exp7",
+          "id": "blk_txbk303p5z",
           "type": "summary",
           "v": 1,
           "fields": {
@@ -200,7 +200,7 @@
       ]
     },
     {
-      "id": "sec_7g41cjmdf1",
+      "id": "sec_0wv566whbd",
       "preset": "about/workshop-layers@1",
       "label": "Workshop in layers",
       "layout": {
@@ -210,7 +210,7 @@
           "m": 32
         },
         "items": {
-          "blk_whdjvp1b0v": {
+          "blk_4g9a1m5rvn": {
             "d": {
               "x": 1,
               "y": 1,
@@ -224,7 +224,7 @@
               "h": 10
             }
           },
-          "blk_gzadke6v2c": {
+          "blk_t2fzfam2zw": {
             "d": {
               "x": 8,
               "y": 11,
@@ -240,7 +240,7 @@
               "z": 2
             }
           },
-          "blk_z66qvq7vng": {
+          "blk_0v44j2mtfc": {
             "d": {
               "x": 16,
               "y": 3,
@@ -254,7 +254,7 @@
               "h": 6
             }
           },
-          "blk_a4bntc4gts": {
+          "blk_xe606x8vzr": {
             "d": {
               "x": 16,
               "y": 10,
@@ -268,7 +268,7 @@
               "h": 7
             }
           },
-          "blk_yz8symz0rw": {
+          "blk_8nzx51b02x": {
             "d": {
               "x": 16,
               "y": 19,
@@ -289,7 +289,7 @@
       },
       "blocks": [
         {
-          "id": "blk_whdjvp1b0v",
+          "id": "blk_4g9a1m5rvn",
           "type": "image",
           "v": 1,
           "fields": {
@@ -305,7 +305,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_gzadke6v2c",
+          "id": "blk_t2fzfam2zw",
           "type": "image",
           "v": 1,
           "fields": {
@@ -324,7 +324,7 @@
           }
         },
         {
-          "id": "blk_z66qvq7vng",
+          "id": "blk_0v44j2mtfc",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -336,7 +336,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_a4bntc4gts",
+          "id": "blk_xe606x8vzr",
           "type": "text",
           "v": 1,
           "fields": {
@@ -358,7 +358,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_yz8symz0rw",
+          "id": "blk_8nzx51b02x",
           "type": "button",
           "v": 1,
           "fields": {
@@ -374,7 +374,7 @@
       ]
     },
     {
-      "id": "sec_6fkjq2d5r4",
+      "id": "sec_wq0td365mr",
       "preset": "products/story-overlap@1",
       "label": "Product with its story",
       "layout": {
@@ -384,7 +384,7 @@
           "m": 35
         },
         "items": {
-          "blk_eg1pmr7156": {
+          "blk_qsfwhqycsn": {
             "d": {
               "x": 1,
               "y": 1,
@@ -398,7 +398,7 @@
               "h": 12
             }
           },
-          "blk_xx6j9kp1bw": {
+          "blk_jtrgt7zfsf": {
             "d": {
               "x": 9,
               "y": 4,
@@ -414,7 +414,7 @@
               "z": 2
             }
           },
-          "blk_fs02fdfz4h": {
+          "blk_kg63wj5301": {
             "d": {
               "x": 19,
               "y": 4,
@@ -435,7 +435,7 @@
       },
       "blocks": [
         {
-          "id": "blk_eg1pmr7156",
+          "id": "blk_qsfwhqycsn",
           "type": "image",
           "v": 1,
           "fields": {
@@ -451,7 +451,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_xx6j9kp1bw",
+          "id": "blk_jtrgt7zfsf",
           "type": "text",
           "v": 1,
           "fields": {
@@ -505,7 +505,7 @@
           }
         },
         {
-          "id": "blk_fs02fdfz4h",
+          "id": "blk_kg63wj5301",
           "type": "product",
           "v": 1,
           "fields": {
@@ -525,7 +525,7 @@
       ]
     },
     {
-      "id": "sec_7qyhtr6rj0",
+      "id": "sec_apsgnvv46g",
       "preset": "events/cards@1",
       "label": "Event cards",
       "layout": {
@@ -541,7 +541,7 @@
       },
       "blocks": [
         {
-          "id": "blk_81y5s7b9mp",
+          "id": "blk_gwy3jzs0ka",
           "type": "events",
           "v": 1,
           "fields": {
@@ -566,7 +566,7 @@
       ]
     },
     {
-      "id": "sec_rws748h3te",
+      "id": "sec_v1smmg6kh3",
       "preset": "testimonials/three-cards@1",
       "label": "Three testimonial cards",
       "layout": {
@@ -576,7 +576,7 @@
           "m": 41
         },
         "items": {
-          "blk_jdxbvgangk": {
+          "blk_mqv098b4zf": {
             "d": {
               "x": 5,
               "y": 1,
@@ -590,7 +590,7 @@
               "h": 5
             }
           },
-          "blk_vbdbenvkft": {
+          "blk_6522des97e": {
             "d": {
               "x": 1,
               "y": 7,
@@ -604,7 +604,7 @@
               "h": 11
             }
           },
-          "blk_crhtzt7tm2": {
+          "blk_8mx47t0y69": {
             "d": {
               "x": 9,
               "y": 7,
@@ -618,7 +618,7 @@
               "h": 11
             }
           },
-          "blk_gnncr2djkw": {
+          "blk_r3pk4ztjzr": {
             "d": {
               "x": 17,
               "y": 7,
@@ -639,7 +639,7 @@
       },
       "blocks": [
         {
-          "id": "blk_jdxbvgangk",
+          "id": "blk_mqv098b4zf",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -656,7 +656,7 @@
           }
         },
         {
-          "id": "blk_vbdbenvkft",
+          "id": "blk_6522des97e",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -687,7 +687,7 @@
           "variant": "card"
         },
         {
-          "id": "blk_crhtzt7tm2",
+          "id": "blk_8mx47t0y69",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -718,7 +718,7 @@
           "variant": "card"
         },
         {
-          "id": "blk_gnncr2djkw",
+          "id": "blk_r3pk4ztjzr",
           "type": "testimonial",
           "v": 1,
           "fields": {

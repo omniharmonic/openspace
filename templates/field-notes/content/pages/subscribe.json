@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_nx073274t5",
+      "id": "sec_m40kv05ckj",
       "preset": "hero/centered@1",
       "label": "Centered statement",
       "layout": {
@@ -28,7 +28,7 @@
       },
       "blocks": [
         {
-          "id": "blk_wa876ffs3m",
+          "id": "blk_g8b8nmghsh",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_1b3g6wdr9z",
+          "id": "blk_62kgb40bnf",
           "type": "button",
           "v": 1,
           "fields": {
@@ -73,7 +73,7 @@
       ]
     },
     {
-      "id": "sec_gy4f8jdbd0",
+      "id": "sec_pknfmk90d5",
       "preset": "pricing/two-plans@1",
       "label": "Two plans in columns",
       "layout": {
@@ -94,7 +94,7 @@
       },
       "blocks": [
         {
-          "id": "blk_zfmqhzf2kv",
+          "id": "blk_v6sk34bzrf",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -108,7 +108,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_8wxc3a6kab",
+          "id": "blk_9zn72k5pmw",
           "type": "pricing",
           "v": 1,
           "fields": {
@@ -169,7 +169,7 @@
       "anchor": "support"
     },
     {
-      "id": "sec_9g6r1dzqh7",
+      "id": "sec_yaaqz18nep",
       "preset": "faq/centered@1",
       "label": "Centred questions",
       "layout": {
@@ -187,7 +187,7 @@
       },
       "blocks": [
         {
-          "id": "blk_k78x9tm3kz",
+          "id": "blk_8rxxh3rpg6",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -204,7 +204,7 @@
           }
         },
         {
-          "id": "blk_gj7k192pq9",
+          "id": "blk_pj9hsjza4s",
           "type": "accordion",
           "v": 1,
           "fields": {

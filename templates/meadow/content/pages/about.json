@@ -9,7 +9,7 @@
   },
   "sections": [
     {
-      "id": "sec_vhz0rz1bc8",
+      "id": "sec_ezaeh3m133",
       "preset": "about/story-split@1",
       "label": "Story with portrait",
       "layout": {
@@ -31,7 +31,7 @@
       },
       "blocks": [
         {
-          "id": "blk_yrtasmmz8b",
+          "id": "blk_tvx6r33w83",
           "type": "image",
           "v": 1,
           "fields": {
@@ -51,7 +51,7 @@
           }
         },
         {
-          "id": "blk_6zj8w38bqt",
+          "id": "blk_7dan89sf8e",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -64,7 +64,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_rxmb2keqm4",
+          "id": "blk_eb14e06dgt",
           "type": "text",
           "v": 1,
           "fields": {
@@ -96,7 +96,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_785q7y2qyd",
+          "id": "blk_bw1b1yymfx",
           "type": "button",
           "v": 1,
           "fields": {
@@ -114,7 +114,7 @@
       ]
     },
     {
-      "id": "sec_79hdc5jn26",
+      "id": "sec_geb9rpxf2m",
       "preset": "about/milestones@1",
       "label": "Milestones timeline",
       "layout": {
@@ -135,7 +135,7 @@
       },
       "blocks": [
         {
-          "id": "blk_dez47te4mn",
+          "id": "blk_3dbkw6ztga",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -149,7 +149,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_3jvaqz9es2",
+          "id": "blk_rz4wqajpd1",
           "type": "timeline",
           "v": 1,
           "fields": {
@@ -182,7 +182,7 @@
       ]
     },
     {
-      "id": "sec_8fpcaawn87",
+      "id": "sec_4x3npfmy3x",
       "preset": "team/circles@1",
       "label": "Team in circles",
       "layout": {
@@ -199,7 +199,7 @@
       },
       "blocks": [
         {
-          "id": "blk_aq5ts3a72g",
+          "id": "blk_njrmjg8wjy",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -216,7 +216,7 @@
           }
         },
         {
-          "id": "blk_hhea1cjm83",
+          "id": "blk_tz63hmtpjx",
           "type": "team",
           "v": 1,
           "fields": {
@@ -260,7 +260,7 @@
       "anchor": "teachers"
     },
     {
-      "id": "sec_3zr1z0h61j",
+      "id": "sec_76nvzbmcwc",
       "preset": "gallery/carousel@1",
       "label": "Scrolling carousel",
       "layout": {
@@ -277,7 +277,7 @@
       },
       "blocks": [
         {
-          "id": "blk_30k1rgzwc1",
+          "id": "blk_w75ch3ktfm",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -289,7 +289,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_4kytphve4j",
+          "id": "blk_6dn326dabr",
           "type": "gallery",
           "v": 1,
           "fields": {

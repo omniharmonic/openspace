@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_szrf1apy3h",
+      "id": "sec_pg3ksqk0df",
       "preset": "hero/signup@1",
       "label": "Headline with email signup",
       "layout": {
@@ -30,7 +30,7 @@
       },
       "blocks": [
         {
-          "id": "blk_bdvftcp5d8",
+          "id": "blk_nh4xhg8zsq",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           }
         },
         {
-          "id": "blk_s8gqfmd2mh",
+          "id": "blk_gta63zc588",
           "type": "newsletter",
           "v": 1,
           "fields": {
@@ -68,7 +68,7 @@
       ]
     },
     {
-      "id": "sec_zfvjjkvvwg",
+      "id": "sec_570vz57hw3",
       "preset": "blog/intro-list@1",
       "label": "Journal with introduction",
       "layout": {
@@ -89,7 +89,7 @@
       },
       "blocks": [
         {
-          "id": "blk_79q49twwqf",
+          "id": "blk_629z7bm12p",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -102,7 +102,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_24b021c77z",
+          "id": "blk_vq3gn1vmqd",
           "type": "text",
           "v": 1,
           "fields": {
@@ -125,7 +125,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_c8gxzzq3ee",
+          "id": "blk_m2ycf3emgz",
           "type": "button",
           "v": 1,
           "fields": {
@@ -140,7 +140,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_rrnk3x8m6k",
+          "id": "blk_9c4r8ak5vt",
           "type": "summary",
           "v": 1,
           "fields": {
@@ -163,7 +163,7 @@
       ]
     },
     {
-      "id": "sec_0kepkat64e",
+      "id": "sec_0fbmc121dd",
       "preset": "about/portrait-overlap@1",
       "label": "Portrait with overlapping story",
       "layout": {
@@ -173,7 +173,7 @@
           "m": 32
         },
         "items": {
-          "blk_6h8r93httd": {
+          "blk_e1mxgdxq2f": {
             "d": {
               "x": 2,
               "y": 1,
@@ -187,7 +187,7 @@
               "h": 16
             }
           },
-          "blk_rd4k1dk7pd": {
+          "blk_1vbwk0hf7p": {
             "d": {
               "x": 9,
               "y": 6,
@@ -203,7 +203,7 @@
               "z": 2
             }
           },
-          "blk_m7ma3jz700": {
+          "blk_vpfj36cp1k": {
             "d": {
               "x": 11,
               "y": 22,
@@ -224,7 +224,7 @@
       },
       "blocks": [
         {
-          "id": "blk_6h8r93httd",
+          "id": "blk_e1mxgdxq2f",
           "type": "image",
           "v": 1,
           "fields": {
@@ -240,7 +240,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_rd4k1dk7pd",
+          "id": "blk_1vbwk0hf7p",
           "type": "text",
           "v": 1,
           "fields": {
@@ -303,7 +303,7 @@
           }
         },
         {
-          "id": "blk_m7ma3jz700",
+          "id": "blk_vpfj36cp1k",
           "type": "button",
           "v": 1,
           "fields": {
@@ -319,7 +319,7 @@
       ]
     },
     {
-      "id": "sec_5q60h977ry",
+      "id": "sec_br8n2x0sfg",
       "preset": "testimonials/carousel@1",
       "label": "Testimonial slides",
       "layout": {
@@ -336,7 +336,7 @@
       },
       "blocks": [
         {
-          "id": "blk_rps8b20zh9",
+          "id": "blk_rvgc5z80m3",
           "type": "quote-carousel",
           "v": 1,
           "fields": {
@@ -382,7 +382,7 @@
       ]
     },
     {
-      "id": "sec_7aejkw8rgw",
+      "id": "sec_az9txfbcgy",
       "preset": "newsletter/card@1",
       "label": "Newsletter card",
       "layout": {
@@ -399,7 +399,7 @@
       },
       "blocks": [
         {
-          "id": "blk_wcp2qs51aw",
+          "id": "blk_5tjmr7cm97",
           "type": "newsletter",
           "v": 1,
           "fields": {

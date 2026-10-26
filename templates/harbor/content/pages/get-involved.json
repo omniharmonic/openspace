@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_sjgrzystgg",
+      "id": "sec_s1pq17mcbs",
       "preset": "hero/centered@1",
       "label": "Centered statement",
       "layout": {
@@ -28,7 +28,7 @@
       },
       "blocks": [
         {
-          "id": "blk_2v06pyp1vk",
+          "id": "blk_t5gr5h5bme",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_2vb97zfh8s",
+          "id": "blk_3r0wysmn5f",
           "type": "button",
           "v": 1,
           "fields": {
@@ -74,7 +74,7 @@
       ]
     },
     {
-      "id": "sec_mxxcdwd94q",
+      "id": "sec_dve10gwexg",
       "preset": "cta/donate@1",
       "label": "Donation appeal",
       "layout": {
@@ -96,7 +96,7 @@
       },
       "blocks": [
         {
-          "id": "blk_hj1ta2bnm4",
+          "id": "blk_15dx6zndhk",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -109,7 +109,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_y7953jhh3x",
+          "id": "blk_1m8f12e18p",
           "type": "text",
           "v": 1,
           "fields": {
@@ -132,7 +132,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_wb5cgwveca",
+          "id": "blk_px96nzjyjh",
           "type": "donation",
           "v": 1,
           "fields": {
@@ -165,7 +165,7 @@
       "anchor": "donate"
     },
     {
-      "id": "sec_kbpqdxpgf8",
+      "id": "sec_j6yhmsw12s",
       "preset": "cta/card-over-photo@1",
       "label": "Card over photo",
       "layout": {
@@ -175,7 +175,7 @@
           "m": 23
         },
         "items": {
-          "blk_w18g9rpdp3": {
+          "blk_01rh5sccxc": {
             "d": {
               "x": 5,
               "y": 1,
@@ -189,7 +189,7 @@
               "h": 12
             }
           },
-          "blk_sttj9wc6qr": {
+          "blk_crdwagw4mv": {
             "d": {
               "x": 1,
               "y": 9,
@@ -205,7 +205,7 @@
               "z": 2
             }
           },
-          "blk_4yb9ev9jzx": {
+          "blk_6aap6ba3gr": {
             "d": {
               "x": 2,
               "y": 21,
@@ -226,7 +226,7 @@
       },
       "blocks": [
         {
-          "id": "blk_w18g9rpdp3",
+          "id": "blk_01rh5sccxc",
           "type": "image",
           "v": 1,
           "fields": {
@@ -242,7 +242,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_sttj9wc6qr",
+          "id": "blk_crdwagw4mv",
           "type": "text",
           "v": 1,
           "fields": {
@@ -284,7 +284,7 @@
           }
         },
         {
-          "id": "blk_4yb9ev9jzx",
+          "id": "blk_6aap6ba3gr",
           "type": "button",
           "v": 1,
           "fields": {
@@ -301,7 +301,7 @@
       "anchor": "volunteer"
     },
     {
-      "id": "sec_dcy7kmy51h",
+      "id": "sec_m6w40snr8a",
       "preset": "faq/cards@1",
       "label": "Question cards",
       "layout": {
@@ -319,7 +319,7 @@
       },
       "blocks": [
         {
-          "id": "blk_8vvx53kf2a",
+          "id": "blk_fnpa905ex7",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -336,7 +336,7 @@
           }
         },
         {
-          "id": "blk_2mzz0h49b6",
+          "id": "blk_m3wwar31fz",
           "type": "accordion",
           "v": 1,
           "fields": {
@@ -400,7 +400,7 @@
           "variant": "cards"
         },
         {
-          "id": "blk_xrszv2y2p0",
+          "id": "blk_e3qx9nvkt7",
           "type": "button",
           "v": 1,
           "fields": {

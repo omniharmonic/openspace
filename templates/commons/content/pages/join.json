@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_fq6yyvzr8c",
+      "id": "sec_dr03tpqk73",
       "preset": "hero/split-image@1",
       "label": "Split with portrait image",
       "layout": {
@@ -34,7 +34,7 @@
       },
       "blocks": [
         {
-          "id": "blk_827stq40kq",
+          "id": "blk_ep6kerkg3t",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_5x1shw0vg3",
+          "id": "blk_6b93d681j4",
           "type": "button",
           "v": 1,
           "fields": {
@@ -70,7 +70,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_b60wapfn8e",
+          "id": "blk_rge5v377nt",
           "type": "image",
           "v": 1,
           "fields": {
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "id": "sec_17bnp671x0",
+      "id": "sec_pvy4ahpxwc",
       "preset": "pricing/compact-list@1",
       "label": "Compact price list",
       "layout": {
@@ -107,7 +107,7 @@
       },
       "blocks": [
         {
-          "id": "blk_2crfcyhb3s",
+          "id": "blk_gx3rdqmc9y",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -124,7 +124,7 @@
           }
         },
         {
-          "id": "blk_tjnt29ghsg",
+          "id": "blk_zgnz2tqd31",
           "type": "pricing",
           "v": 1,
           "fields": {
@@ -179,7 +179,7 @@
       ]
     },
     {
-      "id": "sec_16ebs4aqd3",
+      "id": "sec_c0btk4c6t6",
       "preset": "contact/form-split@1",
       "label": "Contact form with details",
       "layout": {
@@ -200,7 +200,7 @@
       },
       "blocks": [
         {
-          "id": "blk_jhj20keyda",
+          "id": "blk_5k0x1xmhb5",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -214,7 +214,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_2k8n1015as",
+          "id": "blk_4x3q71k5bx",
           "type": "contact-info",
           "v": 1,
           "fields": {
@@ -229,12 +229,12 @@
           "variant": "list"
         },
         {
-          "id": "blk_0yw7t46870",
+          "id": "blk_w1t4rd9vzj",
           "type": "form",
           "v": 1,
           "fields": {
             "form": {
-              "id": "frm_1801rnetcm",
+              "id": "frm_2av24q844x",
               "name": "Membership application",
               "fields": [
                 {

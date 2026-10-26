@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_p7t7jzsrjy",
+      "id": "sec_jkb292th3y",
       "preset": "hero/image-below@1",
       "label": "Headline over wide image",
       "layout": {
@@ -30,7 +30,7 @@
       },
       "blocks": [
         {
-          "id": "blk_qepnm58pr0",
+          "id": "blk_bsv5fgxmh3",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -48,7 +48,7 @@
           }
         },
         {
-          "id": "blk_jdapzgdjbc",
+          "id": "blk_5yahwf5bam",
           "type": "button",
           "v": 1,
           "fields": {
@@ -72,7 +72,7 @@
           }
         },
         {
-          "id": "blk_h6mdeb6a7b",
+          "id": "blk_6nvg3rm6z5",
           "type": "image",
           "v": 1,
           "fields": {
@@ -90,7 +90,7 @@
       ]
     },
     {
-      "id": "sec_hytc1g9ve0",
+      "id": "sec_b16bkj32mf",
       "preset": "stats/with-image@1",
       "label": "Big numbers with photo",
       "layout": {
@@ -112,7 +112,7 @@
       },
       "blocks": [
         {
-          "id": "blk_8cthhnnnbx",
+          "id": "blk_ceh1qmwwx2",
           "type": "image",
           "v": 1,
           "fields": {
@@ -129,7 +129,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_8fgy4pkkfg",
+          "id": "blk_gy12vq9jq6",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -142,7 +142,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_xf9btkph7q",
+          "id": "blk_8cn4et8v66",
           "type": "stats",
           "v": 1,
           "fields": {
@@ -167,7 +167,7 @@
       ]
     },
     {
-      "id": "sec_4qytkfnw9q",
+      "id": "sec_gyxxy3r33m",
       "preset": "services/icon-grid@1",
       "label": "Service grid with icons",
       "layout": {
@@ -184,7 +184,7 @@
       },
       "blocks": [
         {
-          "id": "blk_bcjkcg2my4",
+          "id": "blk_accm5p1jka",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -202,7 +202,7 @@
           }
         },
         {
-          "id": "blk_cjkrqzwg6r",
+          "id": "blk_vd0fsj6an6",
           "type": "icon-list",
           "v": 1,
           "fields": {
@@ -245,7 +245,7 @@
       ]
     },
     {
-      "id": "sec_92k4qtkqpq",
+      "id": "sec_8c1jxnkqf0",
       "label": "Map",
       "layout": {
         "mode": "stack",
@@ -260,7 +260,7 @@
       },
       "blocks": [
         {
-          "id": "blk_ah9knm9q66",
+          "id": "blk_4jy4tj26jr",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -273,7 +273,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_jes45x3rjq",
+          "id": "blk_bn14tmztwe",
           "type": "map",
           "v": 1,
           "fields": {
@@ -291,7 +291,7 @@
       ]
     },
     {
-      "id": "sec_q9bwweyqzr",
+      "id": "sec_qz3trj1vsa",
       "preset": "logos/grid@1",
       "label": "Partner grid",
       "layout": {
@@ -308,7 +308,7 @@
       },
       "blocks": [
         {
-          "id": "blk_9nkadhwd3b",
+          "id": "blk_yv6x9m2vpf",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -326,7 +326,7 @@
           }
         },
         {
-          "id": "blk_b11pvr8fp2",
+          "id": "blk_zqd36xvjdb",
           "type": "logo-strip",
           "v": 1,
           "fields": {
@@ -360,7 +360,7 @@
       ]
     },
     {
-      "id": "sec_64gn9bxfkw",
+      "id": "sec_qt2hkn0ve5",
       "preset": "events/list@1",
       "label": "Upcoming events list",
       "layout": {
@@ -377,7 +377,7 @@
       },
       "blocks": [
         {
-          "id": "blk_jexfp4k9w4",
+          "id": "blk_985bq5xvxs",
           "type": "events",
           "v": 1,
           "fields": {
@@ -402,7 +402,7 @@
       ]
     },
     {
-      "id": "sec_6btvsqzbev",
+      "id": "sec_8eqe4r09mq",
       "preset": "cta/card-over-photo@1",
       "label": "Card over photo",
       "layout": {
@@ -412,7 +412,7 @@
           "m": 23
         },
         "items": {
-          "blk_xafkrt6wm4": {
+          "blk_m8d6jfjhkt": {
             "d": {
               "x": 5,
               "y": 1,
@@ -426,7 +426,7 @@
               "h": 12
             }
           },
-          "blk_nnv57gcs43": {
+          "blk_fq8e28xcb8": {
             "d": {
               "x": 1,
               "y": 9,
@@ -442,7 +442,7 @@
               "z": 2
             }
           },
-          "blk_ayznzge1j4": {
+          "blk_v077r1rrfb": {
             "d": {
               "x": 2,
               "y": 21,
@@ -463,7 +463,7 @@
       },
       "blocks": [
         {
-          "id": "blk_xafkrt6wm4",
+          "id": "blk_m8d6jfjhkt",
           "type": "image",
           "v": 1,
           "fields": {
@@ -479,7 +479,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_nnv57gcs43",
+          "id": "blk_fq8e28xcb8",
           "type": "text",
           "v": 1,
           "fields": {
@@ -521,7 +521,7 @@
           }
         },
         {
-          "id": "blk_ayznzge1j4",
+          "id": "blk_v077r1rrfb",
           "type": "button",
           "v": 1,
           "fields": {

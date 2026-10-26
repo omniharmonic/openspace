@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_3mm0wg122g",
+      "id": "sec_gmd5qcan90",
       "preset": "about/story-editorial@1",
       "label": "Editorial story",
       "layout": {
@@ -29,7 +29,7 @@
       },
       "blocks": [
         {
-          "id": "blk_r1r0271ygm",
+          "id": "blk_3rbt0bsn2g",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_ma13s6qs49",
+          "id": "blk_206rkvgmpm",
           "type": "text",
           "v": 1,
           "fields": {
@@ -79,7 +79,7 @@
       ]
     },
     {
-      "id": "sec_jmypzt56jb",
+      "id": "sec_ft2e95zy15",
       "preset": "about/milestones@1",
       "label": "Milestones timeline",
       "layout": {
@@ -100,7 +100,7 @@
       },
       "blocks": [
         {
-          "id": "blk_8b3xxej04q",
+          "id": "blk_4fa8v2pekj",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -114,7 +114,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_rs847nhx29",
+          "id": "blk_1j98r1w2qt",
           "type": "timeline",
           "v": 1,
           "fields": {
@@ -147,7 +147,7 @@
       ]
     },
     {
-      "id": "sec_bq9wdfzc8f",
+      "id": "sec_mfryh31crj",
       "preset": "team/circles@1",
       "label": "Team in circles",
       "layout": {
@@ -164,7 +164,7 @@
       },
       "blocks": [
         {
-          "id": "blk_8f1j3ykrzb",
+          "id": "blk_h4nyqx9req",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -181,7 +181,7 @@
           }
         },
         {
-          "id": "blk_x5d7dytn03",
+          "id": "blk_ec7s6dhkjp",
           "type": "team",
           "v": 1,
           "fields": {

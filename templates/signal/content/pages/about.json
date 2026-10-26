@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_4c0vbbsm72",
+      "id": "sec_z594k10b37",
       "preset": "about/story-split@1",
       "label": "Story with portrait",
       "layout": {
@@ -30,7 +30,7 @@
       },
       "blocks": [
         {
-          "id": "blk_d14wfkgbzm",
+          "id": "blk_fatbbxat1a",
           "type": "image",
           "v": 1,
           "fields": {
@@ -47,7 +47,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_p9z5hpbggk",
+          "id": "blk_7j9j4s9n39",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -60,7 +60,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_ejf4r2y800",
+          "id": "blk_wbjp92rntp",
           "type": "text",
           "v": 1,
           "fields": {
@@ -92,7 +92,7 @@
           "variant": "default"
         },
         {
-          "id": "blk_gsmm8qbpwv",
+          "id": "blk_fdavwhah8t",
           "type": "button",
           "v": 1,
           "fields": {
@@ -109,7 +109,7 @@
       ]
     },
     {
-      "id": "sec_3z7awrp18s",
+      "id": "sec_xnfzgfcxn3",
       "preset": "about/values@1",
       "label": "Values",
       "layout": {
@@ -126,7 +126,7 @@
       },
       "blocks": [
         {
-          "id": "blk_vy4retv13m",
+          "id": "blk_q66cv36nsn",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -144,7 +144,7 @@
           }
         },
         {
-          "id": "blk_c15y9gta6q",
+          "id": "blk_hbabkby4y8",
           "type": "icon-list",
           "v": 1,
           "fields": {
@@ -172,7 +172,7 @@
       ]
     },
     {
-      "id": "sec_q2sw6a49ys",
+      "id": "sec_6pth4ds48k",
       "preset": "team/grid@1",
       "label": "Team grid",
       "layout": {
@@ -189,7 +189,7 @@
       },
       "blocks": [
         {
-          "id": "blk_rydmk4bwvg",
+          "id": "blk_051vk76z19",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -202,7 +202,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_76ae40khcg",
+          "id": "blk_7rax7g7xwx",
           "type": "team",
           "v": 1,
           "fields": {

@@ -8,7 +8,7 @@
   },
   "sections": [
     {
-      "id": "sec_r4ammmjtkj",
+      "id": "sec_jz19y0zaa2",
       "preset": "hero/centered@1",
       "label": "Centered statement",
       "layout": {
@@ -28,7 +28,7 @@
       },
       "blocks": [
         {
-          "id": "blk_scwg82k1mp",
+          "id": "blk_14tb7adb7b",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_60tepj0mva",
+          "id": "blk_54v6wp9zf2",
           "type": "button",
           "v": 1,
           "fields": {
@@ -73,7 +73,7 @@
       ]
     },
     {
-      "id": "sec_ppa28hybpy",
+      "id": "sec_andenv2esx",
       "preset": "services/image-cards@1",
       "label": "Three services with photos",
       "layout": {
@@ -90,7 +90,7 @@
       },
       "blocks": [
         {
-          "id": "blk_yp51m2z1e5",
+          "id": "blk_j0xxm90dbt",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -103,7 +103,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_xhrz71kf23",
+          "id": "blk_7b2394jw1x",
           "type": "columns",
           "v": 1,
           "fields": {

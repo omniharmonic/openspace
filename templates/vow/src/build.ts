@@ -1,14 +1,14 @@
 import type { TemplateSpec } from "../../lib/define";
-import { pageId } from "../../lib/ids";
 import {
   body,
+  definePages,
   formId,
   fromPreset,
   headerFrom,
   makePage,
+  PHOTO_SCRIM,
   page,
   photo,
-  PHOTO_SCRIM,
   photoBackground,
   photoUrl,
   rt,
@@ -25,14 +25,16 @@ import {
  */
 
 const T = "vow";
-const P = {
-  home: pageId(T, "home"),
-  schedule: pageId(T, "schedule"),
-  travel: pageId(T, "travel"),
-  registry: pageId(T, "registry"),
-  rsvp: pageId(T, "rsvp"),
-  about: pageId(T, "about"),
-};
+const PAGES = definePages(T, {
+  home: "",
+  schedule: "schedule",
+  travel: "travel",
+  registry: "registry",
+  rsvp: "rsvp",
+  about: "about",
+});
+const P = PAGES.id;
+const href = PAGES.href;
 
 const COUPLE = "Amara & Theo";
 const VENUE = "Beltane Ranch, 11775 Sonoma Highway, Glen Ellen, CA 95442";
@@ -58,13 +60,13 @@ function home() {
           ),
         },
         edit: {
-          0: {
+          heading: {
             eyebrow: "September 18, 2027 · Glen Ellen, California",
             text: "Amara & Theo are getting married",
             subheading:
               "We'd love you to spend a long weekend with us in Sonoma wine country: welcome drinks on Friday, the wedding on Saturday and a slow brunch on Sunday.",
           },
-          1: {
+          button: {
             label: "RSVP",
             link: page(P.rsvp),
             secondaryLabel: "The weekend",
@@ -75,23 +77,23 @@ function home() {
       fromPreset("cta/countdown@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Save the date",
             text: "Counting down to the big day",
             subheading:
               "The ceremony begins at 4pm under the old oak at Beltane Ranch. Please reply by July 1, 2027.",
           },
-          1: {
+          countdown: {
             target: "2027-09-18T16:00:00-07:00",
             doneMessage: "We're married! Thank you for celebrating with us.",
             headingLevel: "h3",
           },
-          2: { label: "Reply to the invitation", link: page(P.rsvp) },
+          button: { label: "Reply to the invitation", link: page(P.rsvp) },
         },
       }),
       fromPreset("about/story-split@1", {
         edit: {
-          0: {
+          image: {
             image: photo(
               "weddingHands",
               520,
@@ -99,8 +101,8 @@ function home() {
               "Amara and Theo's hands with their rings, resting on a bouquet",
             ),
           },
-          1: { eyebrow: "Our story", text: "A wrong train and a long conversation" },
-          2: {
+          heading: { eyebrow: "Our story", text: "A wrong train and a long conversation" },
+          text: {
             content: rt.doc(
               rt.p(
                 "We met in 2019 on the wrong train out of Oakland: Amara was heading to a job interview, Theo was heading home from a night shift, and both of us had misread the board. By the time we worked it out, we'd talked through four stops and missed two more.",
@@ -110,19 +112,19 @@ function home() {
               ),
             ),
           },
-          3: { label: "Read our story", link: page(P.about), role: "secondary" },
+          button: { label: "Read our story", link: page(P.about), role: "secondary" },
         },
       }),
       fromPreset("features/icon-row@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "The weekend",
             text: "Three days in Sonoma",
             subheading:
               "Come for the wedding, or stay for all of it. Every event is at or near Beltane Ranch.",
           },
-          1: {
+          "icon-list": {
             items: [
               {
                 icon: "sun",
@@ -150,12 +152,12 @@ function home() {
       }),
       fromPreset("cta/banner@1", {
         edit: {
-          0: {
+          heading: {
             text: "Kindly reply by July 1, 2027",
             subheading:
               "Let us know whether you can come, who's with you and what you'd like for dinner.",
           },
-          1: {
+          button: {
             label: "RSVP now",
             link: page(P.rsvp),
             secondaryLabel: "Travel & stay",
@@ -177,13 +179,13 @@ function schedule() {
       fromPreset("hero/centered@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "September 17 – 19, 2027",
             text: "The wedding weekend",
             subheading:
               "Everything happens at Beltane Ranch unless we say otherwise. Dress code for Saturday: garden formal, comfortable shoes for the lawn.",
           },
-          1: {
+          button: {
             label: "RSVP",
             link: page(P.rsvp),
             secondaryLabel: "Travel & hotels",
@@ -193,12 +195,12 @@ function schedule() {
       }),
       fromPreset("about/milestones@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Saturday, September 18",
             text: "The day",
             subheading: "A rough guide to the day. Shuttles leave the Glen Ellen hotels at 3:15pm.",
           },
-          1: {
+          timeline: {
             variant: "alternating",
             items: [
               {
@@ -238,12 +240,12 @@ function schedule() {
       fromPreset("services/image-cards@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Friday & Sunday",
             text: "Before and after",
             subheading: "Optional, relaxed and very much encouraged if you're in town.",
           },
-          1: {
+          columns: {
             items: [
               {
                 image: photo(
@@ -295,14 +297,16 @@ function travel() {
     [
       fromPreset("hero/split-landscape@1", {
         edit: {
-          0: { image: photo("valley", 760, "3:2", "Morning mist over the valley near Glen Ellen") },
-          1: {
+          image: {
+            image: photo("valley", 760, "3:2", "Morning mist over the valley near Glen Ellen"),
+          },
+          heading: {
             eyebrow: "Travel & stay",
             text: "Getting to Glen Ellen",
             subheading:
               "Beltane Ranch is an hour's drive north of San Francisco. Fly into SFO or Oakland, or into Santa Rosa (STS) for the shortest drive.",
           },
-          2: {
+          button: {
             label: "Book a hotel",
             link: page(P.travel, "hotels"),
             secondaryLabel: "Shuttle times",
@@ -314,14 +318,14 @@ function travel() {
         theme: "light-accent",
         anchor: "hotels",
         edit: {
-          0: { eyebrow: "Room blocks", text: "Where to stay" },
-          1: {
+          heading: { eyebrow: "Room blocks", text: "Where to stay" },
+          "contact-info:1": {
             heading: "Glen Ellen Inn",
             address: "13670 Arnold Drive\nGlen Ellen, CA 95442",
             phone: "+1 (707) 555-0164",
             note: "Mention AMARA-THEO for our rate until July 1. Shuttle pick-up at the front door.",
           },
-          2: {
+          "contact-info:2": {
             heading: "The Sonoma Plaza Hotel",
             address: "110 West Spain Street\nSonoma, CA 95476",
             phone: "+1 (707) 555-0192",
@@ -332,14 +336,14 @@ function travel() {
       fromPreset("faq/split@1", {
         anchor: "faq",
         edit: {
-          0: { eyebrow: "Questions", text: "Good to know" },
-          1: {
+          heading: { eyebrow: "Questions", text: "Good to know" },
+          text: {
             content: rt.doc(
               rt.p("Anything else? Text Theo's sister Freya, our day-of coordinator."),
             ),
           },
-          2: { label: "Send us a message", link: page(P.rsvp), role: "secondary" },
-          3: {
+          button: { label: "Send us a message", link: page(P.rsvp), role: "secondary" },
+          accordion: {
             items: [
               {
                 question: "Is there parking at the ranch?",
@@ -382,13 +386,13 @@ function registry() {
     [
       fromPreset("hero/centered@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Registry",
             text: "Your presence is the present",
             subheading:
               "Truly. But if you'd like to give something, we've put together a few ideas, including a fund for our honeymoon on the coast of Portugal.",
           },
-          1: {
+          button: {
             label: "Honeymoon fund",
             link: url("https://honeyfund.example/amara-and-theo", true),
             secondaryLabel: "RSVP",
@@ -399,13 +403,13 @@ function registry() {
       fromPreset("services/image-cards@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          heading: {
             eyebrow: "Gift ideas",
             text: "Three ways to give",
             subheading:
               "Every gift comes with a handwritten thank-you, probably late, definitely sincere.",
           },
-          1: {
+          columns: {
             items: [
               {
                 image: photo("beach", 420, "4:5", "Waves washing onto an empty beach at sunset"),
@@ -451,14 +455,14 @@ function rsvp() {
     [
       fromPreset("contact/booking-request@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Kindly reply by July 1, 2027",
             text: "Will you celebrate with us?",
             level: "h1",
             subheading:
               "One reply per invitation, please. You can change your answer any time before July 1 by sending the form again.",
           },
-          1: {
+          form: {
             form: {
               id: formId(),
               name: "RSVP",
@@ -546,13 +550,13 @@ function about() {
     [
       fromPreset("about/story-editorial@1", {
         edit: {
-          0: {
+          heading: {
             eyebrow: "Our story",
             text: "Seven years and one wrong train",
             level: "h1",
             size: "h1",
           },
-          1: {
+          text: {
             content: rt.doc(
               rt.p(
                 "In March 2019, Amara boarded a train at Oakland's 12th Street station, sure it was going to Berkeley. Theo, coming home from a hospital night shift, was sure of the same thing. It was going to Richmond. By the time they realised, they had covered favourite books, terrible roommates and why anyone eats cereal for dinner.",
@@ -570,7 +574,7 @@ function about() {
       fromPreset("gallery/layered-pair@1", {
         theme: "light-accent",
         edit: {
-          0: {
+          "image:1": {
             image: photo(
               "weddingAisle",
               640,
@@ -578,9 +582,11 @@ function about() {
               "Walking back down the aisle at a friend's wedding",
             ),
           },
-          1: { image: photo("weddingHands", 360, "original", "Rings resting on a bouquet") },
-          2: { eyebrow: "The proposal", text: "Platform 2, rush hour" },
-          3: {
+          "image:2": {
+            image: photo("weddingHands", 360, "original", "Rings resting on a bouquet"),
+          },
+          heading: { eyebrow: "The proposal", text: "Platform 2, rush hour" },
+          text: {
             content: rt.doc(
               rt.p(
                 "A paperback, a ring and a lot of very surprised commuters, who applauded when Amara said yes.",
@@ -591,8 +597,8 @@ function about() {
       }),
       fromPreset("team/circles@1", {
         edit: {
-          0: { eyebrow: "Standing with us", text: "The wedding party" },
-          1: {
+          heading: { eyebrow: "Standing with us", text: "The wedding party" },
+          team: {
             people: [
               {
                 name: "Priya Nair",
@@ -701,18 +707,18 @@ export const vow: TemplateSpec = {
         header: headerFrom("header/logo-above@1", { sticky: false }),
         footer: fromPreset("footer/centered@1", {
           edit: {
-            0: {
+            "text:1": {
               content: rt.doc(rt.p(COUPLE, "lead"), rt.p(`September 18, 2027 · ${VENUE}`, "small")),
             },
-            1: { profiles: [] },
-            2: {
+            "social-links": { profiles: [] },
+            "text:2": {
               content: rt.doc(
                 rt.p(
                   [
                     "Questions? Write to ",
                     rt.link("hello@amaraandtheo.example", "mailto:hello@amaraandtheo.example"),
                     " · ",
-                    rt.link("RSVP", "/rsvp/"),
+                    rt.link("RSVP", href("rsvp")),
                   ],
                   "small",
                 ),
