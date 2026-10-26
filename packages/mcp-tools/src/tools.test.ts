@@ -197,6 +197,26 @@ describe("guards", () => {
     expect(e.text).toMatch(/editor/);
   });
 
+  it("lets editors build pages and sections from presets, but not arbitrary styled sections (M-5)", async () => {
+    const editor = await setup({ grant: { sites: "*", publish: false, role: "editor" } });
+    const page = await editor.rpc.call("create_page", {
+      title: "Workshops",
+      presets: ["hero/split-image@1", "cta/banner@1"],
+    });
+    expect(page.data.page?.id ?? page.data.id).toBeTruthy();
+    const pageId = (page.data.page?.id ?? page.data.id) as string;
+    await editor.rpc.call("insert_section", { page: pageId, preset: "faq/split@1" });
+    const styled = await editor.rpc.callError("insert_section", {
+      page: pageId,
+      section: {
+        layout: { mode: "stack", columns: { d: [12] } },
+        style: { padding: { d: "3xl" }, background: { type: "color", color: "#ff0000" } },
+        blocks: [{ type: "text" }],
+      },
+    });
+    expect(styled.code).toBe("forbidden");
+  });
+
   it("starts an agent session (with a snapshot) on the first edit and ends it on close", async () => {
     const { rpc, store, server, siteId } = await setup();
     await rpc.call("get_site");
