@@ -1,8 +1,9 @@
 import type { Section, SiteDocument } from "@openspace/schema";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { setLayoutMode } from "./model/actions";
 import { devSiteDocument, DEV_IDS as I } from "./model/dev-site";
 import { createEditorStore, type EditorStore } from "./model/store";
-import { dropTarget } from "./panels/LayersPanel";
+import { dropTarget, layerCollisions } from "./panels/LayersPanel";
 import { EDITOR_SHORTCUTS, handleEditorKey, isTypingTarget, type ShortcutEnv } from "./shortcuts";
 import { normaliseHref } from "./text/TextToolbar";
 
@@ -56,6 +57,11 @@ describe("editor shortcuts", () => {
 
   it("lets Backspace through when nothing is selected", () => {
     expect(press("Backspace")).toEqual({ handled: false, prevented: false });
+  });
+
+  it("starts arrow navigation at the first section when nothing is selected", () => {
+    expect(press("ArrowDown").handled).toBe(true);
+    expect(s().selection).toEqual([{ kind: "section", id: I.hero }]);
   });
 
   it("moves the selection with arrows, Esc and Enter", () => {
@@ -177,7 +183,50 @@ describe("layers drag and drop targets", () => {
       section: I.faq,
       at: { before: I.intro },
     });
-    expect(dropTarget(doc, I.home, `s:${I.faq}`, `b:${I.introText}`)).toBeNull();
+    // Hovering a block row of another section counts as that section (closestCenter often
+    // lands on a block row in the shared drag context).
+    expect(dropTarget(doc, I.home, `s:${I.faq}`, `b:${I.introText}`)).toEqual({
+      kind: "section",
+      section: I.faq,
+      at: { before: I.intro },
+    });
+    expect(dropTarget(doc, I.home, `s:${I.hero}`, `b:${I.storyQuote}`)).toEqual({
+      kind: "section",
+      section: I.hero,
+      at: { after: I.story },
+    });
+    // Its own blocks, or the footer's, are no target.
+    expect(dropTarget(doc, I.home, `s:${I.hero}`, `b:${I.heroImage}`)).toBeNull();
+    expect(dropTarget(doc, I.home, `s:${I.hero}`, `b:${I.footerText}`)).toBeNull();
+  });
+
+  it("filters collisions by what a drag can land on", () => {
+    const containers = [`s:${I.hero}`, `b:${I.heroImage}`, `s:${I.intro}`].map((id) => ({
+      id,
+      rect: { current: { top: 0, left: 0, width: 10, height: 10, bottom: 10, right: 10 } },
+    }));
+    const args = (active: string) =>
+      ({
+        active: { id: active },
+        collisionRect: { top: 0, left: 0, width: 10, height: 10, bottom: 10, right: 10 },
+        droppableRects: new Map(containers.map((c) => [c.id, c.rect.current])),
+        droppableContainers: containers,
+        pointerCoordinates: null,
+      }) as never;
+    const sectionHits = layerCollisions(args(`s:${I.faq}`)).map((c) => String(c.id));
+    expect(sectionHits.every((id) => id.startsWith("s:"))).toBe(true);
+    expect(layerCollisions(args(`b:${I.introText}`)).map((c) => String(c.id))).toContain(
+      `b:${I.heroImage}`,
+    );
+  });
+
+  it("leaves grid blocks to the canvas", () => {
+    const store = createEditorStore({ doc: devSiteDocument() });
+    store.getState().run(setLayoutMode(store.getState().doc, I.home, I.hero, "grid"));
+    const gridDoc = store.getState().doc;
+    expect(dropTarget(gridDoc, I.home, `b:${I.heroImage}`, `b:${I.heroHeading}`)).toBeNull();
+    expect(dropTarget(gridDoc, I.home, `b:${I.introText}`, `b:${I.heroHeading}`)).toBeNull();
+    expect(dropTarget(gridDoc, I.home, `b:${I.introText}`, `s:${I.hero}`)).toBeNull();
   });
 
   it("moves blocks within and across sections", () => {

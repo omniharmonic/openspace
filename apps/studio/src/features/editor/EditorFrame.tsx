@@ -71,7 +71,7 @@ import {
   pasteItems,
 } from "./model/actions";
 import { EditorStoreProvider, useDocStore, useDocStoreApi } from "./model/context";
-import { placeholderDocument } from "./model/dev-site";
+import { placeholderDocument } from "./model/placeholder";
 import { locate, parentOf } from "./model/selection";
 import { STARTERS } from "./model/starters";
 import { createEditorStore, type EditorStore } from "./model/store";
@@ -79,7 +79,7 @@ import { Inspector } from "./panels/Inspector";
 import { LayersPanel } from "./panels/LayersPanel";
 import { PagesPanel } from "./panels/PagesPanel";
 import { ShortcutsSheet } from "./panels/ShortcutsSheet";
-import { handleEditorKey, isTypingTarget, type ShortcutEnv } from "./shortcuts";
+import { handleEditorKey, isTypingTarget, onSurface, type ShortcutEnv } from "./shortcuts";
 
 const PANELS: Array<{ id: LeftPanel; label: string; icon: ReactNode; shortcut: string }> = [
   { id: "pages", label: "Pages", icon: <FileText />, shortcut: "alt+1" },
@@ -242,15 +242,13 @@ function useEditorInput(env: ShortcutEnv, frameDoc: Document | null) {
         ke.key === " " &&
         !ke.repeat &&
         !isTypingTarget(ke.target) &&
-        !envRef.current.store.getState().editing
+        !envRef.current.store.getState().editing &&
+        onSurface(ke.target)
       ) {
-        const t = ke.target as Element | null;
-        const onButton = t && "tagName" in t && /^(BUTTON|A|SUMMARY)$/.test(String(t.tagName));
-        if (!onButton) {
-          ke.preventDefault();
-          useEditorUi.getState().setPanning(true);
-          return;
-        }
+        // Space pans only when focus is on the page or canvas, never on a control.
+        ke.preventDefault();
+        useEditorUi.getState().setPanning(true);
+        return;
       }
       if (useEditorUi.getState().shortcutsOpen && ke.key !== "?") return;
       handleEditorKey(envRef.current, ke);
@@ -261,7 +259,10 @@ function useEditorInput(env: ShortcutEnv, frameDoc: Document | null) {
     const onBlur = () => useEditorUi.getState().setPanning(false);
     const blocked = (e: Event) => {
       const s = envRef.current.store.getState();
-      return s.editing !== null || isTypingTarget(e.target) || !s.selection.length;
+      if (s.editing !== null || isTypingTarget(e.target) || !s.selection.length) return true;
+      // Selected words in a panel copy as words, not as blocks.
+      const textSel = (e.target as Node | null)?.ownerDocument?.getSelection?.();
+      return Boolean(textSel && !textSel.isCollapsed && textSel.toString().trim());
     };
     const onCopy = (e: Event, cut = false) => {
       if (blocked(e)) return;
@@ -737,6 +738,9 @@ function EditorSession({
     () => createEditorStore({ doc: content, actor }),
     [content, actor],
   );
+  // Tests drive the store directly (removed from production builds).
+  if (import.meta.env.MODE === "test")
+    (window as unknown as { __osEditorStore?: EditorStore }).__osEditorStore = store;
   return (
     <EditorStoreProvider store={store}>
       <EditorChrome site={site} />

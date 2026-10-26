@@ -3,7 +3,9 @@ import { cx } from "../../../ui";
 import { DEVICE_HEIGHTS, DEVICE_WIDTHS, effectiveZoom, useEditorUi } from "../editor-store";
 import { useDocStore, useDocStoreApi } from "../model/context";
 import { locate, type SelItem } from "../model/selection";
-import { canEditInline, setPendingCaret } from "../text/InlineText";
+import { fieldAtPoint, plainTextTargets } from "../text/fields";
+import { setPendingCaret } from "../text/InlineText";
+import { type PlainTextSession, startPlainTextEdit } from "../text/plainText";
 import { CanvasFrame } from "./CanvasFrame";
 import { overlayPointer } from "./geometry";
 import { Overlay } from "./Overlay";
@@ -11,6 +13,40 @@ import { Overlay } from "./Overlay";
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 4;
 const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
+
+/** Zoom when the current pinch began (shared across re-bound listeners). */
+let pinchStart: number | null = null;
+
+/**
+ * Safari reports trackpad pinches as non-standard `gesture*` events (not ctrl+wheel). Zoom from
+ * the scale at the start of the gesture.
+ */
+export function listenSafariPinch(
+  target: EventTarget,
+  scale: number,
+  zoom: (next: number, clientX: number, clientY: number) => void,
+): () => void {
+  type GestureEvent = Event & { scale: number; clientX: number; clientY: number };
+  const onStart = (e: Event) => {
+    e.preventDefault();
+    pinchStart = scale;
+  };
+  const onChange = (e: Event) => {
+    e.preventDefault();
+    const g = e as GestureEvent;
+    // `g.scale` is relative to the gesture's start; listeners are re-bound as the zoom changes.
+    zoom((pinchStart ?? scale) * g.scale, g.clientX, g.clientY);
+    if (e.type === "gestureend") pinchStart = null;
+  };
+  target.addEventListener("gesturestart", onStart);
+  target.addEventListener("gesturechange", onChange);
+  target.addEventListener("gestureend", onChange);
+  return () => {
+    target.removeEventListener("gesturestart", onStart);
+    target.removeEventListener("gesturechange", onChange);
+    target.removeEventListener("gestureend", onChange);
+  };
+}
 
 /** What a pointer event in the canvas document points at. */
 export function itemAt(target: EventTarget | null): SelItem | null {
@@ -101,7 +137,11 @@ export function Canvas({
       zoomAt.current(scale * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY);
     };
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
+    const offGestures = listenSafariPinch(el, scale, (z, x, y) => zoomAt.current(z, x, y));
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      offGestures();
+    };
   }, [scale]);
 
   // …and over the page itself (events inside the iframe never reach the Studio document).
@@ -130,42 +170,49 @@ export function Canvas({
         if (!overlayPointer.inside) api.getState().setHover(null);
       }, 120);
     };
+    /** Start editing the text field under the pointer in this block, if there is one. */
+    const editAt = (blockId: string, e: MouseEvent): boolean => {
+      const s = api.getState();
+      const block = locate(s.doc, s.pageId, { kind: "block", id: blockId })?.block;
+      const el = (e.target as Element).closest?.(`[data-os-id="${blockId}"][data-os-block]`);
+      if (!block || !el) return false;
+      const field = fieldAtPoint(el, block, e.clientX, e.clientY);
+      if (!field) return false;
+      setPendingCaret({ x: e.clientX, y: e.clientY });
+      s.setEditing(block.id, field);
+      return true;
+    };
     const onClick = (e: MouseEvent) => {
       const s = api.getState();
-      const item = itemAt(e.target);
-      const editingEl = s.editing
-        ? (e.target as Element).closest?.(`[data-os-id="${s.editing}"]`)
-        : null;
-      if (editingEl) return; // clicks inside the text being edited belong to the editor
+      const inField = (e.target as Element).closest?.("[data-os-editing-field]");
+      if (inField) {
+        // Clicks inside the field being edited belong to the editor (never follow links).
+        if (inField.hasAttribute("data-os-plain-editing")) e.preventDefault();
+        return;
+      }
       e.preventDefault();
+      const item = itemAt(e.target);
       if (!item) {
         s.select(null);
         return;
       }
-      const already = s.selection.length === 1 && s.selection[0]?.id === item.id;
-      if (already && item.kind === "block" && !e.shiftKey) {
-        const block = locate(s.doc, s.pageId, item)?.block;
-        if (block && canEditInline(block)) {
-          setPendingCaret({ x: e.clientX, y: e.clientY });
-          s.setEditing(block.id);
-          return;
-        }
-      }
+      const already =
+        s.selection.length === 1 && s.selection[0]?.id === item.id && item.kind === "block";
+      if (already && !e.shiftKey && editAt(item.id, e)) return;
       s.select(item, { additive: e.shiftKey });
     };
     const onDblClick = (e: MouseEvent) => {
-      const s = api.getState();
       const item = itemAt(e.target);
-      if (item?.kind !== "block" || s.editing === item.id) return;
-      const block = locate(s.doc, s.pageId, item)?.block;
-      if (block && canEditInline(block)) {
-        e.preventDefault();
-        setPendingCaret({ x: e.clientX, y: e.clientY });
-        s.setEditing(block.id);
-      }
+      if (item?.kind !== "block" || (e.target as Element).closest?.("[data-os-editing-field]"))
+        return;
+      if (editAt(item.id, e)) e.preventDefault();
     };
     const stop = (e: Event) => e.preventDefault();
     win.addEventListener("wheel", onWheel, { passive: false });
+    const offGestures = listenSafariPinch(win, scale, (z, x, y) => {
+      const p = toClient(x, y);
+      zoomAt.current(z, p.x, p.y);
+    });
     frameDoc.addEventListener("pointermove", onMove);
     frameDoc.documentElement.addEventListener("pointerleave", onLeave);
     frameDoc.addEventListener("click", onClick, true);
@@ -173,6 +220,7 @@ export function Canvas({
     frameDoc.addEventListener("submit", stop, true);
     return () => {
       win.removeEventListener("wheel", onWheel);
+      offGestures();
       frameDoc.removeEventListener("pointermove", onMove);
       frameDoc.documentElement.removeEventListener("pointerleave", onLeave);
       frameDoc.removeEventListener("click", onClick, true);
@@ -181,6 +229,42 @@ export function Canvas({
       clearTimeout(leaveTimer);
     };
   }, [frameDoc, scale, api]);
+
+  // Plain text fields edit in place: one contenteditable session per (block, field).
+  useEffect(() => {
+    if (!frameDoc) return;
+    let session: PlainTextSession | null = null;
+    const sync = () => {
+      const s = api.getState();
+      const want =
+        s.editing && s.editingField?.kind === "plain"
+          ? { blockId: s.editing, path: s.editingField.path }
+          : null;
+      if (session && (!want || want.blockId !== session.blockId || want.path !== session.path)) {
+        const old = session;
+        session = null;
+        old.end(true);
+      }
+      if (want && !session) {
+        const block = locate(s.doc, s.pageId, { kind: "block", id: want.blockId })?.block;
+        const el = frameDoc.querySelector(`[data-os-id="${want.blockId}"][data-os-block]`);
+        const target = block && el ? plainTextTargets(el, block).get(want.path) : undefined;
+        if (!target) {
+          s.setEditing(null);
+          return;
+        }
+        session = startPlainTextEdit(api, target, want.blockId, want.path);
+      }
+    };
+    sync();
+    const unsubscribe = api.subscribe((st, prev) => {
+      if (st.editing !== prev.editing || st.editingField !== prev.editingField) sync();
+    });
+    return () => {
+      unsubscribe();
+      session?.end(true);
+    };
+  }, [frameDoc, api]);
 
   // Space-drag panning: moves the canvas, or scrolls the page when the canvas can't move.
   const drag = useRef<{ x: number; y: number } | null>(null);

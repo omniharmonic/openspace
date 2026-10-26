@@ -2,7 +2,7 @@ import { matchesShortcut } from "../../ui/shortcuts";
 import { deleteItems, duplicateItems, moveItems } from "./model/actions";
 import { firstChildOf, locate, parentOf, siblingOf } from "./model/selection";
 import type { EditorStore } from "./model/store";
-import { canEditInline } from "./text/InlineText";
+import { hasEditableText } from "./text/fields";
 
 /** What the shortcut handlers can reach besides the document store. */
 export interface ShortcutEnv {
@@ -97,7 +97,7 @@ export const EDITOR_SHORTCUTS: ShortcutDef[] = [
       if (!item || s.selection.length !== 1) return false;
       if (item.kind === "block") {
         const block = locate(s.doc, s.pageId, item)?.block;
-        if (block && canEditInline(block)) s.setEditing(block.id);
+        if (block && hasEditableText(block)) s.setEditing(block.id);
         return true;
       }
       const child = firstChildOf(s.doc, s.pageId, item);
@@ -145,7 +145,13 @@ export const EDITOR_SHORTCUTS: ShortcutDef[] = [
 function step(env: ShortcutEnv, dir: -1 | 1) {
   const s = sel(env);
   const item = s.selection.at(-1);
-  if (!item) return false;
+  if (!item) {
+    // Nothing selected yet: arrows start at the first section on the page.
+    const first = s.doc.pages[s.pageId as keyof typeof s.doc.pages]?.sections[0];
+    if (!first) return false;
+    s.select({ kind: "section", id: first.id });
+    return;
+  }
   const next = siblingOf(s.doc, s.pageId, item, dir);
   if (next) s.select(next);
 }
@@ -191,7 +197,7 @@ export function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 /** True when the key event isn't aimed at a control (button, menu, tree) that owns these keys. */
-function onSurface(target: EventTarget | null): boolean {
+export function onSurface(target: EventTarget | null): boolean {
   const el = target as Element | null;
   if (!el || typeof el !== "object" || !("tagName" in el)) return true;
   const doc = el.ownerDocument;

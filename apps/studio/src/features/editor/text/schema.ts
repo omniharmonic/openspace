@@ -3,6 +3,7 @@ import {
   type HeadingPreset,
   PARAGRAPH_PRESETS,
   type ParagraphPreset,
+  RICH_LINK_HREF_RE,
 } from "@openspace/schema";
 import { colorVar } from "@openspace/theme";
 import {
@@ -200,7 +201,14 @@ const Link = Mark.create({
       },
     };
   },
-  parseHTML: () => [{ tag: "a[href]" }],
+  parseHTML: () => [
+    {
+      tag: "a[href]",
+      // Only links the site can store (no javascript:, data: …) survive a paste.
+      getAttrs: (el) =>
+        RICH_LINK_HREF_RE.test((el as HTMLElement).getAttribute("href") ?? "") ? null : false,
+    },
+  ],
   renderHTML: ({ mark }) => [
     "a",
     {

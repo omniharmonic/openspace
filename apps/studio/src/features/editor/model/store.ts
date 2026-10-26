@@ -2,6 +2,7 @@ import { blocksRegistry } from "@openspace/blocks";
 import { invert, type Op, type OpBody, type OpIssue, stamp, validate } from "@openspace/ops";
 import type { SiteDocument } from "@openspace/schema";
 import { createStore, type StoreApi } from "zustand/vanilla";
+import { defaultTextField, type EditingField } from "../text/fields";
 import type { Command } from "./actions";
 import { locate, type SelItem, sameItem } from "./selection";
 
@@ -22,10 +23,14 @@ interface HistoryEntry {
   /** Consecutive commits with the same key inside {@link MERGE_WINDOW_MS} merge (typing). */
   mergeKey?: string;
   at: number;
+  /** When the (merged) step began; merging stops after {@link MERGE_MAX_MS}. */
+  startedAt: number;
 }
 
 /** Typing pauses longer than this start a new undo step. */
 export const MERGE_WINDOW_MS = 1500;
+/** …and one step never spans more than this much continuous typing. */
+export const MERGE_MAX_MS = 5000;
 
 export interface CommitOptions {
   label?: string;
@@ -49,6 +54,8 @@ export interface EditorDocState {
   hover: SelItem | null;
   /** Block whose text is being edited inline. */
   editing: string | null;
+  /** Which of its text fields (meaningful only while `editing` is set). */
+  editingField: EditingField | null;
   undoStack: HistoryEntry[];
   redoStack: HistoryEntry[];
   /** Bumps on every document change (cheap change detection for the canvas). */
@@ -58,7 +65,8 @@ export interface EditorDocState {
   select: (item: SelItem | null, options?: { additive?: boolean }) => void;
   setSelection: (items: SelItem[]) => void;
   setHover: (item: SelItem | null) => void;
-  setEditing: (blockId: string | null) => void;
+  /** Start editing a block's text (its first text field unless `field` is given), or stop. */
+  setEditing: (blockId: string | null, field?: EditingField) => void;
   commit: (bodies: OpBody[], options?: CommitOptions) => CommitResult;
   run: (command: Command | null, options?: Omit<CommitOptions, "select" | "label">) => CommitResult;
   undo: () => boolean;
@@ -145,6 +153,7 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
     selection: [],
     hover: null,
     editing: null,
+    editingField: null,
     undoStack: [],
     redoStack: [],
     version: 0,
@@ -176,9 +185,20 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
     setHover: (hover) => {
       if (!sameItem(get().hover, hover) && (get().hover || hover)) set({ hover });
     },
-    setEditing: (blockId) => {
-      if (blockId) set({ editing: blockId, selection: [{ kind: "block", id: blockId }] });
-      else {
+    setEditing: (blockId, field) => {
+      if (blockId) {
+        const s = get();
+        const block = locate(s.doc, s.pageId, { kind: "block", id: blockId })?.block;
+        const target = field ?? (block ? defaultTextField(block) : null);
+        if (!target) return;
+        if (s.editing && (s.editing !== blockId || s.editingField?.path !== target.path))
+          get().sealHistory();
+        set({
+          editing: blockId,
+          editingField: target,
+          selection: [{ kind: "block", id: blockId }],
+        });
+      } else {
         get().sealHistory();
         set({ editing: null });
       }
@@ -196,10 +216,18 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
         opts.mergeKey !== undefined &&
         top?.mergeKey === opts.mergeKey &&
         t - top.at <= MERGE_WINDOW_MS &&
+        t - top.startedAt <= MERGE_MAX_MS &&
         s.redoStack.length === 0;
       const entry: HistoryEntry = merge
         ? { ...(top as HistoryEntry), at: t }
-        : { revert: r.revert, label, selection: s.selection, mergeKey: opts.mergeKey, at: t };
+        : {
+            revert: r.revert,
+            label,
+            selection: s.selection,
+            mergeKey: opts.mergeKey,
+            at: t,
+            startedAt: t,
+          };
       const undoStack = merge ? [...s.undoStack.slice(0, -1), entry] : [...s.undoStack, entry];
       const selection = prune(r.doc, s.pageId, opts.select ?? s.selection);
       set({
@@ -237,7 +265,13 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
           undoStack: s.undoStack.slice(0, i),
           redoStack: [
             ...s.redoStack,
-            { revert: r.revert, label: entry.label, selection: s.selection, at: now() },
+            {
+              revert: r.revert,
+              label: entry.label,
+              selection: s.selection,
+              at: now(),
+              startedAt: now(),
+            },
           ],
           selection: prune(r.doc, s.pageId, entry.selection),
           editing:
@@ -264,7 +298,13 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
           redoStack: s.redoStack.slice(0, i),
           undoStack: [
             ...s.undoStack,
-            { revert: r.revert, label: entry.label, selection: s.selection, at: now() },
+            {
+              revert: r.revert,
+              label: entry.label,
+              selection: s.selection,
+              at: now(),
+              startedAt: now(),
+            },
           ],
           selection: prune(r.doc, s.pageId, entry.selection),
           editing:

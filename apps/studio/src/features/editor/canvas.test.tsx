@@ -6,6 +6,7 @@ import { renderStudio, SAM } from "../../test/render";
 import { patchLayoutApis } from "../../test/setup";
 import { useEditorUi } from "./editor-store";
 import { DEV_IDS as I } from "./model/dev-site";
+import type { EditorStore } from "./model/store";
 import { TEXT_COMMIT_MS, useTextEditing } from "./text/InlineText";
 
 const sites = demoSites(SAM.login, Date.UTC(2026, 9, 1));
@@ -18,7 +19,9 @@ async function openCanvas() {
   const doc = frame.contentDocument as Document;
   patchLayoutApis(frame.contentWindow as Window & typeof globalThis);
   const q = (id: string) => doc.querySelector(`[data-os-id="${id}"]`) as HTMLElement;
-  return { ...utils, frame, doc, q };
+  const store = () =>
+    (window as unknown as { __osEditorStore: EditorStore }).__osEditorStore.getState();
+  return { ...utils, frame, doc, q, store };
 }
 
 const inspector = () => screen.getByRole("complementary", { name: "Inspector" });
@@ -87,13 +90,114 @@ describe("canvas", () => {
     expect(q(I.intro).hasAttribute("data-os-hidden")).toBe(true);
     expect(within(layers).getByRole("button", { name: "Show section" })).toBeInTheDocument();
 
-    await user.dblClick(within(layers).getByRole("button", { name: "Hero" }));
+    const hero = within(layers).getByRole("treeitem", { name: "Hero" });
+    await user.dblClick(within(hero).getAllByText("Hero")[0] as HTMLElement);
     const input = within(layers).getByRole("textbox", { name: "Section name" });
     await user.clear(input);
     await user.type(input, "Welcome{Enter}");
-    expect(within(layers).getByRole("button", { name: "Welcome" })).toBeInTheDocument();
+    expect(within(layers).getByRole("treeitem", { name: "Welcome" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Undo" }));
-    expect(within(layers).getByRole("button", { name: "Hero" })).toBeInTheDocument();
+    expect(within(layers).getByRole("treeitem", { name: "Hero" })).toBeInTheDocument();
+  });
+
+  it("renames, hides and deletes blocks from the layers tree with the keyboard", async () => {
+    const { q, user, doc } = await openCanvas();
+    act(() => {
+      fireEvent.keyDown(window, { key: "™", code: "Digit2", altKey: true });
+    });
+    const layers = await screen.findByRole("complementary", { name: "Layers" });
+    const tree = within(layers).getByRole("tree", { name: "Sections and blocks" });
+    const button = within(tree).getByRole("treeitem", { name: "Button" });
+    expect(button).toHaveAttribute("aria-level", "2");
+
+    // Hide: ghosted on the canvas (the live site skips it).
+    await user.click(within(button).getByRole("button", { name: "Hide block" }));
+    expect(q(I.heroButton).hasAttribute("data-os-hidden")).toBe(true);
+
+    // Click selects; arrows move through rows (and the selection); Enter renames.
+    await user.click(within(button).getByText("Button"));
+    expect(button).toHaveAttribute("aria-selected", "true");
+    button.focus();
+    await user.keyboard("{ArrowDown}");
+    const image = within(tree).getAllByRole("treeitem", { name: "Image" })[0] as HTMLElement;
+    expect(image).toHaveFocus();
+    expect(image).toHaveAttribute("aria-selected", "true");
+    await user.keyboard("{Enter}");
+    const input = within(layers).getByRole("textbox", { name: "Block name" });
+    await user.clear(input);
+    await user.type(input, "Studio photo{Enter}");
+    expect(within(tree).getByRole("treeitem", { name: "Studio photo" })).toHaveFocus();
+    expect(within(inspector()).getByText("Studio photo")).toBeInTheDocument();
+
+    // ⌫ on the focused row deletes it.
+    await user.keyboard("{Backspace}");
+    expect(doc.querySelector(`[data-os-id="${I.heroImage}"]`)).toBeNull();
+  });
+
+  it("edits rich text inside list items (e.g. a columns item) inline", async () => {
+    const { q, store } = await openCanvas();
+    act(() => store().setEditing(I.offeringsColumns, { path: "items.1.body", kind: "rich" }));
+    await waitFor(() =>
+      expect(
+        q(I.offeringsColumns).querySelector('[data-os-editing-field="items.1.body"]'),
+      ).toBeTruthy(),
+    );
+    // The other items' rich text is tagged for click-to-edit.
+    expect(q(I.offeringsColumns).querySelector('[data-os-field="items.0.body"]')).toBeTruthy();
+    const editor = useTextEditing.getState().editor;
+    act(() => {
+      editor?.chain().setTextSelection(1).insertContent("First, ").run();
+    });
+    await act(() => new Promise((r) => setTimeout(r, TEXT_COMMIT_MS + 20)));
+    const items = store().doc.pages[I.home as never]?.sections[2]?.blocks[1]?.fields
+      .items as Array<{
+      heading: string;
+      body: { content: Array<{ content: Array<{ text: string }> }> };
+    }>;
+    expect(items[1]?.body.content[0]?.content[0]?.text).toMatch(/^First, Come ten minutes/);
+    expect(items[0]?.heading).toBe("Book");
+  });
+
+  it("edits plain text fields (headings, labels) in place and commits on Enter", async () => {
+    const { q, store } = await openCanvas();
+    act(() => store().setEditing(I.offeringsColumns, { path: "items.0.heading", kind: "plain" }));
+    const el = await waitFor(() => {
+      const found = q(I.offeringsColumns).querySelector<HTMLElement>("[data-os-plain-editing]");
+      expect(found).toBeTruthy();
+      return found as HTMLElement;
+    });
+    expect(el.textContent).toBe("Book");
+    expect(el.getAttribute("contenteditable")).toMatch(/plaintext-only|true/);
+    // Typing replaces the text node (as a browser might); the session restores React's nodes.
+    el.textContent = "Reserve";
+    act(() => {
+      el.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
+      );
+    });
+    await waitFor(() => expect(el.hasAttribute("contenteditable")).toBe(false));
+    const items = store().doc.pages[I.home as never]?.sections[2]?.blocks[1]?.fields
+      .items as Array<{
+      heading: string;
+    }>;
+    expect(items[0]?.heading).toBe("Reserve");
+    expect(el.textContent).toBe("Reserve");
+    expect(store().editing).toBeNull();
+
+    // Esc throws an edit away.
+    act(() => store().setEditing(I.heroButton, { path: "label", kind: "plain" }));
+    const label = await waitFor(() => {
+      const found = q(I.heroButton).querySelector<HTMLElement>("[data-os-plain-editing]");
+      expect(found).toBeTruthy();
+      return found as HTMLElement;
+    });
+    label.textContent = "Nope";
+    act(() => {
+      label.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+      );
+    });
+    expect(label.textContent).toBe("See the schedule");
   });
 
   it("adds a section from a starter and switches pages", async () => {

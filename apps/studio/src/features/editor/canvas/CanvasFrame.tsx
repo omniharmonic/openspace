@@ -1,13 +1,18 @@
-import { BLOCKS_CSS, blocksRegistry, registerAll } from "@openspace/blocks";
-import { BASE_CSS, compiledStylesFor, type EditorHooks, PageView } from "@openspace/renderer";
-import type { Block, SiteDocument } from "@openspace/schema";
+import { BLOCKS_CSS, registerAll } from "@openspace/blocks";
+import {
+  BASE_CSS,
+  compiledStylesFor,
+  type EditorHooks,
+  PageView,
+  type RichTextHookArgs,
+} from "@openspace/renderer";
+import type { SiteDocument } from "@openspace/schema";
 import { googleFontsUrl } from "@openspace/theme";
 import {
   cloneElement,
   isValidElement,
   memo,
   type ReactElement,
-  type ReactNode,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -16,7 +21,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useDocStore } from "../model/context";
-import { canEditInline, InlineText } from "../text/InlineText";
+import { InlineText } from "../text/InlineText";
 
 registerAll();
 
@@ -28,25 +33,33 @@ export const CANVAS_EDITOR_CSS = `
 html{scrollbar-width:thin}
 body{margin:0}
 [data-os-inline-editor]{outline:none;white-space:pre-wrap;word-wrap:break-word;cursor:text}
+[data-os-plain-editing]{outline:none;cursor:text;pointer-events:auto!important;-webkit-user-modify:read-write-plaintext-only}
 [data-os-inline-editor] .ProseMirror-selectednode{outline:2px solid #3347e6}
 .os-page a,.os-page button,.os-page summary,.os-page label,.os-page input,.os-page select,.os-page textarea{cursor:default}
 .os-page :is(iframe,input,select,textarea,button){pointer-events:none}
 `;
 
-/** A block wrapper that swaps in the inline text editor while the block's text is being edited. */
-function EditableBlock({ block, children }: { block: Block; children: ReactNode }) {
-  const editing = useDocStore((s) => s.editing === block.id);
-  if (!editing || !canEditInline(block) || !isValidElement(children)) return <>{children}</>;
-  const variant = block.variant ?? blocksRegistry().get(block.type)?.defaults.variant ?? "default";
-  return cloneElement(
-    children as ReactElement<Record<string, unknown>>,
-    { "data-os-editing": "" },
-    <InlineText block={block} variant={String(variant)} />,
+/**
+ * Every rich-text field on the canvas: tagged with its field path (for click-to-edit), and
+ * swapped for the inline editor while it is the field being edited.
+ */
+function RichField({ block, fieldPath, className, as, children }: RichTextHookArgs) {
+  const editing = useDocStore(
+    (s) =>
+      s.editing === block.id &&
+      s.editingField?.kind === "rich" &&
+      s.editingField.path === fieldPath,
   );
+  if (editing)
+    return <InlineText blockId={block.id} path={fieldPath} className={className} as={as} />;
+  if (!isValidElement(children)) return <>{children}</>;
+  return cloneElement(children as ReactElement<Record<string, unknown>>, {
+    "data-os-field": fieldPath,
+  });
 }
 
 const hooks: EditorHooks = {
-  wrapBlock: ({ block, children }) => <EditableBlock block={block}>{children}</EditableBlock>,
+  renderRichText: (args) => <RichField {...args} />,
 };
 
 const CanvasPage = memo(function CanvasPage({

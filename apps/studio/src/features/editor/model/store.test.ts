@@ -1,5 +1,5 @@
 import { rt } from "@openspace/blocks";
-import { apply, type Op } from "@openspace/ops";
+import { apply, type Op, parseOp } from "@openspace/ops";
 import type { Section, SiteDocument } from "@openspace/schema";
 import { describe, expect, it } from "vitest";
 import {
@@ -15,7 +15,7 @@ import {
 } from "./actions";
 import { devSiteDocument, DEV_IDS as I } from "./dev-site";
 import { firstChildOf, parentOf, readingOrder, siblingOf } from "./selection";
-import { createEditorStore, MERGE_WINDOW_MS } from "./store";
+import { createEditorStore, MERGE_MAX_MS, MERGE_WINDOW_MS } from "./store";
 
 const sections = (doc: SiteDocument, page: string = I.home) =>
   (doc.pages[page as keyof SiteDocument["pages"]]?.sections ?? []) as Section[];
@@ -107,6 +107,56 @@ describe("editor store: ops and undo", () => {
     s().sealHistory();
     type("AB");
     expect(s().undoStack).toHaveLength(2);
+  });
+
+  it("never merges one typing burst past the cap", () => {
+    const { s, clock } = setup();
+    const type = (text: string) =>
+      s().commit(
+        [
+          {
+            op: "block.update",
+            page: I.home,
+            block: I.introText,
+            set: { content: rt.doc(rt.p(text)) },
+          } as never,
+        ],
+        { mergeKey: "k" },
+      );
+    let text = "";
+    for (let t = 0; t <= MERGE_MAX_MS + 1000; t += 500) {
+      text += "a";
+      type(text);
+      clock.tick(500);
+    }
+    expect(s().undoStack.length).toBe(2);
+  });
+
+  it("emits ops that pass the wire schema (parseOp), including undo and redo", () => {
+    const { s } = setup();
+    const seen: Op[] = [];
+    s().onLocalOps((ops) => seen.push(...ops));
+    s().run(duplicateItems(s().doc, I.home, [{ kind: "section", id: I.story }]));
+    s().run(moveItems(s().doc, I.home, [{ kind: "block", id: I.heroButton }], -1));
+    s().run(setLayoutMode(s().doc, I.home, I.hero, "grid", () => 80));
+    s().run(toggleHidden(s().doc, I.home, sections(s().doc)[2] as Section));
+    s().commit([
+      {
+        op: "block.update",
+        page: I.home,
+        block: I.introText,
+        label: "Intro",
+        hidden: true,
+      } as never,
+    ]);
+    s().undo();
+    s().undo();
+    s().redo();
+    expect(seen.length).toBeGreaterThan(6);
+    for (const op of JSON.parse(JSON.stringify(seen)) as unknown[]) {
+      const r = parseOp(op);
+      expect(r.ok ? [] : r.errors).toEqual([]);
+    }
   });
 
   it("reports local ops (edits, undo, redo) to sync listeners and applies remote ops without history", () => {

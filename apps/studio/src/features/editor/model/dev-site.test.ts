@@ -11,3 +11,11 @@ describe("dev site fixture", () => {
     expect(blocksRegistry().validateDocument(doc)).toEqual([]);
   });
 });
+
+describe("placeholder document", () => {
+  it("is valid", async () => {
+    const { placeholderDocument } = await import("./placeholder");
+    const r = validateDocument(placeholderDocument());
+    expect(r.ok ? [] : r.errors).toEqual([]);
+  });
+});

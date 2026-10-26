@@ -86,6 +86,11 @@
   background: color-mix(in srgb, var(--st-accent) 3%, transparent);
 }
 
+.st-ov__box--editing-block {
+  outline: 1px dashed color-mix(in srgb, var(--st-accent) 45%, transparent);
+  outline-offset: -1px;
+}
+
 .st-ov__box--editing {
   outline: 1px solid color-mix(in srgb, var(--st-accent) 55%, transparent);
   outline-offset: 3px;
@@ -491,7 +496,7 @@
   list-style: none;
 }
 
-.st-layers__tree--footer {
+.st-layers__footer {
   margin-top: 6px;
   padding-top: 6px;
   border-top: 1px solid var(--st-line);
@@ -559,6 +564,8 @@
 }
 
 .st-layer .st-layer__name {
+  cursor: default;
+  user-select: none;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -616,6 +623,14 @@
 .st-layer__actions .st-icon-button:focus-visible,
 .st-layer__actions .st-icon-button.is-on {
   opacity: 1;
+}
+
+.st-layer__item {
+  outline: none;
+}
+
+.st-layer__item:focus-visible > .st-layer {
+  box-shadow: var(--st-focus);
 }
 
 .st-layers__note {

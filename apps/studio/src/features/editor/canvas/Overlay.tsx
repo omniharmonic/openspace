@@ -36,19 +36,19 @@ import {
   toggleHidden,
 } from "../model/actions";
 import { useDocStore, useDocStoreApi } from "../model/context";
-import { blockLabel, locate, type SelItem, sameItem, sectionLabel } from "../model/selection";
+import {
+  blockLabel,
+  blockName,
+  locate,
+  type SelItem,
+  sameItem,
+  sectionLabel,
+} from "../model/selection";
 import { STARTERS } from "../model/starters";
-import { canEditInline } from "../text/InlineText";
+import { THEME_LABEL } from "../model/themes";
+import { hasEditableText } from "../text/fields";
 import { TextToolbar } from "../text/TextToolbar";
 import { cssSize, elementFor, overlayPointer, type Rect, rectFor, useFrameTick } from "./geometry";
-
-export const THEME_LABEL: Record<ColorTheme, string> = {
-  light: "Light",
-  "light-accent": "Light accent",
-  dark: "Dark",
-  "dark-accent": "Dark accent",
-  brand: "Brand",
-};
 
 interface OverlayProps {
   frameDoc: Document | null;
@@ -72,6 +72,7 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
   const hover = useDocStore((s) => s.hover);
   const selection = useDocStore((s) => s.selection);
   const editing = useDocStore((s) => s.editing);
+  const editingKind = useDocStore((s) => (s.editing ? (s.editingField?.kind ?? null) : null));
   const doc = useDocStore((s) => s.doc);
   useFrameTick(frameDoc, [version, scale, pageId]);
 
@@ -112,7 +113,10 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
               {hover.kind === "block" ? (
                 <>
                   <BlockIcon type={locate(doc, pageId, hover)?.block?.type ?? ""} />
-                  {blockLabel(locate(doc, pageId, hover)?.block?.type ?? "")}
+                  {(() => {
+                    const b = locate(doc, pageId, hover)?.block;
+                    return b ? blockName(b) : "";
+                  })()}
                 </>
               ) : (
                 (() => {
@@ -132,7 +136,7 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
               key={`${item.kind}:${item.id}`}
               rect={r}
               kind={item.kind}
-              variant={editing === item.id ? "editing" : "selected"}
+              variant={editing === item.id ? "editing-block" : "selected"}
               handles={selection.length === 1 && !editing}
             >
               {size && (
@@ -173,12 +177,23 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
 
       {editing &&
         (() => {
-          const r = rectFor(frameDoc, { kind: "block", id: editing }, scale);
+          const field = frameDoc?.querySelector("[data-os-editing-field]");
+          const fr = field?.getBoundingClientRect();
+          const r = fr
+            ? { x: fr.left * scale, y: fr.top * scale, w: fr.width * scale, h: fr.height * scale }
+            : rectFor(frameDoc, { kind: "block", id: editing }, scale);
           if (!visible(r, height)) return null;
           return (
-            <Floating rect={r} width={width} height={height} placement="above">
-              <TextToolbar />
-            </Floating>
+            <>
+              <div className="st-ov__clip">
+                <Outline rect={r} kind="block" variant="editing" />
+              </div>
+              {editingKind === "rich" && (
+                <Floating rect={r} width={width} height={height} placement="above">
+                  <TextToolbar />
+                </Floating>
+              )}
+            </>
           );
         })()}
     </div>
@@ -194,7 +209,7 @@ function Outline({
 }: {
   rect: Rect;
   kind: SelItem["kind"];
-  variant: "hover" | "selected" | "editing";
+  variant: "hover" | "selected" | "editing" | "editing-block";
   handles?: boolean;
   children?: ReactNode;
 }) {
@@ -292,10 +307,10 @@ function BlockToolbar({ item }: { item: SelItem }) {
     <Bar label={`${blockLabel(block.type)} block`}>
       <span className="st-ov__title">
         <BlockIcon type={block.type} />
-        {blockLabel(block.type)}
+        {blockName(block)}
       </span>
       <Sep />
-      {canEditInline(block) && (
+      {hasEditableText(block) && (
         <IconButton
           size="sm"
           label="Edit text"
@@ -346,7 +361,7 @@ function BlockToolbar({ item }: { item: SelItem }) {
         onClick={() =>
           toast({
             title: "Ask your AI about this block",
-            description: `Connect your AI from the site menu, then ask it to change “${blockLabel(block.type)}” on ${doc.pages[pageId as never]?.title ?? "this page"}.`,
+            description: `Connect your AI from the site menu, then ask it to change “${blockName(block)}” on ${doc.pages[pageId as never]?.title ?? "this page"}.`,
           })
         }
       />

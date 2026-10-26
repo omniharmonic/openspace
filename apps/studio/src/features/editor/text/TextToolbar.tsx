@@ -151,12 +151,25 @@ function LinkEditor({ editor }: { editor: Editor }) {
   );
 }
 
+const MARKS = [
+  { mark: "bold", label: "Bold", icon: <Bold />, shortcut: "mod+b" },
+  { mark: "italic", label: "Italic", icon: <Italic />, shortcut: "mod+i" },
+  { mark: "underline", label: "Underline", icon: <Underline />, shortcut: "mod+u" },
+  { mark: "strike", label: "Strikethrough", icon: <Strikethrough />, shortcut: "shift+mod+s" },
+  { mark: "highlight", label: "Highlight", icon: <Highlighter />, shortcut: "shift+mod+h" },
+];
+
 /** Floating toolbar for the text block being edited (lives in the Studio document). */
 export function TextToolbar() {
   const editor = useTextEditing((s) => s.editor);
+  const allow = useTextEditing((s) => s.allow);
   useTextEditing((s) => s.tick);
   if (!editor || editor.isDestroyed) return null;
   const style = currentTextStyle(editor);
+  const mark = (m: string) => (allow.marks as readonly string[]).includes(m);
+  const node = (b: string) => (allow.blocks as readonly string[]).includes(b);
+  const styles = TEXT_STYLES.filter((t) => node("heading") || !/^(display|h[1-4])$/.test(t.id));
+  const hasLists = node("bulletList") || node("orderedList") || node("blockquote");
   return (
     <div className="st-ov__bar" role="toolbar" aria-label="Text formatting">
       <Select<TextStyleId>
@@ -166,61 +179,47 @@ export function TextToolbar() {
         value={style ?? undefined}
         placeholder="Mixed"
         onValueChange={(v) => applyTextStyle(editor, v)}
-        options={TEXT_STYLES.map((t) => ({ value: t.id, label: t.label }))}
+        options={styles.map((t) => ({ value: t.id, label: t.label }))}
       />
       <span className="st-ov__sep" aria-hidden="true" />
-      <MarkButton editor={editor} mark="bold" label="Bold" icon={<Bold />} shortcut="mod+b" />
-      <MarkButton editor={editor} mark="italic" label="Italic" icon={<Italic />} shortcut="mod+i" />
-      <MarkButton
-        editor={editor}
-        mark="underline"
-        label="Underline"
-        icon={<Underline />}
-        shortcut="mod+u"
-      />
-      <MarkButton
-        editor={editor}
-        mark="strike"
-        label="Strikethrough"
-        icon={<Strikethrough />}
-        shortcut="shift+mod+s"
-      />
-      <MarkButton
-        editor={editor}
-        mark="highlight"
-        label="Highlight"
-        icon={<Highlighter />}
-        shortcut="shift+mod+h"
-      />
-      <LinkEditor editor={editor} />
-      <span className="st-ov__sep" aria-hidden="true" />
-      <IconButton
-        size="sm"
-        label="Bulleted list"
-        icon={<List />}
-        shortcut="shift+mod+8"
-        active={editor.isActive("bulletList")}
-        {...keepFocus}
-        onClick={() => editor.chain().focus().toggleList("bulletList", "listItem").run()}
-      />
-      <IconButton
-        size="sm"
-        label="Numbered list"
-        icon={<ListOrdered />}
-        shortcut="shift+mod+7"
-        active={editor.isActive("orderedList")}
-        {...keepFocus}
-        onClick={() => editor.chain().focus().toggleList("orderedList", "listItem").run()}
-      />
-      <IconButton
-        size="sm"
-        label="Quote"
-        icon={<TextQuote />}
-        shortcut="shift+mod+b"
-        active={editor.isActive("blockquote")}
-        {...keepFocus}
-        onClick={() => editor.chain().focus().toggleWrap("blockquote").run()}
-      />
+      {MARKS.filter((m) => mark(m.mark)).map((m) => (
+        <MarkButton key={m.mark} editor={editor} {...m} />
+      ))}
+      {mark("link") && <LinkEditor editor={editor} />}
+      {hasLists && <span className="st-ov__sep" aria-hidden="true" />}
+      {node("bulletList") && (
+        <IconButton
+          size="sm"
+          label="Bulleted list"
+          icon={<List />}
+          shortcut="shift+mod+8"
+          active={editor.isActive("bulletList")}
+          {...keepFocus}
+          onClick={() => editor.chain().focus().toggleList("bulletList", "listItem").run()}
+        />
+      )}
+      {node("orderedList") && (
+        <IconButton
+          size="sm"
+          label="Numbered list"
+          icon={<ListOrdered />}
+          shortcut="shift+mod+7"
+          active={editor.isActive("orderedList")}
+          {...keepFocus}
+          onClick={() => editor.chain().focus().toggleList("orderedList", "listItem").run()}
+        />
+      )}
+      {node("blockquote") && (
+        <IconButton
+          size="sm"
+          label="Quote"
+          icon={<TextQuote />}
+          shortcut="shift+mod+b"
+          active={editor.isActive("blockquote")}
+          {...keepFocus}
+          onClick={() => editor.chain().focus().toggleWrap("blockquote").run()}
+        />
+      )}
     </div>
   );
 }

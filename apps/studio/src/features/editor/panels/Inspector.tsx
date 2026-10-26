@@ -2,9 +2,9 @@ import type { SiteDocument } from "@openspace/schema";
 import { MousePointer2 } from "lucide-react";
 import { EmptyState, Tabs } from "../../../ui";
 import { BlockIcon } from "../blockIcons";
-import { THEME_LABEL } from "../canvas/Overlay";
 import { useDocStore } from "../model/context";
-import { blockLabel, locate, sectionLabel } from "../model/selection";
+import { blockLabel, blockName, locate, sectionLabel } from "../model/selection";
+import { THEME_LABEL } from "../model/themes";
 
 function SelectionSummary() {
   const doc = useDocStore((s) => s.doc);
@@ -42,9 +42,15 @@ function SelectionSummary() {
       <div className="st-insp">
         <p className="st-insp__title">
           <BlockIcon type={block.type} />
-          {blockLabel(block.type)}
+          {blockName(block)}
         </p>
         <dl className="st-insp__facts">
+          {block.label && (
+            <>
+              <dt>Type</dt>
+              <dd>{blockLabel(block.type)}</dd>
+            </>
+          )}
           <dt>Section</dt>
           <dd>{sectionName}</dd>
           <dt>Page</dt>
@@ -57,9 +63,9 @@ function SelectionSummary() {
           )}
         </dl>
         <p className="st-insp__hint">
-          {block.type === "text"
-            ? "Double-click the text on the page to edit it."
-            : "Style controls for this block appear here."}
+          {block.hidden
+            ? "Hidden on the live site. Show it again from Layers."
+            : "Double-click any words on the page to edit them. Style controls for this block appear here."}
         </p>
       </div>
     );

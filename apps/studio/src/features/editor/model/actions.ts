@@ -545,3 +545,32 @@ export function parseClip(text: string | null | undefined): ClipPayload | null {
     return null;
   }
 }
+
+function blockPatch(
+  doc: SiteDocument,
+  pageId: string,
+  blockId: string,
+  patch: { label?: string | null; hidden?: boolean | null },
+  label: string,
+): Command | null {
+  const loc = locate(doc, pageId, { kind: "block", id: blockId });
+  if (!loc) return null;
+  return {
+    bodies: [{ op: "block.update", page: loc.container, block: blockId, ...patch } as OpBody],
+    label,
+  };
+}
+
+export const renameBlock = (doc: SiteDocument, pageId: string, b: Block, name: string) => {
+  const label = name.trim().slice(0, 80);
+  return blockPatch(doc, pageId, b.id, { label: label || null }, "Rename block");
+};
+
+export const toggleBlockHidden = (doc: SiteDocument, pageId: string, b: Block) =>
+  blockPatch(
+    doc,
+    pageId,
+    b.id,
+    { hidden: b.hidden ? null : true },
+    b.hidden ? "Show block" : "Hide block",
+  );

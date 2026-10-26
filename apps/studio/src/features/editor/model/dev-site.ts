@@ -347,13 +347,3 @@ export function devSiteDocument(options: DevSiteOptions = {}): SiteDocument {
     media: {},
   } as SiteDocument;
 }
-
-/** A content-less document (no pages) used while a new site is still being set up. */
-export function placeholderDocument(): SiteDocument {
-  const doc = devSiteDocument();
-  return {
-    ...doc,
-    site: { ...doc.site, nav: [], footer: { ...doc.site.footer, blocks: [] } },
-    pages: {},
-  };
-}

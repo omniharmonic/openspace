@@ -126,6 +126,11 @@ export function blockLabel(type: string): string {
   );
 }
 
+/** A block's name in layers and on the canvas: its own label, else its type's. */
+export function blockName(block: Pick<Block, "type" | "label">): string {
+  return block.label?.trim() || blockLabel(block.type);
+}
+
 /** Human label for a section: its own label, its preset, or its position. */
 export function sectionLabel(doc: SiteDocument, section: Section, index?: number): string {
   if (section.id === doc.site.footer.id) return section.label ?? "Footer";
@@ -140,6 +145,6 @@ export function sectionLabel(doc: SiteDocument, section: Section, index?: number
 export function itemLabel(doc: SiteDocument, pageId: string, item: SelItem): string {
   const loc = locate(doc, pageId, item);
   if (!loc) return "";
-  if (loc.block) return blockLabel(loc.block.type);
+  if (loc.block) return blockName(loc.block);
   return sectionLabel(doc, loc.section, loc.sectionIndex);
 }

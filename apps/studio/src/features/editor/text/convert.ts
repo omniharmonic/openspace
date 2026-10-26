@@ -194,3 +194,43 @@ function inlineFrom(nodes: JSONContent[]): InlineNode[] {
 
 /** Stable string for change detection. */
 export const richKey = (doc: RichTextDoc | null | undefined) => JSON.stringify(doc ?? null);
+
+/**
+ * Narrow a document to what a field allows (its `marks` and block `blocks`): disallowed marks
+ * are dropped, disallowed headings become paragraphs, disallowed lists and quotes unwrap into
+ * their paragraphs.
+ */
+export function restrictDoc(
+  doc: RichTextDoc,
+  allow: { marks: readonly string[]; blocks: readonly string[] },
+): RichTextDoc {
+  const marks = new Set(allow.marks);
+  const blocks = new Set(allow.blocks);
+  const inline = (nodes: InlineNode[] | undefined) =>
+    nodes?.map((n) =>
+      n.type === "text" && n.marks
+        ? (() => {
+            const kept = n.marks.filter((m) => marks.has(m.type));
+            return kept.length ? { ...n, marks: kept } : { type: "text" as const, text: n.text };
+          })()
+        : n,
+    );
+  const visit = (nodes: BlockNode[]): BlockNode[] =>
+    nodes.flatMap((n): BlockNode[] => {
+      if (n.type === "paragraph") {
+        const content = inline(n.content);
+        return [{ ...n, ...(content ? { content } : {}) }];
+      }
+      if (n.type === "heading") {
+        const content = inline(n.content);
+        if (blocks.has("heading")) return [{ ...n, ...(content ? { content } : {}) }];
+        return [{ type: "paragraph", ...(content?.length ? { content } : {}) }];
+      }
+      if (n.type === "blockquote")
+        return blocks.has("blockquote") ? [{ ...n, content: visit(n.content) }] : visit(n.content);
+      const items = n.content.map((li) => ({ ...li, content: visit(li.content) }));
+      if (blocks.has(n.type)) return [{ ...n, content: items }];
+      return items.flatMap((li) => li.content);
+    });
+  return { type: "doc", content: visit(doc.content) };
+}
