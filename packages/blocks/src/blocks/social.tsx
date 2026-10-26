@@ -61,7 +61,7 @@ export const socialLinksBlock = defineBlock({
     return (
       <div className={cx("os-socialblock", `os-socialblock--${variant}`)}>
         {fields.label ? <p className="os-socialblock__label">{fields.label}</p> : null}
-        <ul className="os-socialblock__list" aria-label={fields.label ?? "Social media"}>
+        <ul className="os-socialblock__list" aria-label={fields.label || "Social media"}>
           {profiles.map((p) => (
             <li key={p.url}>
               <a
@@ -176,7 +176,7 @@ export const shareButtonsBlock = defineBlock({
         )}
       >
         {fields.label ? <p className="os-socialblock__label">{fields.label}</p> : null}
-        <ul className="os-socialblock__list" aria-label={fields.label ?? "Share this page"}>
+        <ul className="os-socialblock__list" aria-label={fields.label || "Share this page"}>
           {targets.map((n) => {
             const target = SHARE_TARGETS[n];
             return (

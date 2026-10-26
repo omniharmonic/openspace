@@ -405,7 +405,6 @@ export const formCss = `
 .os-formblock fieldset.os-field{margin:0;padding:0;border:0;min-inline-size:0}
 .os-formblock legend.os-label{padding:0;margin-bottom:var(--os-space-2xs)}
 .os-choices{display:flex;flex-wrap:wrap;gap:var(--os-space-2xs) var(--os-space-sm)}
-.os-formblock .os-select:not([multiple]){height:calc(2.8em + 2px)}
 .os-select.is-multiple{background-image:none;padding-inline-end:0.95em;min-height:8rem}
 .os-formblock__actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--os-space-xs);margin-top:var(--os-space-2xs)}
 .os-formblock__legend{font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}

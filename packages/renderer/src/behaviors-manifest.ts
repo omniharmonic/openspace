@@ -20,6 +20,8 @@ export const BEHAVIORS = [
   "search",
   "cart",
   "beacon",
+  "before-after",
+  "countdown",
 ] as const;
 export type BehaviorName = (typeof BEHAVIORS)[number];
 

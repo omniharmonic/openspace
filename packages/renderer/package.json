@@ -21,7 +21,11 @@
       "default": "./src/node.ts"
     },
     "./os.css": "./dist/os.css",
-    "./behaviors/*": "./dist/behaviors/*"
+    "./behaviors/*": "./dist/behaviors/*",
+    "./behavior-source/*": {
+      "types": "./src/behaviors/*.ts",
+      "default": "./src/behaviors/*.ts"
+    }
   },
   "publishConfig": {
     "access": "public",
@@ -35,7 +39,8 @@
         "default": "./dist/node.js"
       },
       "./os.css": "./dist/os.css",
-      "./behaviors/*": "./dist/behaviors/*"
+      "./behaviors/*": "./dist/behaviors/*",
+      "./behavior-source/*": "./dist/behaviors/*.js"
     }
   },
   "scripts": {
