@@ -3,7 +3,8 @@ import { setBusy, status, submit } from "./submit";
 
 /**
  * Form block enhancement. The form posts to the Hub natively without JavaScript; with it:
- * inline validation (`aria-invalid` + messages in `.os-field__error`), async submit, field
+ * inline validation (`aria-invalid` + messages in `.os-field__error`, including "pick at least
+ * one" checkbox groups marked `data-os-required-group`), async submit, field
  * errors returned by the Hub, success message or redirect, and — when the Hub can't be
  * reached — a saved retry queue plus a fallback telling visitors how to email the owner
  * (`data-os-owner-email`).
@@ -32,7 +33,23 @@ function mark(field: HTMLInputElement, message: string): void {
   if (el) el.textContent = message;
 }
 
+/**
+ * "Pick at least one" checkbox groups: `<fieldset data-os-required-group="<name>"
+ * data-os-message="…">`. HTML can't express this natively, so the group is checked here.
+ */
+function validateGroup(group: HTMLElement): boolean {
+  const boxes = [...group.querySelectorAll<HTMLInputElement>("input[type=checkbox]")];
+  const ok = boxes.length === 0 || boxes.some((b) => b.checked);
+  for (const b of boxes) b.setAttribute("aria-invalid", ok ? "false" : "true");
+  const el = group.querySelector<HTMLElement>(".os-field__error");
+  if (el)
+    el.textContent = ok ? "" : group.dataset.osMessage || "Please choose at least one option.";
+  return ok;
+}
+
 function validate(field: HTMLInputElement): boolean {
+  const group = field.closest<HTMLElement>("[data-os-required-group]");
+  if (group && field.type === "checkbox") return validateGroup(group);
   const ok = field.checkValidity();
   mark(field, ok ? "" : field.dataset.osMessage || field.validationMessage);
   return ok;
@@ -95,7 +112,7 @@ export default function form(el: HTMLElement): void {
     field.addEventListener("blur", () => {
       if (field.value !== "" || field.getAttribute("aria-invalid") === "true") validate(field);
     });
-    field.addEventListener("input", () => {
+    field.addEventListener(field.type === "checkbox" ? "change" : "input", () => {
       if (field.getAttribute("aria-invalid") === "true") validate(field);
     });
   }
@@ -104,7 +121,16 @@ export default function form(el: HTMLElement): void {
 
   f.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const invalid = fields().filter((x) => !validate(x));
+    // One entry per invalid control; a required group counts once (its first box).
+    const seen = new Set<Element>();
+    const invalid = fields().filter((x) => {
+      const group = x.type === "checkbox" ? x.closest("[data-os-required-group]") : null;
+      if (group) {
+        if (seen.has(group)) return false;
+        seen.add(group);
+      }
+      return !validate(x);
+    });
     if (invalid.length) {
       invalid[0]?.focus();
       status(
