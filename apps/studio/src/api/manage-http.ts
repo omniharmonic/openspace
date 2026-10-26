@@ -2,12 +2,14 @@ import type {
   Approval,
   Collaborator,
   CollaboratorList,
+  CollaboratorRole,
   DomainLookup,
   DomainView,
   DownloadedFile,
   ExportKind,
   HostingInfo,
   Invitation,
+  InvitationPreview,
   ManageApi,
   McpGrant,
   McpToken,
@@ -150,6 +152,15 @@ export function createManageHttp({
 
     async listCollaborators(siteId) {
       return request<CollaboratorList>("GET", `${site(siteId)}/collaborators`);
+    },
+    async getInvitation(token) {
+      return request<InvitationPreview>("GET", `/api/invitations/${enc(token)}`);
+    },
+    async acceptInvitation(token) {
+      return request<{ siteId: string; role: CollaboratorRole }>(
+        "POST",
+        `/api/invitations/${enc(token)}/accept`,
+      );
     },
     async inviteCollaborator(siteId, input) {
       return request<{ invitation: Invitation; acceptUrl: string }>(

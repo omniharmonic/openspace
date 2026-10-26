@@ -142,6 +142,15 @@ export interface Invitation {
   expiresAt: string;
 }
 
+/** `GET /api/invitations/:token`: what an invitation link offers (no session needed). */
+export interface InvitationPreview {
+  siteName: string;
+  role: CollaboratorRole;
+  invitedBy: string;
+  status: Invitation["status"];
+  expiresAt: string;
+}
+
 export interface CollaboratorList {
   collaborators: Collaborator[];
   invitations: Invitation[];
@@ -229,6 +238,10 @@ export interface ManageApi {
   setMcpGrantPublish(grantId: string, publish: boolean): Promise<McpGrant>;
 
   listCollaborators(siteId: string): Promise<CollaboratorList>;
+  /** The invitation behind an invitation link (`GET /api/invitations/:token`). */
+  getInvitation?(token: string): Promise<InvitationPreview>;
+  /** Accept an invitation link as the signed-in person (`POST /api/invitations/:token/accept`). */
+  acceptInvitation?(token: string): Promise<{ siteId: string; role: CollaboratorRole }>;
   inviteCollaborator(
     siteId: string,
     input: InviteInput,

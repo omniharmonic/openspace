@@ -11,6 +11,7 @@ import {
 import { lazy, type ReactNode, Suspense, useEffect } from "react";
 import { Navigate, Outlet, type RouteObject, useNavigate } from "react-router";
 import { useLogout, useSession } from "../api";
+import { InvitePage } from "../features/auth/InvitePage";
 import { SignInPage } from "../features/auth/SignInPage";
 import { Dashboard } from "../features/dashboard/Dashboard";
 import { NewSite } from "../features/onboarding/NewSite";
@@ -170,6 +171,7 @@ export function createRoutes(config: Pick<StudioConfig, "showKit">): RouteObject
         { path: "templates", element: <TemplateGallery /> },
         { path: "new/:template", element: <NewSite /> },
         { path: "signin", element: <SignInPage /> },
+        { path: "invite/:token", element: <InvitePage /> },
         { path: "sites", element: <Dashboard /> },
         {
           path: "sites/:id/*",
