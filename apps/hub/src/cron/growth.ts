@@ -3,13 +3,14 @@
  * - every minute (Task 15's `runScheduled` calls `runDueCampaigns`): due scheduled campaigns,
  *   continuing unfinished sends when there is no Queue.
  * - GROWTH_DAILY_CRON ("0 4 * * *"): update-bot checks, order follow-up / sold-out refund
- *   retries and growth housekeeping.
+ *   retries, budget alerts (PRD §7.6) and growth housekeeping.
  */
 import type { HubBindings } from "../env";
 import { readConfig } from "../env";
 import type { CampaignJob } from "../growth-env";
 import { createLogger } from "../lib/log";
 import { createServices, type ServiceOverrides, type Services } from "../services";
+import { checkBudget } from "../services/budget";
 import { BATCH_SIZE, runCampaign } from "../services/campaigns";
 import { retryOrderFollowups } from "../services/orders";
 import { runUpdateChecks } from "../services/updates";
@@ -63,6 +64,13 @@ export async function runGrowthCron(
     } catch (err) {
       out.ordersFailed = true;
       log.error("order retries failed", { err });
+    }
+    try {
+      // PRD §7.6: alert the operator at 80% of the plan allowances.
+      out.budgetAlerts = (await checkBudget(services, log)).map((l) => l.resource);
+    } catch (err) {
+      out.budgetFailed = true;
+      log.error("budget check failed", { err });
     }
     try {
       out.housekeeping = await growthHousekeeping(services);

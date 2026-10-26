@@ -28,3 +28,10 @@
 # SITE_KIT_LATEST=          # pin the update bot's latest site-kit version (else npm registry)
 # SITE_KIT_CHANGELOG='[{"version":"0.2.0","notes":["…"]}]'
 # NPM_REGISTRY=https://registry.npmjs.org
+
+# Operator settings (abuse reporting, budget alerts, campaign warm-up). All optional.
+# ABUSE_EMAIL=abuse@hub.example.com      # shown in every campaign email footer (PRD §9.3)
+# ALERT_EMAIL=ops@hub.example.com        # budget alerts at 80% of the plan allowances (PRD §7.6)
+# PLAN_ALLOWANCES_JSON='{"requests":10000000,"analyticsEvents":10000000,"emails":50000,"storageBytes":10737418240}'
+# CAMPAIGN_DAILY_BASE=100                # campaign recipients per site per day for new senders
+# CAMPAIGN_DAILY_MAX=50000               # ceiling the warm-up doubles toward
