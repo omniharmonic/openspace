@@ -59,6 +59,7 @@ export async function renderPage(props: PageProps): Promise<string> {
     imageMap,
     assets: options.assets,
     ...(options.fontStylesheets ? { fontStylesheets: options.fontStylesheets } : {}),
+    ...(options.fontPreloads ? { fontPreloads: options.fontPreloads } : {}),
     ...(options.hubUrl ? { hubUrl: options.hubUrl } : {}),
     ...(options.turnstileSiteKey ? { turnstileSiteKey: options.turnstileSiteKey } : {}),
     ogImages: options.ogImages,

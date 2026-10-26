@@ -56,7 +56,13 @@ async function assemble(
 async function astroBuild(root: string): Promise<string> {
   const out = join(root, "dist");
   await run(process.execPath, [join(FIXTURES, "scripts", "build-site.mjs"), root, out], {
-    env: { ...process.env, OPENSPACE_BUILD_TIME: BUILD_TIME, ASTRO_TELEMETRY_DISABLED: "1" },
+    // Hermetic: no Google Fonts download during tests (pages link the stylesheet instead).
+    env: {
+      ...process.env,
+      OPENSPACE_BUILD_TIME: BUILD_TIME,
+      ASTRO_TELEMETRY_DISABLED: "1",
+      OPENSPACE_GOOGLE_FONTS: "link",
+    },
     maxBuffer: 64 * 1024 * 1024,
   });
   return out;

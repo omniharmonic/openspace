@@ -10,6 +10,8 @@ export interface RuntimeOptions {
   assets: SiteAssets;
   /** Self-hosted font stylesheet hrefs (undefined: Google Fonts). */
   fontStylesheets?: string[] | undefined;
+  /** Self-hosted font files preloaded on every page (Latin, upright, one per family). */
+  fontPreloads?: string[] | undefined;
   hubUrl?: string | undefined;
   turnstileSiteKey?: string | undefined;
   ogImages: boolean;

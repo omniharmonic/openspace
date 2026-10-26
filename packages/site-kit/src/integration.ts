@@ -15,7 +15,7 @@ import { loadSiteDocument } from "./content/index";
 import { type DeployLocation, deployLocation } from "./deploy";
 import { ENTRYPOINTS, type EntrypointName } from "./entrypoints";
 import type { PodcastOptions } from "./feeds";
-import { resolveFonts } from "./node/fonts";
+import { fontPreloads, resolveFonts } from "./node/fonts";
 import { writeSiteOutputs } from "./node/postbuild";
 import { siteStylesheets } from "./render";
 import { gatedPages, planSite } from "./routes";
@@ -88,7 +88,10 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
         location = deployLocation(doc.config);
         cloudflare = doc.config.deploy.target === "cloudflare";
         search = options.search ?? doc.config.features.search;
-        const fonts = await resolveFonts(rootDir, doc, location.basePath);
+        // Builds self-host the fonts (Fontsource packages, else a one-time Google download).
+        const fonts = await resolveFonts(rootDir, doc, location.basePath, {
+          google: command === "build" && process.env.OPENSPACE_GOOGLE_FONTS !== "link",
+        });
         if (!fonts.plan && command === "build")
           logger.info(
             `fonts load from Google Fonts; install ${fonts.missing.join(", ")} to self-host them`,
@@ -100,6 +103,7 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
           location,
           assets: siteStylesheets(doc, location.basePath).hrefs,
           fontStylesheets: fonts.plan ? [`${location.basePath}/${fonts.plan.cssFile}`] : undefined,
+          fontPreloads: fonts.plan ? fontPreloads(fonts.plan.css) : undefined,
           hubUrl: options.hubUrl,
           turnstileSiteKey: turnstileSiteKey || undefined,
           ogImages: options.ogImages ?? true,

@@ -11,6 +11,7 @@ import {
   CollectionsContext,
   type CollectionsValue,
   compiledStylesFor,
+  escapeHtml,
   type ImageMap,
   PageView,
   type PageViewProps,
@@ -117,6 +118,8 @@ export interface RenderRouteOptions {
   assets?: SiteAssets;
   /** Self-hosted font CSS hrefs; the pairing's Google Fonts URL when omitted. */
   fontStylesheets?: string[];
+  /** Self-hosted font files to preload (`<link rel="preload" as="font">`). */
+  fontPreloads?: string[];
   hubUrl?: string;
   /** Turnstile site key: adds the widget slot to forms and loads Turnstile on those pages. */
   turnstileSiteKey?: string;
@@ -243,6 +246,7 @@ export interface RenderDocumentOptions {
   imageMap?: ImageMap;
   assets?: SiteAssets;
   fontStylesheets?: string[];
+  fontPreloads?: string[];
   hubUrl?: string;
   turnstileSiteKey?: string;
   /** Collection data for list blocks (`CollectionsContext`). */
@@ -264,6 +268,10 @@ export function renderDocument(opts: RenderDocumentOptions): string {
   const mode = opts.mode ?? "production";
   const imageMap = opts.imageMap ?? {};
   const head = [
+    ...(opts.fontPreloads ?? []).map(
+      (href) =>
+        `<link rel="preload" href="${escapeHtml(href)}" as="font" type="font/woff2" crossorigin>`,
+    ),
     opts.assets
       ? `<link rel="stylesheet" href="${opts.assets.blocks}">`
       : `<style data-os="blocks">${BLOCKS_CSS}</style>`,
@@ -323,6 +331,7 @@ export function renderRoute(opts: RenderRouteOptions): string {
     imageMap,
     ...(opts.assets ? { assets: opts.assets } : {}),
     ...(opts.fontStylesheets ? { fontStylesheets: opts.fontStylesheets } : {}),
+    ...(opts.fontPreloads ? { fontPreloads: opts.fontPreloads } : {}),
     ...(opts.hubUrl ? { hubUrl: opts.hubUrl } : {}),
     ...(opts.turnstileSiteKey ? { turnstileSiteKey: opts.turnstileSiteKey } : {}),
     ...(opts.mode ? { mode: opts.mode } : {}),
