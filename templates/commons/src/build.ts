@@ -3,7 +3,6 @@ import { event } from "../../lib/define";
 import { pageId } from "../../lib/ids";
 import {
   block,
-  body,
   formId,
   fromPreset,
   headerFrom,
@@ -15,7 +14,6 @@ import {
   photoUrl,
   rt,
   section,
-  url,
 } from "../../lib/kit";
 
 /**
@@ -68,7 +66,9 @@ function home() {
       }),
       fromPreset("stats/with-image@1", {
         edit: {
-          0: { image: photo("seedlings", 480, "4:5", "Seedlings sprouting in a tray at a member farm") },
+          0: {
+            image: photo("seedlings", 480, "4:5", "Seedlings sprouting in a tray at a member farm"),
+          },
           1: { eyebrow: "Since 2019", text: "What we've built by sharing" },
           2: {
             items: [
@@ -85,16 +85,41 @@ function home() {
           0: {
             eyebrow: "How it works",
             text: "Shared infrastructure, owned in common",
-            subheading: "Every member owns one share and gets one vote. Together we own what none of us could afford alone.",
+            subheading:
+              "Every member owns one share and gets one vote. Together we own what none of us could afford alone.",
           },
           1: {
             items: [
-              { icon: "home", title: "Cold storage", text: "A 6,000-square-foot cooler in Kingston, open to members around the clock." },
-              { icon: "truck", title: "Shared trucks", text: "Three refrigerated trucks run routes four days a week." },
-              { icon: "shopping-bag", title: "Bulk buying", text: "Seed, packaging and fuel bought together at wholesale prices." },
-              { icon: "graduation-cap", title: "Training", text: "Food-safety, bookkeeping and grant-writing workshops every season." },
-              { icon: "heart-handshake", title: "Food access", text: "Surplus goes to member food banks within 24 hours." },
-              { icon: "globe", title: "A shared voice", text: "We speak together at county and state hearings on farmland." },
+              {
+                icon: "home",
+                title: "Cold storage",
+                text: "A 6,000-square-foot cooler in Kingston, open to members around the clock.",
+              },
+              {
+                icon: "truck",
+                title: "Shared trucks",
+                text: "Three refrigerated trucks run routes four days a week.",
+              },
+              {
+                icon: "shopping-bag",
+                title: "Bulk buying",
+                text: "Seed, packaging and fuel bought together at wholesale prices.",
+              },
+              {
+                icon: "graduation-cap",
+                title: "Training",
+                text: "Food-safety, bookkeeping and grant-writing workshops every season.",
+              },
+              {
+                icon: "heart-handshake",
+                title: "Food access",
+                text: "Surplus goes to member food banks within 24 hours.",
+              },
+              {
+                icon: "globe",
+                title: "A shared voice",
+                text: "We speak together at county and state hearings on farmland.",
+              },
             ],
           },
         },
@@ -129,7 +154,8 @@ function home() {
           0: {
             eyebrow: "Members",
             text: "Some of the 42 members",
-            subheading: "Farms, kitchens, food banks and grocers, from one-acre market gardens to a 400-family pantry.",
+            subheading:
+              "Farms, kitchens, food banks and grocers, from one-acre market gardens to a 400-family pantry.",
           },
           1: {
             logos: [
@@ -157,7 +183,14 @@ function home() {
       }),
       fromPreset("cta/card-over-photo@1", {
         edit: {
-          0: { image: photo("friendsSunset", 1100, "original", "Members of the cooperative together at sunset") },
+          0: {
+            image: photo(
+              "friendsSunset",
+              1100,
+              "original",
+              "Members of the cooperative together at sunset",
+            ),
+          },
           1: {
             content: rt.doc(
               rt.h(2, "There's room at the table", "h2"),
@@ -189,7 +222,12 @@ function members() {
             subheading:
               "Forty-two organizations who own the commons together. Buy from them, volunteer with them, or ask them what membership has changed.",
           },
-          1: { label: "Become a member", link: page(P.join), secondaryLabel: "How we govern", secondaryLink: page(P.about) },
+          1: {
+            label: "Become a member",
+            link: page(P.join),
+            secondaryLabel: "How we govern",
+            secondaryLink: page(P.about),
+          },
         },
       }),
       section(
@@ -206,33 +244,81 @@ function members() {
                 {
                   label: "Farms",
                   content: rt.doc(
-                    member("Rondout Valley Growers", "Accord", "Twelve acres of vegetables and a winter CSA."),
-                    member("Esopus Creek Farm", "Saugerties", "Pastured eggs and poultry; runs the egg-washing line in the hub."),
-                    member("Wallkill Orchards", "New Paltz", "Heirloom apples, pears and fresh cider."),
-                    member("Shawangunk Dairy", "Gardiner", "Grass-fed milk, yogurt and a cheese cave."),
+                    member(
+                      "Rondout Valley Growers",
+                      "Accord",
+                      "Twelve acres of vegetables and a winter CSA.",
+                    ),
+                    member(
+                      "Esopus Creek Farm",
+                      "Saugerties",
+                      "Pastured eggs and poultry; runs the egg-washing line in the hub.",
+                    ),
+                    member(
+                      "Wallkill Orchards",
+                      "New Paltz",
+                      "Heirloom apples, pears and fresh cider.",
+                    ),
+                    member(
+                      "Shawangunk Dairy",
+                      "Gardiner",
+                      "Grass-fed milk, yogurt and a cheese cave.",
+                    ),
                   ),
                 },
                 {
                   label: "Kitchens",
                   content: rt.doc(
-                    member("Kingston Community Kitchen", "Kingston", "Shared commercial kitchen and incubator for 30 food businesses."),
-                    member("Catskill Grain Co.", "Catskill", "Stone-milled flour from member grain."),
-                    member("Hearth & Harvest Catering", "Hudson", "Cooks surplus into 600 school lunches a week."),
+                    member(
+                      "Kingston Community Kitchen",
+                      "Kingston",
+                      "Shared commercial kitchen and incubator for 30 food businesses.",
+                    ),
+                    member(
+                      "Catskill Grain Co.",
+                      "Catskill",
+                      "Stone-milled flour from member grain.",
+                    ),
+                    member(
+                      "Hearth & Harvest Catering",
+                      "Hudson",
+                      "Cooks surplus into 600 school lunches a week.",
+                    ),
                   ),
                 },
                 {
                   label: "Food access",
                   content: rt.doc(
-                    member("Newburgh Food Pantry", "Newburgh", "Serves 400 families weekly; first stop for surplus produce."),
-                    member("Beacon Free Fridge", "Beacon", "Six community fridges restocked daily by volunteers."),
-                    member("Ulster Senior Meals", "Kingston", "Delivers 900 meals a week to homebound neighbors."),
+                    member(
+                      "Newburgh Food Pantry",
+                      "Newburgh",
+                      "Serves 400 families weekly; first stop for surplus produce.",
+                    ),
+                    member(
+                      "Beacon Free Fridge",
+                      "Beacon",
+                      "Six community fridges restocked daily by volunteers.",
+                    ),
+                    member(
+                      "Ulster Senior Meals",
+                      "Kingston",
+                      "Delivers 900 meals a week to homebound neighbors.",
+                    ),
                   ),
                 },
                 {
                   label: "Grocers",
                   content: rt.doc(
-                    member("Main Street Market", "Rosendale", "A worker-owned grocery stocking 60 member products."),
-                    member("Hudson Co-op Grocery", "Hudson", "Member-owned since 1974; hosts the Saturday market."),
+                    member(
+                      "Main Street Market",
+                      "Rosendale",
+                      "A worker-owned grocery stocking 60 member products.",
+                    ),
+                    member(
+                      "Hudson Co-op Grocery",
+                      "Hudson",
+                      "Member-owned since 1974; hosts the Saturday market.",
+                    ),
                   ),
                 },
               ],
@@ -248,13 +334,21 @@ function members() {
         edit: {
           0: { eyebrow: "In their words", text: "What membership changed" },
           1: {
-            quote: rt.doc(rt.p("The shared cooler let us sell to schools for the first time. That contract kept the farm open through a terrible August.")),
+            quote: rt.doc(
+              rt.p(
+                "The shared cooler let us sell to schools for the first time. That contract kept the farm open through a terrible August.",
+              ),
+            ),
             name: "Lena Morales",
             role: "Rondout Valley Growers",
             photo: photo("portraitMaya", 160, "1:1", "Portrait of Lena Morales"),
           },
           2: {
-            quote: rt.doc(rt.p("We used to throw out produce on Mondays. Now it reaches the pantry by Tuesday morning, still cold.")),
+            quote: rt.doc(
+              rt.p(
+                "We used to throw out produce on Mondays. Now it reaches the pantry by Tuesday morning, still cold.",
+              ),
+            ),
             name: "Andre Wallace",
             role: "Newburgh Food Pantry",
             photo: photo("portraitMarcus", 160, "1:1", "Portrait of Andre Wallace"),
@@ -288,7 +382,14 @@ function join() {
             secondaryLink: page(P.about),
             note: "Applications are reviewed at the next monthly members' meeting.",
           },
-          2: { image: photo("gardenTrowel", 600, "4:5", "Gloved hands planting seedlings at a member farm") },
+          2: {
+            image: photo(
+              "gardenTrowel",
+              600,
+              "4:5",
+              "Gloved hands planting seedlings at a member farm",
+            ),
+          },
         },
       }),
       fromPreset("pricing/compact-list@1", {
@@ -338,9 +439,15 @@ function join() {
           0: {
             eyebrow: "Apply",
             text: "Tell us about your organization",
-            subheading: "A member of the steering committee will call you within two weeks to talk it through.",
+            subheading:
+              "A member of the steering committee will call you within two weeks to talk it through.",
           },
-          1: { name: NAME, address: "61 Prince Street\nKingston, NY 12401", phone: "+1 (845) 555-0119", email: EMAIL },
+          1: {
+            name: NAME,
+            address: "61 Prince Street\nKingston, NY 12401",
+            phone: "+1 (845) 555-0119",
+            email: EMAIL,
+          },
           2: {
             form: {
               id: formId(),
@@ -348,13 +455,41 @@ function join() {
               fields: [
                 { type: "text", name: "name", label: "Your name", required: true, width: "half" },
                 { type: "email", name: "email", label: "Email", required: true, width: "half" },
-                { type: "text", name: "organization", label: "Organization", required: true, width: "half" },
-                { type: "select", name: "type", label: "Type", required: true, width: "half", options: ["Farm", "Kitchen or food business", "Food bank or pantry", "Grocer", "Other"] },
+                {
+                  type: "text",
+                  name: "organization",
+                  label: "Organization",
+                  required: true,
+                  width: "half",
+                },
+                {
+                  type: "select",
+                  name: "type",
+                  label: "Type",
+                  required: true,
+                  width: "half",
+                  options: [
+                    "Farm",
+                    "Kitchen or food business",
+                    "Food bank or pantry",
+                    "Grocer",
+                    "Other",
+                  ],
+                },
                 { type: "text", name: "county", label: "County", width: "half" },
-                { type: "textarea", name: "needs", label: "What would you use the commons for?", required: true, maxLength: 3000 },
+                {
+                  type: "textarea",
+                  name: "needs",
+                  label: "What would you use the commons for?",
+                  required: true,
+                  maxLength: 3000,
+                },
               ],
               submitLabel: "Send application",
-              success: { type: "message", message: "Thank you! The steering committee will call you within two weeks." },
+              success: {
+                type: "message",
+                message: "Thank you! The steering committee will call you within two weeks.",
+              },
               notifyOwner: true,
             },
           },
@@ -389,13 +524,33 @@ function about() {
       fromPreset("about/milestones@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "History", text: "Six years of sharing", subheading: "From a borrowed back room to the valley's largest food cooperative." },
+          0: {
+            eyebrow: "History",
+            text: "Six years of sharing",
+            subheading: "From a borrowed back room to the valley's largest food cooperative.",
+          },
           1: {
             items: [
-              { date: "2019", title: "Eleven farmers, one cooler", text: "The founding members buy a used walk-in cooler and park it behind a church in Kingston." },
-              { date: "2021", title: "The first truck", text: "A state grant buys a refrigerated truck; food banks join as members." },
-              { date: "2023", title: "The Prince Street hub", text: "Members buy a former bakery warehouse together and build a shared cold store." },
-              { date: "2025", title: "1.2 million pounds", text: "Forty-two members move more food together than any of them could alone." },
+              {
+                date: "2019",
+                title: "Eleven farmers, one cooler",
+                text: "The founding members buy a used walk-in cooler and park it behind a church in Kingston.",
+              },
+              {
+                date: "2021",
+                title: "The first truck",
+                text: "A state grant buys a refrigerated truck; food banks join as members.",
+              },
+              {
+                date: "2023",
+                title: "The Prince Street hub",
+                text: "Members buy a former bakery warehouse together and build a shared cold store.",
+              },
+              {
+                date: "2025",
+                title: "1.2 million pounds",
+                text: "Forty-two members move more food together than any of them could alone.",
+              },
             ],
           },
         },
@@ -405,9 +560,21 @@ function about() {
           0: { eyebrow: "Steering committee", text: "Elected by members" },
           1: {
             people: [
-              { name: "Lena Morales", role: "Chair · Rondout Valley Growers", photo: photo("portraitMaya", 280, "1:1", "Portrait of Lena Morales") },
-              { name: "Andre Wallace", role: "Treasurer · Newburgh Food Pantry", photo: photo("portraitMarcus", 280, "1:1", "Portrait of Andre Wallace") },
-              { name: "Ruth Okonkwo", role: "Secretary · Catskill Grain Co.", photo: photo("portraitOwen", 280, "1:1", "Portrait of Ruth Okonkwo") },
+              {
+                name: "Lena Morales",
+                role: "Chair · Rondout Valley Growers",
+                photo: photo("portraitMaya", 280, "1:1", "Portrait of Lena Morales"),
+              },
+              {
+                name: "Andre Wallace",
+                role: "Treasurer · Newburgh Food Pantry",
+                photo: photo("portraitMarcus", 280, "1:1", "Portrait of Andre Wallace"),
+              },
+              {
+                name: "Ruth Okonkwo",
+                role: "Secretary · Catskill Grain Co.",
+                photo: photo("portraitOwen", 280, "1:1", "Portrait of Ruth Okonkwo"),
+              },
             ],
           },
         },
@@ -432,7 +599,12 @@ export const commons: TemplateSpec = {
       name: "Earth & Sky",
       description: "Grounded greens under an open sky, with Spectral headings and soft corners.",
       choices: {
-        palette: { brand: "oklch(0.5 0.1 140)", neutral: "cool", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.5 0.1 140)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "spectral-epilogue",
         density: "comfortable",
         shape: "soft",
@@ -440,14 +612,23 @@ export const commons: TemplateSpec = {
         motion: "subtle",
         imageTreatment: "rounded",
       },
-      overrides: { color: { "light-accent": { background: { $value: "oklch(0.95 0.025 235)", $type: "color" } } } },
+      overrides: {
+        color: {
+          "light-accent": { background: { $value: "oklch(0.95 0.025 235)", $type: "color" } },
+        },
+      },
     },
     {
       id: "forest",
       name: "Forest",
       description: "Old-growth green with Lora and Inter, calmer and more traditional.",
       choices: {
-        palette: { brand: "oklch(0.4 0.07 150)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.4 0.07 150)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "lora-inter",
         density: "comfortable",
         shape: "soft",
@@ -461,7 +642,12 @@ export const commons: TemplateSpec = {
       name: "Assembly",
       description: "A bold poster red with Archivo and sharp shapes, for campaigns and movements.",
       choices: {
-        palette: { brand: "oklch(0.55 0.19 28)", neutral: "warm", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.55 0.19 28)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "archivo",
         density: "compact",
         shape: "sharp",
@@ -488,7 +674,12 @@ export const commons: TemplateSpec = {
           theme: "dark-accent",
           edit: {
             0: {
-              content: rt.doc(rt.p(NAME, "lead"), rt.p("A cooperative of farms, kitchens and food banks across nine Hudson Valley counties.")),
+              content: rt.doc(
+                rt.p(NAME, "lead"),
+                rt.p(
+                  "A cooperative of farms, kitchens and food banks across nine Hudson Valley counties.",
+                ),
+              ),
             },
             1: { profiles: [] },
             2: {
@@ -542,7 +733,10 @@ export const commons: TemplateSpec = {
               start: "2027-01-23T13:00:00-05:00",
               end: "2027-01-23T17:00:00-05:00",
               timezone: "America/New_York",
-              location: { name: "Esopus Creek Farm barn", address: "880 Kings Highway, Saugerties, NY" },
+              location: {
+                name: "Esopus Creek Farm barn",
+                address: "880 Kings Highway, Saugerties, NY",
+              },
               registrationUrl: "https://hvfoodcommons.example/rsvp/winter-assembly",
               price: "Members and guests",
               image: photoUrl("sharedTable", 1600),
@@ -558,7 +752,10 @@ export const commons: TemplateSpec = {
               start: "2027-02-10T18:00:00-05:00",
               end: "2027-02-10T20:00:00-05:00",
               timezone: "America/New_York",
-              location: { name: "Kingston Community Kitchen", address: "61 Prince Street, Kingston, NY" },
+              location: {
+                name: "Kingston Community Kitchen",
+                address: "61 Prince Street, Kingston, NY",
+              },
               registrationUrl: "https://hvfoodcommons.example/rsvp/grants",
               price: "Free for members",
               image: photoUrl("writing", 1600),

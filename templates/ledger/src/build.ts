@@ -48,7 +48,10 @@ function home() {
       fromPreset("hero/big-type@1", {
         style: { padding: { d: "3xl", m: "xl" } },
         edit: {
-          0: { eyebrow: "Operations advisory · Minneapolis", text: "Calm operations for companies that grew fast" },
+          0: {
+            eyebrow: "Operations advisory · Minneapolis",
+            text: "Calm operations for companies that grew fast",
+          },
           1: {
             content: rt.doc(
               rt.p(
@@ -85,7 +88,8 @@ function home() {
           0: {
             eyebrow: "Services",
             text: "Three ways to work together",
-            subheading: "Every engagement is scoped around one outcome you can measure, with a fixed fee agreed up front.",
+            subheading:
+              "Every engagement is scoped around one outcome you can measure, with a fixed fee agreed up front.",
           },
           1: { label: "See services and fees", link: page(P.services) },
           2: {
@@ -94,21 +98,30 @@ function home() {
                 question: "Operations reset",
                 answer: body(
                   "A twelve-week project to map how work really flows, remove the bottlenecks and set up the few rituals and dashboards that keep it running.",
-                  rt.p([rt.bold("Outcome: "), "the founder spends half as many hours on day-to-day decisions."]),
+                  rt.p([
+                    rt.bold("Outcome: "),
+                    "the founder spends half as many hours on day-to-day decisions.",
+                  ]),
                 ),
               },
               {
                 question: "Leadership hiring",
                 answer: body(
                   "Defining the role, running the search alongside your recruiter and onboarding your first COO, head of operations or finance lead.",
-                  rt.p([rt.bold("Outcome: "), "a leader in seat within four months, with a 90-day plan."]),
+                  rt.p([
+                    rt.bold("Outcome: "),
+                    "a leader in seat within four months, with a 90-day plan.",
+                  ]),
                 ),
               },
               {
                 question: "Fractional COO",
                 answer: body(
                   "Two days a week inside your team for six months, running the operating cadence while you hire or grow into the role.",
-                  rt.p([rt.bold("Outcome: "), "a steady quarter, and a playbook the next leader can inherit."]),
+                  rt.p([
+                    rt.bold("Outcome: "),
+                    "a steady quarter, and a playbook the next leader can inherit.",
+                  ]),
                 ),
               },
             ],
@@ -125,9 +138,21 @@ function home() {
           },
           1: {
             items: [
-              { value: "48%", label: "Fewer founder hours on operations", detail: "Average across 22 operations resets since 2021." },
-              { value: "4 mo", label: "To a leader in seat", detail: "Median time from kickoff to a signed senior hire." },
-              { value: "91%", label: "Hires still in role", detail: "Leaders placed since 2020 who are still there today." },
+              {
+                value: "48%",
+                label: "Fewer founder hours on operations",
+                detail: "Average across 22 operations resets since 2021.",
+              },
+              {
+                value: "4 mo",
+                label: "To a leader in seat",
+                detail: "Median time from kickoff to a signed senior hire.",
+              },
+              {
+                value: "91%",
+                label: "Hires still in role",
+                detail: "Leaders placed since 2020 who are still there today.",
+              },
             ],
           },
         },
@@ -175,7 +200,11 @@ function home() {
       fromPreset("cta/split@1", {
         edit: {
           0: { eyebrow: "Start here", text: "Thirty minutes, no slides, no pitch" },
-          1: { label: "Book an intro call", link: url(BOOKING), note: "Free. Usually within the week." },
+          1: {
+            label: "Book an intro call",
+            link: url(BOOKING),
+            note: "Free. Usually within the week.",
+          },
         },
       }),
     ],
@@ -205,7 +234,9 @@ function services() {
             secondaryLink: page(P.services, "process"),
             note: "Taking two new clients for spring 2027.",
           },
-          2: { image: photo("workshop", 600, "4:5", "Planning a project with sticky notes on a wall") },
+          2: {
+            image: photo("workshop", 600, "4:5", "Planning a project with sticky notes on a wall"),
+          },
         },
       }),
       fromPreset("services/tabs@1", {
@@ -214,7 +245,8 @@ function services() {
           0: {
             eyebrow: "Engagements",
             text: "Choose the shape of the work",
-            subheading: "Most clients start with an operations reset. Some go on to hire, and a few keep me on as a fractional COO.",
+            subheading:
+              "Most clients start with an operations reset. Some go on to hire, and a few keep me on as a fractional COO.",
           },
           1: {
             label: "Engagement types",
@@ -228,7 +260,10 @@ function services() {
                     "A new weekly operating rhythm, with three meetings at most",
                     "One page of metrics the leadership team actually reads",
                   ),
-                  rt.p([rt.bold("Outcome: "), "fewer decisions waiting on the founder, measured monthly."]),
+                  rt.p([
+                    rt.bold("Outcome: "),
+                    "fewer decisions waiting on the founder, measured monthly.",
+                  ]),
                 ),
               },
               {
@@ -252,7 +287,10 @@ function services() {
                     "Running the operating cadence and quarterly planning",
                     "A written playbook for your next operations leader",
                   ),
-                  rt.p([rt.bold("Outcome: "), "a calm, predictable quarter while you grow or hire."]),
+                  rt.p([
+                    rt.bold("Outcome: "),
+                    "a calm, predictable quarter while you grow or hire.",
+                  ]),
                 ),
               },
             ],
@@ -266,9 +304,24 @@ function services() {
           0: { eyebrow: "Process", text: "How every engagement runs" },
           1: {
             items: [
-              { heading: "Diagnose", body: body("Two weeks of interviews, shadowing and reading your numbers. You get a written diagnosis whether or not we go further.") },
-              { heading: "Agree the outcome", body: body("We choose one measurable result and the smallest scope of work that will reach it, at a fixed fee.") },
-              { heading: "Do the work, then leave", body: body("I work alongside your team, hand over everything in writing and check in at three and twelve months.") },
+              {
+                heading: "Diagnose",
+                body: body(
+                  "Two weeks of interviews, shadowing and reading your numbers. You get a written diagnosis whether or not we go further.",
+                ),
+              },
+              {
+                heading: "Agree the outcome",
+                body: body(
+                  "We choose one measurable result and the smallest scope of work that will reach it, at a fixed fee.",
+                ),
+              },
+              {
+                heading: "Do the work, then leave",
+                body: body(
+                  "I work alongside your team, hand over everything in writing and check in at three and twelve months.",
+                ),
+              },
             ],
           },
           2: { label: "Book an intro call", link: url(BOOKING) },
@@ -278,21 +331,31 @@ function services() {
         theme: "light-accent",
         edit: {
           0: { eyebrow: "FAQ", text: "Good questions to ask" },
-          1: { content: rt.doc(rt.p("Anything else? Ask on the intro call; there's no obligation to go further.")) },
+          1: {
+            content: rt.doc(
+              rt.p("Anything else? Ask on the intro call; there's no obligation to go further."),
+            ),
+          },
           2: { label: "Book a call", link: url(BOOKING) },
           3: {
             items: [
               {
                 question: "What size of company do you work with?",
-                answer: body("Usually 20 to 200 people, founder-led, growing faster than its systems. Industry matters less than stage."),
+                answer: body(
+                  "Usually 20 to 200 people, founder-led, growing faster than its systems. Industry matters less than stage.",
+                ),
               },
               {
                 question: "Do you work outside Minneapolis?",
-                answer: body("Yes. About half my clients are elsewhere in the US; I travel for the diagnosis weeks and work remotely otherwise."),
+                answer: body(
+                  "Yes. About half my clients are elsewhere in the US; I travel for the diagnosis weeks and work remotely otherwise.",
+                ),
               },
               {
                 question: "How do fees work?",
-                answer: body("Fixed fees, half at kickoff and half at the midpoint. No hourly billing and no surprise invoices."),
+                answer: body(
+                  "Fixed fees, half at kickoff and half at the midpoint. No hourly billing and no surprise invoices.",
+                ),
               },
             ],
           },
@@ -311,7 +374,14 @@ function about() {
     [
       fromPreset("team/founder-overlap@1", {
         edit: {
-          0: { image: photo("portraitNina", 520, "original", "Portrait of Naomi Calder by a sunlit window") },
+          0: {
+            image: photo(
+              "portraitNina",
+              520,
+              "original",
+              "Portrait of Naomi Calder by a sunlit window",
+            ),
+          },
           1: {
             content: rt.doc(
               rt.p("About", "eyebrow"),
@@ -319,7 +389,9 @@ function about() {
               rt.p(
                 "I spent fifteen years inside growing companies: first as an analyst at a regional grocery chain, then as COO of a 180-person outdoor retailer through three acquisitions. I started Calder Advisory in 2019 to help founders get through the awkward middle of growth with fewer scars than I collected.",
               ),
-              rt.p("I live in south Minneapolis with my partner, two teenagers and a very old dog."),
+              rt.p(
+                "I live in south Minneapolis with my partner, two teenagers and a very old dog.",
+              ),
             ),
           },
           2: { label: "Book an intro call", link: url(BOOKING), role: "primary" },
@@ -331,7 +403,8 @@ function about() {
           0: {
             eyebrow: "Approach",
             text: "Fewer meetings, clearer owners",
-            subheading: "Most operational pain comes from decisions without owners. My work is mostly finding them and writing them down.",
+            subheading:
+              "Most operational pain comes from decisions without owners. My work is mostly finding them and writing them down.",
           },
           1: {
             content: rt.doc(
@@ -347,13 +420,33 @@ function about() {
       }),
       fromPreset("about/milestones@1", {
         edit: {
-          0: { eyebrow: "Background", text: "Before Calder Advisory", subheading: "Twenty years of operations work, mostly in retail and food." },
+          0: {
+            eyebrow: "Background",
+            text: "Before Calder Advisory",
+            subheading: "Twenty years of operations work, mostly in retail and food.",
+          },
           1: {
             items: [
-              { date: "2004", title: "Analyst, Kowalczyk Markets", text: "Store operations and supply planning for a 30-store regional grocery chain." },
-              { date: "2011", title: "Head of operations, Twin Rivers Outfitters", text: "Grew the team from 40 to 180 people across retail, e-commerce and a warehouse." },
-              { date: "2016", title: "COO, Twin Rivers Outfitters", text: "Led the business through three acquisitions and a move to a new distribution center." },
-              { date: "2019", title: "Calder Advisory", text: "Forty-one clients since, from clinics and coffee roasters to software firms." },
+              {
+                date: "2004",
+                title: "Analyst, Kowalczyk Markets",
+                text: "Store operations and supply planning for a 30-store regional grocery chain.",
+              },
+              {
+                date: "2011",
+                title: "Head of operations, Twin Rivers Outfitters",
+                text: "Grew the team from 40 to 180 people across retail, e-commerce and a warehouse.",
+              },
+              {
+                date: "2016",
+                title: "COO, Twin Rivers Outfitters",
+                text: "Led the business through three acquisitions and a move to a new distribution center.",
+              },
+              {
+                date: "2019",
+                title: "Calder Advisory",
+                text: "Forty-one clients since, from clinics and coffee roasters to software firms.",
+              },
             ],
           },
         },
@@ -376,16 +469,28 @@ function contact() {
             eyebrow: "Contact",
             text: "Let's talk about your company",
             level: "h1",
-            subheading: "A few sentences about your company and what's getting in the way is plenty. I reply within two working days.",
+            subheading:
+              "A few sentences about your company and what's getting in the way is plenty. I reply within two working days.",
           },
-          1: { name: NAME, address: "Minneapolis, Minnesota", phone: "+1 (612) 555-0107", email: EMAIL },
+          1: {
+            name: NAME,
+            address: "Minneapolis, Minnesota",
+            phone: "+1 (612) 555-0107",
+            email: EMAIL,
+          },
           2: {
             form: {
               id: formId(),
               name: "Enquiry",
               fields: [
                 { type: "text", name: "name", label: "Name", required: true, width: "half" },
-                { type: "email", name: "email", label: "Work email", required: true, width: "half" },
+                {
+                  type: "email",
+                  name: "email",
+                  label: "Work email",
+                  required: true,
+                  width: "half",
+                },
                 { type: "text", name: "company", label: "Company", width: "half" },
                 {
                   type: "select",
@@ -394,10 +499,19 @@ function contact() {
                   width: "half",
                   options: ["Under 20", "20 – 50", "50 – 200", "Over 200"],
                 },
-                { type: "textarea", name: "message", label: "What's getting in the way?", required: true, maxLength: 3000 },
+                {
+                  type: "textarea",
+                  name: "message",
+                  label: "What's getting in the way?",
+                  required: true,
+                  maxLength: 3000,
+                },
               ],
               submitLabel: "Send note",
-              success: { type: "message", message: "Thank you. I'll reply within two working days." },
+              success: {
+                type: "message",
+                message: "Thank you. I'll reply within two working days.",
+              },
               notifyOwner: true,
             },
           },
@@ -480,9 +594,15 @@ export const ledger: TemplateSpec = {
     {
       id: "ledger-green",
       name: "Ledger Green",
-      description: "Ink and ivory with a deep green accent, Source Serif headings and crisp square corners.",
+      description:
+        "Ink and ivory with a deep green accent, Source Serif headings and crisp square corners.",
       choices: {
-        palette: { brand: "oklch(0.42 0.08 160)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.42 0.08 160)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "source-serif-plex",
         density: "comfortable",
         shape: "sharp",
@@ -494,9 +614,15 @@ export const ledger: TemplateSpec = {
     {
       id: "ink-blue",
       name: "Ink Blue",
-      description: "Fountain-pen blue with Libre Baskerville and Karla, for a quieter, literary tone.",
+      description:
+        "Fountain-pen blue with Libre Baskerville and Karla, for a quieter, literary tone.",
       choices: {
-        palette: { brand: "oklch(0.35 0.08 265)", neutral: "cool", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.35 0.08 265)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "libre-baskerville-karla",
         density: "comfortable",
         shape: "soft",
@@ -510,7 +636,12 @@ export const ledger: TemplateSpec = {
       name: "Modern",
       description: "Space Grotesk and Inter on cool greys with a teal accent and rounded buttons.",
       choices: {
-        palette: { brand: "oklch(0.5 0.09 200)", neutral: "cool", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.5 0.09 200)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "space-grotesk-inter",
         density: "compact",
         shape: "round",
@@ -539,7 +670,9 @@ export const ledger: TemplateSpec = {
             0: {
               content: rt.doc(
                 rt.p(NAME, "lead"),
-                rt.p("Operations advice for founder-led companies of 20 to 200 people. Based in Minneapolis, working across the US."),
+                rt.p(
+                  "Operations advice for founder-led companies of 20 to 200 people. Based in Minneapolis, working across the US.",
+                ),
               ),
             },
             1: { profiles: [] },
@@ -563,7 +696,10 @@ export const ledger: TemplateSpec = {
             4: {
               content: rt.doc(
                 rt.p("Monthly letter", "eyebrow"),
-                rt.p(["One short essay on running a growing company, the first Monday of each month. ", rt.link("Read past letters", "/insights/")]),
+                rt.p([
+                  "One short essay on running a growing company, the first Monday of each month. ",
+                  rt.link("Read past letters", "/insights/"),
+                ]),
                 rt.p("© 2026 Calder Advisory LLC", "small"),
               ),
             },
@@ -596,7 +732,11 @@ export const ledger: TemplateSpec = {
           slugPattern: "{date}-{title}",
           list: { layout: "list", pageSize: 12, sort: "date-desc" },
           itemPage: { layout: "article", showDate: true, showAuthor: false, showRelated: true },
-          feed: { enabled: true, title: "Calder Advisory insights", description: "Essays on running a growing company." },
+          feed: {
+            enabled: true,
+            title: "Calder Advisory insights",
+            description: "Essays on running a growing company.",
+          },
         },
       },
       collections: {
@@ -618,7 +758,10 @@ export const ledger: TemplateSpec = {
               ],
               outcome:
                 "Within a quarter, decisions waiting on the founder fell from 30 a week to 6. Priya now spends Fridays on product development, which is why she started the company.",
-              quote: ["I got my Fridays back, and the team makes better calls than I did.", "Priya Raman, founder"],
+              quote: [
+                "I got my Fridays back, and the team makes better calls than I did.",
+                "Priya Raman, founder",
+              ],
             },
           ),
           caseStudy(
@@ -638,7 +781,10 @@ export const ledger: TemplateSpec = {
               ],
               outcome:
                 "The new COO started in four months and has now led the group through two clinic openings. Patient wait times are down by a third.",
-              quote: ["For the first time, we agreed on what we were hiring for.", "Daniel Ostrander, managing partner"],
+              quote: [
+                "For the first time, we agreed on what we were hiring for.",
+                "Daniel Ostrander, managing partner",
+              ],
             },
           ),
           caseStudy(
@@ -656,8 +802,12 @@ export const ledger: TemplateSpec = {
                 "Rebuilt the roasting schedule around wholesale orders",
                 "Wrote the operations playbook and helped hire the permanent lead",
               ],
-              outcome: "The café opened on time, wholesale orders shipped complete and the new operations lead inherited a written playbook on day one.",
-              quote: ["Naomi kept the wheels on while we caught our breath.", "Jonah Mercer, co-founder"],
+              outcome:
+                "The café opened on time, wholesale orders shipped complete and the new operations lead inherited a written playbook on day one.",
+              quote: [
+                "Naomi kept the wheels on while we caught our breath.",
+                "Jonah Mercer, co-founder",
+              ],
             },
           ),
         ],
@@ -669,7 +819,8 @@ export const ledger: TemplateSpec = {
               date: "2026-10-05",
               categories: [],
               tags: ["operations"],
-              excerpt: "The cheapest operations tool I know is a shared document with four columns.",
+              excerpt:
+                "The cheapest operations tool I know is a shared document with four columns.",
             },
             `Most teams don't have a meeting problem. They have a memory problem: nobody can remember what was decided, so it gets decided again.
 
@@ -713,4 +864,3 @@ Everything else can live in a dashboard for the people who need it.
     };
   },
 };
-

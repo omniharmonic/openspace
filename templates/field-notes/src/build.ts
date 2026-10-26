@@ -82,7 +82,14 @@ function home() {
       }),
       fromPreset("about/portrait-overlap@1", {
         edit: {
-          0: { image: photo("portraitLake", 520, "original", "Portrait of the writer Ruth Ellery beside a lake") },
+          0: {
+            image: photo(
+              "portraitLake",
+              520,
+              "original",
+              "Portrait of the writer Ruth Ellery beside a lake",
+            ),
+          },
           1: {
             content: rt.doc(
               rt.p("About the writer", "eyebrow"),
@@ -102,19 +109,22 @@ function home() {
             label: "What readers say",
             quotes: [
               {
-                quote: "The only email I open with a cup of tea and read twice. Ruth writes the way good walks feel.",
+                quote:
+                  "The only email I open with a cup of tea and read twice. Ruth writes the way good walks feel.",
                 name: "Hannah Ostrowski",
                 role: "Reader since 2021",
                 photo: photo("portraitClara", 120, "1:1", "Portrait of Hannah Ostrowski"),
               },
               {
-                quote: "Every other Sunday I learn the name of a bird, a tool or a field I'd never noticed. It has changed how I walk to work.",
+                quote:
+                  "Every other Sunday I learn the name of a bird, a tool or a field I'd never noticed. It has changed how I walk to work.",
                 name: "Marcus Bell",
                 role: "Reader in Glasgow",
                 photo: photo("portraitMarcus", 120, "1:1", "Portrait of Marcus Bell"),
               },
               {
-                quote: "Quietly the best writing about rural life I've read in years, and it arrives for free.",
+                quote:
+                  "Quietly the best writing about rural life I've read in years, and it arrives for free.",
                 name: "June Abara",
                 role: "Editor, Quarry Quarterly",
                 photo: photo("portraitAna", 120, "1:1", "Portrait of June Abara"),
@@ -128,7 +138,8 @@ function home() {
         edit: {
           0: {
             heading: "Get the next letter",
-            description: "One essay every other Sunday morning, plus the occasional photograph from the farm.",
+            description:
+              "One essay every other Sunday morning, plus the occasional photograph from the farm.",
             ...signup,
             askName: true,
             note: "Free, and always will be.",
@@ -154,7 +165,12 @@ function subscribe() {
             subheading:
               "Every essay is free. Supporters pay what a coffee costs each month, which pays for the writing time, the printing of the yearly anthology and nothing else.",
           },
-          1: { label: "Subscribe free", link: page(P.home), secondaryLabel: "Become a supporter", secondaryLink: page(P.subscribe, "support") },
+          1: {
+            label: "Subscribe free",
+            link: page(P.home),
+            secondaryLabel: "Become a supporter",
+            secondaryLink: page(P.subscribe, "support"),
+          },
         },
       }),
       fromPreset("pricing/two-plans@1", {
@@ -163,7 +179,8 @@ function subscribe() {
           0: {
             eyebrow: "Two ways to read",
             text: "Choose how you read",
-            subheading: "Both get every essay. Supporters get a little more, and my lasting gratitude.",
+            subheading:
+              "Both get every essay. Supporters get a little more, and my lasting gratitude.",
           },
           1: {
             plans: [
@@ -172,7 +189,11 @@ function subscribe() {
                 price: "Free",
                 period: "always",
                 description: "Every essay by email, every other Sunday.",
-                features: [{ text: "The fortnightly essay" }, { text: "The full archive online" }, { text: "Replies always welcome" }],
+                features: [
+                  { text: "The fortnightly essay" },
+                  { text: "The full archive online" },
+                  { text: "Replies always welcome" },
+                ],
                 buttonLabel: "Subscribe free",
                 link: page(P.home),
                 featured: false,
@@ -201,9 +222,22 @@ function subscribe() {
           0: { eyebrow: "Questions", text: "Before you subscribe" },
           1: {
             items: [
-              { question: "How often will I hear from you?", answer: body("Every other Sunday morning, Eastern time. Never more, occasionally less in lambing season.") },
-              { question: "Can I read without subscribing?", answer: body("Yes. Every essay goes up in the archive a day after it's sent.") },
-              { question: "Can I give a supporter subscription?", answer: body("Of course. Write to me with their address and I'll send a card with the first anthology.") },
+              {
+                question: "How often will I hear from you?",
+                answer: body(
+                  "Every other Sunday morning, Eastern time. Never more, occasionally less in lambing season.",
+                ),
+              },
+              {
+                question: "Can I read without subscribing?",
+                answer: body("Yes. Every essay goes up in the archive a day after it's sent."),
+              },
+              {
+                question: "Can I give a supporter subscription?",
+                answer: body(
+                  "Of course. Write to me with their address and I'll send a card with the first anthology.",
+                ),
+              },
             ],
           },
         },
@@ -254,7 +288,9 @@ function about() {
       }),
       fromPreset("newsletter/split-image@1", {
         edit: {
-          0: { image: photo("writing", 520, "4:5", "Writing notes in a notebook beside a mug of tea") },
+          0: {
+            image: photo("writing", 520, "4:5", "Writing notes in a notebook beside a mug of tea"),
+          },
           1: { eyebrow: "The letter", text: "Read along every other Sunday" },
           2: {
             items: [
@@ -283,7 +319,8 @@ function contact() {
             eyebrow: "Contact",
             text: "Write to me",
             level: "h1",
-            subheading: "Replying to any letter reaches me too. For press, reprints and speaking, the form below is quickest.",
+            subheading:
+              "Replying to any letter reaches me too. For press, reprints and speaking, the form below is quickest.",
           },
           1: { name: "Ruth Ellery", address: "Peacham, Vermont", phone: undefined, email: EMAIL },
           2: {
@@ -293,11 +330,26 @@ function contact() {
               fields: [
                 { type: "text", name: "name", label: "Name", required: true, width: "half" },
                 { type: "email", name: "email", label: "Email", required: true, width: "half" },
-                { type: "select", name: "topic", label: "About", width: "full", options: ["A letter", "Supporter subscription", "Speaking", "Reprints & press"] },
-                { type: "textarea", name: "message", label: "Message", required: true, maxLength: 4000 },
+                {
+                  type: "select",
+                  name: "topic",
+                  label: "About",
+                  width: "full",
+                  options: ["A letter", "Supporter subscription", "Speaking", "Reprints & press"],
+                },
+                {
+                  type: "textarea",
+                  name: "message",
+                  label: "Message",
+                  required: true,
+                  maxLength: 4000,
+                },
               ],
               submitLabel: "Send",
-              success: { type: "message", message: "Thank you for writing. I read everything, usually on Sunday evenings." },
+              success: {
+                type: "message",
+                message: "Thank you for writing. I read everything, usually on Sunday evenings.",
+              },
               notifyOwner: true,
             },
           },
@@ -358,7 +410,12 @@ export const fieldNotes: TemplateSpec = {
       name: "Highlighter",
       description: "Paper and ink with a highlighter-yellow mark and Literata for long reading.",
       choices: {
-        palette: { brand: "oklch(0.9 0.17 100)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.9 0.17 100)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "literata-manrope",
         density: "comfortable",
         shape: "soft",
@@ -372,7 +429,12 @@ export const fieldNotes: TemplateSpec = {
       name: "Ink",
       description: "Fountain-pen blue with Crimson Pro and Figtree, quiet and serious.",
       choices: {
-        palette: { brand: "oklch(0.35 0.08 265)", neutral: "cool", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.35 0.08 265)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "crimson-figtree",
         density: "comfortable",
         shape: "sharp",
@@ -386,7 +448,12 @@ export const fieldNotes: TemplateSpec = {
       name: "Almanac",
       description: "Russet and parchment with Libre Caslon, like an old farm almanac.",
       choices: {
-        palette: { brand: "oklch(0.5 0.11 45)", neutral: "warm", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.5 0.11 45)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "libre-caslon-nunito-sans",
         density: "airy",
         shape: "soft",
@@ -414,14 +481,24 @@ export const fieldNotes: TemplateSpec = {
             0: {
               content: rt.doc(
                 rt.p(NAME, "lead"),
-                rt.p("A letter every other Sunday from a hill farm in Peacham, Vermont, by Ruth Ellery.", "small"),
+                rt.p(
+                  "A letter every other Sunday from a hill farm in Peacham, Vermont, by Ruth Ellery.",
+                  "small",
+                ),
               ),
             },
             1: { profiles: [] },
             2: {
               content: rt.doc(
                 rt.p(
-                  ["© 2026 Ruth Ellery · ", rt.link("Essays", "/essays/"), " · ", rt.link("Subscribe", "/subscribe/"), " · ", rt.link("RSS", "/essays/rss.xml")],
+                  [
+                    "© 2026 Ruth Ellery · ",
+                    rt.link("Essays", "/essays/"),
+                    " · ",
+                    rt.link("Subscribe", "/subscribe/"),
+                    " · ",
+                    rt.link("RSS", "/essays/rss.xml"),
+                  ],
                   "small",
                 ),
               ),
@@ -451,7 +528,11 @@ export const fieldNotes: TemplateSpec = {
           list: { layout: "list", pageSize: 20, sort: "date-desc" },
           itemPage: { layout: "article", showDate: true, showAuthor: true, showRelated: true },
           taxonomies: { categories: [{ slug: "essays", label: "Essays" }], tags: true },
-          feed: { enabled: true, title: NAME, description: "Essays on walking, weather and paying attention." },
+          feed: {
+            enabled: true,
+            title: NAME,
+            description: "Essays on walking, weather and paying attention.",
+          },
         },
       },
       collections: {
@@ -497,7 +578,9 @@ There are roughly 240,000 miles of stone wall in New England. Most were built be
 
 Small stones mean a field was ploughed, and the farmer threw the pickings on the wall. Large, carefully laid stones mean pasture. A wall with a gap mid-span marks an old gate; two parallel walls are a lane.
 `,
-            ["The geologist Robert Thorson estimates the walls hold more stone than the Egyptian pyramids. His book on the subject is wonderful."],
+            [
+              "The geologist Robert Thorson estimates the walls hold more stone than the Egyptian pyramids. His book on the subject is wonderful.",
+            ],
           ),
           essay(
             "small-weather",
@@ -512,7 +595,9 @@ The forecast for our town is almost always wrong for our valley. Fog pools here 
 
 So I started keeping a weather book: three lines a day, written on the porch with the first coffee. Two years in, I can forecast the next morning's fog from the evening's dew better than any app.¹
 `,
-            ["My neighbour Ed, who is 84, says he could have told me that in an afternoon. He is right."],
+            [
+              "My neighbour Ed, who is 84, says he could have told me that in an afternoon. He is right.",
+            ],
           ),
           essay(
             "a-year-of-apples",
@@ -534,4 +619,3 @@ I learned to prune from a library book and a retired orchardist named Lorraine, 
     };
   },
 };
-

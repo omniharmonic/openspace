@@ -47,7 +47,12 @@ const HOURS = [
   { day: "sun", opens: "12:00", closes: "21:00", closed: false },
 ];
 
-type Dish = [name: string, description: string, price: string, tags?: ("v" | "vg" | "gf" | "spicy" | "n")[]];
+type Dish = [
+  name: string,
+  description: string,
+  price: string,
+  tags?: ("v" | "vg" | "gf" | "spicy" | "n")[],
+];
 const dishes = (...items: Dish[]) =>
   items.map(([name, description, price, tags]) => ({
     name,
@@ -101,8 +106,22 @@ function home() {
     [
       fromPreset("hero/staggered-photos@1", {
         edit: {
-          0: { image: photo("plates", 420, "original", "Grilled steak, herbs and sauces shared across the table") },
-          1: { image: photo("chefPrep", 320, "original", "Our cook chopping fresh herbs before service") },
+          0: {
+            image: photo(
+              "plates",
+              420,
+              "original",
+              "Grilled steak, herbs and sauces shared across the table",
+            ),
+          },
+          1: {
+            image: photo(
+              "chefPrep",
+              320,
+              "original",
+              "Our cook chopping fresh herbs before service",
+            ),
+          },
           2: { image: photo("pizza", 420, "original", "A wood-fired pizza cut into slices") },
           3: {
             content: rt.doc(
@@ -127,7 +146,8 @@ function home() {
           0: {
             eyebrow: "From the oven",
             text: "A few things we're known for",
-            subheading: "The menu changes with the season; these never leave it. Everything is made in our kitchen each afternoon.",
+            subheading:
+              "The menu changes with the season; these never leave it. Everything is made in our kitchen each afternoon.",
           },
           1: { label: "The full menu", link: page(P.menu), role: "secondary" },
           2: {
@@ -135,22 +155,45 @@ function home() {
               {
                 title: "Favourites",
                 items: dishes(
-                  ["Cacio e pepe", "Hand-rolled tonnarelli, pecorino romano, cracked black pepper.", "24", ["v"]],
-                  ["Margherita DOP", "San Marzano tomato, fior di latte, basil, olive oil.", "19", ["v"]],
-                  ["Spiedini di gamberi", "Oak-grilled shrimp, salsa verde, charred lemon.", "27", ["gf"]],
+                  [
+                    "Cacio e pepe",
+                    "Hand-rolled tonnarelli, pecorino romano, cracked black pepper.",
+                    "24",
+                    ["v"],
+                  ],
+                  [
+                    "Margherita DOP",
+                    "San Marzano tomato, fior di latte, basil, olive oil.",
+                    "19",
+                    ["v"],
+                  ],
+                  [
+                    "Spiedini di gamberi",
+                    "Oak-grilled shrimp, salsa verde, charred lemon.",
+                    "27",
+                    ["gf"],
+                  ],
                   ["Tiramisù", "Espresso-soaked savoiardi, mascarpone, cocoa.", "12", ["v"]],
                 ),
               },
             ],
             currency: "$",
             legend: true,
-            footnote: "Most dishes can be made gluten-free; please tell your server about any allergies.",
+            footnote:
+              "Most dishes can be made gluten-free; please tell your server about any allergies.",
           },
         },
       }),
       fromPreset("about/quote-and-image@1", {
         edit: {
-          0: { image: photo("dining", 640, "3:2", "The dining room at Ember & Olive, lit low before service") },
+          0: {
+            image: photo(
+              "dining",
+              640,
+              "3:2",
+              "The dining room at Ember & Olive, lit low before service",
+            ),
+          },
           1: {
             quote: rt.doc(
               rt.p(
@@ -167,12 +210,30 @@ function home() {
           0: { eyebrow: "From the kitchen", text: "This week at the pass" },
           1: {
             images: [
-              { image: photo("pizza", 420, "4:5", "Pizza fresh from the wood oven"), caption: "Diavola, hot honey" },
-              { image: photo("saladBowl", 420, "4:5", "A bowl of greens and roasted vegetables"), caption: "Market greens" },
-              { image: photo("dinner", 420, "4:5", "A plated dish on a candlelit table"), caption: "Branzino, capers, lemon" },
-              { image: photo("breadLoaves", 420, "4:5", "Two rustic loaves dusted with flour"), caption: "Our daily bread" },
-              { image: photo("chefPrep", 420, "4:5", "Chopping herbs for salsa verde"), caption: "Salsa verde, 4pm" },
-              { image: photo("sharedTable", 420, "4:5", "Friends sharing dinner on the terrace"), caption: "Sunday on the terrace" },
+              {
+                image: photo("pizza", 420, "4:5", "Pizza fresh from the wood oven"),
+                caption: "Diavola, hot honey",
+              },
+              {
+                image: photo("saladBowl", 420, "4:5", "A bowl of greens and roasted vegetables"),
+                caption: "Market greens",
+              },
+              {
+                image: photo("dinner", 420, "4:5", "A plated dish on a candlelit table"),
+                caption: "Branzino, capers, lemon",
+              },
+              {
+                image: photo("breadLoaves", 420, "4:5", "Two rustic loaves dusted with flour"),
+                caption: "Our daily bread",
+              },
+              {
+                image: photo("chefPrep", 420, "4:5", "Chopping herbs for salsa verde"),
+                caption: "Salsa verde, 4pm",
+              },
+              {
+                image: photo("sharedTable", 420, "4:5", "Friends sharing dinner on the terrace"),
+                caption: "Sunday on the terrace",
+              },
             ],
             lightbox: true,
           },
@@ -180,8 +241,19 @@ function home() {
       }),
       fromPreset("contact/hours-overlap@1", {
         edit: {
-          0: { image: photo("cafeInterior", 860, "original", "Wooden tables and pendant lights in the dining room") },
-          1: { heading: "Opening hours", rows: HOURS, note: "Kitchen closes 30 minutes before the doors. Walk-ins welcome at the bar." },
+          0: {
+            image: photo(
+              "cafeInterior",
+              860,
+              "original",
+              "Wooden tables and pendant lights in the dining room",
+            ),
+          },
+          1: {
+            heading: "Opening hours",
+            rows: HOURS,
+            note: "Kitchen closes 30 minutes before the doors. Walk-ins welcome at the bar.",
+          },
           2: { name: NAME, address: "214 Atwells Avenue, Providence, RI 02903", phone: PHONE },
         },
       }),
@@ -189,19 +261,31 @@ function home() {
         edit: {
           0: { eyebrow: "Guests", text: "Why people keep coming back" },
           1: {
-            quote: rt.doc(rt.p("The cacio e pepe is the best I've had outside Rome, and they remembered our anniversary.")),
+            quote: rt.doc(
+              rt.p(
+                "The cacio e pepe is the best I've had outside Rome, and they remembered our anniversary.",
+              ),
+            ),
             name: "Jules Moreno",
             role: "Regular since opening",
             photo: photo("portraitSam", 120, "1:1", "Portrait of Jules Moreno"),
           },
           2: {
-            quote: rt.doc(rt.p("We booked the long table for my mother's 70th. Family-style platters, perfect pacing, no rush at all.")),
+            quote: rt.doc(
+              rt.p(
+                "We booked the long table for my mother's 70th. Family-style platters, perfect pacing, no rush at all.",
+              ),
+            ),
             name: "Nadia Sorensen",
             role: "Private dining, March",
             photo: photo("portraitClara", 120, "1:1", "Portrait of Nadia Sorensen"),
           },
           3: {
-            quote: rt.doc(rt.p("Sit at the counter and watch the oven. Order whatever the chef says is good tonight.")),
+            quote: rt.doc(
+              rt.p(
+                "Sit at the counter and watch the oven. Order whatever the chef says is good tonight.",
+              ),
+            ),
             name: "Theo Grant",
             role: "Food writer, Providence Weekly",
             photo: photo("portraitTheo", 120, "1:1", "Portrait of Theo Grant"),
@@ -213,7 +297,8 @@ function home() {
         edit: {
           0: {
             text: "A long table for your celebration",
-            subheading: "Private dining for 10 to 24 guests in the back room, with a family-style menu cooked over the fire.",
+            subheading:
+              "Private dining for 10 to 24 guests in the back room, with a family-style menu cooked over the fire.",
           },
           1: { label: "Plan a private dinner", link: page(P.privateDining) },
         },
@@ -244,7 +329,10 @@ function menu() {
       ),
       section(
         [
-          heading("Dinner", { align: "center", sub: "Served Tuesday to Sunday from 5pm, and from noon at weekends." }),
+          heading("Dinner", {
+            align: "center",
+            sub: "Served Tuesday to Sunday from 5pm, and from noon at weekends.",
+          }),
           block(
             "restaurant-menu",
             {
@@ -254,7 +342,12 @@ function menu() {
                   items: dishes(
                     ["Focaccia", "Rosemary, flaky salt, whipped ricotta and honey.", "9", ["v"]],
                     ["Burrata", "Roasted grapes, saba, toasted hazelnuts.", "16", ["v", "n"]],
-                    ["Arancini", "Saffron risotto, smoked mozzarella, Calabrian chili aioli.", "13", ["v", "spicy"]],
+                    [
+                      "Arancini",
+                      "Saffron risotto, smoked mozzarella, Calabrian chili aioli.",
+                      "13",
+                      ["v", "spicy"],
+                    ],
                     ["Crudo", "Local fluke, blood orange, fennel, olive oil.", "18", ["gf"]],
                   ),
                 },
@@ -264,8 +357,18 @@ function menu() {
                   items: dishes(
                     ["Cacio e pepe", "Tonnarelli, pecorino romano, black pepper.", "24", ["v"]],
                     ["Pappardelle", "Slow-braised short rib ragù, parmigiano.", "29"],
-                    ["Agnolotti", "Butternut squash, brown butter, sage, amaretti.", "26", ["v", "n"]],
-                    ["Linguine alle vongole", "Rhode Island littlenecks, garlic, white wine, chili.", "31", ["spicy"]],
+                    [
+                      "Agnolotti",
+                      "Butternut squash, brown butter, sage, amaretti.",
+                      "26",
+                      ["v", "n"],
+                    ],
+                    [
+                      "Linguine alle vongole",
+                      "Rhode Island littlenecks, garlic, white wine, chili.",
+                      "31",
+                      ["spicy"],
+                    ],
                   ),
                 },
                 {
@@ -273,16 +376,31 @@ function menu() {
                   note: "From the oak-fired oven",
                   items: dishes(
                     ["Margherita DOP", "San Marzano tomato, fior di latte, basil.", "19", ["v"]],
-                    ["Diavola", "Spicy soppressata, tomato, mozzarella, hot honey.", "22", ["spicy"]],
+                    [
+                      "Diavola",
+                      "Spicy soppressata, tomato, mozzarella, hot honey.",
+                      "22",
+                      ["spicy"],
+                    ],
                     ["Funghi", "Roasted mushrooms, taleggio, thyme, garlic.", "21", ["v"]],
                   ),
                 },
                 {
                   title: "Dal forno",
                   items: dishes(
-                    ["Half chicken", "Brined and roasted in the oven, salsa verde, potatoes.", "32", ["gf"]],
+                    [
+                      "Half chicken",
+                      "Brined and roasted in the oven, salsa verde, potatoes.",
+                      "32",
+                      ["gf"],
+                    ],
                     ["Whole branzino", "Charred lemon, capers, herbs.", "38", ["gf"]],
-                    ["Bistecca for two", "Dry-aged ribeye, rosemary, sea salt, arugula.", "84", ["gf"]],
+                    [
+                      "Bistecca for two",
+                      "Dry-aged ribeye, rosemary, sea salt, arugula.",
+                      "84",
+                      ["gf"],
+                    ],
                   ),
                 },
                 {
@@ -296,7 +414,8 @@ function menu() {
               ],
               currency: "$",
               legend: true,
-              footnote: "A 20% service charge is added for tables of eight or more. Please tell us about any allergies.",
+              footnote:
+                "A 20% service charge is added for tables of eight or more. Please tell us about any allergies.",
             },
             { variant: "classic" },
           ),
@@ -371,7 +490,8 @@ function visit() {
           0: {
             eyebrow: "Reservations",
             text: "Reserve a table",
-            subheading: "Book up to 30 days ahead. We keep the bar and counter seats for walk-ins every night.",
+            subheading:
+              "Book up to 30 days ahead. We keep the bar and counter seats for walk-ins every night.",
           },
           1: reservationForm(),
         },
@@ -389,7 +509,9 @@ function privateDining() {
     [
       fromPreset("hero/split-landscape@1", {
         edit: {
-          0: { image: photo("sharedTable", 760, "3:2", "Friends talking over a long shared table") },
+          0: {
+            image: photo("sharedTable", 760, "3:2", "Friends talking over a long shared table"),
+          },
           1: {
             eyebrow: "Private dining",
             text: "The long table is yours",
@@ -451,7 +573,8 @@ function privateDining() {
           0: {
             eyebrow: "Groups of 10 – 24",
             text: "Tell us about your dinner",
-            subheading: "Share the date, the occasion and any dietary needs. We'll reply with menus and availability within a day.",
+            subheading:
+              "Share the date, the occasion and any dietary needs. We'll reply with menus and availability within a day.",
           },
           1: {
             form: {
@@ -460,12 +583,27 @@ function privateDining() {
               fields: [
                 { type: "text", name: "name", label: "Name", required: true, width: "half" },
                 { type: "email", name: "email", label: "Email", required: true, width: "half" },
-                { type: "date", name: "date", label: "Preferred date", required: true, width: "half" },
-                { type: "select", name: "guests", label: "Guests", width: "half", options: ["10 – 14", "15 – 19", "20 – 24"] },
+                {
+                  type: "date",
+                  name: "date",
+                  label: "Preferred date",
+                  required: true,
+                  width: "half",
+                },
+                {
+                  type: "select",
+                  name: "guests",
+                  label: "Guests",
+                  width: "half",
+                  options: ["10 – 14", "15 – 19", "20 – 24"],
+                },
                 { type: "textarea", name: "occasion", label: "The occasion", maxLength: 2000 },
               ],
               submitLabel: "Send enquiry",
-              success: { type: "message", message: "Thank you! Our events manager will reply within a day." },
+              success: {
+                type: "message",
+                message: "Thank you! Our events manager will reply within a day.",
+              },
               notifyOwner: true,
             },
           },
@@ -484,8 +622,15 @@ function about() {
     [
       fromPreset("about/story-split@1", {
         edit: {
-          0: { image: photo("portraitMaya", 520, "4:5", "Portrait of chef Lucia Ferrante, smiling") },
-          1: { eyebrow: "Our story", text: "Cooking the way my nonna did", level: "h1", size: "h1" },
+          0: {
+            image: photo("portraitMaya", 520, "4:5", "Portrait of chef Lucia Ferrante, smiling"),
+          },
+          1: {
+            eyebrow: "Our story",
+            text: "Cooking the way my nonna did",
+            level: "h1",
+            size: "h1",
+          },
           2: {
             content: rt.doc(
               rt.p(
@@ -503,13 +648,33 @@ function about() {
         theme: "light-accent",
         anchor: "team",
         edit: {
-          0: { eyebrow: "The team", text: "Around the fire", subheading: "A small crew who cook, pour and look after you every night." },
+          0: {
+            eyebrow: "The team",
+            text: "Around the fire",
+            subheading: "A small crew who cook, pour and look after you every night.",
+          },
           1: {
             people: [
-              { name: "Lucia Ferrante", role: "Chef & owner", photo: photo("portraitMaya", 300, "4:5", "Portrait of Lucia Ferrante") },
-              { name: "Owen Bassett", role: "Head of pasta", photo: photo("portraitDaniel", 300, "4:5", "Portrait of Owen Bassett") },
-              { name: "Ana Delgado", role: "Front of house", photo: photo("portraitAna", 300, "4:5", "Portrait of Ana Delgado") },
-              { name: "Marcus Hale", role: "Sommelier", photo: photo("portraitMarcus", 300, "4:5", "Portrait of Marcus Hale") },
+              {
+                name: "Lucia Ferrante",
+                role: "Chef & owner",
+                photo: photo("portraitMaya", 300, "4:5", "Portrait of Lucia Ferrante"),
+              },
+              {
+                name: "Owen Bassett",
+                role: "Head of pasta",
+                photo: photo("portraitDaniel", 300, "4:5", "Portrait of Owen Bassett"),
+              },
+              {
+                name: "Ana Delgado",
+                role: "Front of house",
+                photo: photo("portraitAna", 300, "4:5", "Portrait of Ana Delgado"),
+              },
+              {
+                name: "Marcus Hale",
+                role: "Sommelier",
+                photo: photo("portraitMarcus", 300, "4:5", "Portrait of Marcus Hale"),
+              },
             ],
           },
         },
@@ -548,7 +713,12 @@ export const hearth: TemplateSpec = {
       name: "Tomato",
       description: "Ripe tomato red on cream with an olive accent and Young Serif headings.",
       choices: {
-        palette: { brand: "oklch(0.6 0.2 30)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.6 0.2 30)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "young-serif-work-sans",
         density: "comfortable",
         shape: "soft",
@@ -562,7 +732,12 @@ export const hearth: TemplateSpec = {
       name: "Olive Grove",
       description: "Olive and cream with Playfair Display, for a quieter, wine-bar mood.",
       choices: {
-        palette: { brand: "oklch(0.55 0.09 115)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.55 0.09 115)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "playfair-source-sans",
         density: "comfortable",
         shape: "soft",
@@ -574,9 +749,15 @@ export const hearth: TemplateSpec = {
     {
       id: "bistro-noir",
       name: "Bistro Noir",
-      description: "Deep wine red with Abril Fatface headings and sharp corners, for a late-night bistro.",
+      description:
+        "Deep wine red with Abril Fatface headings and sharp corners, for a late-night bistro.",
       choices: {
-        palette: { brand: "oklch(0.38 0.11 18)", neutral: "warm", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.38 0.11 18)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "abril-lato",
         density: "compact",
         shape: "sharp",
@@ -605,7 +786,10 @@ export const hearth: TemplateSpec = {
             0: {
               content: rt.doc(
                 rt.p(NAME, "lead"),
-                rt.p("Wood-fired Italian cooking on Federal Hill. Dinner Tuesday to Sunday, lunch at weekends.", "small"),
+                rt.p(
+                  "Wood-fired Italian cooking on Federal Hill. Dinner Tuesday to Sunday, lunch at weekends.",
+                  "small",
+                ),
               ),
             },
             1: { profiles: [] },

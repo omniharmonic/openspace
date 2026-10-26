@@ -39,15 +39,21 @@ const NAME = "Juno Vale";
 const TICKETS = "https://tickets.junovale.example";
 
 /** CC0 recordings by Mesostic on Wikimedia Commons (credited in media/LICENSES.json). */
-const TRACK_A = "https://upload.wikimedia.org/wikipedia/commons/c/c2/Synth_pop_with_4_on_the_floor.ogg";
-const TRACK_B = "https://upload.wikimedia.org/wikipedia/commons/1/10/Friendly_Evil_Gangsta_Synth_Hip_Hop.ogg";
+const TRACK_A =
+  "https://upload.wikimedia.org/wikipedia/commons/c/c2/Synth_pop_with_4_on_the_floor.ogg";
+const TRACK_B =
+  "https://upload.wikimedia.org/wikipedia/commons/1/10/Friendly_Evil_Gangsta_Synth_Hip_Hop.ogg";
 
 const audioFile = (src: string, title: string) => ({ kind: "audio", src, title });
 
 const SPOTIFY = "https://open.spotify.com/artist/junovale-example";
 const listenLinks = [
   { platform: "spotify", link: url(SPOTIFY) },
-  { platform: "other", label: "Apple Music", link: url("https://music.apple.com/artist/junovale-example") },
+  {
+    platform: "other",
+    label: "Apple Music",
+    link: url("https://music.apple.com/artist/junovale-example"),
+  },
   { platform: "other", label: "Bandcamp", link: url("https://junovale.bandcamp.example") },
 ];
 
@@ -60,7 +66,11 @@ function home() {
     [
       fromPreset("hero/photo-corner-text@1", {
         style: {
-          background: photoBackground(photo("concert", 1440, "original", "A crowd with raised hands at a Juno Vale show"), 0.58, [0.5, 0.4]),
+          background: photoBackground(
+            photo("concert", 1440, "original", "A crowd with raised hands at a Juno Vale show"),
+            0.58,
+            [0.5, 0.4],
+          ),
         },
         edit: {
           0: {
@@ -79,7 +89,11 @@ function home() {
       }),
       section(
         [
-          heading("Neon Tide", { eyebrow: "The single", sub: "The first song from Afterglow, recorded live to tape in one take.", col: 0 }),
+          heading("Neon Tide", {
+            eyebrow: "The single",
+            sub: "The first song from Afterglow, recorded live to tape in one take.",
+            col: 0,
+          }),
           block(
             "button",
             {
@@ -95,8 +109,14 @@ function home() {
               audio: audioFile(TRACK_A, "Neon Tide"),
               title: "Neon Tide",
               show: "Afterglow",
-              description: "Four on the floor, stepped pads and a melody that won't leave you alone.",
-              cover: photo("stageLights", 320, "1:1", "Afterglow album cover: a crowd facing a lit stage"),
+              description:
+                "Four on the floor, stepped pads and a melody that won't leave you alone.",
+              cover: photo(
+                "stageLights",
+                320,
+                "1:1",
+                "Afterglow album cover: a crowd facing a lit stage",
+              ),
               links: listenLinks,
             },
             { variant: "card", col: 1 },
@@ -121,7 +141,11 @@ function home() {
         theme: "brand",
         edit: {
           0: {
-            quote: rt.doc(rt.p("Afterglow sounds like the last train home: tired, glowing and quietly euphoric. Vale's best work yet.")),
+            quote: rt.doc(
+              rt.p(
+                "Afterglow sounds like the last train home: tired, glowing and quietly euphoric. Vale's best work yet.",
+              ),
+            ),
             name: "Northside Sound",
             role: "Album review, ★★★★½",
             photo: undefined,
@@ -145,7 +169,8 @@ function home() {
         edit: {
           0: {
             heading: "Join the night shift",
-            description: "Presale codes, new music and the occasional voice memo from the studio. Once a month at most.",
+            description:
+              "Presale codes, new music and the occasional voice memo from the studio. Once a month at most.",
             buttonLabel: "Sign up",
             successMessage: "You're on the list. Check your inbox to confirm.",
           },
@@ -184,7 +209,8 @@ function music() {
               title: "Neon Tide",
               show: "Afterglow (2026)",
               episode: 1,
-              description: "The opening track and first single. Stepped pads, a four-on-the-floor kick and a melody written on a hotel keyboard.",
+              description:
+                "The opening track and first single. Stepped pads, a four-on-the-floor kick and a melody written on a hotel keyboard.",
               cover: photo("stageLights", 320, "1:1", "Afterglow album cover"),
               links: listenLinks,
             },
@@ -197,7 +223,8 @@ function music() {
               title: "Slow Static",
               show: "Afterglow (2026)",
               episode: 7,
-              description: "A slow, heavy instrumental built around a broken drum machine and a borrowed Juno-60.",
+              description:
+                "A slow, heavy instrumental built around a broken drum machine and a borrowed Juno-60.",
               cover: photo("stageLights", 320, "1:1", "Afterglow album cover"),
               links: listenLinks,
             },
@@ -221,14 +248,24 @@ function music() {
                 linkLabel: "Buy on Bandcamp",
               },
               {
-                image: photo("microphone", 420, "4:5", "Paper Moons album artwork: a vintage microphone"),
+                image: photo(
+                  "microphone",
+                  420,
+                  "4:5",
+                  "Paper Moons album artwork: a vintage microphone",
+                ),
                 heading: "Paper Moons",
                 body: body("Album, 2023. The debut, made in a bedroom on Kedzie Avenue."),
                 link: url("https://junovale.bandcamp.example/album/paper-moons"),
                 linkLabel: "Buy on Bandcamp",
               },
               {
-                image: photo("headphones", 420, "4:5", "Night Shift EP artwork: headphones on yellow"),
+                image: photo(
+                  "headphones",
+                  420,
+                  "4:5",
+                  "Night Shift EP artwork: headphones on yellow",
+                ),
                 heading: "Night Shift EP",
                 body: body("EP, 2021. Four songs and a cover of a song you'd never guess."),
                 link: url("https://junovale.bandcamp.example/album/night-shift"),
@@ -252,7 +289,9 @@ function about() {
       fromPreset("about/story-split@1", {
         theme: "dark",
         edit: {
-          0: { image: photo("portraitIris", 520, "4:5", "Portrait of Juno Vale against a violet wall") },
+          0: {
+            image: photo("portraitIris", 520, "4:5", "Portrait of Juno Vale against a violet wall"),
+          },
           1: { eyebrow: "About", text: "Juno Vale", level: "h1", size: "h1" },
           2: {
             content: rt.doc(
@@ -264,7 +303,11 @@ function about() {
               ),
             ),
           },
-          3: { label: "Download the press kit", link: url("https://junovale.example/press-kit.zip"), role: "secondary" },
+          3: {
+            label: "Download the press kit",
+            link: url("https://junovale.example/press-kit.zip"),
+            role: "secondary",
+          },
         },
       }),
       fromPreset("testimonials/carousel@1", {
@@ -273,9 +316,23 @@ function about() {
           0: {
             label: "Press",
             quotes: [
-              { quote: "Afterglow sounds like the last train home: tired, glowing and quietly euphoric.", name: "Northside Sound", role: "Album review" },
-              { quote: "The rare live synth act that makes a room of strangers dance like they know each other.", name: "The Lakeshore Reader", role: "Live review, Thalia Hall" },
-              { quote: "One of the twenty Midwest artists to watch this year.", name: "Prairie Radio", role: "Feature, 2026" },
+              {
+                quote:
+                  "Afterglow sounds like the last train home: tired, glowing and quietly euphoric.",
+                name: "Northside Sound",
+                role: "Album review",
+              },
+              {
+                quote:
+                  "The rare live synth act that makes a room of strangers dance like they know each other.",
+                name: "The Lakeshore Reader",
+                role: "Live review, Thalia Hall",
+              },
+              {
+                quote: "One of the twenty Midwest artists to watch this year.",
+                name: "Prairie Radio",
+                role: "Feature, 2026",
+              },
             ],
           },
         },
@@ -283,15 +340,40 @@ function about() {
       fromPreset("gallery/grid@1", {
         theme: "dark",
         edit: {
-          0: { eyebrow: "Press photos", text: "Photos for press", subheading: "High-resolution images for editorial use. Please credit Lena Ortiz." },
+          0: {
+            eyebrow: "Press photos",
+            text: "Photos for press",
+            subheading: "High-resolution images for editorial use. Please credit Lena Ortiz.",
+          },
           1: {
             images: [
               { image: photo("portraitIris", 400, "1:1", "Juno Vale portrait, violet background") },
               { image: photo("concert", 400, "1:1", "Juno Vale live, crowd with hands raised") },
               { image: photo("stageLights", 400, "1:1", "A lit stage before a Juno Vale show") },
-              { image: photo("microphone", 400, "1:1", "A vintage microphone under warm stage light") },
-              { image: photo("headphones", 400, "1:1", "Headphones on a yellow background, Night Shift EP") },
-              { image: photo("conference", 400, "1:1", "The audience facing the stage at a sold-out show") },
+              {
+                image: photo(
+                  "microphone",
+                  400,
+                  "1:1",
+                  "A vintage microphone under warm stage light",
+                ),
+              },
+              {
+                image: photo(
+                  "headphones",
+                  400,
+                  "1:1",
+                  "Headphones on a yellow background, Night Shift EP",
+                ),
+              },
+              {
+                image: photo(
+                  "conference",
+                  400,
+                  "1:1",
+                  "The audience facing the stage at a sold-out show",
+                ),
+              },
             ],
             lightbox: true,
           },
@@ -315,7 +397,8 @@ function contact() {
             eyebrow: "Contact",
             text: "Booking, press and licensing",
             level: "h1",
-            subheading: "For shows, interviews and sync requests. Fan mail is welcome too; it all gets read.",
+            subheading:
+              "For shows, interviews and sync requests. Fan mail is welcome too; it all gets read.",
           },
           1: {
             name: "Management · Lakefront Artists",
@@ -330,12 +413,37 @@ function contact() {
               fields: [
                 { type: "text", name: "name", label: "Name", required: true, width: "half" },
                 { type: "email", name: "email", label: "Email", required: true, width: "half" },
-                { type: "select", name: "type", label: "Enquiry", width: "half", options: ["Live booking", "Press & interviews", "Sync & licensing", "Something else"] },
-                { type: "text", name: "organisation", label: "Venue or publication", width: "half" },
-                { type: "textarea", name: "message", label: "Details", required: true, maxLength: 3000 },
+                {
+                  type: "select",
+                  name: "type",
+                  label: "Enquiry",
+                  width: "half",
+                  options: [
+                    "Live booking",
+                    "Press & interviews",
+                    "Sync & licensing",
+                    "Something else",
+                  ],
+                },
+                {
+                  type: "text",
+                  name: "organisation",
+                  label: "Venue or publication",
+                  width: "half",
+                },
+                {
+                  type: "textarea",
+                  name: "message",
+                  label: "Details",
+                  required: true,
+                  maxLength: 3000,
+                },
               ],
               submitLabel: "Send enquiry",
-              success: { type: "message", message: "Thanks! The team replies within three working days." },
+              success: {
+                type: "message",
+                message: "Thanks! The team replies within three working days.",
+              },
               notifyOwner: true,
             },
           },
@@ -345,7 +453,15 @@ function contact() {
   );
 }
 
-const show = (slug: string, date: string, city: string, venue: string, address: string, tz: string, note: string) =>
+const show = (
+  slug: string,
+  date: string,
+  city: string,
+  venue: string,
+  address: string,
+  tz: string,
+  note: string,
+) =>
   event(
     slug,
     {
@@ -402,7 +518,12 @@ export const encore: TemplateSpec = {
       name: "Night Plum",
       description: "Dark plum with a vivid magenta edge and wide Syne headings.",
       choices: {
-        palette: { brand: "oklch(0.45 0.14 330)", neutral: "cool", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.45 0.14 330)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "syne-dm-sans",
         density: "comfortable",
         shape: "sharp",
@@ -416,7 +537,12 @@ export const encore: TemplateSpec = {
       name: "Afterglow",
       description: "Hot coral on warm black with Unbounded headings and pill buttons.",
       choices: {
-        palette: { brand: "oklch(0.65 0.2 25)", neutral: "warm", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.65 0.2 25)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "unbounded-figtree",
         density: "comfortable",
         shape: "round",
@@ -430,7 +556,12 @@ export const encore: TemplateSpec = {
       name: "Chrome",
       description: "Monochrome with electric cyan and Archivo, for a colder, club-night feel.",
       choices: {
-        palette: { brand: "oklch(0.62 0.13 210)", neutral: "cool", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.62 0.13 210)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "archivo",
         density: "compact",
         shape: "sharp",
@@ -467,7 +598,11 @@ export const encore: TemplateSpec = {
               ),
             },
             3: { profiles: [] },
-            4: { content: rt.doc(rt.p("© 2026 Juno Vale · Management: Lakefront Artists, Chicago", "small")) },
+            4: {
+              content: rt.doc(
+                rt.p("© 2026 Juno Vale · Management: Lakefront Artists, Chicago", "small"),
+              ),
+            },
           },
         }),
         social: [
@@ -507,11 +642,51 @@ export const encore: TemplateSpec = {
       },
       collections: {
         tour: [
-          show("chicago-thalia-hall", "2026-11-21T20:00:00-06:00", "Chicago", "Thalia Hall", "1807 S Allport St, Chicago, IL", "America/Chicago", "Hometown album release show with a full band and strings."),
-          show("minneapolis-first-avenue", "2026-12-04T20:00:00-06:00", "Minneapolis", "First Avenue", "701 N 1st Ave, Minneapolis, MN", "America/Chicago", "With special guests The Lantern Kids."),
-          show("toronto-danforth", "2027-01-15T20:00:00-05:00", "Toronto", "The Danforth Music Hall", "147 Danforth Ave, Toronto, ON", "America/Toronto", "First Canadian headline show."),
-          show("brooklyn-elsewhere", "2027-01-22T20:00:00-05:00", "Brooklyn", "Elsewhere", "599 Johnson Ave, Brooklyn, NY", "America/New_York", "Late show: doors at 10pm, Juno on at 11:30."),
-          show("london-electric-ballroom", "2027-02-18T19:30:00+00:00", "London", "Electric Ballroom", "184 Camden High St, London", "Europe/London", "First UK headline date."),
+          show(
+            "chicago-thalia-hall",
+            "2026-11-21T20:00:00-06:00",
+            "Chicago",
+            "Thalia Hall",
+            "1807 S Allport St, Chicago, IL",
+            "America/Chicago",
+            "Hometown album release show with a full band and strings.",
+          ),
+          show(
+            "minneapolis-first-avenue",
+            "2026-12-04T20:00:00-06:00",
+            "Minneapolis",
+            "First Avenue",
+            "701 N 1st Ave, Minneapolis, MN",
+            "America/Chicago",
+            "With special guests The Lantern Kids.",
+          ),
+          show(
+            "toronto-danforth",
+            "2027-01-15T20:00:00-05:00",
+            "Toronto",
+            "The Danforth Music Hall",
+            "147 Danforth Ave, Toronto, ON",
+            "America/Toronto",
+            "First Canadian headline show.",
+          ),
+          show(
+            "brooklyn-elsewhere",
+            "2027-01-22T20:00:00-05:00",
+            "Brooklyn",
+            "Elsewhere",
+            "599 Johnson Ave, Brooklyn, NY",
+            "America/New_York",
+            "Late show: doors at 10pm, Juno on at 11:30.",
+          ),
+          show(
+            "london-electric-ballroom",
+            "2027-02-18T19:30:00+00:00",
+            "London",
+            "Electric Ballroom",
+            "184 Camden High St, London",
+            "Europe/London",
+            "First UK headline date.",
+          ),
         ],
         sessions: [
           episode(
@@ -524,7 +699,8 @@ export const encore: TemplateSpec = {
               season: 2,
               image: photoUrl("microphone", 1600),
               imageAlt: "A vintage microphone in warm light",
-              excerpt: "A slow instrumental built on a broken drum machine, and why I kept the mistakes in.",
+              excerpt:
+                "A slow instrumental built on a broken drum machine, and why I kept the mistakes in.",
             },
             "This session started with a drum machine that skips every eighth bar. Instead of fixing it, we built the song around it.\n",
           ),
@@ -538,7 +714,8 @@ export const encore: TemplateSpec = {
               season: 2,
               image: photoUrl("stageLights", 1600),
               imageAlt: "A crowd facing a lit stage",
-              excerpt: "The single, recorded in one take with the touring band, plus the story of the hotel keyboard.",
+              excerpt:
+                "The single, recorded in one take with the touring band, plus the story of the hotel keyboard.",
             },
             "We tracked this in one take at the end of a long day. You can hear Marco counting us in.\n",
           ),

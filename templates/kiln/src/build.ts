@@ -47,8 +47,22 @@ function home() {
     [
       fromPreset("hero/collage@1", {
         edit: {
-          0: { image: photo("pottery", 640, "original", "Handmade stoneware vases in soft clay colours on a studio shelf") },
-          1: { image: photo("plantPot", 380, "original", "A small cactus in one of our terracotta planters") },
+          0: {
+            image: photo(
+              "pottery",
+              640,
+              "original",
+              "Handmade stoneware vases in soft clay colours on a studio shelf",
+            ),
+          },
+          1: {
+            image: photo(
+              "plantPot",
+              380,
+              "original",
+              "A small cactus in one of our terracotta planters",
+            ),
+          },
           2: {
             eyebrow: "Stoneware · Mystic, Connecticut",
             text: "Pots for everyday rituals",
@@ -71,15 +85,25 @@ function home() {
             columns: "3",
             linkLabel: "Shop everything",
             link: url("/shop/"),
-            emptyMessage: "The next firing is cooling. New pieces arrive on the first Friday of the month.",
+            emptyMessage:
+              "The next firing is cooling. New pieces arrive on the first Friday of the month.",
           },
         },
       }),
       fromPreset("about/workshop-layers@1", {
         theme: "light-accent",
         edit: {
-          0: { image: photo("ceramics", 640, "original", "Three matte grey bud vases with dried stems") },
-          1: { image: photo("pottery", 360, "original", "Glazed vases drying on the studio shelf") },
+          0: {
+            image: photo(
+              "ceramics",
+              640,
+              "original",
+              "Three matte grey bud vases with dried stems",
+            ),
+          },
+          1: {
+            image: photo("pottery", 360, "original", "Glazed vases drying on the studio shelf"),
+          },
           2: { eyebrow: "The studio", text: "Made slowly, a few at a time" },
           3: {
             content: rt.doc(
@@ -94,7 +118,14 @@ function home() {
       fromPreset("products/story-overlap@1", {
         theme: "light",
         edit: {
-          0: { image: photo("coffeeTable", 600, "original", "Two of our morning cups on a small table with herbs") },
+          0: {
+            image: photo(
+              "coffeeTable",
+              600,
+              "original",
+              "Two of our morning cups on a small table with herbs",
+            ),
+          },
           1: {
             content: rt.doc(
               rt.p("Bestseller", "eyebrow"),
@@ -119,7 +150,8 @@ function home() {
             heading: "Weekend workshops",
             source: { collection: "classes", filter: { upcoming: true }, limit: 4 },
             registerLabel: "Book a place",
-            emptyMessage: "New workshop dates are posted each season. Join the newsletter to hear first.",
+            emptyMessage:
+              "New workshop dates are posted each season. Join the newsletter to hear first.",
           },
         },
       }),
@@ -128,19 +160,31 @@ function home() {
         edit: {
           0: { eyebrow: "Kind words", text: "From people who use them daily" },
           1: {
-            quote: rt.doc(rt.p("My morning cup is the first thing I reach for every day. It feels like it was made for my hands.")),
+            quote: rt.doc(
+              rt.p(
+                "My morning cup is the first thing I reach for every day. It feels like it was made for my hands.",
+              ),
+            ),
             name: "Elise Thornton",
             role: "Customer, Providence",
             photo: photo("portraitClara", 120, "1:1", "Portrait of Elise Thornton"),
           },
           2: {
-            quote: rt.doc(rt.p("The wheel workshop was the best Saturday I've had in years. I came home with two wobbly bowls I love.")),
+            quote: rt.doc(
+              rt.p(
+                "The wheel workshop was the best Saturday I've had in years. I came home with two wobbly bowls I love.",
+              ),
+            ),
             name: "Ben Akintola",
             role: "Workshop student",
             photo: photo("portraitSam", 120, "1:1", "Portrait of Ben Akintola"),
           },
           3: {
-            quote: rt.doc(rt.p("We stock Saltmarsh planters in both our shops and they sell out within a week of every firing.")),
+            quote: rt.doc(
+              rt.p(
+                "We stock Saltmarsh planters in both our shops and they sell out within a week of every firing.",
+              ),
+            ),
             name: "Hana Morioka",
             role: "Owner, Fern & Field",
             photo: photo("portraitAna", 120, "1:1", "Portrait of Hana Morioka"),
@@ -173,7 +217,14 @@ function workshops() {
             secondaryLink: page(P.contact),
             note: "Gift vouchers available for any workshop.",
           },
-          2: { image: photo("pottery", 600, "4:5", "Finished pieces from a weekend workshop on the shelf") },
+          2: {
+            image: photo(
+              "pottery",
+              600,
+              "4:5",
+              "Finished pieces from a weekend workshop on the shelf",
+            ),
+          },
         },
       }),
       fromPreset("events/list@1", {
@@ -192,9 +243,24 @@ function workshops() {
           0: { eyebrow: "What to expect", text: "From lump of clay to finished pot" },
           1: {
             items: [
-              { heading: "Saturday: make", body: body("Wedge, centre and throw on the wheel, with plenty of help. Most people make three to five pieces.") },
-              { heading: "Sunday: trim", body: body("Come back the next morning to trim your favourites and add handles or carved details.") },
-              { heading: "Three weeks later: collect", body: body("Choose a glaze; Wren fires everything twice and lets you know when your pots are ready.") },
+              {
+                heading: "Saturday: make",
+                body: body(
+                  "Wedge, centre and throw on the wheel, with plenty of help. Most people make three to five pieces.",
+                ),
+              },
+              {
+                heading: "Sunday: trim",
+                body: body(
+                  "Come back the next morning to trim your favourites and add handles or carved details.",
+                ),
+              },
+              {
+                heading: "Three weeks later: collect",
+                body: body(
+                  "Choose a glaze; Wren fires everything twice and lets you know when your pots are ready.",
+                ),
+              },
             ],
           },
           2: { label: "Book a workshop", link: url("/classes/") },
@@ -205,9 +271,24 @@ function workshops() {
           0: { eyebrow: "Workshops", text: "Good to know" },
           1: {
             items: [
-              { question: "I've never touched clay. Is that OK?", answer: body("Completely. Most of our students are beginners, and the first hour is all about centring.") },
-              { question: "What should I wear?", answer: body("Clothes you don't mind getting muddy and short nails. Aprons and towels are provided.") },
-              { question: "Can I book the studio for a group?", answer: body("Yes, for four to eight people on weekday evenings. Write to us with a date in mind.") },
+              {
+                question: "I've never touched clay. Is that OK?",
+                answer: body(
+                  "Completely. Most of our students are beginners, and the first hour is all about centring.",
+                ),
+              },
+              {
+                question: "What should I wear?",
+                answer: body(
+                  "Clothes you don't mind getting muddy and short nails. Aprons and towels are provided.",
+                ),
+              },
+              {
+                question: "Can I book the studio for a group?",
+                answer: body(
+                  "Yes, for four to eight people on weekday evenings. Write to us with a date in mind.",
+                ),
+              },
             ],
           },
         },
@@ -225,7 +306,14 @@ function about() {
     [
       fromPreset("about/story-split@1", {
         edit: {
-          0: { image: photo("portraitOwen", 520, "4:5", "Portrait of Wren Adeyemi, potter and founder of Saltmarsh") },
+          0: {
+            image: photo(
+              "portraitOwen",
+              520,
+              "4:5",
+              "Portrait of Wren Adeyemi, potter and founder of Saltmarsh",
+            ),
+          },
           1: { eyebrow: "The maker", text: "Hello, I'm Wren", level: "h1", size: "h1" },
           2: {
             content: rt.doc(
@@ -243,12 +331,28 @@ function about() {
       fromPreset("about/values@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "How it's made", text: "Small batches, honest materials", subheading: "A few promises that shape every piece that leaves the studio." },
+          0: {
+            eyebrow: "How it's made",
+            text: "Small batches, honest materials",
+            subheading: "A few promises that shape every piece that leaves the studio.",
+          },
           1: {
             items: [
-              { icon: "leaf", title: "Local clay and ash", text: "Clay from a Connecticut supplier and wood ash from our own stove, so glazes are truly local." },
-              { icon: "recycle", title: "Nothing wasted", text: "Trimmings and seconds are reclaimed and rethrown; broken pieces become garden mosaics." },
-              { icon: "package", title: "Packed by hand", text: "Every order ships in recycled paper and straw, with a note about the firing it came from." },
+              {
+                icon: "leaf",
+                title: "Local clay and ash",
+                text: "Clay from a Connecticut supplier and wood ash from our own stove, so glazes are truly local.",
+              },
+              {
+                icon: "recycle",
+                title: "Nothing wasted",
+                text: "Trimmings and seconds are reclaimed and rethrown; broken pieces become garden mosaics.",
+              },
+              {
+                icon: "package",
+                title: "Packed by hand",
+                text: "Every order ships in recycled paper and straw, with a note about the firing it came from.",
+              },
             ],
           },
         },
@@ -258,7 +362,9 @@ function about() {
           0: { image: photo("pottery", 640, "original", "A shelf of finished vases") },
           1: { image: photo("ceramics", 320, "original", "Grey bud vases with dried stems") },
           2: { image: photo("plantPot", 320, "original", "A terracotta planter with a cactus") },
-          3: { image: photo("succulent", 320, "original", "A mint-glazed planter with a succulent") },
+          3: {
+            image: photo("succulent", 320, "original", "A mint-glazed planter with a succulent"),
+          },
           4: { image: photo("coffeeTable", 320, "original", "Morning cups on a small table") },
         },
       }),
@@ -279,7 +385,8 @@ function contact() {
             eyebrow: "Contact",
             text: "Visit, commission or stock our work",
             level: "h1",
-            subheading: "The studio is open on Saturdays, and by appointment. For wholesale, commissions or private workshops, write below.",
+            subheading:
+              "The studio is open on Saturdays, and by appointment. For wholesale, commissions or private workshops, write below.",
           },
           1: { name: NAME, address: ADDRESS, phone: "+1 (860) 555-0174", email: EMAIL },
           2: {
@@ -289,11 +396,33 @@ function contact() {
               fields: [
                 { type: "text", name: "name", label: "Name", required: true, width: "half" },
                 { type: "email", name: "email", label: "Email", required: true, width: "half" },
-                { type: "select", name: "topic", label: "Enquiry", width: "full", options: ["An order", "Wholesale", "Commission", "Private workshop", "Something else"] },
-                { type: "textarea", name: "message", label: "Message", required: true, maxLength: 3000 },
+                {
+                  type: "select",
+                  name: "topic",
+                  label: "Enquiry",
+                  width: "full",
+                  options: [
+                    "An order",
+                    "Wholesale",
+                    "Commission",
+                    "Private workshop",
+                    "Something else",
+                  ],
+                },
+                {
+                  type: "textarea",
+                  name: "message",
+                  label: "Message",
+                  required: true,
+                  maxLength: 3000,
+                },
               ],
               submitLabel: "Send",
-              success: { type: "message", message: "Thank you! Wren replies within three working days, usually from the studio." },
+              success: {
+                type: "message",
+                message:
+                  "Thank you! Wren replies within three working days, usually from the studio.",
+              },
               notifyOwner: true,
             },
           },
@@ -301,7 +430,12 @@ function contact() {
       }),
       fromPreset("contact/location@1", {
         edit: {
-          0: { name: NAME, address: "12 Holmes Street, Mystic, CT 06355", latitude: 41.3543, longitude: -71.9665 },
+          0: {
+            name: NAME,
+            address: "12 Holmes Street, Mystic, CT 06355",
+            latitude: 41.3543,
+            longitude: -71.9665,
+          },
           1: { eyebrow: "Visit", text: "Studio hours" },
           2: {
             rows: [
@@ -363,7 +497,12 @@ export const kiln: TemplateSpec = {
       name: "Charcoal & Clay",
       description: "Fired clay against charcoal and bone, with Gloock headings and soft corners.",
       choices: {
-        palette: { brand: "oklch(0.52 0.08 50)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.52 0.08 50)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "gloock-albert-sans",
         density: "comfortable",
         shape: "soft",
@@ -377,7 +516,12 @@ export const kiln: TemplateSpec = {
       name: "Celadon",
       description: "A pale celadon glaze green with Alegreya and rounded shapes.",
       choices: {
-        palette: { brand: "oklch(0.58 0.06 170)", neutral: "warm", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.58 0.06 170)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "alegreya",
         density: "airy",
         shape: "round",
@@ -391,7 +535,12 @@ export const kiln: TemplateSpec = {
       name: "Workshop",
       description: "Ink black and raw terracotta with Josefin Sans, crisp and graphic.",
       choices: {
-        palette: { brand: "oklch(0.55 0.13 40)", neutral: "warm", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.55 0.13 40)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "josefin-crimson",
         density: "comfortable",
         shape: "sharp",
@@ -550,7 +699,8 @@ export const kiln: TemplateSpec = {
               price: "$240, materials and firing included",
               image: photoUrl("pottery", 1600),
               imageAlt: "Stoneware vases on a studio shelf",
-              excerpt: "Two mornings on the wheel: centring, throwing and trimming your first cups and bowls.",
+              excerpt:
+                "Two mornings on the wheel: centring, throwing and trimming your first cups and bowls.",
             },
             "Six students, two wheels each hour, and all the clay you can use. Pieces are glazed and fired for you.\n",
           ),
@@ -566,7 +716,8 @@ export const kiln: TemplateSpec = {
               price: "$140, lunch included",
               image: photoUrl("ceramics", 1600),
               imageAlt: "Matte grey vases with dried stems",
-              excerpt: "Build a planter and a set of small dishes without a wheel. A gentle start for all ages.",
+              excerpt:
+                "Build a planter and a set of small dishes without a wheel. A gentle start for all ages.",
             },
             "Suitable for teenagers with an adult. We break for soup at noon.\n",
           ),
@@ -596,7 +747,8 @@ export const kiln: TemplateSpec = {
               price: "Free entry",
               image: photoUrl("plantPot", 1600),
               imageAlt: "A terracotta planter with a cactus",
-              excerpt: "Seconds, test pieces and one-offs at studio prices, plus cider by the river.",
+              excerpt:
+                "Seconds, test pieces and one-offs at studio prices, plus cider by the river.",
             },
             "Open 9 to 4. Cash and cards welcome.\n",
           ),

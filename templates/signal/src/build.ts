@@ -40,7 +40,11 @@ const plans = [
     price: "$0",
     period: "up to 5 responders",
     description: "For side projects and the first on-call rota.",
-    features: [{ text: "Alerts by push, SMS and Slack" }, { text: "One on-call schedule" }, { text: "Public status page" }],
+    features: [
+      { text: "Alerts by push, SMS and Slack" },
+      { text: "One on-call schedule" },
+      { text: "Public status page" },
+    ],
     buttonLabel: "Start free",
     link: url(SIGNUP),
     featured: false,
@@ -65,7 +69,11 @@ const plans = [
     price: "$39",
     period: "per responder / month",
     description: "For companies with several teams and audit needs.",
-    features: [{ text: "SSO and SCIM provisioning" }, { text: "Audit log and data residency" }, { text: "A named support engineer" }],
+    features: [
+      { text: "SSO and SCIM provisioning" },
+      { text: "Audit log and data residency" },
+      { text: "A named support engineer" },
+    ],
     buttonLabel: "Talk to us",
     link: url("/contact/"),
     featured: false,
@@ -123,18 +131,31 @@ function home() {
           0: { eyebrow: "Product", text: "Everything between the alert and the fix" },
           1: {
             heading: "Alerts that find the right person",
-            body: body("Route by service, severity and time of day. Escalate automatically if nobody acknowledges in five minutes."),
+            body: body(
+              "Route by service, severity and time of day. Escalate automatically if nobody acknowledges in five minutes.",
+            ),
             icon: "zap",
           },
-          2: { image: photo("analytics", 640, "original", "A dashboard of service health charts on a monitor") },
+          2: {
+            image: photo(
+              "analytics",
+              640,
+              "original",
+              "A dashboard of service health charts on a monitor",
+            ),
+          },
           3: {
             heading: "On-call that's fair",
-            body: body("Rotas, overrides and swaps in two clicks, with a weekly report on who got woken up."),
+            body: body(
+              "Rotas, overrides and swaps in two clicks, with a weekly report on who got woken up.",
+            ),
             icon: "calendar",
           },
           4: {
             heading: "Postmortems drafted for you",
-            body: body("Tidewire turns the incident timeline into a first draft you can edit and share."),
+            body: body(
+              "Tidewire turns the incident timeline into a first draft you can edit and share.",
+            ),
             icon: "book-open",
           },
         },
@@ -142,7 +163,14 @@ function home() {
       fromPreset("features/screenshot-callout@1", {
         theme: "light-accent",
         edit: {
-          0: { image: photo("officeDesks", 700, "original", "Standing desks by tall windows where the team works") },
+          0: {
+            image: photo(
+              "officeDesks",
+              700,
+              "original",
+              "Standing desks by tall windows where the team works",
+            ),
+          },
           1: {
             items: [
               { value: "3 s", label: "Median alert delivery" },
@@ -165,21 +193,33 @@ function home() {
         edit: {
           0: { eyebrow: "Customers", text: "Quieter nights, faster fixes" },
           1: {
-            quote: rt.doc(rt.p("We replaced three tools and a spreadsheet. Our median time to acknowledge dropped from nine minutes to under two.")),
+            quote: rt.doc(
+              rt.p(
+                "We replaced three tools and a spreadsheet. Our median time to acknowledge dropped from nine minutes to under two.",
+              ),
+            ),
             name: "Maya Okonkwo",
             role: "Head of platform, Parcelly",
             photo: photo("portraitIris", 120, "1:1", "Portrait of Maya Okonkwo"),
             rating: 5,
           },
           2: {
-            quote: rt.doc(rt.p("The postmortem drafts are uncanny. Our incident reviews now take twenty minutes instead of an afternoon.")),
+            quote: rt.doc(
+              rt.p(
+                "The postmortem drafts are uncanny. Our incident reviews now take twenty minutes instead of an afternoon.",
+              ),
+            ),
             name: "Felix Andersson",
             role: "CTO, Kitebase",
             photo: photo("portraitTheo", 120, "1:1", "Portrait of Felix Andersson"),
             rating: 5,
           },
           3: {
-            quote: rt.doc(rt.p("Set up on a Friday afternoon, paged us correctly on Saturday night. That's the whole review.")),
+            quote: rt.doc(
+              rt.p(
+                "Set up on a Friday afternoon, paged us correctly on Saturday night. That's the whole review.",
+              ),
+            ),
             name: "Rosa Lindgren",
             role: "Staff engineer, Orchard Pay",
             photo: photo("portraitClara", 120, "1:1", "Portrait of Rosa Lindgren"),
@@ -193,7 +233,8 @@ function home() {
           0: {
             eyebrow: "Pricing",
             text: "Pay per responder, not per alert",
-            subheading: "Free for small teams. Every paid plan starts with a 14-day trial, no card needed.",
+            subheading:
+              "Free for small teams. Every paid plan starts with a 14-day trial, no card needed.",
           },
           1: { plans, note: "Prices in USD, billed monthly. Save two months with annual billing." },
         },
@@ -201,25 +242,37 @@ function home() {
       fromPreset("faq/split@1", {
         edit: {
           0: { eyebrow: "FAQ", text: "Questions engineers ask" },
-          1: { content: rt.doc(rt.p("Can't find your answer? Our engineers answer support, not a script.")) },
+          1: {
+            content: rt.doc(
+              rt.p("Can't find your answer? Our engineers answer support, not a script."),
+            ),
+          },
           2: { label: "Contact support", link: page(P.contact) },
           3: {
             items: [
               {
                 question: "Which monitoring tools does Tidewire connect to?",
-                answer: body("Over 60, including Datadog, Grafana, Prometheus, Sentry, CloudWatch and any tool that can send a webhook."),
+                answer: body(
+                  "Over 60, including Datadog, Grafana, Prometheus, Sentry, CloudWatch and any tool that can send a webhook.",
+                ),
               },
               {
                 question: "Can we migrate our existing schedules?",
-                answer: body("Yes. Import rotas from a CSV or from most on-call tools in a few minutes, overrides included."),
+                answer: body(
+                  "Yes. Import rotas from a CSV or from most on-call tools in a few minutes, overrides included.",
+                ),
               },
               {
                 question: "Where is our data stored?",
-                answer: body("In the US by default, or in the EU on the Scale plan. Everything is encrypted at rest and in transit."),
+                answer: body(
+                  "In the US by default, or in the EU on the Scale plan. Everything is encrypted at rest and in transit.",
+                ),
               },
               {
                 question: "What happens if Tidewire itself goes down?",
-                answer: body("Alerting runs in three regions with automatic failover. Our own status page is hosted independently."),
+                answer: body(
+                  "Alerting runs in three regions with automatic failover. Our own status page is hosted independently.",
+                ),
               },
             ],
           },
@@ -230,9 +283,15 @@ function home() {
         edit: {
           0: {
             text: "Sleep through the night again",
-            subheading: "Free for up to five responders. Connect your first alert source in under ten minutes.",
+            subheading:
+              "Free for up to five responders. Connect your first alert source in under ten minutes.",
           },
-          1: { label: "Start free", link: url(SIGNUP), secondaryLabel: "Book a demo", secondaryLink: page(P.contact) },
+          1: {
+            label: "Start free",
+            link: url(SIGNUP),
+            secondaryLabel: "Book a demo",
+            secondaryLink: page(P.contact),
+          },
         },
       }),
     ],
@@ -254,13 +313,23 @@ function pricing() {
             subheading:
               "Pay for the people who carry the pager, not for alerts, integrations or status page subscribers. Change plans whenever you like.",
           },
-          1: { label: "Start free", link: url(SIGNUP), secondaryLabel: "Talk to sales", secondaryLink: page(P.contact) },
+          1: {
+            label: "Start free",
+            link: url(SIGNUP),
+            secondaryLabel: "Talk to sales",
+            secondaryLink: page(P.contact),
+          },
         },
       }),
       fromPreset("pricing/three-plans@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "Plans", text: "Choose a plan", subheading: "All plans include unlimited alerts, integrations and status page subscribers." },
+          0: {
+            eyebrow: "Plans",
+            text: "Choose a plan",
+            subheading:
+              "All plans include unlimited alerts, integrations and status page subscribers.",
+          },
           1: { plans, note: "Non-profits and open-source projects get Team free. Ask us." },
         },
       }),
@@ -273,10 +342,26 @@ function pricing() {
           },
           1: {
             items: [
-              { icon: "zap", title: "Unlimited alerts", text: "No per-alert or per-integration fees, ever." },
-              { icon: "globe", title: "Status page", text: "A public page on your own domain, updated from Slack." },
-              { icon: "shield-check", title: "SOC 2 Type II", text: "Audited yearly, with the report available on request." },
-              { icon: "message-circle", title: "Human support", text: "Engineers answer email within four business hours." },
+              {
+                icon: "zap",
+                title: "Unlimited alerts",
+                text: "No per-alert or per-integration fees, ever.",
+              },
+              {
+                icon: "globe",
+                title: "Status page",
+                text: "A public page on your own domain, updated from Slack.",
+              },
+              {
+                icon: "shield-check",
+                title: "SOC 2 Type II",
+                text: "Audited yearly, with the report available on request.",
+              },
+              {
+                icon: "message-circle",
+                title: "Human support",
+                text: "Engineers answer email within four business hours.",
+              },
             ],
           },
         },
@@ -292,7 +377,9 @@ function pricing() {
                 label: "Billing",
                 content: rt.doc(
                   rt.h(3, "Who counts as a responder?", "h4"),
-                  rt.p("Anyone who can be paged. Stakeholders who only read incidents and status pages are free."),
+                  rt.p(
+                    "Anyone who can be paged. Stakeholders who only read incidents and status pages are free.",
+                  ),
                   rt.h(3, "Can I pay annually?", "h4"),
                   rt.p("Yes. Annual plans get two months free and can be paid by invoice."),
                 ),
@@ -310,7 +397,9 @@ function pricing() {
                 label: "Security",
                 content: rt.doc(
                   rt.h(3, "Do you support single sign-on?", "h4"),
-                  rt.p("SAML and OIDC single sign-on with SCIM provisioning are included on the Scale plan."),
+                  rt.p(
+                    "SAML and OIDC single sign-on with SCIM provisioning are included on the Scale plan.",
+                  ),
                   rt.h(3, "Can we sign a DPA?", "h4"),
                   rt.p("Yes, on every paid plan. Download it from your account settings."),
                 ),
@@ -332,8 +421,20 @@ function about() {
     [
       fromPreset("about/story-split@1", {
         edit: {
-          0: { image: photo("teamTable", 520, "4:5", "The Tidewire team working together around a table") },
-          1: { eyebrow: "About", text: "Built by people who carried the pager", level: "h1", size: "h1" },
+          0: {
+            image: photo(
+              "teamTable",
+              520,
+              "4:5",
+              "The Tidewire team working together around a table",
+            ),
+          },
+          1: {
+            eyebrow: "About",
+            text: "Built by people who carried the pager",
+            level: "h1",
+            size: "h1",
+          },
           2: {
             content: rt.doc(
               rt.p(
@@ -349,12 +450,28 @@ function about() {
       }),
       fromPreset("about/values@1", {
         edit: {
-          0: { eyebrow: "How we work", text: "What we believe", subheading: "Three principles that shape every feature we ship." },
+          0: {
+            eyebrow: "How we work",
+            text: "What we believe",
+            subheading: "Three principles that shape every feature we ship.",
+          },
           1: {
             items: [
-              { icon: "moon", title: "Protect sleep", text: "Every alert that wakes someone up should be worth it. We help you remove the rest." },
-              { icon: "users", title: "Blameless by default", text: "Incidents are system failures, so our tools describe what happened, not who did it." },
-              { icon: "zap", title: "Fast to set up", text: "If it takes longer than an afternoon to get value, we've built it wrong." },
+              {
+                icon: "moon",
+                title: "Protect sleep",
+                text: "Every alert that wakes someone up should be worth it. We help you remove the rest.",
+              },
+              {
+                icon: "users",
+                title: "Blameless by default",
+                text: "Incidents are system failures, so our tools describe what happened, not who did it.",
+              },
+              {
+                icon: "zap",
+                title: "Fast to set up",
+                text: "If it takes longer than an afternoon to get value, we've built it wrong.",
+              },
             ],
           },
         },
@@ -362,13 +479,33 @@ function about() {
       fromPreset("team/grid@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "Team", text: "The founders", subheading: "Three engineers and a designer who met on an incident bridge at 3am." },
+          0: {
+            eyebrow: "Team",
+            text: "The founders",
+            subheading: "Three engineers and a designer who met on an incident bridge at 3am.",
+          },
           1: {
             people: [
-              { name: "Iris Nakamura", role: "CEO", photo: photo("portraitIris", 300, "4:5", "Portrait of Iris Nakamura") },
-              { name: "Daniel Okafor", role: "CTO", photo: photo("portraitDaniel", 300, "4:5", "Portrait of Daniel Okafor") },
-              { name: "Clara Weiss", role: "Head of design", photo: photo("portraitClara", 300, "4:5", "Portrait of Clara Weiss") },
-              { name: "Sam Ortega", role: "Head of reliability", photo: photo("portraitSam", 300, "4:5", "Portrait of Sam Ortega") },
+              {
+                name: "Iris Nakamura",
+                role: "CEO",
+                photo: photo("portraitIris", 300, "4:5", "Portrait of Iris Nakamura"),
+              },
+              {
+                name: "Daniel Okafor",
+                role: "CTO",
+                photo: photo("portraitDaniel", 300, "4:5", "Portrait of Daniel Okafor"),
+              },
+              {
+                name: "Clara Weiss",
+                role: "Head of design",
+                photo: photo("portraitClara", 300, "4:5", "Portrait of Clara Weiss"),
+              },
+              {
+                name: "Sam Ortega",
+                role: "Head of reliability",
+                photo: photo("portraitSam", 300, "4:5", "Portrait of Sam Ortega"),
+              },
             ],
           },
         },
@@ -390,22 +527,49 @@ function contact() {
             eyebrow: "Contact",
             text: "Talk to an engineer, not a script",
             level: "h1",
-            subheading: "Demos, migrations, security questionnaires or pricing for larger teams. We reply within one business day.",
+            subheading:
+              "Demos, migrations, security questionnaires or pricing for larger teams. We reply within one business day.",
           },
-          1: { name: "Tidewire, Inc.", address: "Remote · incorporated in Delaware", phone: undefined, email: "hello@tidewire.example" },
+          1: {
+            name: "Tidewire, Inc.",
+            address: "Remote · incorporated in Delaware",
+            phone: undefined,
+            email: "hello@tidewire.example",
+          },
           2: {
             form: {
               id: formId(),
               name: "Sales enquiry",
               fields: [
                 { type: "text", name: "name", label: "Name", required: true, width: "half" },
-                { type: "email", name: "email", label: "Work email", required: true, width: "half" },
+                {
+                  type: "email",
+                  name: "email",
+                  label: "Work email",
+                  required: true,
+                  width: "half",
+                },
                 { type: "text", name: "company", label: "Company", width: "half" },
-                { type: "select", name: "responders", label: "Responders", width: "half", options: ["1 – 5", "6 – 25", "26 – 100", "More than 100"] },
-                { type: "textarea", name: "message", label: "How can we help?", required: true, maxLength: 3000 },
+                {
+                  type: "select",
+                  name: "responders",
+                  label: "Responders",
+                  width: "half",
+                  options: ["1 – 5", "6 – 25", "26 – 100", "More than 100"],
+                },
+                {
+                  type: "textarea",
+                  name: "message",
+                  label: "How can we help?",
+                  required: true,
+                  maxLength: 3000,
+                },
               ],
               submitLabel: "Send",
-              success: { type: "message", message: "Thanks! An engineer will reply within one business day." },
+              success: {
+                type: "message",
+                message: "Thanks! An engineer will reply within one business day.",
+              },
               notifyOwner: true,
             },
           },
@@ -429,9 +593,15 @@ export const signal: TemplateSpec = {
     {
       id: "electric",
       name: "Electric",
-      description: "Near-black chrome with an electric violet accent and Bricolage Grotesque headings.",
+      description:
+        "Near-black chrome with an electric violet accent and Bricolage Grotesque headings.",
       choices: {
-        palette: { brand: "oklch(0.55 0.25 285)", neutral: "cool", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.55 0.25 285)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "bricolage-geist",
         density: "comfortable",
         shape: "soft",
@@ -445,7 +615,12 @@ export const signal: TemplateSpec = {
       name: "Terminal",
       description: "IBM Plex Mono headings and a signal-green accent for developer tools.",
       choices: {
-        palette: { brand: "oklch(0.55 0.15 150)", neutral: "cool", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.55 0.15 150)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "plex-mono-plex-sans",
         density: "compact",
         shape: "sharp",
@@ -457,9 +632,15 @@ export const signal: TemplateSpec = {
     {
       id: "sunrise",
       name: "Sunrise",
-      description: "A warm coral accent with Unbounded headings and pill buttons, for consumer launches.",
+      description:
+        "A warm coral accent with Unbounded headings and pill buttons, for consumer launches.",
       choices: {
-        palette: { brand: "oklch(0.65 0.18 30)", neutral: "warm", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.65 0.18 30)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "unbounded-figtree",
         density: "comfortable",
         shape: "round",
@@ -487,7 +668,12 @@ export const signal: TemplateSpec = {
         footer: fromPreset("footer/columns@1", {
           edit: {
             0: {
-              content: rt.doc(rt.p(NAME, "lead"), rt.p("Incident response for small engineering teams. Made remotely, in nine time zones.")),
+              content: rt.doc(
+                rt.p(NAME, "lead"),
+                rt.p(
+                  "Incident response for small engineering teams. Made remotely, in nine time zones.",
+                ),
+              ),
             },
             1: { profiles: [] },
             2: {
@@ -510,7 +696,10 @@ export const signal: TemplateSpec = {
             4: {
               content: rt.doc(
                 rt.p("Product updates", "eyebrow"),
-                rt.p(["New features every two weeks, written by the engineers who built them. ", rt.link("Read the changelog", "/changelog/")]),
+                rt.p([
+                  "New features every two weeks, written by the engineers who built them. ",
+                  rt.link("Read the changelog", "/changelog/"),
+                ]),
                 rt.p("© 2026 Tidewire, Inc.", "small"),
               ),
             },
@@ -546,7 +735,11 @@ export const signal: TemplateSpec = {
             ],
             tags: false,
           },
-          feed: { enabled: true, title: "Tidewire changelog", description: "What's new in Tidewire." },
+          feed: {
+            enabled: true,
+            title: "Tidewire changelog",
+            description: "What's new in Tidewire.",
+          },
         },
       },
       collections: {
@@ -558,7 +751,8 @@ export const signal: TemplateSpec = {
               date: "2026-10-20",
               author: "Clara Weiss",
               categories: ["new"],
-              excerpt: "Declare an incident in Slack and your public status page updates within seconds.",
+              excerpt:
+                "Declare an incident in Slack and your public status page updates within seconds.",
             },
             `Status pages now follow your incidents automatically.
 

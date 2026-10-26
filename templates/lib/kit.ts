@@ -429,7 +429,7 @@ export interface PageOpts {
   /** Share image (a photo URL); defaults to the site's. */
   image?: string;
   seoTitle?: string;
-  header?: { transparentOnHero?: boolean; variant?: import("@openspace/schema").HeaderVariant };
+  header?: import("@openspace/schema").HeaderOverride;
 }
 
 /** A page with SEO description (50–160 characters). */

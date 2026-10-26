@@ -48,7 +48,12 @@ function home() {
       fromPreset("hero/full-bleed-photo@1", {
         style: {
           background: photoBackground(
-            photo("friendsSunset", 1440, "original", "Volunteers with their arms around each other at sunset"),
+            photo(
+              "friendsSunset",
+              1440,
+              "original",
+              "Volunteers with their arms around each other at sunset",
+            ),
             0.5,
             [0.5, 0.45],
           ),
@@ -92,7 +97,12 @@ function home() {
           1: {
             items: [
               {
-                image: photo("sharedTable", 420, "4:5", "Volunteers and neighbors talking over a long table"),
+                image: photo(
+                  "sharedTable",
+                  420,
+                  "4:5",
+                  "Volunteers and neighbors talking over a long table",
+                ),
                 heading: "Penn Avenue Pantry",
                 body: body(
                   "Fresh produce, dairy and staples three days a week, chosen like a grocery store. No paperwork, no questions.",
@@ -101,7 +111,12 @@ function home() {
                 linkLabel: "Visit the pantry",
               },
               {
-                image: photo("kidsSmiling", 420, "4:5", "Children grinning at the camera after homework club"),
+                image: photo(
+                  "kidsSmiling",
+                  420,
+                  "4:5",
+                  "Children grinning at the camera after homework club",
+                ),
                 heading: "Homework Harbor",
                 body: body(
                   "After-school tutoring, a hot snack and a quiet table for 80 kids, every school day from 3 to 6.",
@@ -110,7 +125,12 @@ function home() {
                 linkLabel: "About Homework Harbor",
               },
               {
-                image: photo("porchHouse", 420, "4:5", "A white clapboard house with a porch after repairs"),
+                image: photo(
+                  "porchHouse",
+                  420,
+                  "4:5",
+                  "A white clapboard house with a porch after repairs",
+                ),
                 heading: "Safe at Home",
                 body: body(
                   "Free ramps, railings, roof patches and furnace checks so older neighbors can stay in the houses they love.",
@@ -135,7 +155,12 @@ function home() {
       fromPreset("testimonials/photo-overlap@1", {
         edit: {
           0: {
-            image: photo("gardenTrowel", 960, "original", "Volunteer hands planting seedlings in the community garden"),
+            image: photo(
+              "gardenTrowel",
+              960,
+              "original",
+              "Volunteer hands planting seedlings in the community garden",
+            ),
           },
           1: {
             quote: rt.doc(
@@ -181,7 +206,12 @@ function programs() {
       fromPreset("hero/split-landscape@1", {
         edit: {
           0: {
-            image: photo("kidsSmiling", 760, "3:2", "Children at Homework Harbor making peace signs"),
+            image: photo(
+              "kidsSmiling",
+              760,
+              "3:2",
+              "Children at Homework Harbor making peace signs",
+            ),
           },
           1: {
             eyebrow: "Programs",
@@ -200,7 +230,14 @@ function programs() {
       fromPreset("services/alternating@1", {
         anchor: "pantry",
         edit: {
-          0: { image: photo("sharedTable", 640, "original", "Neighbors chatting at a long table at the pantry") },
+          0: {
+            image: photo(
+              "sharedTable",
+              640,
+              "original",
+              "Neighbors chatting at a long table at the pantry",
+            ),
+          },
           1: {
             content: rt.doc(
               rt.p("Tuesday, Thursday & Saturday", "eyebrow"),
@@ -211,7 +248,14 @@ function programs() {
               rt.p([rt.link("Pantry hours and address →", "/contact/")]),
             ),
           },
-          2: { image: photo("kidsSmiling", 640, "original", "Kids from Homework Harbor smiling together") },
+          2: {
+            image: photo(
+              "kidsSmiling",
+              640,
+              "original",
+              "Kids from Homework Harbor smiling together",
+            ),
+          },
           3: {
             content: rt.doc(
               rt.p("School days, 3–6pm", "eyebrow"),
@@ -232,15 +276,21 @@ function programs() {
             items: [
               {
                 heading: "Call or write to us",
-                body: body("Tell us what needs fixing. Homeowners aged 62 and over, or living with a disability, qualify."),
+                body: body(
+                  "Tell us what needs fixing. Homeowners aged 62 and over, or living with a disability, qualify.",
+                ),
               },
               {
                 heading: "A volunteer visits",
-                body: body("A licensed contractor from our crew looks at the job and explains what we can do, usually within two weeks."),
+                body: body(
+                  "A licensed contractor from our crew looks at the job and explains what we can do, usually within two weeks.",
+                ),
               },
               {
                 heading: "We fix it, free",
-                body: body("Ramps, rails, roofs and furnaces are repaired by volunteers, with materials paid for by donors."),
+                body: body(
+                  "Ramps, rails, roofs and furnaces are repaired by volunteers, with materials paid for by donors.",
+                ),
               },
             ],
           },
@@ -251,26 +301,38 @@ function programs() {
         edit: {
           0: { eyebrow: "Questions", text: "Getting help" },
           1: {
-            content: rt.doc(rt.p("Not sure if a program is right for you? Call the front desk and we'll talk it through.")),
+            content: rt.doc(
+              rt.p(
+                "Not sure if a program is right for you? Call the front desk and we'll talk it through.",
+              ),
+            ),
           },
           2: { label: "Contact us", link: page(P.contact) },
           3: {
             items: [
               {
                 question: "Do I need ID or proof of income for the pantry?",
-                answer: body("No. Just give us your first name and zip code so we can plan how much food to order."),
+                answer: body(
+                  "No. Just give us your first name and zip code so we can plan how much food to order.",
+                ),
               },
               {
                 question: "Is there a cost for Homework Harbor?",
-                answer: body("Never. Snacks, supplies and tutoring are free for every student who enrolls."),
+                answer: body(
+                  "Never. Snacks, supplies and tutoring are free for every student who enrolls.",
+                ),
               },
               {
                 question: "Can renters ask for repairs?",
-                answer: body("Safe at Home is for homeowners, but we'll connect renters with the tenants' union and city inspectors."),
+                answer: body(
+                  "Safe at Home is for homeowners, but we'll connect renters with the tenants' union and city inspectors.",
+                ),
               },
               {
                 question: "Do you offer help in other languages?",
-                answer: body("Volunteers speak Spanish, Nepali and Arabic on pantry days, and we can arrange interpreters for repair visits."),
+                answer: body(
+                  "Volunteers speak Spanish, Nepali and Arabic on pantry days, and we can arrange interpreters for repair visits.",
+                ),
               },
             ],
           },
@@ -326,7 +388,14 @@ function involved() {
       fromPreset("cta/card-over-photo@1", {
         anchor: "volunteer",
         edit: {
-          0: { image: photo("friendsSunset", 1100, "original", "Volunteers with their arms around each other at sunset") },
+          0: {
+            image: photo(
+              "friendsSunset",
+              1100,
+              "original",
+              "Volunteers with their arms around each other at sunset",
+            ),
+          },
           1: {
             content: rt.doc(
               rt.h(2, "Spend a Saturday with us", "h2"),
@@ -346,19 +415,29 @@ function involved() {
             items: [
               {
                 question: "How much of my gift goes to programs?",
-                answer: body("94 cents of every dollar. Our annual report and audited accounts are on the About page."),
+                answer: body(
+                  "94 cents of every dollar. Our annual report and audited accounts are on the About page.",
+                ),
               },
               {
                 question: "Can I give in honor of someone?",
-                answer: body("Yes. Add their name at checkout and we'll send a card to them or their family."),
+                answer: body(
+                  "Yes. Add their name at checkout and we'll send a card to them or their family.",
+                ),
               },
               {
                 question: "Do you accept food donations?",
-                answer: body("Fresh produce, yes, on pantry mornings. For packaged food, a cash gift buys about three times as much."),
+                answer: body(
+                  "Fresh produce, yes, on pantry mornings. For packaged food, a cash gift buys about three times as much.",
+                ),
               },
             ],
           },
-          2: { label: "Talk to our development team", link: page(P.contact), note: "We reply within two working days." },
+          2: {
+            label: "Talk to our development team",
+            link: page(P.contact),
+            note: "We reply within two working days.",
+          },
         },
       }),
     ],
@@ -410,14 +489,31 @@ function about() {
           0: {
             eyebrow: "Staff",
             text: "The people behind the programs",
-            subheading: "Nine staff, most of whom first came to Riverbend as volunteers or neighbors.",
+            subheading:
+              "Nine staff, most of whom first came to Riverbend as volunteers or neighbors.",
           },
           1: {
             people: [
-              { name: "Simone Achterberg", role: "Executive director", photo: photo("portraitNina", 300, "4:5", "Portrait of Simone Achterberg") },
-              { name: "Marcus Ellery", role: "Pantry manager", photo: photo("portraitMarcus", 300, "4:5", "Portrait of Marcus Ellery") },
-              { name: "Ana Ruiz-Patel", role: "Youth programs lead", photo: photo("portraitAna", 300, "4:5", "Portrait of Ana Ruiz-Patel") },
-              { name: "Sam Whitfield", role: "Repair crew coordinator", photo: photo("portraitSam", 300, "4:5", "Portrait of Sam Whitfield") },
+              {
+                name: "Simone Achterberg",
+                role: "Executive director",
+                photo: photo("portraitNina", 300, "4:5", "Portrait of Simone Achterberg"),
+              },
+              {
+                name: "Marcus Ellery",
+                role: "Pantry manager",
+                photo: photo("portraitMarcus", 300, "4:5", "Portrait of Marcus Ellery"),
+              },
+              {
+                name: "Ana Ruiz-Patel",
+                role: "Youth programs lead",
+                photo: photo("portraitAna", 300, "4:5", "Portrait of Ana Ruiz-Patel"),
+              },
+              {
+                name: "Sam Whitfield",
+                role: "Repair crew coordinator",
+                photo: photo("portraitSam", 300, "4:5", "Portrait of Sam Whitfield"),
+              },
             ],
           },
         },
@@ -432,9 +528,21 @@ function about() {
           },
           1: {
             items: [
-              { value: "94%", label: "Programs", detail: "Food, tutoring, repair materials and the staff who run them." },
-              { value: "4%", label: "Fundraising", detail: "Mailings, events and our small donor database." },
-              { value: "2%", label: "Administration", detail: "Audit, insurance and keeping the lights on." },
+              {
+                value: "94%",
+                label: "Programs",
+                detail: "Food, tutoring, repair materials and the staff who run them.",
+              },
+              {
+                value: "4%",
+                label: "Fundraising",
+                detail: "Mailings, events and our small donor database.",
+              },
+              {
+                value: "2%",
+                label: "Administration",
+                detail: "Audit, insurance and keeping the lights on.",
+              },
             ],
           },
         },
@@ -444,7 +552,8 @@ function about() {
           0: {
             eyebrow: "Partners",
             text: "Good work is never done alone",
-            subheading: "Farms, schools, congregations and businesses who share food, space and expertise.",
+            subheading:
+              "Farms, schools, congregations and businesses who share food, space and expertise.",
           },
           1: {
             logos: [
@@ -477,7 +586,8 @@ function contact() {
             eyebrow: "Contact",
             text: "Ask for help, or offer it",
             level: "h1",
-            subheading: "Write to us about any program, volunteering or a donation. Someone will reply within two working days.",
+            subheading:
+              "Write to us about any program, volunteering or a donation. Someone will reply within two working days.",
           },
           1: { name: NAME, address: ADDRESS, phone: PHONE, email: EMAIL },
           2: {
@@ -492,12 +602,28 @@ function contact() {
                   name: "topic",
                   label: "I'm writing about",
                   width: "full",
-                  options: ["Getting groceries", "Homework Harbor", "A home repair", "Volunteering", "Donating", "Something else"],
+                  options: [
+                    "Getting groceries",
+                    "Homework Harbor",
+                    "A home repair",
+                    "Volunteering",
+                    "Donating",
+                    "Something else",
+                  ],
                 },
-                { type: "textarea", name: "message", label: "Message", required: true, maxLength: 3000 },
+                {
+                  type: "textarea",
+                  name: "message",
+                  label: "Message",
+                  required: true,
+                  maxLength: 3000,
+                },
               ],
               submitLabel: "Send message",
-              success: { type: "message", message: "Thank you. We'll reply within two working days." },
+              success: {
+                type: "message",
+                message: "Thank you. We'll reply within two working days.",
+              },
               notifyOwner: true,
             },
           },
@@ -546,9 +672,15 @@ export const harbor: TemplateSpec = {
     {
       id: "harbor-blue",
       name: "Harbor Blue",
-      description: "Deep civic blue on warm paper with a signal-orange accent and Newsreader headings.",
+      description:
+        "Deep civic blue on warm paper with a signal-orange accent and Newsreader headings.",
       choices: {
-        palette: { brand: "oklch(0.42 0.12 255)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.42 0.12 255)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "newsreader-public-sans",
         density: "comfortable",
         shape: "soft",
@@ -563,7 +695,12 @@ export const harbor: TemplateSpec = {
       name: "Signal",
       description: "A bright call-to-action orange with Zilla Slab headings and square corners.",
       choices: {
-        palette: { brand: "oklch(0.68 0.19 45)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.68 0.19 45)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "zilla-slab-inter",
         density: "comfortable",
         shape: "sharp",
@@ -575,9 +712,15 @@ export const harbor: TemplateSpec = {
     {
       id: "riverside",
       name: "Riverside",
-      description: "Steady forest green with Merriweather and Open Sans, round buttons and a calmer pace.",
+      description:
+        "Steady forest green with Merriweather and Open Sans, round buttons and a calmer pace.",
       choices: {
-        palette: { brand: "oklch(0.4 0.07 150)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.4 0.07 150)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "merriweather-open-sans",
         density: "airy",
         shape: "round",
@@ -604,7 +747,8 @@ export const harbor: TemplateSpec = {
         header: headerFrom("header/classic@1", { sticky: true }),
         announcement: {
           enabled: true,
-          message: "Winter coat drive: drop off new or gently used coats at the pantry through December 19.",
+          message:
+            "Winter coat drive: drop off new or gently used coats at the pantry through December 19.",
           link: page(P.involved),
           dismissible: true,
         },
@@ -613,7 +757,9 @@ export const harbor: TemplateSpec = {
             0: {
               content: rt.doc(
                 rt.p(NAME, "lead"),
-                rt.p("Food, homework help and home repairs in Lawrenceville since 2004. A 501(c)(3) nonprofit, EIN 25-1234567."),
+                rt.p(
+                  "Food, homework help and home repairs in Lawrenceville since 2004. A 501(c)(3) nonprofit, EIN 25-1234567.",
+                ),
               ),
             },
             1: { profiles: [] },
@@ -652,7 +798,8 @@ export const harbor: TemplateSpec = {
         ],
         seo: {
           titleTemplate: "%s · Riverbend Neighbors",
-          description: "Free groceries, homework help and home repairs in Lawrenceville, Pittsburgh.",
+          description:
+            "Free groceries, homework help and home repairs in Lawrenceville, Pittsburgh.",
           image: photoUrl("friendsBench", 1200),
         },
         locale: "en-US",
@@ -680,7 +827,11 @@ export const harbor: TemplateSpec = {
             ],
             tags: true,
           },
-          feed: { enabled: true, title: "Riverbend Neighbors news", description: "Stories and updates from Penn Avenue." },
+          feed: {
+            enabled: true,
+            title: "Riverbend Neighbors news",
+            description: "Stories and updates from Penn Avenue.",
+          },
         },
       },
       collections: {
@@ -744,7 +895,8 @@ export const harbor: TemplateSpec = {
               price: "Pay what you can",
               image: photoUrl("sharedTable", 1600),
               imageAlt: "Friends talking over a long shared table",
-              excerpt: "Our yearly supper for volunteers, neighbors and donors, cooked by Homework Harbor families.",
+              excerpt:
+                "Our yearly supper for volunteers, neighbors and donors, cooked by Homework Harbor families.",
             },
             "Proceeds support the summer lunch program. Children eat free.\n",
           ),
@@ -760,7 +912,8 @@ export const harbor: TemplateSpec = {
               tags: ["accountability"],
               image: photoUrl("meeting", 1600),
               imageAlt: "The board listening to a presentation",
-              excerpt: "41,200 grocery visits, 146 homes made safe and what we're changing next year.",
+              excerpt:
+                "41,200 grocery visits, 146 homes made safe and what we're changing next year.",
             },
             `Every autumn we publish our numbers in full, along with what we learned.
 
@@ -785,7 +938,8 @@ Lines at the pantry got long on Saturday mornings, so from January we're adding 
               tags: ["safe at home", "volunteers"],
               image: photoUrl("porchHouse", 1600),
               imageAlt: "A house with a freshly repaired porch",
-              excerpt: "Retired electricians, a roofer and two engineering students walk into a basement.",
+              excerpt:
+                "Retired electricians, a roofer and two engineering students walk into a basement.",
             },
             `Our Safe at Home crew is twelve volunteers who give one Saturday a month. Between them they have more than 200 years in the trades.
 

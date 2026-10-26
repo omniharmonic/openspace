@@ -8,14 +8,6 @@
  * builds the same documents in memory (no filesystem), so it also runs inside a Worker.
  */
 import type { SiteDocument } from "@openspace/schema";
-import {
-  type BuiltTemplate,
-  buildTemplate,
-  type Licenses,
-  type TemplateMeta,
-  type TemplateSpec,
-} from "./lib/define";
-import { documentFiles, formatJson } from "./lib/files";
 import { atelier } from "./atelier/src/build";
 import { commons } from "./commons/src/build";
 import { encore } from "./encore/src/build";
@@ -24,6 +16,14 @@ import { harbor } from "./harbor/src/build";
 import { hearth } from "./hearth/src/build";
 import { kiln } from "./kiln/src/build";
 import { ledger } from "./ledger/src/build";
+import {
+  type BuiltTemplate,
+  buildTemplate,
+  type Licenses,
+  type TemplateMeta,
+  type TemplateSpec,
+} from "./lib/define";
+import { documentFiles, formatJson } from "./lib/files";
 import { link } from "./link/src/build";
 import { meadow } from "./meadow/src/build";
 import { signal } from "./signal/src/build";

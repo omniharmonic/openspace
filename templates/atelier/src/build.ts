@@ -41,7 +41,8 @@ const projects = [
     title: "Cordillera",
     year: 2026,
     client: "Personal project",
-    excerpt: "Three winters above the treeline in the San Juan Mountains, waiting for the light to go flat.",
+    excerpt:
+      "Three winters above the treeline in the San Juan Mountains, waiting for the light to go flat.",
     cover: "mountainLake" as const,
     gallery: ["mountainLake", "lake", "valley", "cliffs"] as const,
   },
@@ -59,7 +60,8 @@ const projects = [
     title: "Salt & Glass",
     year: 2025,
     client: "Commission, Tidewater Hotels",
-    excerpt: "The Pacific coast from above and at eye level, for a hotel group's new coastal lodges.",
+    excerpt:
+      "The Pacific coast from above and at eye level, for a hotel group's new coastal lodges.",
     cover: "coast" as const,
     gallery: ["coast", "beach", "ocean", "cliffs"] as const,
   },
@@ -87,11 +89,46 @@ function home() {
         edit: {
           0: {
             images: [
-              { image: photo("mountainLake", 1440, "3:2", "Snowy peaks reflected in a still mountain lake, from Cordillera") },
-              { image: photo("architecture", 1440, "3:2", "A white angular building against a clear sky, from White City") },
-              { image: photo("coast", 1440, "3:2", "Turquoise surf meeting a sandy shore from above, from Salt & Glass") },
-              { image: photo("meadow", 1440, "3:2", "Wild poppies scattered through a summer meadow, from Field Studies") },
-              { image: photo("valley", 1440, "3:2", "A misty river valley with pines at dawn, from Cordillera") },
+              {
+                image: photo(
+                  "mountainLake",
+                  1440,
+                  "3:2",
+                  "Snowy peaks reflected in a still mountain lake, from Cordillera",
+                ),
+              },
+              {
+                image: photo(
+                  "architecture",
+                  1440,
+                  "3:2",
+                  "A white angular building against a clear sky, from White City",
+                ),
+              },
+              {
+                image: photo(
+                  "coast",
+                  1440,
+                  "3:2",
+                  "Turquoise surf meeting a sandy shore from above, from Salt & Glass",
+                ),
+              },
+              {
+                image: photo(
+                  "meadow",
+                  1440,
+                  "3:2",
+                  "Wild poppies scattered through a summer meadow, from Field Studies",
+                ),
+              },
+              {
+                image: photo(
+                  "valley",
+                  1440,
+                  "3:2",
+                  "A misty river valley with pines at dawn, from Cordillera",
+                ),
+              },
             ],
             lightbox: true,
           },
@@ -99,7 +136,10 @@ function home() {
       }),
       fromPreset("hero/big-type@1", {
         edit: {
-          0: { eyebrow: "Elias Varga · Photographer", text: "Land, light and the buildings between" },
+          0: {
+            eyebrow: "Elias Varga · Photographer",
+            text: "Land, light and the buildings between",
+          },
           1: {
             content: rt.doc(
               rt.p(
@@ -164,7 +204,11 @@ function home() {
         theme: "dark",
         edit: {
           0: { eyebrow: "Commissions", text: "Booking spring 2027 commissions now" },
-          1: { label: "Start a conversation", link: page(P.contact), note: "Architecture, hospitality and editorial." },
+          1: {
+            label: "Start a conversation",
+            link: page(P.contact),
+            note: "Architecture, hospitality and editorial.",
+          },
         },
       }),
     ],
@@ -193,12 +237,21 @@ function work() {
       ),
       fromPreset("gallery/project-feature@1", {
         edit: {
-          0: { image: photo("lake", 1440, "original", "A rowing boat on a turquoise lake below jagged peaks") },
+          0: {
+            image: photo(
+              "lake",
+              1440,
+              "original",
+              "A rowing boat on a turquoise lake below jagged peaks",
+            ),
+          },
           1: {
             content: rt.doc(
               rt.p("Project · 2026", "eyebrow"),
               rt.h(2, "Cordillera", "h2"),
-              rt.p("Three winters above the treeline in the San Juan Mountains, waiting for the light to go flat and the colour to drain out of the snow."),
+              rt.p(
+                "Three winters above the treeline in the San Juan Mountains, waiting for the light to go flat and the colour to drain out of the snow.",
+              ),
             ),
           },
           2: { image: photo("valley", 520, "original", "Mist rising from a river valley at dawn") },
@@ -210,13 +263,57 @@ function work() {
           0: { eyebrow: "Single frames", text: "From the contact sheets" },
           1: {
             images: [
-              { image: photo("bridge", 460, "original", "A walker crossing a suspension bridge into the forest") },
-              { image: photo("street", 460, "original", "A downtown street of tall buildings and yellow cabs") },
-              { image: photo("road", 460, "original", "A desert road running toward red rock mountains") },
-              { image: photo("forest", 460, "original", "Sunlight through tall trees onto a forest path") },
-              { image: photo("poppies", 460, "original", "Orange poppies against a clear blue sky") },
-              { image: photo("city", 460, "original", "A city skyline stretching to the lake at golden hour") },
-              { image: photo("hills", 460, "original", "Green hills from above, ridges catching the light") },
+              {
+                image: photo(
+                  "bridge",
+                  460,
+                  "original",
+                  "A walker crossing a suspension bridge into the forest",
+                ),
+              },
+              {
+                image: photo(
+                  "street",
+                  460,
+                  "original",
+                  "A downtown street of tall buildings and yellow cabs",
+                ),
+              },
+              {
+                image: photo(
+                  "road",
+                  460,
+                  "original",
+                  "A desert road running toward red rock mountains",
+                ),
+              },
+              {
+                image: photo(
+                  "forest",
+                  460,
+                  "original",
+                  "Sunlight through tall trees onto a forest path",
+                ),
+              },
+              {
+                image: photo("poppies", 460, "original", "Orange poppies against a clear blue sky"),
+              },
+              {
+                image: photo(
+                  "city",
+                  460,
+                  "original",
+                  "A city skyline stretching to the lake at golden hour",
+                ),
+              },
+              {
+                image: photo(
+                  "hills",
+                  460,
+                  "original",
+                  "Green hills from above, ridges catching the light",
+                ),
+              },
             ],
             lightbox: true,
           },
@@ -235,7 +332,14 @@ function commissions() {
     [
       fromPreset("hero/split-landscape@1", {
         edit: {
-          0: { image: photo("poolHouse", 760, "3:2", "A white villa with a pool framed by palms, shot for a hotel commission") },
+          0: {
+            image: photo(
+              "poolHouse",
+              760,
+              "3:2",
+              "A white villa with a pool framed by palms, shot for a hotel commission",
+            ),
+          },
           1: {
             eyebrow: "Commissions & prints",
             text: "Photographs made for a place",
@@ -255,9 +359,24 @@ function commissions() {
           0: { eyebrow: "Working together", text: "How a commission runs" },
           1: {
             items: [
-              { heading: "A walk-through", body: body("We visit the site together, or talk it through on a call, and agree on the light and the shot list.") },
-              { heading: "Days on location", body: body("I shoot over two to five days, returning at the hours the building or land looks its best.") },
-              { heading: "Edit and delivery", body: body("Within three weeks you receive a tight, retouched edit and licensed files for print and web.") },
+              {
+                heading: "A walk-through",
+                body: body(
+                  "We visit the site together, or talk it through on a call, and agree on the light and the shot list.",
+                ),
+              },
+              {
+                heading: "Days on location",
+                body: body(
+                  "I shoot over two to five days, returning at the hours the building or land looks its best.",
+                ),
+              },
+              {
+                heading: "Edit and delivery",
+                body: body(
+                  "Within three weeks you receive a tight, retouched edit and licensed files for print and web.",
+                ),
+              },
             ],
           },
           2: { label: "Ask about availability", link: page(P.contact) },
@@ -317,7 +436,9 @@ function about() {
     [
       fromPreset("about/story-split@1", {
         edit: {
-          0: { image: photo("portraitTheo", 520, "4:5", "Portrait of the photographer Elias Varga") },
+          0: {
+            image: photo("portraitTheo", 520, "4:5", "Portrait of the photographer Elias Varga"),
+          },
           1: { eyebrow: "About", text: "Elias Varga", level: "h1", size: "h1" },
           2: {
             content: rt.doc(
@@ -335,13 +456,33 @@ function about() {
       fromPreset("about/milestones@1", {
         theme: "light-accent",
         edit: {
-          0: { eyebrow: "Selected", text: "Exhibitions & books", subheading: "Solo shows, publications and awards since 2018." },
+          0: {
+            eyebrow: "Selected",
+            text: "Exhibitions & books",
+            subheading: "Solo shows, publications and awards since 2018.",
+          },
           1: {
             items: [
-              { date: "2026", title: "Cordillera", text: "Solo exhibition at the Lowry Gallery, Denver, with a limited-run catalogue." },
-              { date: "2025", title: "White City", text: "Monograph published by Halden Press; shortlisted for the Field & Form book prize." },
-              { date: "2023", title: "Coastlines", text: "Group show at the Kessler Foundation for Photography, Portland." },
-              { date: "2018", title: "First commission", text: "Twelve modernist houses in Palm Springs for The Modern House Review." },
+              {
+                date: "2026",
+                title: "Cordillera",
+                text: "Solo exhibition at the Lowry Gallery, Denver, with a limited-run catalogue.",
+              },
+              {
+                date: "2025",
+                title: "White City",
+                text: "Monograph published by Halden Press; shortlisted for the Field & Form book prize.",
+              },
+              {
+                date: "2023",
+                title: "Coastlines",
+                text: "Group show at the Kessler Foundation for Photography, Portland.",
+              },
+              {
+                date: "2018",
+                title: "First commission",
+                text: "Twelve modernist houses in Palm Springs for The Modern House Review.",
+              },
             ],
           },
         },
@@ -363,7 +504,8 @@ function contact() {
             eyebrow: "Contact",
             text: "Tell me about the place",
             level: "h1",
-            subheading: "Commissions, licensing and print orders all start here. I reply personally within two working days.",
+            subheading:
+              "Commissions, licensing and print orders all start here. I reply personally within two working days.",
           },
           1: {
             name: "Elias Varga Studio",
@@ -385,10 +527,19 @@ function contact() {
                   width: "full",
                   options: ["Commission", "Print order", "Image licensing", "Exhibition or press"],
                 },
-                { type: "textarea", name: "message", label: "Tell me more", required: true, maxLength: 3000 },
+                {
+                  type: "textarea",
+                  name: "message",
+                  label: "Tell me more",
+                  required: true,
+                  maxLength: 3000,
+                },
               ],
               submitLabel: "Send enquiry",
-              success: { type: "message", message: "Thank you. I'll be in touch within two working days." },
+              success: {
+                type: "message",
+                message: "Thank you. I'll be in touch within two working days.",
+              },
               notifyOwner: true,
             },
           },
@@ -412,9 +563,15 @@ export const atelier: TemplateSpec = {
     {
       id: "monochrome",
       name: "Monochrome",
-      description: "Ink and white with a single vermilion accent, Instrument Serif headings and square corners.",
+      description:
+        "Ink and white with a single vermilion accent, Instrument Serif headings and square corners.",
       choices: {
-        palette: { brand: "oklch(0.25 0 0)", neutral: "pure", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.25 0 0)",
+          neutral: "pure",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "instrument",
         density: "airy",
         shape: "sharp",
@@ -427,9 +584,15 @@ export const atelier: TemplateSpec = {
     {
       id: "gallery-blue",
       name: "Gallery Blue",
-      description: "Cool greys with a deep ultramarine accent, Bodoni headings and outlined buttons.",
+      description:
+        "Cool greys with a deep ultramarine accent, Bodoni headings and outlined buttons.",
       choices: {
-        palette: { brand: "oklch(0.42 0.18 268)", neutral: "cool", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.42 0.18 268)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "bodoni-montserrat",
         density: "airy",
         shape: "sharp",
@@ -443,7 +606,12 @@ export const atelier: TemplateSpec = {
       name: "Darkroom",
       description: "Warm, print-like neutrals and EB Garamond for an archival, darkroom feel.",
       choices: {
-        palette: { brand: "oklch(0.45 0.05 60)", neutral: "warm", contrast: "standard", source: "brand" },
+        palette: {
+          brand: "oklch(0.45 0.05 60)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "brand",
+        },
         pairing: "eb-garamond-inter",
         density: "comfortable",
         shape: "soft",
@@ -468,11 +636,24 @@ export const atelier: TemplateSpec = {
         header: headerFrom("header/minimal@1", { sticky: false }),
         footer: fromPreset("footer/minimal-row@1", {
           edit: {
-            0: { content: rt.doc(rt.p("© 2026 Elias Varga. All photographs are the property of the artist.", "small")) },
+            0: {
+              content: rt.doc(
+                rt.p(
+                  "© 2026 Elias Varga. All photographs are the property of the artist.",
+                  "small",
+                ),
+              ),
+            },
             1: {
               content: rt.doc(
                 rt.p(
-                  [rt.link("Instagram", "https://instagram.com/eliasvarga.example"), " · ", rt.link("Email", `mailto:${EMAIL}`), " · ", rt.link("Prints", "/commissions/#prints")],
+                  [
+                    rt.link("Instagram", "https://instagram.com/eliasvarga.example"),
+                    " · ",
+                    rt.link("Email", `mailto:${EMAIL}`),
+                    " · ",
+                    rt.link("Prints", "/commissions/#prints"),
+                  ],
                   "small",
                 ),
               ),
@@ -524,4 +705,3 @@ export const atelier: TemplateSpec = {
     };
   },
 };
-

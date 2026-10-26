@@ -1,6 +1,18 @@
 import type { TemplateSpec } from "../../lib/define";
 import { pageId } from "../../lib/ids";
-import { block, fromPreset, headerFrom, heading, makePage, page, photo, photoUrl, rt, section, url } from "../../lib/kit";
+import {
+  block,
+  fromPreset,
+  headerFrom,
+  heading,
+  makePage,
+  page,
+  photo,
+  photoUrl,
+  rt,
+  section,
+  url,
+} from "../../lib/kit";
 
 /**
  * Link — link-in-bio, a single page (doc 04 §7). Mobile-first and punchy: Outfit throughout on a
@@ -29,7 +41,12 @@ function home() {
     [
       section(
         [
-          heading("Kai Moreno", { level: 1, size: "h2", eyebrow: "Home cook · Austin, Texas", align: "center" }),
+          heading("Kai Moreno", {
+            level: 1,
+            size: "h2",
+            eyebrow: "Home cook · Austin, Texas",
+            align: "center",
+          }),
           block(
             "link-list",
             {
@@ -93,12 +110,42 @@ function home() {
               count: "6",
               followLabel: "Follow on Instagram",
               posts: [
-                post("pizza", "A wood-fired pizza cut into slices", "Friday pizza: the dough recipe is in the book.", "kai-pizza"),
-                post("saladBowl", "A bowl of greens, chickpeas and roasted vegetables", "The lunch bowl I make every Monday.", "kai-bowl"),
-                post("pancakes", "A tall stack of pancakes with blueberries", "Sunday pancakes, no buttermilk needed.", "kai-pancakes"),
-                post("breadSliced", "A seeded loaf cut into thick slices", "First loaf from the new oven.", "kai-bread"),
-                post("plates", "Steak, herbs and sauces shared across the table", "Feeding eight with one cast-iron pan.", "kai-steak"),
-                post("cookies", "Chocolate chip cookies on a linen cloth", "Brown-butter cookies. You know the ones.", "kai-cookies"),
+                post(
+                  "pizza",
+                  "A wood-fired pizza cut into slices",
+                  "Friday pizza: the dough recipe is in the book.",
+                  "kai-pizza",
+                ),
+                post(
+                  "saladBowl",
+                  "A bowl of greens, chickpeas and roasted vegetables",
+                  "The lunch bowl I make every Monday.",
+                  "kai-bowl",
+                ),
+                post(
+                  "pancakes",
+                  "A tall stack of pancakes with blueberries",
+                  "Sunday pancakes, no buttermilk needed.",
+                  "kai-pancakes",
+                ),
+                post(
+                  "breadSliced",
+                  "A seeded loaf cut into thick slices",
+                  "First loaf from the new oven.",
+                  "kai-bread",
+                ),
+                post(
+                  "plates",
+                  "Steak, herbs and sauces shared across the table",
+                  "Feeding eight with one cast-iron pan.",
+                  "kai-steak",
+                ),
+                post(
+                  "cookies",
+                  "Chocolate chip cookies on a linen cloth",
+                  "Brown-butter cookies. You know the ones.",
+                  "kai-cookies",
+                ),
               ],
             },
             { variant: "grid" },
@@ -114,7 +161,8 @@ function home() {
         edit: {
           0: {
             heading: "Sunday supper, in your inbox",
-            description: "One recipe, one shopping list and one thing I'm obsessed with, every Sunday morning. 48,000 cooks read along.",
+            description:
+              "One recipe, one shopping list and one thing I'm obsessed with, every Sunday morning. 48,000 cooks read along.",
             askName: false,
             buttonLabel: "Subscribe",
             successMessage: "You're in! Look out for Sunday's recipe.",
@@ -143,7 +191,12 @@ export const link: TemplateSpec = {
       name: "Saffron",
       description: "Golden saffron with Outfit throughout and round, friendly buttons.",
       choices: {
-        palette: { brand: "oklch(0.78 0.15 80)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.78 0.15 80)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "outfit",
         density: "comfortable",
         shape: "round",
@@ -157,7 +210,12 @@ export const link: TemplateSpec = {
       name: "Coral",
       description: "Playful coral with Plus Jakarta Sans and soft corners.",
       choices: {
-        palette: { brand: "oklch(0.7 0.15 25)", neutral: "warm", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.7 0.15 25)",
+          neutral: "warm",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "plus-jakarta",
         density: "comfortable",
         shape: "soft",
@@ -171,7 +229,12 @@ export const link: TemplateSpec = {
       name: "Lagoon",
       description: "Clear teal with Sora and Inter, crisp outlined buttons and square corners.",
       choices: {
-        palette: { brand: "oklch(0.58 0.1 195)", neutral: "cool", contrast: "standard", source: "curated" },
+        palette: {
+          brand: "oklch(0.58 0.1 195)",
+          neutral: "cool",
+          contrast: "standard",
+          source: "curated",
+        },
         pairing: "sora-inter",
         density: "compact",
         shape: "sharp",
@@ -194,7 +257,16 @@ export const link: TemplateSpec = {
             0: { content: rt.doc(rt.p("© 2026 Kai Moreno · Austin, Texas", "small")) },
             1: {
               content: rt.doc(
-                rt.p([rt.link("YouTube", "https://youtube.com/@kaimoreno.example"), " · ", rt.link("Instagram", "https://instagram.com/kaimoreno.example"), " · ", rt.link("Email", "mailto:hello@kaimoreno.example")], "small"),
+                rt.p(
+                  [
+                    rt.link("YouTube", "https://youtube.com/@kaimoreno.example"),
+                    " · ",
+                    rt.link("Instagram", "https://instagram.com/kaimoreno.example"),
+                    " · ",
+                    rt.link("Email", "mailto:hello@kaimoreno.example"),
+                  ],
+                  "small",
+                ),
               ),
             },
           },
