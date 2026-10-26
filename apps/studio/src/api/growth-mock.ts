@@ -907,7 +907,8 @@ export function createGrowthMock(ctx: GrowthMockContext): {
       return;
     if (op.item.frontmatter.status !== "draft") return;
     const user = requireUser();
-    const list = (ctx.approvals[site.id] ??= []);
+    ctx.approvals[site.id] ??= [];
+    const list = ctx.approvals[site.id] as Approval[];
     const existing = list.find(
       (a) => a.collection === op.collection && a.slug === op.item?.slug && a.status === "pending",
     );
@@ -1406,7 +1407,8 @@ export function createGrowthMock(ctx: GrowthMockContext): {
       const hasAmt = input.amountOff !== undefined;
       if (hasPct === hasAmt)
         throw new HubError(422, "invalid_discount", "Choose a percentage or a fixed amount.");
-      if (hasPct && !(input.percentOff! > 0 && input.percentOff! <= 100))
+      const pct = input.percentOff ?? 0;
+      if (hasPct && !(pct > 0 && pct <= 100))
         throw new HubError(422, "invalid_discount", "Percent off must be between 1 and 100.");
       const s = of(siteId);
       if (s.discounts.some((d) => d.code === code))
