@@ -2,6 +2,28 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "openspace-hub",
   "main": "src/index.ts",
-  "compatibility_date": "2025-09-01",
-  "vars": { "DEV_MODE": "true" }
+  // Keep at or below the workerd bundled with @cloudflare/vitest-pool-workers.
+  "compatibility_date": "2026-03-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "vars": {
+    // DEV_MODE=true: DevGitHubAccess (D1-emulated GitHub) + /auth/dev/login (Global Constraint 8).
+    "DEV_MODE": "true",
+    "HUB_URL": "http://localhost:8787",
+    "STUDIO_ORIGIN": "http://localhost:5173",
+    "GITHUB_APP_SLUG": "openspace",
+    "LOG_LEVEL": "info"
+  },
+  // Secrets (wrangler secret put / .dev.vars): GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY,
+  // GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, TOKEN_ENC_KEY. See .dev.vars.example.
+  "d1_databases": [
+    {
+      "binding": "HUB_DB",
+      "database_name": "openspace-hub",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }]
 }

@@ -1,0 +1,7 @@
+# Copy to .dev.vars for local secrets. None are needed in DEV_MODE (the default).
+# To use a real GitHub App locally, set DEV_MODE="false" in wrangler.jsonc vars (or here) and fill:
+# GITHUB_APP_ID=
+# GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+# GITHUB_CLIENT_ID=
+# GITHUB_CLIENT_SECRET=
+# TOKEN_ENC_KEY=   # 32 random bytes, base64: openssl rand -base64 32

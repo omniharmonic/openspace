@@ -6,15 +6,25 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler d1 migrations apply openspace-hub --local && wrangler dev",
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "cf-typegen": "wrangler types --strict-vars=false",
+    "db:migrate:local": "wrangler d1 migrations apply openspace-hub --local"
   },
   "dependencies": {
-    "hono": "^4.9.0"
+    "@openspace/ops": "workspace:*",
+    "@openspace/schema": "workspace:*",
+    "@openspace/theme": "workspace:*",
+    "blakejs": "^1.2.1",
+    "hono": "^4.9.0",
+    "tweetnacl": "^1.0.3",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.12.21",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
