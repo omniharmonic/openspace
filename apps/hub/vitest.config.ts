@@ -24,7 +24,7 @@ export default defineWorkersConfig(async () => {
     test: {
       include: ["src/**/*.test.ts", "test/**/*.test.ts"],
       // Each file's first test pays the Worker's cold start (blocks, presets, renderer); under a
-      // parallel \`pnpm -w test\` that alone has neared vitest's 5 s default.
+      // parallel `pnpm -w test` that alone has neared vitest's 5 s default.
       testTimeout: 15_000,
       setupFiles: ["./test/apply-migrations.ts"],
       poolOptions: {
