@@ -128,3 +128,12 @@
   font-size: var(--st-fs-sm);
   font-weight: 600;
 }
+
+.st-ship__days > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.st-ship__fields > * {
+  min-width: 0;
+}

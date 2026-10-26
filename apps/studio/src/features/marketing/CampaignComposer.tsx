@@ -69,14 +69,11 @@ export function CampaignComposer({
   const editable = campaign.status === "draft";
 
   // Autosave a moment after typing stops.
-  const first = useRef(true);
+  const lastSaved = useRef(JSON.stringify(toDraft(campaign)));
   // biome-ignore lint/correctness/useExhaustiveDependencies: autosaves when the draft changes; the mutation object is stable enough
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    if (!editable) return;
+    const json = JSON.stringify(draft);
+    if (json === lastSaved.current || !editable) return;
     const t = setTimeout(() => {
       actions.update.mutate(
         {
@@ -89,7 +86,12 @@ export function CampaignComposer({
             trackOpens: draft.trackOpens,
           },
         },
-        { onSuccess: () => setSavedAt(Date.now()) },
+        {
+          onSuccess: () => {
+            lastSaved.current = json;
+            setSavedAt(Date.now());
+          },
+        },
       );
     }, 900);
     return () => clearTimeout(t);

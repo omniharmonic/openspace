@@ -738,3 +738,9 @@
   flex: none;
   width: 84px;
 }
+
+.st-body__end {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 8px;
+}

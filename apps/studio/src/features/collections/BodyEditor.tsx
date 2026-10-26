@@ -259,6 +259,17 @@ export function BodyEditor({
           </li>
         );
       })}
+      <li className="st-body__end">
+        <InsertMenu
+          types={types}
+          onPick={(t) => insert(blocks.length, t)}
+          trigger={
+            <Button size="sm" variant="ghost" icon={<Plus />}>
+              Add a block
+            </Button>
+          }
+        />
+      </li>
     </ol>
   );
 }
