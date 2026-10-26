@@ -117,6 +117,7 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
   const canRedo = useDocStore((s) => s.redoStack.length > 0);
   const selection = useDocStore((s) => s.selection);
   const attention = useDesignCheck((s) => s.counts.attention);
+  const checkFailed = useDesignCheck((s) => s.failures.length > 0);
   const trying = useLookTrial((s) => s.templateId !== null);
   const requested = useEditorUi((s) => s.leftPanel);
   const [screen, setScreen] = useState<MobileScreen>("sections");
@@ -125,12 +126,15 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
   // The desktop's open panel (Pages by default) isn't a request: start clean.
   const started = useRef(false);
   useEffect(() => {
-    if (!started.current) {
-      started.current = true;
-      if (requested) useEditorUi.setState({ leftPanel: null });
+    const first = !started.current;
+    started.current = true;
+    // A request already consumed (StrictMode runs this effect twice with the same value) is
+    // not a new one.
+    if (!requested || useEditorUi.getState().leftPanel !== requested) return;
+    if (first) {
+      useEditorUi.setState({ leftPanel: null });
       return;
     }
-    if (!requested) return;
     // Panels asked for from elsewhere (⌘K, the publish dialog's "Review issues", shortcuts)
     // open the phone way; the request is consumed so asking again works.
     if (requested === "add") useAddSection.getState().openAt("end");
@@ -190,7 +194,8 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
     id: MobileScreen | "check" | "more",
     label: string,
     icon: ReactNode,
-    badge?: number,
+    badge?: number | string,
+    badgeLabel?: string,
   ) => {
     const active =
       id === "check"
@@ -214,9 +219,14 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
       >
         <span className="st-mob__tab-icon">
           {icon}
-          {badge ? <span className="st-mob__tab-badge st-num">{badge}</span> : null}
+          {badge ? (
+            <span className="st-mob__tab-badge st-num" aria-hidden={badgeLabel ? true : undefined}>
+              {badge}
+            </span>
+          ) : null}
         </span>
         <span className="st-mob__tab-label">{label}</span>
+        {badgeLabel && <span className="st-visually-hidden">{badgeLabel}</span>}
       </button>
     );
   };
@@ -436,7 +446,17 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
         {tab("pages", "Pages", <FileText aria-hidden="true" />)}
         {tab("sections", "Sections", <Rows3 aria-hidden="true" />)}
         {tab("preview", "Preview", <Eye aria-hidden="true" />)}
-        {tab("check", "Check", <SearchCheck aria-hidden="true" />, attention)}
+        {tab(
+          "check",
+          "Check",
+          <SearchCheck aria-hidden="true" />,
+          attention || (checkFailed ? "!" : undefined),
+          checkFailed
+            ? `: couldn’t check everything${attention ? `, ${attention} issues` : ""}`
+            : attention
+              ? `: ${attention} ${attention === 1 ? "issue" : "issues"}`
+              : undefined,
+        )}
         {tab("more", "More", <Ellipsis aria-hidden="true" />)}
       </nav>
       <Sheet

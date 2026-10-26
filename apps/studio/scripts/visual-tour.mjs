@@ -185,6 +185,13 @@ async function phoneTour(page, ctx) {
   await page.locator(".st-mob__row--section").first().click();
   await page.waitForTimeout(600);
   await shot(page, "mobile-section-sheet", ctx);
+  const blockRow = page.getByRole("dialog").getByRole("button", { name: /^Text/ }).first();
+  if (await blockRow.count()) {
+    await blockRow.click();
+    await page.waitForTimeout(700);
+    await shot(page, "mobile-block-sheet", ctx);
+    await press(page, "Escape");
+  }
   await press(page, "Escape");
   await page.getByRole("button", { name: "Pages", exact: true }).click();
   await page.waitForTimeout(400);

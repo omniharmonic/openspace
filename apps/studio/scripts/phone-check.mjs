@@ -23,7 +23,7 @@ async function audit(page, where) {
       const b = (el.closest("label") ?? el).getBoundingClientRect();
       if (!b.width || !b.height || getComputedStyle(el).visibility === "hidden") continue;
       // Controls inside the inspector's rich-text toolbar are grouped; everything else is 44px.
-      if (el.closest(".st-rt__toolbar, .st-ip")) continue;
+      if (el.closest(".st-rt__toolbar")) continue;
       if (b.width < 44 || b.height < 44)
         small.push(
           `${el.getAttribute("aria-label") || el.textContent?.trim().slice(0, 24)} ${Math.round(b.width)}×${Math.round(b.height)}`,
@@ -53,6 +53,20 @@ for (const width of [360, 390, 430]) {
   await page.locator(".st-mob__row--section").first().click();
   await page.waitForTimeout(500);
   await audit(page, `${width} section sheet`);
+  // The block inspector in the sheet: every control (switches, segments, swatches) too.
+  const blockRow = page.getByRole("dialog").getByRole("button", { name: /^Text/ }).first();
+  if (await blockRow.count()) {
+    await blockRow.click();
+    await page.waitForTimeout(600);
+    await audit(page, `${width} block inspector`);
+    const design = page.getByRole("tab", { name: "Design" });
+    if (await design.count()) {
+      await design.click();
+      await page.waitForTimeout(400);
+      await audit(page, `${width} block design`);
+    }
+    await page.keyboard.press("Escape");
+  }
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Pages", exact: true }).click();
   await audit(page, `${width} pages`);

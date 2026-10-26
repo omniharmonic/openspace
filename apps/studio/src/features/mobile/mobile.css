@@ -456,8 +456,17 @@
 }
 
 .st-mob__blockedit .st-input,
-.st-mob__blockedit .st-select__trigger,
-.st-mob__blockedit .st-seg__item {
+.st-mob__blockedit .st-select,
+.st-mob__blockedit .st-seg__item,
+.st-mob__sheet .st-select,
+.st-mob__sheet .st-tabs__tab,
+.st-mob__sheet .st-ip-sec__toggle {
+  min-height: 44px;
+}
+
+/* Inspector icon buttons (formatting, override toggles) are full touch targets in a sheet. */
+.st-mob__sheet .st-ip-icon-btn {
+  min-width: 44px;
   min-height: 44px;
 }
 
