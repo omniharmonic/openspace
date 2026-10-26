@@ -12,7 +12,7 @@ OpenSpace doesn't sell domains. Buy one from any registrar — at-cost registrar
 Open **Settings → Domain** in Studio.
 
 1. **Enter your domain.** OpenSpace looks up who your registrar is and where your DNS is hosted.
-2. **Add the records.** You get step-by-step instructions for your registrar, with a link to its DNS page and the exact records to add, each with a copy button. For a site on GitHub Pages that's:
+2. **Add the records.** You get step-by-step instructions for your registrar, with a link to its DNS page and the exact records to add, each with a copy button. For the eight most popular registrars (Namecheap, GoDaddy, Cloudflare, Squarespace Domains, Porkbun, Hover, Gandi and Name.com) an illustrated diagram of their DNS screen shows which tab to open, which button adds a record, and their exact field names with your first record filled in. For a site on GitHub Pages that's:
 
    | Type | Name | Value |
    |---|---|---|

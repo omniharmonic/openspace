@@ -170,6 +170,11 @@ describe("domains wizard", () => {
     expect(within(table).getByText("185.199.108.153")).toBeInTheDocument();
     expect(within(table).getByText(`${SAM.login}.github.io`)).toBeInTheDocument();
     expect(within(table).getAllByText("Optional").length).toBe(4);
+    // FR-50: an illustrated diagram of Namecheap's DNS screen with its exact field names.
+    const diagram = screen.getByRole("img", { name: /^Namecheap: Domain List › Manage/ });
+    expect(diagram.getAttribute("aria-label")).toMatch(
+      /Advanced DNS tab.*HOST RECORDS.*“ADD NEW RECORD”.*Type: A, Host: @, Value: 185\.199\.108\.153/,
+    );
 
     await user.click(screen.getByRole("button", { name: /connect willowyoga\.test/ }));
     // Live checklist: waits, then www, then the main domain, then the certificate.
