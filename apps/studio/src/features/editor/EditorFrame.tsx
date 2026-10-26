@@ -72,6 +72,7 @@ import { MediaLibrary } from "../media/MediaLibrary";
 import { PagesManager } from "../pages/PagesManager";
 import { SiteChromePanel } from "../site-chrome/SiteChromePanel";
 import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
+import { WorkspaceHost, WorkspaceRail } from "../workspace/WorkspaceHost";
 import { FirstRunChecklist, useChecklist } from "./FirstRunChecklist";
 import {
   type ClipPayload,
@@ -706,6 +707,7 @@ function EditorChrome({ site }: { site: Site }) {
             onClick={() => openPanel(p.id)}
           />
         ))}
+        <WorkspaceRail site={site} />
         <span className="st-ed-rail__spacer" />
         <IconButton
           label="Settings"
@@ -770,6 +772,7 @@ function EditorChrome({ site }: { site: Site }) {
       </Sheet>
       <ShortcutsSheet />
       <SiteManagementHost site={site} />
+      <WorkspaceHost site={site} />
       <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
     </div>
   );

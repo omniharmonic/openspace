@@ -18,6 +18,10 @@
       "types": "./src/markdoc.ts",
       "default": "./src/markdoc.ts"
     },
+    "./pages": {
+      "types": "./src/pages.ts",
+      "default": "./src/pages.ts"
+    },
     "./content": {
       "types": "./src/content/index.ts",
       "default": "./src/content/index.ts"
@@ -61,6 +65,10 @@
       "./markdoc": {
         "types": "./dist/markdoc.d.ts",
         "default": "./dist/markdoc.js"
+      },
+      "./pages": {
+        "types": "./dist/pages.d.ts",
+        "default": "./dist/pages.js"
       },
       "./content": {
         "types": "./dist/content/index.d.ts",

@@ -774,16 +774,14 @@ describe("round 4: recovered edits keep their own base", () => {
     await tick();
     room.setDown(true);
     await tick();
-    store
-      .getState()
-      .commit([
-        {
-          op: "block.update",
-          page: I.home,
-          block: I.heroButton,
-          set: { label: "Sam", secondaryLabel: "Sam 2" },
-        } as OpBody,
-      ]);
+    store.getState().commit([
+      {
+        op: "block.update",
+        page: I.home,
+        block: I.heroButton,
+        set: { label: "Sam", secondaryLabel: "Sam 2" },
+      } as OpBody,
+    ]);
     room.setDown(false);
     room.connect(ANA, null);
     room.collaborator(ANA).edit([setLabel("Ana")]);
