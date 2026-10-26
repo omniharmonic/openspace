@@ -1,0 +1,18 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "templates/*"
+  - "tools/*"
+  - "e2e"
+  - "plugin"
+
+catalog:
+  typescript: ~5.9.3
+  vitest: ^3.2.4
+  tsup: ^8.5.0
+  "@types/node": ^22.18.0
+
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
+  - sharp

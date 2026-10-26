@@ -1,0 +1,27 @@
+{
+  "name": "openspace",
+  "private": true,
+  "version": "0.1.0",
+  "description": "OpenSpace: an open-source website builder with a Figma-grade editor and Claude MCP integration.",
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.18.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "e2e": "turbo run e2e"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "turbo": "^2.5.0",
+    "vitest": "catalog:",
+    "typescript": "catalog:"
+  }
+}
