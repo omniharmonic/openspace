@@ -185,6 +185,20 @@ describe("published page details", () => {
       ],
     } as never;
     expect([...leadImages(section)]).toEqual(["media/bg.jpg", "media/left.jpg"]);
+    const grid = {
+      style: {},
+      layout: {
+        mode: "grid",
+        items: { b2: { d: { x: 0, y: 0, w: 12, h: 4 } }, b3: { d: { x: 12, y: 0, w: 12, h: 4 } } },
+      },
+      blocks: [
+        { id: "b1", type: "image", fields: { image: { src: "media/unplaced.jpg", alt: "" } } },
+        { id: "b3", type: "image", fields: { image: { src: "media/right.jpg", alt: "" } } },
+        { id: "b2", type: "image", fields: { image: { src: "media/left.jpg", alt: "" } } },
+      ],
+    } as never;
+    // Placed blocks in reading order first; one without a layout item comes after them.
+    expect([...leadImages(grid)]).toEqual(["media/left.jpg", "media/right.jpg"]);
   });
 
   it("gives sites without a tab icon an inline monogram (no /favicon.ico 404)", () => {

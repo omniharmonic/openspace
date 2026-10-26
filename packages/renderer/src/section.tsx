@@ -185,11 +185,19 @@ export function leadImages(section: Section, count = 2): ReadonlySet<string> {
   const blocks =
     layout.mode === "stack"
       ? [...section.blocks].sort((a, b) => (a.column ?? 0) - (b.column ?? 0))
-      : [...section.blocks].sort((a, b) => {
-          const ra = layout.items[a.id]?.d;
-          const rb = layout.items[b.id]?.d;
-          return ra && rb ? ra.y - rb.y || ra.x - rb.x : 0;
-        });
+      : section.blocks
+          // Placed blocks by row then column; any without a layout item keep their order after.
+          .map((b, i) => ({ b, i, r: layout.items[b.id]?.d }))
+          .sort((p, q) =>
+            p.r && q.r
+              ? p.r.y - q.r.y || p.r.x - q.r.x || p.i - q.i
+              : p.r
+                ? -1
+                : q.r
+                  ? 1
+                  : p.i - q.i,
+          )
+          .map((p) => p.b);
   const srcs = new Set<string>();
   const bg = section.style.background;
   if (bg?.type === "image" && bg.src) srcs.add(bg.src);
