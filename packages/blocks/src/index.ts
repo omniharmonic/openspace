@@ -116,6 +116,7 @@ export { parseVideoUrl, type VideoEmbed, videoBlock } from "./blocks/video";
 export { BLOCKS_CSS, blocksStyleTag } from "./css";
 export { ICON_NAMES, ICON_OPTIONS, Icon, type IconName, type IconProps } from "./icons";
 export { DEMO, formatDate, formatMoney, rt } from "./shared";
+export * from "./presets";
 
 /** Every block in the library, in insert-menu order. */
 export const allBlocks: readonly AnyBlockDefinition[] = [
