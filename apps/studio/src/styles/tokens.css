@@ -41,13 +41,14 @@
   --st-on-accent: #ffffff;
 
   /* Status */
-  --st-live: #188350;
-  --st-live-soft: rgb(24 131 80 / 0.11);
+  /* Status text sits on its own soft tint: every pair is ≥4.5:1. */
+  --st-live: #146c43;
+  --st-live-soft: rgb(20 108 67 / 0.11);
   --st-pending: #a8650d;
   --st-pending-soft: rgb(196 125 20 / 0.13);
-  --st-danger: #c93636;
-  --st-danger-hover: #ad2a2a;
-  --st-danger-soft: rgb(201 54 54 / 0.1);
+  --st-danger: #bd2f2f;
+  --st-danger-hover: #a32626;
+  --st-danger-soft: rgb(189 47 47 / 0.1);
 
   /* Elevation: hairline first, shadow second */
   --st-shadow-pop:
@@ -121,12 +122,13 @@
   --st-text: #ededeb;
   --st-text-2: #b0b2b7;
   /* ≥4.5:1 on bg, panel, raised and field. */
-  --st-text-3: #8b8d93;
+  --st-text-3: #96989e;
   --st-text-inverse: #151618;
 
-  --st-accent: #5b6cff;
-  --st-accent-hover: #7381ff;
-  --st-accent-pressed: #4757f0;
+  /* White labels on the accent stay ≥4.5:1 (#ffffff on #4f5ef5 is 4.9:1). */
+  --st-accent: #4f5ef5;
+  --st-accent-hover: #4352e8;
+  --st-accent-pressed: #3a48d6;
   --st-accent-soft: rgb(91 108 255 / 0.17);
   --st-accent-text: #8f9bff;
   --st-on-accent: #ffffff;
@@ -135,7 +137,7 @@
   --st-live-soft: rgb(60 196 131 / 0.14);
   --st-pending: #e3a644;
   --st-pending-soft: rgb(227 166 68 / 0.15);
-  --st-danger: #f06464;
+  --st-danger: #f47676;
   --st-danger-hover: #ff7b7b;
   --st-danger-soft: rgb(240 100 100 / 0.14);
 

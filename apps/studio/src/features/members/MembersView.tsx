@@ -101,6 +101,7 @@ function People({ siteId, canRemove }: { siteId: string; canRemove: boolean }) {
       <div className="st-ws-toolbar">
         <SearchField value={q} onChange={setQ} label="Search members" />
         <Select
+          aria-label="Filter by tier"
           size="sm"
           value={tier || "__all"}
           onValueChange={(v) => setTier(v === "__all" ? "" : v)}

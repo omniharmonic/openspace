@@ -289,12 +289,12 @@ function Pairings({
           key={p.id}
           type="button"
           aria-pressed={styles.choices.pairing === p.id}
-          aria-label={p.name}
           className="st-ss-pairing"
           disabled={disabled}
           onClick={() => commit({ "choices.pairing": p.id }, "Change fonts")}
         >
           <span
+            aria-hidden="true"
             className="st-ss-pairing__head"
             style={{
               fontFamily: fontStack(p.heading),
@@ -305,6 +305,7 @@ function Pairings({
             The quick fox
           </span>
           <span
+            aria-hidden="true"
             className="st-ss-pairing__body"
             style={{ fontFamily: fontStack(p.body), fontWeight: p.bodyWeight }}
           >

@@ -143,6 +143,7 @@ export function InboxView({ site }: AreaProps) {
         <>
           <div className="st-ws-toolbar">
             <Select
+              aria-label="Filter by form"
               size="sm"
               value={form || "__all"}
               onValueChange={(v) => {

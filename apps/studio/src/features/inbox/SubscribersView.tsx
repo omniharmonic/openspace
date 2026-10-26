@@ -121,6 +121,7 @@ export function SubscribersView({ site }: AreaProps) {
           <div className="st-ws-toolbar">
             <SearchField value={q} onChange={setQ} label="Search subscribers" />
             <Select
+              aria-label="Filter by status"
               size="sm"
               value={status || "__all"}
               onValueChange={(v) => setStatus(v === "__all" ? "" : (v as SubscriberStatus))}
@@ -132,6 +133,7 @@ export function SubscribersView({ site }: AreaProps) {
               ]}
             />
             <Select
+              aria-label="Filter by tag"
               size="sm"
               value={tag || "__all"}
               onValueChange={(v) => setTag(v === "__all" ? "" : v)}

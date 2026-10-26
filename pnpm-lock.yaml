@@ -266,6 +266,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.0.0
         version: 5.2.0(vite@7.3.7(@types/node@22.20.5)(lightningcss@1.33.0)(terser@5.51.2)(yaml@2.9.1))
+      axe-core:
+        specifier: 4.14.0
+        version: 4.14.0
       fake-indexeddb:
         specifier: ^6.2.6
         version: 6.2.6

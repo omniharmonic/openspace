@@ -287,7 +287,7 @@ export function WorkspaceView({ site, route }: AreaProps) {
           </div>
         ))}
       </nav>
-      <main className="st-ws__body">
+      <section className="st-ws__body" aria-label="Workspace">
         <div className="st-ws__bar">
           <IconButton
             label="All sections"
@@ -315,7 +315,7 @@ export function WorkspaceView({ site, route }: AreaProps) {
             )}
           </Suspense>
         </div>
-      </main>
+      </section>
     </section>
   );
 }

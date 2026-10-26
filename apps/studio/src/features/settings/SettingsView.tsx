@@ -177,7 +177,7 @@ export function SettingsView({ site, tab }: { site: Site; tab: SettingsTab | nul
           ))}
         </ul>
       </nav>
-      <main className="st-settings__body">
+      <section className="st-settings__body" aria-label="Settings">
         <div className="st-settings__bar">
           <IconButton
             label="All settings"
@@ -191,7 +191,7 @@ export function SettingsView({ site, tab }: { site: Site; tab: SettingsTab | nul
           <h2 className="st-settings__title">{(active ?? tabs[0])?.label}</h2>
           {(active ?? tabs[0])?.render(site)}
         </div>
-      </main>
+      </section>
     </section>
   );
 }

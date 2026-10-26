@@ -449,6 +449,14 @@ export function LayersPanel() {
           aria-label="Sections and blocks"
           className="st-layers__tree"
           onKeyDown={onTreeKey}
+          // Keyboard or pointer? Focus moved back to a row by script (after renaming) still
+          // shows the ring when the person is using the keyboard.
+          onPointerDownCapture={(e) => {
+            e.currentTarget.dataset.pointer = "";
+          }}
+          onKeyDownCapture={(e) => {
+            delete e.currentTarget.dataset.pointer;
+          }}
         >
           <SortableContext
             items={page.sections.map((s) => sid(s.id))}

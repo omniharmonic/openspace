@@ -22,14 +22,14 @@ export function initials(name: string): string {
 }
 
 const PRESENCE = [
-  "#e5484d",
-  "#f76b15",
-  "#0d9488",
+  "#d13438",
+  "#c4320a",
+  "#0f766e",
   "#3e63dd",
   "#8e4ec6",
-  "#d6409f",
+  "#c2297f",
   "#2f7d32",
-  "#b0710c",
+  "#a7650a",
 ];
 
 /** Stable presence color for a person id. */

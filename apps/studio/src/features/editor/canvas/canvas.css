@@ -637,7 +637,8 @@
   outline: none;
 }
 
-.st-layer__item:focus-visible > .st-layer {
+.st-layer__item:focus-visible > .st-layer,
+.st-layers__tree:not([data-pointer]) .st-layer__item:focus > .st-layer {
   box-shadow: var(--st-focus);
 }
 

@@ -193,6 +193,7 @@ export function CollectionList({ site, info }: { site: Site; info: CollectionInf
           )}
           {cats.length > 0 && (
             <Select
+              aria-label="Filter by category"
               size="sm"
               value={category || "__all"}
               onValueChange={(v) => setCategory(v === "__all" ? "" : v)}

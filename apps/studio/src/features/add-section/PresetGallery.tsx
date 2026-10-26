@@ -211,12 +211,12 @@ export function PresetGallery({
                       type="button"
                       className="st-gal__card"
                       disabled={blocked}
-                      aria-label={`${p.label}: ${p.description}`}
+                      aria-label={`${p.label}: ${NOTE[p.target] ?? p.description}`}
                       title={blocked ? "Your role can’t change the header or footer" : undefined}
                       onClick={() => onPick(p)}
                     >
                       <PresetThumb preset={p} doc={thumbDoc} page={page} width={width} />
-                      <span className="st-gal__name">{p.label}</span>
+                      <span className="st-gal__name">{p.label}</span>{" "}
                       <span className="st-gal__desc">{NOTE[p.target] ?? p.description}</span>
                     </button>
                   );

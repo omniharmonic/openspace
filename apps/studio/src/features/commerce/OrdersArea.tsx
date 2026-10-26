@@ -128,6 +128,7 @@ function OrdersList({ site }: { site: Site }) {
           ]}
         />
         <Select
+          aria-label="Filter by kind"
           size="sm"
           value={kind || "__all"}
           onValueChange={(v) => setKind(v === "__all" ? "" : (v as OrderKind))}
