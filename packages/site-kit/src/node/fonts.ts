@@ -86,16 +86,18 @@ export async function resolveFonts(
     );
   }
   const css = parts.join("\n");
-  // Each Fontsource package ships its family's license; it travels with the font files.
-  const licenses: string[] = [];
+  // Each Fontsource package ships its family's license: it travels with the font files as
+  // LICENSE-<family>.txt.
+  const fileList: FontPlan["files"] = [...files].map(([name, from]) => ({ name, from }));
   for (const pkg of fontsourcePackages(pairing)) {
     const dir = dirname(require.resolve(`${pkg}/package.json`));
     const text = await readFile(join(dir, "LICENSE"), "utf8").catch(() => null);
-    if (text) licenses.push(`${pkg}\n${"=".repeat(pkg.length)}\n\n${text.trim()}\n`);
+    if (text)
+      fileList.push({
+        name: `LICENSE-${pkg.replace(/^@fontsource\//, "")}.txt`,
+        data: new TextEncoder().encode(`${text.trim()}\n`),
+      });
   }
-  const fileList: FontPlan["files"] = [...files].map(([name, from]) => ({ name, from }));
-  if (licenses.length)
-    fileList.push({ name: "OFL.txt", data: new TextEncoder().encode(licenses.join("\n\n")) });
   return {
     missing: [],
     plan: {
@@ -193,31 +195,28 @@ async function downloadGoogleFonts(
     GSTATIC,
     (_m, url: string) => `url(${basePath}/_os/fonts/${byUrl.get(url)})`,
   );
-  // The fonts' licenses travel with them (SIL OFL 1.1 requires it for redistribution).
+  // The fonts' licenses travel with them (SIL OFL 1.1 requires it for redistribution): one
+  // file per family, LICENSE-<family>.txt, with that family's own license text (OFL, Apache or
+  // UFL, as google/fonts publishes it).
   const licenses = await Promise.all(
     families.map(async (family) => {
       const id = family.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const name = `LICENSE-${family.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.txt`;
       for (const path of LICENSE_PATHS) {
         const url = `https://raw.githubusercontent.com/google/fonts/main/${path.replace("{id}", id)}`;
         try {
           const r = await fetchImpl(url, { signal: AbortSignal.timeout(20_000) });
-          if (r.ok)
-            return `${family}\n${"=".repeat(family.length)}\n\n${(await r.text()).trim()}\n`;
+          if (r.ok) return { name, text: `${(await r.text()).trim()}\n` };
         } catch {
           // try the next license kind
         }
       }
-      return `${family}\n${"=".repeat(family.length)}\n\nSee https://fonts.google.com/specimen/${family.replace(/ /g, "+")}/license\n`;
+      const page = `https://fonts.google.com/specimen/${family.replace(/ /g, "+")}/license`;
+      return { name, text: `${family}: see ${page}\n` };
     }),
   );
   const out: FontPlan["files"] = files.map(({ name, data }) => ({ name, data }));
-  if (licenses.length)
-    out.push({
-      name: "OFL.txt",
-      data: new TextEncoder().encode(
-        `Fonts self-hosted from Google Fonts, with their licenses.\n\n${licenses.join("\n\n")}`,
-      ),
-    });
+  for (const l of licenses) out.push({ name: l.name, data: new TextEncoder().encode(l.text) });
   return {
     plan: { css, files: out, cssFile: `_os/fonts/fonts.${contentHash(css, 10)}.css` },
   };

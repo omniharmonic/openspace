@@ -82,10 +82,10 @@ describe("Google Fonts self-hosting", () => {
       "DM Sans",
       "Syne",
     ]);
-    const ofl = plan?.files.find((x) => x.name === "OFL.txt");
-    const text = new TextDecoder().decode(ofl?.data);
-    expect(text).toContain("SIL Open Font License, Version 1.1");
-    expect(text).toContain("https://fonts.google.com/specimen/Syne/license");
+    const text = (name: string) =>
+      new TextDecoder().decode(plan?.files.find((x) => x.name === name)?.data);
+    expect(text("LICENSE-dm-sans.txt")).toContain("SIL Open Font License, Version 1.1");
+    expect(text("LICENSE-syne.txt")).toContain("https://fonts.google.com/specimen/Syne/license");
   });
 
   it("gives up (null) when Google Fonts can't be reached, so pages keep the link", async () => {
