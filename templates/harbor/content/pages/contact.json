@@ -1,0 +1,233 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_rbmgfshm9y",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Visit Riverbend Neighbors at 3120 Penn Avenue, Pittsburgh. Pantry hours, how to ask for help and how to reach our staff."
+  },
+  "sections": [
+    {
+      "id": "sec_fcw75yzxmb",
+      "preset": "contact/form-split@1",
+      "label": "Contact form with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_9j5d9h9w2a",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Ask for help, or offer it",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact",
+            "subheading": "Write to us about any program, volunteering or a donation. Someone will reply within two working days."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_1p774ht5jn",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Riverbend Neighbors",
+            "address": "3120 Penn Avenue\nPittsburgh, PA 15201",
+            "phone": "+1 (412) 555-0186",
+            "email": "hello@riverbendneighbors.example",
+            "directions": true
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_bw9sh8q0yw",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_6rnvn7c9sm",
+              "name": "Contact",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "topic",
+                  "label": "I'm writing about",
+                  "width": "full",
+                  "options": [
+                    "Getting groceries",
+                    "Homework Harbor",
+                    "A home repair",
+                    "Volunteering",
+                    "Donating",
+                    "Something else"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Message",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send message",
+              "success": {
+                "type": "message",
+                "message": "Thank you. We'll reply within two working days."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_x0zgrym1h6",
+      "preset": "contact/location@1",
+      "label": "Map, hours and address",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_tgrjqh29wf",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Riverbend Neighbors",
+            "address": "3120 Penn Avenue, Pittsburgh, PA 15201",
+            "latitude": 40.4627,
+            "longitude": -79.9671,
+            "zoom": 15,
+            "linkLabel": "Open in Maps",
+            "aspect": "4:3"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_j6gkv2kdjj",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Pantry & office hours",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Visit"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_cxrfqv38js",
+          "type": "hours",
+          "v": 1,
+          "fields": {
+            "heading": "Pantry hours",
+            "headingLevel": "h3",
+            "rows": [
+              {
+                "day": "mon",
+                "closed": true
+              },
+              {
+                "day": "tue",
+                "opens": "10:00",
+                "closes": "18:00",
+                "closed": false
+              },
+              {
+                "day": "wed",
+                "closed": true
+              },
+              {
+                "day": "thu",
+                "opens": "10:00",
+                "closes": "18:00",
+                "closed": false
+              },
+              {
+                "day": "fri",
+                "closed": true
+              },
+              {
+                "day": "sat",
+                "opens": "09:00",
+                "closes": "13:00",
+                "closed": false
+              },
+              {
+                "day": "sun",
+                "closed": true
+              }
+            ],
+            "note": "The office is open weekdays 9 to 5. The 54 and 93 buses stop at the corner of 32nd Street."
+          },
+          "column": 1,
+          "variant": "compact"
+        },
+        {
+          "id": "blk_gsgk268m90",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "address": "3120 Penn Avenue\nPittsburgh, PA 15201",
+            "phone": "+1 (412) 555-0186",
+            "email": "hello@riverbendneighbors.example",
+            "directions": true
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    }
+  ]
+}

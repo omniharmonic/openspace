@@ -1,0 +1,141 @@
+{
+  "$comment": "Licenses for the demo media in the Harbor template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c",
+      "title": "A group of children grinning and making peace signs at the camera",
+      "author": "Larm Rmah",
+      "authorUrl": "https://unsplash.com/@larm",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/five-children-smiling-while-doing-peace-hand-sign-AEaTUnvneik",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      "title": "Portrait of a woman in a red sweater, laughing",
+      "author": "Michael Dam",
+      "authorUrl": "https://unsplash.com/@michaeldam",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/closeup-photography-of-woman-smiling-mEZ3PoFGs_k",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+      "title": "Portrait of a smiling man in a white t-shirt",
+      "author": "Joseph Gonzalez",
+      "authorUrl": "https://unsplash.com/@miracletwentyone",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-white-v-neck-shirt-iFgRcqHznqg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1511632765486-a01980e01a18",
+      "title": "Friends with their arms around each other watching the sunset",
+      "author": "Helena Lopes",
+      "authorUrl": "https://unsplash.com/@helenalopesph",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/four-person-hands-wrap-around-shoulders-while-looking-at-sunset-PGnqT0rXWLs",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1528605248644-14dd04022da1",
+      "title": "Friends talking over a long shared table on a rooftop",
+      "author": "Priscilla Du Preez 🇨🇦",
+      "authorUrl": "https://unsplash.com/@priscilladupreez",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/people-sitting-in-front-of-table-talking-and-eating-W3SEyZODn8U",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac",
+      "title": "A group of friends sitting together on a wall facing the sea",
+      "author": "Duy Pham",
+      "authorUrl": "https://unsplash.com/@miinyuii",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/people-holding-shoulders-sitting-on-wall-Cecb0_8Hx-o",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1542744173-8e7e53415bb0",
+      "title": "A team listening to a presentation around a boardroom table",
+      "author": "Campaign Creators",
+      "authorUrl": "https://unsplash.com/@campaign_creators",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-in-front-of-people-sitting-beside-table-with-laptop-computers-gMsnXqILjp4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a",
+      "title": "Portrait of a man in a dark suit and glasses",
+      "author": "LinkedIn Sales Solutions",
+      "authorUrl": "https://unsplash.com/@linkedinsalesnavigator",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-beside-wall-pAtA8xe_iVM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
+      "title": "A white clapboard house with a wraparound porch and green lawn",
+      "author": "todd kent",
+      "authorUrl": "https://unsplash.com/@churchoftodd",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/gray-wooden-house-178j8tJrNlc",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
+      "title": "Portrait of a woman in a grey blazer by a sunlit window",
+      "author": "Christina @ wocintechchat.com M",
+      "authorUrl": "https://unsplash.com/@wocintechchat",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/shallow-focus-photo-of-woman-in-gray-jacket-0Zx1bDv5BNY",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1780387477222-730504564368",
+      "title": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+      "author": "Centre for Ageing Better",
+      "authorUrl": "https://unsplash.com/@ageing_better",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-beige-jumpsuit-smiling-sitting-on-a-stool-IxacjtwPdGM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1782386963665-b83ce1d6752e",
+      "title": "Gloved hands planting seedlings in a garden bed",
+      "author": "Erwin Bosman",
+      "authorUrl": "https://unsplash.com/@erwinbosman",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/hands-in-gloves-planting-small-seedlings-in-dark-soil-6xMClJG5dW8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

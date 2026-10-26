@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_h72a8wvyfr",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Contact Elias Varga about commissions, print sales, licensing and exhibitions. The studio replies within two working days."
+  },
+  "sections": [
+    {
+      "id": "sec_c4k6drheg0",
+      "preset": "contact/form-split@1",
+      "label": "Contact form with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_a2c98h4kzs",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Tell me about the place",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact",
+            "subheading": "Commissions, licensing and print orders all start here. I reply personally within two working days."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_tvn9xfhnch",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "name": "Elias Varga Studio",
+            "address": "3301 Walnut Street, Studio 12\nDenver, CO 80205",
+            "phone": "+1 (720) 555-0131",
+            "email": "studio@eliasvarga.example",
+            "directions": true
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_3jfsxswsd9",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_yw2s4gyh9d",
+              "name": "Studio enquiry",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "type",
+                  "label": "Enquiry",
+                  "width": "full",
+                  "options": [
+                    "Commission",
+                    "Print order",
+                    "Image licensing",
+                    "Exhibition or press"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Tell me more",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send enquiry",
+              "success": {
+                "type": "message",
+                "message": "Thank you. I'll be in touch within two working days."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

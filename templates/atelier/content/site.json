@@ -1,0 +1,190 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Elias Varga",
+  "tagline": "Land, light and the buildings between.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_excq64amzm",
+      "label": "Work"
+    },
+    {
+      "type": "collection",
+      "collection": "projects",
+      "label": "Projects"
+    },
+    {
+      "type": "page",
+      "page": "pg_k1vx320q55",
+      "label": "Commissions"
+    },
+    {
+      "type": "page",
+      "page": "pg_0fq27dh81s",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_h72a8wvyfr",
+      "label": "Contact"
+    }
+  ],
+  "header": {
+    "variant": "minimal-burger",
+    "sticky": false,
+    "transparentOnHero": false,
+    "mobileMenu": "fullscreen",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_6v02k9qt2b",
+    "preset": "footer/minimal-row@1",
+    "label": "One-line footer",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          6,
+          6
+        ],
+        "m": [
+          12
+        ]
+      },
+      "align": "center",
+      "gap": "md"
+    },
+    "style": {
+      "colorTheme": "light",
+      "padding": {
+        "d": "md",
+        "m": "md"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_hwks65nk13",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Elias Varga. All photographs are the property of the artist."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_3hgcn3152g",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Instagram",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://instagram.com/eliasvarga.example"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Email",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "mailto:studio@eliasvarga.example"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Prints",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/commissions/#prints"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "end",
+            "m": "start"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/eliasvarga.example"
+    },
+    {
+      "network": "behance",
+      "url": "https://behance.net/eliasvarga-example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:studio@eliasvarga.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Elias Varga, photographer",
+    "description": "Landscape and architecture photography by Elias Varga, Denver.",
+    "image": "https://images.unsplash.com/photo-1783611066016-59e16b0ac1c8?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

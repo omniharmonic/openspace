@@ -1,0 +1,425 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_ffqyf65d7j",
+  "title": "Get involved",
+  "slug": "get-involved",
+  "seo": {
+    "description": "Donate, volunteer or join a committee at Riverbend Neighbors. Monthly gifts keep the pantry stocked and the repair crew on the road."
+  },
+  "sections": [
+    {
+      "id": "sec_sjgrzystgg",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_2v06pyp1vk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "There's a place for you here",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Get involved",
+            "subheading": "Give once or every month, spend a Saturday morning at the pantry, or lend your skills to the repair crew. Every hour and every dollar stays in the neighborhood."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_2vb97zfh8s",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Donate",
+            "link": {
+              "type": "page",
+              "page": "pg_ffqyf65d7j",
+              "anchor": "donate"
+            },
+            "role": "primary",
+            "secondaryLabel": "Volunteer",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_ffqyf65d7j",
+              "anchor": "volunteer"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_mxxcdwd94q",
+      "preset": "cta/donate@1",
+      "label": "Donation appeal",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_hj1ta2bnm4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A monthly gift goes furthest",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Donate"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_y7953jhh3x",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Monthly donors let us buy produce in bulk, plan repair crews a season ahead and say yes when a family needs us. Choose an amount and how often to give."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_wb5cgwveca",
+          "type": "donation",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "mode": "checkout",
+            "currency": "USD",
+            "amounts": [
+              {
+                "amount": 15
+              },
+              {
+                "amount": 40
+              },
+              {
+                "amount": 75
+              },
+              {
+                "amount": 150
+              }
+            ],
+            "allowCustom": true,
+            "frequency": "both",
+            "buttonLabel": "Donate",
+            "note": "Secure checkout. You can change or cancel a monthly gift any time."
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ],
+      "anchor": "donate"
+    },
+    {
+      "id": "sec_kbpqdxpgf8",
+      "preset": "cta/card-over-photo@1",
+      "label": "Card over photo",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 23,
+          "m": 23
+        },
+        "items": {
+          "blk_w18g9rpdp3": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 20,
+              "h": 20
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_sttj9wc6qr": {
+            "d": {
+              "x": 1,
+              "y": 9,
+              "w": 10,
+              "h": 11,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 10,
+              "z": 2
+            }
+          },
+          "blk_4yb9ev9jzx": {
+            "d": {
+              "x": 2,
+              "y": 21,
+              "w": 9,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_w18g9rpdp3",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=2200&q=80",
+              "alt": "Volunteers with their arms around each other at sunset",
+              "width": 2200,
+              "height": 1467
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_sttj9wc6qr",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Spend a Saturday with us"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Stock shelves, drive deliveries, tutor a fourth grader or swing a hammer. Training is provided, and lunch is on us."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            }
+          }
+        },
+        {
+          "id": "blk_4yb9ev9jzx",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Sign up to volunteer",
+            "link": {
+              "type": "page",
+              "page": "pg_rbmgfshm9y"
+            },
+            "role": "primary"
+          },
+          "variant": "default"
+        }
+      ],
+      "anchor": "volunteer"
+    },
+    {
+      "id": "sec_dcy7kmy51h",
+      "preset": "faq/cards@1",
+      "label": "Question cards",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_8vvx53kf2a",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Questions donors ask",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Giving"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_2mzz0h49b6",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "How much of my gift goes to programs?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "94 cents of every dollar. Our annual report and audited accounts are on the About page."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I give in honor of someone?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Add their name at checkout and we'll send a card to them or their family."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do you accept food donations?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Fresh produce, yes, on pantry mornings. For packaged food, a cash gift buys about three times as much."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "cards"
+        },
+        {
+          "id": "blk_xrszv2y2p0",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Talk to our development team",
+            "link": {
+              "type": "page",
+              "page": "pg_rbmgfshm9y"
+            },
+            "role": "secondary",
+            "note": "We reply within two working days."
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

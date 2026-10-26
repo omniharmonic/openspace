@@ -1,0 +1,336 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Calder Advisory",
+  "tagline": "Calm operations for companies that grew fast.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_5xz5p00ed7",
+      "label": "Services"
+    },
+    {
+      "type": "collection",
+      "collection": "case-studies",
+      "label": "Case studies"
+    },
+    {
+      "type": "collection",
+      "collection": "insights",
+      "label": "Insights"
+    },
+    {
+      "type": "page",
+      "page": "pg_xqtrkthjqy",
+      "label": "About"
+    },
+    {
+      "type": "button",
+      "label": "Book a call",
+      "link": {
+        "type": "page",
+        "page": "pg_h1dexgwrz0"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-left",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_86yw3y51a6",
+    "preset": "footer/columns@1",
+    "label": "Footer with link columns",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          4,
+          2,
+          2,
+          4
+        ],
+        "m": [
+          6,
+          6
+        ]
+      },
+      "gap": "lg"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_djnw9yak43",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Calder Advisory"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Operations advice for founder-led companies of 20 to 200 people. Based in Minneapolis, working across the US."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_e4ad0e78c0",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "column": 0,
+        "variant": "icons"
+      },
+      {
+        "id": "blk_p6gcg9bef9",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Work"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Services",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/services/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Case studies",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/case-studies/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Insights",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/insights/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default"
+      },
+      {
+        "id": "blk_yxefebvk9x",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Studio"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "About",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/about/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Contact",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/contact/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 2,
+        "variant": "default"
+      },
+      {
+        "id": "blk_6vce403wgp",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Monthly letter"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "One short essay on running a growing company, the first Monday of each month. "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Read past letters",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/insights/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Calder Advisory LLC"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 3,
+        "variant": "default"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "linkedin",
+      "url": "https://linkedin.com/in/naomicalder-example"
+    },
+    {
+      "network": "email",
+      "url": "mailto:naomi@calderadvisory.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Calder Advisory",
+    "description": "Operations advice for founder-led companies of 20 to 200 people.",
+    "image": "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": "https://cal.com/calder-advisory/intro",
+    "stripeConnected": false
+  }
+}

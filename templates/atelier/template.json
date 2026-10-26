@@ -1,0 +1,115 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "atelier",
+  "name": "Atelier",
+  "description": "A gallery-first portfolio for photographers and visual artists: a full-bleed slideshow, a project index and lightboxes, with chrome that stays out of the way.",
+  "persona": "Photographers, visual artists",
+  "mood": "Gallery-first, minimal chrome",
+  "version": "1.0.0",
+  "tags": [
+    "portfolio",
+    "photography",
+    "art",
+    "gallery",
+    "prints"
+  ],
+  "sample": {
+    "name": "Elias Varga",
+    "tagline": "Land, light and the buildings between."
+  },
+  "thumbnailPage": "pg_z815j3m0n5",
+  "looks": [
+    {
+      "id": "monochrome",
+      "name": "Monochrome",
+      "description": "Ink and white with a single vermilion accent, Instrument Serif headings and square corners.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.25 0 0)",
+          "neutral": "pure",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "instrument",
+        "density": "airy",
+        "shape": "sharp",
+        "buttons": "text-arrow",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      },
+      "overrides": {
+        "color": {
+          "accent": {
+            "$value": "oklch(0.56 0.2 32)",
+            "$type": "color"
+          }
+        }
+      }
+    },
+    {
+      "id": "gallery-blue",
+      "name": "Gallery Blue",
+      "description": "Cool greys with a deep ultramarine accent, Bodoni headings and outlined buttons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.42 0.18 268)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "bodoni-montserrat",
+        "density": "airy",
+        "shape": "sharp",
+        "buttons": "outline",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "darkroom",
+      "name": "Darkroom",
+      "description": "Warm, print-like neutrals and EB Garamond for an archival, darkroom feel.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.45 0.05 60)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "eb-garamond-inter",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "underline",
+        "motion": "subtle",
+        "imageTreatment": "frame"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_z815j3m0n5",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_excq64amzm",
+      "title": "Work",
+      "slug": "work"
+    },
+    {
+      "id": "pg_k1vx320q55",
+      "title": "Commissions",
+      "slug": "commissions"
+    },
+    {
+      "id": "pg_0fq27dh81s",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_h72a8wvyfr",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

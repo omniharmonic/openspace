@@ -356,6 +356,8 @@ export interface FromPresetOpts {
   drop?: number[];
   /** Section style overrides (padding, background, min height). */
   style?: Omit<SectionStyle, "colorTheme">;
+  /** Section layout width override. */
+  width?: "narrow" | "content" | "wide" | "full";
 }
 
 /** Blocks have no `style`/`variant` fields, so those keys always mean the block's own. */
@@ -405,6 +407,7 @@ export function fromPreset(id: string, o: FromPresetOpts = {}): Section {
   if (o.label) s.label = o.label;
   if (o.anchor) s.anchor = o.anchor;
   if (o.style) s.style = { ...s.style, ...o.style };
+  if (o.width) s.layout = { ...s.layout, width: o.width };
   return s;
 }
 

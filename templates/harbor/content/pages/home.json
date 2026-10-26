@@ -1,0 +1,524 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_1gqv7jnbb7",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Riverbend Neighbors runs a free grocery pantry, after-school tutoring and home repairs for older neighbors in Lawrenceville, Pittsburgh."
+  },
+  "sections": [
+    {
+      "id": "sec_3jejsyj0v6",
+      "preset": "hero/full-bleed-photo@1",
+      "label": "Full-bleed photograph",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "3xl",
+          "m": "2xl"
+        },
+        "minHeight": {
+          "d": "88vh",
+          "m": "80svh"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=2880&q=80",
+          "focal": [
+            0.5,
+            0.45
+          ],
+          "overlay": {
+            "color": "background",
+            "opacity": 0.5
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_tk5t5e1r6t",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Neighbors keeping neighbors fed and home",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Lawrenceville, Pittsburgh · Since 2004",
+            "subheading": "Free groceries, homework help and safe repairs for older homeowners, run by 300 volunteers who live on the same streets."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_3k8cgbjgvn",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Donate today",
+            "link": {
+              "type": "page",
+              "page": "pg_ffqyf65d7j",
+              "anchor": "donate"
+            },
+            "role": "primary",
+            "secondaryLabel": "See our programs",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_5752p2f5ye"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_8fbt3serpr",
+      "preset": "stats/row@1",
+      "label": "Numbers in a row",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_my0ret8fxe",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "One year on Penn Avenue",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Our 2025 report"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_0mefsgx4wm",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "41,200",
+                "label": "Grocery visits"
+              },
+              {
+                "value": "318",
+                "label": "Volunteers"
+              },
+              {
+                "value": "146",
+                "label": "Homes made safe"
+              },
+              {
+                "value": "94¢",
+                "label": "Of each dollar spent on programs"
+              }
+            ]
+          },
+          "variant": "row",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_k95m461nn4",
+      "preset": "services/image-cards@1",
+      "label": "Three services with photos",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_dnrytgdg6q",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Three programs, one neighborhood",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "What we do",
+            "subheading": "Everything we run is free, open to anyone in the 15201 and 15224 zip codes, and shaped by the people who use it."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_rnxfa4y33q",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1560&q=80",
+                  "alt": "Volunteers and neighbors talking over a long table",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Penn Avenue Pantry",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Fresh produce, dairy and staples three days a week, chosen like a grocery store. No paperwork, no questions."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "page",
+                  "page": "pg_5752p2f5ye",
+                  "anchor": "pantry"
+                },
+                "linkLabel": "Visit the pantry"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1560&q=80",
+                  "alt": "Children grinning at the camera after homework club",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Homework Harbor",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "After-school tutoring, a hot snack and a quiet table for 80 kids, every school day from 3 to 6."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "page",
+                  "page": "pg_5752p2f5ye"
+                },
+                "linkLabel": "About Homework Harbor"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1560&q=80",
+                  "alt": "A white clapboard house with a porch after repairs",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Safe at Home",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Free ramps, railings, roof patches and furnace checks so older neighbors can stay in the houses they love."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "page",
+                  "page": "pg_5752p2f5ye",
+                  "anchor": "repairs"
+                },
+                "linkLabel": "Request a repair"
+              }
+            ],
+            "columns": "3",
+            "aspect": "4:5"
+          },
+          "variant": "plain"
+        }
+      ]
+    },
+    {
+      "id": "sec_hy9gpbe4z0",
+      "preset": "events/list@1",
+      "label": "Upcoming events list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_4spg7fax38",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "heading": "Coming up in the neighborhood",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "events",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 6
+            },
+            "showImage": false,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "Sign up",
+            "emptyMessage": "New volunteer days are posted every month — check back soon.",
+            "structuredData": true
+          },
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_myc7emkzxv",
+      "preset": "testimonials/photo-overlap@1",
+      "label": "Testimonial over photo",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 22,
+          "m": 22
+        },
+        "items": {
+          "blk_krg5thstta": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 22
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_x74t8t2da8": {
+            "d": {
+              "x": 13,
+              "y": 7,
+              "w": 12,
+              "h": 9,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 13,
+              "z": 2
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_krg5thstta",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1782386963665-b83ce1d6752e?w=1920&q=80",
+              "alt": "Volunteer hands planting seedlings in the community garden",
+              "width": 1920,
+              "height": 1281
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_x74t8t2da8",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "When my husband passed, I didn't know who to call about the furnace. Riverbend sent two volunteers that week, and they still check in every winter."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Dolores Kaminski",
+            "role": "Safe at Home neighbor since 2019",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1780387477222-730504564368?w=320&q=80",
+              "alt": "Portrait of Dolores Kaminski",
+              "width": 320,
+              "height": 480
+            }
+          },
+          "variant": "card",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_sacyra3jgn",
+      "preset": "cta/donate@1",
+      "label": "Donation appeal",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_6fbt52pr6g",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Keep the pantry shelves full",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Give"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_e0chfdw6a3",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Every week we welcome more than 800 families. $40 stocks one family's groceries for a week, and a monthly gift lets us buy fresh produce from local farms at wholesale prices."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_xvwbs8whrs",
+          "type": "donation",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "mode": "checkout",
+            "currency": "USD",
+            "amounts": [
+              {
+                "amount": 20
+              },
+              {
+                "amount": 40
+              },
+              {
+                "amount": 100
+              },
+              {
+                "amount": 250
+              }
+            ],
+            "allowCustom": true,
+            "frequency": "both",
+            "buttonLabel": "Give now",
+            "note": "Riverbend Neighbors is a 501(c)(3). Gifts are tax-deductible; your receipt arrives by email."
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

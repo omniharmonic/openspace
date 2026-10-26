@@ -1,0 +1,611 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_5752p2f5ye",
+  "title": "Programs",
+  "slug": "programs",
+  "seo": {
+    "description": "Free groceries at the Penn Avenue Pantry, after-school tutoring at Homework Harbor and home repairs through Safe at Home."
+  },
+  "sections": [
+    {
+      "id": "sec_fxp5kmde2y",
+      "preset": "hero/split-landscape@1",
+      "label": "Split with landscape image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            1,
+            0
+          ],
+          "t": [
+            1,
+            0
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_d0mg2ev0gx",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1520&q=80",
+              "alt": "Children at Homework Harbor making peace signs",
+              "width": 1520,
+              "height": 1013
+            },
+            "aspect": "3:2",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_jw3nfwpfp0",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Help that starts with listening",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Programs",
+            "subheading": "Each program began when neighbors told us what was missing. They're all free, and most are run by people who once used them."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_rrv1hrvkcc",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Volunteer with us",
+            "link": {
+              "type": "page",
+              "page": "pg_ffqyf65d7j"
+            },
+            "role": "primary",
+            "secondaryLabel": "Ask for help",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_rbmgfshm9y"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_ejaqcge7rm",
+      "preset": "services/alternating@1",
+      "label": "Alternating image and text",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 33,
+          "m": 43
+        },
+        "items": {
+          "blk_q1c9vwf2qc": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_d3vcjv6d7c": {
+            "d": {
+              "x": 15,
+              "y": 4,
+              "w": 9,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 12,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_yp8pv9nmz4": {
+            "d": {
+              "x": 13,
+              "y": 18,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 23,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_atsan28dgw": {
+            "d": {
+              "x": 2,
+              "y": 21,
+              "w": 9,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 34,
+              "w": 8,
+              "h": 10
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_q1c9vwf2qc",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1280&q=80",
+              "alt": "Neighbors chatting at a long table at the pantry",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_d3vcjv6d7c",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Tuesday, Thursday & Saturday"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Penn Avenue Pantry"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A choice pantry set up like a small grocery store, with fresh produce from three local farms, milk, eggs and pantry staples. Bring a bag; we'll bring the coffee."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Pantry hours and address →",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "/contact/"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_yp8pv9nmz4",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1280&q=80",
+              "alt": "Kids from Homework Harbor smiling together",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_atsan28dgw",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "School days, 3–6pm"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Homework Harbor"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Volunteer tutors, a hot snack and a calm place to work for students in grades 3 to 8. Parents can pick up groceries from the pantry on the same visit."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Enroll a student →",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "/contact/"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ],
+      "anchor": "pantry"
+    },
+    {
+      "id": "sec_tp43rf4tzy",
+      "preset": "services/steps@1",
+      "label": "How it works in three steps",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_hcr02k9gf1",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "How a free repair works",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Safe at Home"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_0gag11r98p",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "Call or write to us",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Tell us what needs fixing. Homeowners aged 62 and over, or living with a disability, qualify."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "A volunteer visits",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "A licensed contractor from our crew looks at the job and explains what we can do, usually within two weeks."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "We fix it, free",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Ramps, rails, roofs and furnaces are repaired by volunteers, with materials paid for by donors."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "3",
+            "aspect": "original"
+          },
+          "variant": "steps"
+        },
+        {
+          "id": "blk_syngnba1h8",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Request a repair",
+            "link": {
+              "type": "page",
+              "page": "pg_rbmgfshm9y"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ],
+      "anchor": "repairs"
+    },
+    {
+      "id": "sec_bvhhh2t6gh",
+      "preset": "faq/split@1",
+      "label": "Questions beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_95gsb2qzeb",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Getting help",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Questions"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_0hzw05f6j2",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Not sure if a program is right for you? Call the front desk and we'll talk it through."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_ker00nw03y",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Contact us",
+            "link": {
+              "type": "page",
+              "page": "pg_rbmgfshm9y"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_dte53zcz8d",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Do I need ID or proof of income for the pantry?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "No. Just give us your first name and zip code so we can plan how much food to order."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Is there a cost for Homework Harbor?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Never. Snacks, supplies and tutoring are free for every student who enrolls."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can renters ask for repairs?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Safe at Home is for homeowners, but we'll connect renters with the tenants' union and city inspectors."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do you offer help in other languages?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Volunteers speak Spanish, Nepali and Arabic on pantry days, and we can arrange interpreters for repair visits."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,332 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_excq64amzm",
+  "title": "Work",
+  "slug": "work",
+  "seo": {
+    "description": "The complete portfolio of Elias Varga: Cordillera, White City, Salt & Glass and Field Studies, plus selected single images."
+  },
+  "sections": [
+    {
+      "id": "sec_p0w2zrrqe4",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_243mnpexbh",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h1",
+            "size": "display",
+            "text": "Work",
+            "eyebrow": "Portfolio 2024–2026",
+            "subheading": "Four long projects and a wall of single frames. Click any photograph to see it larger."
+          },
+          "variant": "plain"
+        }
+      ]
+    },
+    {
+      "id": "sec_qap2p2wh8r",
+      "preset": "gallery/project-feature@1",
+      "label": "Featured project",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 35,
+          "m": 35
+        },
+        "items": {
+          "blk_wcb539tm78": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 24,
+              "h": 22
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12,
+              "bleed": "both"
+            }
+          },
+          "blk_ss84termq3": {
+            "d": {
+              "x": 15,
+              "y": 16,
+              "w": 9,
+              "h": 12,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 13,
+              "z": 2
+            }
+          },
+          "blk_fpdjf122r3": {
+            "d": {
+              "x": 2,
+              "y": 24,
+              "w": 8,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 26,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_h07y3gsrve": {
+            "d": {
+              "x": 15,
+              "y": 29,
+              "w": 9,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 23,
+              "w": 8,
+              "h": 3
+            }
+          }
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_wcb539tm78",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=2880&q=80",
+              "alt": "A rowing boat on a turquoise lake below jagged peaks",
+              "width": 2880,
+              "height": 1920
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_ss84termq3",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Project · 2026"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Cordillera"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Three winters above the treeline in the San Juan Mountains, waiting for the light to go flat and the colour to drain out of the snow."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "dark",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            }
+          }
+        },
+        {
+          "id": "blk_fpdjf122r3",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1040&q=80",
+              "alt": "Mist rising from a river valley at dawn",
+              "width": 1040,
+              "height": 694
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_h07y3gsrve",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "View the series",
+            "link": {
+              "type": "item",
+              "collection": "projects",
+              "slug": "cordillera"
+            },
+            "role": "secondary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_qx8hbwe66b",
+      "preset": "gallery/masonry@1",
+      "label": "Masonry wall",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_sq9zt3vvvq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "From the contact sheets",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Single frames"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_j97v9849ge",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "images": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1543270915-a8381a52e201?w=920&q=80",
+                  "alt": "A walker crossing a suspension bridge into the forest",
+                  "width": 920,
+                  "height": 1380
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=920&q=80",
+                  "alt": "A downtown street of tall buildings and yellow cabs",
+                  "width": 920,
+                  "height": 613
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=920&q=80",
+                  "alt": "A desert road running toward red rock mountains",
+                  "width": 920,
+                  "height": 1380
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=920&q=80",
+                  "alt": "Sunlight through tall trees onto a forest path",
+                  "width": 920,
+                  "height": 613
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=920&q=80",
+                  "alt": "Orange poppies against a clear blue sky",
+                  "width": 920,
+                  "height": 614
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=920&q=80",
+                  "alt": "A city skyline stretching to the lake at golden hour",
+                  "width": 920,
+                  "height": 566
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=920&q=80",
+                  "alt": "Green hills from above, ridges catching the light",
+                  "width": 920,
+                  "height": 548
+                }
+              }
+            ],
+            "aspect": "auto",
+            "columns": "3",
+            "lightbox": true,
+            "showCaptions": false
+          },
+          "variant": "masonry"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,507 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_z815j3m0n5",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Elias Varga photographs landscapes and architecture in quiet light. Portfolio, commissions and limited-edition prints from Denver."
+  },
+  "header": {
+    "transparentOnHero": false
+  },
+  "sections": [
+    {
+      "id": "sec_6ceqpf3v7y",
+      "preset": "gallery/slideshow@1",
+      "label": "Full-width slideshow",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "full"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "none",
+          "m": "none"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_mga9hjqh5b",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "images": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1783611066016-59e16b0ac1c8?w=2880&q=80",
+                  "alt": "Snowy peaks reflected in a still mountain lake, from Cordillera",
+                  "width": 2880,
+                  "height": 1920
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=2880&q=80",
+                  "alt": "A white angular building against a clear sky, from White City",
+                  "width": 2880,
+                  "height": 1920
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=2880&q=80",
+                  "alt": "Turquoise surf meeting a sandy shore from above, from Salt & Glass",
+                  "width": 2880,
+                  "height": 5126
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=2880&q=80",
+                  "alt": "Wild poppies scattered through a summer meadow, from Field Studies",
+                  "width": 2880,
+                  "height": 1908
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2880&q=80",
+                  "alt": "A misty river valley with pines at dawn, from Cordillera",
+                  "width": 2880,
+                  "height": 1922
+                }
+              }
+            ],
+            "aspect": "3:2",
+            "columns": "3",
+            "lightbox": true,
+            "showCaptions": false
+          },
+          "variant": "slideshow"
+        }
+      ]
+    },
+    {
+      "id": "sec_5s98em13w8",
+      "preset": "hero/big-type@1",
+      "label": "Big type with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_dnj8ed871a",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Land, light and the buildings between",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Elias Varga · Photographer"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_kts4qjax1d",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Landscape and architecture photography for publishers, architects and hotels, made slowly and printed by hand in my Denver studio."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_d61nj2b5hp",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "See the work",
+            "link": {
+              "type": "page",
+              "page": "pg_excq64amzm"
+            },
+            "role": "primary",
+            "secondaryLabel": "Commission a series",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_k1vx320q55"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_v12qv05702",
+      "preset": "gallery/project-cards@1",
+      "label": "Project index",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_baynkxtrn4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Selected projects",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Index"
+          },
+          "variant": "underline"
+        },
+        {
+          "id": "blk_k3s6ts9cma",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1783611066016-59e16b0ac1c8?w=2320&q=80",
+                  "alt": "Cordillera: Three winters above the treeline in the San Juan Mountains, waiting for the light to go flat.",
+                  "width": 2320,
+                  "height": 1547
+                },
+                "heading": "Cordillera",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Personal project, 2026."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "item",
+                  "collection": "projects",
+                  "slug": "cordillera"
+                },
+                "linkLabel": "View project"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=2320&q=80",
+                  "alt": "White City: Modernist facades in noon sun",
+                  "width": 2320,
+                  "height": 1547
+                },
+                "heading": "White City",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Monograph, Halden Press, 2025."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "item",
+                  "collection": "projects",
+                  "slug": "white-city"
+                },
+                "linkLabel": "View project"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1240&q=80",
+                  "alt": "Salt & Glass: The Pacific coast from above and at eye level, for a hotel group's new coastal lodges.",
+                  "width": 1240,
+                  "height": 2207
+                },
+                "heading": "Salt & Glass",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Commission, Tidewater Hotels, 2025."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "item",
+                  "collection": "projects",
+                  "slug": "salt-and-glass"
+                },
+                "linkLabel": "View project"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=2320&q=80",
+                  "alt": "Field Studies: Meadows, back roads and wildflowers from a summer spent driving the high plains.",
+                  "width": 2320,
+                  "height": 1537
+                },
+                "heading": "Field Studies",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Exhibition, Lowry Gallery, 2024."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "item",
+                  "collection": "projects",
+                  "slug": "field-studies"
+                },
+                "linkLabel": "View project"
+              }
+            ],
+            "columns": "2",
+            "aspect": "4:5"
+          },
+          "variant": "plain"
+        }
+      ]
+    },
+    {
+      "id": "sec_wgcarv7dr8",
+      "preset": "testimonials/large-single@1",
+      "label": "One big testimonial",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_eqq33afc80",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Elias spent four days on a building we thought we knew, and found angles none of us had noticed in ten years. The book sold out in a month."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Ingrid Halden",
+            "role": "Publisher, Halden Press",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=320&q=80",
+              "alt": "Portrait of Ingrid Halden",
+              "width": 320,
+              "height": 479
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_g59a6n90dd",
+      "preset": "logos/row@1",
+      "label": "Logo row",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "md",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_dkt4ztqzhb",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "label": "Published and exhibited by",
+            "logos": [
+              {
+                "name": "Halden Press"
+              },
+              {
+                "name": "Lowry Gallery"
+              },
+              {
+                "name": "Field & Form"
+              },
+              {
+                "name": "The Modern House Review"
+              },
+              {
+                "name": "Tidewater Hotels"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_5nmdwzj3kr",
+      "preset": "cta/split@1",
+      "label": "Headline with action on the right",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            8,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_338vez9bqg",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Booking spring 2027 commissions now",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Commissions"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_jvng2vbmb7",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start a conversation",
+            "link": {
+              "type": "page",
+              "page": "pg_h72a8wvyfr"
+            },
+            "role": "primary",
+            "note": "Architecture, hospitality and editorial."
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

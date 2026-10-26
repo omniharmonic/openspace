@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { blocksRegistry, sectionPresets } from "@openspace/blocks";
+import { blocksRegistry, PHOTOS, sectionPresets } from "@openspace/blocks";
 import { run, runCheck } from "@openspace/cli";
 import { designCheck, seoCheck } from "@openspace/lint";
 import { SiteDocumentSchema } from "@openspace/schema";
@@ -36,6 +36,8 @@ const DEMO_COPY = (() => {
   for (const p of sectionPresets) add(p.build().blocks.map((b) => b.fields));
   const reg = blocksRegistry();
   for (const type of reg.types()) add(reg.get(type)?.create({}).fields);
+  // Photo descriptions belong to the shared, credited photo library, not to a preset.
+  for (const p of Object.values(PHOTOS)) set.delete(p.alt);
   return set;
 })();
 

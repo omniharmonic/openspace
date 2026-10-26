@@ -1,0 +1,366 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_v4f7w3832h",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Riverbend Neighbors began in a church basement in 2004. Meet our staff and board, our partners and how we spend every dollar."
+  },
+  "sections": [
+    {
+      "id": "sec_kc2ew8esqk",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_w660vaadj4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Twenty years on Penn Avenue",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "About us",
+            "subheading": "We started with a folding table and six bags of groceries. Today Riverbend is a staff of nine, three hundred volunteers and one stubborn idea: nobody here should go without."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_emhnb0dhbn",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Read the 2025 report",
+            "link": {
+              "type": "url",
+              "url": "/news/"
+            },
+            "role": "primary",
+            "secondaryLabel": "Meet the team",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_v4f7w3832h",
+              "anchor": "team"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_tx5efs0gg6",
+      "preset": "about/story-editorial@1",
+      "label": "Editorial story",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_yv1zp3c1t1",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "How a church basement became a pantry",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Our story"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_zdvsjd6dqe",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "In the winter of 2004, the steel-mill pensions on our block were cut in half. Margaret Oyelaran, a retired school nurse, noticed that her neighbors were skipping meals so they could heat their homes. She set up a folding table in the basement of St. Augustine's, borrowed a van, and started giving away groceries on Saturday mornings."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Word travelled. Within a year there were forty volunteers and a waiting list for help with leaking roofs and broken furnaces. Homework Harbor followed in 2012, when parents who came to the pantry asked for somewhere safe for their kids after school. We still ask the same question before starting anything new: what do our neighbors say they need?"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "drop-cap"
+        }
+      ]
+    },
+    {
+      "id": "sec_xyx9gd8b4v",
+      "preset": "team/grid@1",
+      "label": "Team grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_a68dfb03p5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The people behind the programs",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Staff",
+            "subheading": "Nine staff, most of whom first came to Riverbend as volunteers or neighbors."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_perdh292jk",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Simone Achterberg",
+                "role": "Executive director",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80",
+                  "alt": "Portrait of Simone Achterberg",
+                  "width": 600,
+                  "height": 899
+                }
+              },
+              {
+                "name": "Marcus Ellery",
+                "role": "Pantry manager",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80",
+                  "alt": "Portrait of Marcus Ellery",
+                  "width": 600,
+                  "height": 900
+                }
+              },
+              {
+                "name": "Ana Ruiz-Patel",
+                "role": "Youth programs lead",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80",
+                  "alt": "Portrait of Ana Ruiz-Patel",
+                  "width": 600,
+                  "height": 900
+                }
+              },
+              {
+                "name": "Sam Whitfield",
+                "role": "Repair crew coordinator",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
+                  "alt": "Portrait of Sam Whitfield",
+                  "width": 600,
+                  "height": 900
+                }
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "grid"
+        }
+      ],
+      "anchor": "team"
+    },
+    {
+      "id": "sec_21r8tk7d4j",
+      "preset": "stats/cards@1",
+      "label": "Numbers on cards",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_by77naz768",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Where the money goes",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Accountability",
+            "subheading": "From our audited 2025 accounts. The full report is free to download."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_qysx1ts7sa",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "94%",
+                "label": "Programs",
+                "detail": "Food, tutoring, repair materials and the staff who run them."
+              },
+              {
+                "value": "4%",
+                "label": "Fundraising",
+                "detail": "Mailings, events and our small donor database."
+              },
+              {
+                "value": "2%",
+                "label": "Administration",
+                "detail": "Audit, insurance and keeping the lights on."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_0rfp7662z5",
+      "preset": "logos/grid@1",
+      "label": "Partner grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_9p58n1fwv0",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Good work is never done alone",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Partners",
+            "subheading": "Farms, schools, congregations and businesses who share food, space and expertise."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_cjdxfk6k5y",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "logos": [
+              {
+                "name": "Allegheny Food Network"
+              },
+              {
+                "name": "Three Rivers Farm Co-op"
+              },
+              {
+                "name": "St. Augustine's Parish"
+              },
+              {
+                "name": "Arsenal Middle School"
+              },
+              {
+                "name": "Penn Ave Hardware"
+              },
+              {
+                "name": "Lawrenceville United"
+              },
+              {
+                "name": "Steel City Builders Guild"
+              },
+              {
+                "name": "Butler Street Bakery"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "grid"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_0fq27dh81s",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Elias Varga grew up in the Front Range and trained as an architect before turning to photography. Biography, press and clients."
+  },
+  "sections": [
+    {
+      "id": "sec_s89q65ff87",
+      "preset": "about/story-split@1",
+      "label": "Story with portrait",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_bzdnh42yff",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=1040&q=80",
+              "alt": "Portrait of the photographer Elias Varga",
+              "width": 1040,
+              "height": 1560
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_hve7ymxe2e",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Elias Varga",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_rmmfgv8z80",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I grew up in Golden, Colorado, and spent my twenties drawing buildings for an architecture firm in Chicago. Photography started as a way to remember the places I was drawing. It became the work when I realised I cared more about how light moved across a wall than about the wall itself."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Since 2016 I have photographed mountains, coastlines and modernist buildings for publishers, architects and a handful of hotels. I shoot slowly, mostly on a large-format camera, and print every edition by hand in my studio in RiNo."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_rqygd6h4p7",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get in touch",
+            "link": {
+              "type": "page",
+              "page": "pg_h72a8wvyfr"
+            },
+            "role": "secondary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_ym8yf3b1a0",
+      "preset": "about/milestones@1",
+      "label": "Milestones timeline",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_6743tty2am",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Exhibitions & books",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Selected",
+            "subheading": "Solo shows, publications and awards since 2018."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_pc6dnfp8h2",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "2026",
+                "title": "Cordillera",
+                "text": "Solo exhibition at the Lowry Gallery, Denver, with a limited-run catalogue."
+              },
+              {
+                "date": "2025",
+                "title": "White City",
+                "text": "Monograph published by Halden Press; shortlisted for the Field & Form book prize."
+              },
+              {
+                "date": "2023",
+                "title": "Coastlines",
+                "text": "Group show at the Kessler Foundation for Photography, Portland."
+              },
+              {
+                "date": "2018",
+                "title": "First commission",
+                "text": "Twelve modernist houses in Palm Springs for The Modern House Review."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "vertical"
+        }
+      ]
+    }
+  ]
+}
