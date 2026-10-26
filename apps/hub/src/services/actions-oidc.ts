@@ -4,8 +4,9 @@
  * keys. The token lives minutes, names the repository, ref and commit of that very run, and needs
  * no stored secret — this is how a Cloudflare publish authorizes downloading its gated content.
  */
-import { base64ToBytes } from "../lib/crypto";
+
 import type { FetchLike } from "../github/http";
+import { base64ToBytes } from "../lib/crypto";
 
 export const ACTIONS_OIDC_ISSUER = "https://token.actions.githubusercontent.com";
 

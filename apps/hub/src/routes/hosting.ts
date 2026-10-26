@@ -20,6 +20,7 @@ import { roomStub, unwrapRoom } from "../room";
 import type { Services } from "../services";
 import { CLOUDFLARE_SECRETS } from "../services/hosting";
 import { requireRole, siteForUser } from "../services/sites";
+import { syncWorkerSecrets } from "../services/worker-secrets";
 import type { AppEnv } from "../types";
 
 export const hostingRoutes = new Hono<AppEnv>();
@@ -106,6 +107,9 @@ hostingRoutes.post("/:id/hosting", async (c) => {
         "missing_secrets",
         "Add your Cloudflare token and account ID first.",
       );
+    // The Worker's own secrets (member session key, page password hashes) before the switch
+    // commit starts the first Cloudflare build.
+    await syncWorkerSecrets(c.var.services, site, { force: true });
   }
   await unwrapRoom(roomStub(c.env, site.id).switchHosting(site.id, { userId: user.id, target }));
   const fresh = await siteForUser(c.var.services, site.id, user);

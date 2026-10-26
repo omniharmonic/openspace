@@ -11,7 +11,6 @@ import { magicLinkEmail } from "@openspace/email-render";
 import { z } from "zod";
 import type { SiteRow } from "../db/sites";
 import type { User } from "../db/users";
-import { parseRepo } from "../github/types";
 import { randomId, randomToken, sha256Hex, timingSafeEqual } from "../lib/crypto";
 import { conflict, HttpError, notFound } from "../lib/errors";
 import { hmacB64 } from "../lib/seal";
@@ -22,6 +21,7 @@ import { emailSite, sendTransactional, siteBaseUrl } from "./email";
 import type { Services } from "./index";
 import { hubIssuer, newJti, signJwt } from "./member-keys";
 import { normalizeEmail } from "./newsletter";
+import { republish, syncWorkerSecrets } from "./worker-secrets";
 
 export const MAGIC_TTL_MS = 15 * 60 * 1000;
 export const MEMBER_TOKEN_TTL_SEC = 5 * 60;
@@ -672,14 +672,13 @@ export async function setPagePassword(
       .run();
   }
   const all = await pagePasswords(services.db, site.id);
-  if (site.deploy_target === "cloudflare")
-    await services
-      .github({ site, user })
-      .setSecret(
-        parseRepo(site.repo),
-        "OS_PAGE_PASSWORDS",
-        JSON.stringify(Object.fromEntries(all.map((r) => [r.page_id, r.hash]))),
-      );
+  if (site.deploy_target === "cloudflare") {
+    // The Worker reads the hashes from its own secret: update it and rebuild the live site so
+    // the change (or removal) takes effect now, not at the next publish.
+    const gh = services.github({ site, user });
+    await syncWorkerSecrets(services, site, { gh });
+    await republish(services, site, gh);
+  }
   return { pages: all.map((r) => r.page_id) };
 }
 

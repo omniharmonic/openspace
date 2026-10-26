@@ -3,8 +3,8 @@ import type { Page, SiteDocument } from "@openspace/schema";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { DevGitHubAccess } from "../src/github/dev";
-import { resetActionsKeyCache } from "../src/services/actions-oidc";
 import { unwrapRoom } from "../src/room";
+import { resetActionsKeyCache } from "../src/services/actions-oidc";
 import {
   gatedBundle,
   gatedKey,
@@ -269,9 +269,7 @@ describe("the Cloudflare publish workflow downloads gated content with its OIDC 
       401,
     );
     expect((await get(await sign({ ...claims, exp: now - 600 }))).status).toBe(401);
-    expect((await get(await sign({ ...claims, repository: "mallory/gated-ci" }))).status).toBe(
-      403,
-    );
+    expect((await get(await sign({ ...claims, repository: "mallory/gated-ci" }))).status).toBe(403);
     expect((await get(await sign({ ...claims, ref: "refs/heads/feature" }))).status).toBe(403);
     const tampered = (await sign(claims)).replace(/\.[^.]+$/, ".AAAA");
     expect((await get(tampered)).status).toBe(401);

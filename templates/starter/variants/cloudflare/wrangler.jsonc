@@ -4,9 +4,9 @@
   "name": "openspace-site",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
-  // Gated (members / password) page content — never stored in the public repository.
-  // Provisioned automatically on the first deploy.
-  "r2_buckets": [{ "binding": "OS_GATED" }],
+  // Gated (members / password) page content — never stored in the public repository. The
+  // publish workflow (`openspace gated-sync`) creates the bucket and fills it from the Hub.
+  "r2_buckets": [{ "binding": "OS_GATED", "bucket_name": "openspace-site-gated" }],
   // Stock and orders for the store (Phase 5).
   "d1_databases": [{ "binding": "OS_DB" }],
   "observability": { "enabled": true }

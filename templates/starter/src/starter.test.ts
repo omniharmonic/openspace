@@ -10,6 +10,7 @@ const expr = (inner: string) => ["$", "{{ ", inner, " }}"].join("");
 const TURNSTILE_VAR = expr("vars.OPENSPACE_TURNSTILE_SITE_KEY");
 
 type Step = {
+  name?: string;
   uses?: string;
   run?: string;
   with?: Record<string, unknown>;
@@ -73,7 +74,8 @@ describe("starter site shell", () => {
     const wf = parse(
       await readFile(join(VARIANTS.cloudflare, ".github/workflows/publish.yml"), "utf8"),
     ) as Workflow;
-    expect(wf.permissions).toEqual({ contents: "read" });
+    // id-token: the run's OIDC identity authorizes downloading its gated pages from the Hub.
+    expect(wf.permissions).toEqual({ contents: "read", "id-token": "write" });
     const steps = wf.jobs.publish?.steps ?? [];
     expect(steps.map((s) => s.uses ?? s.run)).toContain("npx openspace check --ci");
     expect(steps.map((s) => s.uses ?? s.run)).toContain(
@@ -90,8 +92,22 @@ describe("starter site shell", () => {
       CLOUDFLARE_API_TOKEN: expr("secrets.CLOUDFLARE_API_TOKEN"),
       CLOUDFLARE_ACCOUNT_ID: expr("secrets.CLOUDFLARE_ACCOUNT_ID"),
     });
+    const runs = steps.map((s) => s.run ?? "");
+    const gated = runs.indexOf("npx openspace gated-sync");
+    const secrets = steps.findIndex((s) => s.name === "Worker secrets");
+    // Gated content and Worker secrets are in place before the deploy that uses them.
+    expect(gated).toBeGreaterThan(runs.indexOf("npm run build"));
+    expect(secrets).toBeGreaterThan(gated);
+    expect(secrets).toBeLessThan(steps.length - 1);
+    const secretStep = steps[secrets];
+    expect(secretStep?.run).toContain("npx wrangler secret bulk");
+    expect(secretStep?.env).toMatchObject({
+      OS_SESSION_SECRET: expr("secrets.OS_SESSION_SECRET"),
+      OS_PAGE_PASSWORDS: expr("secrets.OS_PAGE_PASSWORDS"),
+      STRIPE_SECRET_KEY: expr("secrets.STRIPE_SECRET_KEY"),
+    });
     const wrangler = await readFile(join(VARIANTS.cloudflare, "wrangler.jsonc"), "utf8");
-    expect(wrangler).toContain('"binding": "OS_GATED"');
+    expect(wrangler).toContain('"binding": "OS_GATED", "bucket_name": "openspace-site-gated"');
   });
 
   it("is a thin shell: config, one page route, package.json, AGENTS.md, workflow", async () => {

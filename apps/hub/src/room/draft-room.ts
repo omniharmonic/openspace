@@ -25,6 +25,7 @@ import { gatedContext, readOpenedDocumentFiles, sealChanges } from "../services/
 import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
 import { diffSiteFiles, loadSiteDocument } from "../services/site-files";
+import { syncWorkerSecretsSafely } from "../services/worker-secrets";
 import { commitMessage, type TrailerActor, trailerEmail } from "./commit";
 import {
   type BuildNotice,
@@ -1301,6 +1302,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
           actors,
           "Published changes",
         );
+        // Cloudflare: the Worker's secrets must be in place before the commit starts the build.
+        await syncWorkerSecretsSafely(services, site, this.log, {
+          gh,
+          doc: this.state.doc as SiteDocument,
+        });
         const commit = await gh.commitTree(repo, {
           branch: MAIN_BRANCH,
           treeOf: draftHead,
@@ -1386,6 +1392,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const when = target.date.slice(0, 10);
         const summary = `Went back to the version from ${when}`;
         const firstLine = target.message.split("\n")[0] ?? "";
+        await syncWorkerSecretsSafely(services, site, this.log, { gh });
         const commit = await gh.commitTree(repo, {
           branch: MAIN_BRANCH,
           treeOf: target.sha,
