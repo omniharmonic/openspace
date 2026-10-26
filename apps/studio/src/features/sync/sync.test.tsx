@@ -41,7 +41,8 @@ describe("publishing", () => {
   beforeEach(() => useEditorUi.getState().reset());
 
   it("summarises the changes, publishes and shows Publishing… → Live with the address", async () => {
-    const { user, hub } = await openEditor();
+    // The Publishing… phase must outlast waitFor's 50ms poll, or the test races past it.
+    const { user, hub } = await openEditor({ publishStepMs: 600 });
     await edit("Book a class");
 
     await user.click(screen.getByRole("button", { name: "Publish" }));
@@ -277,7 +278,7 @@ describe("live collaboration", () => {
   beforeEach(() => useEditorUi.getState().reset());
 
   it("shows “Claude is editing Home…” live, then Accept / Undo all", async () => {
-    const { user, hub } = await openEditor({ agentPresenceMs: 120 });
+    const { user, hub } = await openEditor({ agentPresenceMs: 1000 });
     const agent = hub.room(willow.id).startAgent({ userId: SAM.id, name: SAM.name }, "Claude");
     act(() => {
       agent.edit([setLabel("Written by Claude"), setLabel("Bring a mat", "secondaryLabel")]);

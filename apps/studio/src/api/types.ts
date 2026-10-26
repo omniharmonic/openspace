@@ -1,5 +1,6 @@
 import type { SiteDocument } from "@openspace/schema";
 import type { BuildState, PublishError, RoomSocket } from "../features/sync/protocol";
+import type { GrowthApi } from "./growth-types";
 import type { ManageApi } from "./manage-types";
 
 /**
@@ -122,8 +123,11 @@ export interface GitHubSignInParams {
   returnTo?: string;
 }
 
-/** `ManageApi`: site-management routes (Task 24, ./manage-types.ts). */
-export interface HubApi extends ManageApi {
+/**
+ * `ManageApi`: site-management routes (Task 24, ./manage-types.ts). `GrowthApi`: inbox,
+ * subscribers, analytics, commerce, members and email (Task 25, ./growth-types.ts).
+ */
+export interface HubApi extends ManageApi, GrowthApi {
   readonly kind: "http" | "mock";
   getSession(): Promise<Session>;
   devLogin(name: string): Promise<User>;

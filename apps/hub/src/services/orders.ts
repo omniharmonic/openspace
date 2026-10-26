@@ -84,6 +84,16 @@ const parse = <T>(json: string | null, fallback: T): T => {
   }
 };
 
+/** True when an order has nothing to post: a donation, a membership, or downloads only. */
+export function needsNoShipping(kind: OrderRow["kind"], items: OrderItem[]): boolean {
+  return kind !== "order" || items.every((i) => i.digital);
+}
+
+/** SQL for "paid, unsent, with something to post" (the owner's to-do list). */
+const TO_SEND_SQL = `status IN ('paid', 'partially_refunded') AND fulfillment = 'unfulfilled' AND kind = 'order'
+  AND EXISTS (SELECT 1 FROM json_each(items_json) WHERE COALESCE(json_extract(value, '$.digital'), 0) = 0)`;
+const PROBLEM_SQL = "followup_error IS NOT NULL AND followups_at IS NULL AND status != 'refunded'";
+
 export function orderItems(o: Pick<OrderRow, "items_json">): OrderItem[] {
   return parse<OrderItem[]>(o.items_json, []);
 }
@@ -377,14 +387,19 @@ export async function completeSession(
 
   const items = orderItems(order);
   const tracked = order.kind === "order" ? items : [];
+  // Nothing to post (donations, memberships, download-only orders): it's done once paid, so it
+  // never waits in the owner's "to send" list.
+  const nothingToShip = needsNoShipping(order.kind, items) ? 1 : 0;
   const stmts = [
     db
       .prepare(
         `UPDATE orders SET status = 'paid', paid_at = ?, total = ?, email = ?, customer_name = ?,
-           payment_intent = ?, subscription_id = ?, amounts_json = ?, shipping_json = ?, updated_at = ?
+           payment_intent = ?, subscription_id = ?, amounts_json = ?, shipping_json = ?, updated_at = ?,
+           fulfillment = CASE WHEN ? = 1 THEN 'fulfilled' ELSE fulfillment END,
+           fulfilled_at = CASE WHEN ? = 1 THEN COALESCE(fulfilled_at, ?) ELSE fulfilled_at END
          WHERE id = ? AND status IN ('pending', 'processing', 'expired')`,
       )
-      .bind(now, amountTotal, ...common, now, order.id),
+      .bind(now, amountTotal, ...common, now, nothingToShip, nothingToShip, now, order.id),
     ...tracked.map((it) =>
       db
         .prepare(
@@ -831,6 +846,8 @@ export interface OrderQuery {
   fulfillment?: OrderRow["fulfillment"];
   /** Only orders with a delivery/refund problem the owner should look at. */
   problem?: boolean;
+  /** Only paid (or partly refunded) orders with physical items not sent yet. */
+  toSend?: boolean;
   q?: string;
   from?: number;
   to?: number;
@@ -854,8 +871,8 @@ export async function listOrders(db: D1Database, siteId: string, q: OrderQuery) 
     where.push("fulfillment = ?");
     args.push(q.fulfillment);
   }
-  if (q.problem)
-    where.push("followup_error IS NOT NULL AND followups_at IS NULL AND status != 'refunded'");
+  if (q.problem) where.push(PROBLEM_SQL);
+  if (q.toSend) where.push(TO_SEND_SQL);
   if (q.q) {
     const num = Number(q.q.replace(/^#/, ""));
     if (Number.isInteger(num) && num > 0) {
@@ -887,9 +904,19 @@ export async function listOrders(db: D1Database, siteId: string, q: OrderQuery) 
     .all<OrderRow>();
   const page = rows.results.slice(0, q.limit);
   const last = page[page.length - 1];
+  const counts = await db
+    .prepare(
+      `SELECT SUM(CASE WHEN ${TO_SEND_SQL} THEN 1 ELSE 0 END) AS toSend,
+              SUM(CASE WHEN ${PROBLEM_SQL} THEN 1 ELSE 0 END) AS problem
+         FROM orders WHERE site_id = ?`,
+    )
+    .bind(siteId)
+    .first<{ toSend: number | null; problem: number | null }>();
   return {
     orders: page.map(toOrderView),
     nextCursor: rows.results.length > q.limit && last ? `${last.created_at}|${last.id}` : null,
+    /** Site-wide counts for the dashboard badges (independent of the filters and paging). */
+    counts: { toSend: counts?.toSend ?? 0, problem: counts?.problem ?? 0 },
   };
 }
 

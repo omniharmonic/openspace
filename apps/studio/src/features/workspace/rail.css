@@ -1,0 +1,13 @@
+.st-ed-rail__sep {
+  flex: none;
+  width: 20px;
+  height: 1px;
+  margin: 4px 0;
+  background: var(--st-line);
+}
+
+@media (max-width: 767px) {
+  .st-ed-rail__sep {
+    display: none;
+  }
+}

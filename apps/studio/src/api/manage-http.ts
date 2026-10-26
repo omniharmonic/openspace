@@ -174,12 +174,12 @@ export function createManageHttp({
       const q = status ? `?status=${enc(status)}` : "";
       return unwrap<Approval[]>(await request("GET", `${site(siteId)}/approvals${q}`), "approvals");
     },
-    async decideApproval(siteId, approvalId, decision, note) {
+    async decideApproval(siteId, approvalId, decision, note, contentHash) {
       return unwrap<Approval>(
         await request(
           "POST",
           `${site(siteId)}/approvals/${enc(approvalId)}/${decision}`,
-          decision === "reject" ? { note } : {},
+          decision === "reject" ? { note } : contentHash ? { contentHash } : {},
         ),
         "approval",
       );

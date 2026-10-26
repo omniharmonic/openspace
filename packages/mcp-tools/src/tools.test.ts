@@ -618,8 +618,8 @@ describe("resources and prompts", () => {
 
 describe("fetchImage", () => {
   const png = base64ToBytes(tinyPng(2, 2));
-  const respond = (body: ConstructorParameters<typeof Response>[0], init: ResponseInit) =>
-    new Response(body, init);
+  const respond = (body: BodyInit | null, init: ResponseInit) =>
+    new Response(body instanceof Uint8Array ? new Blob([new Uint8Array(body)]) : body, init);
 
   it("downloads https images and follows https redirects", async () => {
     const calls: string[] = [];

@@ -3,6 +3,8 @@ import { newId, type SiteDocument } from "@openspace/schema";
 import { devSiteDocument } from "../features/editor/model/dev-site";
 import type { BuildNotice, PublishError } from "../features/sync/protocol";
 import { demoSites, TEMPLATE_FIXTURES } from "./fixtures";
+import { demoCollections } from "./growth-fixtures";
+import { createGrowthMock, type GrowthMockState } from "./growth-mock";
 import { createManageMock, type ManageMockState } from "./manage-mock";
 import { MockRoom } from "./mockRoom";
 import {
@@ -44,6 +46,8 @@ export interface MockHubOptions {
   publishStepMs?: number;
   /** How long an agent shows as editing after its last change (ms). */
   agentPresenceMs?: number;
+  /** Seed blog posts, events, products and a podcast into new site drafts (default: demo mode). */
+  demoContent?: boolean;
 }
 
 /** Plain-language publish failures the mock can simulate (mirrors the Hub's translations). */
@@ -101,6 +105,8 @@ export interface MockHub extends HubApi {
   readonly calls: Array<{ method: keyof HubApi; args: unknown[] }>;
   /** Site-management state (domains, collaborators, uploads, hosting…; Task 24). */
   readonly manage: ManageMockState;
+  /** Inbox, subscribers, commerce, members and email state (Task 25). */
+  readonly growth: GrowthMockState;
   /** The site's in-memory draft room (created on first use). */
   room(siteId: string): MockRoom;
   /** Make the next publish of a site fail with one of {@link MOCK_PUBLISH_ERRORS}. */
@@ -210,6 +216,22 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   };
 
   const manage = createManageMock({ calls, wait, requireUser, findSite, now });
+  const demoContent = options.demoContent ?? options.sites === "demo";
+  const growth = createGrowthMock({
+    calls,
+    wait,
+    requireUser,
+    findSite,
+    now,
+    docOf: (site) => roomFor(site).doc,
+    publishItem: (site, collection, item, approver) =>
+      roomFor(site)
+        .collaborator({ userId: approver.id, name: approver.name })
+        .edit([{ op: "collection.upsert", collection, item }]),
+    approvals: manage.state.approvals,
+    decideApproval: manage.api.decideApproval,
+    listApprovals: manage.api.listApprovals,
+  });
   // --- draft rooms, publishing and history --------------------------------------------------
 
   const rooms = new Map<string, MockRoom>();
@@ -230,7 +252,10 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       tagline: site.tagline ?? undefined,
       url: site.url,
     });
-    return state.documents[site.id] as SiteDocument;
+    const draft = state.documents[site.id] as SiteDocument;
+    if (demoContent && Object.keys(draft.collections).length === 0)
+      Object.assign(draft, demoCollections(now()));
+    return draft;
   };
 
   const versionsOf = (site: Site): MockVersion[] => {
@@ -286,6 +311,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
         now,
         latencyMs: options.roomLatencyMs ?? 0,
         agentPresenceMs: options.agentPresenceMs,
+        onAccepted: (op) => growth.onRoomOp(site, op as never),
         onChange: (doc, seq) => {
           (state.documents as Record<string, SiteDocument>)[site.id] = doc;
           (state.roomSeq as Record<string, number>)[site.id] = seq;
@@ -395,10 +421,13 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
 
   const hub: MockHub = {
     ...manage.api,
+    ...growth.api,
+    ...growth.overrides,
     kind: "mock",
     state,
     calls,
     manage: manage.state,
+    growth: growth.state,
 
     room(siteId) {
       const site = state.sites.find((s) => s.id === siteId);

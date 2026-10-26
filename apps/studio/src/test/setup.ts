@@ -1,6 +1,11 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterEach } from "vitest";
+
+// Heavy editor renders in jsdom exceed RTL's 1s default when the whole workspace runs in parallel
+// (CPU contention), so findBy*/waitFor time out on slow-but-correct renders. Polling returns as
+// soon as the condition holds, so a generous ceiling costs nothing when the machine is idle.
+configure({ asyncUtilTimeout: 10_000 });
 
 // jsdom lacks a few browser APIs that Radix primitives and our scrub input rely on.
 class ResizeObserverStub {

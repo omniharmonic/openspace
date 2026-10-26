@@ -5,7 +5,9 @@ import { h, ICON_CLOSE, icon, load, save, siteInfo } from "./shared";
  * - `[data-os-add]` buttons with `data-os-sku`, `data-os-name`, `data-os-price` (minor units,
  *   display only), `data-os-currency`, optional `data-os-qty-input` (selector of a qty input)
  *   and optional `data-os-sku-input` (selector of a variant `<select>` whose option values are
- *   SKUs; the selected option's `data-os-name` / `data-os-price` override the button's);
+ *   SKUs; the selected option's `data-os-name` / `data-os-price` override the button's) and
+ *   optional `data-os-image-target` (selector of the product photo: choosing an option with a
+ *   `data-os-image` URL shows that photo);
  * - `[data-os-cart-toggle]` opens the drawer; `[data-os-cart-count]` shows the item count.
  * Checkout POSTs only SKUs and quantities to the Hub; prices are re-read server-side from the
  * published catalog, never trusted from the browser.
@@ -195,6 +197,22 @@ export default function cart(el: HTMLElement): void {
   }
   if (el.hasAttribute("data-os-cart-toggle")) el.addEventListener("click", openCart);
   if (el.hasAttribute("data-os-add")) {
+    const pickSel = el.dataset.osSkuInput;
+    const photoSel = el.dataset.osImageTarget;
+    const pick = pickSel ? document.querySelector<HTMLSelectElement>(pickSel) : null;
+    if (pick && photoSel)
+      pick.addEventListener("change", () => {
+        const url = pick.selectedOptions[0]?.dataset.osImage;
+        const box = document.querySelector(photoSel);
+        if (!url || !box) return;
+        // The variant photo replaces every candidate (sources and the img), so it shows everywhere.
+        for (const s of box.querySelectorAll("source")) s.srcset = url;
+        const img = box.querySelector("img");
+        if (img) {
+          img.removeAttribute("srcset");
+          img.src = url;
+        }
+      });
     el.addEventListener("click", () => {
       const d = { ...el.dataset };
       const pick = d.osSkuInput ? document.querySelector<HTMLSelectElement>(d.osSkuInput) : null;
