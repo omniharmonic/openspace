@@ -1,0 +1,281 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_ney032yen1",
+  "title": "The weekend",
+  "slug": "schedule",
+  "seo": {
+    "description": "The schedule for Amara and Theo's wedding weekend in Glen Ellen: welcome drinks, the ceremony and reception, and Sunday brunch."
+  },
+  "sections": [
+    {
+      "id": "sec_mydamnw6zb",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_vaf2pxs42b",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The wedding weekend",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "September 17 – 19, 2027",
+            "subheading": "Everything happens at Beltane Ranch unless we say otherwise. Dress code for Saturday: garden formal, comfortable shoes for the lawn."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_6jr3rfd4km",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "RSVP",
+            "link": {
+              "type": "page",
+              "page": "pg_9r8e3vc3gk"
+            },
+            "role": "primary",
+            "secondaryLabel": "Travel & hotels",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_a479vp9zja"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_s8dpq2wry2",
+      "preset": "about/milestones@1",
+      "label": "Milestones timeline",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_d001gnh45n",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The day",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Saturday, September 18",
+            "subheading": "A rough guide to the day. Shuttles leave the Glen Ellen hotels at 3:15pm."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_gzbesbxjh6",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "3:30 pm",
+                "title": "Arrive at the ranch",
+                "text": "Lemonade and iced tea under the walnut trees while everyone finds a seat."
+              },
+              {
+                "date": "4:00 pm",
+                "title": "Ceremony under the oak",
+                "text": "A short, unplugged ceremony led by our friend Priya. Tissues provided."
+              },
+              {
+                "date": "4:45 pm",
+                "title": "Cocktails on the lawn",
+                "text": "Local wine, a signature spritz and oysters while we take photos."
+              },
+              {
+                "date": "6:30 pm",
+                "title": "Dinner in the barn",
+                "text": "A long-table, family-style supper from Ember & Vine, with toasts between courses."
+              },
+              {
+                "date": "8:30 pm",
+                "title": "First dance, then everyone",
+                "text": "A live band until ten, then a DJ until the neighbours complain."
+              },
+              {
+                "date": "11:30 pm",
+                "title": "Last shuttle",
+                "text": "Shuttles back to Glen Ellen and Sonoma leave every twenty minutes from 10pm."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "alternating"
+        }
+      ]
+    },
+    {
+      "id": "sec_00x052c9h2",
+      "preset": "services/image-cards@1",
+      "label": "Three services with photos",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_y28075m0x5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Before and after",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Friday & Sunday",
+            "subheading": "Optional, relaxed and very much encouraged if you're in town."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_5hgs7at4tk",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1560&q=80",
+                  "alt": "Friends gathered around a long table outdoors",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Friday welcome party",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Wood-fired pizza and drinks on the ranch porch from 6pm. Come as you are."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "page",
+                  "page": "pg_a479vp9zja"
+                },
+                "linkLabel": "Getting to the ranch"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1660286156087-911df708e663?w=1560&q=80",
+                  "alt": "Guests cheering as the couple walk down the aisle",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Saturday wedding",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Ceremony at 4pm, then cocktails, dinner in the barn and dancing."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "page",
+                  "page": "pg_ney032yen1"
+                },
+                "linkLabel": "See the day"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=840&q=80",
+                  "alt": "Coffee cups on a small table with herbs",
+                  "width": 840,
+                  "height": 1260
+                },
+                "heading": "Sunday brunch",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Coffee, pastries and goodbyes from 10am to noon in the ranch garden."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "page",
+                  "page": "pg_9r8e3vc3gk"
+                },
+                "linkLabel": "Let us know you're coming"
+              }
+            ],
+            "columns": "3",
+            "aspect": "4:5"
+          },
+          "variant": "plain"
+        }
+      ]
+    }
+  ]
+}

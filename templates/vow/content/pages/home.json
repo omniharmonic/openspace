@@ -1,0 +1,400 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_vgg928jvv2",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Amara Osei and Theo Lindgren are getting married on September 18, 2027 in Glen Ellen, California. Details, travel and RSVP."
+  },
+  "sections": [
+    {
+      "id": "sec_x4dn5vbqyv",
+      "preset": "hero/full-bleed-photo@1",
+      "label": "Full-bleed photograph",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "3xl",
+          "m": "2xl"
+        },
+        "minHeight": {
+          "d": "88vh",
+          "m": "80svh"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1660286156087-911df708e663?w=2880&q=80",
+          "focal": [
+            0.5,
+            0.5
+          ],
+          "overlay": {
+            "color": "background",
+            "opacity": 0.5
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_z3rnmxh5x4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Amara & Theo are getting married",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "September 18, 2027 · Glen Ellen, California",
+            "subheading": "We'd love you to spend a long weekend with us in Sonoma wine country: welcome drinks on Friday, the wedding on Saturday and a slow brunch on Sunday."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_0vnkxfz82b",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "RSVP",
+            "link": {
+              "type": "page",
+              "page": "pg_9r8e3vc3gk"
+            },
+            "role": "primary",
+            "secondaryLabel": "The weekend",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_ney032yen1"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_zq7edj54ar",
+      "preset": "cta/countdown@1",
+      "label": "Countdown to an event",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_c3f1c6f89q",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Counting down to the big day",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Save the date",
+            "subheading": "The ceremony begins at 4pm under the old oak at Beltane Ranch. Please reply by July 1, 2027."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_bjc0c6qr2p",
+          "type": "countdown",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "target": "2027-09-18T16:00:00-07:00",
+            "showSeconds": false,
+            "doneMessage": "We're married! Thank you for celebrating with us."
+          },
+          "variant": "boxes",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_96t3vhj9y2",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Reply to the invitation",
+            "link": {
+              "type": "page",
+              "page": "pg_9r8e3vc3gk"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_pyg8ry6ppv",
+      "preset": "about/story-split@1",
+      "label": "Story with portrait",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_twqcm7xfyw",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1920&q=80",
+              "alt": "Amara and Theo's hands with their rings, resting on a bouquet",
+              "width": 1920,
+              "height": 1280
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_sa8expgh2j",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A wrong train and a long conversation",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Our story"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_zhrj7p1xbs",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We met in 2019 on the wrong train out of Oakland: Amara was heading to a job interview, Theo was heading home from a night shift, and both of us had misread the board. By the time we worked it out, we'd talked through four stops and missed two more."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Seven years, two apartments and one very opinionated cat later, Theo proposed on the same platform. We can't wait to celebrate with the people who made the years in between so good."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_6v3jhnjs9d",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Read our story",
+            "link": {
+              "type": "page",
+              "page": "pg_1qkwpmqv9x"
+            },
+            "role": "secondary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_1bcmmers45",
+      "preset": "features/icon-row@1",
+      "label": "Four benefits with icons",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_yn6j368ssc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Three days in Sonoma",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The weekend",
+            "subheading": "Come for the wedding, or stay for all of it. Every event is at or near Beltane Ranch."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_j9ecw8nezw",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "sun",
+                "title": "Friday welcome",
+                "text": "Drinks and pizza on the ranch porch from 6pm."
+              },
+              {
+                "icon": "heart",
+                "title": "Saturday wedding",
+                "text": "Ceremony at 4pm, then dinner and dancing until late."
+              },
+              {
+                "icon": "coffee",
+                "title": "Sunday brunch",
+                "text": "A slow goodbye with coffee and pastries, 10am to noon."
+              },
+              {
+                "icon": "map-pin",
+                "title": "Getting there",
+                "text": "An hour north of San Francisco; shuttles run all weekend."
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_qpah8zh2pg",
+      "preset": "cta/banner@1",
+      "label": "Centred banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_th2w0rjp4k",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Kindly reply by July 1, 2027",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Let us know whether you can come, who's with you and what you'd like for dinner."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_5pqpg6bg9x",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "RSVP now",
+            "link": {
+              "type": "page",
+              "page": "pg_9r8e3vc3gk"
+            },
+            "role": "primary",
+            "secondaryLabel": "Travel & stay",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_a479vp9zja"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

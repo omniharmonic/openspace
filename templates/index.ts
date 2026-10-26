@@ -26,6 +26,7 @@ import { kiln } from "./kiln/src/build";
 import { ledger } from "./ledger/src/build";
 import { meadow } from "./meadow/src/build";
 import { signal } from "./signal/src/build";
+import { vow } from "./vow/src/build";
 
 export type {
   LicenseEntry,
@@ -51,6 +52,7 @@ export const templateSpecs: readonly TemplateSpec[] = [
   encore,
   kiln,
   commons,
+  vow,
 ];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);

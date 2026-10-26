@@ -1,0 +1,200 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Amara & Theo",
+  "tagline": "September 18, 2027 · Glen Ellen, California",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_1qkwpmqv9x",
+      "label": "Our story"
+    },
+    {
+      "type": "page",
+      "page": "pg_ney032yen1",
+      "label": "The weekend"
+    },
+    {
+      "type": "page",
+      "page": "pg_a479vp9zja",
+      "label": "Travel"
+    },
+    {
+      "type": "page",
+      "page": "pg_sy1zdkvjrk",
+      "label": "Registry"
+    },
+    {
+      "type": "button",
+      "label": "RSVP",
+      "link": {
+        "type": "page",
+        "page": "pg_9r8e3vc3gk"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "logo-center-nav-below",
+    "sticky": false,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_kpmq5hzwh9",
+    "preset": "footer/centered@1",
+    "label": "Centred footer",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          12
+        ]
+      },
+      "width": "narrow",
+      "gap": "md"
+    },
+    "style": {
+      "colorTheme": "light-accent",
+      "padding": {
+        "d": "lg",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_dawz2pap8h",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Amara & Theo"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "September 18, 2027 · Beltane Ranch, 11775 Sonoma Highway, Glen Ellen, CA 95442"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "center"
+          }
+        }
+      },
+      {
+        "id": "blk_krj9f24d54",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "variant": "icons",
+        "style": {
+          "align": {
+            "d": "center"
+          }
+        }
+      },
+      {
+        "id": "blk_d1fegq6h3y",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Questions? Write to "
+                  },
+                  {
+                    "type": "text",
+                    "text": "hello@amaraandtheo.example",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "mailto:hello@amaraandtheo.example"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "RSVP",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/rsvp/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "center"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "email",
+      "url": "mailto:hello@amaraandtheo.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Amara & Theo",
+    "description": "Amara and Theo's wedding, September 18, 2027, Glen Ellen, California.",
+    "image": "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1200&q=80",
+    "noindex": false
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": false,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

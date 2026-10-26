@@ -1,0 +1,145 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_9r8e3vc3gk",
+  "title": "RSVP",
+  "slug": "rsvp",
+  "seo": {
+    "description": "RSVP for Amara and Theo's wedding on September 18, 2027. Please reply by July 1 with your meal choice and any dietary needs."
+  },
+  "sections": [
+    {
+      "id": "sec_5c3pnwckbs",
+      "preset": "contact/booking-request@1",
+      "label": "Booking request form",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_fedfrkz2vp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Will you celebrate with us?",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Kindly reply by July 1, 2027",
+            "subheading": "One reply per invitation, please. You can change your answer any time before July 1 by sending the form again."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_4j3bgarj62",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_2cszqbarv3",
+              "name": "RSVP",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name(s)",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "attending",
+                  "label": "Will you attend?",
+                  "required": true,
+                  "width": "half",
+                  "options": [
+                    "Joyfully accepts",
+                    "Regretfully declines"
+                  ]
+                },
+                {
+                  "type": "select",
+                  "name": "guests",
+                  "label": "Number of guests",
+                  "width": "half",
+                  "options": [
+                    "1",
+                    "2"
+                  ]
+                },
+                {
+                  "type": "select",
+                  "name": "dinner",
+                  "label": "Dinner choice",
+                  "width": "half",
+                  "options": [
+                    "Grilled halibut",
+                    "Braised short rib",
+                    "Wild mushroom risotto (vegetarian)"
+                  ]
+                },
+                {
+                  "type": "select",
+                  "name": "events",
+                  "label": "Also joining",
+                  "width": "half",
+                  "options": [
+                    "Friday and Sunday",
+                    "Friday welcome only",
+                    "Sunday brunch only",
+                    "Just the wedding"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "name": "dietary",
+                  "label": "Allergies or dietary needs",
+                  "width": "full"
+                },
+                {
+                  "type": "text",
+                  "name": "song",
+                  "label": "A song that will get you dancing",
+                  "width": "full"
+                },
+                {
+                  "type": "textarea",
+                  "name": "note",
+                  "label": "A note for the couple",
+                  "maxLength": 1000
+                }
+              ],
+              "submitLabel": "Send RSVP",
+              "success": {
+                "type": "message",
+                "message": "Thank you! We've got your reply and can't wait to celebrate."
+              },
+              "notifyOwner": true
+            }
+          },
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}
