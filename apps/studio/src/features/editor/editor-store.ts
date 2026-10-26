@@ -4,7 +4,7 @@ import { create } from "zustand";
  * Editor UI state (chrome: panels, device, zoom, panning). The document, page, selection,
  * hover and undo history live in the per-site document store (`model/store.ts`).
  */
-export type LeftPanel = "pages" | "layers" | "add" | "styles" | "media";
+export type LeftPanel = "pages" | "layers" | "add" | "styles" | "media" | "chrome";
 export type Breakpoint = "desktop" | "tablet" | "mobile";
 export type Zoom = "fit" | number;
 

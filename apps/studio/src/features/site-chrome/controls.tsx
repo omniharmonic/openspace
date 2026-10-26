@@ -71,7 +71,8 @@ export function ThemePicker({
   const styles = useDocStore((s) => s.doc.styles);
   const themes = useMemo(() => compiledStylesFor(styles).tokens.themes, [styles]);
   return (
-    <div className="st-themes" role="group" aria-label={label}>
+    <fieldset className="st-themes">
+      <legend className="st-visually-hidden">{label}</legend>
       {COLOR_THEMES.map((t) => {
         const c = themes[t] as unknown as Record<string, string>;
         return (
@@ -90,7 +91,7 @@ export function ThemePicker({
           </Tooltip>
         );
       })}
-    </div>
+    </fieldset>
   );
 }
 

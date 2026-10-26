@@ -82,7 +82,7 @@ export interface Uploader {
     files: File[],
     options?: { edit?: ImageEdit; name?: string },
   ): Promise<Array<{ path: string; duplicate: boolean } | null>>;
-  /** Pick up uploads left in the queue by an earlier session. */
+  /** Pick up uploads left in the queue by an earlier session (also re-activates after dispose). */
   resume(): Promise<void>;
   retry(id: string): void;
   /** Wait until nothing is uploading (tests). */
@@ -178,7 +178,16 @@ export function createUploader(deps: UploaderDeps): Uploader {
     timers.clear();
     void drain();
   };
-  if (typeof window !== "undefined") window.addEventListener("online", onOnline);
+  let listening = false;
+  /** (Re)activate after `dispose()` — editor sessions can remount. */
+  const start = () => {
+    disposed = false;
+    if (!listening && typeof window !== "undefined") {
+      window.addEventListener("online", onOnline);
+      listening = true;
+    }
+  };
+  start();
 
   const processOne = async (
     file: File,
@@ -250,12 +259,14 @@ export function createUploader(deps: UploaderDeps): Uploader {
 
   return {
     async add(files, options) {
+      start();
       const results: Array<{ path: string; duplicate: boolean } | null> = [];
       for (const f of files) results.push(await processOne(f, options));
       void drain();
       return results;
     },
     async resume() {
+      start();
       const pending = await deps.queue.list(deps.siteId);
       for (const item of pending) {
         useMediaSources.getState().addLocal(item.path, item.blob);
@@ -282,7 +293,10 @@ export function createUploader(deps: UploaderDeps): Uploader {
     dispose() {
       disposed = true;
       for (const t of timers) clearTimeout(t);
-      if (typeof window !== "undefined") window.removeEventListener("online", onOnline);
+      timers.clear();
+      waiting.clear();
+      if (listening) window.removeEventListener("online", onOnline);
+      listening = false;
     },
   };
 }

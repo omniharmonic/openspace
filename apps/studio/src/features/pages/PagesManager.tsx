@@ -262,7 +262,7 @@ function SortableRow({
         className="st-pm__grip"
         {...attributes}
         {...listeners}
-        aria-label={`Reorder ${rowLabel(doc, item)}`}
+        aria-label="Drag to reorder"
       >
         <GripVertical aria-hidden="true" />
       </button>
@@ -286,7 +286,7 @@ function SortableRow({
       {page && (
         <IconButton
           className="st-pm__action"
-          label={`Settings for ${page.title}`}
+          label="Page settings"
           icon={<Settings2 />}
           size="sm"
           onClick={() => openPageSettings(page.id)}
@@ -298,7 +298,7 @@ function SortableRow({
         trigger={
           <IconButton
             className="st-pm__action"
-            label={`More for ${rowLabel(doc, item)}`}
+            label="More options"
             icon={<MoreHorizontal />}
             size="sm"
             tooltip={false}
@@ -585,7 +585,7 @@ export function PagesManager() {
               </button>
               <IconButton
                 className="st-pm__action"
-                label={`Settings for ${p.title}`}
+                label="Page settings"
                 icon={<Settings2 />}
                 size="sm"
                 onClick={() => useManageUi.getState().openPageSettings(p.id)}
@@ -596,7 +596,7 @@ export function PagesManager() {
                 trigger={
                   <IconButton
                     className="st-pm__action"
-                    label={`More for ${p.title}`}
+                    label="More options"
                     icon={<MoreHorizontal />}
                     size="sm"
                     tooltip={false}
