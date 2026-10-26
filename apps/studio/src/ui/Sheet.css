@@ -1,0 +1,66 @@
+.st-sheet__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: var(--st-scrim);
+  animation: st-fade-in var(--st-med) var(--st-ease);
+}
+
+.st-sheet {
+  position: fixed;
+  z-index: 801;
+  display: flex;
+  flex-direction: column;
+  background: var(--st-panel-raised);
+  box-shadow: var(--st-shadow-pop);
+}
+
+.st-sheet--bottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 86vh;
+  border-radius: 14px 14px 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: st-sheet-up 260ms var(--st-ease-out);
+}
+
+.st-sheet--right {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(360px, 100vw);
+  border-left: 1px solid var(--st-line);
+  animation: st-sheet-left 220ms var(--st-ease-out);
+}
+
+.st-sheet__grip {
+  width: 36px;
+  height: 4px;
+  margin: 8px auto 2px;
+  border-radius: 999px;
+  background: var(--st-line-strong);
+}
+
+.st-sheet__title {
+  padding: 10px 16px 8px;
+  font-size: var(--st-fs-md);
+  font-weight: 600;
+}
+
+.st-sheet__body {
+  padding: 4px 16px 16px;
+  overflow: auto;
+}
+
+@keyframes st-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes st-sheet-left {
+  from {
+    transform: translateX(100%);
+  }
+}

@@ -1,0 +1,58 @@
+.st-icon-button {
+  --_s: var(--st-control);
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--_s);
+  height: var(--_s);
+  padding: 0;
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: transparent;
+  color: var(--st-text-2);
+  cursor: default;
+  transition: background-color var(--st-fast) var(--st-ease), color var(--st-fast) var(--st-ease);
+}
+
+.st-icon-button svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.6;
+}
+
+.st-icon-button--sm {
+  --_s: var(--st-control-sm);
+}
+
+.st-icon-button--sm svg {
+  width: 14px;
+  height: 14px;
+}
+
+.st-icon-button--lg {
+  --_s: var(--st-control-lg);
+  border-radius: var(--st-r);
+}
+
+.st-icon-button--lg svg {
+  width: 18px;
+  height: 18px;
+}
+
+.st-icon-button:hover:not(:disabled) {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-icon-button:active:not(:disabled) {
+  background: var(--st-pressed);
+}
+
+.st-icon-button[aria-pressed="true"] {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-text);
+}
+
+.st-icon-button:disabled {
+  opacity: 0.4;
+}

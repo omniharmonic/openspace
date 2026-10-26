@@ -1,0 +1,12 @@
+.st-popover__title {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--st-line);
+  font-weight: 600;
+}
+
+.st-popover__body {
+  padding: 12px;
+}

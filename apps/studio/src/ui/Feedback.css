@@ -1,0 +1,144 @@
+.st-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 40px 16px;
+  text-align: center;
+}
+
+.st-empty--sm {
+  padding: 20px 12px;
+  gap: 4px;
+}
+
+.st-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 6px;
+  border-radius: var(--st-r);
+  background: var(--st-field);
+  color: var(--st-text-2);
+}
+
+.st-empty--sm .st-empty__icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 4px;
+}
+
+.st-empty__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.st-empty__title {
+  font-size: var(--st-fs-md);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.st-empty--sm .st-empty__title {
+  font-size: var(--st-fs);
+}
+
+.st-empty__desc {
+  color: var(--st-text-2);
+  line-height: 1.5;
+}
+
+.st-empty--sm .st-empty__desc {
+  font-size: var(--st-fs-sm);
+}
+
+.st-empty__action {
+  margin-top: 10px;
+}
+
+.st-skeleton {
+  display: block;
+  border-radius: var(--st-r-xs);
+  background: linear-gradient(90deg, var(--st-field) 0%, var(--st-hover) 40%, var(--st-field) 80%);
+  background-color: var(--st-field);
+  background-size: 300% 100%;
+  animation: st-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes st-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+.st-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: var(--st-fs-xs);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-badge--neutral {
+  background: var(--st-field);
+  color: var(--st-text-2);
+}
+
+.st-badge--accent {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-text);
+}
+
+.st-badge--live {
+  background: var(--st-live-soft);
+  color: var(--st-live);
+}
+
+.st-badge--pending {
+  background: var(--st-pending-soft);
+  color: var(--st-pending);
+}
+
+.st-badge--danger {
+  background: var(--st-danger-soft);
+  color: var(--st-danger);
+}
+
+.st-badge__dot {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.st-badge__dot--pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: st-pulse 1.6s var(--st-ease-out) infinite;
+}
+
+@keyframes st-pulse {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}

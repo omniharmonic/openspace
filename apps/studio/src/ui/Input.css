@@ -1,0 +1,96 @@
+.st-input {
+  --_h: var(--st-control);
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: var(--_h);
+  border-radius: var(--st-r-sm);
+  background: var(--st-field);
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: box-shadow var(--st-fast) var(--st-ease), background-color var(--st-fast) var(--st-ease);
+}
+
+.st-input--sm {
+  --_h: var(--st-control-sm);
+  font-size: var(--st-fs-sm);
+}
+
+.st-input--lg {
+  --_h: var(--st-control-lg);
+  border-radius: var(--st-r);
+  font-size: var(--st-fs-md);
+}
+
+.st-input:hover {
+  box-shadow: inset 0 0 0 1px var(--st-line-strong);
+}
+
+.st-input:focus-within {
+  background: var(--st-panel);
+  box-shadow: inset 0 0 0 1px var(--st-accent), 0 0 0 3px var(--st-accent-soft);
+}
+
+.st-input--invalid,
+.st-input--invalid:hover {
+  box-shadow: inset 0 0 0 1px var(--st-danger);
+}
+
+.st-input--disabled {
+  opacity: 0.5;
+}
+
+.st-input__el {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  outline: none;
+}
+
+.st-input__el:focus-visible {
+  box-shadow: none;
+}
+
+.st-input__el::placeholder {
+  color: var(--st-text-3);
+}
+
+.st-input__affix {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 8px;
+  color: var(--st-text-3);
+  white-space: nowrap;
+}
+
+.st-input__affix + .st-input__el {
+  padding-left: 6px;
+}
+
+.st-input__affix svg {
+  width: 14px;
+  height: 14px;
+}
+
+.st-input__affix--end {
+  padding: 0 8px 0 0;
+}
+
+.st-textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: var(--st-field);
+  resize: vertical;
+  line-height: 1.45;
+  outline: none;
+}
+
+.st-textarea:focus-visible {
+  background: var(--st-panel);
+  box-shadow: inset 0 0 0 1px var(--st-accent), 0 0 0 3px var(--st-accent-soft);
+}

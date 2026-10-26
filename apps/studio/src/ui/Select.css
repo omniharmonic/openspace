@@ -1,0 +1,75 @@
+.st-select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  height: var(--st-control);
+  padding: 0 6px 0 8px;
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: var(--st-field);
+  text-align: left;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.st-select > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-select--sm {
+  height: var(--st-control-sm);
+  font-size: var(--st-fs-sm);
+}
+
+.st-select:hover {
+  box-shadow: inset 0 0 0 1px var(--st-line-strong);
+}
+
+.st-select[data-state="open"],
+.st-select:focus-visible {
+  background: var(--st-panel);
+  box-shadow: inset 0 0 0 1px var(--st-accent), 0 0 0 3px var(--st-accent-soft);
+}
+
+.st-select[data-placeholder] {
+  color: var(--st-text-3);
+}
+
+.st-select__chevron {
+  display: inline-flex;
+  color: var(--st-text-3);
+}
+
+.st-select__chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+.st-select__content {
+  min-width: var(--radix-select-trigger-width);
+  max-height: var(--radix-select-content-available-height);
+}
+
+.st-select__viewport {
+  padding: 4px;
+}
+
+.st-select__item {
+  padding-left: 26px;
+  position: relative;
+}
+
+.st-select__check {
+  position: absolute;
+  left: 7px;
+  display: inline-flex;
+}
+
+.st-select__check svg {
+  width: 13px;
+  height: 13px;
+}
