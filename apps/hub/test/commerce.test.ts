@@ -348,7 +348,7 @@ describe("donations", () => {
     expect(s.params.mode).toBe("subscription");
     expect(s.params.line_items[0]?.price_data.recurring).toEqual({ interval: "month" });
     // Too small, too large, "Other" without an amount, nonsense: back to the page with an error.
-    for (const bad of [
+    for (const bad of <Array<Record<string, string>>>[
       { custom_amount: "0.10" },
       { custom_amount: "10001" },
       { amount: "other" },
