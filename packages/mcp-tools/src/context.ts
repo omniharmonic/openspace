@@ -86,6 +86,11 @@ export class ToolContext {
     );
   }
 
+  /** The person's role on a site (per-site `roles` first, then `role`; undefined = local owner). */
+  roleFor(siteId: string): Grant["role"] {
+    return this.grant.roles?.[siteId] ?? this.grant.role;
+  }
+
   async doc(siteId: string): Promise<SiteDocument> {
     return this.store.getDocument(siteId);
   }
@@ -145,7 +150,7 @@ export class ToolContext {
     if (!bodies.length) throw new ToolError("Nothing to change.", "no_changes");
     const session = await this.session(siteId);
     let ops = this.stamp(bodies, session.actor);
-    const role = this.grant.role;
+    const role = this.roleFor(siteId);
     if (role && role !== "owner" && role !== "designer") {
       const doc = await this.doc(siteId);
       const locked = lockedSectionsOf(doc);
