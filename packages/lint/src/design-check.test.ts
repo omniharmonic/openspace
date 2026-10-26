@@ -13,7 +13,7 @@ import {
   siteWith,
   stackSection,
 } from "./__fixtures__/doc";
-import { blendOver, designCheck, type Issue, worstCaseRatio } from "./index";
+import { blendOver, designCheck, type Issue, photoTextChecks, worstCaseRatio } from "./index";
 
 const rules = (issues: Issue[]) => issues.map((i) => i.rule);
 const only = (issues: Issue[], rule: string) => issues.filter((i) => i.rule === rule);
@@ -523,6 +523,28 @@ describe("text over photos", () => {
     expect(issues.every((i) => i.severity === "error")).toBe(true);
     const fixed = fix(doc, issues[0] as Issue);
     expect(only(designCheck(fixed), "text-over-photo-contrast")).toEqual([]);
+  });
+
+  it("checks text on a photo with no overlay, and the scrim autofix makes it readable", () => {
+    const s = photoSection(0.4);
+    if (s.style.background?.type === "image") delete s.style.background.overlay;
+    const { doc } = onePage(s);
+    const issues = designCheck(doc);
+    expect(only(issues, "text-over-photo-contrast").length).toBeGreaterThan(0);
+    const scrim = only(issues, "photo-without-scrim")[0] as Issue;
+    expect(scrim.autofix?.label).toMatch(/^Add a \d+% overlay$/);
+    const fixed = designCheck(fix(doc, scrim));
+    expect(only(fixed, "photo-without-scrim")).toEqual([]);
+    expect(only(fixed, "text-over-photo-contrast")).toEqual([]);
+  });
+
+  it("flags an overlay color it can't resolve, and ignores media blocks", () => {
+    const s = photoSection(0.8);
+    if (s.style.background?.type === "image")
+      s.style.background.overlay = { color: "no-such-role", opacity: 0.8 };
+    expect(only(designCheck(onePage(s).doc), "photo-overlay-color")).toHaveLength(1);
+    expect(photoTextChecks(img(), "solid")).toEqual([]);
+    expect(photoTextChecks({ ...img(), type: "gallery" }, "solid")).toEqual([]);
   });
 
   it("passes with a strong scrim, and skips text on its own panel", () => {
