@@ -231,7 +231,7 @@ export function validateSubmission(
           if (bad) errors[field.name] = `Please choose from the listed options for ${label}.`;
           else if (field.required && !list.length)
             errors[field.name] = `Please choose at least one option for ${label}.`;
-          else data[field.name] = [...new Set(list)];
+          else if (list.length) data[field.name] = [...new Set(list)];
         } else {
           const checked = TRUE_VALUES.has(one.toLowerCase());
           if (field.required && !checked) errors[field.name] = `Please tick ${label}.`;

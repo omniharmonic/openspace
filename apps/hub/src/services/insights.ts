@@ -130,7 +130,7 @@ export async function sendWeeklyDigests(services: Services): Promise<number> {
       await sendTransactional(services, {
         siteId: site.id,
         to,
-        subject: `Your week on ${site.name}: ${r.totals.visits} visits`,
+        subject: `Your week on ${site.name}: ${r.totals.visits} ${r.totals.visits === 1 ? "visit" : "visits"}`,
         html: mail.html,
         text: mail.text,
         kind: "analytics-digest",
