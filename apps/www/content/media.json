@@ -1,0 +1,210 @@
+{
+  "media/hero/meadow-looks.png": {
+    "id": "med_www0000000",
+    "path": "media/hero/meadow-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 174593,
+    "width": 1400,
+    "height": 701,
+    "alt": "The Meadow template in three looks, showing how one site can change its whole style",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/meadow-looks.png": {
+    "id": "med_www0000001",
+    "path": "media/templates/meadow-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 99130,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Meadow template's home page in its three looks: Oat & Sage, Clay & Linen, Dusk",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/harbor-looks.png": {
+    "id": "med_www0000002",
+    "path": "media/templates/harbor-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 161982,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Harbor template's home page in its three looks: Harbor Blue, Signal, Riverside",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/atelier-looks.png": {
+    "id": "med_www0000003",
+    "path": "media/templates/atelier-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 191327,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Atelier template's home page in its three looks: Monochrome, Gallery Blue, Darkroom",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/ledger-looks.png": {
+    "id": "med_www0000004",
+    "path": "media/templates/ledger-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 90143,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Ledger template's home page in its three looks: Ledger Green, Ink Blue, Modern",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/hearth-looks.png": {
+    "id": "med_www0000005",
+    "path": "media/templates/hearth-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 168257,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Hearth template's home page in its three looks: Tomato, Olive Grove, Bistro Noir",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/signal-looks.png": {
+    "id": "med_www0000006",
+    "path": "media/templates/signal-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 91332,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Signal template's home page in its three looks: Electric, Terminal, Volt",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/field-notes-looks.png": {
+    "id": "med_www0000007",
+    "path": "media/templates/field-notes-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 46509,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Field Notes template's home page in its three looks: Highlighter, Ink, Almanac",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/encore-looks.png": {
+    "id": "med_www0000008",
+    "path": "media/templates/encore-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 181703,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Encore template's home page in its three looks: Night Plum, Afterglow, Chrome",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/kiln-looks.png": {
+    "id": "med_www0000009",
+    "path": "media/templates/kiln-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 145742,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Kiln template's home page in its three looks: Charcoal & Clay, Celadon, Workshop",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/commons-looks.png": {
+    "id": "med_www0000010",
+    "path": "media/templates/commons-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 176409,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Commons template's home page in its three looks: Earth & Sky, Forest, Assembly",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/vow-looks.png": {
+    "id": "med_www0000011",
+    "path": "media/templates/vow-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 171857,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Vow template's home page in its three looks: Dusty Rose, Garden Party, Black Tie",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/link-looks.png": {
+    "id": "med_www0000012",
+    "path": "media/templates/link-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 102105,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Link template's home page in its three looks: Saffron, Coral, Lagoon",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  }
+}
