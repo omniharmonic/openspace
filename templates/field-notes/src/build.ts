@@ -426,7 +426,8 @@ export const fieldNotes: TemplateSpec = {
     {
       id: "highlighter",
       name: "Highlighter",
-      description: "Paper and ink with highlighter-yellow washes and marks, and Literata for long reading.",
+      description:
+        "Paper and ink with highlighter-yellow washes and marks, and Literata for long reading.",
       choices: {
         palette: {
           brand: "oklch(0.9 0.17 100)",
