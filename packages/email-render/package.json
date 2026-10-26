@@ -33,5 +33,9 @@
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@openspace/schema": "workspace:*",
+    "@openspace/theme": "workspace:*"
   }
 }
