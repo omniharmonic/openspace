@@ -9,7 +9,7 @@ export interface Logger {
   child(fields: Record<string, unknown>): Logger;
 }
 
-const ORDER: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, error: 40 };
+const ORDER: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, error: 40, silent: 99 };
 
 function serializeError(err: unknown): unknown {
   if (err instanceof Error) return { name: err.name, message: err.message, stack: err.stack };

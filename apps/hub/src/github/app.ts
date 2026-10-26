@@ -393,6 +393,17 @@ export class GitHubAppAccess implements GitHubAccess {
     }
   }
 
+  async listTags(repo: RepoRef, prefix = ""): Promise<Array<{ name: string; sha: string }>> {
+    const data = await this.rest<Array<{ ref: string; object: { sha: string } }>>(
+      `${this.repoPath(repo)}/git/matching-refs/tags/${encPath(prefix)}`,
+      { allow404: true },
+    );
+    return (data ?? []).map((r) => ({
+      name: r.ref.replace(/^refs\/tags\//, ""),
+      sha: r.object.sha,
+    }));
+  }
+
   async listCommits(
     repo: RepoRef,
     options: { ref: string; limit?: number; path?: string },
@@ -559,6 +570,31 @@ export class GitHubAppAccess implements GitHubAccess {
       method: "PUT",
       body: { permission },
     });
+  }
+
+  async removeCollaborator(repo: RepoRef, login: string): Promise<void> {
+    await this.rest(`${this.repoPath(repo)}/collaborators/${enc(login)}`, {
+      method: "DELETE",
+      allow404: true,
+    });
+  }
+
+  async failedSteps(repo: RepoRef, runId: number): Promise<string[]> {
+    const data = await this.rest<{
+      jobs: Array<{
+        name: string;
+        conclusion: string | null;
+        steps?: Array<{ name: string; conclusion: string | null }>;
+      }>;
+    }>(`${this.repoPath(repo)}/actions/runs/${runId}/jobs`, { allow404: true });
+    const out: string[] = [];
+    for (const job of data?.jobs ?? []) {
+      if (job.conclusion !== "failure") continue;
+      const steps = (job.steps ?? []).filter((s) => s.conclusion === "failure");
+      if (steps.length) for (const s of steps) out.push(`${job.name}: ${s.name}`);
+      else out.push(job.name);
+    }
+    return out;
   }
 
   async openPullRequest(

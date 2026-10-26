@@ -6,10 +6,14 @@ import { errorBody } from "./lib/errors";
 import { handleError } from "./lib/handle-error";
 import { createLogger } from "./lib/log";
 import { authRoutes } from "./routes/auth";
+import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
 import { meRoutes } from "./routes/me";
 import { previewRoutes } from "./routes/preview";
+import { publishingRoutes } from "./routes/publishing";
+import { roomRoutes } from "./routes/room";
 import { siteRoutes } from "./routes/sites";
 import { templateRoutes } from "./routes/templates";
+import { webhookRoutes } from "./routes/webhooks";
 import { createServices, type ServiceOverrides } from "./services";
 import type { AppEnv } from "./types";
 
@@ -66,6 +70,11 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api", meRoutes);
   app.route("/api/templates", templateRoutes);
   app.route("/api/sites", siteRoutes);
+  app.route("/api/sites", roomRoutes);
+  app.route("/api/sites", publishingRoutes);
+  app.route("/api/sites", collaboratorRoutes);
+  app.route("/api/invitations", invitationRoutes);
+  app.route("/webhooks", webhookRoutes);
   app.route("/", previewRoutes);
 
   app.notFound((c) => c.json(errorBody("not_found", "Not found."), 404));

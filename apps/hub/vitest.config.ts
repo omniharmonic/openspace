@@ -12,7 +12,7 @@ export default defineWorkersConfig(async () => {
           singleWorker: true,
           wrangler: { configPath: "./wrangler.jsonc" },
           miniflare: {
-            bindings: { TEST_MIGRATIONS: migrations, DEV_MODE: "true", LOG_LEVEL: "error" },
+            bindings: { TEST_MIGRATIONS: migrations, DEV_MODE: "true", LOG_LEVEL: "silent" },
           },
         },
       },

@@ -15,7 +15,14 @@
     "LOG_LEVEL": "info"
   },
   // Secrets (wrangler secret put / .dev.vars): GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY,
-  // GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, TOKEN_ENC_KEY. See .dev.vars.example.
+  // GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, TOKEN_ENC_KEY, GITHUB_WEBHOOK_SECRET.
+  // See .dev.vars.example.
+  "durable_objects": {
+    "bindings": [{ "name": "DRAFT_ROOM", "class_name": "DraftRoom" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DraftRoom"] }],
+  // Scheduled publishes, transfer/invitation expiry and archived-site purges (arch §8.1).
+  "triggers": { "crons": ["* * * * *"] },
   "d1_databases": [
     {
       "binding": "HUB_DB",
@@ -37,6 +44,10 @@
         "GITHUB_APP_SLUG": "openspace",
         "LOG_LEVEL": "info"
       },
+      "durable_objects": {
+        "bindings": [{ "name": "DRAFT_ROOM", "class_name": "DraftRoom" }]
+      },
+      "triggers": { "crons": ["* * * * *"] },
       "d1_databases": [
         {
           "binding": "HUB_DB",
