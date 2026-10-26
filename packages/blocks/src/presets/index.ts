@@ -1,3 +1,4 @@
+import type { ColorTheme, Section } from "@openspace/schema";
 import { aboutPresets } from "./categories/about";
 import { contactPresets, ctaPresets, newsletterPresets } from "./categories/action";
 import { footerPresets, headerPresets as headers } from "./categories/chrome";
@@ -74,3 +75,15 @@ export function presetsIn(category: PresetCategory): Preset[] {
 export const presetCatalog: readonly PresetMeta[] = allPresets.map(
   ({ build: _build, ...meta }) => meta,
 );
+
+/**
+ * The section a page/footer preset builds in a color theme, or undefined for an unknown preset, a
+ * header preset or a theme the preset isn't designed for. `transformForRole` uses it to check
+ * that Editors only insert sections whose layout and style come from the design.
+ */
+export function presetSection(ref: string, colorTheme?: ColorTheme): Section | undefined {
+  const preset = getPreset(ref);
+  if (!preset || preset.target === "header") return undefined;
+  if (colorTheme && !preset.themes.includes(colorTheme)) return undefined;
+  return preset.build(colorTheme ? { colorTheme } : {});
+}

@@ -12,7 +12,7 @@ import {
   validate,
 } from "@openspace/ops";
 import type { SiteDocument } from "@openspace/schema";
-import { blockRegistry, registryForValidate } from "../blocks";
+import { blockRegistry, presetSection, registryForValidate } from "../blocks";
 import type { ActorKind, ConflictNotice, LoggedOp, SubmitResult } from "./protocol";
 
 /**
@@ -472,6 +472,7 @@ export class RoomState {
           registry: blockRegistry(),
           userId,
           itemAuthor: this.itemAuthor,
+          presetSection,
         });
         if (!d.allowed) return { ok: false, index, code: "forbidden", message: d.reason };
         op = d.op;
@@ -616,6 +617,7 @@ export class RoomState {
           registry: blockRegistry(),
           userId: input.actor.userId,
           itemAuthor: this.itemAuthor,
+          presetSection,
         });
         if (!decision.allowed)
           return {

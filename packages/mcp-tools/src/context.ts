@@ -2,6 +2,8 @@
  * Per-connection tool context: grant checks, site/page resolution, op stamping, agent session
  * lifecycle (a snapshot before the first edit) and role filtering before ops reach the store.
  */
+
+import { presetSection } from "@openspace/blocks";
 import {
   FOOTER,
   lockedSectionsOf,
@@ -155,7 +157,11 @@ export class ToolContext {
       const doc = await this.doc(siteId);
       const locked = lockedSectionsOf(doc);
       ops = ops.map((op) => {
-        const d = transformForRole(op, role, locked, { doc, registry: this.registry });
+        const d = transformForRole(op, role, locked, {
+          doc,
+          registry: this.registry,
+          presetSection,
+        });
         if (!d.allowed)
           throw new ToolError(`Not allowed for your role (${role}): ${d.reason}.`, "forbidden");
         return d.op;
