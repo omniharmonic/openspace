@@ -5,6 +5,9 @@ import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cx, Field, Input, Segmented, Slider } from "../../ui";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
+import { useInspectorRole } from "../inspector/env";
+import { isDesigner } from "../inspector/model/permissions";
+import { RoleNote } from "../inspector/ui";
 import { ImagePick, LinkField, SwitchRow, ThemePicker, useSiteUpdate } from "./controls";
 
 export const HEADER_LABEL: Record<HeaderVariant, { name: string; hint: string }> = {
@@ -124,6 +127,8 @@ export function HeaderBuilder() {
   const ci = ctaIndex(nav);
   const cta = ci >= 0 ? (nav[ci] as Extract<NavItem, { type: "button" }>) : undefined;
   const logoH = header.logoHeight;
+  // Header layout, behavior and logo size are design (the Hub refuses them from editors).
+  const designer = isDesigner(useInspectorRole());
   const [ctaText, setCtaText] = useState(cta?.label ?? "");
   useEffect(() => setCtaText(cta?.label ?? ""), [cta?.label]);
 
@@ -146,94 +151,104 @@ export function HeaderBuilder() {
 
   return (
     <div className="st-chrome">
-      <section className="st-chrome__group" aria-labelledby="hdr-layout">
-        <h3 id="hdr-layout" className="st-chrome__title">
-          Layout
-        </h3>
-        <div className="st-hgallery">
-          {headerPresets.map((preset) => {
-            const built = preset.build({ colorTheme: header.colorTheme ?? preset.defaultTheme });
-            const selected = header.variant === built.variant;
-            return (
-              <button
-                key={preset.id}
-                type="button"
-                className={cx("st-hgallery__item", selected && "is-selected")}
-                aria-pressed={selected}
-                title={preset.description}
-                onClick={() =>
-                  update(`Header: ${preset.label}`, {
-                    // The preset's layout and behavior; keep the owner's logo size and social icons.
-                    set: {
-                      header: {
-                        ...built,
-                        ...(header.logoHeight ? { logoHeight: header.logoHeight } : {}),
-                        ...(header.showSocial !== undefined
-                          ? { showSocial: header.showSocial }
-                          : {}),
+      {!designer && (
+        <RoleNote>
+          The header layout is set by the site’s owner and designers. You can change the logo and
+          the button.
+        </RoleNote>
+      )}
+      {designer && (
+        <section className="st-chrome__group" aria-labelledby="hdr-layout">
+          <h3 id="hdr-layout" className="st-chrome__title">
+            Layout
+          </h3>
+          <div className="st-hgallery">
+            {headerPresets.map((preset) => {
+              const built = preset.build({ colorTheme: header.colorTheme ?? preset.defaultTheme });
+              const selected = header.variant === built.variant;
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  className={cx("st-hgallery__item", selected && "is-selected")}
+                  aria-pressed={selected}
+                  title={preset.description}
+                  onClick={() =>
+                    update(`Header: ${preset.label}`, {
+                      // The preset's layout and behavior; keep the owner's logo size and social icons.
+                      set: {
+                        header: {
+                          ...built,
+                          ...(header.logoHeight ? { logoHeight: header.logoHeight } : {}),
+                          ...(header.showSocial !== undefined
+                            ? { showSocial: header.showSocial }
+                            : {}),
+                        },
                       },
-                    },
-                  })
-                }
-              >
-                <HeaderThumb variant={built.variant} />
-                <span>
-                  {preset.label}
-                  {selected && <Check aria-hidden="true" />}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+                    })
+                  }
+                >
+                  <HeaderThumb variant={built.variant} />
+                  <span>
+                    {preset.label}
+                    {selected && <Check aria-hidden="true" />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
-      <section className="st-chrome__group" aria-label="Behavior">
-        <SwitchRow
-          label="Stay at the top when scrolling"
-          checked={header.sticky}
-          onChange={(v) =>
-            update(v ? "Sticky header" : "Header scrolls away", { set: { "header.sticky": v } })
-          }
-        />
-        <SwitchRow
-          label="See-through over the first section"
-          hint="The header sits on top of a full-width photo at the top of the page."
-          checked={header.transparentOnHero}
-          onChange={(v) =>
-            update("Header over first section", { set: { "header.transparentOnHero": v } })
-          }
-        />
-        <SwitchRow
-          label="Show social icons"
-          checked={header.showSocial ?? false}
-          onChange={(v) =>
-            update(
-              "Header social icons",
-              v ? { set: { "header.showSocial": true } } : { unset: ["header.showSocial"] },
-            )
-          }
-        />
-        <Field label="Menu on phones">
-          <Segmented
-            aria-label="Menu on phones"
-            block
-            size="sm"
-            value={header.mobileMenu}
-            onValueChange={(v) => update("Phone menu style", { set: { "header.mobileMenu": v } })}
-            options={[
-              { value: "slide", label: "Slide", ariaLabel: "Slides in from the side" },
-              { value: "fullscreen", label: "Full", ariaLabel: "Covers the whole screen" },
-              { value: "dropdown", label: "Drop", ariaLabel: "Drops down under the header" },
-            ]}
+      {designer && (
+        <section className="st-chrome__group" aria-label="Behavior">
+          <SwitchRow
+            label="Stay at the top when scrolling"
+            checked={header.sticky}
+            onChange={(v) =>
+              update(v ? "Sticky header" : "Header scrolls away", { set: { "header.sticky": v } })
+            }
           />
-        </Field>
-        <Field label="Colors">
-          <ThemePicker
-            value={header.colorTheme}
-            onChange={(t) => update("Header colors", { set: { "header.colorTheme": t } })}
+          <SwitchRow
+            label="See-through over the first section"
+            hint="The header sits on top of a full-width photo at the top of the page."
+            checked={header.transparentOnHero}
+            onChange={(v) =>
+              update("Header over first section", { set: { "header.transparentOnHero": v } })
+            }
           />
-        </Field>
-      </section>
+          <SwitchRow
+            label="Show social icons"
+            checked={header.showSocial ?? false}
+            onChange={(v) =>
+              update(
+                "Header social icons",
+                v ? { set: { "header.showSocial": true } } : { unset: ["header.showSocial"] },
+              )
+            }
+          />
+          <Field label="Menu on phones">
+            <Segmented
+              aria-label="Menu on phones"
+              block
+              size="sm"
+              value={header.mobileMenu}
+              onValueChange={(v) => update("Phone menu style", { set: { "header.mobileMenu": v } })}
+              options={[
+                { value: "slide", label: "Slide", ariaLabel: "Slides in from the side" },
+                { value: "fullscreen", label: "Full", ariaLabel: "Covers the whole screen" },
+                { value: "dropdown", label: "Drop", ariaLabel: "Drops down under the header" },
+              ]}
+            />
+          </Field>
+          <Field label="Colors">
+            <ThemePicker
+              value={header.colorTheme}
+              onChange={(t) => update("Header colors", { set: { "header.colorTheme": t } })}
+            />
+          </Field>
+        </section>
+      )}
 
       <section className="st-chrome__group" aria-labelledby="hdr-logo">
         <h3 id="hdr-logo" className="st-chrome__title">
@@ -268,44 +283,48 @@ export function HeaderBuilder() {
             />
           </Field>
         )}
-        <Field label={`Logo height on computers · ${logoH?.d ?? 40}px`}>
-          <Slider
-            aria-label="Logo height on computers"
-            min={16}
-            max={120}
-            value={logoH?.d ?? 40}
-            onValueChange={(d) =>
-              update(
-                "Logo size",
-                { set: { "header.logoHeight": { ...(logoH ?? {}), d } } },
-                "logo-d",
-              )
-            }
-          />
-        </Field>
-        <Field label={`Logo height on phones · ${logoH?.m ?? logoH?.d ?? 40}px`}>
-          <Slider
-            aria-label="Logo height on phones"
-            min={16}
-            max={80}
-            value={logoH?.m ?? Math.min(80, logoH?.d ?? 40)}
-            onValueChange={(m) =>
-              update(
-                "Logo size on phones",
-                {
-                  set: {
-                    "header.logoHeight": {
-                      d: logoH?.d ?? 40,
-                      ...(logoH?.t ? { t: logoH.t } : {}),
-                      m,
+        {designer && (
+          <>
+            <Field label={`Logo height on computers · ${logoH?.d ?? 40}px`}>
+              <Slider
+                aria-label="Logo height on computers"
+                min={16}
+                max={120}
+                value={logoH?.d ?? 40}
+                onValueChange={(d) =>
+                  update(
+                    "Logo size",
+                    { set: { "header.logoHeight": { ...(logoH ?? {}), d } } },
+                    "logo-d",
+                  )
+                }
+              />
+            </Field>
+            <Field label={`Logo height on phones · ${logoH?.m ?? logoH?.d ?? 40}px`}>
+              <Slider
+                aria-label="Logo height on phones"
+                min={16}
+                max={80}
+                value={logoH?.m ?? Math.min(80, logoH?.d ?? 40)}
+                onValueChange={(m) =>
+                  update(
+                    "Logo size on phones",
+                    {
+                      set: {
+                        "header.logoHeight": {
+                          d: logoH?.d ?? 40,
+                          ...(logoH?.t ? { t: logoH.t } : {}),
+                          m,
+                        },
+                      },
                     },
-                  },
-                },
-                "logo-m",
-              )
-            }
-          />
-        </Field>
+                    "logo-m",
+                  )
+                }
+              />
+            </Field>
+          </>
+        )}
       </section>
 
       <section className="st-chrome__group" aria-labelledby="hdr-cta">
