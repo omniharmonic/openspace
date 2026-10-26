@@ -3,22 +3,27 @@ import type { HubConfig } from "../env";
 import type { FetchLike } from "../github/http";
 import { refreshUserToken, type UserTokens } from "../github/oauth";
 import { GitHubApiError } from "../github/types";
-import { decryptSecret, encryptSecret } from "../lib/crypto";
+import { decryptSecret, encryptSecret, randomToken } from "../lib/crypto";
+import { HttpError } from "../lib/errors";
 
 /**
  * Short-lived GitHub user tokens (arch §6.1, PRD §7.4).
  *
  * - The refresh token is stored AES-GCM encrypted (AAD = user id). GitHub rotates it on every
- *   refresh, so refreshes are serialized with a conditional UPDATE on the old ciphertext; a
- *   request that loses the race re-reads the row and uses the winner's access token.
+ *   refresh, so a request first claims the refresh (`users.refresh_claim`, conditional on the
+ *   current ciphertext); others wait for the claim holder's rotated tokens instead of spending
+ *   the same refresh token and getting it rejected.
  * - The minted 8-hour access token is cached encrypted (AAD = `<user id>:access`) with its expiry
  *   and reused until 5 minutes before it expires, so concurrent requests don't refresh at all.
- * - A refresh GitHub rejects (revoked / expired / bad refresh token) clears the stored tokens and
- *   yields `null`; callers turn that into 401 `github_reauth_required`.
+ * - A refresh GitHub rejects (revoked / expired / bad refresh token) — seen only by the claim
+ *   holder, so never a lost race — clears the stored tokens and yields `null`; callers turn that
+ *   into 401 `github_reauth_required`.
  */
 export const ACCESS_TOKEN_MARGIN_MS = 5 * 60 * 1000;
-const RACE_POLLS = 5;
-const RACE_POLL_MS = 100;
+/** A refresh claim older than this is considered abandoned (the holder crashed). */
+const CLAIM_TTL_MS = 30_000;
+const WAIT_POLLS = 40;
+const WAIT_POLL_MS = 100;
 
 export interface TokenDeps {
   db: D1Database;
@@ -73,19 +78,61 @@ export async function storeUserTokens(
     .run();
 }
 
-async function clearTokens(deps: TokenDeps, userId: string, expectedRefresh: string) {
+/** Clear stored tokens — only while holding the refresh claim on the unchanged refresh token. */
+async function clearTokens(
+  deps: TokenDeps,
+  userId: string,
+  expectedRefresh: string,
+  claim: string,
+) {
   await deps.db
     .prepare(
       `UPDATE users SET refresh_token_enc = NULL, refresh_token_expires_at = NULL,
-        access_token_enc = NULL, access_token_expires_at = NULL WHERE id = ? AND refresh_token_enc = ?`,
+        access_token_enc = NULL, access_token_expires_at = NULL, refresh_claim = NULL,
+        refresh_claim_at = NULL WHERE id = ? AND refresh_token_enc = ? AND refresh_claim = ?`,
     )
-    .bind(userId, expectedRefresh)
+    .bind(userId, expectedRefresh, claim)
     .run();
+}
+
+async function releaseClaim(deps: TokenDeps, userId: string, claim: string) {
+  await deps.db
+    .prepare(
+      "UPDATE users SET refresh_claim = NULL, refresh_claim_at = NULL WHERE id = ? AND refresh_claim = ?",
+    )
+    .bind(userId, claim)
+    .run();
+}
+
+/**
+ * Another request holds the refresh claim: wait for it to store the rotated tokens and use its
+ * access token. If it gave up without rotating (GitHub 5xx), try to take the claim ourselves.
+ */
+async function waitForWinner(
+  deps: TokenDeps,
+  userId: string,
+  sealedRefresh: string,
+  attempt: number,
+): Promise<MintedToken | null> {
+  for (let i = 0; i < WAIT_POLLS; i++) {
+    await new Promise((r) => setTimeout(r, WAIT_POLL_MS));
+    const latest = await getUserRow(deps.db, userId);
+    if (!latest) return null;
+    if (latest.refresh_token_enc !== sealedRefresh) return cachedAccess(deps, latest);
+    if (latest.refresh_claim === null)
+      return attempt < 2 ? mintUserAccessToken(deps, userId, attempt + 1) : null;
+  }
+  throw new HttpError(
+    503,
+    "github_busy",
+    "GitHub is taking a while to answer. Try again in a moment.",
+  );
 }
 
 export async function mintUserAccessToken(
   deps: TokenDeps,
   userId: string,
+  attempt = 0,
 ): Promise<MintedToken | null> {
   const { config, db } = deps;
   if (!config.github || !config.tokenEncKey) return null;
@@ -105,26 +152,29 @@ export async function mintUserAccessToken(
     return null; // key rotated or data corrupted: the person must sign in again
   }
 
+  // Claim the refresh: GitHub rotates refresh tokens, so only the claim holder spends this one.
+  // Everyone else waits for the holder's result. Because the holder is the only request that
+  // used the token, a rejection it gets is genuine (not a race lost to a concurrent refresh) and
+  // it alone may clear the stored tokens.
+  const claim = randomToken(12);
+  const claimed = await db
+    .prepare(
+      `UPDATE users SET refresh_claim = ?, refresh_claim_at = ? WHERE id = ? AND refresh_token_enc = ?
+        AND (refresh_claim IS NULL OR refresh_claim_at < ?)`,
+    )
+    .bind(claim, deps.now(), userId, sealedRefresh, deps.now() - CLAIM_TTL_MS)
+    .run();
+  if (claimed.meta.changes !== 1) return waitForWinner(deps, userId, sealedRefresh, attempt);
+
   let tokens: UserTokens;
   try {
     tokens = await refreshUserToken(config.github, refresh, deps.fetch, deps.now());
   } catch (err) {
-    // Lost a refresh race? GitHub rejects the old refresh token as soon as the winner used it,
-    // possibly before the winner has stored the rotated one — give it a moment.
-    for (let i = 0; i < RACE_POLLS; i++) {
-      const latest = await getUserRow(db, userId);
-      if (latest && latest.refresh_token_enc !== sealedRefresh) {
-        const winner = await cachedAccess(deps, latest);
-        if (winner) return winner;
-        break;
-      }
-      if (!(err instanceof GitHubApiError) || err.status >= 500) break;
-      await new Promise((r) => setTimeout(r, RACE_POLL_MS));
-    }
     if (err instanceof GitHubApiError && err.status < 500) {
-      await clearTokens(deps, userId, sealedRefresh);
+      await clearTokens(deps, userId, sealedRefresh, claim);
       return null;
     }
+    await releaseClaim(deps, userId, claim);
     throw err;
   }
 
@@ -133,7 +183,8 @@ export async function mintUserAccessToken(
   const res = await db
     .prepare(
       `UPDATE users SET refresh_token_enc = ?, refresh_token_expires_at = ?, access_token_enc = ?,
-        access_token_expires_at = ?, updated_at = ? WHERE id = ? AND refresh_token_enc = ?`,
+        access_token_expires_at = ?, refresh_claim = NULL, refresh_claim_at = NULL, updated_at = ?
+        WHERE id = ? AND refresh_token_enc = ? AND refresh_claim = ?`,
     )
     .bind(
       tokens.refreshToken ? await encryptSecret(key, tokens.refreshToken, userId) : sealedRefresh,
@@ -143,6 +194,7 @@ export async function mintUserAccessToken(
       deps.now(),
       userId,
       sealedRefresh,
+      claim,
     )
     .run();
   if (res.meta.changes !== 1) {

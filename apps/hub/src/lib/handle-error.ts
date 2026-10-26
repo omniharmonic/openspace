@@ -3,10 +3,12 @@ import { ZodError } from "zod";
 import { GitHubConflictError, GitHubInputError, GitHubNotFoundError } from "../github/types";
 import { SiteFilesError } from "../services/site-files";
 import type { AppEnv } from "../types";
-import { errorBody, HttpError } from "./errors";
+import { decodeRpcError, errorBody, HttpError } from "./errors";
 
 /** Map any thrown error to the `{ error: { code, message } }` envelope; log unexpected ones. */
 export function handleError(err: Error, c: Context<AppEnv>): Response {
+  const fromRoom = decodeRpcError(err);
+  if (fromRoom) err = fromRoom;
   if (err instanceof HttpError) {
     if (err.status >= 500) c.var.log?.error(err.message, { code: err.code, err });
     return c.json(errorBody(err.code, err.message, err.details), err.status);

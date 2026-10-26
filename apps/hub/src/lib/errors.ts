@@ -30,3 +30,20 @@ export const conflict = (code: string, message: string, details?: unknown) =>
 export function errorBody(code: string, message: string, details?: unknown) {
   return { error: details === undefined ? { code, message } : { code, message, details } };
 }
+
+/**
+ * Durable Object RPC drops custom error classes and fields, so errors meant for the client cross
+ * the boundary encoded in the message (`[os:<status>:<code>] <message>`) and are decoded again in
+ * `handleError`.
+ */
+const RPC_ERROR = /^\[os:(\d{3}):([a-z_]+)\] ([\s\S]*)$/;
+
+export function encodeRpcError(err: HttpError): Error {
+  return new Error(`[os:${err.status}:${err.code}] ${err.message}`);
+}
+
+export function decodeRpcError(err: unknown): HttpError | null {
+  const m = err instanceof Error ? RPC_ERROR.exec(err.message) : null;
+  if (!m) return null;
+  return new HttpError(Number(m[1]) as ContentfulStatusCode, m[2] as string, m[3] as string);
+}

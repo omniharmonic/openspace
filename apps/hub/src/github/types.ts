@@ -137,6 +137,8 @@ export interface GitHubAccess {
   /** Force-move a branch (creating it if needed). */
   resetBranch(repo: RepoRef, branch: string, sha: string): Promise<void>;
   tag(repo: RepoRef, name: string, sha: string): Promise<void>;
+  /** Tags whose name starts with `prefix` (e.g. `os/snap/`), newest-created order not guaranteed. */
+  listTags(repo: RepoRef, prefix?: string): Promise<Array<{ name: string; sha: string }>>;
   listCommits(
     repo: RepoRef,
     options: { ref: string; limit?: number; path?: string },
@@ -152,6 +154,9 @@ export interface GitHubAccess {
 
   setSecret(repo: RepoRef, name: string, value: string): Promise<void>;
   addCollaborator(repo: RepoRef, login: string, permission?: CollaboratorPermission): Promise<void>;
+  removeCollaborator(repo: RepoRef, login: string): Promise<void>;
+  /** Names of the failed jobs/steps of a workflow run (for plain-language build errors). */
+  failedSteps(repo: RepoRef, runId: number): Promise<string[]>;
   openPullRequest(repo: RepoRef, input: PullRequestInput): Promise<{ number: number; url: string }>;
 }
 
