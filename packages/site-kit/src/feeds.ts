@@ -219,6 +219,7 @@ export function icalFeed(ctx: FeedContext, collection: string, items: Collection
       lines.push(`DTSTART:${icsUtc(e.start)}`);
       if (e.end) lines.push(`DTEND:${icsUtc(e.end)}`);
     }
+    if (e.recurrence) lines.push(`RRULE:${e.recurrence}`);
     lines.push(`SUMMARY:${icsText(e.title)}`);
     const desc = itemDescription(item);
     if (desc) lines.push(`DESCRIPTION:${icsText(desc)}`);
