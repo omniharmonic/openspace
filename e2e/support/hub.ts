@@ -103,10 +103,13 @@ export class Hub {
 
   /** Invite `other` (by login) with `role` and accept as them. */
   async addCollaborator(siteId: string, other: Hub, role: "designer" | "editor" | "contributor") {
-    const { acceptUrl } = await this.post<{ acceptUrl: string }>(`/api/sites/${siteId}/collaborators`, {
-      login: other.user.login,
-      role,
-    });
+    const { acceptUrl } = await this.post<{ acceptUrl: string }>(
+      `/api/sites/${siteId}/collaborators`,
+      {
+        login: other.user.login,
+        role,
+      },
+    );
     const token = acceptUrl.split("/invite/")[1];
     await other.post(`/api/invitations/${token}/accept`);
   }
