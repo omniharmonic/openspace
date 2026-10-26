@@ -1,6 +1,10 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterEach } from "vitest";
+
+// The editor is a lazy route: the first test in a file waits for its (cold) module graph to
+// load, which can take longer than Testing Library's default 1s on a busy machine.
+configure({ asyncUtilTimeout: 3000 });
 
 // jsdom lacks a few browser APIs that Radix primitives and our scrub input rely on.
 class ResizeObserverStub {

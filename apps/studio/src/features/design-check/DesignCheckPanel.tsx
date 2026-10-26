@@ -1,0 +1,296 @@
+import type { OpBody } from "@openspace/ops";
+import {
+  CircleAlert,
+  CircleCheck,
+  Crosshair,
+  Info,
+  SearchCheck,
+  TriangleAlert,
+  WandSparkles,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { Button, cx, EmptyState, Segmented, Spinner, Toggle, toast } from "../../ui";
+import { useDocStore, useDocStoreApi } from "../editor/model/context";
+import type { EditorStore } from "../editor/model/store";
+import { useCanvasDocument } from "../inspector/canvasDoc";
+import { useInspectorRole } from "../inspector/env";
+import {
+  type CheckedIssue,
+  type CheckKind,
+  canFix,
+  fixAllSafe,
+  groupIssues,
+  isSafeFix,
+  issueTarget,
+  runChecks,
+} from "./model";
+import { checkNow, useDesignCheck } from "./store";
+import "./design-check.css";
+
+const SEVERITY_ICON = {
+  error: CircleAlert,
+  warning: TriangleAlert,
+  info: Info,
+} as const;
+
+const SEVERITY_LABEL = { error: "Needs fixing", warning: "Worth a look", info: "Suggestion" };
+
+const stripMeta = (op: { id?: unknown; actor?: unknown; ts?: unknown }): OpBody => {
+  const { id: _i, actor: _a, ts: _t, ...body } = op;
+  return body as OpBody;
+};
+
+/** Select what an issue points at and scroll the canvas to it. */
+export function jumpToIssue(store: EditorStore, issue: CheckedIssue) {
+  const t = issueTarget(issue);
+  if (!t) return;
+  const s = store.getState();
+  if (t.page !== "footer" && t.page !== s.pageId) s.setPage(t.page);
+  if (t.item) store.getState().select(t.item);
+  const id = t.item?.id;
+  // After the canvas has rendered the page.
+  setTimeout(() => {
+    const d = useCanvasDocument.getState().doc;
+    const el = id ? d?.querySelector(`[data-os-id="${id}"]`) : null;
+    if (el && "scrollIntoView" in el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+    else d?.defaultView?.scrollTo?.({ top: 0, behavior: "smooth" });
+  }, 80);
+}
+
+/**
+ * Apply one issue's fix (recomputed against the current document, so it is never stale) as
+ * one undo step. Returns whether it applied.
+ */
+export function applyIssueFix(store: EditorStore, issue: CheckedIssue): boolean {
+  const doc = store.getState().doc;
+  const fresh = runChecks(doc).find((i) => i.id === issue.id) ?? issue;
+  const fix = fresh.autofix;
+  if (!fix) return false;
+  const r = store.getState().commit(fix.ops.map(stripMeta), { label: fix.label });
+  if (!r.ok) {
+    toast({
+      tone: "danger",
+      title: "That fix no longer applies",
+      description: "The page changed since the check ran. It has been checked again.",
+    });
+    checkNow(store.getState().doc);
+    return false;
+  }
+  toast({
+    title: fix.label,
+    description: "Fixed. Undo brings it back.",
+    action: { label: "Undo", onClick: () => store.getState().undo() },
+  });
+  return true;
+}
+
+/** Apply every safe fix the person may make, as one undo step. Returns how many issues. */
+export function applyAllSafe(store: EditorStore, role: string): number {
+  const { bodies, fixed } = fixAllSafe(store.getState().doc, role);
+  if (!bodies.length) return 0;
+  const label = `Fix ${fixed.length} design ${fixed.length === 1 ? "issue" : "issues"}`;
+  const r = store.getState().commit(bodies, { label });
+  if (!r.ok) {
+    toast({ tone: "danger", title: "Couldn’t apply the fixes", description: r.errors[0]?.message });
+    return 0;
+  }
+  toast({
+    title: label,
+    description: fixed
+      .slice(0, 3)
+      .map((i) => i.autofix?.label)
+      .filter(Boolean)
+      .join(" · "),
+    action: { label: "Undo", onClick: () => store.getState().undo() },
+  });
+  return fixed.length;
+}
+
+function IssueRow({
+  issue,
+  canApply,
+  onJump,
+  onFix,
+}: {
+  issue: CheckedIssue;
+  canApply: boolean;
+  onJump: (i: CheckedIssue) => void;
+  onFix: (i: CheckedIssue) => void;
+}) {
+  const Icon = SEVERITY_ICON[issue.severity];
+  const target = issueTarget(issue);
+  return (
+    <li className={cx("st-dc__issue", `st-dc__issue--${issue.severity}`)}>
+      <Icon className="st-dc__sev" aria-label={SEVERITY_LABEL[issue.severity]} role="img" />
+      <div className="st-dc__text">
+        <p className="st-dc__msg">{issue.message}</p>
+        <p className="st-dc__fix">{issue.fix}</p>
+        <div className="st-dc__actions">
+          {target && (
+            <Button size="sm" variant="ghost" icon={<Crosshair />} onClick={() => onJump(issue)}>
+              Show
+            </Button>
+          )}
+          {issue.autofix && canApply && (
+            <Button
+              size="sm"
+              variant="secondary"
+              icon={<WandSparkles />}
+              onClick={() => onFix(issue)}
+            >
+              {issue.autofix.label}
+            </Button>
+          )}
+          {issue.kind === "seo" && <span className="st-dc__tag">SEO</span>}
+        </div>
+      </div>
+    </li>
+  );
+}
+
+export interface DesignCheckPanelProps {
+  /** Where "Show" goes (default: select it and scroll the canvas to it). */
+  onJump?: (issue: CheckedIssue) => void;
+}
+
+/** The Design check panel: issues by page and section, jump-to, one-click and bulk fixes. */
+export function DesignCheckPanel({ onJump }: DesignCheckPanelProps) {
+  const api = useDocStoreApi();
+  const doc = useDocStore((s) => s.doc);
+  const role = useInspectorRole();
+  const issues = useDesignCheck((s) => s.issues);
+  const checked = useDesignCheck((s) => s.checked);
+  const stale = useDesignCheck((s) => s.stale);
+  const [kind, setKind] = useState<CheckKind | "all">("all");
+  const [showInfo, setShowInfo] = useState(false);
+
+  const shown = useMemo(
+    () =>
+      issues.filter(
+        (i) => (kind === "all" || i.kind === kind) && (showInfo || i.severity !== "info"),
+      ),
+    [issues, kind, showInfo],
+  );
+  const groups = useMemo(() => groupIssues(doc, shown), [doc, shown]);
+  const fixable = useMemo(
+    () => issues.filter((i) => isSafeFix(i) && canFix(doc, i, role)).length,
+    [issues, doc, role],
+  );
+  const infoCount = issues.filter((i) => i.severity === "info").length;
+  const jump = onJump ?? ((i: CheckedIssue) => jumpToIssue(api, i));
+
+  if (!checked) {
+    return (
+      <div className="st-dc st-dc--loading" role="status">
+        <Spinner size={14} /> Checking your site…
+      </div>
+    );
+  }
+
+  return (
+    <div className="st-dc" data-testid="design-check">
+      <div className="st-dc__bar">
+        <Segmented<CheckKind | "all">
+          aria-label="Which checks"
+          size="sm"
+          block
+          value={kind}
+          onValueChange={setKind}
+          options={[
+            { value: "all", label: "All" },
+            { value: "design", label: "Design" },
+            { value: "seo", label: "SEO" },
+          ]}
+        />
+        <div className="st-dc__row">
+          <label className="st-dc__toggle" htmlFor="st-dc-info">
+            <Toggle id="st-dc-info" size="sm" checked={showInfo} onCheckedChange={setShowInfo} />
+            Suggestions{infoCount ? ` (${infoCount})` : ""}
+          </label>
+          {stale && <Spinner size={12} label="Checking again" />}
+          <span className="st-dc__spacer" />
+          <Button
+            size="sm"
+            variant="primary"
+            icon={<WandSparkles />}
+            disabled={fixable === 0}
+            onClick={() => applyAllSafe(api, role)}
+          >
+            Fix all safe{fixable ? ` (${fixable})` : ""}
+          </Button>
+        </div>
+      </div>
+      {groups.length === 0 ? (
+        <EmptyState
+          size="sm"
+          icon={issues.length ? <SearchCheck /> : <CircleCheck />}
+          title={issues.length ? "Nothing in this view" : "Looks good"}
+          description={
+            issues.length
+              ? "Turn on suggestions or switch checks to see the rest."
+              : "No contrast, heading, image, call-to-action or search issues on any page."
+          }
+        />
+      ) : (
+        <div className="st-dc__groups">
+          {groups.map((g) => (
+            <section key={g.page || "site"} className="st-dc__page" aria-label={g.label}>
+              <h3 className="st-dc__page-title">
+                <span className={cx("st-dc__dot", `st-dc__dot--${g.severity}`)} aria-hidden />
+                {g.label}
+                <span className="st-dc__count">{g.count}</span>
+              </h3>
+              {g.sections.map((sec) => (
+                <div key={sec.section || "page"} className="st-dc__section">
+                  {sec.label && <h4 className="st-dc__section-title">{sec.label}</h4>}
+                  <ul className="st-dc__list">
+                    {sec.issues.map((i) => (
+                      <IssueRow
+                        key={i.id}
+                        issue={i}
+                        canApply={canFix(doc, i, role)}
+                        onJump={jump}
+                        onFix={(x) => applyIssueFix(api, x)}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </section>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The top-bar button: issue count (errors + warnings), opens the panel. */
+export function DesignCheckBadge({
+  onOpen,
+  className,
+}: {
+  onOpen: () => void;
+  className?: string;
+}) {
+  const counts = useDesignCheck((s) => s.counts);
+  const checked = useDesignCheck((s) => s.checked);
+  const n = counts.attention;
+  const tone = counts.error ? "error" : counts.warning ? "warning" : "ok";
+  const label = !checked
+    ? "Design check"
+    : n === 0
+      ? "Design check: no issues"
+      : `Design check: ${n} ${n === 1 ? "issue" : "issues"}`;
+  return (
+    <button
+      type="button"
+      className={cx("st-dc-badge", `st-dc-badge--${tone}`, className)}
+      onClick={onOpen}
+      aria-label={label}
+      title={label}
+    >
+      <SearchCheck aria-hidden="true" />
+      {checked && n > 0 && <span className="st-dc-badge__n st-num">{n}</span>}
+    </button>
+  );
+}

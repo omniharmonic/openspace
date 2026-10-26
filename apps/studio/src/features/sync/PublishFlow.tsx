@@ -21,6 +21,8 @@ import {
   Tooltip,
   toast,
 } from "../../ui";
+import { PublishGate } from "../design-check/PublishGate";
+import { useEditorUi } from "../editor/editor-store";
 import { useDocStore } from "../editor/model/context";
 import { describeChanges } from "./changes";
 import { asBody, plainError, useRoomState, useSync, useSyncSession } from "./SyncContext";
@@ -290,6 +292,15 @@ function PublishDialog({
               </>
             )}
           </section>
+          {!empty && (
+            <PublishGate
+              doc={draft}
+              onReview={() => {
+                close();
+                useEditorUi.setState({ leftPanel: "check", chromeHidden: false });
+              }}
+            />
+          )}
           {offline && (
             <p className="st-publish__warn" role="status">
               You’re offline. Your changes are saved on this device; publish when you’re back

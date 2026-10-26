@@ -1,0 +1,473 @@
+/* Studio on a phone (< 768px): every control is at least 44px, nothing scrolls sideways, and
+   the top bar, tab bar and sheets clear the notch and the home indicator. */
+.st-mob {
+  --_inset-l: max(12px, env(safe-area-inset-left));
+  --_inset-r: max(12px, env(safe-area-inset-right));
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  height: 100dvh;
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden;
+  background: var(--st-bg);
+}
+
+.st-mob .st-icon-button {
+  width: 44px;
+  height: 44px;
+  flex: none;
+}
+
+.st-mob .st-button {
+  --_h: 44px;
+}
+
+/* ---------- Top bar ---------- */
+.st-mob__top {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: env(safe-area-inset-top) var(--_inset-r) 0 max(4px, env(safe-area-inset-left));
+  min-height: calc(52px + env(safe-area-inset-top));
+  border-bottom: 1px solid var(--st-line);
+  background: var(--st-panel);
+}
+
+.st-mob__title {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.st-mob__site {
+  overflow: hidden;
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-mob__page {
+  overflow: hidden;
+  font-size: var(--st-fs-md);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Saved / Saving… as an icon only: the words don't fit next to Publish at 360px. */
+.st-mob__top .st-sync span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.st-mob__top .st-sync {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 44px;
+  padding: 0;
+}
+
+.st-mob__banners {
+  display: grid;
+  gap: 8px;
+  padding: 0 var(--_inset-r) 0 var(--_inset-l);
+}
+
+.st-mob__banners:not(:empty) {
+  padding-top: 8px;
+}
+
+.st-mob__banners .st-pill {
+  justify-self: center;
+  max-width: 100%;
+}
+
+/* ---------- Screens ---------- */
+.st-mob__main {
+  position: relative;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.st-mob__screen {
+  padding: 16px var(--_inset-r) 24px var(--_inset-l);
+}
+
+.st-mob__state {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  min-height: 60%;
+  color: var(--st-text-2);
+  text-align: center;
+}
+
+.st-mob__h1 {
+  margin: 0 0 4px;
+  font-size: var(--st-fs-lg);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.st-mob__lede {
+  margin: 0 0 12px;
+  color: var(--st-text-2);
+  line-height: 1.45;
+}
+
+.st-mob__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-mob__list--footer {
+  margin-top: 16px;
+}
+
+.st-mob__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--st-r);
+  background: var(--st-panel);
+  box-shadow: var(--st-shadow-card);
+  color: var(--st-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.st-mob__row:active {
+  background: var(--st-pressed);
+}
+
+.st-mob__row:focus-visible {
+  outline: none;
+  box-shadow: var(--st-focus);
+}
+
+.st-mob__row:disabled {
+  color: var(--st-text-3);
+}
+
+.st-mob__row.is-current {
+  box-shadow:
+    0 0 0 1.5px var(--st-accent),
+    var(--st-shadow-card);
+}
+
+.st-mob__row svg,
+.st-mob__row-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--st-text-2);
+}
+
+.st-mob__row-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.st-mob__flip {
+  transform: rotate(180deg);
+}
+
+.st-mob__row-text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.st-mob__row-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-mob__row-sub {
+  overflow: hidden;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-mob__row svg.st-mob__flag {
+  width: 13px;
+  height: 13px;
+  color: var(--st-text-3);
+}
+
+.st-mob__row svg.st-mob__chev {
+  color: var(--st-text-3);
+}
+
+/* Section rows: a drag handle, then the row. */
+.st-mob__srow {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+  touch-action: pan-y;
+}
+
+.st-mob__srow.is-dragging {
+  position: relative;
+  z-index: 2;
+  opacity: 0.92;
+}
+
+.st-mob__srow.is-dragging .st-mob__row {
+  box-shadow: var(--st-shadow-pop);
+}
+
+.st-mob__grip {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  min-height: 56px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--st-r);
+  background: transparent;
+  color: var(--st-text-3);
+  cursor: grab;
+  touch-action: none;
+}
+
+.st-mob__grip:focus-visible {
+  outline: none;
+  box-shadow: var(--st-focus);
+}
+
+.st-mob__grip:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.st-mob__grip svg {
+  width: 18px;
+  height: 18px;
+}
+
+.st-mob__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* ---------- Preview (the real canvas, on a phone) ---------- */
+.st-mob__preview {
+  position: absolute;
+  inset: 0;
+}
+
+.st-mob__preview .st-ed-canvas {
+  height: 100%;
+  padding: 12px 8px 96px;
+}
+
+.st-mob__preview .st-ed-canvas__label {
+  display: none;
+}
+
+.st-mob__editbar {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  z-index: 5;
+  transform: translateX(-50%);
+}
+
+.st-mob__editbar .st-button {
+  box-shadow: var(--st-shadow-pop);
+}
+
+/* ---------- Tab bar ---------- */
+.st-mob__tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 4px env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  border-top: 1px solid var(--st-line);
+  background: var(--st-panel);
+}
+
+.st-mob__tab {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 52px;
+  min-width: 44px;
+  padding: 6px 2px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--st-text-3);
+  font: inherit;
+  font-size: var(--st-fs-xs);
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.st-mob__tab.is-active {
+  color: var(--st-accent-text);
+}
+
+.st-mob__tab:focus-visible {
+  outline: none;
+  box-shadow: inset var(--st-focus);
+}
+
+.st-mob__tab-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.st-mob__tab-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.st-mob__tab-badge {
+  position: absolute;
+  top: -5px;
+  left: 12px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--st-pending);
+  color: var(--st-text-inverse);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* ---------- Sheets ---------- */
+.st-mob__sheet {
+  max-height: calc(92dvh - env(safe-area-inset-top));
+}
+
+.st-mob__sheet .st-sheet__body {
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+
+.st-mob__sheet .st-icon-button,
+.st-sheet .st-icon-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.st-mob__sheet .st-dc {
+  height: auto;
+  margin: 0 -16px;
+}
+
+.st-mob__sheet .st-lk {
+  margin: 0 -16px;
+}
+
+.st-mob__toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--st-line);
+}
+
+.st-mob__brow {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border-radius: var(--st-r);
+  box-shadow: var(--st-shadow-card);
+}
+
+.st-mob__list .st-mob__brow > .st-mob__row {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.st-mob__rowaction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 10px 42px;
+  background: var(--st-panel);
+}
+
+.st-mob__rowaction > svg {
+  display: none;
+}
+
+.st-mob__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: -6px 0 6px -8px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: transparent;
+  color: var(--st-accent-text);
+  font: inherit;
+  font-weight: 500;
+}
+
+.st-mob__back svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* The inspector inside a sheet: full-height fields, comfortable targets. */
+.st-mob__blockedit .st-ip {
+  height: auto;
+}
+
+.st-mob__blockedit .st-input,
+.st-mob__blockedit .st-select__trigger,
+.st-mob__blockedit .st-seg__item {
+  min-height: 44px;
+}
+
+/* Inputs at 16px so iOS doesn't zoom the page when a field is focused. */
+.st-mob input,
+.st-mob textarea,
+.st-mob select,
+.st-mob__sheet input,
+.st-mob__sheet textarea,
+.st-mob__sheet select,
+.st-mob__sheet [contenteditable] {
+  font-size: 16px;
+}

@@ -21,12 +21,14 @@ import {
   PanelTop,
   Plus,
   Redo2,
+  SearchCheck,
   Send,
   Settings,
   Smartphone,
   Tablet,
   Trash,
   Undo2,
+  WandSparkles,
   ZoomIn,
 } from "lucide-react";
 import { lazy, type ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
@@ -79,11 +81,20 @@ const AddSectionPanel = lazy(() =>
 const SiteStylesPanel = lazy(() =>
   import("../styles/SiteStylesPanel").then((m) => ({ default: m.SiteStylesPanel })),
 );
+const LooksPanel = lazy(() =>
+  import("../looks/LooksPanel").then((m) => ({ default: m.LooksPanel })),
+);
+const LookStage = lazy(() => import("../looks/LooksPanel").then((m) => ({ default: m.LookStage })));
 
+import { DesignCheckBadge, DesignCheckPanel } from "../design-check/DesignCheckPanel";
+import { useDesignCheckRunner } from "../design-check/store";
+import { useLookTrial } from "../looks/trial";
 import { MediaLibrary } from "../media/MediaLibrary";
+import { MobileStudio } from "../mobile/MobileStudio";
 import { PagesManager } from "../pages/PagesManager";
 import { SiteChromePanel } from "../site-chrome/SiteChromePanel";
 import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
+import { UpdateBanner } from "../updates/UpdateBanner";
 import { FirstRunChecklist, useChecklist } from "./FirstRunChecklist";
 import {
   type ClipPayload,
@@ -111,6 +122,8 @@ const PANELS: Array<{ id: LeftPanel; label: string; icon: ReactNode; shortcut: s
   { id: "styles", label: "Site styles", icon: <Palette />, shortcut: "alt+4" },
   { id: "media", label: "Media", icon: <Image />, shortcut: "alt+5" },
   { id: "chrome", label: "Header & footer", icon: <PanelTop />, shortcut: "alt+6" },
+  { id: "check", label: "Design check", icon: <SearchCheck />, shortcut: "alt+7" },
+  { id: "looks", label: "Try a new look", icon: <WandSparkles />, shortcut: "alt+8" },
 ];
 
 const DEVICE_LABEL: Record<Breakpoint, string> = {
@@ -162,10 +175,17 @@ function LeftPanelBody({ panel }: { panel: LeftPanel }) {
   if (panel === "media") return <MediaLibrary />;
   if (panel === "chrome") return <SiteChromePanel />;
   if (panel === "layers") return <LayersPanel />;
-  if (panel === "add" || panel === "styles")
+  if (panel === "check") return <DesignCheckPanel />;
+  if (panel === "add" || panel === "styles" || panel === "looks")
     return (
       <Suspense fallback={<PanelSkeleton label="Loading" rows={6} />}>
-        {panel === "add" ? <AddSectionPanel /> : <SiteStylesPanel />}
+        {panel === "add" ? (
+          <AddSectionPanel />
+        ) : panel === "styles" ? (
+          <SiteStylesPanel />
+        ) : (
+          <LooksPanel />
+        )}
       </Suspense>
     );
   const label = PANELS.find((p) => p.id === panel)?.label ?? "";
@@ -336,12 +356,15 @@ function EditorChrome({ site }: { site: Site }) {
   const hasSelection = useDocStore((s) => s.selection.length > 0);
   const user = session.data?.user;
   const live = site.status === "live";
+  const trying = useLookTrial((s) => s.templateId !== null);
+  useDesignCheckRunner(store);
 
   useEffect(() => {
     document.documentElement.dataset.toastAnchor = "canvas";
     return () => {
       delete document.documentElement.dataset.toastAnchor;
       useEditorUi.getState().reset();
+      useLookTrial.getState().discard();
     };
   }, []);
 
@@ -526,6 +549,22 @@ function EditorChrome({ site }: { site: Site }) {
       run: () => setHistoryOpen(true),
     },
     {
+      id: "design-check",
+      label: "Run design check",
+      group: "Site",
+      icon: <SearchCheck />,
+      keywords: ["lint", "seo", "contrast", "accessibility", "issues"],
+      run: () => openPanel("check"),
+    },
+    {
+      id: "try-look",
+      label: "Try a new look…",
+      group: "Site",
+      icon: <WandSparkles />,
+      keywords: ["template", "theme", "restyle", "switch"],
+      run: () => openPanel("looks"),
+    },
+    {
       id: "copy-link",
       label: "Copy live link",
       group: "Site",
@@ -558,6 +597,22 @@ function EditorChrome({ site }: { site: Site }) {
   const showLeft = !narrow && !ui.chromeHidden && ui.leftPanel;
   const showRight = !narrow && !ui.chromeHidden && ui.inspectorOpen;
   const leftMeta = PANELS.find((p) => p.id === ui.leftPanel);
+
+  // Phones get their own layout (arch §5.7): pages → sections → edit in a sheet.
+  if (narrow)
+    return (
+      <>
+        <WelcomeToast site={site} />
+        <MobileStudio
+          site={site}
+          onHistory={() => setHistoryOpen(true)}
+          onFrameDocument={setFrameDoc}
+        />
+        <InspectorRuntime />
+        <SiteManagementHost site={site} />
+        <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
+      </>
+    );
 
   return (
     <div
@@ -648,6 +703,15 @@ function EditorChrome({ site }: { site: Site }) {
             </Badge>
           )}
           {site.status !== "building" && <SyncStatus />}
+          {site.status !== "building" && (
+            <DesignCheckBadge
+              onOpen={() =>
+                narrow
+                  ? setSheet("check")
+                  : useEditorUi.setState({ leftPanel: "check", chromeHidden: false })
+              }
+            />
+          )}
           <span className="st-ed-top__sep" aria-hidden="true" />
           <IconButton
             label="Undo"
@@ -760,7 +824,13 @@ function EditorChrome({ site }: { site: Site }) {
         <div className="st-ed-main__top">
           <PublishPill />
           <SyncBanners />
+          <UpdateBanner site={site} />
         </div>
+        {trying && (
+          <Suspense fallback={null}>
+            <LookStage narrow={narrow} />
+          </Suspense>
+        )}
         <div className="st-ed-main__overlay">
           <FirstRunChecklist checklist={checklist} />
         </div>
