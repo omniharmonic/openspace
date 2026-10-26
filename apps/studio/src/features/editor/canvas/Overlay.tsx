@@ -25,6 +25,7 @@ import {
 } from "react";
 import { cx, IconButton, Menu, Segmented, toast } from "../../../ui";
 import { useAddSection } from "../../add-section/blockMenuStore";
+import { useInspectorTab } from "../../inspector/env";
 import { BlockIcon } from "../blockIcons";
 import { useEditorUi } from "../editor-store";
 import {
@@ -322,7 +323,10 @@ function BlockToolbar({ item }: { item: SelItem }) {
         size="sm"
         label="Style"
         icon={<Paintbrush />}
-        onClick={() => useEditorUi.setState({ inspectorOpen: true, chromeHidden: false })}
+        onClick={() => {
+          useEditorUi.setState({ inspectorOpen: true, chromeHidden: false });
+          useInspectorTab.setState({ tab: "design" });
+        }}
       />
       <IconButton
         size="sm"

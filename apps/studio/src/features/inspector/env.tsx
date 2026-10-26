@@ -35,3 +35,6 @@ export function useInspectorRole(): Role {
 export function useEditBp(): Bp {
   return BP_OF[useEditorUi((s) => s.breakpoint)];
 }
+
+/** The block inspector's tab; the canvas "Style" button opens Design. */
+export const useInspectorTab = create<{ tab: "content" | "design" }>(() => ({ tab: "content" }));

@@ -21,7 +21,7 @@ import { devSiteDocument, DEV_IDS as I } from "../editor/model/dev-site";
 import type { SelItem } from "../editor/model/selection";
 import { createEditorStore, type EditorStore } from "../editor/model/store";
 import { SiteStylesPanel } from "../styles/SiteStylesPanel";
-import { InspectorEnvProvider } from "./env";
+import { InspectorEnvProvider, useInspectorTab } from "./env";
 import { FIELD_COMMIT_MS } from "./fields/basic";
 import { Inspector } from "./Inspector";
 
@@ -65,7 +65,10 @@ function setup(
 const panel = () => screen.getByTestId("inspector");
 const wait = (ms: number) => act(() => new Promise((r) => setTimeout(r, ms)));
 
-beforeEach(() => useEditorUi.getState().reset());
+beforeEach(() => {
+  useEditorUi.getState().reset();
+  useInspectorTab.setState({ tab: "content" });
+});
 afterEach(() => useBlockMenu.getState().close());
 
 function kindsIn(fields: Record<string, FieldMeta>, out = new Set<string>()) {
@@ -288,7 +291,7 @@ describe("design panel", () => {
     await t.user.click(within(panel()).getByRole("radio", { name: "Grid: place blocks freely" }));
     expect(t.section(I.intro).layout.mode).toBe("grid");
     expect(
-      within(panel()).getByRole("button", { name: "Rebuild phone layout" }),
+      within(panel()).getByRole("button", { name: "Rearrange for phones" }),
     ).toBeInTheDocument();
     await t.user.click(
       within(panel()).getByRole("radio", { name: "Stack: blocks flow in columns" }),
@@ -462,5 +465,40 @@ describe("add section and block menu", () => {
     const i = intro.blocks.findIndex((b) => b.id === I.introText);
     expect(intro.blocks[i + 1]?.type).toBe("quote");
     expect(useBlockMenu.getState().open).toBe(false);
+  });
+});
+
+describe("copy", () => {
+  const FORBIDDEN = /\b(repo|repository|repositories|commit\w*|branch\w*|build\w*|deploy\w*)\b/gi;
+  const copy = () => {
+    let text = `${document.body.textContent ?? ""} `;
+    for (const el of document.querySelectorAll("[aria-label],[placeholder],[title],[alt]"))
+      for (const a of ["aria-label", "placeholder", "title", "alt"])
+        text += ` ${el.getAttribute(a) ?? ""}`;
+    return text;
+  };
+
+  it("uses no Git or hosting vocabulary in the inspector, Site Styles, gallery or block menu", async () => {
+    for (const select of [
+      { kind: "section", id: I.intro },
+      { kind: "block", id: I.contactForm },
+      { kind: "block", id: I.heroButton },
+    ] as SelItem[]) {
+      const t = setup(<Inspector />, { select });
+      expect(copy().match(FORBIDDEN)).toBeNull();
+      t.unmount();
+    }
+    const styles = setup(<SiteStylesPanel />, { role: "owner" });
+    expect(copy().match(FORBIDDEN)).toBeNull();
+    styles.unmount();
+    setup(
+      <>
+        <AddSectionPanel />
+        <BlockMenu />
+      </>,
+    );
+    act(() => useBlockMenu.getState().openFor());
+    await screen.findByRole("dialog", { name: "Add a block" });
+    expect(copy().match(FORBIDDEN)).toBeNull();
   });
 });

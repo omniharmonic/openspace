@@ -639,10 +639,10 @@ export function SectionDesign({
                 const s = api.getState();
                 const ops = autoMobileLayoutOps(s.doc, container, section.id, { reset: true });
                 if (ops.length)
-                  s.commit(ops as unknown as OpBody[], { label: "Rebuild phone layout" });
+                  s.commit(ops as unknown as OpBody[], { label: "Rearrange for phones" });
               }}
             >
-              Rebuild phone layout
+              Rearrange for phones
             </Button>
           </>
         )}

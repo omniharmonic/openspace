@@ -10,7 +10,7 @@ import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import { blockLabel, blockName, locate, sectionLabel } from "../editor/model/selection";
 import { BlockDesign } from "./design/BlockDesign";
 import { SectionDesign } from "./design/SectionDesign";
-import { useEditBp, useInspectorRole } from "./env";
+import { useEditBp, useInspectorRole, useInspectorTab } from "./env";
 import { GroupedFields } from "./fields/FieldsEditor";
 import { FieldsContext, friendlyError } from "./fields/types";
 import { fieldsOp } from "./model/edits";
@@ -187,16 +187,35 @@ function SectionBlocks({ section, caps }: { section: Section; caps: Capabilities
           </li>
         ))}
       </ul>
-      <Button
-        size="sm"
-        variant="secondary"
-        icon={<Plus />}
-        className="st-ip-add"
-        disabled={!caps.structure}
-        onClick={() => useBlockMenu.getState().openFor({ section: section.id })}
-      >
-        Add block
-      </Button>
+      {section.layout.mode === "stack" && section.layout.columns.d.length > 1 ? (
+        <div className="st-ip-btnrow">
+          {section.layout.columns.d.map((_, c) => (
+            <Button
+              // biome-ignore lint/suspicious/noArrayIndexKey: columns are positional
+              key={c}
+              size="sm"
+              variant="secondary"
+              icon={<Plus />}
+              disabled={!caps.structure}
+              aria-label={`Add a block to column ${c + 1}`}
+              onClick={() => useBlockMenu.getState().openFor({ section: section.id, column: c })}
+            >
+              Column {c + 1}
+            </Button>
+          ))}
+        </div>
+      ) : (
+        <Button
+          size="sm"
+          variant="secondary"
+          icon={<Plus />}
+          className="st-ip-add"
+          disabled={!caps.structure}
+          onClick={() => useBlockMenu.getState().openFor({ section: section.id })}
+        >
+          Add block
+        </Button>
+      )}
     </PanelSection>
   );
 }
@@ -233,6 +252,7 @@ export function Inspector() {
   const pageId = useDocStore((s) => s.pageId);
   const selection = useDocStore((s) => s.selection);
   const role = useInspectorRole();
+  const tab = useInspectorTab((s) => s.tab);
   const item = selection.length === 1 ? selection[0] : undefined;
   const loc = item ? locate(doc, pageId, item) : undefined;
   const caps = useMemo(() => capabilities(role, loc?.section), [role, loc?.section]);
@@ -263,6 +283,8 @@ export function Inspector() {
         <Tabs
           className="st-ip__tabs"
           aria-label="Block inspector"
+          value={tab}
+          onValueChange={(v) => useInspectorTab.setState({ tab: v as "content" | "design" })}
           items={[
             {
               value: "content",
