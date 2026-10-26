@@ -168,7 +168,7 @@ describe("properties", () => {
             1500,
           );
           const merged = remote.doc;
-          const r = rebase(local.ops, remote.ops, { doc: merged });
+          const r = rebase(local.ops, remote.ops, { doc: merged, base });
           let cur = merged;
           for (const op of r.ops) {
             const v = validate(cur, op);

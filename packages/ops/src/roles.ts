@@ -1,7 +1,8 @@
 import type { BlockRegistry, SiteDocument } from "@openspace/schema";
-import { findBlock, locateBlock } from "./doc";
+import { findBlock, findSection, locateBlock } from "./doc";
+import { invert } from "./invert";
 import type { Op } from "./ops";
-import { isPathPrefix, isPlainObject, patchPaths } from "./paths";
+import { deepEqual, isPathPrefix, isPlainObject, patchPaths } from "./paths";
 
 /**
  * Collaborator roles (arch §6.4, PRD). The Hub enforces them on every op it accepts.
@@ -24,7 +25,10 @@ export interface RoleContext {
    * any block they touch were in a locked section.
    */
   doc?: SiteDocument;
-  /** Field kinds come from block definitions when given; otherwise from value shapes. */
+  /**
+   * Block definitions: field kinds for locked-section checks. The Hub must pass it; without it
+   * only same-shape changes to existing text/image fields are allowed (fail safe).
+   */
   registry?: BlockRegistry;
 }
 
@@ -43,6 +47,21 @@ function isImageValue(v: unknown): boolean {
   return isPlainObject(v) && typeof v.src === "string";
 }
 
+type Shape = "string" | "doc" | "image" | "images" | undefined;
+function contentShape(v: unknown): Shape {
+  if (typeof v === "string") return "string";
+  if (isPlainObject(v) && v.type === "doc" && Array.isArray(v.content)) return "doc";
+  if (isImageValue(v)) return "image";
+  if (Array.isArray(v) && v.length > 0 && v.every(isImageValue)) return "images";
+  return undefined;
+}
+
+/** True if both values are text/image content of the same shape. */
+export function sameContentShape(before: unknown, after: unknown): boolean {
+  const a = contentShape(before);
+  return a !== undefined && a === contentShape(after);
+}
+
 /** Shape-based guess: a string, a rich-text doc, an image, or a list of images. */
 export function isTextOrImageValue(v: unknown): boolean {
   if (typeof v === "string") return true;
@@ -54,7 +73,33 @@ export function isTextOrImageValue(v: unknown): boolean {
 const deny = (reason: string): RoleDecision => ({ allowed: false, reason });
 
 /**
- * Decide whether `role` may submit `op`. Allowed ops are returned unchanged (ops are never
+ * True if `op` is exactly the undo of `priorOp`: it equals `invert(docBefore, priorOp)` apart from
+ * op metadata. `docBefore` is the document `priorOp` was applied to (the server keeps it, or
+ * recomputes it from the op log).
+ *
+ * How the Hub authorizes undo: an inverse can carry fields a role may not send directly (grid
+ * placements and rows restoring a deleted block, for instance). When an op arrives, if it
+ * `isInverseOf` one of the same actor's own earlier accepted ops — and nothing has touched those
+ * locations since (`rebase` it over the intervening ops first) — accept it as an undo; otherwise
+ * run `transformForRole` as usual.
+ */
+export function isInverseOf(op: Op, priorOp: Op, docBefore: SiteDocument): boolean {
+  let expected: Op;
+  try {
+    expected = invert(docBefore, priorOp);
+  } catch {
+    return false;
+  }
+  const strip = ({ id: _i, actor: _a, ts: _t, ...body }: Op) => body;
+  return deepEqual(strip(op), strip(expected));
+}
+
+/**
+ * Decide whether `role` may submit `op`.
+ *
+ * The Hub must pass `context.doc` (and should pass `context.registry`): without them checks fail
+ * safe and deny anything that depends on the document (block edits in locked sections, page
+ * deletes, contributor saves). Undo ops are authorized separately — see `isInverseOf`. Allowed ops are returned unchanged (ops are never
  * silently rewritten, so what the user sees is what is stored).
  */
 export function transformForRole(
@@ -72,7 +117,8 @@ export function transformForRole(
       return deny("Contributors can only create and edit draft collection items");
     if (op.item.frontmatter.status !== "draft")
       return deny("Contributors can only save items as drafts; an editor publishes them");
-    const existing = doc?.collections[op.collection]?.[op.item.slug];
+    if (!doc) return deny("Can't check this item without the current document");
+    const existing = doc.collections[op.collection]?.[op.item.slug];
     if (existing && existing.frontmatter.status !== "draft")
       return deny("This item is already published or scheduled; only editors can change it");
     return allow;
@@ -88,6 +134,9 @@ export function transformForRole(
     return loc?.section.id;
   };
   const isLocked = (section: string | undefined) => section === undefined || locked.has(section);
+  const sectionById = (page: string, id: string) =>
+    doc ? findSection(doc, page as Parameters<typeof findSection>[1], id)?.section : undefined;
+  const NO_GRID = "Editors can't reposition blocks on the grid";
 
   switch (op.op) {
     case "styles.patch":
@@ -112,14 +161,26 @@ export function transformForRole(
       return allow;
     case "block.insert":
       if (locked.has(op.section)) return deny("This section is locked");
+      if (op.place || op.rows) return deny(NO_GRID);
       return allow;
     case "block.delete":
       if (isLocked(sectionOfBlock(op.page, op.block))) return deny("This section is locked");
+      if (op.rows) return deny(NO_GRID);
       return allow;
-    case "block.move":
-      if (isLocked(sectionOfBlock(op.page, op.block)) || locked.has(op.to.section))
-        return deny("This section is locked");
+    case "block.move": {
+      const from = sectionOfBlock(op.page, op.block);
+      if (isLocked(from) || locked.has(op.to.section)) return deny("This section is locked");
+      if (op.to.place || op.to.rows || op.fromRows) return deny(NO_GRID);
+      // Moving into, out of or between grid sections lays the grid out again; reordering inside
+      // one grid section keeps placements and is fine.
+      if (from !== op.to.section) {
+        const src = sectionById(op.page, from as string);
+        const dest = sectionById(op.page, op.to.section);
+        if (!src || !dest) return deny("Can't check this move without the current document");
+        if (src.layout.mode === "grid" || dest.layout.mode === "grid") return deny(NO_GRID);
+      }
       return allow;
+    }
     case "block.update": {
       const section = sectionOfBlock(op.page, op.block);
       if (!isLocked(section)) return allow;
@@ -127,13 +188,15 @@ export function transformForRole(
         return deny("This section is locked: only its text and images can change");
       if (op.unset?.length) return deny("This section is locked: fields can't be removed");
       const block = doc ? findBlock(doc, op.page, op.block)?.block : undefined;
-      const def = block && registry ? registry.get(block.type) : undefined;
+      if (!block) return deny("Can't check this edit without the current document");
+      const def = registry?.get(block.type);
       for (const [key, value] of Object.entries(op.set ?? {})) {
         const kind = def?.meta.fields[key]?.kind;
-        const ok = kind
-          ? CONTENT_KINDS.has(kind)
-          : isTextOrImageValue(value) &&
-            (block?.fields[key] === undefined || isTextOrImageValue(block.fields[key]));
+        // With a registry the field kind is authoritative. Without one (fail safe), only an
+        // existing field may change, and only to a value of the same text/image shape.
+        const ok = def
+          ? kind !== undefined && CONTENT_KINDS.has(kind)
+          : block.fields[key] !== undefined && sameContentShape(block.fields[key], value);
         if (!ok) return deny(`This section is locked: "${key}" is not a text or image field`);
       }
       return allow;
@@ -146,8 +209,15 @@ export function transformForRole(
         return deny("Editors change the footer through its blocks");
       return allow;
     }
+    case "page.delete": {
+      const page = doc?.pages[op.page];
+      if (!page) return deny("Can't check this page without the current document");
+      if (page.sections.some((s) => s.locked || locked.has(s.id)))
+        return deny("This page has locked sections; only owners and designers can delete it");
+      return allow;
+    }
     default:
-      // page.*, nav.update, media.*, collection.*, collectionConfig.upsert
+      // page.create/update, nav.update, media.*, collection.*, collectionConfig.upsert
       return allow;
   }
 }

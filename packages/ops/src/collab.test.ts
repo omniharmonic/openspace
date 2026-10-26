@@ -4,10 +4,11 @@ import { stackSection, stampOp, textBlock } from "./__fixtures__/arbitrary";
 import { IDS, siteFixture } from "./__fixtures__/site";
 import { apply, applyAll } from "./apply";
 import { diff } from "./diff";
+import { invert } from "./invert";
 import type { Op, OpBody } from "./ops";
 import { deepEqual } from "./paths";
 import { independent, rebase } from "./rebase";
-import { lockedSectionsOf, type Role, transformForRole } from "./roles";
+import { isInverseOf, lockedSectionsOf, type Role, transformForRole } from "./roles";
 import { stats, styleLabel, summarize } from "./summarize";
 
 const home = IDS.home as `pg_${string}`;
@@ -221,6 +222,181 @@ describe("transformForRole", () => {
   });
 });
 
+describe("transformForRole — fix round 1", () => {
+  it("editors can't place on the grid through block ops", () => {
+    const place = { d: { x: 1, y: 1, w: 4, h: 2 } };
+    expect(
+      check(
+        { op: "block.move", page: home, block: IDS.c1, to: { section: grid, at: 1, place } },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check(
+        {
+          op: "block.move",
+          page: home,
+          block: IDS.c1,
+          to: { section: grid, at: 1, rows: { d: 30 } },
+        },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check(
+        {
+          op: "block.move",
+          page: home,
+          block: IDS.c1,
+          to: { section: grid, at: 1 },
+          fromRows: { d: 30 },
+        },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check(
+        {
+          op: "block.insert",
+          page: home,
+          section: grid,
+          at: 0,
+          block: textBlock(newId("blk"), "x"),
+          place,
+        },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check(
+        {
+          op: "block.insert",
+          page: home,
+          section: grid,
+          at: 0,
+          block: textBlock(newId("blk"), "x"),
+          rows: { d: 30 },
+        },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check({ op: "block.delete", page: home, block: IDS.c1, rows: { d: 30 } }, "editor").allowed,
+    ).toBe(false);
+    // moving into/out of a grid section re-lays out the grid
+    const unlocked = siteFixture();
+    expect(
+      check(
+        { op: "block.move", page: home, block: IDS.heading, to: { section: grid, at: 0 } },
+        "editor",
+        unlocked,
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check(
+        { op: "block.move", page: home, block: IDS.c1, to: { section: hero, at: 0 } },
+        "editor",
+        unlocked,
+      ).allowed,
+    ).toBe(false);
+    // reordering inside one grid section keeps placements
+    expect(
+      check({ op: "block.move", page: home, block: IDS.c1, to: { section: grid, at: 1 } }, "editor")
+        .allowed,
+    ).toBe(true);
+    // plain inserts/deletes are still fine
+    expect(
+      check(
+        {
+          op: "block.insert",
+          page: home,
+          section: grid,
+          at: 0,
+          block: textBlock(newId("blk"), "x"),
+        },
+        "editor",
+      ).allowed,
+    ).toBe(true);
+    expect(check({ op: "block.delete", page: home, block: IDS.c1 }, "editor").allowed).toBe(true);
+  });
+
+  it("isInverseOf lets the Hub authorize an editor's own undo", () => {
+    const doc = siteFixture();
+    const del = stampOp({ op: "block.delete", page: home, block: IDS.c1 });
+    expect(check(del, "editor", doc).allowed).toBe(true);
+    const after = apply(doc, del);
+    const undo = { ...invert(doc, del), id: "undo-1", ts: 99 };
+    // the undo restores placement + rows, which editors can't send directly…
+    expect(transformForRole(undo, "editor", lockedSectionsOf(after), { doc: after }).allowed).toBe(
+      false,
+    );
+    // …but it is exactly the inverse of their own op
+    expect(isInverseOf(undo, del, doc)).toBe(true);
+    const tampered = { ...undo, place: { d: { x: 1, y: 1, w: 24, h: 2 } } } as Op;
+    expect(isInverseOf(tampered, del, doc)).toBe(false);
+    expect(isInverseOf(undo, stampOp({ op: "block.delete", page: home, block: IDS.c2 }), doc)).toBe(
+      false,
+    );
+  });
+
+  it("contributors are denied without the document (fail safe)", () => {
+    const op = stampOp({
+      op: "collection.upsert",
+      collection: "journal",
+      item: {
+        kind: "blog",
+        slug: "2026-10-26-opening-day",
+        frontmatter: { title: "x", date: "2026-11-02", status: "draft" },
+        body: "",
+      },
+    });
+    expect(transformForRole(op, "contributor", [])).toMatchObject({ allowed: false });
+  });
+
+  it("editors can't delete pages with locked sections", () => {
+    expect(check({ op: "page.delete", page: home }, "editor").allowed).toBe(false);
+    expect(check({ op: "page.delete", page: about }, "editor").allowed).toBe(true);
+    expect(
+      transformForRole(stampOp({ op: "page.delete", page: about }), "editor", []).allowed,
+    ).toBe(false);
+  });
+
+  it("without a registry, locked-section edits must keep an existing field's text/image shape", () => {
+    expect(
+      check({ op: "block.update", page: home, block: IDS.button, set: { label: "Book" } }, "editor")
+        .allowed,
+    ).toBe(true);
+    expect(
+      check(
+        {
+          op: "block.update",
+          page: home,
+          block: IDS.button,
+          set: { label: { type: "doc", content: [] } },
+        },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check(
+        { op: "block.update", page: home, block: IDS.button, set: { subtitle: "new field" } },
+        "editor",
+      ).allowed,
+    ).toBe(false);
+    expect(
+      check(
+        {
+          op: "block.update",
+          page: home,
+          block: IDS.heading,
+          set: { content: { type: "doc", content: [] } },
+        },
+        "editor",
+      ).allowed,
+    ).toBe(true);
+  });
+});
+
 describe("rebase", () => {
   const op = (body: OpBody, actor: string, ts: number): Op => stampOp(body, actor, ts);
 
@@ -353,6 +529,23 @@ describe("rebase", () => {
     const r = rebase([edit, insertAt], remoteOps, { doc: merged });
     expect(r.ops).toEqual([{ ...insertAt, at: "end" }]);
     expect(r.conflicts).toMatchObject([{ reason: "invalid", local: edit }]);
+  });
+
+  it("with the base doc, a remote section.delete is a 'deleted' conflict for edits inside it", () => {
+    const base = siteFixture();
+    const edit = op(
+      { op: "block.update", page: home, block: IDS.c1, set: { caption: "x" } },
+      "ana",
+      50,
+    );
+    const del = op({ op: "section.delete", page: home, section: grid }, "ben", 1);
+    const r = rebase([edit], [del], { base });
+    expect(r.ops).toEqual([]);
+    expect(r.conflicts).toMatchObject([
+      { reason: "deleted", message: "ben deleted this", local: edit },
+    ]);
+    // without the base it can't tell
+    expect(rebase([edit], [del]).ops).toEqual([edit]);
   });
 
   it("page.create losing a nav race keeps the page but not the nav rewrite", () => {

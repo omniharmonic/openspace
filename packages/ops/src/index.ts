@@ -4,6 +4,8 @@
  */
 export const name = "@openspace/ops";
 
+export type { SiteDocument } from "@openspace/schema";
+
 export * from "./apply";
 export * from "./diff";
 export {

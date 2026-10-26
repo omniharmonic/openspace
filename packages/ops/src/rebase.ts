@@ -1,4 +1,5 @@
 import type { SiteDocument } from "@openspace/schema";
+import { apply } from "./apply";
 import { findBlock, findSection, getPage } from "./doc";
 import { FOOTER, type Op, type Position } from "./ops";
 import { patchPaths, splitPath } from "./paths";
@@ -57,9 +58,21 @@ function pageReq(page: string): string[][] {
  */
 export function footprint(op: Op, doc?: SiteDocument): OpFootprint {
   const fp = baseFootprint(op);
-  if (doc && (op.op === "block.move" || op.op === "block.delete")) {
+  if (
+    doc &&
+    (op.op === "block.update" ||
+      op.op === "block.move" ||
+      op.op === "block.delete" ||
+      op.op === "grid.place")
+  ) {
     const loc = findBlock(doc, op.page, op.block);
-    if (loc) fp.touches.push(...sectionContent(loc.section.id));
+    if (loc) {
+      // The block's current section must survive (so a concurrent section.delete is a
+      // proper "deleted" conflict), and moves/deletes reshape its block list.
+      fp.requires.push(["section", loc.section.id]);
+      if (op.op !== "block.update" && op.op !== "grid.place")
+        fp.touches.push(...sectionContent(loc.section.id));
+    }
   }
   if (op.op === "section.delete") fp.touches.push(order("page", op.page, "sections"));
   return fp;
@@ -179,7 +192,13 @@ function isPrefix(a: readonly string[], b: readonly string[]): boolean {
 
 const overlaps = (a: readonly string[], b: readonly string[]) => isPrefix(a, b) || isPrefix(b, a);
 
-/** True if `a` was written after `b` under last-writer-wins: later `ts`, then greater actor. */
+/**
+ * True if `a` was written after `b` under last-writer-wins: later `ts`, then greater actor.
+ *
+ * `ts` comes from the client, so the server (DraftRoom) must stamp or clamp it on receipt —
+ * e.g. `ts = min(clientTs, serverNow)` and never earlier than the op it was based on — otherwise
+ * a skewed or malicious clock wins every conflict.
+ */
 export function wins(a: { ts: number; actor: string }, b: { ts: number; actor: string }): boolean {
   if (a.ts !== b.ts) return a.ts > b.ts;
   return a.actor >= b.actor;
@@ -226,6 +245,13 @@ export interface RebaseResult {
 }
 
 export interface RebaseOptions {
+  /**
+   * The common base document both the local and the remote ops were made against (the document
+   * before the remote ops). When given, footprints resolve which section each block-level op
+   * sits in, so e.g. a remote `section.delete` vs a local edit of a block inside it is reported
+   * as a "deleted" conflict.
+   */
+  base?: SiteDocument;
   /**
    * The document after the remote ops. When given, rebased ops are re-validated in order against
    * it (numeric positions are clamped, missing anchors fall back to the end) and ops that no
@@ -301,6 +327,9 @@ const key = (p: string[]) => p.join("/");
  * Transform `localPending` (ops not yet acknowledged) so they apply after `remoteOps` (ops the
  * authority ordered first). Returns the surviving ops plus conflicts for "X changed this too"
  * toasts.
+ *
+ * Server-side, the DraftRoom runs this for each incoming op against the ops its sender had not
+ * seen. The server must stamp/clamp each op's `ts` on receipt (see `wins`) before ordering it.
  */
 export function rebase(
   localPending: readonly Op[],
@@ -310,13 +339,29 @@ export function rebase(
   const conflicts: Conflict[] = [];
   const dropped: Op[] = [];
   const kept: Op[] = [];
-  const remotes = remoteOps.map((r) => ({ op: r, fp: footprint(r) }));
+  const step = (d: SiteDocument | undefined, o: Op) => {
+    if (!d) return undefined;
+    try {
+      return apply(d, o);
+    } catch {
+      return d;
+    }
+  };
+  let rd = options.base;
+  const remotes = remoteOps.map((r) => {
+    const fp = footprint(r, rd);
+    rd = step(rd, r);
+    return { op: r, fp };
+  });
 
+  let ld = options.base;
   for (const local of localPending) {
     let cur: Op | null = local;
+    const localDoc = ld;
+    ld = step(ld, local);
     for (const { op: remote, fp: rfp } of remotes) {
       if (!cur) break;
-      const lfp = footprint(cur);
+      const lfp = footprint(cur, localDoc);
       // 1. Remote deleted something this op edits or depends on.
       const deletedHits: string[][] = [];
       for (const rt of rfp.touches) {
