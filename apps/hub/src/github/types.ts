@@ -19,6 +19,10 @@ export interface RepoInfo extends RepoRef {
   htmlUrl: string;
   private: boolean;
   archived: boolean;
+  /** GitHub's numeric repository id (stable across renames and transfers). */
+  id?: number;
+  /** Numeric id of the owning user or organization. */
+  ownerId?: number;
 }
 
 export type FileEncoding = "utf-8" | "base64";

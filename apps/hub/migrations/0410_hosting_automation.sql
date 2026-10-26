@@ -13,6 +13,8 @@ CREATE TABLE site_automation (
   site_id         TEXT PRIMARY KEY,
   next_publish_at INTEGER,                               -- ms; NULL = nothing scheduled
   turnstile_key   TEXT,                                  -- public site key set as a repo variable
+  repo_id         TEXT,                                  -- GitHub repository id (OIDC binding)
+  repo_owner_id   TEXT,                                  -- GitHub owner account id
   updated_at      INTEGER NOT NULL
 );
 CREATE INDEX site_automation_due ON site_automation(next_publish_at);

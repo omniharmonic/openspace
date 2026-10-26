@@ -47,9 +47,10 @@ export interface GitHubAppAccessOptions {
 }
 
 interface RestRepo {
+  id?: number;
   name: string;
   full_name: string;
-  owner: { login: string };
+  owner: { login: string; id?: number };
   default_branch: string;
   html_url: string;
   private: boolean;
@@ -80,6 +81,8 @@ function toRepoInfo(r: RestRepo): RepoInfo {
     htmlUrl: r.html_url,
     private: r.private,
     archived: r.archived,
+    ...(typeof r.id === "number" ? { id: r.id } : {}),
+    ...(typeof r.owner.id === "number" ? { ownerId: r.owner.id } : {}),
   };
 }
 

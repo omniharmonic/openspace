@@ -245,8 +245,8 @@ describe("the Cloudflare publish workflow downloads gated content with its OIDC 
         .replace(/\//g, "_")
         .replace(/=+$/, "");
     const enc = (v: unknown) => b64u(new TextEncoder().encode(JSON.stringify(v)));
-    const sign = async (claims: Record<string, unknown>) => {
-      const h = enc({ alg: "RS256", typ: "JWT", kid: "gh1" });
+    const sign = async (claims: Record<string, unknown>, kid = "gh1") => {
+      const h = enc({ alg: "RS256", typ: "JWT", kid });
       const p = enc(claims);
       const sig = await crypto.subtle.sign(
         "RSASSA-PKCS1-v1_5",
@@ -255,13 +255,16 @@ describe("the Cloudflare publish workflow downloads gated content with its OIDC 
       );
       return `${h}.${p}.${b64u(new Uint8Array(sig))}`;
     };
+    const jwks = { fetches: 0, extra: [] as JsonWebKey[] };
     const fetch = async (input: string | Request | URL) => {
       const url = String(input instanceof Request ? input.url : input);
-      if (url === "https://token.actions.githubusercontent.com/.well-known/jwks")
-        return Response.json({ keys: [{ ...pub, kid: "gh1", use: "sig" }] });
+      if (url === "https://token.actions.githubusercontent.com/.well-known/jwks") {
+        jwks.fetches++;
+        return Response.json({ keys: [{ ...pub, kid: "gh1", use: "sig" }, ...jwks.extra] });
+      }
       return new Response("not found", { status: 404 });
     };
-    return { sign, fetch };
+    return { sign, fetch, jwks };
   }
 
   it("serves exactly the versions the run's commit names, only to that repository's main", async () => {
@@ -280,11 +283,15 @@ describe("the Cloudflare publish workflow downloads gated content with its OIDC 
     const repo = { owner: "lea-park", name: "gated-ci" };
     const sha = (await gh.getRef(repo, "main")) as string;
     const now = Math.floor(Date.now() / 1000);
+    const info = await gh.getRepo(repo);
     const claims = {
       iss: "https://token.actions.githubusercontent.com",
       aud: "http://localhost:8787",
       repository: "lea-park/gated-ci",
+      repository_id: String(info?.id),
+      repository_owner_id: String(info?.ownerId),
       ref: "refs/heads/main",
+      workflow_ref: "lea-park/gated-ci/.github/workflows/publish.yml@refs/heads/main",
       sha,
       exp: now + 300,
       nbf: now - 5,
@@ -307,7 +314,47 @@ describe("the Cloudflare publish workflow downloads gated content with its OIDC 
     expect((await get(await sign({ ...claims, exp: now - 600 }))).status).toBe(401);
     expect((await get(await sign({ ...claims, repository: "mallory/gated-ci" }))).status).toBe(403);
     expect((await get(await sign({ ...claims, ref: "refs/heads/feature" }))).status).toBe(403);
+    // Bound to GitHub's numeric ids (a recreated repository with the same name is refused)…
+    expect((await get(await sign({ ...claims, repository_id: "999999" }))).status).toBe(403);
+    expect((await get(await sign({ ...claims, repository_owner_id: "424242" }))).status).toBe(403);
+    // …and to the site's own publish workflow on main.
+    expect(
+      (
+        await get(
+          await sign({
+            ...claims,
+            workflow_ref: "lea-park/gated-ci/.github/workflows/other.yml@refs/heads/main",
+          }),
+        )
+      ).status,
+    ).toBe(403);
+    expect((await get(await sign({ ...claims, workflow_ref: undefined }))).status).toBe(401);
     const tampered = (await sign(claims)).replace(/\.[^.]+$/, ".AAAA");
     expect((await get(tampered)).status).toBe(401);
+  });
+
+  it("unknown key ids refresh GitHub's keys at most once a minute; malformed keys are a 401", async () => {
+    resetActionsKeyCache();
+    const { sign, fetch, jwks } = await oidc();
+    const app = createApp({ services: { fetch } });
+    const owner = await devLogin(app, "Ivo Bell");
+    const site = await createSite(app, owner, "Kid Site");
+    const claims = {
+      iss: "https://token.actions.githubusercontent.com",
+      aud: "http://localhost:8787",
+      exp: Math.floor(Date.now() / 1000) + 300,
+    };
+    const get = async (token: string) =>
+      (
+        await call(app, `/ci/sites/${site.id}/gated`, {
+          headers: { authorization: `Bearer ${token}` },
+        })
+      ).status;
+    for (let i = 0; i < 5; i++) expect(await get(await sign(claims, `junk-${i}`))).toBe(401);
+    // One fetch to load the keys, one forced refresh for the first unknown kid; no more.
+    expect(jwks.fetches).toBe(2);
+    resetActionsKeyCache();
+    jwks.extra.push({ kty: "RSA", kid: "bad", n: "!!not-base64!!", e: "AQAB" });
+    expect(await get(await sign(claims, "bad"))).toBe(401);
   });
 });

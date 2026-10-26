@@ -149,3 +149,50 @@ export async function backfillTurnstileVariables(services: Services, log: Logger
   }
   return n;
 }
+
+// ---- repository identity (binds the publish workflow's OIDC token to this site's repository) ----
+
+export interface RepoIdentity {
+  repoId: string;
+  ownerId: string | null;
+}
+
+/** Record the repository's numeric ids (GitHub's, stable across renames). */
+export async function recordRepoIdentity(
+  services: Pick<Services, "db" | "now">,
+  siteId: string,
+  info: { id?: number; ownerId?: number } | null,
+): Promise<RepoIdentity | null> {
+  if (!info || typeof info.id !== "number") return null;
+  const identity = {
+    repoId: String(info.id),
+    ownerId: typeof info.ownerId === "number" ? String(info.ownerId) : null,
+  };
+  await services.db
+    .prepare(
+      `INSERT INTO site_automation (site_id, repo_id, repo_owner_id, updated_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT (site_id) DO UPDATE SET repo_id = excluded.repo_id,
+         repo_owner_id = excluded.repo_owner_id, updated_at = excluded.updated_at`,
+    )
+    .bind(siteId, identity.repoId, identity.ownerId, services.now())
+    .run();
+  return identity;
+}
+
+export async function repoIdentity(db: D1Database, siteId: string): Promise<RepoIdentity | null> {
+  const row = await db
+    .prepare("SELECT repo_id, repo_owner_id FROM site_automation WHERE site_id = ?")
+    .bind(siteId)
+    .first<{ repo_id: string | null; repo_owner_id: string | null }>();
+  return row?.repo_id ? { repoId: row.repo_id, ownerId: row.repo_owner_id } : null;
+}
+
+/** Fetch the repository's ids from GitHub and record them (creation, backfill, transfers). */
+export async function refreshRepoIdentity(
+  services: Services,
+  site: SiteRow,
+  gh?: GitHubAccess,
+): Promise<RepoIdentity | null> {
+  const access = gh ?? (await ownerGitHub(services, site));
+  return recordRepoIdentity(services, site.id, await access.getRepo(parseRepo(site.repo)));
+}

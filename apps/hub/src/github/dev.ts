@@ -43,7 +43,15 @@ interface CommitRow {
   created_at: number;
 }
 
+/** A stable numeric "account id" for a dev owner login. */
+function devOwnerId(login: string): number {
+  let h = 0;
+  for (const ch of login.toLowerCase()) h = (Math.imul(h, 31) + ch.charCodeAt(0)) | 0;
+  return Math.abs(h) || 1;
+}
+
 interface RepoRow {
+  rid?: number;
   full_name: string;
   owner: string;
   name: string;
@@ -117,12 +125,15 @@ export class DevGitHubAccess implements GitHubAccess {
       htmlUrl: `${this.options.htmlBase ?? "https://github.dev.invalid"}/${row.owner}/${row.name}`,
       private: row.private === 1,
       archived: row.archived === 1,
+      // SQLite's rowid survives renames/transfers like GitHub's repository id.
+      ...(typeof row.rid === "number" ? { id: row.rid } : {}),
+      ownerId: devOwnerId(row.owner),
     };
   }
 
   private async repoRow(repo: RepoRef): Promise<RepoRow | null> {
     return this.db
-      .prepare("SELECT * FROM dev_repos WHERE full_name = ?")
+      .prepare("SELECT rowid AS rid, * FROM dev_repos WHERE full_name = ?")
       .bind(key(repo))
       .first<RepoRow>();
   }

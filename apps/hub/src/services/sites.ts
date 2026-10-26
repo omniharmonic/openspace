@@ -44,7 +44,7 @@ import { gatedContext as gatedContextFor, loadOpenedDocument, sealFiles } from "
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
 import { draftReady } from "./publishing";
-import { syncTurnstileVariable } from "./site-automation";
+import { refreshRepoIdentity, syncTurnstileVariable } from "./site-automation";
 import { CONFIG_PATH, isDocumentPath, loadSiteDocument, siteDocumentToFiles } from "./site-files";
 import type { TemplateMeta } from "./templates";
 
@@ -425,6 +425,12 @@ async function runSetup(
     // The content is on main: the setup logo in R2 is no longer needed.
     await deleteSetupAssets(services, site.id, opts.log);
     stage = "variables";
+    // The repository's ids bind the publish workflow's identity token to this site.
+    try {
+      await refreshRepoIdentity(services, site, gh);
+    } catch (err) {
+      opts.log?.warn("repository ids not recorded", { siteId: site.id, err });
+    }
     // Forms, sign-up and sign-in on the built site load Turnstile with the Hub's public key.
     try {
       await syncTurnstileVariable(services, site, gh);
