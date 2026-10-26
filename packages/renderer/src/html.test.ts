@@ -173,7 +173,7 @@ describe("published page details", () => {
     expect(decodeURIComponent(icon ?? "")).toContain(">M</text>");
   });
 
-  it("loads first-section images eagerly, the first two at high priority; later ones lazily", () => {
+  it("loads the first two first-section images eagerly at high priority; the rest lazily", () => {
     const img = (src: string) =>
       createElement(Img, { src: `https://example.com/${src}.jpg`, alt: "" });
     const html = renderToStaticMarkup(
@@ -194,7 +194,7 @@ describe("published page details", () => {
     expect(tags.map((t) => /loading="(\w+)"/.exec(t)?.[1])).toEqual([
       "eager",
       "eager",
-      "eager",
+      "lazy",
       "lazy",
     ]);
     expect(
