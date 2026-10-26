@@ -34,9 +34,10 @@ describe("command list", () => {
       expect(r.out).toContain(c);
   });
 
-  it("mcp says it is coming soon", async () => {
-    const r = await cli(process.cwd(), ["mcp"]);
-    expect(r.err).toContain("coming soon");
+  it("mcp refuses a folder that is not a site, naming the problem", async () => {
+    const r = await cli(process.cwd(), ["mcp", "--no-screenshots"]);
+    expect(r.err).toContain("Can't serve");
+    expect(r.err).toContain("openspace.json");
     expect(r.code).toBe(1);
   });
 });
