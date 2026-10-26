@@ -9,7 +9,9 @@ let loading: Promise<void> | undefined;
 
 function load(base: string, mount: HTMLElement): Promise<void> {
   loading ??= new Promise<void>((resolve, reject) => {
-    document.head.append(h("link", { rel: "stylesheet", href: `${base}/pagefind/pagefind-ui.css` }));
+    document.head.append(
+      h("link", { rel: "stylesheet", href: `${base}/pagefind/pagefind-ui.css` }),
+    );
     const s = h("script", { src: `${base}/pagefind/pagefind-ui.js` });
     s.onload = () => {
       const UI = (window as unknown as { PagefindUI?: new (o: object) => unknown }).PagefindUI;

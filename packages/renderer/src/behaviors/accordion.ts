@@ -21,10 +21,12 @@ export default function accordion(root: HTMLElement): void {
       e.preventDefault();
       const opts = { duration: 260, easing: "cubic-bezier(0.2, 0, 0, 1)" };
       if (d.open) {
-        body.animate({ height: [`${body.offsetHeight}px`, "0px"], opacity: [1, 0] }, opts).onfinish =
-          () => {
-            d.open = false;
-          };
+        body.animate(
+          { height: [`${body.offsetHeight}px`, "0px"], opacity: [1, 0] },
+          opts,
+        ).onfinish = () => {
+          d.open = false;
+        };
       } else {
         closeOthers(d);
         d.open = true;

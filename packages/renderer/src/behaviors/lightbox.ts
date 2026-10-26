@@ -16,7 +16,11 @@ function build(): HTMLDialogElement {
   img = h("img", { class: "os-lightbox__img", alt: "" });
   caption = h("figcaption", { class: "os-lightbox__caption" });
   const btn = (cls: string, label: string, d: string, fn: () => void) => {
-    const b = h("button", { type: "button", class: `os-lightbox__btn ${cls}`, "aria-label": label }, icon(d));
+    const b = h(
+      "button",
+      { type: "button", class: `os-lightbox__btn ${cls}`, "aria-label": label },
+      icon(d),
+    );
     b.addEventListener("click", fn);
     return b;
   };
@@ -49,7 +53,8 @@ function show(i: number): void {
   img.src = a.href;
   img.alt = thumb?.alt ?? "";
   caption.textContent = a.dataset.osCaption ?? "";
-  for (const b of dialog?.querySelectorAll<HTMLElement>(".os-lightbox__prev,.os-lightbox__next") ?? [])
+  for (const b of dialog?.querySelectorAll<HTMLElement>(".os-lightbox__prev,.os-lightbox__next") ??
+    [])
     b.hidden = n < 2;
 }
 

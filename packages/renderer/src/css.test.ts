@@ -27,7 +27,9 @@ describe("os.css", () => {
     const open = BASE_CSS.split("{").length;
     const close = BASE_CSS.split("}").length;
     expect(open).toBe(close);
-    expect(BASE_CSS).toContain("@layer os.reset, os.base, os.layout, os.components, os.behaviors, os.utilities;");
+    expect(BASE_CSS).toContain(
+      "@layer os.reset, os.base, os.layout, os.components, os.behaviors, os.utilities;",
+    );
   });
 
   it("implements the §3.3 grid, breakpoints, container queries and reduced motion", () => {

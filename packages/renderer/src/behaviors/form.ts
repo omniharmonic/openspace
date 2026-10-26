@@ -44,10 +44,12 @@ async function flush(): Promise<void> {
   save(QUEUE, left);
 }
 
-let flushing: Promise<void> | undefined;
+let flushing = false;
 function scheduleFlush(): void {
-  flushing ??= flush().finally(() => {
-    flushing = undefined;
+  if (flushing) return;
+  flushing = true;
+  flush().finally(() => {
+    flushing = false;
   });
 }
 
@@ -74,7 +76,13 @@ export default function form(el: HTMLElement): void {
     const invalid = fields().filter((x) => !validate(x));
     if (invalid.length) {
       invalid[0]?.focus();
-      status(f, "error", invalid.length === 1 ? "Please fix the highlighted field." : `Please fix the ${invalid.length} highlighted fields.`);
+      status(
+        f,
+        "error",
+        invalid.length === 1
+          ? "Please fix the highlighted field."
+          : `Please fix the ${invalid.length} highlighted fields.`,
+      );
       return;
     }
     setBusy(f, true);
@@ -89,7 +97,11 @@ export default function form(el: HTMLElement): void {
         return;
       }
       f.reset();
-      status(f, "success", r.body?.message ?? f.dataset.osSuccess ?? "Thanks — your message was sent.");
+      status(
+        f,
+        "success",
+        r.body?.message ?? f.dataset.osSuccess ?? "Thanks — your message was sent.",
+      );
       return;
     }
     if (r.body?.errors) {
@@ -107,8 +119,13 @@ export default function form(el: HTMLElement): void {
       queue.push({ action: f.action, fields: fieldsData, at: Date.now() });
       save(QUEUE, queue.slice(-20));
       const owner = f.dataset.osOwnerEmail;
-      const msg = h("span", {}, "We couldn't send this right now. It's saved on this device and we'll retry automatically");
-      if (owner) msg.append(", or you can email ", h("a", { href: `mailto:${owner}` }, owner), " directly.");
+      const msg = h(
+        "span",
+        {},
+        "We couldn't send this right now. It's saved on this device and we'll retry automatically",
+      );
+      if (owner)
+        msg.append(", or you can email ", h("a", { href: `mailto:${owner}` }, owner), " directly.");
       else msg.append(".");
       status(f, "error", msg);
       return;

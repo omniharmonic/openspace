@@ -37,7 +37,11 @@ export function backgroundVars(bg: SectionBackground | undefined): CssVars {
   return {};
 }
 
-export function SectionBackgroundLayer({ background }: { background: SectionBackground | undefined }) {
+export function SectionBackgroundLayer({
+  background,
+}: {
+  background: SectionBackground | undefined;
+}) {
   const { basePath } = useRenderContext();
   const first = useContext(FirstSectionContext);
   if (!background) return null;
@@ -133,7 +137,10 @@ function GridBody({ section }: { section: Section & { layout: { mode: "grid" } }
     return ra.y - rb.y || ra.x - rb.x;
   });
   return (
-    <div className={cx("os-section__inner os-grid", `os-w-${layout.width ?? "content"}`)} style={vars}>
+    <div
+      className={cx("os-section__inner os-grid", `os-w-${layout.width ?? "content"}`)}
+      style={vars}
+    >
       {ordered.map((b) =>
         layout.items[b.id as keyof typeof layout.items] ? (
           <div
@@ -207,5 +214,5 @@ export function SectionView({ section, as: Tag = "section", className }: Section
       </SectionContext.Provider>
     </Tag>
   );
-  return editor?.wrapSection ? <>{editor.wrapSection({ section, children: el })}</> : el;
+  return editor?.wrapSection ? editor.wrapSection({ section, children: el }) : el;
 }

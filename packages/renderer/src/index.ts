@@ -7,8 +7,21 @@
 export const name = "@openspace/renderer";
 
 export * from "./behaviors-manifest";
-export { BlockView, type BlockViewProps, blockStyleProps, blockTypeClass, alignClasses } from "./block";
-export { AnnouncementBar, Footer, Popup, type PopupProps, type PopupTrigger, shortHash } from "./chrome";
+export {
+  alignClasses,
+  BlockView,
+  type BlockViewProps,
+  blockStyleProps,
+  blockTypeClass,
+} from "./block";
+export {
+  AnnouncementBar,
+  Footer,
+  Popup,
+  type PopupProps,
+  type PopupTrigger,
+  shortHash,
+} from "./chrome";
 export {
   BlockRegistryContext,
   EditorContext,
@@ -43,7 +56,12 @@ export {
   siteUrlFor,
 } from "./html";
 export { Img, type ImgProps, REMOTE_WIDTHS, remoteSrcset, resolveImage } from "./image";
-export { collectImageSrcs, type ImageMap, type ResolvedImage, type ResolvedImageSource } from "./image-map";
+export {
+  collectImageSrcs,
+  type ImageMap,
+  type ResolvedImage,
+  type ResolvedImageSource,
+} from "./image-map";
 export * from "./layout-vars";
 export {
   itemPath,

@@ -20,7 +20,14 @@ export interface ButtonProps {
  * A button styled by the Site Styles button system (`--os-button-<role>-*`). Renders an `<a>`
  * for links, a `<button>` otherwise.
  */
-export function Button({ to, role = "primary", type = "button", className, children, attrs }: ButtonProps) {
+export function Button({
+  to,
+  role = "primary",
+  type = "button",
+  className,
+  children,
+  attrs,
+}: ButtonProps) {
   const cls = cx("os-button", `os-button--${role}`, className);
   const label = <span className="os-button__label">{children}</span>;
   if (to)
@@ -47,7 +54,9 @@ const ICONS: Record<string, ReactNode> = {
   facebook: <path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v7h4v-7h3l1-4h-4V8z" />,
   x: <path d="M4 4l16 16M20 4L4 20" />,
   threads: <path d="M16 11c-1-4-8-4-8 1s7 5 7 1-5-3-5-1M12 21a9 9 0 1 1 8-12" />,
-  bluesky: <path d="M12 11C10 7 6 4 4 5s0 7 4 8c-3 1-3 4 0 5s4-3 4-5c0 2 1 6 4 5s3-4 0-5c4-1 6-7 4-8s-6 2-8 6z" />,
+  bluesky: (
+    <path d="M12 11C10 7 6 4 4 5s0 7 4 8c-3 1-3 4 0 5s4-3 4-5c0 2 1 6 4 5s3-4 0-5c4-1 6-7 4-8s-6 2-8 6z" />
+  ),
   linkedin: (
     <>
       <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -115,13 +124,24 @@ export function SocialIcon({ network }: { network: string }) {
 }
 
 /** A row of social profile links with accessible names. */
-export function SocialLinks({ profiles, className }: { profiles: readonly SocialProfile[]; className?: string }) {
+export function SocialLinks({
+  profiles,
+  className,
+}: {
+  profiles: readonly SocialProfile[];
+  className?: string;
+}) {
   if (profiles.length === 0) return null;
   return (
     <ul className={cx("os-social", className)}>
       {profiles.map((p) => (
         <li key={p.url}>
-          <a href={p.url} className="os-social__link" rel="me noopener" target={p.network === "email" ? undefined : "_blank"}>
+          <a
+            href={p.url}
+            className="os-social__link"
+            rel="me noopener"
+            target={p.network === "email" ? undefined : "_blank"}
+          >
             <SocialIcon network={p.network} />
             <span className="os-visually-hidden">{networkLabel(p.network)}</span>
           </a>

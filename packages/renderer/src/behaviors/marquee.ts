@@ -19,7 +19,11 @@ export default function marquee(root: HTMLElement): void {
   root.style.setProperty("--marquee-duration", `${Math.max(8, track.scrollWidth / 2 / speed)}s`);
   root.classList.add("is-running");
   let held = false;
-  const toggle = h("button", { type: "button", class: "os-marquee__toggle", "aria-pressed": "false" }, "Ⅱ");
+  const toggle = h(
+    "button",
+    { type: "button", class: "os-marquee__toggle", "aria-pressed": "false" },
+    "Ⅱ",
+  );
   toggle.setAttribute("aria-label", "Pause animation");
   const sync = (paused: boolean) => root.classList.toggle("is-paused", paused);
   toggle.addEventListener("click", () => {

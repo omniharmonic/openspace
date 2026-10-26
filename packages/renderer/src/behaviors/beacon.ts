@@ -11,7 +11,10 @@ export default function beacon(body: HTMLElement): void {
   const w = innerWidth;
   const payload = JSON.stringify({
     p: location.pathname,
-    r: document.referrer && new URL(document.referrer).host !== location.host ? document.referrer : "",
+    r:
+      document.referrer && new URL(document.referrer).host !== location.host
+        ? document.referrer
+        : "",
     s: w < 768 ? "m" : w < 1200 ? "t" : "d",
     u: utm,
   });

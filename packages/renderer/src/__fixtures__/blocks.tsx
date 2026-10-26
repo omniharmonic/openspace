@@ -72,13 +72,15 @@ export const galleryBlock = defineBlock({
     const images = (fields.images as { image: ImageValue }[]).map((i) => i.image);
     return variant === "carousel" ? (
       <div className="os-carousel" data-os-behavior="carousel lightbox">
-        <div className="os-carousel__track" aria-label="Gallery">
+        <ul className="os-carousel__track" aria-label="Gallery">
           {images.map((img) => (
-            <a key={img.src} href={img.src} data-os-lightbox="">
-              <Img src={img} sizes="33vw" />
-            </a>
+            <li key={img.src}>
+              <a href={img.src} data-os-lightbox="">
+                <Img src={img} sizes="33vw" />
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     ) : (
       <div className="os-cards">

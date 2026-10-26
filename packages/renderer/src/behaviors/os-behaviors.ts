@@ -15,12 +15,12 @@ function scan(root: ParentNode = document): void {
   for (const el of els) {
     for (const name of (el.dataset.osBehavior ?? "").split(/\s+/)) {
       if (!/^[a-z][a-z-]*$/.test(name)) continue;
-      let seen = started.get(el);
-      if (!seen) started.set(el, (seen = new Set()));
+      const seen = started.get(el) ?? new Set<string>();
+      started.set(el, seen);
       if (seen.has(name)) continue;
       seen.add(name);
-      let mod = modules.get(name);
-      if (!mod) modules.set(name, (mod = import(new URL(`${name}.js`, dir).href)));
+      const mod = modules.get(name) ?? import(new URL(`${name}.js`, dir).href);
+      modules.set(name, mod);
       mod
         .then((m) => m.default?.(el))
         .catch((err) => console.warn(`[openspace] ${name} behavior failed`, err));

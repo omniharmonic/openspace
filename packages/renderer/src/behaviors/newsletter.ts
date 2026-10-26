@@ -18,13 +18,19 @@ export default function newsletter(el: HTMLElement): void {
     setBusy(f, false);
     if (r.ok) {
       f.reset();
-      status(f, "success", r.body?.message ?? f.dataset.osSuccess ?? "Almost there — check your inbox to confirm.");
+      status(
+        f,
+        "success",
+        r.body?.message ?? f.dataset.osSuccess ?? "Almost there — check your inbox to confirm.",
+      );
     } else {
       status(
         f,
         "error",
         r.body?.message ??
-          (r.unreachable ? "We couldn't reach the signup service. Please try again in a moment." : "That didn't work. Please check your email address."),
+          (r.unreachable
+            ? "We couldn't reach the signup service. Please try again in a moment."
+            : "That didn't work. Please check your email address."),
       );
     }
   });

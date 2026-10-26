@@ -7,7 +7,10 @@ export interface SubmitResult {
   body: { message?: string; redirect?: string; errors?: Record<string, string> } | undefined;
 }
 
-export async function submit(action: string, data: FormData | URLSearchParams): Promise<SubmitResult> {
+export async function submit(
+  action: string,
+  data: FormData | URLSearchParams,
+): Promise<SubmitResult> {
   try {
     const res = await fetch(action, {
       method: "POST",
@@ -26,7 +29,11 @@ export async function submit(action: string, data: FormData | URLSearchParams): 
   }
 }
 
-export function status(form: HTMLElement, state: "success" | "error" | "", content: string | Node = ""): HTMLElement {
+export function status(
+  form: HTMLElement,
+  state: "success" | "error" | "",
+  content: string | Node = "",
+): HTMLElement {
   let el = form.querySelector<HTMLElement>(".os-form__status");
   if (!el) {
     el = document.createElement("div");
@@ -41,7 +48,9 @@ export function status(form: HTMLElement, state: "success" | "error" | "", conte
 
 export function setBusy(form: HTMLFormElement, busy: boolean): void {
   form.setAttribute("aria-busy", String(busy));
-  for (const b of form.querySelectorAll<HTMLButtonElement>("button[type=submit],button:not([type])")) {
+  for (const b of form.querySelectorAll<HTMLButtonElement>(
+    "button[type=submit],button:not([type])",
+  )) {
     b.disabled = busy;
     b.classList.toggle("is-busy", busy);
   }

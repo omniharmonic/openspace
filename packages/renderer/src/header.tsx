@@ -83,7 +83,13 @@ function resolveLeaf(
         newTab: false,
       };
     case "link":
-      return { kind: "leaf", label: item.label, href: item.href, current: false, newTab: item.newTab ?? false };
+      return {
+        kind: "leaf",
+        label: item.label,
+        href: item.href,
+        current: false,
+        newTab: item.newTab ?? false,
+      };
   }
 }
 
@@ -107,7 +113,13 @@ export function resolveNav(
         const r = resolveLeaf(leaf, doc, basePath, currentId);
         if (r) items.push(r);
       }
-      if (items.length) out.push({ kind: "folder", label: item.label, current: items.some((i) => i.current), items });
+      if (items.length)
+        out.push({
+          kind: "folder",
+          label: item.label,
+          current: items.some((i) => i.current),
+          items,
+        });
       continue;
     }
     const r = resolveLeaf(item, doc, basePath, currentId);
@@ -145,7 +157,14 @@ function NavList({ items, className }: { items: ResolvedNav[]; className?: strin
             <details className="os-nav__folder" data-os-folder="">
               <summary className={cx("os-nav__link", item.current && "is-current")}>
                 {item.label}
-                <svg className="os-nav__chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false">
+                <svg
+                  className="os-nav__chevron"
+                  viewBox="0 0 12 12"
+                  width="12"
+                  height="12"
+                  aria-hidden="true"
+                  focusable="false"
+                >
                   <path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.5" />
                 </svg>
               </summary>
@@ -190,8 +209,21 @@ function Brand({ site, className }: { site: Site; className?: string }) {
 
 function MenuIcon() {
   return (
-    <svg className="os-header__burger" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
-      <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <svg
+      className="os-header__burger"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M4 7h16M4 12h16M4 17h16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -206,7 +238,13 @@ function CartButton() {
       aria-label="Cart"
     >
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
-        <path d="M5 7h14l-1.5 12h-11zM9 7a3 3 0 0 1 6 0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <path
+          d="M5 7h14l-1.5 12h-11zM9 7a3 3 0 0 1 6 0"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
       </svg>
       <span className="os-header__cart-count" data-os-cart-count="" />
     </button>
@@ -232,7 +270,9 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
   const h = effectiveHeader(site, page);
   if (h.hidden) return null;
   const nav = resolveNav(site.nav, ctx.doc, ctx.basePath, page?.id ?? ctx.page?.id);
-  const buttons = site.nav.filter((i): i is Extract<NavItem, { type: "button" }> => i.type === "button" && !i.hidden);
+  const buttons = site.nav.filter(
+    (i): i is Extract<NavItem, { type: "button" }> => i.type === "button" && !i.hidden,
+  );
   const social = h.showSocial ? (site.social ?? []) : [];
   const theme: ColorTheme = h.overlay && heroTheme ? heroTheme : (h.colorTheme ?? "light");
   const drawer = DRAWER_VARIANTS.includes(h.variant);
@@ -299,14 +339,24 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
       </div>
       <div
         id={menuId}
-        className={cx("os-menu", `os-menu--${h.variant === "sidebar-drawer" ? "drawer" : h.mobileMenu}`, themeClass(h.colorTheme ?? "light"))}
+        className={cx(
+          "os-menu",
+          `os-menu--${h.variant === "sidebar-drawer" ? "drawer" : h.mobileMenu}`,
+          themeClass(h.colorTheme ?? "light"),
+        )}
         data-os-menu=""
       >
         <div className="os-menu__head">
           <span className="os-menu__title">{site.title}</span>
           <button type="button" className="os-menu__close" data-os-menu-close="">
             <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
-              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
             </svg>
             <span className="os-visually-hidden">Close menu</span>
           </button>
@@ -329,4 +379,3 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
     </header>
   );
 }
-

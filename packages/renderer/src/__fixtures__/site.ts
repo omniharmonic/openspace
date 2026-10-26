@@ -28,7 +28,11 @@ export function siteFixture(): SiteDocument {
       schemaVersion: 1,
       template: { id: "meadow", version: "1.2.0" },
       hub: "https://hub.openspace.dev",
-      deploy: { target: "github-pages", url: "https://maya.github.io/maya-yoga", customDomain: null },
+      deploy: {
+        target: "github-pages",
+        url: "https://maya.github.io/maya-yoga",
+        customDomain: null,
+      },
       features: { forms: true, newsletter: true, analytics: true, search: false },
     },
     site: {
@@ -47,16 +51,28 @@ export function siteFixture(): SiteDocument {
           ],
         },
         { type: "link", label: "Instagram", href: "https://instagram.com/mayayoga", newTab: true },
-        { type: "button", label: "Book a class", link: { type: "url", url: "https://cal.com/maya" }, style: "primary" },
+        {
+          type: "button",
+          label: "Book a class",
+          link: { type: "url", url: "https://cal.com/maya" },
+          style: "primary",
+        },
         { type: "page", page: IDS.about, label: "Old about", hidden: true },
       ],
-      header: { variant: "classic-left", sticky: true, transparentOnHero: false, mobileMenu: "slide" },
+      header: {
+        variant: "classic-left",
+        sticky: true,
+        transparentOnHero: false,
+        mobileMenu: "slide",
+      },
       footer: {
         id: IDS.footer,
         layout: {
           mode: "grid",
           rows: { d: 6, m: 8 },
-          items: { [IDS.footerText]: { d: { x: 1, y: 1, w: 12, h: 4 }, m: { x: 1, y: 1, w: 8, h: 6 } } },
+          items: {
+            [IDS.footerText]: { d: { x: 1, y: 1, w: 12, h: 4 }, m: { x: 1, y: 1, w: 8, h: 6 } },
+          },
         },
         style: { colorTheme: "dark" },
         blocks: [
@@ -67,7 +83,12 @@ export function siteFixture(): SiteDocument {
             fields: {
               content: {
                 type: "doc",
-                content: [{ type: "paragraph", content: [{ type: "text", text: "1420 Pearl Street, Boulder" }] }],
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [{ type: "text", text: "1420 Pearl Street, Boulder" }],
+                  },
+                ],
               },
             },
           },
@@ -82,7 +103,10 @@ export function siteFixture(): SiteDocument {
         { network: "instagram", url: "https://instagram.com/mayayoga" },
         { network: "email", url: "mailto:hello@mayayoga.com" },
       ],
-      seo: { titleTemplate: "%s — Maya Yoga", description: "Slow, grounded yoga classes in Boulder." },
+      seo: {
+        titleTemplate: "%s — Maya Yoga",
+        description: "Slow, grounded yoga classes in Boulder.",
+      },
       locale: "en-US",
       integrations: { analytics: true, bookingUrl: "https://cal.com/maya", stripeConnected: false },
       customCss: ".os-header__title { letter-spacing: 0.01em; }",
@@ -103,13 +127,22 @@ export function siteFixture(): SiteDocument {
         id: IDS.home,
         title: "Home",
         slug: "",
-        seo: { title: null, description: "Slow, grounded yoga in Boulder.", image: "media/2026/10/hero-k3f9.jpg" },
+        seo: {
+          title: null,
+          description: "Slow, grounded yoga in Boulder.",
+          image: "media/2026/10/hero-k3f9.jpg",
+        },
         sections: [
           {
             id: IDS.hero,
             preset: "hero/split-image@2",
             anchor: "welcome",
-            layout: { mode: "stack", columns: { d: [7, 5], m: [12] }, order: { m: [1, 0] }, align: "center" },
+            layout: {
+              mode: "stack",
+              columns: { d: [7, 5], m: [12] },
+              order: { m: [1, 0] },
+              align: "center",
+            },
             style: {
               colorTheme: "light-accent",
               padding: { d: "xl", m: "lg" },
@@ -127,7 +160,11 @@ export function siteFixture(): SiteDocument {
                   content: {
                     type: "doc",
                     content: [
-                      { type: "heading", attrs: { level: 1, preset: "display" }, content: [{ type: "text", text: "Slow, grounded yoga" }] },
+                      {
+                        type: "heading",
+                        attrs: { level: 1, preset: "display" },
+                        content: [{ type: "text", text: "Slow, grounded yoga" }],
+                      },
                       {
                         type: "paragraph",
                         attrs: { preset: "lead" },
@@ -135,7 +172,11 @@ export function siteFixture(): SiteDocument {
                           { type: "text", text: "Small classes on " },
                           { type: "text", text: "Pearl Street", marks: [{ type: "bold" }] },
                           { type: "text", text: ". " },
-                          { type: "text", text: "See the schedule", marks: [{ type: "link", attrs: { href: "/schedule" } }] },
+                          {
+                            type: "text",
+                            text: "See the schedule",
+                            marks: [{ type: "link", attrs: { href: "/schedule" } }],
+                          },
                         ],
                       },
                     ],
@@ -147,7 +188,11 @@ export function siteFixture(): SiteDocument {
                 type: "button",
                 v: 1,
                 column: 0,
-                fields: { label: "Book a class", link: { type: "page", page: IDS.about }, variant: "primary" },
+                fields: {
+                  label: "Book a class",
+                  link: { type: "page", page: IDS.about },
+                  variant: "primary",
+                },
               },
               {
                 id: IDS.image,
@@ -155,7 +200,11 @@ export function siteFixture(): SiteDocument {
                 v: 1,
                 column: 1,
                 fields: {
-                  image: { src: HERO_PHOTO, alt: "A woman in a seated twist by a sunlit window", focal: [0.42, 0.35] },
+                  image: {
+                    src: HERO_PHOTO,
+                    alt: "A woman in a seated twist by a sunlit window",
+                    focal: [0.42, 0.35],
+                  },
                 },
                 style: { radius: "lg", align: { d: "center", m: "start" } },
               },
@@ -167,8 +216,15 @@ export function siteFixture(): SiteDocument {
               mode: "grid",
               rows: { d: 16, m: 22 },
               items: {
-                [IDS.c1]: { d: { x: 1, y: 1, w: 10, h: 8, bleed: "left" }, m: { x: 1, y: 1, w: 8, h: 9 } },
-                [IDS.c2]: { d: { x: 9, y: 5, w: 14, h: 10, z: 2 }, t: { x: 7, y: 5, w: 18, h: 10 }, m: { x: 1, y: 10, w: 8, h: 8 } },
+                [IDS.c1]: {
+                  d: { x: 1, y: 1, w: 10, h: 8, bleed: "left" },
+                  m: { x: 1, y: 1, w: 8, h: 9 },
+                },
+                [IDS.c2]: {
+                  d: { x: 9, y: 5, w: 14, h: 10, z: 2 },
+                  t: { x: 7, y: 5, w: 18, h: 10 },
+                  m: { x: 1, y: 10, w: 8, h: 8 },
+                },
                 [IDS.c3]: { d: { x: 12, y: 1, w: 8, h: 3 } },
               },
             },
@@ -190,7 +246,12 @@ export function siteFixture(): SiteDocument {
                 fields: {
                   content: {
                     type: "doc",
-                    content: [{ type: "paragraph", content: [{ type: "text", text: "Morning flow, every weekday at 7." }] }],
+                    content: [
+                      {
+                        type: "paragraph",
+                        content: [{ type: "text", text: "Morning flow, every weekday at 7." }],
+                      },
+                    ],
                   },
                 },
               },
@@ -198,14 +259,25 @@ export function siteFixture(): SiteDocument {
                 id: IDS.c1,
                 type: "image",
                 v: 2,
-                fields: { image: { src: "media/2026/10/hero-k3f9.jpg", alt: "The studio at dawn" } },
+                fields: {
+                  image: { src: "media/2026/10/hero-k3f9.jpg", alt: "The studio at dawn" },
+                },
               },
               {
                 id: IDS.c3,
                 type: "text",
                 v: 1,
                 fields: {
-                  content: { type: "doc", content: [{ type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "This week" }] }] },
+                  content: {
+                    type: "doc",
+                    content: [
+                      {
+                        type: "heading",
+                        attrs: { level: 2 },
+                        content: [{ type: "text", text: "This week" }],
+                      },
+                    ],
+                  },
                 },
               },
             ],
@@ -229,7 +301,12 @@ export function siteFixture(): SiteDocument {
                 fields: {
                   content: {
                     type: "doc",
-                    content: [{ type: "paragraph", content: [{ type: "text", text: "Maya has taught in Boulder since 2014." }] }],
+                    content: [
+                      {
+                        type: "paragraph",
+                        content: [{ type: "text", text: "Maya has taught in Boulder since 2014." }],
+                      },
+                    ],
                   },
                 },
               },
@@ -253,4 +330,10 @@ export function siteFixture(): SiteDocument {
       },
     },
   };
+}
+
+/** Non-null assertion for tests. */
+export function must<T>(value: T | undefined | null): T {
+  if (value === undefined || value === null) throw new Error("fixture value missing");
+  return value;
 }

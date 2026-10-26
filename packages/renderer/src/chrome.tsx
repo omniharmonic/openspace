@@ -18,13 +18,23 @@ export function shortHash(text: string): string {
 function CloseIcon() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-      <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path
+        d="M6 6l12 12M18 6L6 18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 /** Site-wide announcement bar; dismissal (per message) is remembered by the `announcement` behavior. */
-export function AnnouncementBar({ announcement }: { announcement: Announcement | null | undefined }) {
+export function AnnouncementBar({
+  announcement,
+}: {
+  announcement: Announcement | null | undefined;
+}) {
   if (!announcement?.enabled) return null;
   const dismissible = announcement.dismissible ?? true;
   return (
@@ -84,7 +94,14 @@ export interface PopupProps {
  * Promotional popup as a native `<dialog>` opened by the `popup` behavior on a time, scroll or
  * exit-intent trigger, capped per visitor via localStorage. Esc and the close button dismiss it.
  */
-export function Popup({ id, trigger, frequencyDays = 7, title, colorTheme = "light", children }: PopupProps) {
+export function Popup({
+  id,
+  trigger,
+  frequencyDays = 7,
+  title,
+  colorTheme = "light",
+  children,
+}: PopupProps) {
   const triggerAttrs: Record<string, string> = { "data-os-trigger": trigger.type };
   if (trigger.type === "time") triggerAttrs["data-os-delay"] = String(trigger.seconds);
   if (trigger.type === "scroll") triggerAttrs["data-os-scroll"] = String(trigger.percent);

@@ -55,7 +55,11 @@ export const BlockRegistryContext = createContext<RendererBlockRegistry | undefi
  */
 export interface EditorHooks {
   wrapSection?: (args: { section: Section; children: ReactNode }) => ReactNode;
-  wrapBlock?: (args: { block: Block; section: Section | undefined; children: ReactNode }) => ReactNode;
+  wrapBlock?: (args: {
+    block: Block;
+    section: Section | undefined;
+    children: ReactNode;
+  }) => ReactNode;
   /** Rendered in place of unknown/invalid blocks (defaults to a small notice). */
   renderMissingBlock?: (args: { block: Block; reason: string }) => ReactNode;
 }

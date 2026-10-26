@@ -81,5 +81,9 @@ export function PageView(props: PageViewProps) {
       </ImageResolverContext.Provider>
     </RenderContext.Provider>
   );
-  return props.editor ? <EditorContext.Provider value={props.editor}>{content}</EditorContext.Provider> : content;
+  return props.editor ? (
+    <EditorContext.Provider value={props.editor}>{content}</EditorContext.Provider>
+  ) : (
+    content
+  );
 }

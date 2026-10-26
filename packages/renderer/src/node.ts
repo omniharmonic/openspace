@@ -63,7 +63,10 @@ export async function bundleBehaviors(opts: BundleOptions = {}): Promise<Record<
 }
 
 /** Write `os.css` and every behavior module into `outdir` (e.g. `dist/_os`). */
-export async function writeAssets(outdir: string, opts: { cssDir?: string } = {}): Promise<string[]> {
+export async function writeAssets(
+  outdir: string,
+  opts: { cssDir?: string } = {},
+): Promise<string[]> {
   const behaviorsDir = join(outdir, "behaviors");
   await mkdir(behaviorsDir, { recursive: true });
   const code = await bundleBehaviors();

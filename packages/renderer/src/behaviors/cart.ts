@@ -18,7 +18,7 @@ interface Line {
 
 const info = () => siteInfo();
 const key = () => `os-cart:${info().site}`;
-const read = (): Line[] => load<Line[]>(key(), []).filter((l) => l && l.sku && l.qty > 0);
+const read = (): Line[] => load<Line[]>(key(), []).filter((l) => l?.sku && l.qty > 0);
 const write = (lines: Line[]) => {
   save(key(), lines);
   render();
@@ -78,7 +78,13 @@ function render(): void {
             { class: "os-cart__item" },
             h("span", { class: "os-cart__name" }, l.name),
             h("span", { class: "os-cart__price" }, money(l.price * l.qty, l.currency)),
-            h("span", { class: "os-cart__qty" }, minus, h("span", { "aria-label": "Quantity" }, String(l.qty)), plus),
+            h(
+              "span",
+              { class: "os-cart__qty" },
+              minus,
+              h("span", { "aria-label": "Quantity" }, String(l.qty)),
+              plus,
+            ),
           );
         })
       : [h("p", { class: "os-muted" }, "Your cart is empty.")]),
@@ -86,7 +92,14 @@ function render(): void {
   const currency = lines[0]?.currency ?? "USD";
   total.replaceChildren(
     h("span", {}, "Subtotal"),
-    h("span", {}, money(lines.reduce((s, l) => s + l.price * l.qty, 0), currency)),
+    h(
+      "span",
+      {},
+      money(
+        lines.reduce((s, l) => s + l.price * l.qty, 0),
+        currency,
+      ),
+    ),
   );
   checkout.disabled = lines.length === 0;
 }
@@ -96,16 +109,36 @@ function build(): HTMLDialogElement {
   total = h("div", { class: "os-cart__total" });
   message = h("p", { class: "os-form__status", role: "alert" });
   checkout = h("button", { type: "button", class: "os-button os-button--primary" }, "Check out");
-  const close = h("button", { type: "button", class: "os-menu__close", "aria-label": "Close cart" }, icon(ICON_CLOSE));
+  const close = h(
+    "button",
+    { type: "button", class: "os-menu__close", "aria-label": "Close cart" },
+    icon(ICON_CLOSE),
+  );
   const d = h(
     "dialog",
     { class: "os-cart", "aria-labelledby": "os-cart-title" },
     h(
       "div",
       { class: "os-cart__inner" },
-      h("div", { class: "os-cart__head" }, h("h2", { id: "os-cart-title", class: "os-type-h4" }, "Your cart"), close),
+      h(
+        "div",
+        { class: "os-cart__head" },
+        h("h2", { id: "os-cart-title", class: "os-type-h4" }, "Your cart"),
+        close,
+      ),
       list,
-      h("div", { class: "os-cart__foot" }, total, h("p", { class: "os-muted os-type-small" }, "Shipping and taxes are calculated at checkout."), message, checkout),
+      h(
+        "div",
+        { class: "os-cart__foot" },
+        total,
+        h(
+          "p",
+          { class: "os-muted os-type-small" },
+          "Shipping and taxes are calculated at checkout.",
+        ),
+        message,
+        checkout,
+      ),
     ),
   );
   close.addEventListener("click", () => d.close());
@@ -135,7 +168,8 @@ function build(): HTMLDialogElement {
       throw new Error(body.message ?? "Checkout is unavailable right now.");
     } catch (err) {
       message.dataset.state = "error";
-      message.textContent = err instanceof Error && err.message ? err.message : "Checkout is unavailable right now.";
+      message.textContent =
+        err instanceof Error && err.message ? err.message : "Checkout is unavailable right now.";
       checkout.disabled = false;
     }
   });

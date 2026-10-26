@@ -38,7 +38,13 @@ export interface RenderPageHtmlOptions {
   extraHead?: string;
 }
 
-const ESC: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+const ESC: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
 export const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (ch) => ESC[ch] as string);
 
 /** JSON for a `<script>` element: `<`, U+2028/9 escaped so content can never close the tag. */
@@ -69,7 +75,9 @@ export function compiledStylesFor(styles: Styles): CompiledStyles {
 export function siteUrlFor(doc: SiteDocument, override?: string): string {
   const raw =
     override ??
-    (doc.config.deploy.customDomain ? `https://${doc.config.deploy.customDomain}` : doc.config.deploy.url);
+    (doc.config.deploy.customDomain
+      ? `https://${doc.config.deploy.customDomain}`
+      : doc.config.deploy.url);
   return raw.endsWith("/") ? raw : `${raw}/`;
 }
 
@@ -122,7 +130,9 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
   );
 
   const analytics =
-    mode === "production" && doc.config.features.analytics && site.integrations?.analytics !== false;
+    mode === "production" &&
+    doc.config.features.analytics &&
+    site.integrations?.analytics !== false;
   const behaviors = behaviorsInHtml(body);
   if (analytics) behaviors.push("beacon");
 
@@ -171,7 +181,9 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     ...[opts.jsonLd ?? []]
       .flat()
       .map((ld) => `<script type="application/ld+json">${jsonForScript(ld)}</script>`),
-    ...behaviors.map((b) => `<link rel="modulepreload" href="${escapeHtml(`${behaviorsUrl}/${b}.js`)}">`),
+    ...behaviors.map(
+      (b) => `<link rel="modulepreload" href="${escapeHtml(`${behaviorsUrl}/${b}.js`)}">`,
+    ),
     opts.extraHead ?? "",
     site.headInjection ?? "",
   ];

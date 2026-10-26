@@ -9,7 +9,15 @@ import { withBase } from "./link";
 export const typeClass = (preset: TypePreset | "button" | "nav") => `os-type-${preset}`;
 
 /** Marks are applied innermost-first in this order; links always wrap everything. */
-const MARK_ORDER: Mark["type"][] = ["code", "strike", "underline", "italic", "bold", "highlight", "link"];
+const MARK_ORDER: Mark["type"][] = [
+  "code",
+  "strike",
+  "underline",
+  "italic",
+  "bold",
+  "highlight",
+  "link",
+];
 
 function wrapMark(mark: Mark, child: ReactNode, key: number, basePath: string): ReactNode {
   switch (mark.type) {
@@ -55,12 +63,14 @@ function wrapMark(mark: Mark, child: ReactNode, key: number, basePath: string): 
 function renderInline(nodes: InlineNode[] | undefined, basePath: string): ReactNode[] {
   if (!nodes) return [];
   return nodes.map((node, i) => {
+    // biome-ignore lint/suspicious/noArrayIndexKey: rich text nodes have no ids; order is stable
     if (node.type === "hardBreak") return <br key={i} />;
     const marks = [...(node.marks ?? [])].sort(
       (a, b) => MARK_ORDER.indexOf(a.type) - MARK_ORDER.indexOf(b.type),
     );
     let out: ReactNode = node.text;
     for (const m of marks) out = wrapMark(m, out, i, basePath);
+    // biome-ignore lint/suspicious/noArrayIndexKey: rich text nodes have no ids; order is stable
     return marks.length ? out : <Fragment key={i}>{node.text}</Fragment>;
   });
 }
@@ -89,6 +99,7 @@ function renderBlock(node: BlockNode, key: number, basePath: string): ReactNode 
       return (
         <ul key={key}>
           {node.content.map((li, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: rich text nodes have no ids
             <li key={i}>{li.content.map((c, j) => renderBlock(c, j, basePath))}</li>
           ))}
         </ul>
@@ -97,15 +108,14 @@ function renderBlock(node: BlockNode, key: number, basePath: string): ReactNode 
       return (
         <ol key={key} start={node.attrs?.start}>
           {node.content.map((li, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: rich text nodes have no ids
             <li key={i}>{li.content.map((c, j) => renderBlock(c, j, basePath))}</li>
           ))}
         </ol>
       );
     case "blockquote":
       return (
-        <blockquote key={key}>
-          {node.content.map((c, j) => renderBlock(c, j, basePath))}
-        </blockquote>
+        <blockquote key={key}>{node.content.map((c, j) => renderBlock(c, j, basePath))}</blockquote>
       );
   }
 }

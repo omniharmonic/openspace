@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { fixtureBlocks } from "./__fixtures__/blocks";
-import { IDS, siteFixture } from "./__fixtures__/site";
+import { IDS, must, siteFixture } from "./__fixtures__/site";
 import { BlockView } from "./block";
 import { EditorContext, ImageResolverContext, RenderContext, type RenderMode } from "./context";
 import { Header } from "./header";
@@ -18,13 +18,15 @@ beforeAll(() => registerBlocks(fixtureBlocks));
 afterAll(() => unregisterBlocks());
 
 const doc = siteFixture();
-const home = doc.pages[IDS.home]!;
-const hero = home.sections[0]!;
-const grid = home.sections[1]!;
+const home = must(doc.pages[IDS.home]);
+const hero = must(home.sections[0]);
+const grid = must(home.sections[1]);
 
 function html(el: ReactElement, mode: RenderMode = "production", basePath = "") {
   return renderToStaticMarkup(
-    <RenderContext.Provider value={{ doc, page: home, mode, basePath, hubUrl: undefined }}>{el}</RenderContext.Provider>,
+    <RenderContext.Provider value={{ doc, page: home, mode, basePath, hubUrl: undefined }}>
+      {el}
+    </RenderContext.Provider>,
   );
 }
 
@@ -53,7 +55,9 @@ describe("SectionView", () => {
     expect(out).toContain("--tcols:minmax(0, 7fr) minmax(0, 5fr)");
     expect(out).toContain("--mcols:minmax(0, 12fr)");
     // padding d=xl, t inherits xl, m=lg; min height only on d but inherited
-    expect(out).toContain("--pad:var(--os-space-xl);--tpad:var(--os-space-xl);--mpad:var(--os-space-lg)");
+    expect(out).toContain(
+      "--pad:var(--os-space-xl);--tpad:var(--os-space-xl);--mpad:var(--os-space-lg)",
+    );
     expect(out).toContain("--minh:80vh;--tminh:80vh;--mminh:80vh");
     // mobile order puts column 1 first
     expect(out).toMatch(/data-os-col="0" style="--mo:1"/);
@@ -93,7 +97,12 @@ describe("SectionView", () => {
   });
 
   it("renders color and gradient backgrounds as --bg", () => {
-    const s = { ...hero, style: { background: { type: "gradient" as const, from: "accent-100", to: "#ffffff", angle: 90 } } };
+    const s = {
+      ...hero,
+      style: {
+        background: { type: "gradient" as const, from: "accent-100", to: "#ffffff", angle: 90 },
+      },
+    };
     expect(html(<SectionView section={s} />)).toContain(
       "--bg:linear-gradient(90deg, var(--os-color-accent-100), #ffffff)",
     );
@@ -102,8 +111,10 @@ describe("SectionView", () => {
 
 describe("BlockView", () => {
   it("migrates older blocks, applies style slots and data-os-id", () => {
-    const out = html(<BlockView block={hero.blocks[2]!} />);
-    expect(out).toContain('class="os-block os-block--image os-align-center os-talign-center os-malign-start has-radius"');
+    const out = html(<BlockView block={must(hero.blocks[2])} />);
+    expect(out).toContain(
+      'class="os-block os-block--image os-align-center os-talign-center os-malign-start has-radius"',
+    );
     expect(out).toContain("--radius:var(--os-radius-lg)");
     expect(out).toContain(`data-os-id="${IDS.image}"`);
   });
@@ -115,7 +126,7 @@ describe("BlockView", () => {
   });
 
   it("flags invalid content in preview but renders best-effort in production", () => {
-    const block = { ...hero.blocks[1]!, fields: { label: "Go", link: { type: "nope" } } };
+    const block = { ...must(hero.blocks[1]), fields: { label: "Go", link: { type: "nope" } } };
     expect(html(<BlockView block={block} />, "preview")).toContain("invalid content");
   });
 
@@ -124,7 +135,9 @@ describe("BlockView", () => {
       <EditorContext.Provider
         value={{
           wrapBlock: ({ block, children }) => <div data-studio-block={block.id}>{children}</div>,
-          wrapSection: ({ section, children }) => <div data-studio-section={section.id}>{children}</div>,
+          wrapSection: ({ section, children }) => (
+            <div data-studio-section={section.id}>{children}</div>
+          ),
         }}
       >
         <SectionView section={hero} />
@@ -143,7 +156,10 @@ describe("Img", () => {
         src: "/_astro/hero.hash.jpg",
         srcset: "/_astro/hero-640.jpg 640w, /_astro/hero-1280.jpg 1280w",
         sources: [
-          { type: "image/avif", srcset: "/_astro/hero-640.avif 640w, /_astro/hero-1280.avif 1280w" },
+          {
+            type: "image/avif",
+            srcset: "/_astro/hero-640.avif 640w, /_astro/hero-1280.avif 1280w",
+          },
           { type: "image/webp", srcset: "/_astro/hero-640.webp 640w" },
         ],
         width: 2400,
@@ -153,10 +169,19 @@ describe("Img", () => {
     };
     const out = html(
       <ImageResolverContext.Provider value={map}>
-        <Img src="media/2026/10/hero-k3f9.jpg" alt="Studio" sizes="50vw" focal={[0.25, 0.75]} aspect="4:5" treatment="circle" />
+        <Img
+          src="media/2026/10/hero-k3f9.jpg"
+          alt="Studio"
+          sizes="50vw"
+          focal={[0.25, 0.75]}
+          aspect="4:5"
+          treatment="circle"
+        />
       </ImageResolverContext.Provider>,
     );
-    expect(out).toContain('<source type="image/avif" srcSet="/_astro/hero-640.avif 640w, /_astro/hero-1280.avif 1280w" sizes="50vw"/>');
+    expect(out).toContain(
+      '<source type="image/avif" srcSet="/_astro/hero-640.avif 640w, /_astro/hero-1280.avif 1280w" sizes="50vw"/>',
+    );
     expect(out).toContain('src="/_astro/hero.hash.jpg"');
     expect(out).toContain('width="2400" height="3000"');
     expect(out).toContain("background-image:url(&quot;data:image/webp;base64,AAAA&quot;)");
@@ -173,8 +198,12 @@ describe("Img", () => {
   });
 
   it("builds a srcset for Unsplash URLs", () => {
-    const out = html(<Img src="https://images.unsplash.com/photo-1?w=2400&q=80" alt="x" priority />);
-    expect(out).toMatch(/srcSet="https:\/\/images\.unsplash\.com\/photo-1\?w=480&amp;q=80&amp;auto=format&amp;fit=max 480w/);
+    const out = html(
+      <Img src="https://images.unsplash.com/photo-1?w=2400&q=80" alt="x" priority />,
+    );
+    expect(out).toMatch(
+      /srcSet="https:\/\/images\.unsplash\.com\/photo-1\?w=480&amp;q=80&amp;auto=format&amp;fit=max 480w/,
+    );
     expect(out).toContain("2400w");
     expect(out).toContain('loading="eager"');
     expect(out).toContain('fetchPriority="high"');
@@ -186,25 +215,40 @@ describe("links", () => {
   it("resolves every link type", () => {
     expect(resolveLink({ type: "page", page: IDS.about }, opts).href).toBe("/maya-yoga/about/");
     expect(resolveLink({ type: "page", page: IDS.home }, opts).href).toBe("/maya-yoga/");
-    expect(resolveLink({ type: "page", page: IDS.home, anchor: "welcome" }, opts).href).toBe("#welcome");
-    expect(resolveLink({ type: "page", page: "pg_missingpag1" }, opts)).toMatchObject({ broken: true, href: "#" });
-    expect(resolveLink({ type: "item", collection: "journal", slug: "opening-day" }, opts)).toMatchObject({
+    expect(resolveLink({ type: "page", page: IDS.home, anchor: "welcome" }, opts).href).toBe(
+      "#welcome",
+    );
+    expect(resolveLink({ type: "page", page: "pg_missingpag1" }, opts)).toMatchObject({
+      broken: true,
+      href: "#",
+    });
+    expect(
+      resolveLink({ type: "item", collection: "journal", slug: "opening-day" }, opts),
+    ).toMatchObject({
       href: "/maya-yoga/journal/opening-day/",
       broken: true,
     });
     expect(resolveLink({ type: "url", url: "/schedule" }, opts).href).toBe("/maya-yoga/schedule");
-    expect(resolveLink({ type: "url", url: "https://cal.com/maya", newTab: true }, opts)).toMatchObject({
+    expect(
+      resolveLink({ type: "url", url: "https://cal.com/maya", newTab: true }, opts),
+    ).toMatchObject({
       href: "https://cal.com/maya",
       newTab: true,
       external: true,
     });
-    expect(resolveLink({ type: "email", email: "hi@maya.com", subject: "Class & times" }, opts).href).toBe(
-      "mailto:hi@maya.com?subject=Class%20%26%20times",
+    expect(
+      resolveLink({ type: "email", email: "hi@maya.com", subject: "Class & times" }, opts).href,
+    ).toBe("mailto:hi@maya.com?subject=Class%20%26%20times");
+    expect(resolveLink({ type: "phone", phone: "+1 (303) 555-0100" }, opts).href).toBe(
+      "tel:+13035550100",
     );
-    expect(resolveLink({ type: "phone", phone: "+1 (303) 555-0100" }, opts).href).toBe("tel:+13035550100");
-    expect(resolveLink({ type: "file", src: "media/2026/10/menu.pdf" }, opts).href).toBe("/maya-yoga/media/2026/10/menu.pdf");
+    expect(resolveLink({ type: "file", src: "media/2026/10/menu.pdf" }, opts).href).toBe(
+      "/maya-yoga/media/2026/10/menu.pdf",
+    );
     expect(resolveLink({ type: "anchor", section: IDS.hero }, opts).href).toBe("#welcome");
-    expect(resolveLink({ type: "anchor", section: IDS.aboutSection }, opts).href).toBe(`/maya-yoga/about/#${IDS.aboutSection}`);
+    expect(resolveLink({ type: "anchor", section: IDS.aboutSection }, opts).href).toBe(
+      `/maya-yoga/about/#${IDS.aboutSection}`,
+    );
   });
 });
 
@@ -215,17 +259,46 @@ describe("RichText", () => {
         doc={{
           type: "doc",
           content: [
-            { type: "heading", attrs: { level: 2, preset: "display" }, content: [{ type: "text", text: "Hi" }] },
+            {
+              type: "heading",
+              attrs: { level: 2, preset: "display" },
+              content: [{ type: "text", text: "Hi" }],
+            },
             {
               type: "paragraph",
               content: [
-                { type: "text", text: "bold link", marks: [{ type: "link", attrs: { href: "/x", newTab: true } }, { type: "bold" }] },
+                {
+                  type: "text",
+                  text: "bold link",
+                  marks: [{ type: "link", attrs: { href: "/x", newTab: true } }, { type: "bold" }],
+                },
                 { type: "hardBreak" },
-                { type: "text", text: "hl", marks: [{ type: "highlight", attrs: { color: "accent-200" } }] },
+                {
+                  type: "text",
+                  text: "hl",
+                  marks: [{ type: "highlight", attrs: { color: "accent-200" } }],
+                },
               ],
             },
-            { type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: "one" }] }] }] },
-            { type: "blockquote", content: [{ type: "paragraph", attrs: { preset: "lead" }, content: [{ type: "text", text: "q" }] }] },
+            {
+              type: "bulletList",
+              content: [
+                {
+                  type: "listItem",
+                  content: [{ type: "paragraph", content: [{ type: "text", text: "one" }] }],
+                },
+              ],
+            },
+            {
+              type: "blockquote",
+              content: [
+                {
+                  type: "paragraph",
+                  attrs: { preset: "lead" },
+                  content: [{ type: "text", text: "q" }],
+                },
+              ],
+            },
           ],
         }}
       />,
@@ -262,12 +335,15 @@ describe("Header", () => {
       expect(out).toContain("os-nav__list--start");
       expect(out).toContain("os-header__brand--split");
     }
-    if (variant === "transparent-overlay") expect(out).toContain("is-overlay os-theme-light-accent".split(" ")[0]);
+    if (variant === "transparent-overlay")
+      expect(out).toContain("is-overlay os-theme-light-accent".split(" ")[0]);
   });
 
   it("resolves nav: folders, hidden items, aria-current, buttons", () => {
     const out = html(<Header site={doc.site} page={home} />, "production", "/maya-yoga");
-    expect(out).toContain('<a class="os-nav__link" href="/maya-yoga/" aria-current="page">Home</a>');
+    expect(out).toContain(
+      '<a class="os-nav__link" href="/maya-yoga/" aria-current="page">Home</a>',
+    );
     expect(out).toContain('<details class="os-nav__folder" data-os-folder="">');
     expect(out).toContain('href="/maya-yoga/about/">About</a>');
     expect(out).toContain('href="/maya-yoga/journal/">Journal</a>');
@@ -280,7 +356,13 @@ describe("Header", () => {
 
   it("honours page overrides (hidden, transparent on hero)", () => {
     expect(html(<Header site={doc.site} page={{ ...home, header: { hidden: true } }} />)).toBe("");
-    const out = html(<Header site={doc.site} page={{ ...home, header: { transparentOnHero: true } }} heroTheme="dark" />);
+    const out = html(
+      <Header
+        site={doc.site}
+        page={{ ...home, header: { transparentOnHero: true } }}
+        heroTheme="dark"
+      />,
+    );
     expect(out).toContain("os-theme-dark is-sticky is-overlay");
   });
 });

@@ -10,7 +10,9 @@ const out = join(root, "dist", "behaviors");
 await mkdir(out, { recursive: true });
 
 const entries = (await readdir(src))
-  .filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts") && f !== "shared.ts" && f !== "submit.ts")
+  .filter(
+    (f) => f.endsWith(".ts") && !f.endsWith(".test.ts") && f !== "shared.ts" && f !== "submit.ts",
+  )
   .map((f) => join(src, f));
 await build({
   entryPoints: entries,
@@ -26,7 +28,11 @@ await build({
 // os.css: bundle the stylesheet module (it reads the theme's variable contract) and evaluate it.
 const tmp = join(root, "dist", ".css-entry.mjs");
 await build({
-  stdin: { contents: 'export { BASE_CSS } from "./src/styles/base-css.ts";', resolveDir: root, loader: "ts" },
+  stdin: {
+    contents: 'export { BASE_CSS } from "./src/styles/base-css.ts";',
+    resolveDir: root,
+    loader: "ts",
+  },
   outfile: tmp,
   bundle: true,
   format: "esm",

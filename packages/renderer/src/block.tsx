@@ -9,12 +9,7 @@ import {
 } from "@openspace/schema";
 import { imageTreatmentClass, TOKEN_VARS, themeClass } from "@openspace/theme";
 import { type ReactNode, useContext } from "react";
-import {
-  BlockRegistryContext,
-  type RenderMode,
-  useEditor,
-  useRenderContext,
-} from "./context";
+import { BlockRegistryContext, type RenderMode, useEditor, useRenderContext } from "./context";
 import { type CssVars, cx } from "./cx";
 import { responsiveVars } from "./layout-vars";
 import { globalRegistry, type RendererBlockDefinition } from "./registry";
@@ -83,7 +78,8 @@ function prepare(def: RendererBlockDefinition | undefined, raw: Block, mode: Ren
     return { ok: false, reason: `Could not upgrade this ${def.label} block: ${String(err)}` };
   }
   const parsed = def.fieldsSchema.safeParse(block.fields);
-  if (parsed.success) return { ok: true, def, block, fields: parsed.data as Record<string, unknown> };
+  if (parsed.success)
+    return { ok: true, def, block, fields: parsed.data as Record<string, unknown> };
   if (mode !== "production")
     return {
       ok: false,
@@ -146,11 +142,18 @@ export function BlockView({ block, section }: BlockViewProps) {
   );
   if (!prepared.ok && ctx.mode === "production" && !editor) return null;
 
-  const variant = prepared.ok ? (prepared.block.variant ?? prepared.def.defaults.variant) : undefined;
+  const variant = prepared.ok
+    ? (prepared.block.variant ?? prepared.def.defaults.variant)
+    : undefined;
   const s = blockStyleProps(block.style, ctx.mode);
   const el = (
     <div
-      className={cx("os-block", blockTypeClass(block.type), variant && `is-${variant}`, s.className)}
+      className={cx(
+        "os-block",
+        blockTypeClass(block.type),
+        variant && `is-${variant}`,
+        s.className,
+      )}
       data-os-id={block.id}
       data-os-block={block.type}
       style={Object.keys(s.vars).length ? s.vars : undefined}
@@ -159,5 +162,5 @@ export function BlockView({ block, section }: BlockViewProps) {
       {content}
     </div>
   );
-  return editor?.wrapBlock ? <>{editor.wrapBlock({ block, section, children: el })}</> : el;
+  return editor?.wrapBlock ? editor.wrapBlock({ block, section, children: el }) : el;
 }
