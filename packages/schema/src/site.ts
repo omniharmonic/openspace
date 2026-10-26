@@ -4,6 +4,7 @@ import {
   CollectionNameSchema,
   HttpsUrlSchema,
   HttpUrlSchema,
+  ImageValueSchema,
   LinkSchema,
   MediaSrcSchema,
 } from "./primitives";
@@ -171,6 +172,53 @@ export const AnnouncementSchema = z.strictObject({
 });
 export type Announcement = z.infer<typeof AnnouncementSchema>;
 
+/** What opens the site pop-up: a delay, a scroll depth, or the pointer leaving the window. */
+export const POPUP_TRIGGERS = ["time", "scroll", "exit-intent"] as const;
+
+/**
+ * Site-wide promotional pop-up (PRD §5.5): a heading, optional words, image and call-to-action
+ * button, and an optional newsletter signup, opened by a trigger and capped per visitor.
+ */
+export const PopupSchema = named(
+  "Popup",
+  "Site-wide pop-up: trigger (time, scroll or exit intent), frequency cap and simple content (heading, body, image, button, newsletter signup).",
+  z
+    .strictObject({
+      enabled: z.boolean(),
+      trigger: z.enum(POPUP_TRIGGERS),
+      /** Seconds after the page loads (trigger `time`). */
+      delaySeconds: z.int().min(0).max(600).optional(),
+      /** How far down the page, in percent (trigger `scroll`). */
+      scrollPercent: z.int().min(5).max(100).optional(),
+      /** Show at most once every N days per visitor; 0 shows it on every visit. */
+      frequencyDays: z.int().min(0).max(365),
+      heading: z.string().min(1).max(120),
+      body: z.string().max(600).optional(),
+      image: ImageValueSchema.optional(),
+      cta: z.strictObject({ label: z.string().min(1).max(40), link: LinkSchema }).optional(),
+      /** Include an email signup form (subscribers join the site's newsletter list). */
+      newsletter: z.boolean().optional(),
+      colorTheme: ColorThemeSchema.optional(),
+    })
+    .superRefine((p, ctx) => {
+      if (p.trigger === "time" && p.delaySeconds === undefined) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["delaySeconds"],
+          message: "A time trigger needs delaySeconds",
+        });
+      }
+      if (p.trigger === "scroll" && p.scrollPercent === undefined) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["scrollPercent"],
+          message: "A scroll trigger needs scrollPercent",
+        });
+      }
+    }),
+);
+export type Popup = z.infer<typeof PopupSchema>;
+
 export const SeoDefaultsSchema = z.strictObject({
   /** Page title template; `%s` is replaced by the page title, e.g. `%s — Maya Yoga`. */
   titleTemplate: z.string().max(120).optional(),
@@ -219,7 +267,7 @@ export const LogoSchema = z.strictObject({
 /** `content/site.json` (arch §3.4). No secrets — ever. */
 export const SiteSchema = named(
   "Site",
-  "content/site.json: title, logo, navigation, header, footer, announcement, social, SEO, locale, integrations.",
+  "content/site.json: title, logo, navigation, header, footer, announcement, pop-up, social, SEO, locale, integrations.",
   z
     .strictObject({
       $schema: z.string().optional(),
@@ -232,6 +280,7 @@ export const SiteSchema = named(
       /** The footer is a section (usually grid mode) rendered on every page. */
       footer: SectionSchema,
       announcement: AnnouncementSchema.nullable().optional(),
+      popup: PopupSchema.nullable().optional(),
       social: z.array(SocialProfileSchema).max(30).optional(),
       seo: SeoDefaultsSchema.optional(),
       locale: LocaleSchema,

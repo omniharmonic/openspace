@@ -348,6 +348,10 @@ html:not(.os-js) .os-header__toggle{display:none}
 .os-popup__body{display:grid;gap:${v(T.space.xs)};padding:${v(T.space.lg)} ${v(T.space.md)} ${v(T.space.md)}}
 .os-popup__close{position:absolute;top:0.5rem;inset-inline-end:0.5rem;display:grid;place-items:center;width:2.75rem;height:2.75rem;border:0;border-radius:${v(T.radius.full)};background:transparent;color:inherit}
 .os-popup__close:hover{background:${v(c.surface)}}
+.os-popup__image{margin:calc(-1 * ${v(T.space.lg)}) calc(-1 * ${v(T.space.md)}) ${v(T.space.xs)};border-radius:${v(T.radius.card)} ${v(T.radius.card)} 0 0;overflow:hidden}
+.os-popup__text{color:${v(c["text-muted"])}}
+.os-popup__actions{display:flex;flex-wrap:wrap;gap:${v(T.space.xs)};margin-top:${v(T.space.xs)}}
+.os-popup .os-block{margin-top:${v(T.space.xs)}}
 }
 
 @layer os.behaviors {

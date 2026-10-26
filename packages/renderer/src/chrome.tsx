@@ -1,8 +1,19 @@
-import type { Announcement, ColorTheme, Site } from "@openspace/schema";
+import type {
+  Announcement,
+  Block,
+  ColorTheme,
+  Popup as PopupSettings,
+  Site,
+} from "@openspace/schema";
 import { themeClass } from "@openspace/theme";
-import type { ReactNode } from "react";
+import { type ReactNode, useContext } from "react";
+import { BlockView } from "./block";
+import { BlockRegistryContext } from "./context";
 import { cx } from "./cx";
+import { Img } from "./image";
 import { Link } from "./link";
+import { Button } from "./primitives";
+import { globalRegistry } from "./registry";
 import { SectionView } from "./section";
 
 /** Small stable hash (FNV-1a, base36) used for dismissal / frequency keys. */
@@ -126,5 +137,61 @@ export function Popup({
         <span className="os-visually-hidden">Close</span>
       </button>
     </dialog>
+  );
+}
+
+/** Trigger props for the `<Popup>` from the site's pop-up settings. */
+export function popupTrigger(popup: PopupSettings): PopupTrigger {
+  if (popup.trigger === "scroll") return { type: "scroll", percent: popup.scrollPercent ?? 50 };
+  if (popup.trigger === "exit-intent") return { type: "exit" };
+  return { type: "time", seconds: popup.delaySeconds ?? 8 };
+}
+
+/** Block id for the pop-up's newsletter form (stable per site; never stored in content). */
+const POPUP_NEWSLETTER_ID = "blk_popupnews0";
+
+/**
+ * The site-wide pop-up from `site.popup` (heading, words, image, button, newsletter signup),
+ * rendered with `<Popup>`. The newsletter form is the registered `newsletter` block, so it posts
+ * to the Hub exactly like one placed on a page. Content changes reset the visitor frequency cap
+ * (the dialog id hashes the heading).
+ */
+export function SitePopup({ popup }: { popup: PopupSettings | null | undefined }) {
+  const registry = useContext(BlockRegistryContext) ?? globalRegistry;
+  if (!popup?.enabled) return null;
+  const newsletter: Block | null =
+    popup.newsletter && registry.get("newsletter")
+      ? ({
+          id: POPUP_NEWSLETTER_ID,
+          type: "newsletter",
+          v: 1,
+          variant: "stacked",
+          fields: {
+            askName: false,
+            placeholder: "you@example.com",
+            buttonLabel: "Subscribe",
+            successMessage: "Almost there — check your inbox to confirm your subscription.",
+          },
+        } as unknown as Block)
+      : null;
+  return (
+    <Popup
+      id={`os-popup-${shortHash(popup.heading)}`}
+      trigger={popupTrigger(popup)}
+      frequencyDays={popup.frequencyDays}
+      title={popup.heading}
+      colorTheme={popup.colorTheme ?? "light"}
+    >
+      {popup.image ? (
+        <Img src={popup.image} className="os-popup__image" sizes="34rem" aspect="16:9" />
+      ) : null}
+      {popup.body ? <p className="os-popup__text">{popup.body}</p> : null}
+      {popup.cta ? (
+        <div className="os-popup__actions">
+          <Button to={popup.cta.link}>{popup.cta.label}</Button>
+        </div>
+      ) : null}
+      {newsletter ? <BlockView block={newsletter} /> : null}
+    </Popup>
   );
 }
