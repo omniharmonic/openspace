@@ -3,7 +3,8 @@ import { reducedMotion } from "./shared";
 /**
  * Lightweight video. Two forms:
  * - `.os-video[data-os-embed]`: a poster + play button; the provider iframe (YouTube nocookie,
- *   Vimeo, PeerTube…) loads only on click.
+ *   Vimeo, PeerTube…) loads only on click. Any other `[data-os-embed]` element with a
+ *   `[data-os-load]` button works the same way (e.g. a booking calendar).
  * - `<video data-os-autoplay>`: background video; plays muted when visible, never under
  *   reduced motion (the poster stays).
  */
@@ -21,7 +22,7 @@ export default function videoLite(el: HTMLElement): void {
     } else play();
     return;
   }
-  const button = el.querySelector<HTMLButtonElement>(".os-video__play");
+  const button = el.querySelector<HTMLButtonElement>(".os-video__play, [data-os-load]");
   const src = el.dataset.osEmbed;
   if (!button || !src || !/^https:\/\//i.test(src)) return;
   button.addEventListener(
