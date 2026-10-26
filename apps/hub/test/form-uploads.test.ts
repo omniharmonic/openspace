@@ -212,4 +212,103 @@ describe("form file uploads (PRD 5.2, P4)", () => {
     expect(cleanFileName('../../etc/"passwd"\n.pdf')).toBe("passwd.pdf");
     expect(cleanFileName("")).toBe("file");
   });
+
+  it("needs Turnstile (or proof from a verified reservation); the entry counts as verified", async () => {
+    // A Turnstile that accepts exactly one token, once.
+    const spent = new Set<string>();
+    const turnstile = {
+      async verify(token: string | null) {
+        if (token !== "good-token" || spent.has(token)) return { ok: false, codes: ["invalid"] };
+        spent.add(token);
+        return { ok: true, codes: [] };
+      },
+    };
+    const TWO: Form = {
+      ...APPLY,
+      fields: [
+        ...APPLY.fields,
+        { type: "file", name: "letter", label: "Cover letter", accept: ["pdf"] },
+      ],
+    };
+    const app = makePublicApp({ public: { turnstile: turnstile as never } });
+    const f = await siteWithForm(app, { form: TWO });
+    const meta = { type: "application/pdf", size: PDF.byteLength };
+    expect((await reserve(f, { field: "cv", name: "a.pdf", ...meta })).status).toBe(403);
+    const first = (await (
+      await reserve(f, { field: "cv", name: "a.pdf", ...meta, token: "good-token" })
+    ).json()) as { id: string; uploadUrl: string };
+    // The token is spent: the second file shows the first reservation as proof.
+    expect(
+      (await reserve(f, { field: "letter", name: "b.pdf", ...meta, token: "good-token" })).status,
+    ).toBe(403);
+    const second = await reserve(f, { field: "letter", name: "b.pdf", ...meta, proof: first.id });
+    expect(second.status).toBe(201);
+    const secondBody = (await second.json()) as { id: string; uploadUrl: string };
+    await put(f, first.uploadUrl);
+    await put(f, secondBody.uploadUrl);
+    // No token left for the entry itself: the verified upload vouches for it.
+    const sent = await postForm(
+      f,
+      { email: "ana@example.com", cv: first.id, letter: secondBody.id },
+      { json: true, formId: TWO.id },
+    );
+    expect(sent.status).toBe(200);
+  });
+
+  it("infers a missing MIME type from the extension and counts open reservations in the quota", async () => {
+    const app = makePublicApp();
+    const f = await siteWithForm(app, { form: APPLY });
+    const r = await reserve(f, { field: "cv", name: "cv.PDF", type: "", size: PDF.byteLength });
+    expect(r.status).toBe(201);
+    const body = (await r.json()) as { type: string; uploadUrl: string };
+    expect(body.type).toBe("application/pdf");
+    expect((await put(f, body.uploadUrl, body.type)).status).toBe(200);
+    await env.HUB_DB.prepare("UPDATE sites SET plan_flags = ? WHERE id = ?")
+      .bind(JSON.stringify({ quotas: { uploadBytes: PDF.byteLength * 2 } }), f.siteId)
+      .run();
+    // One more open reservation fits; the next doesn't, even though nothing was uploaded.
+    expect(
+      (
+        await reserve(f, {
+          field: "cv",
+          name: "x.pdf",
+          type: "application/pdf",
+          size: PDF.byteLength,
+        })
+      ).status,
+    ).toBe(201);
+    expect(
+      (
+        await reserve(f, {
+          field: "cv",
+          name: "y.pdf",
+          type: "application/pdf",
+          size: PDF.byteLength,
+        })
+      ).status,
+    ).toBe(429);
+  });
+
+  it("attaches an upload to one entry only, even when two posts race", async () => {
+    const app = makePublicApp();
+    const f = await siteWithForm(app, { form: APPLY });
+    const r = (await (
+      await reserve(f, {
+        field: "cv",
+        name: "a.pdf",
+        type: "application/pdf",
+        size: PDF.byteLength,
+      })
+    ).json()) as { id: string; uploadUrl: string };
+    await put(f, r.uploadUrl);
+    const [a, b] = await Promise.all([
+      postForm(f, { email: "ana@example.com", cv: r.id }, { json: true, formId: APPLY.id }),
+      postForm(f, { email: "eve@example.com", cv: r.id }, { json: true, formId: APPLY.id }),
+    ]);
+    expect([a.status, b.status].sort()).toEqual([200, 422]);
+    const rows = await env.HUB_DB.prepare("SELECT COUNT(*) AS n FROM submissions WHERE site_id = ?")
+      .bind(f.siteId)
+      .first<{ n: number }>();
+    expect(rows?.n).toBe(1);
+  });
 });

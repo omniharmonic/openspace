@@ -11,7 +11,14 @@
  * short-lived download links. Unattached uploads expire after a day and every file is deleted
  * with its submission (retention purge or inbox delete).
  */
-import { DEFAULT_FILE_MAX_MB, type Form, type FormField, fileFieldAccept } from "@openspace/schema";
+import {
+  DEFAULT_FILE_KINDS,
+  DEFAULT_FILE_MAX_MB,
+  FORM_FILE_KINDS,
+  type Form,
+  type FormField,
+  fileFieldAccept,
+} from "@openspace/schema";
 import type { SiteRow } from "../db/sites";
 import { randomId, timingSafeEqual } from "../lib/crypto";
 import { HttpError } from "../lib/errors";
@@ -69,6 +76,22 @@ export function cleanFileName(name: string): string {
   return clean || "file";
 }
 
+/**
+ * The file's type: what the browser said, or (when it said nothing useful, as some do for
+ * documents) the type its extension stands for among the field's accepted kinds.
+ */
+export function effectiveType(field: FileField, name: string, type: string): string {
+  const t = type.trim().toLowerCase();
+  if (t && t !== "application/octet-stream") return t;
+  const ext = name.toLowerCase().match(/\.[a-z0-9]+$/)?.[0] ?? "";
+  for (const k of field.accept?.length ? field.accept : DEFAULT_FILE_KINDS) {
+    const kind = FORM_FILE_KINDS[k];
+    const i = (kind.extensions as readonly string[]).indexOf(ext);
+    if (i >= 0) return kind.types[Math.min(i, kind.types.length - 1)] as string;
+  }
+  return t;
+}
+
 /** Type and size checks for one file against its field; returns a visitor-facing problem. */
 export function checkFile(
   field: FileField,
@@ -86,19 +109,20 @@ export function checkFile(
   return null;
 }
 
-async function uploadBytesUsed(db: D1Database, siteId: string): Promise<number> {
+async function uploadBytesUsed(db: D1Database, siteId: string, now: number): Promise<number> {
+  // Open reservations count too, so many reservations can't outrun the quota.
   const r = await db
     .prepare(
-      "SELECT COALESCE(SUM(size), 0) AS n FROM form_uploads WHERE site_id = ? AND status != 'pending'",
+      "SELECT COALESCE(SUM(size), 0) AS n FROM form_uploads WHERE site_id = ? AND (status != 'pending' OR expires_at > ?)",
     )
-    .bind(siteId)
+    .bind(siteId, now)
     .first<{ n: number }>();
   return r?.n ?? 0;
 }
 
 async function checkQuota(services: Services, siteId: string, size: number): Promise<void> {
   const limits = await siteQuotaLimits(services.db, siteId, services.pub.quotaOverrides);
-  if ((await uploadBytesUsed(services.db, siteId)) + size > limits.uploadBytes)
+  if ((await uploadBytesUsed(services.db, siteId, services.now())) + size > limits.uploadBytes)
     throw new HttpError(
       429,
       "quota_exceeded",
@@ -126,19 +150,20 @@ export async function createUpload(
   services: Services,
   site: SiteRow,
   form: Form,
-  input: { field: string; name: string; type: string; size: number },
-): Promise<{ id: string; uploadUrl: string; expiresAt: string }> {
+  input: { field: string; name: string; type: string; size: number; verified?: boolean },
+): Promise<{ id: string; uploadUrl: string; expiresAt: string; type: string }> {
   const field = fileField(form, input.field);
   const name = cleanFileName(input.name);
-  const problem = checkFile(field, name, input.type, input.size);
+  const type = effectiveType(field, name, input.type);
+  const problem = checkFile(field, name, type, input.size);
   if (problem) throw new HttpError(422, "invalid_file", problem);
   await checkQuota(services, site.id, input.size);
   const now = services.now();
   const id = randomId("upl");
   await services.db
     .prepare(
-      `INSERT INTO form_uploads (id, site_id, form_id, field, name, type, size, status, created_at, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+      `INSERT INTO form_uploads (id, site_id, form_id, field, name, type, size, status, created_at, expires_at, verified)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
     )
     .bind(
       id,
@@ -146,10 +171,11 @@ export async function createUpload(
       form.id,
       field.name,
       name,
-      input.type.toLowerCase(),
+      type,
       input.size,
       now,
       now + PENDING_TTL,
+      input.verified ? 1 : 0,
     )
     .run();
   const exp = now + UPLOAD_LINK_TTL;
@@ -158,6 +184,8 @@ export async function createUpload(
     id,
     uploadUrl: `${services.config.hubUrl}/f/${site.id}/u/${id}?exp=${exp}&sig=${encodeURIComponent(s)}`,
     expiresAt: new Date(exp).toISOString(),
+    // The Content-Type to upload with (inferred from the name when the browser gave none).
+    type,
   };
 }
 
@@ -236,30 +264,22 @@ export async function storeDirect(
 ): Promise<string> {
   const field = fileField(form, fieldName);
   const name = cleanFileName(file.name);
-  const problem = checkFile(field, name, file.type, file.size);
+  const type = effectiveType(field, name, file.type);
+  const problem = checkFile(field, name, type, file.size);
   if (problem) throw new HttpError(422, "invalid_fields", problem, { [fieldName]: problem });
   await checkQuota(services, site.id, file.size);
   const now = services.now();
   const id = randomId("upl");
-  await services.uploads.put(uploadKey(site.id, id), await file.arrayBuffer(), {
-    httpMetadata: { contentType: file.type.toLowerCase() },
+  // Streamed from the parsed form part (no second copy in memory).
+  await services.uploads.put(uploadKey(site.id, id), file.stream(), {
+    httpMetadata: { contentType: type },
   });
   await services.db
     .prepare(
       `INSERT INTO form_uploads (id, site_id, form_id, field, name, type, size, status, created_at, expires_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, 'uploaded', ?, ?)`,
     )
-    .bind(
-      id,
-      site.id,
-      form.id,
-      field.name,
-      name,
-      file.type.toLowerCase(),
-      file.size,
-      now,
-      now + PENDING_TTL,
-    )
+    .bind(id, site.id, form.id, field.name, name, type, file.size, now, now + PENDING_TTL)
     .run();
   return id;
 }
@@ -301,13 +321,17 @@ export async function resolveUploads(
   return Object.keys(errors).length ? { ok: false, errors } : { ok: true, files };
 }
 
+/**
+ * Attach the files to a submission, each exactly once: when another submission claimed one first
+ * (two posts racing with the same upload id) nothing is attached and false is returned.
+ */
 export async function attachUploads(
   services: Services,
   submissionId: string,
   files: UploadedFile[],
-): Promise<void> {
-  if (!files.length) return;
-  await services.db.batch(
+): Promise<boolean> {
+  if (!files.length) return true;
+  const results = await services.db.batch(
     files.map((f) =>
       services.db
         .prepare(
@@ -316,6 +340,51 @@ export async function attachUploads(
         .bind(submissionId, f.id),
     ),
   );
+  if (results.every((r) => (r.meta.changes ?? 0) === 1)) return true;
+  await services.db
+    .prepare(
+      `UPDATE form_uploads SET status = 'uploaded', submission_id = NULL WHERE submission_id = ? AND id IN (${files.map(() => "?").join(", ")})`,
+    )
+    .bind(submissionId, ...files.map((f) => f.id))
+    .run();
+  return false;
+}
+
+/**
+ * Proof for a reservation without a Turnstile token: an earlier reservation for the same form
+ * that passed Turnstile in the last 10 minutes and isn't attached yet (one submit, several files).
+ */
+export async function verifiedUpload(
+  services: Services,
+  siteId: string,
+  formId: string,
+  id: unknown,
+): Promise<boolean> {
+  if (typeof id !== "string" || !/^upl_[0-9a-z]+$/.test(id)) return false;
+  const row = await services.db
+    .prepare(
+      `SELECT 1 AS ok FROM form_uploads WHERE id = ? AND site_id = ? AND form_id = ? AND verified = 1
+         AND status != 'attached' AND created_at > ?`,
+    )
+    .bind(id, siteId, formId, services.now() - 10 * 60 * 1000)
+    .first<{ ok: number }>();
+  return !!row;
+}
+
+/** True if a submission names a verified upload of this form (its Turnstile token went there). */
+export async function submissionHasVerifiedUpload(
+  services: Services,
+  siteId: string,
+  form: Form,
+  values: Record<string, unknown>,
+): Promise<boolean> {
+  for (const f of form.fields) {
+    if (f.type !== "file") continue;
+    const raw = values[f.name];
+    const id = Array.isArray(raw) ? raw[raw.length - 1] : raw;
+    if (await verifiedUpload(services, siteId, form.id, id)) return true;
+  }
+  return false;
 }
 
 /** A signed, short-lived download address for the inbox. */
@@ -412,6 +481,10 @@ export async function purgeUploads(services: Services): Promise<number> {
   return removeRows(services, rows.results);
 }
 
-export async function uploadBytesForSite(db: D1Database, siteId: string): Promise<number> {
-  return uploadBytesUsed(db, siteId);
+export async function uploadBytesForSite(
+  db: D1Database,
+  siteId: string,
+  now: number,
+): Promise<number> {
+  return uploadBytesUsed(db, siteId, now);
 }

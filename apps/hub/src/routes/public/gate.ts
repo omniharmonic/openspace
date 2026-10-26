@@ -16,7 +16,7 @@ import type { AppEnv } from "../../types";
 export async function gate(
   c: Context<AppEnv>,
   site: SiteRow,
-  kind: "form" | "subscribe" | "login" | "checkout",
+  kind: "form" | "subscribe" | "login" | "checkout" | "upload",
   turnstileToken: string | null,
   opts: { turnstile?: boolean } = {},
 ): Promise<PublicFailure | null> {
@@ -31,6 +31,7 @@ export async function gate(
       subscribe: [RATE_RULES.subscribe, RATE_RULES.subscribeSite],
       login: [RATE_RULES.login, RATE_RULES.loginSite],
       checkout: [RATE_RULES.checkout, RATE_RULES.checkoutSite],
+      upload: [RATE_RULES.upload, RATE_RULES.uploadSite],
     } satisfies Record<string, [RateRule, RateRule]>
   )[kind];
   const what = {
@@ -38,6 +39,7 @@ export async function gate(
     subscribe: "signups",
     login: "sign-in requests",
     checkout: "checkout attempts",
+    upload: "file uploads",
   }[kind];
   for (const [k, rule, message] of [
     [

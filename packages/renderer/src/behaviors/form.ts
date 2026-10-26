@@ -129,6 +129,9 @@ async function exclusive(fn: () => Promise<void>): Promise<void> {
  * the field) when a file can't be uploaded.
  */
 async function uploadFiles(f: HTMLFormElement, data: FormData): Promise<boolean> {
+  // The first reservation spends the form's Turnstile token; later ones show it as proof.
+  const token = data.get("cf-turnstile-response");
+  let proof = "";
   for (const input of f.querySelectorAll<HTMLInputElement>("input[type=file][name]")) {
     const file = input.files?.[0];
     data.delete(input.name);
@@ -145,21 +148,24 @@ async function uploadFiles(f: HTMLFormElement, data: FormData): Promise<boolean>
             name: file.name,
             type: file.type,
             size: file.size,
+            ...(proof ? { proof } : typeof token === "string" && token ? { token } : {}),
           }),
         });
         const b = (await res.json().catch(() => ({}))) as {
           id?: string;
           uploadUrl?: string;
+          type?: string;
           message?: string;
         };
         if (res.ok && b.id && b.uploadUrl) {
           const put = await fetch(b.uploadUrl, {
             method: "PUT",
             body: file,
-            headers: { "Content-Type": file.type || "application/octet-stream" },
+            headers: { "Content-Type": b.type || file.type || "application/octet-stream" },
           });
           if (put.ok) {
             data.set(input.name, b.id);
+            proof ||= b.id;
             continue;
           }
         }

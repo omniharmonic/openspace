@@ -21,6 +21,9 @@ export const RATE_RULES = {
   loginSite: { name: "login-site", limit: 100, windowSec: 600 },
   checkout: { name: "checkout", limit: 20, windowSec: 600 },
   checkoutSite: { name: "checkout-site", limit: 300, windowSec: 600 },
+  // Form file upload reservations (their own bucket, so files don't eat the message budget).
+  upload: { name: "upload", limit: 30, windowSec: 600 },
+  uploadSite: { name: "upload-site", limit: 500, windowSec: 600 },
 } satisfies Record<string, RateRule>;
 
 /** Beacons per visitor per minute (Workers Rate Limiting binding — local, no storage call). */

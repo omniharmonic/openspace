@@ -176,6 +176,21 @@ export async function parseFields(
     } else out[key] = values[0] as string;
   };
   try {
+    // File posts: parse the multipart stream once (no buffered copy of the body), after
+    // checking the declared size.
+    // (Without a declared size, e.g. a chunked upload, the buffered path below enforces the
+    // limit while reading.)
+    const declared = Number(c.req.header("content-length") ?? Number.NaN);
+    if (opts.files && type.includes("multipart/form-data") && Number.isFinite(declared)) {
+      if (declared > (opts.max ?? MAX_BODY))
+        throw new HttpError(413, "too_large", "That submission is too large.");
+      const form = await c.req.raw.formData();
+      for (const [k, v] of form.entries()) {
+        if (typeof v === "string") add(k, v);
+        else if (v.size > 0 && k.length <= 64) opts.files.set(k, v);
+      }
+      return out;
+    }
     const bytes = await readBodyLimited(c.req.raw, opts.max);
     if (type.includes("application/json") || type.startsWith("text/plain")) {
       const text = new TextDecoder().decode(bytes);

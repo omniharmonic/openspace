@@ -24,7 +24,7 @@ Prefer to keep everything in your own accounts? Owners can use **sovereign mode*
 Also in store settings:
 
 - **Currency.**
-- **Shipping** — up to five options: flat rate, **by weight** (tiers such as "up to 0.5 kg: $5, up to 2 kg: $9"), free over an amount, or local pickup, each with a delivery-time range and the countries you ship to. OpenSpace works out each parcel's weight from your products' shipping weights at checkout (never from the visitor's browser) and only offers the options it fits; subscriptions with physical items add the cheapest fitting rate to the first payment.
+- **Shipping** — up to five options: flat rate, **by weight** (tiers such as "up to 0.5 kg: $5, up to 2 kg: $9"), free over an amount, or local pickup, each with a delivery-time range and the countries you ship to. OpenSpace works out each parcel's weight from your products' shipping weights at checkout (never from the visitor's browser) and only offers the options it fits; subscriptions with physical items charge the cheapest fitting rate with every payment (each renewal ships again); refunding a subscription order in full cancels the subscription.
 - **Tax** — turn on Stripe Tax if you want Stripe to calculate it (Stripe charges its own fee for this).
 - **Discount codes** — show a code box at checkout and create codes for a percentage or an amount, with a use limit and an end date.
 - **Low-stock alerts** — a threshold and who to email.

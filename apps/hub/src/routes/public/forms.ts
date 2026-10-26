@@ -34,7 +34,9 @@ import {
   resolveUploads,
   serveDownload,
   storeDirect,
+  submissionHasVerifiedUpload,
   type UploadedFile,
+  verifiedUpload,
 } from "../../services/form-uploads";
 import { loadManifest, SPAM_THRESHOLD, spamScore, validateSubmission } from "../../services/forms";
 import { notifyInstant } from "../../services/notifications";
@@ -112,16 +114,21 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
         redirect: back("success"),
       };
     }
+    manifest ??= await loadManifest(services, site, base);
+    const entry = manifest.find((f) => f.form.id === formId);
+    // A file upload of this form that passed Turnstile carries the proof (the token was spent
+    // reserving it); otherwise the submission's own token is checked.
+    const viaUpload = entry
+      ? await submissionHasVerifiedUpload(services, site.id, entry.form, fields)
+      : false;
     const blocked = await gate(
       c,
       site,
       "form",
       single(fields["cf-turnstile-response"]) ?? single(fields._turnstile),
+      viaUpload ? { turnstile: false } : {},
     );
     if (blocked) return fail(blocked);
-
-    manifest ??= await loadManifest(services, site, base);
-    const entry = manifest.find((f) => f.form.id === formId);
     if (!entry)
       return fail({
         status: 404,
@@ -186,6 +193,16 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
     const limits = await siteQuotaLimits(services.db, site.id, services.pub.quotaOverrides);
     const months = Math.min(settings.retentionMonths, limits.storedSubmissionsMonths);
     const id = randomId("sbm");
+    // Each file belongs to one entry: a racing second post with the same upload is refused.
+    if (!(await attachUploads(services, id, uploaded)))
+      return fail({
+        status: 422,
+        code: "invalid_fields",
+        message: "That file was already sent with another entry. Please choose it again.",
+        errors: Object.fromEntries(
+          uploaded.map((u) => [u.field, "This file was already sent. Please choose it again."]),
+        ),
+      });
     await services.db
       .prepare(
         `INSERT INTO submissions (id, site_id, form_id, data_json, spam_score, created_at, purge_at, source, notified_at, files)
@@ -204,7 +221,6 @@ publicFormRoutes.post("/f/:siteId/:formId", quotaGuard("formSubmissions"), async
         uploaded.length ? JSON.stringify(uploaded) : null,
       )
       .run();
-    await attachUploads(services, id, uploaded);
     if (!isSpam) await background(c, notifyInstant(services, site, entry.form, id, result.data));
 
     const s = entry.form.success;
@@ -244,14 +260,27 @@ publicFormRoutes.post("/f/:siteId/:formId/uploads", async (c) => {
   const site = await publicSite(services.db, c.req.param("siteId"));
   if (!originAllowed(c.req.header("origin"), site, c.var.config))
     throw new HttpError(403, "forbidden_origin", "Uploads from this website aren't accepted.");
-  const blocked = await gate(c, site, "form", null, { turnstile: false });
-  if (blocked) return c.json(failureBody(blocked), blocked.status as 429);
   const body = (await c.req.json().catch(() => null)) as {
     field?: unknown;
     name?: unknown;
     type?: unknown;
     size?: unknown;
+    /** The form's Turnstile token (first file of a submit). */
+    token?: unknown;
+    /** An earlier verified reservation of this submit (further files). */
+    proof?: unknown;
   } | null;
+  const formId = c.req.param("formId");
+  // Reservations have their own rate bucket, and need Turnstile or proof from a verified one.
+  const proven = await verifiedUpload(services, site.id, formId, body?.proof);
+  const blocked = await gate(
+    c,
+    site,
+    "upload",
+    typeof body?.token === "string" ? body.token : null,
+    proven ? { turnstile: false } : {},
+  );
+  if (blocked) return c.json(failureBody(blocked), blocked.status as 429);
   if (
     !body ||
     typeof body.field !== "string" ||
@@ -261,15 +290,14 @@ publicFormRoutes.post("/f/:siteId/:formId/uploads", async (c) => {
   )
     throw new HttpError(400, "invalid_request", "Send the file's field, name, type and size.");
   const base = siteBaseUrl(site, services.config.hubUrl);
-  const entry = (await loadManifest(services, site, base)).find(
-    (f) => f.form.id === c.req.param("formId"),
-  );
+  const entry = (await loadManifest(services, site, base)).find((f) => f.form.id === formId);
   if (!entry) throw new HttpError(404, "form_not_found", "This form isn't accepting entries.");
   const upload = await createUpload(services, site, entry.form, {
     field: body.field,
     name: body.name,
     type: body.type,
     size: body.size,
+    verified: true,
   });
   return c.json(upload, 201);
 });
