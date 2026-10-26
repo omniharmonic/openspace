@@ -1,3 +1,4 @@
+import type { Section } from "@openspace/schema";
 import type { TemplateSpec } from "../../lib/define";
 import { project } from "../../lib/define";
 import {
@@ -14,6 +15,8 @@ import {
   photoUrl,
   rt,
   section,
+  grid,
+  r,
 } from "../../lib/kit";
 
 /**
@@ -78,6 +81,14 @@ const projects = [
   },
 ];
 
+/** Turn a one-block stack section into an edge-to-edge grid section (no side gutters). */
+function fullBleed(s: Section): Section {
+  const [only] = s.blocks;
+  if (!only || s.blocks.length !== 1) throw new Error("fullBleed expects one block");
+  s.layout = grid([[only, r(1, 1, 24, 30, { bleed: "both" }), r(1, 1, 8, 12, { bleed: "both" })]], "full").layout;
+  return s;
+}
+
 function home() {
   return makePage(
     P.home,
@@ -85,9 +96,8 @@ function home() {
     "",
     "Elias Varga photographs landscapes and architecture in quiet light. Portfolio, commissions and limited-edition prints from Denver.",
     [
-      fromPreset("gallery/slideshow@1", {
+      fullBleed(fromPreset("gallery/slideshow@1", {
         style: { padding: { d: "none", m: "none" } },
-        width: "full",
         edit: {
           gallery: {
             images: [
@@ -135,7 +145,7 @@ function home() {
             lightbox: true,
           },
         },
-      }),
+      })),
       fromPreset("hero/big-type@1", {
         edit: {
           heading: {

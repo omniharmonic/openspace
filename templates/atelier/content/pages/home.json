@@ -15,11 +15,28 @@
       "preset": "gallery/slideshow@1",
       "label": "Full-width slideshow",
       "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            12
-          ]
+        "mode": "grid",
+        "rows": {
+          "d": 30,
+          "m": 12
+        },
+        "items": {
+          "blk_apys7th18w": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 24,
+              "h": 30,
+              "bleed": "both"
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12,
+              "bleed": "both"
+            }
+          }
         },
         "width": "full"
       },

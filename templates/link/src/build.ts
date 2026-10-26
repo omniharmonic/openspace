@@ -109,7 +109,7 @@ function home() {
               network: "instagram",
               handle: "kaimoreno.example",
               count: "6",
-              followLabel: "Follow on Instagram",
+              followLabel: "Follow",
               posts: [
                 post(
                   "cake",
