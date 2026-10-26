@@ -471,3 +471,16 @@
 .st-mob__sheet [contenteditable] {
   font-size: 16px;
 }
+
+/* Sheets are portalled outside `.st-mob`: the same 44px rule applies inside them. */
+.st-mob__sheet .st-button {
+  --_h: 44px;
+}
+
+.st-mob__sheet .st-seg {
+  height: 48px;
+}
+
+.st-mob__sheet .st-dc__toggle {
+  min-height: 44px;
+}

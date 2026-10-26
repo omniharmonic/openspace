@@ -1,5 +1,5 @@
 import { Check, Columns2, X } from "lucide-react";
-import { memo, useEffect, useState } from "react";
+import { memo, useDeferredValue, useEffect, useState } from "react";
 import { useTemplateDetail, useTemplates } from "../../api";
 import type { TemplateSummary } from "../../api/types";
 import { Button, cx, EmptyState, Segmented, Skeleton, Toggle, toast } from "../../ui";
@@ -37,15 +37,22 @@ export function applyLook(
 }
 
 const LookCard = memo(function LookCard({ template }: { template: TemplateSummary }) {
-  const doc = useDocStore((s) => s.doc);
+  // Typing elsewhere never waits on a dozen look previews: they follow the page lazily.
+  const doc = useDeferredValue(useDocStore((s) => s.doc));
   const pageId = useDocStore((s) => s.pageId);
   const trial = useLookTrial();
   const active = trial.templateId === template.id;
   const [lookId, setLookId] = useState(template.looks[0]?.id ?? "");
-  const [wanted, setWanted] = useState(false);
-  const detail = useTemplateDetail(template.id, { enabled: wanted || active });
+  const [visible, setVisible] = useState(false);
+  const detail = useTemplateDetail(template.id, { enabled: visible || active });
   const shownLook = active && trial.lookId ? trial.lookId : lookId;
-  const result = useLookResult(doc, detail.data, shownLook, trial.keepTweaks);
+  // Only cards on screen (or the one being tried) compute their preview.
+  const result = useLookResult(
+    doc,
+    visible || active ? detail.data : undefined,
+    shownLook,
+    trial.keepTweaks,
+  );
   const imageMap = useCanvasImageMap(doc.media);
   const look = template.looks.find((l) => l.id === shownLook) ?? template.looks[0];
   if (!look) return null;
@@ -72,7 +79,7 @@ const LookCard = memo(function LookCard({ template }: { template: TemplateSummar
           aspect={0.62}
           imageMap={imageMap}
           title={`Your page in ${template.name}, ${look.name} look`}
-          onVisibleChange={(v) => v && setWanted(true)}
+          onVisibleChange={setVisible}
         />
       </button>
       <div className="st-lk__row">

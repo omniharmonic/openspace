@@ -58,6 +58,8 @@ const ids = (doc: SiteDocument) => {
   };
 };
 
+const OWNER = "owner";
+
 function Runner({ store }: { store: EditorStore }) {
   useDesignCheckRunner(store, 0);
   return null;
@@ -227,7 +229,7 @@ describe("Design check: panel", () => {
     render(
       <TooltipProvider>
         <EditorStoreProvider store={store}>
-          <InspectorEnvProvider role="owner">
+          <InspectorEnvProvider role={OWNER}>
             <DesignCheckBadge onOpen={() => {}} />
             <DesignCheckPanel />
             <PublishGate doc={doc} onReview={() => {}} />

@@ -46,7 +46,6 @@ import {
   Kbd,
   Menu,
   Segmented,
-  Sheet,
   Skeleton,
   Spinner,
   Tooltip,

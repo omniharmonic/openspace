@@ -8,8 +8,14 @@ import { type HubApi, HubError, type Session, type Site, type TemplateSummary } 
  * else passes straight through. Edits made offline queue on the device and sync later.
  */
 
+/**
+ * True only when the Hub couldn't be reached (the HTTP client's `status 0`, or a raw fetch
+ * failure) — never for a bug that happens to throw a TypeError, and never for a refusal.
+ */
 export const isNetworkError = (err: unknown): boolean =>
-  (err instanceof HubError && err.status === 0) || err instanceof TypeError;
+  (err instanceof HubError && err.status === 0) ||
+  (err instanceof TypeError &&
+    /failed to fetch|networkerror|load failed|network request failed/i.test(err.message));
 
 /** Set while something on screen came from this device's copy. */
 export const useOfflineState = create<{ fromDevice: boolean; savedAt: number | null }>(() => ({
@@ -25,6 +31,8 @@ interface Saved<T> {
 export interface KeyValue {
   get(key: string): string | null;
   set(key: string, value: string): void;
+  /** Remove every key starting with `prefix`. */
+  clear(prefix: string): void;
 }
 
 const browserStore = (): KeyValue => ({
@@ -40,6 +48,14 @@ const browserStore = (): KeyValue => ({
       localStorage.setItem(k, v);
     } catch {
       // Storage full or blocked: offline copies are a convenience.
+    }
+  },
+  clear: (prefix) => {
+    try {
+      for (const k of Object.keys(localStorage))
+        if (k.startsWith(prefix)) localStorage.removeItem(k);
+    } catch {
+      // Blocked storage holds nothing to clear.
     }
   },
 });
@@ -106,6 +122,12 @@ export function withOfflineCache(
         offline(saved.savedAt);
         return site;
       }
+    },
+    // Signing out forgets this device's copies of the account's session and sites.
+    logout: async () => {
+      await hub.logout();
+      kv.clear(PREFIX);
+      online();
     },
     listTemplates: () =>
       cached<TemplateSummary[]>(

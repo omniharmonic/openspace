@@ -6,8 +6,67 @@ import { create } from "zustand";
  *
  * Updates apply on reload: when a new version has been downloaded, Studio says so (with a
  * Reload button), and if the person simply reloads or leaves, the waiting version takes over
- * for the next load. A running editor is never reloaded underneath someone.
+ * for the next load. A running editor is never reloaded underneath someone, and the new
+ * version never takes over while another Studio tab is still open (that tab would lose the
+ * code it loads lazily): it waits until the last tab goes.
  */
+
+/** Minimal BroadcastChannel surface (injectable for tests). */
+export interface TabChannel {
+  postMessage(message: unknown): void;
+  addEventListener(type: "message", listener: (e: MessageEvent) => void): void;
+  close(): void;
+}
+
+type PresenceMessage = { type: "hello" | "here" | "bye"; id: string };
+
+/**
+ * Which other Studio tabs are open, over a BroadcastChannel: each tab says hello on start,
+ * answers hellos, repeats "here" every {@link HEARTBEAT_MS}, and says bye when it goes. A tab
+ * that crashed without saying bye is forgotten after {@link STALE_MS}.
+ */
+export const HEARTBEAT_MS = 10_000;
+export const STALE_MS = 25_000;
+
+export class TabPresence {
+  private readonly others = new Map<string, number>();
+  private timer: ReturnType<typeof setInterval> | undefined;
+
+  constructor(
+    private readonly channel: TabChannel | null,
+    readonly id = `tab-${Math.random().toString(36).slice(2, 10)}`,
+    private readonly now: () => number = Date.now,
+  ) {
+    channel?.addEventListener("message", (e) => {
+      const m = e.data as PresenceMessage;
+      if (!m || m.id === this.id) return;
+      if (m.type === "bye") this.others.delete(m.id);
+      else this.others.set(m.id, this.now());
+      if (m.type === "hello") this.post("here");
+    });
+  }
+
+  private post(type: PresenceMessage["type"]) {
+    this.channel?.postMessage({ type, id: this.id } satisfies PresenceMessage);
+  }
+
+  start() {
+    this.post("hello");
+    this.timer = setInterval(() => this.post("here"), HEARTBEAT_MS);
+  }
+
+  stop() {
+    clearInterval(this.timer);
+    this.post("bye");
+  }
+
+  /** No other Studio tab is open (as far as this tab knows). */
+  alone(): boolean {
+    const t = this.now();
+    for (const [id, seen] of this.others) if (t - seen > STALE_MS) this.others.delete(id);
+    return this.others.size === 0;
+  }
+}
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -25,6 +84,8 @@ interface PwaState {
   installed: boolean;
   /** Activate the waiting version (and reload). */
   update: (() => Promise<void>) | null;
+  /** The update is waiting for other Studio tabs to close. */
+  otherTabs: boolean;
 }
 
 export const usePwa = create<PwaState>(() => ({
@@ -33,6 +94,7 @@ export const usePwa = create<PwaState>(() => ({
   installEvent: null,
   installed: false,
   update: null,
+  otherTabs: false,
 }));
 
 export interface RegisterEnv {
@@ -93,15 +155,27 @@ export async function promptInstall(): Promise<boolean> {
 export function registerServiceWorker(env: RegisterEnv = import.meta.env): boolean {
   if (!shouldRegister(env)) return false;
   void import("virtual:pwa-register").then(({ registerSW }) => {
+    const presence = new TabPresence(
+      typeof BroadcastChannel === "undefined"
+        ? null
+        : new BroadcastChannel("openspace-studio-tabs"),
+    );
+    presence.start();
     const update = registerSW({
       immediate: true,
       onNeedRefresh: () => usePwa.setState({ needRefresh: true }),
       onOfflineReady: () => usePwa.setState({ offlineReady: true }),
     });
-    usePwa.setState({ update: () => update(true) });
-    // Update on reload: a waiting version takes over as this page goes away.
+    usePwa.setState({
+      update: async () => {
+        if (presence.alone()) return update(true);
+        usePwa.setState({ otherTabs: true });
+      },
+    });
+    // Update on reload: a waiting version takes over as the last Studio tab goes away.
     window.addEventListener("pagehide", () => {
-      if (usePwa.getState().needRefresh) void update(false);
+      presence.stop();
+      if (usePwa.getState().needRefresh && presence.alone()) void update(false);
     });
   });
   return true;

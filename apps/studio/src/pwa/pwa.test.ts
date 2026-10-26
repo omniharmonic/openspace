@@ -9,7 +9,10 @@ import {
   listenForInstall,
   promptInstall,
   registerServiceWorker,
+  STALE_MS,
   shouldRegister,
+  type TabChannel,
+  TabPresence,
   usePwa,
 } from "./register";
 
@@ -76,9 +79,65 @@ describe("service worker registration", () => {
   });
 });
 
+describe("update only when Studio is open in one tab", () => {
+  /** An in-memory BroadcastChannel bus. */
+  function bus() {
+    const members = new Set<{ deliver: (data: unknown) => void }>();
+    return (): TabChannel => {
+      const listeners: Array<(e: MessageEvent) => void> = [];
+      const me = {
+        deliver: (data: unknown) => {
+          for (const l of listeners) l({ data } as MessageEvent);
+        },
+      };
+      members.add(me);
+      return {
+        postMessage: (data) => {
+          for (const m of members) if (m !== me) m.deliver(data);
+        },
+        addEventListener: (_t, l) => void listeners.push(l),
+        close: () => void members.delete(me),
+      };
+    };
+  }
+
+  it("knows about other tabs until they close (or go quiet)", () => {
+    vi.useFakeTimers();
+    try {
+      let t = 0;
+      const join = bus();
+      const a = new TabPresence(join(), "a", () => t);
+      a.start();
+      expect(a.alone()).toBe(true);
+      const b = new TabPresence(join(), "b", () => t);
+      b.start();
+      // b said hello, a answered: both know.
+      expect(a.alone()).toBe(false);
+      expect(b.alone()).toBe(false);
+      b.stop();
+      expect(a.alone()).toBe(true);
+      // A tab that crashed without saying goodbye is forgotten after a while.
+      const c = new TabPresence(join(), "c", () => t);
+      c.start();
+      expect(a.alone()).toBe(false);
+      t += STALE_MS + 1;
+      expect(a.alone()).toBe(true);
+      a.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
 describe("install prompt", () => {
   afterEach(() =>
-    usePwa.setState({ installEvent: null, installed: false, needRefresh: false, update: null }),
+    usePwa.setState({
+      installEvent: null,
+      installed: false,
+      needRefresh: false,
+      update: null,
+      otherTabs: false,
+    }),
   );
 
   it("keeps the browser's offer and shows it on request", async () => {
@@ -109,7 +168,14 @@ describe("install prompt", () => {
 describe("opening offline", () => {
   const memory = (): KeyValue & { data: Map<string, string> } => {
     const data = new Map<string, string>();
-    return { data, get: (k) => data.get(k) ?? null, set: (k, v) => void data.set(k, v) };
+    return {
+      data,
+      get: (k) => data.get(k) ?? null,
+      set: (k, v) => void data.set(k, v),
+      clear: (prefix) => {
+        for (const k of [...data.keys()]) if (k.startsWith(prefix)) data.delete(k);
+      },
+    };
   };
   const down = () => {
     throw new HubError(0, "network", "Can't reach OpenSpace.");
@@ -118,6 +184,9 @@ describe("opening offline", () => {
   it("recognises network failures (not refusals)", () => {
     expect(isNetworkError(new HubError(0, "network", "x"))).toBe(true);
     expect(isNetworkError(new TypeError("Failed to fetch"))).toBe(true);
+    expect(isNetworkError(new TypeError("Load failed"))).toBe(true);
+    // A bug is not "offline".
+    expect(isNetworkError(new TypeError("Cannot read properties of undefined"))).toBe(false);
     expect(isNetworkError(new HubError(403, "forbidden", "x"))).toBe(false);
   });
 
@@ -153,6 +222,13 @@ describe("opening offline", () => {
     online = true;
     await wrapped.listSites();
     expect(useOfflineState.getState().fromDevice).toBe(false);
+
+    // Signing out forgets the saved copies: offline, nothing of this account is served.
+    expect(store.data.size).toBeGreaterThan(0);
+    await wrapped.logout();
+    expect(store.data.size).toBe(0);
+    online = false;
+    await expect(wrapped.listSites()).rejects.toBeInstanceOf(HubError);
   });
 
   it("passes refusals through instead of hiding them behind the saved copy", async () => {

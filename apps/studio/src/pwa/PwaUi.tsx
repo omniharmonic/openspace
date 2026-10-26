@@ -80,6 +80,7 @@ export function InstallButton({ compact = false }: { compact?: boolean }) {
 export function PwaNotices() {
   const offlineReady = usePwa((s) => s.offlineReady);
   const needRefresh = usePwa((s) => s.needRefresh);
+  const otherTabs = usePwa((s) => s.otherTabs);
   useEffect(() => {
     if (!offlineReady || read(OFFLINE_TOLD) === "1") return;
     write(OFFLINE_TOLD, "1");
@@ -99,5 +100,15 @@ export function PwaNotices() {
       action: { label: "Reload", onClick: () => void usePwa.getState().update?.() },
     });
   }, [needRefresh]);
+  useEffect(() => {
+    if (!otherTabs) return;
+    toast({
+      id: "pwa-update",
+      title: "Close your other OpenSpace tabs to update",
+      description: "The new version starts once this is the only OpenSpace tab open.",
+      duration: Number.POSITIVE_INFINITY,
+      action: { label: "Try again", onClick: () => void usePwa.getState().update?.() },
+    });
+  }, [otherTabs]);
   return null;
 }
