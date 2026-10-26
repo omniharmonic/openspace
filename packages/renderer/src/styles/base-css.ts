@@ -98,7 +98,7 @@ ${typeClasses}
 .os-page{--bar-h:calc(max(var(--mlogo-h,2rem),2.75rem) + 1.5rem);--header-h:var(--bar-h);position:relative;display:flex;flex-direction:column;min-height:100vh;min-height:100svh}
 .os-main{flex:1}
 .os-section{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:center;background:var(--bg,${v(c.background)});color:${v(c.text)};padding-block:var(--mpad,${v(T.section.padY)});min-height:var(--mminh,auto);overflow-x:clip}
-.os-section[data-os-hidden]{opacity:0.45}
+.os-section[data-os-hidden],.os-block[data-os-hidden]{opacity:0.45}
 .os-section__bg{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 .os-section__bg>.os-img,.os-section__media{position:absolute;inset:0;width:100%;height:100%;border-radius:0}
 .os-section__bg .os-img__img,.os-section__video{width:100%;height:100%;object-fit:cover;object-position:var(--focal,50% 50%)}

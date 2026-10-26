@@ -9,7 +9,13 @@ import {
 } from "@openspace/schema";
 import { imageTreatmentClass, TOKEN_VARS, themeClass } from "@openspace/theme";
 import { Component, type ReactNode, useContext } from "react";
-import { BlockRegistryContext, type RenderMode, useEditor, useRenderContext } from "./context";
+import {
+  BlockFieldsContext,
+  BlockRegistryContext,
+  type RenderMode,
+  useEditor,
+  useRenderContext,
+} from "./context";
 import { type CssVars, cx } from "./cx";
 import { responsiveVars } from "./layout-vars";
 import { globalRegistry, type RendererBlockDefinition } from "./registry";
@@ -126,7 +132,7 @@ function RenderBlock(props: {
   const { def, block, fields } = props;
   try {
     return (
-      <>
+      <BlockFieldsContext.Provider value={{ block, fields }}>
         {
           def.render({
             id: block.id as never,
@@ -136,7 +142,7 @@ function RenderBlock(props: {
             block,
           }) as ReactNode
         }
-      </>
+      </BlockFieldsContext.Provider>
     );
   } catch (err) {
     return <MissingBlock block={block} reason={`This block failed to render: ${String(err)}`} />;
@@ -179,6 +185,8 @@ export function BlockView({ block, section }: BlockViewProps) {
   const ctx = useRenderContext();
   const editor = useEditor();
   const def = registry.get(block.type) as RendererBlockDefinition | undefined;
+  // Hidden blocks are skipped everywhere but Studio, which shows them ghosted.
+  if (block.hidden && ctx.mode !== "editor") return null;
   const prepared = prepare(def, block, ctx.mode);
 
   const content: ReactNode = prepared.ok ? (
@@ -204,6 +212,7 @@ export function BlockView({ block, section }: BlockViewProps) {
       )}
       data-os-id={block.id}
       data-os-block={block.type}
+      data-os-hidden={block.hidden ? "" : undefined}
       style={Object.keys(s.vars).length ? s.vars : undefined}
       {...s.attrs}
     >

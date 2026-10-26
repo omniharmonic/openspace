@@ -95,7 +95,11 @@ export function SectionBackgroundLayer({
 
 function StackBody({ section }: { section: Section & { layout: { mode: "stack" } } }) {
   const { layout } = section;
-  const cols = blocksByColumn(layout, section.blocks);
+  const { mode } = useRenderContext();
+  const cols = blocksByColumn(
+    layout,
+    section.blocks.filter((b) => !b.hidden || mode === "editor"),
+  );
   return (
     <div
       className={cx(
@@ -132,12 +136,14 @@ function GridBody({ section }: { section: Section & { layout: { mode: "grid" } }
   const fallback = fallbackMobileRects(layout);
   const vars = { ...gridVars(layout), "--mrows": mobileRows(layout, fallback) };
   // DOM order follows desktop reading order (top-to-bottom, left-to-right) for assistive tech.
-  const ordered = [...section.blocks].sort((a, b) => {
-    const ra = layout.items[a.id]?.d;
-    const rb = layout.items[b.id as keyof typeof layout.items]?.d;
-    if (!ra || !rb) return 0;
-    return ra.y - rb.y || ra.x - rb.x;
-  });
+  const ordered = section.blocks
+    .filter((b) => !b.hidden || mode === "editor")
+    .sort((a, b) => {
+      const ra = layout.items[a.id]?.d;
+      const rb = layout.items[b.id as keyof typeof layout.items]?.d;
+      if (!ra || !rb) return 0;
+      return ra.y - rb.y || ra.x - rb.x;
+    });
   return (
     <div
       className={cx("os-section__inner os-grid", `os-w-${layout.width ?? "content"}`)}
