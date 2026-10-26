@@ -431,6 +431,80 @@ export class RoomState {
   }
 
   /**
+   * Check a batch against the current document without changing anything, as `submit` would
+   * accept it at the current head (MCP edits are all-or-nothing): parse, role filter, validate,
+   * apply in order on a scratch copy. Ops already in the log (resends) are skipped.
+   */
+  dryRun(
+    ops: readonly unknown[],
+    role: Role,
+    userId: string,
+  ):
+    | { ok: true }
+    | {
+        ok: false;
+        index: number;
+        code: "invalid" | "forbidden";
+        message: string;
+        errors?: OpIssue[];
+      } {
+    let doc = this.doc;
+    if (!doc) throw new Error("Room not loaded");
+    const registry = registryForValidate();
+    const locked = this.lockedFor(userId);
+    for (let index = 0; index < ops.length; index++) {
+      const parsed = parseOp(ops[index]);
+      if (!parsed.ok)
+        return {
+          ok: false,
+          index,
+          code: "invalid",
+          message: parsed.errors[0]?.message ?? "That change isn't valid",
+          errors: parsed.errors,
+        };
+      if (this.opById(parsed.op.id)) continue;
+      let op = parsed.op;
+      if (role !== "owner" && role !== "designer") {
+        const d = transformForRole(op, role, locked, { doc, registry: blockRegistry() });
+        if (!d.allowed) return { ok: false, index, code: "forbidden", message: d.reason };
+        op = d.op;
+      }
+      const v = validate(doc, op, registry ? { registry } : {});
+      if (!v.ok)
+        return {
+          ok: false,
+          index,
+          code: "invalid",
+          message: v.errors[0]?.message ?? "That change isn't valid",
+          errors: v.errors,
+        };
+      try {
+        doc = apply(doc, op);
+      } catch (err) {
+        return {
+          ok: false,
+          index,
+          code: "invalid",
+          message: err instanceof Error ? err.message : "That change isn't valid",
+        };
+      }
+    }
+    return { ok: true };
+  }
+
+  /** Ops an agent session made that are still in the log. */
+  agentSessionOpCount(sessionId: string): number {
+    return (
+      this.sql
+        .exec<{ n: number }>(
+          "SELECT COUNT(*) AS n FROM ops WHERE session = ? AND kind = 'agent'",
+          sessionId,
+        )
+        .toArray()[0]?.n ?? 0
+    );
+  }
+
+  /**
    * Accept one op: parse, dedupe, server-stamp, rebase over what the sender hadn't seen, check
    * the role (or authorize as an undo of the sender's own op), validate, assign a seq, persist.
    */

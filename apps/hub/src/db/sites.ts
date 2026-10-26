@@ -142,6 +142,7 @@ type Patch = Partial<
     | "purge_at"
     | "transfer_to"
     | "transfer_requested_at"
+    | "deploy_target"
   >
 >;
 

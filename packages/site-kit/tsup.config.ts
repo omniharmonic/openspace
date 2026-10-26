@@ -7,6 +7,8 @@ export default defineConfig({
     "src/agents-md.ts",
     "src/markdoc.ts",
     "src/pages.ts",
+    "src/ids.ts",
+    "src/render-entry.ts",
     "src/runtime/route.ts",
     "src/runtime/images-manifest.ts",
     "src/cloudflare/index.ts",

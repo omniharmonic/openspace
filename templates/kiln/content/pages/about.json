@@ -1,0 +1,344 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_me0855hfs5",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Wren Adeyemi founded Saltmarsh Pottery in 2017 in a 1920s boatshed in Mystic. The story of the studio, the clay and the glazes."
+  },
+  "sections": [
+    {
+      "id": "sec_rwb9r72ja6",
+      "preset": "about/story-split@1",
+      "label": "Story with portrait",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_d7fe2ny42a",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1780387477222-730504564368?w=1040&q=80",
+              "alt": "Portrait of Wren Adeyemi, potter and founder of Saltmarsh",
+              "width": 1040,
+              "height": 1560
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_xmh4rj2pfs",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Hello, I'm Wren",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "The maker"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_pacydwyzjb",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I learned to throw at a night class in New Haven when I was forty-three, after twenty years as a school librarian. Within a year I'd bought a second-hand wheel; within three, I'd given notice and rented a leaking boatshed on the Mystic River."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Saltmarsh Pottery has lived there since 2017. I make everything myself, fire the kiln about once a month and mix glazes from wood ash, local clay and a lot of trial and error. The colours come from the marsh outside the window: oyster grey, cordgrass green, the rust of old mooring chains."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_yxbzx2353x",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Visit the studio",
+            "link": {
+              "type": "page",
+              "page": "pg_qpse8ffgrr"
+            },
+            "role": "secondary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_4485k5bzd4",
+      "preset": "about/values@1",
+      "label": "Values",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_k36txdxwhk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Small batches, honest materials",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "How it's made",
+            "subheading": "A few promises that shape every piece that leaves the studio."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_h4r9zkvcvc",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "leaf",
+                "title": "Local clay and ash",
+                "text": "Clay from a Connecticut supplier and wood ash from our own stove, so glazes are truly local."
+              },
+              {
+                "icon": "recycle",
+                "title": "Nothing wasted",
+                "text": "Trimmings and seconds are reclaimed and rethrown; broken pieces become garden mosaics."
+              },
+              {
+                "icon": "package",
+                "title": "Packed by hand",
+                "text": "Every order ships in recycled paper and straw, with a note about the firing it came from."
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_9va2017bfz",
+      "preset": "gallery/mosaic@1",
+      "label": "Mosaic",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 21,
+          "m": 28
+        },
+        "items": {
+          "blk_qsdcnpxh62": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 21
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_mfk981gv3j": {
+            "d": {
+              "x": 13,
+              "y": 1,
+              "w": 6,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 14,
+              "w": 4,
+              "h": 7
+            }
+          },
+          "blk_wsamh7gs59": {
+            "d": {
+              "x": 19,
+              "y": 1,
+              "w": 6,
+              "h": 10
+            },
+            "m": {
+              "x": 5,
+              "y": 14,
+              "w": 4,
+              "h": 7
+            }
+          },
+          "blk_csmepse0p8": {
+            "d": {
+              "x": 13,
+              "y": 12,
+              "w": 6,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 22,
+              "w": 4,
+              "h": 7
+            }
+          },
+          "blk_1g89kehpgw": {
+            "d": {
+              "x": 19,
+              "y": 12,
+              "w": 6,
+              "h": 10
+            },
+            "m": {
+              "x": 5,
+              "y": 22,
+              "w": 4,
+              "h": 7
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_qsdcnpxh62",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1597696929736-6d13bed8e6a8?w=1280&q=80",
+              "alt": "A shelf of finished vases",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": true
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_mfk981gv3j",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=640&q=80",
+              "alt": "Grey bud vases with dried stems",
+              "width": 640,
+              "height": 427
+            },
+            "aspect": "original",
+            "lightbox": true
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_wsamh7gs59",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=640&q=80",
+              "alt": "A terracotta planter with a cactus",
+              "width": 640,
+              "height": 784
+            },
+            "aspect": "original",
+            "lightbox": true
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_csmepse0p8",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=640&q=80",
+              "alt": "A mint-glazed planter with a succulent",
+              "width": 640,
+              "height": 426
+            },
+            "aspect": "original",
+            "lightbox": true
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_1g89kehpgw",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=640&q=80",
+              "alt": "Morning cups on a small table",
+              "width": 640,
+              "height": 960
+            },
+            "aspect": "original",
+            "lightbox": true
+          },
+          "variant": "default"
+        }
+      ]
+    }
+  ]
+}

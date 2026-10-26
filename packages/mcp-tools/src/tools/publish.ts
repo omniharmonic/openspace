@@ -60,13 +60,13 @@ export const discardDraft = defineTool({
   annotations: { destructiveHint: true },
   async handler(ctx, input) {
     requireConfirm(input.confirm, "Discarding the draft");
-    const role = ctx.grant.role;
+    const siteId = await ctx.siteId(input.site);
+    const role = ctx.roleFor(siteId);
     if (role && role !== "owner" && role !== "designer")
       throw new ToolError(
         `Discarding the whole draft throws away everyone's unpublished work, so it needs a designer or owner (your role: ${role}).`,
         "forbidden",
       );
-    const siteId = await ctx.siteId(input.site);
     const session = await ctx.session(siteId);
     const r = await ctx.store.discardDraft(siteId, {
       actor: session.actor,

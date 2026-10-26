@@ -1,0 +1,130 @@
+{
+  "$comment": "Licenses for the demo media in the Meadow template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      "title": "Portrait of a woman in a red sweater, laughing",
+      "author": "Michael Dam",
+      "authorUrl": "https://unsplash.com/@michaeldam",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/closeup-photography-of-woman-smiling-mEZ3PoFGs_k",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+      "title": "Portrait of a man in a grey sweater, smiling softly",
+      "author": "Jurica Koletić",
+      "authorUrl": "https://unsplash.com/@juricakoletic",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-henley-top-portrait-7YVZYZeITc8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1506126613408-eca07ce68773",
+      "title": "A woman meditating cross-legged on a wooden deck at sunrise",
+      "author": "Jared Rice",
+      "authorUrl": "https://unsplash.com/@jareddrice",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-doing-yoga-meditation-on-brown-parquet-flooring-NTyBbu66_SI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1509042239860-f550ce710b93",
+      "title": "Two cappuccinos with latte art beside potted herbs",
+      "author": "Nathan Dumlao",
+      "authorUrl": "https://unsplash.com/@nate_dumlao",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/shallow-focus-photography-of-coffee-late-in-mug-on-table-zUNs99PGDg0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "title": "Portrait of a woman in a black top against a soft violet wall",
+      "author": "Aiony Haust",
+      "authorUrl": "https://unsplash.com/@aiony",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-wearing-black-crew-neck-shirt-3TLl_97HNJo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6",
+      "title": "Portrait of a young man in a black hat, smiling",
+      "author": "ian dooley",
+      "authorUrl": "https://unsplash.com/@sadswim",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-near-white-wall-d1UPkiFd04A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874",
+      "title": "A therapist pouring warm oil before a back massage",
+      "author": "alan caishan",
+      "authorUrl": "https://unsplash.com/@caishan119",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-lying-with-prone-position-cU53ZFBr3lk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
+      "title": "A person holding a low lunge on the beach at dusk, arms raised",
+      "author": "kike vega",
+      "authorUrl": "https://unsplash.com/@kikekiks",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/silhouette-photography-of-woman-doing-yoga-F2qh3yjz6Jk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1545205597-3d9d02c29597",
+      "title": "A small group practising tree pose together on a misty beach",
+      "author": "Kaylee Garrett",
+      "authorUrl": "https://unsplash.com/@realkayls",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/five-woman-standing-on-seashore-GaprWyIw66o",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1767605523281-8b54b3692078",
+      "title": "Rolled yoga mats in a woven basket beside a plant",
+      "author": "Margaret Young",
+      "authorUrl": "https://unsplash.com/@wildsoulmagsyogi",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/rolled-yoga-mats-in-a-decorative-basket-with-plants-OuMxVZS72N0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

@@ -46,8 +46,8 @@ describe("openspace new", () => {
   it("scaffolds a site that passes check", async () => {
     const site = await newSite(["--title", "Hello Meadow", "--repo", "maya/maya-yoga"]);
     expect(site.code, site.err).toBe(0);
-    // The meadow template has no content of its own yet: the fixture stands in, and we say so.
-    expect(site.out).toContain("Meadow sample site");
+    // templates/meadow ships its own content now: no fixture stand-in.
+    expect(site.out).not.toContain("sample site");
     for (const f of [
       "openspace.json",
       "package.json",
@@ -96,6 +96,20 @@ describe("openspace new", () => {
     expect(unknown.code).toBe(1);
     expect(unknown.err).toContain('Unknown template "no-such-template"');
     expect(existsSync(join(site.parent, "other"))).toBe(false);
+  });
+
+  it("lists only real templates (folders with template.json) for an unknown id", async () => {
+    const tdir = join(await tmpDir(), "templates");
+    for (const d of ["lib", "test", "node_modules", "real"])
+      await mkdir(join(tdir, d), { recursive: true });
+    await writeFile(join(tdir, "real", "template.json"), "{}");
+    const parent = await tmpDir();
+    const r = await cli(parent, ["new", "lib", "x", "--templates-dir", tdir]);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain('Unknown template "lib". Available: ');
+    const listed = (r.err.split("Available: ")[1] ?? "").replace(/\.\s*$/, "").split(", ");
+    expect(listed).toContain("real");
+    for (const helper of ["lib", "test", "node_modules"]) expect(listed).not.toContain(helper);
   });
 
   it("rejects template ids that could escape the templates folder", async () => {

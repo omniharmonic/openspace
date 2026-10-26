@@ -23,13 +23,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { cx, IconButton, Menu, Popover, Segmented, toast } from "../../../ui";
+import { cx, IconButton, Menu, Segmented, toast } from "../../../ui";
+import { useAddSection } from "../../add-section/blockMenuStore";
+import { useInspectorTab } from "../../inspector/env";
 import { BlockIcon } from "../blockIcons";
 import { useEditorUi } from "../editor-store";
 import {
   deleteItems,
   duplicateItems,
-  insertSection,
   moveItems,
   setLayoutMode,
   setSectionTheme,
@@ -44,7 +45,6 @@ import {
   sameItem,
   sectionLabel,
 } from "../model/selection";
-import { STARTERS } from "../model/starters";
 import { THEME_LABEL } from "../model/themes";
 import { hasEditableText } from "../text/fields";
 import { TextToolbar } from "../text/TextToolbar";
@@ -323,7 +323,10 @@ function BlockToolbar({ item }: { item: SelItem }) {
         size="sm"
         label="Style"
         icon={<Paintbrush />}
-        onClick={() => useEditorUi.setState({ inspectorOpen: true, chromeHidden: false })}
+        onClick={() => {
+          useEditorUi.setState({ inspectorOpen: true, chromeHidden: false });
+          useInspectorTab.setState({ tab: "design" });
+        }}
       />
       <IconButton
         size="sm"
@@ -523,8 +526,7 @@ function AddSectionButton({
   at: Position;
   label: string;
 }) {
-  const api = useDocStoreApi();
-  const [open, setOpen] = useState(false);
+  const open = useAddSection((s) => s.open && JSON.stringify(s.at) === JSON.stringify(at));
   return (
     <div
       className={cx("st-ov__add", open && "is-open")}
@@ -534,35 +536,14 @@ function AddSectionButton({
       }}
     >
       <span className="st-ov__add-line" aria-hidden="true" />
-      <Popover
-        open={open}
-        onOpenChange={setOpen}
-        title="Add a section"
-        width={280}
-        trigger={
-          <button type="button" className="st-ov__add-btn" aria-label={label}>
-            <Plus aria-hidden="true" />
-          </button>
-        }
+      <button
+        type="button"
+        className="st-ov__add-btn"
+        aria-label={label}
+        onClick={() => useAddSection.getState().openAt(at)}
       >
-        <ul className="st-ov__starters">
-          {STARTERS.map((st) => (
-            <li key={st.id}>
-              <button
-                type="button"
-                onClick={() => {
-                  const s = api.getState();
-                  s.run(insertSection(s.pageId, st.build(), at));
-                  setOpen(false);
-                }}
-              >
-                <strong>{st.label}</strong>
-                <span>{st.description}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </Popover>
+        <Plus aria-hidden="true" />
+      </button>
     </div>
   );
 }

@@ -4,7 +4,7 @@
   "main": "src/index.ts",
   // Keep at or below the workerd bundled with @cloudflare/vitest-pool-workers.
   "compatibility_date": "2026-03-01",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "observability": { "enabled": true, "head_sampling_rate": 1 },
   "vars": {
     // DEV_MODE=true: DevGitHubAccess (D1-emulated GitHub) + /auth/dev/login (Global Constraint 8).
@@ -41,7 +41,11 @@
       "migrations_dir": "migrations"
     }
   ],
-  "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+  "kv_namespaces": [
+    { "binding": "CACHE", "id": "00000000000000000000000000000000" },
+    // Task 17: OAuth 2.1 authorization server for MCP clients (@cloudflare/workers-oauth-provider).
+    { "binding": "OAUTH_KV", "id": "00000000000000000000000000000001" }
+  ],
   "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }],
   // Task 16: per-visitor analytics beacon limit (Workers Rate Limiting API; local to each colo).
   "ratelimits": [
@@ -73,7 +77,10 @@
           "migrations_dir": "migrations"
         }
       ],
-      "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+      "kv_namespaces": [
+        { "binding": "CACHE", "id": "00000000000000000000000000000000" },
+        { "binding": "OAUTH_KV", "id": "00000000000000000000000000000001" }
+      ],
       "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "openspace-hub-uploads" }],
       "ratelimits": [
         {

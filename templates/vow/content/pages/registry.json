@@ -1,0 +1,207 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_sy1zdkvjrk",
+  "title": "Registry",
+  "slug": "registry",
+  "seo": {
+    "description": "Gift registry for Amara and Theo: a honeymoon fund for Portugal, a small home registry and a charity close to our hearts."
+  },
+  "sections": [
+    {
+      "id": "sec_jz19y0zaa2",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_14tb7adb7b",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Your presence is the present",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Registry",
+            "subheading": "Truly. But if you'd like to give something, we've put together a few ideas, including a fund for our honeymoon on the coast of Portugal."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_54v6wp9zf2",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Honeymoon fund",
+            "link": {
+              "type": "url",
+              "url": "https://honeyfund.example/amara-and-theo",
+              "newTab": true
+            },
+            "role": "primary",
+            "secondaryLabel": "RSVP",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_9r8e3vc3gk"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_andenv2esx",
+      "preset": "services/image-cards@1",
+      "label": "Three services with photos",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_j0xxm90dbt",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Three ways to give",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Gift ideas",
+            "subheading": "Every gift comes with a handwritten thank-you, probably late, definitely sincere."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7b2394jw1x",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1560&q=80",
+                  "alt": "Waves washing onto an empty beach at sunset",
+                  "width": 1560,
+                  "height": 1037
+                },
+                "heading": "Honeymoon in Portugal",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Two weeks on the Alentejo coast. Contribute a dinner, a surf lesson or a night by the sea."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://honeyfund.example/amara-and-theo",
+                  "newTab": true
+                },
+                "linkLabel": "Visit our honeyfund"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=1560&q=80",
+                  "alt": "A bright kitchen with pendant lights",
+                  "width": 1560,
+                  "height": 1036
+                },
+                "heading": "For our first home",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "A short list of things for the kitchen and garden of the house we're about to buy."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://registry.example/amara-theo",
+                  "newTab": true
+                },
+                "linkLabel": "See the registry"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=1560&q=80",
+                  "alt": "Seedlings sprouting in a tray of soil",
+                  "width": 1560,
+                  "height": 1040
+                },
+                "heading": "Plant a school garden",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "A gift to Oakland Grows, which builds gardens at the school where Amara teaches."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://oaklandgrows.example/give",
+                  "newTab": true
+                },
+                "linkLabel": "Give to Oakland Grows"
+              }
+            ],
+            "columns": "3",
+            "aspect": "4:5"
+          },
+          "variant": "plain"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "harbor",
+  "name": "Harbor",
+  "description": "A warm, trustworthy site for nonprofits and community groups, with an impact band, programs, events and a donate button that's always in reach.",
+  "persona": "Nonprofits, community organisations",
+  "mood": "Trustworthy, warm, civic",
+  "version": "1.0.0",
+  "tags": [
+    "nonprofit",
+    "community",
+    "donations",
+    "events",
+    "volunteers"
+  ],
+  "sample": {
+    "name": "Riverbend Neighbors",
+    "tagline": "Neighbors keeping neighbors fed and home."
+  },
+  "thumbnailPage": "pg_1gqv7jnbb7",
+  "looks": [
+    {
+      "id": "harbor-blue",
+      "name": "Harbor Blue",
+      "description": "Deep civic blue on warm paper with a signal-orange accent and Newsreader headings.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.42 0.12 255)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "newsreader-public-sans",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      },
+      "overrides": {
+        "color": {
+          "accent": {
+            "$value": "oklch(0.56 0.17 42)",
+            "$type": "color"
+          }
+        }
+      }
+    },
+    {
+      "id": "signal",
+      "name": "Signal",
+      "description": "A bright call-to-action orange with Zilla Slab headings and square corners.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.68 0.19 45)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "zilla-slab-inter",
+        "density": "comfortable",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "riverside",
+      "name": "Riverside",
+      "description": "Steady forest green with Merriweather and Open Sans, round buttons and a calmer pace.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.4 0.07 150)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "merriweather-open-sans",
+        "density": "airy",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_1gqv7jnbb7",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_5752p2f5ye",
+      "title": "Programs",
+      "slug": "programs"
+    },
+    {
+      "id": "pg_ffqyf65d7j",
+      "title": "Get involved",
+      "slug": "get-involved"
+    },
+    {
+      "id": "pg_v4f7w3832h",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_rbmgfshm9y",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

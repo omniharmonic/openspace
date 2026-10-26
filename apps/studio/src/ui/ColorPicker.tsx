@@ -95,10 +95,20 @@ export interface ColorPickerPanelProps {
   value: ColorValue | null;
   onChange: (value: ColorValue) => void;
   tokens: ReadonlyArray<ColorToken>;
+  /** Offer the "Exact" escape hatch (default true; Studio limits it to designers). */
+  allowExact?: boolean;
+  /** Read-only: nothing can be picked. */
+  disabled?: boolean;
 }
 
 /** Picker body: palette tokens first, "Exact" color as escape hatch. */
-export function ColorPickerPanel({ value, onChange, tokens }: ColorPickerPanelProps) {
+export function ColorPickerPanel({
+  value,
+  onChange,
+  tokens,
+  allowExact = true,
+  disabled,
+}: ColorPickerPanelProps) {
   const [mode, setMode] = useState<"palette" | "exact">(
     value?.kind === "exact" ? "exact" : "palette",
   );
@@ -118,19 +128,21 @@ export function ColorPickerPanel({ value, onChange, tokens }: ColorPickerPanelPr
   };
 
   return (
-    <div className="st-cp">
-      <Segmented
-        aria-label="Color source"
-        block
-        size="sm"
-        value={mode}
-        onValueChange={setMode}
-        options={[
-          { value: "palette", label: "Site colors" },
-          { value: "exact", label: "Exact" },
-        ]}
-      />
-      {mode === "palette" ? (
+    <fieldset className="st-cp" disabled={disabled}>
+      {allowExact && (
+        <Segmented
+          aria-label="Color source"
+          block
+          size="sm"
+          value={mode}
+          onValueChange={setMode}
+          options={[
+            { value: "palette", label: "Site colors" },
+            { value: "exact", label: "Exact" },
+          ]}
+        />
+      )}
+      {mode === "palette" || !allowExact ? (
         <fieldset className="st-cp__tokens">
           <legend className="st-visually-hidden">Site colors</legend>
           {tokens.map((t) => (
@@ -175,7 +187,7 @@ export function ColorPickerPanel({ value, onChange, tokens }: ColorPickerPanelPr
           />
         </div>
       )}
-    </div>
+    </fieldset>
   );
 }
 
@@ -184,7 +196,14 @@ export interface ColorPickerProps extends ColorPickerPanelProps {
 }
 
 /** Swatch trigger + popover picker. */
-export function ColorPicker({ label, value, onChange, tokens }: ColorPickerProps) {
+export function ColorPicker({
+  label,
+  value,
+  onChange,
+  tokens,
+  allowExact,
+  disabled,
+}: ColorPickerProps) {
   const color = resolveColor(value, tokens);
   const tokenName =
     value?.kind === "token" ? tokens.find((t) => t.id === value.token)?.name : undefined;
@@ -196,6 +215,7 @@ export function ColorPicker({ label, value, onChange, tokens }: ColorPickerProps
         <button
           type="button"
           className="st-cp-trigger"
+          disabled={disabled}
           aria-label={`${label}: ${tokenName ?? color ?? "none"}`}
         >
           <span className="st-cp__chip" style={{ background: color ?? "transparent" }} />
@@ -203,7 +223,13 @@ export function ColorPicker({ label, value, onChange, tokens }: ColorPickerProps
         </button>
       }
     >
-      <ColorPickerPanel value={value} onChange={onChange} tokens={tokens} />
+      <ColorPickerPanel
+        value={value}
+        onChange={onChange}
+        tokens={tokens}
+        {...(allowExact !== undefined ? { allowExact } : {})}
+        {...(disabled ? { disabled } : {})}
+      />
     </Popover>
   );
 }

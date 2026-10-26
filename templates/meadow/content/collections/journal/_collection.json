@@ -1,0 +1,34 @@
+{
+  "kind": "blog",
+  "label": "Journal",
+  "slugPattern": "{date}-{title}",
+  "list": {
+    "layout": "cards",
+    "pageSize": 12,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": true,
+    "showRelated": true
+  },
+  "taxonomies": {
+    "categories": [
+      {
+        "slug": "practice",
+        "label": "Practice"
+      },
+      {
+        "slug": "studio",
+        "label": "Studio news"
+      }
+    ],
+    "tags": true
+  },
+  "feed": {
+    "enabled": true,
+    "title": "The Fernwood Journal",
+    "description": "Notes on practice, rest and the studio."
+  }
+}

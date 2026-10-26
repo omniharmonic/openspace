@@ -1,0 +1,246 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_86kv6qr4yt",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Chef Lucia Ferrante opened Ember & Olive in 2019. Meet the team behind the oven and the farms we cook with."
+  },
+  "sections": [
+    {
+      "id": "sec_gqkp5bw94e",
+      "preset": "about/story-split@1",
+      "label": "Story with portrait",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_t3var9mgat",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=1040&q=80",
+              "alt": "Portrait of chef Lucia Ferrante, smiling",
+              "width": 1040,
+              "height": 1309
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_nhn7gzzdyk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Cooking the way my nonna did",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Our story"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_m5f6w9mdkn",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I grew up between Providence and my grandmother's village in Calabria, where dinner was cooked on a wood stove and nobody left the table early. After fifteen years cooking in Boston and Rome, I came home to Federal Hill to open the kind of place I always wanted to eat in."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Ember & Olive opened in 2019 with one oak-fired oven and twelve tables. We buy whole animals and whole crates of vegetables from farms within an hour of the restaurant, make every pasta by hand, and change the menu whenever the market does."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_by1fc428rh",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Meet the team",
+            "link": {
+              "type": "page",
+              "page": "pg_86kv6qr4yt",
+              "anchor": "team"
+            },
+            "role": "secondary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_aghpxd55jy",
+      "preset": "team/grid@1",
+      "label": "Team grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_k3h1pf7a9t",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Around the fire",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The team",
+            "subheading": "A small crew who cook, pour and look after you every night."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_zwsp9ds31g",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Lucia Ferrante",
+                "role": "Chef & owner",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&q=80",
+                  "alt": "Portrait of Lucia Ferrante",
+                  "width": 600,
+                  "height": 755
+                }
+              },
+              {
+                "name": "Owen Bassett",
+                "role": "Head of pasta",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80",
+                  "alt": "Portrait of Owen Bassett",
+                  "width": 600,
+                  "height": 900
+                }
+              },
+              {
+                "name": "Ana Delgado",
+                "role": "Front of house",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80",
+                  "alt": "Portrait of Ana Delgado",
+                  "width": 600,
+                  "height": 900
+                }
+              },
+              {
+                "name": "Marcus Hale",
+                "role": "Sommelier",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80",
+                  "alt": "Portrait of Marcus Hale",
+                  "width": 600,
+                  "height": 900
+                }
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "grid"
+        }
+      ],
+      "anchor": "team"
+    },
+    {
+      "id": "sec_q0xje777ma",
+      "preset": "logos/row@1",
+      "label": "Logo row",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "md",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_qjme428jp1",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "label": "We cook with",
+            "logos": [
+              {
+                "name": "Hurricane Hill Farm"
+              },
+              {
+                "name": "Little Compton Oysters"
+              },
+              {
+                "name": "Wildflour Mill"
+              },
+              {
+                "name": "Sweet Berry Farm"
+              },
+              {
+                "name": "Narragansett Creamery"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "row"
+        }
+      ]
+    }
+  ]
+}

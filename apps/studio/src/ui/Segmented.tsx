@@ -21,6 +21,8 @@ export interface SegmentedProps<V extends string = string> {
   size?: "sm" | "md";
   block?: boolean;
   className?: string;
+  /** Disable every option (read-only). */
+  disabled?: boolean;
 }
 
 /**
@@ -34,6 +36,7 @@ export function Segmented<V extends string = string>({
   size = "md",
   block,
   className,
+  disabled,
   "aria-label": ariaLabel,
 }: SegmentedProps<V>) {
   return (
@@ -42,6 +45,7 @@ export function Segmented<V extends string = string>({
       value={value}
       onValueChange={(v) => v && onValueChange(v as V)}
       aria-label={ariaLabel}
+      disabled={disabled}
       className={cx("st-seg", `st-seg--${size}`, block && "st-seg--block", className)}
     >
       {options.map((o) => {

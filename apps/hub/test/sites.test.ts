@@ -42,51 +42,114 @@ async function create(
 }
 
 describe("templates API", () => {
-  it("lists gallery data without an account and serves a template document", async () => {
+  it("lists the launch templates without an account and serves a template document", async () => {
     const app = createApp();
     const res = await call(app, "/api/templates");
     expect(res.status).toBe(200);
     const { templates: items } = (await res.json()) as {
       templates: Array<Record<string, unknown>>;
     };
+    expect(items).toHaveLength(12);
+    expect(items.map((t) => t.id)).not.toContain("basic");
     expect(items[0]).toMatchObject({
-      id: "basic",
-      name: "Basic",
+      id: "meadow",
+      name: "Meadow",
       persona: expect.any(String),
-      mood: "Calm",
-      thumbnailUrl: null,
-      previewUrl: "http://localhost:8787/t/basic/",
+      mood: expect.any(String),
+      version: "1.0.0",
+      thumbnailUrl: expect.stringMatching(/^https:\/\//),
+      previewUrl: "http://localhost:8787/t/meadow/",
       sample: { name: expect.any(String), tagline: expect.any(String) },
     });
+    for (const item of items) expect((item.looks as unknown[]).length).toBe(3);
     // Studio's compact look preview (solved colors, font stacks, radius, image shape).
-    const calm = ((items[0] as Record<string, unknown>).looks as LookJson[])[0];
-    expect(calm?.styles).toMatchObject({
+    const look = ((items[0] as Record<string, unknown>).looks as LookJson[])[0];
+    expect(look?.styles).toMatchObject({
       colors: {
         background: expect.stringMatching(/^#[0-9a-f]{6}$/),
         accent: expect.stringMatching(/^#[0-9a-f]{6}$/),
         onAccent: expect.stringMatching(/^#[0-9a-f]{6}$/),
       },
-      fonts: {
-        heading: expect.stringContaining('"Fraunces"'),
-        body: expect.stringContaining('"Hanken Grotesk"'),
-      },
-      radius: 999,
-      imageShape: "rect",
+      fonts: { heading: expect.any(String), body: expect.any(String) },
     });
-    expect(calm?.siteStyles.choices.pairing).toBe("fraunces-hanken");
-    expect(
-      ((items[0] as Record<string, unknown>).looks as Array<{ id: string }>).map((l) => l.id),
-    ).toEqual(["calm", "bold", "warm"]);
-    const one = await call(app, "/api/templates/basic");
-    const body = (await one.json()) as { document: SiteDocument };
-    expect(Object.values(body.document.pages)[0]?.slug).toBe("");
-    expect((await call(app, "/api/templates/nope")).status).toBe(404);
+    expect(look?.siteStyles.choices.pairing).toEqual(expect.any(String));
 
-    const preview = await call(app, "/t/basic/?look=bold");
+    const one = await call(app, "/api/templates/meadow");
+    const body = (await one.json()) as { document: SiteDocument };
+    expect(Object.values(body.document.pages).some((p) => p.slug === "")).toBe(true);
+    expect((await call(app, "/api/templates/nope")).status).toBe(404);
+    // The small "basic" fixture is still loadable (tests), just not listed.
+    expect((await call(app, "/api/templates/basic")).status).toBe(200);
+
+    const preview = await call(app, "/t/meadow/");
     expect(preview.status).toBe(200);
-    const html = await preview.text();
-    expect(html).toContain("Template preview");
-    expect(html).toContain("oklch(0.55 0.2 265)");
+    const tplHtml = await preview.text();
+    expect(tplHtml).toContain("data-os-page=");
+    expect(tplHtml).toContain("Fernwood");
+  });
+
+  it("creates a site from a launch template with the starter shell", async () => {
+    const app = createApp();
+    const cookie = await devLogin(app, "Kai Moreno");
+    const { res, site } = await create(app, cookie, {
+      template: "meadow",
+      look: "oat-sage",
+      name: "Fernwood Studio",
+    });
+    expect(res.status, JSON.stringify(site)).toBe(201);
+    const doc = (await (await call(app, `/api/sites/${site.id}/document`, { cookie })).json()) as {
+      document: SiteDocument;
+    };
+    expect(doc.document.site.title).toBe("Fernwood Studio");
+    const files = await env.HUB_DB.prepare(
+      "SELECT COUNT(*) AS n FROM dev_files f WHERE f.content LIKE '%name: Publish%'",
+    ).first<{ n: number }>();
+    expect(files?.n).toBeGreaterThan(0);
+  });
+});
+
+describe("template personalization slots", () => {
+  const headings = (doc: SiteDocument) =>
+    Object.values(doc.pages)
+      .find((p) => p.slug === "")
+      ?.sections.slice(0, 2)
+      .flatMap((s) => s.blocks)
+      .filter((b) => b.type === "heading")
+      .map((b) => (b.fields as { text?: string }).text) ?? [];
+
+  async function created(template: string, name: string, tagline?: string) {
+    const app = createApp();
+    const cookie = await devLogin(app, `Owner ${template}`);
+    const { res, site } = await create(app, cookie, {
+      template,
+      name,
+      ...(tagline ? { tagline } : {}),
+    });
+    expect(res.status, JSON.stringify(site)).toBe(201);
+    const body = (await (await call(app, `/api/sites/${site.id}/document`, { cookie })).json()) as {
+      document: SiteDocument;
+    };
+    return body.document;
+  }
+
+  it("puts the tagline in the hero headline that carried the demo tagline", async () => {
+    const doc = await created("meadow", "Cedar Yoga", "Gentle classes for tired bodies.");
+    expect(headings(doc)).toContain("Gentle classes for tired bodies.");
+    expect(headings(doc)).not.toContain("Slow yoga and bodywork for real bodies");
+    expect(doc.site.title).toBe("Cedar Yoga");
+  });
+
+  it("replaces the demo owner's name, whole or inside a headline", async () => {
+    const link = await created("link", "Ana Ruiz");
+    expect(headings(link)).toContain("Ana Ruiz");
+    expect(headings(link)).not.toContain("Kai Moreno");
+    const vow = await created("vow", "Sam & Lee");
+    expect(headings(vow)).toContain("Sam & Lee are getting married");
+  });
+
+  it("leaves headlines alone when no tagline is given", async () => {
+    const doc = await created("meadow", "Cedar Yoga");
+    expect(headings(doc)).toContain("Slow yoga and bodywork for real bodies");
   });
 });
 
@@ -178,7 +241,9 @@ describe("sites API (dev GitHub)", () => {
     );
     expect(live.headers.get("x-content-type-options")).toBe("nosniff");
     const html = await live.text();
-    expect(html).toContain("<title>Home — Maya Yoga</title>");
+    // The real renderer (ADR-3): the same document a published build produces.
+    expect(html).toMatch(/<title>Maya Yoga[^<]*<\/title>/);
+    expect(html).toContain('<style data-os="blocks">');
     expect(html).toContain("Slow, grounded yoga in Boulder.");
     expect(html).toContain(`data-os-page="${home?.id}"`);
     expect((await call(app, `/s/${site.id}`)).status).toBe(200);
@@ -194,7 +259,7 @@ describe("sites API (dev GitHub)", () => {
     const notFoundPage = await call(app, `/s/${site.id}/missing`);
     expect(notFoundPage.headers.get("content-security-policy")).toContain("sandbox");
     expect(draft.headers.get("cache-control")).toBe("no-store");
-    expect(await draft.text()).toContain("Draft preview");
+    expect(await draft.text()).toContain('<meta name="robots" content="noindex">');
     const stranger = await devLogin(app, "Stranger");
     expect((await call(app, `/p/${site.id}/`, { cookie: stranger })).status).toBe(404);
     expect((await call(app, `/api/sites/${site.id}`, { cookie: stranger })).status).toBe(404);

@@ -1,0 +1,34 @@
+{
+  "kind": "blog",
+  "label": "News",
+  "slugPattern": "{date}-{title}",
+  "list": {
+    "layout": "cards",
+    "pageSize": 12,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": true,
+    "showRelated": true
+  },
+  "taxonomies": {
+    "categories": [
+      {
+        "slug": "stories",
+        "label": "Neighbor stories"
+      },
+      {
+        "slug": "reports",
+        "label": "Reports"
+      }
+    ],
+    "tags": true
+  },
+  "feed": {
+    "enabled": true,
+    "title": "Riverbend Neighbors news",
+    "description": "Stories and updates from Penn Avenue."
+  }
+}

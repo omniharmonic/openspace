@@ -44,6 +44,19 @@ publishingRoutes.post("/:id/rollback", async (c) => {
   return c.json({ ...result, site: await getSiteView(c.var.services, site.id, user) });
 });
 
+/**
+ * POST /api/sites/:id/discard — "Discard changes": the draft goes back to what is live, as
+ * ordinary (undoable) ops through the room. Designer or owner. → `{ applied, failed, seq, hadChanges }`
+ */
+publishingRoutes.post("/:id/discard", async (c) => {
+  const user = requireUser(c);
+  const site = await siteForUser(c.var.services, c.req.param("id"), user);
+  requireRole(site, "designer");
+  return c.json(
+    await unwrapRoom(roomStub(c.env, site.id).discardDraft(site.id, { userId: user.id })),
+  );
+});
+
 /** POST /api/sites/:id/fix — "Fix it for me" for the last failed publish. */
 publishingRoutes.post("/:id/fix", async (c) => {
   const user = requireUser(c);

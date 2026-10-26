@@ -1,6 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "templates"
   - "templates/*"
   - "tools/*"
   - "e2e"

@@ -1,0 +1,754 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_szfgyxn8pz",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Saltmarsh Pottery makes wheel-thrown stoneware in a boatshed in Mystic, Connecticut. Shop vases, cups and planters, or join a workshop."
+  },
+  "sections": [
+    {
+      "id": "sec_3qhky4bqtt",
+      "preset": "hero/collage@1",
+      "label": "Photo collage",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 24,
+          "m": 31
+        },
+        "items": {
+          "blk_0pj18h3rbs": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 11,
+              "h": 22
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 6,
+              "h": 14
+            }
+          },
+          "blk_4bn5n70h7m": {
+            "d": {
+              "x": 8,
+              "y": 12,
+              "w": 7,
+              "h": 13,
+              "z": 2
+            },
+            "m": {
+              "x": 5,
+              "y": 10,
+              "w": 4,
+              "h": 8,
+              "z": 2
+            }
+          },
+          "blk_p27vd6rmp9": {
+            "d": {
+              "x": 15,
+              "y": 4,
+              "w": 10,
+              "h": 14
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_w76p1b5x3j": {
+            "d": {
+              "x": 15,
+              "y": 18,
+              "w": 10,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 29,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_0pj18h3rbs",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1597696929736-6d13bed8e6a8?w=1280&q=80",
+              "alt": "Handmade stoneware vases in soft clay colours on a studio shelf",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_4bn5n70h7m",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=760&q=80",
+              "alt": "A small cactus in one of our terracotta planters",
+              "width": 760,
+              "height": 931
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default",
+          "style": {
+            "shadow": "lg"
+          }
+        },
+        {
+          "id": "blk_p27vd6rmp9",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Pots for everyday rituals",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Stoneware · Mystic, Connecticut",
+            "subheading": "Cups, vases and planters thrown by hand in a boatshed by the river, glazed in colours borrowed from the salt marsh at low tide."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_w76p1b5x3j",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Shop the latest firing",
+            "link": {
+              "type": "url",
+              "url": "/shop/"
+            },
+            "role": "primary",
+            "secondaryLabel": "Weekend workshops",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_rgdkzzbgjy"
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_85tgsawzaj",
+      "preset": "products/grid@1",
+      "label": "Product grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_txbk303p5z",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "heading": "Fresh from the kiln",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "shop",
+              "sort": "date-desc",
+              "limit": 8
+            },
+            "columns": "3",
+            "showImage": true,
+            "showDate": false,
+            "showExcerpt": false,
+            "showMeta": false,
+            "linkLabel": "Shop everything",
+            "link": {
+              "type": "url",
+              "url": "/shop/"
+            },
+            "emptyMessage": "The next firing is cooling. New pieces arrive on the first Friday of the month."
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_0wv566whbd",
+      "preset": "about/workshop-layers@1",
+      "label": "Workshop in layers",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 24,
+          "m": 32
+        },
+        "items": {
+          "blk_4g9a1m5rvn": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_t2fzfam2zw": {
+            "d": {
+              "x": 8,
+              "y": 11,
+              "w": 7,
+              "h": 14,
+              "z": 2
+            },
+            "m": {
+              "x": 4,
+              "y": 8,
+              "w": 5,
+              "h": 8,
+              "z": 2
+            }
+          },
+          "blk_0v44j2mtfc": {
+            "d": {
+              "x": 16,
+              "y": 3,
+              "w": 9,
+              "h": 7
+            },
+            "m": {
+              "x": 1,
+              "y": 17,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_xe606x8vzr": {
+            "d": {
+              "x": 16,
+              "y": 10,
+              "w": 9,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 23,
+              "w": 8,
+              "h": 7
+            }
+          },
+          "blk_8nzx51b02x": {
+            "d": {
+              "x": 16,
+              "y": 19,
+              "w": 9,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 30,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_4g9a1m5rvn",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=1280&q=80",
+              "alt": "Three matte grey bud vases with dried stems",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_t2fzfam2zw",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1597696929736-6d13bed8e6a8?w=720&q=80",
+              "alt": "Glazed vases drying on the studio shelf",
+              "width": 720,
+              "height": 480
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default",
+          "style": {
+            "shadow": "lg"
+          }
+        },
+        {
+          "id": "blk_0v44j2mtfc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Made slowly, a few at a time",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The studio"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xe606x8vzr",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Every piece is thrown, trimmed and glazed by Wren in a 1920s boatshed on the Mystic River. Glazes are mixed in small batches from local clay and wood ash, so no two firings come out of the kiln quite alike."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_8nzx51b02x",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Read the maker's story",
+            "link": {
+              "type": "page",
+              "page": "pg_me0855hfs5"
+            },
+            "role": "secondary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_wq0td365mr",
+      "preset": "products/story-overlap@1",
+      "label": "Product with its story",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 22,
+          "m": 35
+        },
+        "items": {
+          "blk_qsfwhqycsn": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 22
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_jtrgt7zfsf": {
+            "d": {
+              "x": 9,
+              "y": 4,
+              "w": 9,
+              "h": 12,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 13,
+              "z": 2
+            }
+          },
+          "blk_kg63wj5301": {
+            "d": {
+              "x": 19,
+              "y": 4,
+              "w": 6,
+              "h": 14
+            },
+            "m": {
+              "x": 1,
+              "y": 24,
+              "w": 8,
+              "h": 12
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_qsfwhqycsn",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200&q=80",
+              "alt": "Two of our morning cups on a small table with herbs",
+              "width": 1200,
+              "height": 1800
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_jtrgt7zfsf",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Bestseller"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The morning cup"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Shaped to fit two hands on a cold morning, with a thumb rest and a foot left raw so you can feel the clay. Holds a generous flat white. Dishwasher safe, though it would prefer a sink."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            }
+          }
+        },
+        {
+          "id": "blk_kg63wj5301",
+          "type": "product",
+          "v": 1,
+          "fields": {
+            "product": {
+              "collection": "shop",
+              "items": [
+                "morning-cup-pair"
+              ]
+            },
+            "showDescription": true,
+            "quantity": true,
+            "buttonLabel": "Add to cart",
+            "detailsLabel": "See details"
+          },
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_apsgnvv46g",
+      "preset": "events/cards@1",
+      "label": "Event cards",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_gwy3jzs0ka",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "heading": "Weekend workshops",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "classes",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 4
+            },
+            "showImage": true,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "Book a place",
+            "emptyMessage": "New workshop dates are posted each season. Join the newsletter to hear first.",
+            "structuredData": true
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_v1smmg6kh3",
+      "preset": "testimonials/three-cards@1",
+      "label": "Three testimonial cards",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 15,
+          "m": 41
+        },
+        "items": {
+          "blk_mqv098b4zf": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_6522des97e": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_8mx47t0y69": {
+            "d": {
+              "x": 9,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_r3pk4ztjzr": {
+            "d": {
+              "x": 17,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 31,
+              "w": 8,
+              "h": 11
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_mqv098b4zf",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "From people who use them daily",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Kind words"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_6522des97e",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "My morning cup is the first thing I reach for every day. It feels like it was made for my hands."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Elise Thornton",
+            "role": "Customer, Providence",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Portrait of Elise Thornton",
+              "width": 320,
+              "height": 479
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_8mx47t0y69",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The wheel workshop was the best Saturday I've had in years. I came home with two wobbly bowls I love."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Ben Akintola",
+            "role": "Workshop student",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&q=80",
+              "alt": "Portrait of Ben Akintola",
+              "width": 320,
+              "height": 480
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_r3pk4ztjzr",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We stock Saltmarsh planters in both our shops and they sell out within a week of every firing."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Hana Morioka",
+            "role": "Owner, Fern & Field",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=320&q=80",
+              "alt": "Portrait of Hana Morioka",
+              "width": 320,
+              "height": 480
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

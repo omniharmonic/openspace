@@ -29,7 +29,7 @@ import {
   Undo2,
   ZoomIn,
 } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, type ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router";
 import { useSession, useSite } from "../../api";
 import type { Site } from "../../api/types";
@@ -68,6 +68,18 @@ import {
   useEditorUi,
 } from "./editor-store";
 import "./EditorFrame.css";
+import { useBlockMenu } from "../add-section/blockMenuStore";
+import { useCanvasDocument } from "../inspector/canvasDoc";
+import { InspectorRuntime } from "../inspector/Runtime";
+
+// The preset gallery and Site Styles load on first open (presets, pairings and palettes).
+const AddSectionPanel = lazy(() =>
+  import("../add-section/AddSection").then((m) => ({ default: m.AddSectionPanel })),
+);
+const SiteStylesPanel = lazy(() =>
+  import("../styles/SiteStylesPanel").then((m) => ({ default: m.SiteStylesPanel })),
+);
+
 import { MediaLibrary } from "../media/MediaLibrary";
 import { PagesManager } from "../pages/PagesManager";
 import { SiteChromePanel } from "../site-chrome/SiteChromePanel";
@@ -85,7 +97,7 @@ import {
 } from "./model/actions";
 import { EditorStoreProvider, useDocStore, useDocStoreApi } from "./model/context";
 import { placeholderDocument } from "./model/placeholder";
-import { locate, parentOf } from "./model/selection";
+import { parentOf } from "./model/selection";
 import { STARTERS } from "./model/starters";
 import { createEditorStore, type EditorStore } from "./model/store";
 import { Inspector } from "./panels/Inspector";
@@ -146,38 +158,17 @@ function PanelSkeleton({ rows = 5, label }: { rows?: number; label: string }) {
   );
 }
 
-function AddSectionPanel() {
-  const api = useDocStoreApi();
-  return (
-    <ul className="st-ed-starters" aria-label="Section starters">
-      {STARTERS.map((st) => (
-        <li key={st.id}>
-          <button
-            type="button"
-            onClick={() => {
-              const s = api.getState();
-              const sel = s.selection.at(-1);
-              const loc = sel ? locate(s.doc, s.pageId, sel) : undefined;
-              const at =
-                loc && loc.container !== "footer" ? { after: loc.section.id } : ("end" as const);
-              s.run(insertSection(s.pageId, st.build(), at));
-            }}
-          >
-            <strong>{st.label}</strong>
-            <span>{st.description}</span>
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 function LeftPanelBody({ panel }: { panel: LeftPanel }) {
   if (panel === "pages") return <PagesManager />;
   if (panel === "media") return <MediaLibrary />;
   if (panel === "chrome") return <SiteChromePanel />;
   if (panel === "layers") return <LayersPanel />;
-  if (panel === "add") return <AddSectionPanel />;
+  if (panel === "add" || panel === "styles")
+    return (
+      <Suspense fallback={<PanelSkeleton label="Loading" rows={6} />}>
+        {panel === "add" ? <AddSectionPanel /> : <SiteStylesPanel />}
+      </Suspense>
+    );
   const label = PANELS.find((p) => p.id === panel)?.label ?? "";
   return <PanelSkeleton label={`Loading ${label.toLowerCase()}`} rows={6} />;
 }
@@ -393,6 +384,7 @@ function EditorChrome({ site }: { site: Site }) {
         const p = PANELS[i];
         if (p) openPanel(p.id);
       },
+      openBlockMenu: () => useBlockMenu.getState().openFor(),
     },
     frameDoc,
   );
@@ -453,6 +445,21 @@ function EditorChrome({ site }: { site: Site }) {
       icon: <Plus />,
       run: () => s().run(insertSection(s().pageId, st.build(), "end")),
     })),
+    {
+      id: "add-block",
+      label: "Add a block…",
+      group: "Add",
+      icon: <Plus />,
+      shortcut: "mod+/",
+      run: () => useBlockMenu.getState().openFor(),
+    },
+    {
+      id: "browse-sections",
+      label: "Browse section designs…",
+      group: "Add",
+      icon: <LayoutGrid />,
+      run: () => openPanel("add"),
+    },
     ...Object.values(pages).map((p) => ({
       id: `page-${p.id}`,
       label: `Go to ${p.title}`,
@@ -744,7 +751,13 @@ function EditorChrome({ site }: { site: Site }) {
             </div>
           </section>
         ) : (
-          <Canvas siteName={site.name} onFrameDocument={setFrameDoc} />
+          <Canvas
+            siteName={site.name}
+            onFrameDocument={(d) => {
+              setFrameDoc(d);
+              useCanvasDocument.setState({ doc: d });
+            }}
+          />
         )}
         <div className="st-ed-main__top">
           <PublishPill />
@@ -771,6 +784,7 @@ function EditorChrome({ site }: { site: Site }) {
         {sheet === "inspector" ? <Inspector /> : sheet ? <LeftPanelBody panel={sheet} /> : null}
       </Sheet>
       <ShortcutsSheet />
+      <InspectorRuntime />
       <SiteManagementHost site={site} />
       <WorkspaceHost site={site} />
       <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
