@@ -1,8 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { name } from "./index";
+import * as schema from "./index";
 
 describe("@openspace/schema", () => {
   it("exports its package name", () => {
-    expect(name).toBe("@openspace/schema");
+    expect(schema.name).toBe("@openspace/schema");
+  });
+
+  it("exports the public API", () => {
+    for (const key of [
+      "newId",
+      "isId",
+      "resolve",
+      "responsive",
+      "SiteConfigSchema",
+      "SiteSchema",
+      "StylesSchema",
+      "PageSchema",
+      "SectionSchema",
+      "BlockSchema",
+      "RichTextDocSchema",
+      "CollectionItemSchema",
+      "MediaMetaSchema",
+      "FormSchema",
+      "SiteDocumentSchema",
+      "defineBlock",
+      "f",
+      "createBlockRegistry",
+      "toMarkdown",
+      "fromMarkdown",
+      "plainText",
+      "migrateSite",
+      "migrateBlock",
+      "toJsonSchema",
+      "allJsonSchemas",
+      "blockFieldsJsonSchema",
+      "scanForSecrets",
+    ]) {
+      expect(schema, key).toHaveProperty(key);
+    }
   });
 });
