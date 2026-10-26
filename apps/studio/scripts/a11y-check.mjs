@@ -164,7 +164,11 @@ for (const theme of ["light", "dark"]) {
   await step("command palette with ⌘K / Ctrl+K, closes with Escape", async () => {
     await page.keyboard.press(process.platform === "darwin" ? "Meta+KeyK" : "Control+KeyK");
     await page.getByRole("dialog").first().waitFor({ timeout: 5000 });
-    await page.getByRole("combobox").first().waitFor({ timeout: 2000 }).catch(() => {});
+    await page
+      .getByRole("combobox")
+      .first()
+      .waitFor({ timeout: 2000 })
+      .catch(() => {});
     await page.waitForFunction(() => document.activeElement?.closest("[role=dialog]"));
     await page.keyboard.press("Escape");
     await page.getByRole("dialog").first().waitFor({ state: "detached", timeout: 3000 });
@@ -181,8 +185,14 @@ for (const theme of ["light", "dark"]) {
           .map((b) => b.getAttribute("aria-label") || b.textContent)
           .filter((t) => /publish/i.test(t ?? "")),
       );
-      const dialogs = await page.evaluate(() => [...document.querySelectorAll("[role=dialog]")].map((d) => d.getAttribute("aria-label") || d.querySelector("h2")?.textContent).join(", "));
-      throw new Error(`${e.message.split("\n")[0]} (buttons: ${names.join(" | ")}; dialogs open: ${dialogs})`);
+      const dialogs = await page.evaluate(() =>
+        [...document.querySelectorAll("[role=dialog]")]
+          .map((d) => d.getAttribute("aria-label") || d.querySelector("h2")?.textContent)
+          .join(", "),
+      );
+      throw new Error(
+        `${e.message.split("\n")[0]} (buttons: ${names.join(" | ")}; dialogs open: ${dialogs})`,
+      );
     });
     await page.keyboard.press("Enter");
     await page.getByRole("dialog", { name: /Publish/ }).waitFor({ timeout: 5000 });

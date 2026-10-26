@@ -11,8 +11,8 @@ import { fromPickerValue, paletteTokens, toPickerValue } from "../model/colors";
 import { TokenPicker } from "../ui";
 import { type ControlProps, useFieldsContext } from "./types";
 
-/** Typing commits after this pause; the burst becomes one undo step. */
-export const FIELD_COMMIT_MS = 250;
+/** Typing commits after this pause (the canvas shows it within 100 ms); a burst merges into one undo step. */
+export const FIELD_COMMIT_MS = 60;
 
 /**
  * Local draft for typed values: commits after a pause and on blur, follows outside changes

@@ -23,8 +23,8 @@ export function preloadTextEditing() {
     void loadTextToolbar();
     void loadRichTextControl();
   };
+  // After the first load has settled, so it never competes with the page itself.
   const idle = (globalThis as { requestIdleCallback?: (cb: () => void) => void })
     .requestIdleCallback;
-  if (idle) idle(run);
-  else setTimeout(run, 200);
+  setTimeout(() => (idle ? idle(run) : run()), 2000);
 }

@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "check:phone": "node scripts/phone-check.mjs",
     "tour": "node scripts/visual-tour.mjs",
-    "check:a11y": "node scripts/a11y-check.mjs"
+    "check:a11y": "node scripts/a11y-check.mjs",
+    "check:perf": "node scripts/perf-check.mjs"
   },
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",
