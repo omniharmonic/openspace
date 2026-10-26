@@ -12,10 +12,11 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { requireUser } from "../auth/session";
 import { getUserRow, toUser } from "../db/users";
-import { DRAFT_BRANCH, MAIN_BRANCH, parseRepo } from "../github/types";
+import { parseRepo } from "../github/types";
 import { toHex } from "../lib/crypto";
 import { HttpError } from "../lib/errors";
 import { roomStub, unwrapRoom } from "../room";
+import { readDraftMedia } from "../services/draft-media";
 import { requireRole, siteForUser } from "../services/sites";
 import type { AppEnv } from "../types";
 
@@ -290,8 +291,7 @@ mediaRoutes.get("/:id/media/*", async (c) => {
   const owner = await getUserRow(c.var.services.db, site.owner_id);
   const gh = c.var.services.github({ site, user: owner ? toUser(owner) : null });
   const repo = parseRepo(site.repo);
-  const ref = (await gh.getRef(repo, DRAFT_BRANCH)) ? DRAFT_BRANCH : MAIN_BRANCH;
-  const bytes = await gh.readFileBytes(repo, path, ref);
+  const bytes = await readDraftMedia(gh, repo, site.id, path);
   if (!bytes) throw new HttpError(404, "not_found", "Not found.");
   const ext = path.split(".").pop()?.toLowerCase() ?? "";
   return new Response(bytes, {
