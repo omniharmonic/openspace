@@ -40,9 +40,22 @@ export interface McpServerOptions {
   label?: string;
   /** Extra/override tools (e.g. a Hub-only tool); same name replaces a built-in. */
   tools?: readonly ToolDefinition[];
-  /** Called with unexpected (non-ToolError) failures. */
+  /**
+   * Called with unexpected (non-ToolError) failures; their details never reach the client.
+   * Default: `console.error`.
+   */
   onError?: (error: unknown, method: string) => void;
+  /**
+   * Treat the connection as already initialized (stateless transports that re-create the
+   * server per request, like `handleMcpRequest`).
+   */
+  assumeInitialized?: boolean;
 }
+
+/** Methods a client may call before `initialize` completes. */
+const PRE_INIT_METHODS = new Set(["initialize", "ping"]);
+/** The only protocol revision that allowed JSON-RPC batches. */
+const BATCH_VERSION = "2025-03-26";
 
 type Id = string | number;
 type Json = Record<string, unknown>;
@@ -79,6 +92,8 @@ export class OpenSpaceMcpServer {
   readonly ctx: ToolContext;
   private readonly tools = new Map<string, ToolDefinition>();
   private clientName: string | undefined;
+  private initialized: boolean;
+  private protocolVersion: string | undefined;
   private closed = false;
 
   constructor(private readonly options: McpServerOptions) {
@@ -89,6 +104,7 @@ export class OpenSpaceMcpServer {
       now: options.now,
       label: options.label,
     });
+    this.initialized = Boolean(options.assumeInitialized);
     for (const t of ALL_TOOLS) this.tools.set(t.name, t);
     for (const t of options.tools ?? []) this.tools.set(t.name, t);
   }
@@ -104,6 +120,16 @@ export class OpenSpaceMcpServer {
    */
   async handle(message: unknown): Promise<JSONRPCMessage | JSONRPCMessage[] | undefined> {
     if (Array.isArray(message)) {
+      // Batching was removed in MCP 2025-06-18; only a 2025-03-26 session may batch.
+      if (this.protocolVersion !== BATCH_VERSION)
+        return {
+          jsonrpc: "2.0",
+          id: null,
+          error: {
+            code: ErrorCode.InvalidRequest,
+            message: "JSON-RPC batches are not supported in this protocol version",
+          },
+        } as unknown as JSONRPCMessage;
       const out: JSONRPCMessage[] = [];
       for (const m of message) {
         const r = await this.handleOne(m);
@@ -135,6 +161,15 @@ export class OpenSpaceMcpServer {
       return undefined;
     }
     const id = message.id as Id;
+    if (!this.initialized && !PRE_INIT_METHODS.has(message.method))
+      return {
+        jsonrpc: "2.0",
+        id,
+        error: {
+          code: ErrorCode.InvalidRequest,
+          message: "Server not initialized: send initialize first",
+        },
+      } as JSONRPCMessage;
     try {
       const result = await this.dispatch(message.method, params);
       return { jsonrpc: "2.0", id, result } as JSONRPCMessage;
@@ -155,13 +190,13 @@ export class OpenSpaceMcpServer {
           id,
           error: { code: ErrorCode.InvalidParams, message: errorText(e) },
         } as JSONRPCMessage;
-      this.options.onError?.(e, message.method);
+      this.reportError(e, message.method);
       return {
         jsonrpc: "2.0",
         id,
         error: {
           code: ErrorCode.InternalError,
-          message: e instanceof Error ? e.message : String(e),
+          message: "Internal error; the details were logged on the server.",
         },
       } as JSONRPCMessage;
     }
@@ -226,11 +261,18 @@ export class OpenSpaceMcpServer {
     }
   }
 
+  private reportError(e: unknown, where: string): void {
+    if (this.options.onError) this.options.onError(e, where);
+    else console.error(`openspace mcp: ${where}:`, e);
+  }
+
   private initialize(params: Json): Json {
     const requested = typeof params.protocolVersion === "string" ? params.protocolVersion : "";
     const protocolVersion = (SUPPORTED_PROTOCOL_VERSIONS as readonly string[]).includes(requested)
       ? requested
       : LATEST_PROTOCOL_VERSION;
+    this.protocolVersion = protocolVersion;
+    this.initialized = true;
     const info = isRecord(params.clientInfo) ? params.clientInfo : {};
     this.clientName = typeof info.name === "string" ? info.name : undefined;
     return {
@@ -278,13 +320,13 @@ export class OpenSpaceMcpServer {
             },
           },
         };
-      this.options.onError?.(e, `tools/call ${name}`);
+      this.reportError(e, `tools/call ${name}`);
       return {
         isError: true,
         content: [
           {
             type: "text",
-            text: `Internal error in ${name}: ${e instanceof Error ? e.message : String(e)}`,
+            text: `Internal error in ${name}; the details were logged on the server. Try again, or try a different approach.`,
           },
         ],
       };
@@ -349,7 +391,7 @@ export async function handleMcpRequest(
   message: unknown,
   options: Omit<McpServerOptions, "store" | "grant"> = {},
 ): Promise<JSONRPCMessage | JSONRPCMessage[] | undefined> {
-  const server = createMcpServer(store, grant, options);
+  const server = createMcpServer(store, grant, { assumeInitialized: true, ...options });
   try {
     return await server.handle(message);
   } finally {

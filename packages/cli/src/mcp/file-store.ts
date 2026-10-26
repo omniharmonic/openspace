@@ -39,8 +39,13 @@ import { Git } from "./git";
 import { type PreviewServer, startPreviewServer } from "./preview-server";
 import type { Screenshotter } from "./screenshot";
 
-/** What the store versions, relative to the site folder. */
+/** What snapshots capture (read-only), relative to the site folder. */
 const TRACKED = ["content", "media", "openspace.json"];
+/** What agents may change, stage and commit: never `openspace.json`, `src/` or workflows. */
+const WRITABLE = ["content", "media"];
+const CONFIG_FILE = "openspace.json";
+/** A rollback target: a commit sha (7–40 hex) or a snapshot tag. */
+const VERSION_RE = /^(?:[0-9a-f]{7,40}|os\/snap\/[a-z0-9][a-z0-9-]{0,80})$/;
 
 export interface FileSiteStoreOptions {
   registry?: BlockRegistry;
@@ -130,9 +135,47 @@ export class FileSiteStore implements SiteStore {
       const doc = await loadSiteDocument(this.root);
       const r = validateAll(doc, ops, { registry: this.registry });
       if (!r.ok) return { ok: false, index: r.index, errors: r.errors, code: "invalid" };
-      await writeSiteDocument(this.root, r.doc);
+      await this.writeContent(r.doc);
       return { ok: true, doc: r.doc, warnings: r.warnings };
     });
+  }
+
+  /**
+   * Write content (and media.json) only. `openspace.json` is never written from agent paths
+   * (arch §10.3): the document carries the config as it is on disk, and the file's bytes are
+   * put back if the writer would have reformatted it.
+   */
+  private async writeContent(doc: SiteDocument): Promise<void> {
+    const configPath = join(this.root, CONFIG_FILE);
+    const original = await readFile(configPath, "utf8");
+    const current = (await loadSiteDocument(this.root, { validate: false }).catch(() => null))
+      ?.config;
+    await writeSiteDocument(this.root, { ...doc, config: current ?? doc.config });
+    if ((await readFile(configPath, "utf8")) !== original) await writeFile(configPath, original);
+  }
+
+  /**
+   * Restore the content of `target` through ops (Global Constraint 5): `diff(current, target)`
+   * validated in sequence, then written. `config` is ignored by `diff`, so it stays untouched.
+   */
+  private async restoreThroughOps(target: SiteDocument, actor: string): Promise<number> {
+    const current = await loadSiteDocument(this.root);
+    const ops = diff(current, target, { actor, ts: this.now().getTime(), idPrefix: "restore_" });
+    if (!ops.length) return 0;
+    const r = validateAll(current, ops, { registry: this.registry });
+    if (!r.ok) {
+      const op = ops[r.index];
+      throw new ToolError(
+        `Restoring failed at step ${r.index + 1} of ${ops.length} (${op?.op}):\n${r.errors
+          .map((e) => `- ${e.path.join(".") || "(root)"}: ${e.message}`)
+          .join("\n")}`,
+        "restore_failed",
+        r.errors,
+        "Nothing was changed. The saved version may not match the current schema; restore it by hand from git.",
+      );
+    }
+    await this.writeContent(r.doc);
+    return ops.length;
   }
 
   /** The published document: HEAD with git, else the content as loaded at start. */
@@ -181,7 +224,7 @@ export class FileSiteStore implements SiteStore {
       );
     return this.serial(async () => {
       const d = await this.getDraftDiff(siteId);
-      const paths = this.git.existing(TRACKED);
+      const paths = this.git.existing(WRITABLE);
       if (!d.hasChanges || !(await this.git.status(paths)).length)
         return { status: "no_changes" as const, summary: "No unpublished changes." };
       const subject =
@@ -211,43 +254,61 @@ export class FileSiteStore implements SiteStore {
     });
   }
 
-  discardDraft(siteId: string, _ctx: ApplyContext): Promise<DraftDiff> {
+  discardDraft(siteId: string, ctx: ApplyContext): Promise<DraftDiff> {
     this.check(siteId);
     return this.serial(async () => {
       const d = await this.getDraftDiff(siteId);
       if (!d.hasChanges) return d;
       if (this.hasGit) {
-        const tag = await this.git.snapshot(`before-discard-${this.now().getTime()}`, TRACKED);
-        const paths = this.git.existing(["content", "media"]);
-        if (await this.git.head())
-          await this.git.run(["checkout", "HEAD", "--", ...paths]).catch(() => undefined);
-        await this.git.run(["clean", "-fdq", "--", ...paths]);
-        // Rewrite from the published document too, so pages staged but never committed go.
         const published = await this.publishedDoc();
-        if (published) await writeSiteDocument(this.root, published);
+        if (!published)
+          throw new ToolError(
+            "Nothing has been published yet, so there's no version to go back to.",
+            "unsupported",
+          );
+        const tag = await this.git.snapshot(`before-discard-${this.now().getTime()}`, TRACKED);
+        await this.restoreThroughOps(published, ctx.actor);
+        await this.restoreMedia("HEAD");
         return { ...d, summary: `${d.summary} (saved as ${tag})` };
       }
-      if (this.baseline) await writeSiteDocument(this.root, this.baseline);
+      if (this.baseline) await this.restoreThroughOps(this.baseline, ctx.actor);
       return d;
     });
+  }
+
+  /** Put media files back as they are in `rev` (binary files; their metadata goes through ops). */
+  private async restoreMedia(rev: string): Promise<void> {
+    if (!existsSync(join(this.root, "media")) && !(await this.git.head())) return;
+    await this.git.run(["checkout", "--end-of-options", rev, "--", "media"]).catch(() => undefined);
+    await this.git.run(["clean", "-fdq", "--", "media"]).catch(() => undefined);
   }
 
   rollback(siteId: string, version: string, ctx: ApplyContext): Promise<PublishResult> {
     this.check(siteId);
     if (!this.hasGit) throw new ToolError("Rolling back needs git.", "unsupported");
+    if (!VERSION_RE.test(version))
+      throw new ToolError(
+        `"${version}" is not a version id: use a commit id from list_versions (7–40 hex characters) or an os/snap/… tag.`,
+        "invalid_arguments",
+      );
     return this.serial(async () => {
       let sha: string;
       try {
-        sha = await this.git.out(["rev-parse", "--verify", `${version}^{commit}`]);
+        sha = await this.git.out([
+          "rev-parse",
+          "--verify",
+          "--end-of-options",
+          `${version}^{commit}`,
+        ]);
       } catch {
         throw new ToolError(`No version "${version}". Call list_versions.`, "not_found");
       }
       const target = await this.publishedDoc(sha);
       if (!target) throw new ToolError(`Version ${version} has no site content.`, "not_found");
       const tag = await this.git.snapshot(`before-rollback-${this.now().getTime()}`, TRACKED);
-      await this.git.run(["checkout", sha, "--", "media"]).catch(() => undefined);
-      await writeSiteDocument(this.root, target);
-      const paths = this.git.existing(TRACKED);
+      await this.restoreThroughOps(target, ctx.actor);
+      await this.restoreMedia(sha);
+      const paths = this.git.existing(WRITABLE);
       if (!(await this.git.status(paths)).length)
         return { status: "no_changes" as const, summary: "That version is what's already there." };
       await this.git.run(["add", "-A", "--", ...paths]);
@@ -263,9 +324,7 @@ export class FileSiteStore implements SiteStore {
           "--",
           ...paths,
         ],
-        {
-          env: await this.git.identityEnv(),
-        },
+        { env: await this.git.identityEnv() },
       );
       return {
         status: "published" as const,
@@ -284,7 +343,7 @@ export class FileSiteStore implements SiteStore {
       `-n${opts.limit ?? 20}`,
       "--format=%H%x1f%s%x1f%aI%x1f%an",
       "--",
-      ...TRACKED,
+      ...WRITABLE,
     ]);
     return out
       .split("\n")

@@ -74,12 +74,56 @@ describe("protocol", () => {
     expect(missing.error?.code).toBe(-32601);
     const bad = (await server.handle({ hello: 1 })) as { error: { code: number } };
     expect(bad.error.code).toBe(-32600);
-    const batch = (await server.handle([
+    const pings = [
       { jsonrpc: "2.0", id: 1, method: "ping" },
       { jsonrpc: "2.0", method: "notifications/initialized" },
       { jsonrpc: "2.0", id: 2, method: "ping" },
-    ])) as unknown[];
+    ];
+    // Batches were removed in 2025-06-18 (negotiated last: 2025-11-25)…
+    const refused = (await server.handle(pings)) as { error: { code: number } };
+    expect(refused.error.code).toBe(-32600);
+    // …and allowed in a 2025-03-26 session.
+    await rpc.request("initialize", { protocolVersion: "2025-03-26", capabilities: {} });
+    const batch = (await server.handle(pings)) as unknown[];
     expect(batch).toHaveLength(2);
+  });
+
+  it("refuses requests before initialize (ping excepted) and hides internal error details", async () => {
+    const store = new MemorySiteStore({ sites: [await meadowDoc()] });
+    const server = createMcpServer(store, OWNER);
+    const early = (await server.handle({ jsonrpc: "2.0", id: 1, method: "tools/list" })) as {
+      error: { code: number; message: string };
+    };
+    expect(early.error.code).toBe(-32600);
+    expect(early.error.message).toMatch(/initialize/);
+    expect(await server.handle({ jsonrpc: "2.0", id: 2, method: "ping" })).toMatchObject({
+      result: {},
+    });
+
+    const logged: unknown[] = [];
+    const broken = new MemorySiteStore({ sites: [await meadowDoc()] });
+    broken.getDocument = async () => {
+      throw new Error("secret path /home/maya/.ssh exploded");
+    };
+    const s2 = createMcpServer(broken, OWNER, { onError: (e) => logged.push(e) });
+    await s2.handle({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: { protocolVersion: "2025-06-18", capabilities: {} },
+    });
+    const r = (await s2.handle({
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/call",
+      params: { name: "get_site", arguments: {} },
+    })) as unknown as {
+      result: { isError: boolean; content: Array<{ text: string }> };
+    };
+    expect(r.result.isError).toBe(true);
+    expect(r.result.content[0]?.text).not.toContain("secret");
+    expect(r.result.content[0]?.text).toMatch(/logged/);
+    expect(logged).toHaveLength(1);
   });
 
   it("lists every architecture tool with an object input schema", async () => {
@@ -197,12 +241,14 @@ describe("build a five-section page from a brief", () => {
       set: { text: "Save your place for spring" },
     });
     // A bad edit is rejected with a path the agent can correct; nothing changes.
+    const beforeBad = JSON.stringify(await store.getDocument(siteId));
     const bad = await rpc.callError("update_block", {
       page: pageId,
       block: first(0, "heading"),
       set: { level: "h9" },
     });
     expect(bad.text).toMatch(/level/);
+    expect(JSON.stringify(await store.getDocument(siteId))).toBe(beforeBad);
 
     // The full view returns rich text as Markdown.
     const full = (await rpc.call("get_page", { page: pageId })).data;

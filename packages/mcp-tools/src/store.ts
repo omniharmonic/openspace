@@ -20,7 +20,12 @@ export interface Grant {
   sites: readonly string[] | "*";
   /** May publish (`publish` still needs `confirm: true`). */
   publish: boolean;
-  /** The person's role on the site; ops are filtered through `transformForRole` when set. */
+  /**
+   * The person's role on the site. When set, ops go through `transformForRole` and
+   * `discard_draft` needs designer or owner. **Leave it undefined only for a local, single-owner
+   * store** (the CLI on the person's own checkout): undefined means "owner, trusted locally".
+   * Every Hub grant must set it.
+   */
   role?: "owner" | "designer" | "editor" | "contributor";
   /** Person the agent works for (Hub user id); recorded on sessions. */
   userId?: string;

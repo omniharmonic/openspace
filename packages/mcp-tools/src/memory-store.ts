@@ -56,6 +56,14 @@ export interface MemorySiteStoreOptions {
 
 const clone = <T>(v: T): T => structuredClone(v);
 
+function deepFreeze<T>(v: T): T {
+  if (v && typeof v === "object" && !Object.isFrozen(v)) {
+    Object.freeze(v);
+    for (const child of Object.values(v as object)) deepFreeze(child);
+  }
+  return v;
+}
+
 export class MemorySiteStore implements SiteStore {
   readonly capabilities: StoreCapabilities;
   readonly templates?: TemplateCatalog;
@@ -131,8 +139,26 @@ export class MemorySiteStore implements SiteStore {
     }));
   }
 
+  /** A frozen copy: callers can't mutate the stored draft around the op pipeline. */
   async getDocument(siteId: string): Promise<SiteDocument> {
-    return this.state(siteId).draft;
+    return deepFreeze(clone(this.state(siteId).draft));
+  }
+
+  /** Restore `target`'s content through validated ops (`diff`), leaving `config` alone. */
+  private restore(s: SiteState, target: SiteDocument, actor: string): void {
+    const ops = diff(s.draft, target, { actor, ts: this.now().getTime(), idPrefix: "restore_" });
+    if (!ops.length) return;
+    const r = validateAll(s.draft, ops, { registry: this.registry });
+    if (!r.ok)
+      throw new ToolError(
+        `Restoring failed at step ${r.index + 1} of ${ops.length} (${ops[r.index]?.op}): ${r.errors
+          .map((e) => `${e.path.join(".") || "(root)"}: ${e.message}`)
+          .join("; ")}`,
+        "restore_failed",
+        r.errors,
+      );
+    s.draft = r.doc;
+    for (const op of ops) s.log.push({ op, actor });
   }
 
   async applyOps(siteId: string, ops: Op[], ctx: ApplyContext): Promise<ApplyResult> {
@@ -171,10 +197,10 @@ export class MemorySiteStore implements SiteStore {
     return { status: "published", version, summary };
   }
 
-  async discardDraft(siteId: string): Promise<DraftDiff> {
+  async discardDraft(siteId: string, ctx: ApplyContext): Promise<DraftDiff> {
     const s = this.state(siteId);
     const d = this.diffOf(s);
-    s.draft = clone(s.published);
+    this.restore(s, s.published, ctx.actor);
     return d;
   }
 
@@ -186,17 +212,17 @@ export class MemorySiteStore implements SiteStore {
         `No version "${version}". Call list_versions to see the available versions.`,
         "not_found",
       );
+    this.restore(s, target.doc, ctx.actor);
     const v = this.nextVersion();
     const summary = `Restored the version from ${target.date} (${target.summary})`;
     s.versions.unshift({
       version: v,
-      doc: clone(target.doc),
+      doc: clone(s.draft),
       summary,
       date: this.now().toISOString(),
       author: ctx.actor,
     });
-    s.published = clone(target.doc);
-    s.draft = clone(target.doc);
+    s.published = clone(s.draft);
     return { status: "published", version: v, summary };
   }
 

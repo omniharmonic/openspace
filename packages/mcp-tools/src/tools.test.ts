@@ -1,6 +1,13 @@
 import { compileStyles, contrastRatio } from "@openspace/theme";
 import { describe, expect, it } from "vitest";
-import { base64ToBytes, imageSize, sniffImage, stripMetadata } from "./images";
+import {
+  base64ToBytes,
+  fetchImage,
+  imageSize,
+  MAX_IMAGE_BYTES,
+  sniffImage,
+  stripMetadata,
+} from "./images";
 import { templatesFromModule } from "./templates";
 import { meadowDoc, setup, tinyPng } from "./test-helpers";
 
@@ -206,6 +213,40 @@ describe("guards", () => {
     expect(store.snapshotDoc(siteId, sess?.snapshot as string)?.site.tagline).not.toBe("Breathe");
     await server.close();
     expect(store.session(siteId, sessionId)?.ended).toBe(true);
+  });
+});
+
+describe("restores go through ops", () => {
+  it("discard and rollback replay validated ops, and documents handed out are frozen copies", async () => {
+    const { rpc, store, siteId } = await setup();
+    const doc = await store.getDocument(siteId);
+    expect(Object.isFrozen(doc.site)).toBe(true);
+    expect(() => {
+      (doc.site as { title: string }).title = "Hacked";
+    }).toThrow();
+    await rpc.call("update_site", { set: { tagline: "Draft tagline" } });
+    const before = store.opLog(siteId).length;
+    await rpc.call("discard_draft", { confirm: true });
+    const restoreOps = store.opLog(siteId).slice(before);
+    expect(restoreOps.length).toBeGreaterThan(0);
+    expect(restoreOps.every((e) => e.op.id.startsWith("restore_"))).toBe(true);
+    expect((await store.getDocument(siteId)).site.tagline).not.toBe("Draft tagline");
+
+    await rpc.call("update_site", { set: { tagline: "Published tagline" } });
+    await rpc.call("publish", { confirm: true });
+    const versions = (await rpc.call("list_versions")).data.versions;
+    const n = store.opLog(siteId).length;
+    await rpc.call("rollback", { version: versions[1].version, confirm: true });
+    expect(store.opLog(siteId).length).toBeGreaterThan(n);
+    expect((await store.getDocument(siteId)).site.tagline).not.toBe("Published tagline");
+  });
+
+  it("discard_draft needs designer or owner when the grant has a role", async () => {
+    const editor = await setup({ grant: { sites: "*", publish: true, role: "editor" } });
+    const e = await editor.rpc.callError("discard_draft", { confirm: true });
+    expect(e.code).toBe("forbidden");
+    const designer = await setup({ grant: { sites: "*", publish: true, role: "designer" } });
+    await designer.rpc.call("discard_draft", { confirm: true });
   });
 });
 
@@ -519,6 +560,57 @@ describe("resources and prompts", () => {
     expect(p.messages[0]?.content.text).toContain("calmer mobile");
     const missing = await rpc.raw("prompts/get", { name: "design-a-page", arguments: {} });
     expect(missing.error?.message).toMatch(/brief/);
+  });
+});
+
+describe("fetchImage", () => {
+  const png = base64ToBytes(tinyPng(2, 2));
+  const respond = (body: ConstructorParameters<typeof Response>[0], init: ResponseInit) =>
+    new Response(body, init);
+
+  it("downloads https images and follows https redirects", async () => {
+    const calls: string[] = [];
+    const f = (async (url: string) => {
+      calls.push(url);
+      if (url.endsWith("/start"))
+        return respond(null, {
+          status: 302,
+          headers: { location: "https://cdn.example/final.png" },
+        });
+      return respond(png, { status: 200 });
+    }) as unknown as typeof fetch;
+    const r = await fetchImage("https://img.example/start", f);
+    expect(r.name).toBe("final.png");
+    expect(r.bytes.length).toBe(png.length);
+    expect(calls).toEqual(["https://img.example/start", "https://cdn.example/final.png"]);
+  });
+
+  it("refuses redirects to http, oversized content-length and oversized streams", async () => {
+    const toHttp = (async () =>
+      respond(null, {
+        status: 301,
+        headers: { location: "http://plain.example/a.png" },
+      })) as unknown as typeof fetch;
+    await expect(fetchImage("https://img.example/a", toHttp)).rejects.toThrow(/non-https/);
+    const declared = (async () =>
+      respond("x", {
+        status: 200,
+        headers: { "content-length": String(MAX_IMAGE_BYTES + 1) },
+      })) as unknown as typeof fetch;
+    await expect(fetchImage("https://img.example/a", declared)).rejects.toThrow(/15 MB/);
+    let pulled = 0;
+    const endless = (async () =>
+      respond(
+        new ReadableStream({
+          pull(c) {
+            pulled++;
+            c.enqueue(new Uint8Array(1024 * 1024));
+          },
+        }),
+        { status: 200 },
+      )) as unknown as typeof fetch;
+    await expect(fetchImage("https://img.example/a", endless)).rejects.toThrow(/15 MB/);
+    expect(pulled).toBeLessThan(40);
   });
 });
 

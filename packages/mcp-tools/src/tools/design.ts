@@ -1,5 +1,5 @@
 import { designCheck, type Issue, seoCheck } from "@openspace/lint";
-import { type Op, type OpBody, validate } from "@openspace/ops";
+import { type Op, type OpBody, validate, validateAll } from "@openspace/ops";
 import {
   BREAKPOINT_INFO,
   BUTTON_STYLES,
@@ -154,6 +154,22 @@ export async function applyStyles(
       'Use the suggested colors, or call again with onContrast: "adjust" to apply them automatically.',
     );
   const fixes = overrideIssues.flatMap((i) => (i.autofix?.ops ?? []).map(stripMeta));
+  if (fixes.length) {
+    // Re-check the adjusted result before anything is written.
+    const adjusted = validateAll(doc, ctx.stamp([body as OpBody, ...fixes], "preview"));
+    const left = adjusted.ok
+      ? designCheck({ ...adjusted.doc, pages: {} }).filter(
+          (i) => i.rule === "contrast" || i.rule === "contrast-override",
+        )
+      : [];
+    if (!adjusted.ok || left.length)
+      throw new ToolError(
+        `These colors can't be made readable automatically:\n${(adjusted.ok ? left.map((i) => `- ${i.message}`) : issueLines(adjusted.errors)).join("\n")}`,
+        "contrast",
+        [],
+        "Choose override colors with more contrast against the theme's backgrounds, or remove the overrides.",
+      );
+  }
   const { doc: next } = await ctx.apply(siteId, [body as OpBody, ...fixes]);
   const solverNotes = compileStyles(next.styles)
     .warnings.filter((w) => w.code === "contrast-adjusted")

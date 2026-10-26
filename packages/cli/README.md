@@ -24,6 +24,10 @@ Add a `.mcp.json` to the site folder (or run `claude mcp add openspace -- npx op
 }
 ```
 
+For unattended or autonomous runs (scheduled jobs, agents working without you watching), add
+`--no-publish` to the args so the connection can edit the draft but never commit or roll back:
+`"args": ["openspace", "mcp", ".", "--no-publish"]`.
+
 Options:
 
 | Option               | Effect                                                                        |
@@ -36,7 +40,9 @@ Options:
 
 - Edits are written straight to `content/` and `media/` through the same loader/writer the site
   build uses, so unchanged files are never rewritten. Agents can't write `src/`, workflows or
-  `openspace.json`, and can't change custom code (custom CSS, head/footer injection).
+  `openspace.json` (no agent path ever rewrites it, not even discard or rollback), and can't
+  change custom code (custom CSS, head/footer injection). Discard and rollback are replayed as
+  validated operations, like any other edit.
 - **With git**, the draft is your working tree and the published version is `HEAD`:
   - before Claude's first edit in a session, a snapshot tag `os/snap/agent-<time>` records the
     working tree (made from a temporary index — your index and branch are untouched), so
@@ -49,7 +55,8 @@ Options:
 
 ### Screenshots and preview
 
-`preview` starts a small preview server on `127.0.0.1` that renders the current files with the
+`preview` starts a small preview server on `127.0.0.1` (it only answers requests addressed to
+`127.0.0.1`/`localhost`, and serves files only from `media/`) that renders the current files with the
 real renderer. `screenshot` captures a page or one section at desktop (1440), tablet (834) or
 mobile (390) width when Playwright is installed:
 

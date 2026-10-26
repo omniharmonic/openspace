@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { cp, mkdtemp, readFile, rm } from "node:fs/promises";
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { request } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -14,8 +15,34 @@ const exec = promisify(execFile);
 const git = (cwd: string, ...args: string[]) =>
   exec("git", args, { cwd }).then((r) => r.stdout.trim());
 
+/** GET with a raw (un-normalised) path and an optional Host header. */
+function rawGet(
+  base: string,
+  path: string,
+  host?: string,
+): Promise<{ status: number; body: string }> {
+  const u = new URL(base);
+  return new Promise((resolve, reject) => {
+    const req = request(
+      { host: u.hostname, port: u.port, path, method: "GET", headers: host ? { host } : {} },
+      (res) => {
+        let body = "";
+        res.on("data", (c) => {
+          body += String(c);
+        });
+        res.on("end", () => resolve({ status: res.statusCode ?? 0, body }));
+      },
+    );
+    req.on("error", reject);
+    req.end();
+  });
+}
+
 async function gitSite(): Promise<string> {
   const dir = await meadowCopy();
+  // A hand-formatted config: agent writes must never touch its bytes.
+  const cfg = JSON.parse(await readFile(join(dir, "openspace.json"), "utf8"));
+  await writeFile(join(dir, "openspace.json"), JSON.stringify(cfg));
   await git(dir, "init", "-q", "-b", "main");
   await git(dir, "config", "user.name", "Maya Test");
   await git(dir, "config", "user.email", "maya@example.com");
@@ -26,7 +53,19 @@ async function gitSite(): Promise<string> {
 
 function driver(server: OpenSpaceMcpServer) {
   let n = 0;
+  let ready: Promise<unknown> | undefined;
   const call = async (name: string, args: Record<string, unknown> = {}) => {
+    ready ??= server.handle({
+      jsonrpc: "2.0",
+      id: 0,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "t", version: "1" },
+      },
+    });
+    await ready;
     const r = (await server.handle({
       jsonrpc: "2.0",
       id: ++n,
@@ -59,6 +98,7 @@ afterAll(async () => {
 describe("FileSiteStore (local MCP)", () => {
   it("edits files through ops, snapshots the session start and publishes as a git commit", async () => {
     const dir = await gitSite();
+    const configBytes = await readFile(join(dir, "openspace.json"), "utf8");
     const store = await FileSiteStore.open(dir);
     expect(store.capabilities.canPublish).toBe(true);
     const server = createMcpServer(store, { sites: "*", publish: true, role: "owner" });
@@ -100,6 +140,10 @@ describe("FileSiteStore (local MCP)", () => {
         /before-rollback/,
       );
 
+      const badVersion = await call("rollback", { version: "--output=/tmp/x", confirm: true });
+      expect(badVersion.isError).toBe(true);
+      expect(badVersion.content[0]?.text).toMatch(/not a version id/);
+
       await ok("update_site", { set: { tagline: "Throwaway" } });
       const discard = await ok("discard_draft", { confirm: true });
       expect(discard.discarded).toBe(true);
@@ -107,6 +151,11 @@ describe("FileSiteStore (local MCP)", () => {
         "Throwaway",
       );
       void created;
+      // openspace.json was never rewritten by any agent path (edit, publish, rollback, discard).
+      expect(await readFile(join(dir, "openspace.json"), "utf8")).toBe(configBytes);
+      expect(await git(dir, "log", "--format=%H", "--", "openspace.json")).toBe(
+        await git(dir, "rev-list", "--max-parents=0", "HEAD"),
+      );
     } finally {
       await server.close();
       await store.close();
@@ -144,7 +193,23 @@ describe("FileSiteStore (local MCP)", () => {
       const mediaRes = await fetch(new URL(img.src, url));
       expect(mediaRes.status).toBe(200);
       expect(mediaRes.headers.get("content-type")).toBe("image/png");
-      expect((await fetch(new URL("/media/../openspace.json", url))).status).toBe(404);
+      for (const evil of [
+        "/media/..%2fopenspace.json",
+        "/media/..%2F..%2Fetc%2Fpasswd",
+        "/media/..%5copenspace.json",
+        "/media/%2e%2e/openspace.json",
+        "/media/x%00.png",
+        "/media/../openspace.json",
+      ]) {
+        const r = await rawGet(url, evil);
+        expect(r.status, evil).toBe(404);
+        expect(r.body).not.toContain("siteId");
+      }
+      // Media is served from media/ only: other site files are not reachable through it.
+      expect((await rawGet(url, "/media/openspace.json")).status).toBe(404);
+      // DNS-rebinding guard.
+      expect((await rawGet(url, "/", "evil.example")).status).toBe(403);
+      expect((await rawGet(url, "/", "localhost:1234")).status).toBe(200);
 
       const pub = await call("publish", { confirm: true });
       expect(pub.isError).toBe(true);

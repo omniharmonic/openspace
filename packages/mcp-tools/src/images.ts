@@ -183,15 +183,50 @@ export async function fetchImage(
   } catch {
     throw new ToolError(`"${url}" is not a valid URL.`, "invalid_arguments");
   }
-  if (u.protocol !== "https:")
-    throw new ToolError("Only https:// image URLs can be uploaded.", "invalid_arguments");
-  const res = await fetchImpl(u.toString(), { redirect: "follow" });
+  // Follow redirects by hand so every hop must stay on https.
+  let res: Response | undefined;
+  for (let hop = 0; hop <= 5; hop++) {
+    if (u.protocol !== "https:")
+      throw new ToolError(
+        hop
+          ? `${url} redirects to a non-https address (${u.protocol}), which is refused.`
+          : "Only https:// image URLs can be uploaded.",
+        "invalid_arguments",
+      );
+    res = await fetchImpl(u.toString(), { redirect: "manual" });
+    if (res.status >= 300 && res.status < 400 && res.headers.get("location")) {
+      u = new URL(res.headers.get("location") as string, u);
+      continue;
+    }
+    break;
+  }
+  if (!res || (res.status >= 300 && res.status < 400))
+    throw new ToolError(`${url} redirects too many times.`, "fetch_failed");
   if (!res.ok)
     throw new ToolError(`Downloading ${url} failed with HTTP ${res.status}.`, "fetch_failed");
-  const buf = new Uint8Array(await res.arrayBuffer());
-  if (buf.length > MAX_IMAGE_BYTES)
-    throw new ToolError(`The image at ${url} is larger than 15 MB.`, "too_large");
-  return { bytes: buf, name: u.pathname.split("/").pop() || "image" };
+  const tooLarge = () => new ToolError(`The image at ${url} is larger than 15 MB.`, "too_large");
+  const declared = Number(res.headers.get("content-length") ?? "");
+  if (Number.isFinite(declared) && declared > MAX_IMAGE_BYTES) {
+    await res.body?.cancel().catch(() => undefined);
+    throw tooLarge();
+  }
+  // Stream with a cap: never buffer more than the limit, whatever the server claims.
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  if (res.body) {
+    const reader = res.body.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.length;
+      if (total > MAX_IMAGE_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        throw tooLarge();
+      }
+      chunks.push(value);
+    }
+  }
+  return { bytes: concat(chunks), name: u.pathname.split("/").pop() || "image" };
 }
 
 /**

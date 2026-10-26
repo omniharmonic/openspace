@@ -40,6 +40,19 @@ function behaviorsDir(): string | null {
   }
 }
 
+/** Decoded request paths must not climb out of their folder or smuggle separators. */
+export function safePath(path: string): boolean {
+  if (path.includes("\\") || path.includes("\0")) return false;
+  return !path.split("/").some((seg) => seg === ".." || seg === ".");
+}
+
+/** Host header (with optional port) must be loopback: 127.0.0.1, localhost or [::1]. */
+export function allowedHost(host: string | undefined): boolean {
+  if (!host) return false;
+  const name = host.startsWith("[") ? host.slice(0, host.indexOf("]") + 1) : host.split(":")[0];
+  return name === "127.0.0.1" || name === "localhost" || name === "[::1]";
+}
+
 export interface PreviewServer {
   url: string;
   close(): Promise<void>;
@@ -53,8 +66,24 @@ export async function startPreviewServer(
   const behaviors = behaviorsDir();
   const server: Server = createServer(async (req, res) => {
     try {
+      // DNS-rebinding guard: only answer requests addressed to the loopback host.
+      if (!allowedHost(req.headers.host)) {
+        res.writeHead(403, { "content-type": "text/plain; charset=utf-8" });
+        res.end("Forbidden host");
+        return;
+      }
       const url = new URL(req.url ?? "/", "http://localhost");
-      const path = decodeURIComponent(url.pathname);
+      let path: string;
+      try {
+        path = decodeURIComponent(url.pathname);
+      } catch {
+        path = "\0";
+      }
+      if (!safePath(path)) {
+        res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+        res.end("Not found");
+        return;
+      }
       const serveFile = async (base: string, rel: string) => {
         const file = normalize(join(base, rel));
         if (!file.startsWith(normalize(base) + sep)) return false;
@@ -71,7 +100,7 @@ export async function startPreviewServer(
         }
       };
       if (path.startsWith("/media/")) {
-        if (await serveFile(root, path.slice(1))) return;
+        if (await serveFile(join(root, "media"), path.slice("/media/".length))) return;
       } else if (path.startsWith("/_os/behaviors/") && behaviors) {
         if (await serveFile(behaviors, path.slice("/_os/behaviors/".length))) return;
       } else {
