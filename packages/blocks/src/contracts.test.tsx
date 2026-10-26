@@ -289,7 +289,7 @@ describe("accordion block", () => {
     });
     vi.stubGlobal("matchMedia", () => ({ matches: true }));
     behavior("accordion")(root);
-    ($("#" + `${block.id}-q2` + " summary") as HTMLElement).click();
+    ($(`#${block.id}-q2 summary`) as HTMLElement).click();
     expect(items[0]?.open).toBe(false);
   });
 

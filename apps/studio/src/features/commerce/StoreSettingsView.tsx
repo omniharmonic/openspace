@@ -809,7 +809,7 @@ function WeightTiers({
   const setTier = (i: number, patch: Partial<{ upToGrams: number; amount: number }>) =>
     onChange(tiers.map((t, j) => (j === i ? { ...t, ...patch } : t)));
   return (
-    <div className="st-ship__tiers" role="group" aria-label="Weight tiers">
+    <fieldset className="st-ship__tiers" aria-label="Weight tiers">
       {tiers.map((t, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: tiers have no ids
         <div key={i} className="st-ship__tier">
@@ -864,6 +864,6 @@ function WeightTiers({
           Add a tier
         </Button>
       )}
-    </div>
+    </fieldset>
   );
 }

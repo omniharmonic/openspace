@@ -66,7 +66,7 @@ describe("Site Styles → Upload a font", () => {
     await user.click(submit);
     await waitFor(() => expect(hub.calls.some((c) => c.method === "uploadMedia")).toBe(true));
     const upload = hub.calls.find((c) => c.method === "uploadMedia");
-    expect((upload?.args[2] as { path: string }).path).toMatch(
+    expect((upload?.args[2] as { path: string } | undefined)?.path).toMatch(
       /^media\/fonts\/studio-grotesk-700-/,
     );
     const store = () =>

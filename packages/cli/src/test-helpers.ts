@@ -36,6 +36,7 @@ export async function cli(cwd: string, args: string[], env: Record<string, strin
   return { code, out: cap.text(), err: cap.errText() };
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: test helper edits arbitrary JSON fixtures
 export async function editJson(file: string, fn: (v: any) => void): Promise<void> {
   const v = JSON.parse(await readFile(file, "utf8"));
   fn(v);

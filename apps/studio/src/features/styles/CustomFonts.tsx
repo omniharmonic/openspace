@@ -119,7 +119,7 @@ export function CustomFonts({ styles, disabled }: { styles: Styles; disabled: bo
                     )
                     .join(", ")}
                 </span>
-                <div className="st-ip-chips" role="group" aria-label={`Use ${f.family} for`}>
+                <fieldset className="st-ip-chips" aria-label={`Use ${f.family} for`}>
                   <button
                     type="button"
                     className="st-ip-chip"
@@ -138,7 +138,7 @@ export function CustomFonts({ styles, disabled }: { styles: Styles; disabled: bo
                   >
                     Text
                   </button>
-                </div>
+                </fieldset>
               </li>
             );
           })}
@@ -271,7 +271,10 @@ function FontUploadForm({
         />
       </PropRow>
       {faces.map((f, i) => (
-        <div key={`${f.file.name}-${i}`} className="st-ss-fontform__face">
+        <div
+          key={`${f.file.name}-${f.file.size}-${f.file.lastModified}`}
+          className="st-ss-fontform__face"
+        >
           <span className="st-ss-fontform__file" title={f.file.name}>
             {f.file.name}
           </span>

@@ -417,7 +417,7 @@ describe("Hub manifests", () => {
     const bolster = Object.values(items)
       .flat()
       .find((i) => i.slug === "linen-bolster");
-    if (!bolster || bolster.kind !== "products") throw new Error("fixture");
+    if (bolster?.kind !== "products") throw new Error("fixture");
     bolster.frontmatter.weight = 900;
     bolster.frontmatter.subscription = { interval: "month" };
     const first = bolster.frontmatter.variants?.[0];

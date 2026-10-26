@@ -83,7 +83,8 @@ describe("openspace check", () => {
     const root = await meadowCopy();
     const file = join(root, "content/collections/journal");
     const { readdir } = await import("node:fs/promises");
-    const post = (await readdir(file)).find((f) => f.endsWith(".mdoc"))!;
+    const post = (await readdir(file)).find((f) => f.endsWith(".mdoc"));
+    if (!post) throw new Error("no post in the fixture");
     const text = await readFile(join(file, post), "utf8");
     await writeFile(join(file, post), `${text}\nSee [the gone page](/definitely-gone).\n`);
     const report = await runCheck(root);
@@ -136,7 +137,9 @@ describe("openspace check", () => {
     expect(r.out).toMatch(/error\s+size\s+media\/ is/);
 
     await editJson(join(root, "content/media.json"), (m) => {
-      const first = Object.values(m).find((e: any) => e.kind === "image") as any;
+      const first = Object.values(
+        m as Record<string, { kind?: string; width?: number; height?: number }>,
+      ).find((e) => e.kind === "image") as { width?: number; height?: number };
       first.width = 6000;
       first.height = 4000;
     });

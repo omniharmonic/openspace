@@ -471,7 +471,7 @@ function FileLimits({
         stacked
         hint="Files are kept privately for you, never published with your site."
       >
-        <div className="st-ip-chips" role="group" aria-label="Accepted files">
+        <fieldset className="st-ip-chips" aria-label="Accepted files">
           {FORM_FILE_KIND_IDS.map((k) => {
             const on = kinds.includes(k);
             return (
@@ -495,7 +495,7 @@ function FileLimits({
               </button>
             );
           })}
-        </div>
+        </fieldset>
       </PropRow>
       <PropRow label="Largest file">
         <Select<string>

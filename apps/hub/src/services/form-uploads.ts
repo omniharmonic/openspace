@@ -61,7 +61,9 @@ export function cleanFileName(name: string): string {
   const base = name.split(/[\\/]/).pop() ?? "";
   const clean = base
     .normalize("NFC")
-    .replace(/[\u0000-\u001f\u007f"<>|*?:]/g, "")
+    .split("")
+    .filter((ch) => ch.charCodeAt(0) > 0x1f && ch.charCodeAt(0) !== 0x7f && !'"<>|*?:'.includes(ch))
+    .join("")
     .trim()
     .slice(-120);
   return clean || "file";
@@ -177,7 +179,7 @@ export async function receiveUpload(
     .prepare("SELECT * FROM form_uploads WHERE id = ? AND site_id = ?")
     .bind(id, siteId)
     .first<UploadRow>();
-  if (!row || row.status !== "pending")
+  if (row?.status !== "pending")
     throw new HttpError(409, "upload_used", "This upload link was already used.");
   const type = (req.headers.get("content-type") ?? "").split(";")[0]?.trim().toLowerCase();
   if (type !== row.type)
@@ -290,7 +292,7 @@ export async function resolveUploads(
           .bind(id, siteId, form.id, field.name)
           .first<UploadRow>()
       : null;
-    if (!row || row.status !== "uploaded") {
+    if (row?.status !== "uploaded") {
       errors[field.name] = "The file didn't upload. Please choose it again.";
       continue;
     }

@@ -208,7 +208,7 @@ describe("form", () => {
       type: "application/pdf",
     });
     expect(calls[1]?.body).toBe(file);
-    expect((calls[2]?.body as FormData).get("cv")).toBe("upl_abc");
+    expect((calls[2]?.body as FormData | undefined)?.get("cv")).toBe("upl_abc");
     expect(f.querySelector(".os-form__status")?.textContent).toBe("Thanks!");
   });
 

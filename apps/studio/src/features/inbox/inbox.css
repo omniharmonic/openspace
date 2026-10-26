@@ -82,9 +82,6 @@
   color: var(--st-accent);
   text-decoration: none;
 }
-.st-inbox__file:hover span:first-of-type {
-  text-decoration: underline;
-}
 .st-inbox__file svg {
   flex: none;
   width: 13px;
@@ -98,4 +95,7 @@
 .st-inbox__file-size {
   color: var(--st-text-3);
   font-variant-numeric: tabular-nums;
+}
+.st-inbox__file:hover span:first-of-type {
+  text-decoration: underline;
 }
