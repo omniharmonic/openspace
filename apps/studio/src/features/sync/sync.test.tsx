@@ -41,7 +41,8 @@ describe("publishing", () => {
   beforeEach(() => useEditorUi.getState().reset());
 
   it("summarises the changes, publishes and shows Publishing… → Live with the address", async () => {
-    const { user, hub } = await openEditor();
+    // The Publishing… phase must outlast waitFor's 50ms poll, or the test races past it.
+    const { user, hub } = await openEditor({ publishStepMs: 600 });
     await edit("Book a class");
 
     await user.click(screen.getByRole("button", { name: "Publish" }));
