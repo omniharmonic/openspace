@@ -1,7 +1,7 @@
 {
   "name": "@openspace/lint",
   "version": "0.1.0",
-  "description": "OpenSpace lint package.",
+  "description": "OpenSpace Design check, SEO check and mobile auto-layout.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -33,5 +33,11 @@
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "@openspace/blocks": "workspace:*",
+    "@openspace/ops": "workspace:*",
+    "@openspace/schema": "workspace:*",
+    "@openspace/theme": "workspace:*"
   }
 }

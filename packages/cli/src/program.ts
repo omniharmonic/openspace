@@ -5,6 +5,7 @@ import { type Budgets, formatReport, githubAnnotations, runCheck } from "./check
 import { runDev, type Spawner } from "./dev";
 import { EJECT_WARNING, runEject } from "./eject";
 import { CliError, colorEnabled, type Io, paint } from "./io";
+import { runMcp } from "./mcp";
 import { runMigrate } from "./migrate";
 import { runNew } from "./new";
 
@@ -22,7 +23,7 @@ export function createProgram(
   deps: ProgramDeps = {},
 ): Command {
   const program = new Command("openspace")
-    .description("Check, preview, migrate and scaffold OpenSpace sites.")
+    .description("Check, preview, migrate, scaffold and serve OpenSpace sites to Claude (MCP).")
     .version(VERSION)
     .configureOutput({ writeOut: (s) => io.out(s.trimEnd()), writeErr: (s) => io.err(s.trimEnd()) })
     .exitOverride();
@@ -164,12 +165,24 @@ export function createProgram(
 
   program
     .command("mcp")
-    .description("Run the local MCP server (coming soon).")
-    .action(() => {
-      // stdout is the MCP protocol channel, so say it on stderr.
-      io.err("openspace mcp is coming soon.");
-      setExit(1);
-    });
+    .argument("[dir]", "site folder (default: the current folder)")
+    .description("Run the local MCP server (stdio) so Claude can edit and design this site.")
+    .option("--no-publish", "don't allow the publish tool (commits) on this connection")
+    .option("--no-screenshots", "don't start a browser for screenshots")
+    .option("--preview-port <n>", "port for the local preview server (default: random)", Number)
+    .action(
+      async (
+        dir: string | undefined,
+        opts: { publish?: boolean; screenshots?: boolean; previewPort?: number },
+      ) => {
+        // stdout is the MCP protocol channel; runMcp only talks on stderr.
+        await runMcp(io, resolve(io.cwd, dir ?? "."), {
+          publish: opts.publish,
+          screenshots: opts.screenshots,
+          previewPort: opts.previewPort,
+        });
+      },
+    );
 
   return program;
 }

@@ -1,11 +1,12 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { build } from "tsup";
 import { beforeAll, describe, expect, it } from "vitest";
 import config from "../tsup.config";
-import { CLI_DIR, MEADOW, TMP_ROOT } from "./test-helpers";
+import { CLI_DIR, MEADOW, meadowCopy, TMP_ROOT } from "./test-helpers";
 
 const exec = promisify(execFile);
 const OUT = join(TMP_ROOT, "bin-dist");
@@ -48,11 +49,71 @@ describe("built openspace binary (real process)", () => {
     expect(r.out).toContain("FAILED");
   }, 60_000);
 
-  it("lists commands and says mcp is coming soon", async () => {
+  it("lists commands and refuses mcp outside a site", async () => {
     const help = await bin(["--help"]);
     expect(help.out).toContain("agents-md");
-    const mcp = await bin(["mcp"]);
+    const mcp = await bin(["mcp", "--no-screenshots"]);
     expect(mcp.code).toBe(1);
-    expect(mcp.err).toContain("coming soon");
+    expect(mcp.err).toContain("Can't serve");
+  }, 60_000);
+
+  it("serves MCP over stdio: initialize, tools/list, an edit, a render, then exits on EOF", async () => {
+    const site = await meadowCopy();
+    const child = spawn(process.execPath, [BIN, "mcp", site, "--no-screenshots"], {
+      env: { ...process.env, NO_COLOR: "1" },
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    let buf = "";
+    let stderr = "";
+    const waiting = new Map<number, (v: Record<string, unknown>) => void>();
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", (chunk: string) => {
+      buf += chunk;
+      for (let nl = buf.indexOf("\n"); nl >= 0; nl = buf.indexOf("\n")) {
+        const line = buf.slice(0, nl).trim();
+        buf = buf.slice(nl + 1);
+        if (!line) continue;
+        const msg = JSON.parse(line) as { id: number };
+        waiting.get(msg.id)?.(msg as unknown as Record<string, unknown>);
+      }
+    });
+    child.stderr.on("data", (c) => {
+      stderr += String(c);
+    });
+    let id = 0;
+    const rpc = (method: string, params?: unknown) =>
+      new Promise<Record<string, unknown>>((resolve) => {
+        const n = ++id;
+        waiting.set(n, resolve);
+        child.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id: n, method, params })}\n`);
+      });
+    const init = (await rpc("initialize", {
+      protocolVersion: "2025-06-18",
+      capabilities: {},
+      clientInfo: { name: "bin-test", version: "1" },
+    })) as { result: { serverInfo: { name: string } } };
+    expect(init.result.serverInfo.name).toBe("openspace");
+    child.stdin.write(
+      `${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`,
+    );
+    const list = (await rpc("tools/list")) as { result: { tools: Array<{ name: string }> } };
+    expect(list.result.tools.map((t) => t.name)).toContain("design_check");
+    const edit = (await rpc("tools/call", {
+      name: "update_site",
+      arguments: { set: { tagline: "Edited over stdio" } },
+    })) as { result: { isError?: boolean; content: Array<{ text: string }> } };
+    expect(edit.result.isError, edit.result.content[0]?.text).toBeFalsy();
+    const html = (await rpc("tools/call", { name: "render_page", arguments: { page: "/" } })) as {
+      result: { content: Array<{ text: string }> };
+    };
+    expect(html.result.content[0]?.text).toContain("<main");
+    const exited = new Promise<number | null>((resolve) =>
+      child.on("exit", (code) => resolve(code)),
+    );
+    child.stdin.end();
+    expect(await exited).toBe(0);
+    expect(stderr).toContain("openspace mcp: serving");
+    const siteJson = JSON.parse(await readFile(join(site, "content", "site.json"), "utf8"));
+    expect(siteJson.tagline).toBe("Edited over stdio");
   }, 60_000);
 });

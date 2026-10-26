@@ -17,7 +17,14 @@ export async function hubFromEnv(env: ImportMetaEnv = import.meta.env): Promise<
   // demo content) entirely: Vite inlines the value and the dead branch is removed.
   if (import.meta.env.VITE_MOCK_API === "1" || import.meta.env.VITE_MOCK_API === "true") {
     const { createMockHub } = await import("./mock");
-    return createMockHub({ sites: "demo", persistKey: "openspace.mockHub", latencyMs: 250 });
+    return createMockHub({
+      sites: "demo",
+      persistKey: "openspace.mockHub",
+      latencyMs: 250,
+      roomLatencyMs: 40,
+      publishStepMs: 1500,
+      agentPresenceMs: 5000,
+    });
   }
   return createHttpHub({ baseUrl: env.VITE_HUB_URL || DEFAULT_HUB_URL });
 }

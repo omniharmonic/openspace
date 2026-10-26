@@ -1,12 +1,13 @@
 {
   "name": "@openspace/cli",
   "version": "0.1.0",
-  "description": "The openspace command line: check, dev, migrate, new, eject, agents-md.",
+  "description": "The openspace command line: check, dev, migrate, new, eject, agents-md, mcp.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "exports": {
     ".": {
@@ -33,12 +34,16 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "playwright": "1.64.1",
     "tsup": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@openspace/blocks": "workspace:*",
+    "@openspace/mcp-tools": "workspace:*",
+    "@openspace/ops": "workspace:*",
     "@openspace/schema": "workspace:*",
     "@openspace/site-kit": "workspace:*",
     "@openspace/template-starter": "workspace:*",
@@ -48,5 +53,17 @@
   },
   "bin": {
     "openspace": "./dist/bin.js"
+  },
+  "peerDependencies": {
+    "playwright": ">=1.40",
+    "sharp": ">=0.33"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    },
+    "sharp": {
+      "optional": true
+    }
   }
 }

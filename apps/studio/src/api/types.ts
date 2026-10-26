@@ -1,5 +1,6 @@
 import type { SiteDocument } from "@openspace/schema";
 import type { ManageApi } from "./manage-types";
+import type { BuildState, PublishError, RoomSocket } from "../features/sync/protocol";
 
 /**
  * Hub API contract as Studio consumes it (architecture §8.2).
@@ -92,6 +93,8 @@ export interface Site {
   deployTarget?: "github-pages" | "cloudflare" | string;
   /** Connected custom domain, if any. */
   domain?: string | null;
+  /** Plain-language detail for the status (e.g. why the last publish failed). */
+  statusDetail?: string | null;
 }
 
 /** `POST /api/sites` body. */
@@ -142,8 +145,117 @@ export interface HubApi extends ManageApi {
    * `confirmName` must equal the site's name (`DELETE /api/sites/:id`, body `{ confirm }`).
    */
   deleteSite(id: string, confirmName: string): Promise<void>;
-  /** The site's editable content (`GET /api/sites/:id/document`). */
-  getDocument(id: string): Promise<SiteDocumentResponse>;
+  /**
+   * The site's content (`GET /api/sites/:id/document`): the draft, or with
+   * `{ ref: "published" }` what's live now.
+   */
+  getDocument(id: string, options?: { ref?: "draft" | "published" }): Promise<SiteDocumentResponse>;
+
+  // --- Draft room (Task 15 contract) ---------------------------------------------------------
+  /** The room's document and seq (`GET /api/sites/:id/room/document`). */
+  getRoomDocument(id: string): Promise<RoomDocumentResponse>;
+  /** Opens the room's WebSocket (`GET /api/sites/:id/room?since=<seq>`). */
+  connectRoom(id: string, since: number | null): RoomSocket;
+  /** "Undo all" of an agent session (`POST /api/sites/:id/room/agent-sessions/:sid/undo`). */
+  undoAgentSession(id: string, sessionId: string): Promise<AgentUndoResult>;
+
+  // --- Publishing and history ----------------------------------------------------------------
+  /** Publish the draft (`POST /api/sites/:id/publish`). */
+  publish(id: string): Promise<PublishResponse>;
+  /** "Fix it for me" for the last failed publish (`POST /api/sites/:id/fix`). */
+  fixLastPublish(id: string): Promise<FixResult>;
+  listVersions(id: string): Promise<SiteVersion[]>;
+  /** Make an earlier version live again (`POST /api/sites/:id/rollback`). Designer+. */
+  rollback(id: string, sha: string): Promise<RollbackResult>;
+  /** Where to look at a published version (opens in a new tab). */
+  versionPreviewUrl(id: string, sha: string): string;
+  listSnapshots(id: string): Promise<Snapshot[]>;
+  createSnapshot(id: string, name: string): Promise<{ name: string; tag: string; sha: string }>;
+  /** Make the draft match a snapshot (applied as ordinary edits). Designer+. */
+  restoreSnapshot(
+    id: string,
+    name: string,
+  ): Promise<{ applied: number; failed: number; seq: number }>;
+  listSchedules(id: string): Promise<PublishSchedule[]>;
+  /** Publish at a date and time (≥ 30 s ahead, ≤ 1 year). */
+  schedulePublish(id: string, at: Date): Promise<PublishSchedule>;
+  cancelSchedule(id: string, scheduleId: string): Promise<void>;
+}
+
+/** `GET /api/sites/:id/room/document` */
+export interface RoomDocumentResponse {
+  document: SiteDocument;
+  seq: number;
+  head: string | null;
+}
+
+export interface AgentUndoResult {
+  sessionId: string;
+  /** Changes undone. */
+  reverted: number;
+  /** Changes kept because someone edited the same thing afterwards. */
+  skipped: number;
+  seq: number;
+}
+
+export interface PublishOutcome {
+  status: "published" | "no_changes";
+  sha?: string;
+  summary?: string;
+  build?: BuildState;
+  publishId?: string;
+}
+
+/** `POST /api/sites/:id/publish`; `publish` is null when the site's setup was resumed instead. */
+export interface PublishResponse {
+  site: Site;
+  publish: PublishOutcome | null;
+}
+
+export interface FixResult {
+  fix: "revert" | "retry" | "enable_pages";
+  sha: string;
+  site: Site;
+}
+
+export interface SiteVersion {
+  sha: string;
+  /** "Edited Home and About; added 2 images". */
+  summary: string;
+  author: string | null;
+  date: string;
+  kind: "publish" | "rollback" | "revert" | "setup";
+  status: BuildState | null;
+  error: PublishError | null;
+  /** The version the live site is on. */
+  current: boolean;
+}
+
+export interface RollbackResult {
+  sha: string;
+  summary: string;
+  /** Snapshot holding unpublished changes saved before rolling back. */
+  snapshot: string | null;
+  site: Site;
+}
+
+export interface Snapshot {
+  name: string;
+  tag: string;
+  sha: string;
+  /** Made automatically (before an AI session, before a rollback). */
+  automatic: boolean;
+  date: string | null;
+}
+
+export interface PublishSchedule {
+  id: string;
+  kind: "publish";
+  runAt: string;
+  status: "pending" | "running" | "done" | "failed" | "cancelled";
+  error: string | null;
+  createdBy: string | null;
+  createdAt: string;
 }
 
 /** `GET /api/sites/:id/document`: the draft content (falls back to what's published). */

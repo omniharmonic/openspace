@@ -12,3 +12,4 @@ playwright-report
 .dev.vars
 .astro
 .claude/
+.playwright-mcp/

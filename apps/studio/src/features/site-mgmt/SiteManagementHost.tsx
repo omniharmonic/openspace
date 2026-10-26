@@ -85,14 +85,14 @@ export function SiteManagementHost({ site }: { site: Site }) {
     {
       id: "edit-header",
       label: "Edit header",
-      group: "Site",
+      group: "Panels",
       icon: <PanelTop />,
       run: () => openPanel("chrome"),
     },
     {
       id: "open-media",
       label: "Open media library",
-      group: "Site",
+      group: "Panels",
       icon: <ImagePlus />,
       run: () => openPanel("media"),
     },

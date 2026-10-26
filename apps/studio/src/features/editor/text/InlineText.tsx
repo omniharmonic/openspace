@@ -162,6 +162,19 @@ export function InlineText({ blockId, path, className, as: Tag = "div" }: Inline
     });
     editorRef.current = editor;
     useTextEditing.setState({ editor, tick: 0, allow });
+    // The sync layer flushes what was typed before someone else's change lands.
+    const unregister = state().registerTextSession({
+      kind: "rich",
+      blockId,
+      path,
+      flush,
+      end: (commit) => {
+        if (commit) flush();
+        else if (timer) clearTimeout(timer);
+        timer = undefined;
+        state().setEditing(null);
+      },
+    });
 
     // Put the caret where the person clicked, else at the end.
     const caret = takePendingCaret();
@@ -196,6 +209,7 @@ export function InlineText({ blockId, path, className, as: Tag = "div" }: Inline
     });
 
     return () => {
+      unregister();
       unsubscribe();
       flush();
       editor.destroy();
