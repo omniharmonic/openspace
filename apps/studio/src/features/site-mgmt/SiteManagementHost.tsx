@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { lazy, Suspense, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
+import { useHub } from "../../api/context";
 import type { Site } from "../../api/types";
 import { Spinner, useRegisterCommands } from "../../ui";
 import { useEditorUi } from "../editor/editor-store";
@@ -50,10 +51,12 @@ export function SiteManagementHost({ site }: { site: Site }) {
   const tab = settingsTabFromPath(location.pathname);
   const settings = (t?: string) => navigate(`/sites/${site.id}/settings${t ? `/${t}` : ""}`);
 
-  // Library files show in Studio from the site's draft files.
+  // Library files show in Studio from the site's draft files (through the Hub when it can).
+  const hub = useHub();
   useEffect(() => {
     useMediaSources.getState().setRepo(site.repo || null);
-  }, [site.repo]);
+    useMediaSources.getState().setRemote(hub.draftMediaBase?.(site.id) ?? null);
+  }, [site.repo, site.id, hub]);
 
   // Finish uploads left in the queue by an earlier visit; pause them when the editor closes.
   useEffect(() => {

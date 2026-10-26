@@ -6,7 +6,7 @@ import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import { useCurrentSite, useManageUi } from "../site-mgmt/manage-ui";
 import type { ImageEdit, Rect } from "./codec";
 import { MediaLibrary, MediaThumb } from "./MediaLibrary";
-import { previewUrl, useMediaPreviewUrl, useMediaSources } from "./sources";
+import { mediaFetchInit, previewUrl, useMediaPreviewUrl, useMediaSources } from "./sources";
 import { formatBytes, mediaUsage } from "./usage";
 import { useUploader } from "./useUploader";
 
@@ -142,7 +142,8 @@ function ImageEditor({ meta, onDone }: { meta: MediaMeta; onDone: (path: string 
     setSaving(true);
     try {
       const sources = useMediaSources.getState();
-      const res = await fetch(previewUrl(meta.path, sources));
+      const url = previewUrl(meta.path, sources);
+      const res = await fetch(url, mediaFetchInit(url));
       if (!res.ok) throw new Error("Couldn't load the original image.");
       const blob = await res.blob();
       const edit: ImageEdit = {

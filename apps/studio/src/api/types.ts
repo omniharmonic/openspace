@@ -169,6 +169,8 @@ export interface HubApi extends ManageApi {
   rollback(id: string, sha: string): Promise<RollbackResult>;
   /** Where to look at a published version (opens in a new tab). */
   versionPreviewUrl(id: string, sha: string): string;
+  /** URL prefix of the Hub's draft media proxy (`GET /api/sites/:id/media/*`, session cookie). */
+  draftMediaBase?(id: string): string;
   listSnapshots(id: string): Promise<Snapshot[]>;
   createSnapshot(id: string, name: string): Promise<{ name: string; tag: string; sha: string }>;
   /** Make the draft match a snapshot (applied as ordinary edits). Designer+. */

@@ -216,6 +216,10 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
       return `${baseUrl}/s/${encodeURIComponent(id)}/?version=${encodeURIComponent(sha)}`;
     },
 
+    draftMediaBase(id) {
+      return `${baseUrl}${site(id)}/`;
+    },
+
     async listSnapshots(id) {
       const res = await request<{ snapshots: Snapshot[] }>("GET", `${site(id)}/snapshots`);
       return res.snapshots;
