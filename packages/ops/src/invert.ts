@@ -6,6 +6,7 @@ import {
   findBlock,
   findSection,
   getPage,
+  locateBlock,
   OpError,
   sectionsOf,
 } from "./doc";
@@ -242,6 +243,29 @@ function invertBody(doc: SiteDocument, op: Op): Body {
             config: null,
             keepEmpty: configs ? true : undefined,
           });
+    }
+    case "component.upsert": {
+      const components = doc.components;
+      const name = op.component.name;
+      const prev = components && Object.hasOwn(components, name) ? components[name] : undefined;
+      const instances: Record<string, { v: number; fields: Record<string, unknown> }> = {};
+      for (const id of Object.keys(op.instances ?? {})) {
+        const loc = need(locateBlock(doc, id), `Block ${id} does not exist`, ["instances", id]);
+        instances[id] = { v: loc.block.v, fields: clone(loc.block.fields) };
+      }
+      const restore = Object.keys(instances).length ? { instances } : {};
+      return prev
+        ? { op: "component.upsert", component: clone(prev), ...restore }
+        : compact({ op: "component.delete", name, keepEmpty: components ? true : undefined });
+    }
+    case "component.delete": {
+      const components = doc.components;
+      const prev = need(
+        components && Object.hasOwn(components, op.name) ? components[op.name] : undefined,
+        `Component ${op.name} does not exist`,
+        ["components", op.name],
+      );
+      return { op: "component.upsert", component: clone(prev) };
     }
     default: {
       const never: never = op;

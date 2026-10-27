@@ -183,6 +183,16 @@ function baseFootprint(op: Op): OpFootprint {
       };
     case "collectionConfig.upsert":
       return { touches: [edit("collectionConfig", op.collection)], requires: [] };
+    case "component.upsert":
+      return {
+        touches: [
+          edit("component", op.component.name),
+          ...Object.keys(op.instances ?? {}).map((id) => edit("block", id, "fields")),
+        ],
+        requires: [],
+      };
+    case "component.delete":
+      return { touches: [{ path: ["component", op.name], kind: "delete" }], requires: [] };
   }
 }
 

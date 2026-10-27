@@ -2,6 +2,9 @@ import {
   type Block,
   type BlockRegistry,
   type CollectionItem,
+  componentInstances,
+  componentNameOf,
+  createBlockRegistry,
   type NavItem,
   PageSchema,
   SectionSchema,
@@ -9,6 +12,7 @@ import {
   SiteDocumentSchema,
   SiteSchema,
   StylesSchema,
+  withComponents,
 } from "@omniharmonic/openspace-schema";
 import { produce } from "immer";
 import type { z } from "zod";
@@ -203,28 +207,71 @@ function containerIssues(doc: SiteDocument, container: ContainerId): OpIssue[] {
   return r.success ? [] : zodIssues(r.error, ["pages", container]);
 }
 
+const NO_BLOCKS = createBlockRegistry([]);
+
+/**
+ * The registry to validate `doc`'s blocks with: `base` plus the document's custom components
+ * (`component/<name>` types). Without a base registry only component instances are checked.
+ */
+export function registryForDoc(
+  base: BlockRegistry | undefined,
+  doc: Pick<SiteDocument, "components">,
+): { registry: BlockRegistry; onlyComponents: boolean } | undefined {
+  if (base) return { registry: withComponents(base, doc.components), onlyComponents: false };
+  if (!doc.components || Object.keys(doc.components).length === 0) return undefined;
+  return { registry: withComponents(NO_BLOCKS, doc.components), onlyComponents: true };
+}
+
 function blockIssues(
-  registry: BlockRegistry | undefined,
+  base: BlockRegistry | undefined,
   doc: SiteDocument,
   container: ContainerId,
   ids: readonly string[],
 ): OpIssue[] {
-  if (!registry || ids.length === 0) return [];
+  if (ids.length === 0) return [];
+  const reg = registryForDoc(base, doc);
   const want = new Set(ids);
   const out: OpIssue[] = [];
-  const base = containerPath(container);
+  const path = containerPath(container);
   (sectionsOf(doc, container) ?? []).forEach((s, i) => {
     s.blocks.forEach((b: Block, j) => {
       if (!want.has(b.id)) return;
-      const r = registry.validate(b);
+      const isComponent = componentNameOf(b.type) !== null;
+      if (isComponent && !doc.components?.[componentNameOf(b.type) as string]) {
+        out.push({
+          path: [...path, "sections", i, "blocks", j, "type"],
+          message: `This site has no component called "${componentNameOf(b.type)}"`,
+        });
+        return;
+      }
+      if (!reg || (reg.onlyComponents && !isComponent)) return;
+      const r = reg.registry.validate(b);
       if (!r.success)
         for (const issue of r.issues)
           out.push({
-            path: [...base, "sections", i, "blocks", j, ...issue.path],
+            path: [...path, "sections", i, "blocks", j, ...issue.path],
             message: issue.message,
           });
     });
   });
+  return out;
+}
+
+/** Every instance of component `name` must be valid against its (new) definition. */
+function componentInstanceIssues(doc: SiteDocument, name: string): OpIssue[] {
+  const reg = registryForDoc(undefined, doc);
+  const out: OpIssue[] = [];
+  const instances = componentInstances(doc, name);
+  for (const inst of instances) {
+    const block = inst.section.blocks.find((b) => b.id === inst.blockId) as Block;
+    const r = reg?.registry.validate(block);
+    if (r && !r.success)
+      for (const issue of r.issues.slice(0, 5))
+        out.push({
+          path: ["blocks", inst.blockId, ...issue.path],
+          message: `A section using ${name} would break: ${issue.message}`,
+        });
+  }
   return out;
 }
 
@@ -396,9 +443,28 @@ export function validate(
       break;
     case "collection.delete":
       break;
+    case "component.upsert":
+      errors.push(...componentInstanceIssues(next, op.component.name));
+      break;
+    case "component.delete": {
+      const used = componentInstances(next, op.name);
+      if (used.length)
+        errors.push({
+          path: ["components", op.name],
+          message: `${used.length} section${used.length === 1 ? " still uses" : "s still use"} this component; remove ${used.length === 1 ? "it" : "them"} first`,
+        });
+      break;
+    }
   }
   if (errors.length) return { ok: false, errors };
   return { ok: true, doc: next, warnings };
+}
+
+/** The type of the block a document path points into (pages.<id>.sections.<i>.blocks.<j>…). */
+function blockTypeAt(doc: SiteDocument, path: readonly (string | number)[]): string | undefined {
+  if (path[0] === "site") return doc.site.footer.blocks[path[3] as number]?.type;
+  const page = doc.pages[path[1] as keyof SiteDocument["pages"]];
+  return page?.sections[path[3] as number]?.blocks[path[5] as number]?.type;
 }
 
 function siteSchemaIssues(doc: SiteDocument): OpIssue[] {
@@ -436,9 +502,13 @@ export function validateDocument(
   const r = SiteDocumentSchema.safeParse(doc);
   if (!r.success) return { ok: false, errors: zodIssues(r.error, []) };
   const errors = siteRefIssues(r.data);
-  if (options.registry)
-    for (const issue of options.registry.validateDocument(r.data))
+  const reg = registryForDoc(options.registry, r.data);
+  if (reg)
+    for (const issue of reg.registry.validateDocument(r.data)) {
+      if (reg.onlyComponents && !/^component\//.test(String(blockTypeAt(r.data, issue.path))))
+        continue;
       errors.push({ path: issue.path, message: issue.message });
+    }
   if (errors.length) return { ok: false, errors };
   return { ok: true, doc: doc as SiteDocument, warnings: [] };
 }
