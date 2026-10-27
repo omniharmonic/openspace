@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { renderStudio, SAM } from "../../test/render";
+import { publishStory } from "./MoveProgress";
 
 const FAST_IMPORT = { importStepMs: 15 };
 
@@ -113,5 +114,14 @@ describe("Move my site (hosted import)", () => {
       "href",
       expect.stringMatching(/^\/move\/imp_/),
     );
+  });
+});
+
+describe("publishing a moved site", () => {
+  it("tells what's happening during the slow publish, with an honest time", () => {
+    expect(publishStory(0)).toContain("Saving your pages");
+    expect(publishStory(45)).toContain("Building your site");
+    expect(publishStory(120)).toContain("Putting it online");
+    expect(publishStory(400)).toContain("within 5 minutes");
   });
 });

@@ -7,6 +7,7 @@ import {
   PartyPopper,
   RotateCcw,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { type ImportView, useImport, useRetryImport } from "../../api";
 import { LoadError } from "../../app/Connection";
@@ -99,6 +100,54 @@ function Steps({ view }: { view: ImportView }) {
   );
 }
 
+/**
+ * The publish step is the slow one (GitHub builds the site and puts it online: 2–4 minutes,
+ * longer the first time). Say what's happening as it goes, with an honest estimate, so a few
+ * minutes of waiting never looks stuck.
+ */
+export const PUBLISH_STORY: Array<{ after: number; text: string }> = [
+  { after: 0, text: "Saving your pages and pictures in your own GitHub account…" },
+  {
+    after: 30,
+    text: "Building your site: turning every page into a fast, ready-to-serve web page…",
+  },
+  {
+    after: 90,
+    text: "Putting it online at its free address. The first time takes a little longer…",
+  },
+  {
+    after: 210,
+    text: "Nearly there — GitHub is still finishing the first publish. It usually ends within 5 minutes.",
+  },
+];
+
+export function publishStory(seconds: number): string {
+  let text = (PUBLISH_STORY[0] as { text: string }).text;
+  for (const s of PUBLISH_STORY) if (seconds >= s.after) text = s.text;
+  return text;
+}
+
+function PublishingStory() {
+  const started = useRef(Date.now());
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    const t = setInterval(
+      () => setSeconds(Math.floor((Date.now() - started.current) / 1000)),
+      5000,
+    );
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="st-move__story">
+      <p className="st-move__lede">{publishStory(seconds)}</p>
+      <p className="st-move__note">
+        This step usually takes 2 to 4 minutes. You can leave this page — we’ll keep going and your
+        site will be waiting in <Link to="/sites">your sites</Link>.
+      </p>
+    </div>
+  );
+}
+
 /** "Reading your site… Bringing pages across… 12 pages, 48 images… Ready to review". */
 export function MoveProgress() {
   const { importId } = useParams();
@@ -188,7 +237,11 @@ export function MoveProgress() {
               <h1 className="st-move__title">
                 {view.state === "review" ? "Almost there" : "Moving your site…"}
               </h1>
-              <p className="st-move__lede">{view.headline}</p>
+              {view.state === "publishing" ? (
+                <PublishingStory />
+              ) : (
+                <p className="st-move__lede">{view.headline}</p>
+              )}
               {view.state === "waiting" && view.connectUrl && (
                 <div className="st-building__actions">
                   <a className="st-button st-button--primary" href={view.connectUrl}>
@@ -217,12 +270,14 @@ export function MoveProgress() {
                   </div>
                 </div>
               )}
-              {view.state !== "review" && view.state !== "waiting" && (
-                <p className="st-move__note">
-                  This usually takes a few minutes. You can leave this page — we’ll keep going and
-                  your site will be waiting in <Link to="/sites">your sites</Link>.
-                </p>
-              )}
+              {view.state !== "review" &&
+                view.state !== "waiting" &&
+                view.state !== "publishing" && (
+                  <p className="st-move__note">
+                    This usually takes a few minutes. You can leave this page — we’ll keep going and
+                    your site will be waiting in <Link to="/sites">your sites</Link>.
+                  </p>
+                )}
             </>
           )}
           <Steps view={view} />
