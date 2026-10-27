@@ -52,6 +52,14 @@ export function fieldsToAgent(
   return def ? convertFields(def.meta.fields, fields, "out") : fields;
 }
 
+/** Agent-supplied values for a field map (e.g. a custom component's sample content). */
+export function valuesFromAgent(
+  metas: Record<string, FieldMeta>,
+  fields: Record<string, unknown>,
+): Record<string, unknown> {
+  return convertFields(metas, fields, "in");
+}
+
 /** Agent-supplied fields with Markdown strings turned into rich-text documents. */
 export function fieldsFromAgent(
   registry: BlockRegistry,

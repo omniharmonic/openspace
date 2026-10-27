@@ -1,11 +1,11 @@
-import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import type { Block, SiteDocument } from "@omniharmonic/openspace-schema";
+import { studioRegistry } from "../editor/model/registry";
 import type { EditorStore } from "../editor/model/store";
 import { fieldsOp } from "../inspector/model/edits";
 
 /** The block's first image field (an image block's photo, a card's picture…), if any. */
 export function imageFieldOf(block: Block): { key: string; label: string } | null {
-  const def = blocksRegistry().get(block.type);
+  const def = studioRegistry().get(block.type);
   if (!def) return null;
   for (const [key, meta] of Object.entries(def.meta.fields)) {
     const m = meta as { kind?: string; label?: string };

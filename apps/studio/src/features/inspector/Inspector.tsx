@@ -1,4 +1,3 @@
-import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import type { Block, JsonValue, Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { LayoutPanelTop, Monitor, MousePointer2, Plus, Smartphone, Tablet } from "lucide-react";
 import { useMemo } from "react";
@@ -7,7 +6,9 @@ import { useBlockMenu } from "../add-section/blockMenuStore";
 import { BlockIcon } from "../editor/blockIcons";
 import { type Breakpoint, useEditorUi } from "../editor/editor-store";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
+import { studioRegistry } from "../editor/model/registry";
 import { blockLabel, blockName, locate, sectionLabel } from "../editor/model/selection";
+import { ComponentCodePanel } from "./ComponentCode";
 import { measureBlock } from "./canvasDoc";
 import { BlockDesign } from "./design/BlockDesign";
 import { SectionDesign } from "./design/SectionDesign";
@@ -15,7 +16,7 @@ import { useEditBp, useInspectorRole, useInspectorTab } from "./env";
 import { GroupedFields } from "./fields/FieldsEditor";
 import { FieldsContext, friendlyError } from "./fields/types";
 import { fieldsOp } from "./model/edits";
-import { type Capabilities, capabilities } from "./model/permissions";
+import { type Capabilities, capabilities, isDesigner } from "./model/permissions";
 import { BP_LABEL } from "./model/responsive";
 import { OverrideDot, PanelSection, PropRow, RoleNote } from "./ui";
 import "./inspector.css";
@@ -74,7 +75,8 @@ function BlockContent({
   const api = useDocStoreApi();
   const doc = useDocStore((s) => s.doc);
   const pageId = useDocStore((s) => s.pageId);
-  const def = blocksRegistry().get(block.type);
+  const role = useInspectorRole();
+  const def = studioRegistry().get(block.type);
   const ctx = useMemo(() => ({ doc, pageId, block, caps }), [doc, pageId, block, caps]);
   if (!def)
     return (
@@ -103,6 +105,7 @@ function BlockContent({
         idPrefix={`st-ip-${block.id}`}
         defaults={def.meta.defaults.fields as Record<string, JsonValue>}
       />
+      {isDesigner(role) && <ComponentCodePanel block={block} />}
       <PanelSection title="Block" defaultOpen={false}>
         <PropRow label="Name" hint="Shown in Layers.">
           <input

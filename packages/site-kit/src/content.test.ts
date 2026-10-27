@@ -167,3 +167,48 @@ describe("loadSiteDocument / writeSiteDocument", () => {
     await expect(loadSiteDocument(dir)).rejects.toThrow(/does not match its file location/);
   });
 });
+
+describe("custom components on disk", () => {
+  const def = {
+    name: "pull-quote",
+    label: "Pull quote",
+    version: 1,
+    fields: { quote: { kind: "text" } },
+    defaults: { quote: "Breathe." },
+    template: "<blockquote>{{quote}}</blockquote>",
+    css: "blockquote { font-family: var(--os-font-heading); }",
+  };
+
+  it("loads content/components/<name>.json and writes it back (and removes deleted ones)", async () => {
+    await mkdir(join(dir, "content/components"), { recursive: true });
+    await writeFile(
+      join(dir, "content/components/pull-quote.json"),
+      `${JSON.stringify(def, null, 2)}\n`,
+    );
+    const doc = await loadSiteDocument(dir);
+    expect(doc.components?.["pull-quote"]?.label).toBe("Pull quote");
+    const again = await writeSiteDocument(dir, doc);
+    expect(again.written).toEqual([]);
+    const { components: _gone, ...without } = doc;
+    const r = await writeSiteDocument(dir, without);
+    expect(r.removed).toContain("content/components/pull-quote.json");
+  });
+
+  it("reports a component whose name doesn't match its file, and invalid code", async () => {
+    await mkdir(join(dir, "content/components"), { recursive: true });
+    await writeFile(join(dir, "content/components/other.json"), JSON.stringify(def));
+    await expect(loadSite(dir)).rejects.toThrow(SiteContentError);
+    await rm(join(dir, "content/components/other.json"));
+    await writeFile(
+      join(dir, "content/components/pull-quote.json"),
+      JSON.stringify({ ...def, template: "<script>x</script>" }),
+    );
+    try {
+      await loadSite(dir);
+      throw new Error("expected a content error");
+    } catch (e) {
+      expect(e).toBeInstanceOf(SiteContentError);
+      expect(JSON.stringify((e as SiteContentError).issues)).toMatch(/Scripts can't go/);
+    }
+  });
+});

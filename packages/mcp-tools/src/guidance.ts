@@ -13,8 +13,9 @@ The same rules power Studio's built-in Design check. Follow them so pages look d
 8. **Alt text describes the image's purpose,** not just its contents; decorative images are marked decorative.
 9. **Check mobile.** After any grid change, review the mobile placement.
 10. **Prefer fewer, stronger sections** over many thin ones.
+11. **Custom components for bespoke moments only.** When no preset can express a distinctive section (an editorial hero, a layered collage, a horizontal story), use a custom component (list_components → create_component or insert_component from the Designer components library). Expose every word, image and link as a field (owners edit fields, never code), style only with theme tokens (var(--os-color-…), var(--os-font-…), var(--os-space-…)), use the 767/768/1199/1200 breakpoints, honour reduced motion, and look at it with preview_component before showing the owner.
 
-Design check flags: contrast failures, more than two families, headings out of order, empty sections, images above 2× their displayed size, missing alt text, overlapping text in grid sections, and pages without a clear call to action.
+Design check flags (custom components too: invalid code, budgets, motion, fixed colours, accessibility): contrast failures, more than two families, headings out of order, empty sections, images above 2× their displayed size, missing alt text, overlapping text in grid sections, and pages without a clear call to action.
 
 ## Working with OpenSpace
 

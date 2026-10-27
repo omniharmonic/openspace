@@ -1,5 +1,6 @@
 import type { Preset } from "@omniharmonic/openspace-blocks";
 import type { Position } from "@omniharmonic/openspace-ops";
+import type { ComponentDefinition } from "@omniharmonic/openspace-schema";
 import { useState } from "react";
 import { Button, Dialog, toast } from "../../ui";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
@@ -8,6 +9,7 @@ import { canAddSections, isDesigner, type Role } from "../inspector/model/permis
 import { RoleNote } from "../inspector/ui";
 import { useAddSection } from "./blockMenuStore";
 import {
+  componentCommand,
   insertedBlockTypes,
   positionFromSelection,
   presetCommand,
@@ -58,6 +60,42 @@ function usePick() {
       toast({ title: "Header updated", description: "Every page uses the new header." });
     return r.ok;
   };
+  /** A designer section: an instance of a site component, or a library design added first. */
+  const pickComponent = (def: ComponentDefinition, at?: Position) => {
+    const s = api.getState();
+    if (!canAddSections(role)) {
+      toast({
+        tone: "danger",
+        title: "You can’t add that here",
+        description: "Contributors write posts and events. Ask an editor to change pages.",
+      });
+      return false;
+    }
+    if (!s.doc.components?.[def.name] && !isDesigner(role)) {
+      toast({
+        tone: "danger",
+        title: "Ask your designer",
+        description:
+          "Only the site’s owner or designer can add a new designer section to the site.",
+      });
+      return false;
+    }
+    const r = s.run(
+      componentCommand(
+        s.doc,
+        s.pageId,
+        def,
+        at ?? positionFromSelection(s.doc, s.pageId, s.selection),
+      ),
+    );
+    if (!r.ok)
+      toast({
+        tone: "danger",
+        title: "That section couldn’t be added",
+        description: r.errors[0]?.message,
+      });
+    return r.ok;
+  };
   const pick = (preset: Preset, at?: Position, done?: () => void) => {
     if (preset.target === "footer" && !blockedTargets(role).includes("footer")) {
       setPendingFooter({ preset, ...(done ? { done } : {}) });
@@ -90,14 +128,14 @@ function usePick() {
       }
     />
   );
-  return { pick, confirm, role };
+  return { pick, pickComponent, confirm, role };
 }
 
 /** Left panel "Add section": the preset gallery, inserting after the selection. */
 export function AddSectionPanel() {
   const doc = useDocStore((s) => s.doc);
   const pageId = useDocStore((s) => s.pageId);
-  const { pick, confirm, role } = usePick();
+  const { pick, pickComponent, confirm, role } = usePick();
   return (
     <>
       {!canAddSections(role) && (
@@ -108,6 +146,8 @@ export function AddSectionPanel() {
         pageId={pageId}
         layout="panel"
         onPick={(p) => pick(p)}
+        onPickComponent={canAddSections(role) ? (d) => pickComponent(d) : undefined}
+        canAddComponents={isDesigner(role)}
         disabledTargets={blockedTargets(role)}
       />
       {confirm}
@@ -121,7 +161,7 @@ export function AddSectionDialog() {
   const at = useAddSection((s) => s.at);
   const doc = useDocStore((s) => s.doc);
   const pageId = useDocStore((s) => s.pageId);
-  const { pick, confirm, role } = usePick();
+  const { pick, pickComponent, confirm, role } = usePick();
   const close = () => useAddSection.getState().close();
   return (
     <>
@@ -142,6 +182,14 @@ export function AddSectionDialog() {
             onPick={(p) => {
               if (pick(p, at ?? "end", close)) close();
             }}
+            onPickComponent={
+              canAddSections(role)
+                ? (d) => {
+                    if (pickComponent(d, at ?? "end")) close();
+                  }
+                : undefined
+            }
+            canAddComponents={isDesigner(role)}
           />
         )}
       </Dialog>

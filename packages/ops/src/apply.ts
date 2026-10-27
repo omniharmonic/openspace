@@ -1,4 +1,10 @@
-import type { Block, GridItem, Section, SiteDocument } from "@omniharmonic/openspace-schema";
+import {
+  type Block,
+  componentType,
+  type GridItem,
+  type Section,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { produce } from "immer";
 import {
   autoPlace,
@@ -7,6 +13,7 @@ import {
   findBlock,
   findSection,
   getPage,
+  locateBlock,
   OpError,
   raiseRows,
   resolvePosition,
@@ -362,6 +369,27 @@ export function mutate(doc: SiteDocument, op: Op): void {
         if (!doc.collectionConfigs) doc.collectionConfigs = {};
         doc.collectionConfigs[op.collection] = clone(op.config);
       }
+      return;
+    }
+    case "component.upsert": {
+      const name = op.component.name;
+      if (!doc.components) doc.components = {};
+      doc.components[name] = clone(op.component);
+      for (const [id, inst] of Object.entries(op.instances ?? {})) {
+        const loc = locateBlock(doc, id);
+        if (!loc || loc.block.type !== componentType(name))
+          throw new OpError(`Block ${id} is not a ${name} section`, ["instances", id]);
+        loc.block.v = inst.v;
+        loc.block.fields = clone(inst.fields);
+      }
+      return;
+    }
+    case "component.delete": {
+      const components = doc.components;
+      if (!components || !Object.hasOwn(components, op.name))
+        throw new OpError(`Component ${op.name} does not exist`, ["components", op.name]);
+      delete components[op.name];
+      if (!op.keepEmpty && Object.keys(components).length === 0) delete doc.components;
       return;
     }
     default: {

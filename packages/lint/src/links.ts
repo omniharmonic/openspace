@@ -8,7 +8,9 @@ import {
   type SiteDocument,
   SiteDocumentSchema,
   suggestLinkTarget,
+  withComponents,
 } from "@omniharmonic/openspace-schema";
+import { componentIssues, componentsKitGate, usesComponents } from "./components";
 import { gatedPageLinks, hostingWarnings } from "./hosting";
 import { type CheckOptions, type Issue, issue, opMeta } from "./issue";
 
@@ -29,7 +31,9 @@ export function linkPlace(doc: SiteDocument, link: BrokenLink): string {
         ? doc.site.footer
         : doc.pages[link.container as Page["id"]]?.sections.find((x) => x.id === link.section);
     const block = container?.blocks.find((b) => b.id === link.block);
-    const label = (block && blocksRegistry().get(block.type)?.meta.label) || "block";
+    const label =
+      (block && withComponents(blocksRegistry(), doc.components).get(block.type)?.meta.label) ||
+      "block";
     const what = `A ${label.toLowerCase()}`;
     if (link.container === "footer") return `${what} in the footer`;
     const page = doc.pages[link.container as Page["id"]];
@@ -170,7 +174,7 @@ export function linkIssues(
 // --- publish gate -------------------------------------------------------------------------------
 
 export interface PublishProblem {
-  rule: "schema" | "block" | "link";
+  rule: "schema" | "block" | "link" | "component" | "kit";
   severity: "error" | "warning";
   /** Plain language: which page, which block, which link. */
   message: string;
@@ -205,6 +209,11 @@ export interface PublishCheckOptions {
    * one doesn't, and a publish must never be refused for a difference the site's run won't see.
    */
   blocks?: "error" | "warning";
+  /**
+   * The site's `package.json` / `package-lock.json` on the branch its publish run builds from.
+   * When the draft uses custom components, the site-kit they pin must be able to render them.
+   */
+  siteKit?: { packageJson?: string | null; packageLock?: string | null; installed?: string | null };
 }
 
 /**
@@ -213,6 +222,13 @@ export interface PublishCheckOptions {
  * (text links that lead nowhere) don't. Media files, sizes and secrets are checked by the site's
  * own publish run; members-only pages are never a problem here.
  */
+/** Block type at a document path (`pages.<id>.sections.<i>.blocks.<j>…` or the footer). */
+function blockTypeAtPath(doc: SiteDocument, path: readonly PropertyKey[]): string | undefined {
+  if (path[0] === "site") return doc.site.footer.blocks[Number(path[3])]?.type;
+  const page = doc.pages[String(path[1]) as Page["id"]];
+  return page?.sections[Number(path[3])]?.blocks[Number(path[5])]?.type;
+}
+
 export function publishCheck(doc: SiteDocument, options: PublishCheckOptions = {}): PublishCheck {
   const errors: PublishProblem[] = [];
   const warnings: PublishProblem[] = [];
@@ -225,13 +241,32 @@ export function publishCheck(doc: SiteDocument, options: PublishCheckOptions = {
         message: `Something ${where(doc, i.path)} isn't in a shape the site understands (${i.path.join(".")}: ${i.message}).`,
       });
   const blockSeverity = options.blocks ?? "error";
-  for (const i of blocksRegistry().validateDocument(doc).slice(0, 20))
-    (blockSeverity === "error" ? errors : warnings).push({
+  // Custom component instances are always checked against the site's own definitions.
+  const registry = withComponents(blocksRegistry(), doc.components);
+  for (const i of registry.validateDocument(doc).slice(0, 20)) {
+    const component = /^component\//.test(String(blockTypeAtPath(doc, i.path)));
+    (blockSeverity === "error" || component ? errors : warnings).push({
       rule: "block",
-      severity: blockSeverity,
+      severity: component ? "error" : blockSeverity,
       block: i.blockId,
-      message: `A block ${where(doc, i.path)} has a setting the site can't use (${i.message}).`,
+      message: `A ${component ? "designer section" : "block"} ${where(doc, i.path)} has a setting the site can't use (${i.message}).`,
     });
+  }
+  for (const i of componentIssues(doc)) {
+    const p: PublishProblem = {
+      rule: "component",
+      severity: i.severity === "error" ? "error" : "warning",
+      message: `${i.message} ${i.fix}`,
+      ...(i.page ? { page: i.page } : {}),
+      ...(i.section ? { section: i.section } : {}),
+      ...(i.block ? { block: i.block } : {}),
+    };
+    if (i.severity === "error") errors.push(p);
+  }
+  if (options.siteKit && usesComponents(doc)) {
+    const gate = componentsKitGate(options.siteKit);
+    if (!gate.ok) errors.push({ rule: "kit", severity: "error", message: gate.message as string });
+  }
   for (const link of findBrokenLinks(doc)) {
     const p: PublishProblem = {
       rule: "link",

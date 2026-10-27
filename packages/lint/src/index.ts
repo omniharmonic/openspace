@@ -6,6 +6,15 @@
 export const name = "@omniharmonic/openspace-lint";
 
 export {
+  COMPONENT_BUDGETS,
+  componentDefinitionIssues,
+  componentIssues,
+  componentsKitGate,
+  type KitGate,
+  rangeAdmits,
+  usesComponents,
+} from "./components";
+export {
   blockDisplayWidth,
   blocksInOrder,
   blockText,

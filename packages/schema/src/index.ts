@@ -10,6 +10,7 @@ export const name = "@omniharmonic/openspace-schema";
 export * from "./block";
 export * from "./block-registry";
 export * from "./collections";
+export * from "./components";
 export * from "./config";
 export * from "./define-block";
 export * from "./document";

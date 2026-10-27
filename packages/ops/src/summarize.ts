@@ -30,6 +30,9 @@ export interface ChangeStats {
   itemsSaved: number;
   itemsDeleted: number;
   collectionSettingsChanged: number;
+  /** Labels of custom components whose design was added or changed. */
+  componentsChanged: string[];
+  componentsRemoved: number;
 }
 
 const STYLE_LABELS: Record<string, string> = {
@@ -82,7 +85,10 @@ export function stats(ops: readonly Op[], doc: SiteDocument): ChangeStats {
     itemsSaved: 0,
     itemsDeleted: 0,
     collectionSettingsChanged: 0,
+    componentsChanged: [],
+    componentsRemoved: 0,
   };
+  const components = new Set<string>();
   const edited = new Set<string>();
   const created = new Set<string>();
   const deleted = new Set<string>();
@@ -171,6 +177,12 @@ export function stats(ops: readonly Op[], doc: SiteDocument): ChangeStats {
       case "collectionConfig.upsert":
         configs.add(op.collection);
         break;
+      case "component.upsert":
+        components.add(op.component.label);
+        break;
+      case "component.delete":
+        s.componentsRemoved++;
+        break;
     }
   }
   s.pagesCreated = [...created];
@@ -179,6 +191,7 @@ export function stats(ops: readonly Op[], doc: SiteDocument): ChangeStats {
   s.blocksEdited = editedBlocks.size;
   s.stylesChanged = [...styleLabels];
   s.collectionSettingsChanged = configs.size;
+  s.componentsChanged = [...components];
   return s;
 }
 
@@ -231,6 +244,15 @@ export function summarize(ops: readonly Op[], doc: SiteDocument): string {
   if (s.itemsDeleted) parts.push(`deleted ${count(s.itemsDeleted, "collection item")}`);
   if (s.collectionSettingsChanged)
     parts.push(`updated settings for ${count(s.collectionSettingsChanged, "collection")}`);
+  if (s.componentsChanged.length)
+    parts.push(
+      `changed the design of ${list(
+        s.componentsChanged.map((l) => `the ${l} section`),
+        2,
+        "sections",
+      )}`,
+    );
+  if (s.componentsRemoved) parts.push(`removed ${count(s.componentsRemoved, "designer section")}`);
   if (parts.length === 0) return "No changes";
   const text = parts.join("; ");
   return text.charAt(0).toUpperCase() + text.slice(1);
