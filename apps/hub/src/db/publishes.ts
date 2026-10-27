@@ -13,6 +13,8 @@ export interface PublishRow {
   actor: string;
   status: PublishStatus;
   error_code: string | null;
+  /** Specific failure copy (JSON `{ title, message }`) from the run's log, when there was any. */
+  error_detail?: string | null;
   run_url: string | null;
   created_at: number;
   updated_at: number;
@@ -89,7 +91,7 @@ export async function listPublishes(
 export async function updatePublish(
   db: D1Database,
   id: string,
-  patch: Partial<Pick<PublishRow, "status" | "error_code" | "run_url">>,
+  patch: Partial<Pick<PublishRow, "status" | "error_code" | "error_detail" | "run_url">>,
   now: number,
 ): Promise<void> {
   const entries = Object.entries(patch).filter(([, v]) => v !== undefined);

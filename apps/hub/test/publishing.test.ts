@@ -1,4 +1,5 @@
 import { env } from "cloudflare:test";
+import { getPreset, type SectionPreset } from "@omniharmonic/openspace-blocks";
 import { describe, expect, it } from "vitest";
 import { DevGitHubAccess } from "../src/github/dev";
 import { toHex } from "../src/lib/crypto";
@@ -6,7 +7,7 @@ import { unwrapRoom } from "../src/room";
 import { runScheduled } from "../src/scheduled";
 import { translateBuildError } from "../src/services/build-errors";
 import { call } from "./helpers";
-import { RoomClient, room, setText, setup, T } from "./room-helpers";
+import { op, RoomClient, room, setText, setup, T } from "./room-helpers";
 
 const repo = { owner: "maya-lin", name: "room-site" };
 const gh = () => new DevGitHubAccess(env.HUB_DB);
@@ -81,7 +82,7 @@ describe("publishing", () => {
     const mainBefore = (await gh().getRef(repo, "main")) as string;
     await edit(app, site.id, owner, "Published title");
     const { res, body } = await publish(app, site.id, owner);
-    expect(res.status).toBe(200);
+    expect(res.status, JSON.stringify(body)).toBe(200);
     expect(body).toMatchObject({ id: site.id, status: "live" });
     expect(body.publish).toMatchObject({
       status: "published",
@@ -290,6 +291,97 @@ describe("build status webhook", () => {
     expect(await ok.json()).toMatchObject({ result: "pong" });
   });
 
+  it("refuses to publish a draft whose links lead nowhere, naming page, block and link", async () => {
+    const { app, owner, site } = await setup();
+    const mainBefore = (await gh().getRef(repo, "main")) as string;
+    // A preset section as an older Studio inserted it: the preset's example links, unresolved.
+    const hero = getPreset("hero/full-bleed-photo@1") as SectionPreset;
+    const section = hero.build();
+    const res = await call(app, `/api/sites/${site.id}/room/ops`, {
+      method: "POST",
+      cookie: owner,
+      json: { ops: [op({ op: "section.insert", page: T.home, at: "end", section })] },
+    });
+    expect(res.status).toBe(200);
+    const blocked = await publish(app, site.id, owner);
+    expect(blocked.res.status).toBe(422);
+    const error = (blocked.body as unknown as { error: Record<string, unknown> }).error;
+    expect(error.code).toBe("publish_blocked");
+    expect(error.message).toContain("links to /book, which isn't a page on your site.");
+    expect(error.message).toContain("links to /retreats, which isn't a page on your site.");
+    expect(error.message).toMatch(/^A button on .+ links to \/book/);
+    expect(error.details).toMatchObject({
+      problems: [
+        { rule: "link", target: "/book", page: T.home, section: section.id },
+        { rule: "link", target: "/retreats", page: T.home, section: section.id },
+      ],
+    });
+    // Nothing reached the live site.
+    expect(await gh().getRef(repo, "main")).toBe(mainBefore);
+
+    // Point the links at the home page (what the Design check's fix does): publishing works.
+    const button = section.blocks.find((b) => b.type === "button");
+    const fix = await call(app, `/api/sites/${site.id}/room/ops`, {
+      method: "POST",
+      cookie: owner,
+      json: {
+        ops: [
+          op({
+            op: "block.update",
+            page: T.home,
+            block: button?.id,
+            set: {
+              link: { type: "page", page: T.home },
+              secondaryLink: { type: "url", url: "/" },
+            },
+          }),
+        ],
+      },
+    });
+    expect(fix.status).toBe(200);
+    const ok = await publish(app, site.id, owner);
+    expect(ok.res.status).toBe(200);
+    expect(ok.body.publish).toMatchObject({ status: "published" });
+  });
+
+  it("text links that lead nowhere are warnings: they don't stop a publish", async () => {
+    const { app, owner, site } = await setup();
+    const res = await call(app, `/api/sites/${site.id}/room/ops`, {
+      method: "POST",
+      cookie: owner,
+      json: {
+        ops: [
+          op({
+            op: "block.update",
+            page: T.home,
+            block: T.heroLead,
+            set: {
+              content: {
+                type: "doc",
+                content: [
+                  {
+                    type: "paragraph",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Timetable",
+                        marks: [{ type: "link", attrs: { href: "/timetable" } }],
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          }),
+        ],
+      },
+    });
+    expect(res.status).toBe(200);
+    const ok = await publish(app, site.id, owner);
+    expect(ok.res.status).toBe(200);
+    expect(ok.body.publish).toMatchObject({ status: "published" });
+  });
+
   it("maps a failed run to plain language, pushes it to the room, and 'Fix it for me' reverts", async () => {
     const { app, owner, site } = await setup();
     const good = (await gh().getRef(repo, "main")) as string;
@@ -350,6 +442,64 @@ describe("build status webhook", () => {
     expect(
       (await call(app, `/api/sites/${site.id}/fix`, { method: "POST", cookie: owner })).status,
     ).toBe(409);
+    client.close();
+  });
+
+  it("names the broken link from the run's log (openspace check), on the room and in versions", async () => {
+    const { app, owner, site } = await setup();
+    await edit(app, site.id, owner, "A new headline");
+    await publish(app, site.id, owner);
+    const bad = (await gh().getRef(repo, "main")) as string;
+    await env.HUB_DB.prepare("UPDATE publishes SET status = 'queued' WHERE sha = ?")
+      .bind(bad)
+      .run();
+    // The live test's log lines, as the dev emulation's failed run reports them.
+    const failedLog = [
+      "##[error]content/pages/home.json error link sections.0.blocks.1.fields.link: Link to /book does not lead to any page",
+      "##[error]content/pages/home.json error link sections.0.blocks.1.fields.secondaryLink: Link to /retreats does not lead to any page",
+    ].join("\n");
+    const row = await env.HUB_DB.prepare(
+      "INSERT INTO dev_workflow_runs (repo, workflow, ref, head_sha, inputs_json, status, conclusion, created_at, updated_at) VALUES (?, 'publish.yml', 'main', ?, ?, 'completed', 'failure', ?, ?) RETURNING id",
+    )
+      .bind(
+        "maya-lin/room-site",
+        bad,
+        JSON.stringify({ failedStep: "build: Check site", failedLog }),
+        Date.now(),
+        Date.now(),
+      )
+      .first<{ id: number }>();
+    const client = await RoomClient.connect(app, site.id, owner);
+    await webhook(app, "workflow_run", {
+      action: "completed",
+      repository: { full_name: "maya-lin/room-site" },
+      workflow_run: {
+        id: row?.id,
+        name: "Publish",
+        path: ".github/workflows/publish.yml",
+        head_sha: bad,
+        head_branch: "main",
+        status: "completed",
+        conclusion: "failure",
+        html_url: "https://github.com/maya-lin/room-site/actions/runs/1",
+        display_title: "Edited Home",
+      },
+    });
+    const notice = (await client.waitFor((m) => m.type === "build" && m.state === "failure")) as {
+      error: { code: string; title: string; message: string };
+    };
+    expect(notice.error.code).toBe("broken_link");
+    expect(notice.error.message).toMatch(
+      /^A \w+ on \S+ links to \/book, which isn't a page on your site\. A \w+ on \S+ links to \/retreats, which isn't a page on your site\./,
+    );
+    expect(notice.error.message).not.toMatch(/couldn't be read/);
+    const versions = (await (
+      await call(app, `/api/sites/${site.id}/versions`, { cookie: owner })
+    ).json()) as
+      | { versions?: { sha: string; error: unknown }[] }
+      | { sha: string; error: unknown }[];
+    const list = Array.isArray(versions) ? versions : (versions.versions ?? []);
+    expect(list.find((v) => v.sha === bad)?.error).toEqual(notice.error);
     client.close();
   });
 

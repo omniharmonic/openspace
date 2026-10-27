@@ -31,5 +31,6 @@ export async function unwrapRoom<T>(call: Promise<RoomResult<T>>): Promise<T> {
     r.error.status as ConstructorParameters<typeof HttpError>[0],
     r.error.code,
     r.error.message,
+    r.error.details,
   );
 }

@@ -743,16 +743,22 @@ export class DevGitHubAccess implements GitHubAccess {
       .run();
   }
 
-  async failedSteps(_repo: RepoRef, runId: number): Promise<string[]> {
+  async failedRun(_repo: RepoRef, runId: number): Promise<{ steps: string[]; log: string }> {
     const row = await this.db
       .prepare("SELECT inputs_json FROM dev_workflow_runs WHERE id = ?")
       .bind(runId)
       .first<{ inputs_json: string | null }>();
     try {
-      const inputs = JSON.parse(row?.inputs_json ?? "{}") as { failedStep?: string };
-      return inputs.failedStep ? [inputs.failedStep] : [];
+      const inputs = JSON.parse(row?.inputs_json ?? "{}") as {
+        failedStep?: string;
+        failedLog?: string;
+      };
+      return {
+        steps: inputs.failedStep ? [inputs.failedStep] : [],
+        log: inputs.failedLog ?? "",
+      };
     } catch {
-      return [];
+      return { steps: [], log: "" };
     }
   }
 

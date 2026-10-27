@@ -1,6 +1,6 @@
 import type { GitHubAppConfig } from "../env";
 import { base64ToBytes, utf8ToBase64 } from "../lib/crypto";
-import { type FetchLike, GITHUB_API, githubRequest } from "./http";
+import { API_VERSION, type FetchLike, GITHUB_API, githubRequest } from "./http";
 import { createAppJwt } from "./jwt";
 import { encryptGitHubSecret } from "./sealed-box";
 import {
@@ -99,6 +99,8 @@ function withCoAuthor(message: string, author?: CommitAuthor): string {
   return message.includes(trailer) ? message : `${message.trimEnd()}\n\n${trailer}`;
 }
 
+/** How much of a failed job's log (its end, where errors are) is read for build errors. */
+const MAX_LOG_CHARS = 256 * 1024;
 export class GitHubAppAccess implements GitHubAccess {
   readonly kind = "app" as const;
   private readonly fetchFn: FetchLike;
@@ -680,22 +682,58 @@ export class GitHubAppAccess implements GitHubAccess {
     });
   }
 
-  async failedSteps(repo: RepoRef, runId: number): Promise<string[]> {
+  async failedRun(repo: RepoRef, runId: number): Promise<{ steps: string[]; log: string }> {
     const data = await this.rest<{
       jobs: Array<{
+        id: number;
         name: string;
         conclusion: string | null;
         steps?: Array<{ name: string; conclusion: string | null }>;
       }>;
     }>(`${this.repoPath(repo)}/actions/runs/${runId}/jobs`, { allow404: true });
-    const out: string[] = [];
+    const steps: string[] = [];
+    const logs: string[] = [];
     for (const job of data?.jobs ?? []) {
       if (job.conclusion !== "failure") continue;
-      const steps = (job.steps ?? []).filter((s) => s.conclusion === "failure");
-      if (steps.length) for (const s of steps) out.push(`${job.name}: ${s.name}`);
-      else out.push(job.name);
+      const failed = (job.steps ?? []).filter((s) => s.conclusion === "failure");
+      if (failed.length) for (const s of failed) steps.push(`${job.name}: ${s.name}`);
+      else steps.push(job.name);
+      // The job's log (GitHub redirects to a short-lived download). Best effort: the step
+      // names still say roughly what failed without it.
+      try {
+        const text = await this.jobLog(repo, job.id);
+        if (text) logs.push(text.slice(-MAX_LOG_CHARS));
+      } catch {
+        // Logs expire or may be unavailable to the installation.
+      }
     }
-    return out;
+    return { steps, log: logs.join("\n") };
+  }
+
+  /**
+   * A job's plain-text log. GitHub answers with a redirect to a short-lived download URL that
+   * must be fetched without our token (blob storage rejects foreign Authorization headers).
+   */
+  private async jobLog(repo: RepoRef, jobId: number): Promise<string | null> {
+    const token = await this.token("installation");
+    const res = await this.fetchFn(
+      `${this.base}${this.repoPath(repo)}/actions/jobs/${jobId}/logs`,
+      {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": API_VERSION,
+          "User-Agent": "openspace-hub",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        redirect: "manual",
+      },
+    );
+    const location = res.headers.get("location");
+    if (res.status >= 300 && res.status < 400 && location) {
+      const download = await this.fetchFn(location, { headers: { "User-Agent": "openspace-hub" } });
+      return download.ok ? download.text() : null;
+    }
+    return res.ok ? res.text() : null;
   }
 
   async openPullRequest(
