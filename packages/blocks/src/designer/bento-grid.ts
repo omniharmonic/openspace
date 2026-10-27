@@ -58,8 +58,14 @@ export const bentoGrid: ComponentDefinition = {
         photo: photo("meetup", 640),
         size: "wide",
       },
-      { title: "Bike storage", text: "Secure, covered, with a pump.", size: "tall" },
+      { title: "Bike storage", text: "Secure, covered, with a pump.", size: "standard" },
       { title: "Coffee that's good", text: "Local roasters, rotating monthly.", size: "standard" },
+      {
+        title: "Day passes",
+        text: "Try a day before you commit: desk, coffee and Wi-Fi included.",
+        size: "wide",
+        link: { type: "url", url: "/pricing" },
+      },
     ],
   },
   template: `<div class="bg">

@@ -141,7 +141,7 @@ export const scrollStory: ComponentDefinition = {
 .ss__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(16rem, 23rem);
+  grid-auto-columns: clamp(16rem, 30vw, 26rem);
   gap: var(--os-space-lg);
   margin: 0;
   padding: var(--os-space-2xs) 0 var(--os-space-lg);

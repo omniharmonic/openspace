@@ -152,7 +152,9 @@ export const editorialHero: ComponentDefinition = {
 }
 @media (max-width: 767px) {
   .eh, .eh[data-layout="image-left"] { grid-template-columns: minmax(0, 1fr); gap: var(--os-space-xl); }
-  .eh[data-layout] .eh__media { order: -1; }
+  .eh[data-layout="image-left"] .eh__media { order: 0; }
+  .eh__frame { aspect-ratio: 4 / 3; }
+  .eh__frame picture, .eh__frame img { display: block; width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; }
 }
 @media (prefers-reduced-motion: reduce) {
   .eh__frame, .eh__frame img, .eh__copy > * { animation: none; }
