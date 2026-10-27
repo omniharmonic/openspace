@@ -2,6 +2,7 @@ import type { SiteDocument, Styles } from "@omniharmonic/openspace-schema";
 import type { BuildState, PublishError, RoomSocket } from "../features/sync/protocol";
 import type { CatalogApi } from "./catalog-types";
 import type { GrowthApi } from "./growth-types";
+import type { ImportApi } from "./import-types";
 import type { ManageApi } from "./manage-types";
 
 /**
@@ -130,6 +131,8 @@ export interface Site {
    * owner has to do something on GitHub first; `connectUrl` (a Hub page) takes them there.
    */
   github?: { access: GitHubAccess; connectUrl: string | null };
+  /** The site was moved in from another address ("Move my site"): its newest import. */
+  import?: { id: string; state: string; kind: string } | null;
 }
 
 export type GitHubAccess = "ok" | "install" | "repo_access" | "requested";
@@ -169,7 +172,7 @@ export interface GitHubSignInParams {
  * subscribers, analytics, commerce, members and email (Task 25, ./growth-types.ts).
  * `CatalogApi`: template documents and kit updates (Task 26, ./catalog-types.ts).
  */
-export interface HubApi extends ManageApi, GrowthApi, CatalogApi {
+export interface HubApi extends ManageApi, GrowthApi, CatalogApi, ImportApi {
   readonly kind: "http" | "mock";
   getSession(): Promise<Session>;
   devLogin(name: string): Promise<User>;

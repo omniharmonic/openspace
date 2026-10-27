@@ -1,6 +1,7 @@
 import type { RoomSocket } from "../features/sync/protocol";
 import { createCatalogHttp } from "./catalog-http";
 import { createGrowthHttp } from "./growth-http";
+import { createImportHttp } from "./import-http";
 import { createManageHttp } from "./manage-http";
 import {
   BUSY_MESSAGE,
@@ -114,6 +115,7 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
     kind: "http",
     ...createManageHttp({ request, baseUrl, fetch: doFetch, readError }),
     ...createCatalogHttp({ request }),
+    ...createImportHttp({ request }),
     ...createGrowthHttp({ request, baseUrl, fetch: doFetch, readError }),
 
     async getSession() {

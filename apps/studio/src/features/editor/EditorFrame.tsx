@@ -34,6 +34,7 @@ import {
 import { lazy, type ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { useSession, useSite } from "../../api";
+import { importInProgress } from "../../api/import-types";
 import { isTransientError } from "../../api/resilience";
 import { needsGitHub, type Site } from "../../api/types";
 import { LoadError } from "../../app/Connection";
@@ -969,6 +970,9 @@ export function EditorFrame() {
 
   if (user && site.data && waitingForGitHub)
     return <ConnectGitHub site={site.data} isOwner={(site.data.role ?? "owner") === "owner"} />;
+  // A site still being moved in: its progress screen, not the placeholder page.
+  if (user && site.data?.import && importInProgress(site.data.import.state))
+    return <Navigate to={`/move/${site.data.import.id}`} replace />;
   const loading =
     session.isPending ||
     (user && site.isPending) ||

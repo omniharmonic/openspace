@@ -10,6 +10,8 @@ export {
   githubStartUrl,
   hubMcpUrl,
 } from "./http";
+export * from "./import-queries";
+export * from "./import-types";
 export * from "./manage-queries";
 export * from "./manage-types";
 export * from "./queries";
