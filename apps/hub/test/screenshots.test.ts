@@ -337,7 +337,9 @@ describe("screenshot helpers", () => {
         },
       },
     );
-    const [r] = await backend.capture([{ url: "https://old.example.com/", width: 390, fullPage: false }]);
+    const [r] = await backend.capture([
+      { url: "https://old.example.com/", width: 390, fullPage: false },
+    ]);
     expect(r?.images).toHaveLength(1);
     expect(launches).toBe(3);
     expect(waits).toHaveLength(2);

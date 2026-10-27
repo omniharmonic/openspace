@@ -98,7 +98,10 @@ test("phone: page list → section list → edit in the bottom sheet, reorder, p
   expect(first).toBeLessThan(html.indexOf(`data-os-id="${order[0]}"`));
 });
 
-test("phone: Connect your AI fits the screen (no sideways scrolling)", async ({ page, context }) => {
+test("phone: Connect your AI fits the screen (no sideways scrolling)", async ({
+  page,
+  context,
+}) => {
   await signIn(context, owner.user.name);
   await page.goto("/connect");
   await expect(page.getByRole("heading", { name: "Connect your AI" })).toBeVisible();
