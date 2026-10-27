@@ -131,33 +131,37 @@ export const testimonialsMorePresets = [
       whenToUse: "Agencies, consultants and software sold to organisations.",
       avoid: AVOID,
     },
-    make: () => ({
-      layout: stack({ cols: [6, 6], gap: "xl" }),
-      blocks: [
-        heading("What our clients say", { col: 0, eyebrow: "Clients" }),
-        testimonial(
-          "They rebuilt our checkout in eight weeks and conversion went up by a third. The calmest project we've ever run.",
-          "Marta Oyelaran",
-          "Head of Digital, Northwind Outfitters",
-          "portraitClara",
-          { col: 0, variant: "large" },
-        ),
-        testimonial(
-          "Clear thinking, honest estimates and a team that actually answers email. We've hired them three times.",
-          "Tom Becker",
-          "COO, Fieldhouse Coffee",
-          "portraitOwen",
-          { col: 1, variant: "large" },
-        ),
-        logos(
-          ["Northwind Outfitters", "Fieldhouse Coffee", "Saltmarsh Press", "Cedar & Pine"],
-          undefined,
-          {
-            col: 1,
-          },
-        ),
-      ],
-    }),
+    make: () => {
+      const h = heading("What our clients say", { eyebrow: "Clients" });
+      const a = testimonial(
+        "They rebuilt our checkout in eight weeks and conversion went up by a third. The calmest project we've ever run.",
+        "Marta Oyelaran",
+        "Head of Digital, Northwind Outfitters",
+        "portraitClara",
+        { variant: "card", style: panel("light-accent") },
+      );
+      const b = testimonial(
+        "Clear thinking, honest estimates and a team that actually answers email. We've hired them three times.",
+        "Tom Becker",
+        "COO, Fieldhouse Coffee",
+        "portraitOwen",
+        { variant: "card", style: panel("light-accent") },
+      );
+      const wall = logos([
+        "Northwind Outfitters",
+        "Fieldhouse Coffee",
+        "Saltmarsh Press",
+        "Cedar & Pine",
+      ]);
+      return {
+        ...grid([
+          [h, r(1, 1, 16, 5), r(1, 1, 8, 5)],
+          [a, r(1, 7, 12, 10), r(1, 7, 8, 12)],
+          [b, r(13, 7, 12, 10), r(1, 20, 8, 12)],
+          [wall, r(1, 19, 24, 4), r(1, 33, 8, 7)],
+        ]),
+      };
+    },
   }),
 
   definePreset({
@@ -335,7 +339,7 @@ export const testimonialsMorePresets = [
           undefined,
           { col: 1, variant: "large" },
         ),
-        button("Read Rosa's story", c.primary, { col: 1, role: "tertiary" }),
+        button("Read Rosa's story", c.primary, { col: 1, role: "tertiary", align: "center" }),
       ],
     }),
   }),
@@ -397,42 +401,38 @@ export const testimonialsMorePresets = [
       whenToUse: "Studios, agencies and premium services.",
       avoid: AVOID,
     },
-    make: () => ({
-      layout: stack({ cols: [4, 4, 4], gap: "xl" }),
-      blocks: [
-        heading("Kind words", { col: 0, eyebrow: "Testimonials" }),
-        testimonial(
-          "They made our tiny flat feel twice the size without moving a wall.",
-          "Clara Moss",
-          "Flat in Leith",
-          "portraitClara",
-          {
-            col: 0,
-            variant: "minimal",
-          },
-        ),
-        testimonial(
-          "Every detail considered, every deadline met. Rare.",
-          "Owen Price",
-          "Townhouse renovation",
-          "portraitOwen",
-          {
-            col: 1,
-            variant: "minimal",
-          },
-        ),
-        testimonial(
-          "We still find little touches we hadn't noticed.",
-          "Nina Holt",
-          "Cottage kitchen",
-          "portraitNina",
-          {
-            col: 2,
-            variant: "minimal",
-          },
-        ),
-      ],
-    }),
+    make: () => {
+      const h = heading("Kind words", { eyebrow: "Testimonials" });
+      const a = testimonial(
+        "They made our tiny flat feel twice the size without moving a wall.",
+        "Clara Moss",
+        "Flat in Leith",
+        "portraitClara",
+        { variant: "minimal" },
+      );
+      const b = testimonial(
+        "Every detail considered, every deadline met. Rare.",
+        "Owen Price",
+        "Townhouse renovation",
+        "portraitOwen",
+        { variant: "minimal" },
+      );
+      const d = testimonial(
+        "We still find little touches we hadn't noticed.",
+        "Nina Holt",
+        "Cottage kitchen",
+        "portraitNina",
+        { variant: "minimal" },
+      );
+      return {
+        ...grid([
+          [h, r(1, 1, 16, 5), r(1, 1, 8, 5)],
+          [a, r(1, 7, 8, 8), r(1, 7, 8, 8)],
+          [b, r(9, 7, 8, 8), r(1, 16, 8, 8)],
+          [d, r(17, 7, 8, 8), r(1, 25, 8, 8)],
+        ]),
+      };
+    },
   }),
 
   definePreset({

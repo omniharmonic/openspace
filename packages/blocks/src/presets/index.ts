@@ -1,11 +1,13 @@
 import type { ColorTheme, Section } from "@omniharmonic/openspace-schema";
 import { aboutPresets } from "./categories/about";
+import { aboutMorePresets } from "./categories/about-more";
 import { contactPresets, ctaPresets, newsletterPresets } from "./categories/action";
 import { footerPresets, headerPresets as headers } from "./categories/chrome";
 import { blogPresets, eventsPresets, productsPresets } from "./categories/collections";
 import { featuresPresets } from "./categories/features";
 import { featuresMorePresets } from "./categories/features-more";
 import { galleryPresets } from "./categories/gallery";
+import { galleryMorePresets } from "./categories/gallery-more";
 import { heroPresets } from "./categories/hero";
 import { heroMorePresets } from "./categories/hero-more";
 import { impactPresets } from "./categories/impact";
@@ -16,6 +18,7 @@ import { pricingPresets } from "./categories/pricing";
 import { pricingMorePresets } from "./categories/pricing-more";
 import { processPresets } from "./categories/process";
 import { servicesPresets } from "./categories/services";
+import { servicesMorePresets } from "./categories/services-more";
 import { testimonialsPresets } from "./categories/testimonials";
 import { testimonialsMorePresets } from "./categories/testimonials-more";
 import type { HeaderPreset, Preset, PresetCategory, PresetMeta, SectionPreset } from "./types";
@@ -48,11 +51,14 @@ export const sectionPresets: readonly SectionPreset[] = [
   ...heroPresets,
   ...heroMorePresets,
   ...aboutPresets,
+  ...aboutMorePresets,
   ...servicesPresets,
+  ...servicesMorePresets,
   ...featuresPresets,
   ...featuresMorePresets,
   ...processPresets,
   ...galleryPresets,
+  ...galleryMorePresets,
   ...portfolioPresets,
   ...testimonialsPresets,
   ...testimonialsMorePresets,

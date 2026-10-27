@@ -195,8 +195,8 @@ export const tableCss = `
 .os-table__table{width:100%;min-width:calc(10rem + var(--cols,3) * 7.5rem);border-collapse:collapse;font-variant-numeric:tabular-nums}
 .os-table__caption{caption-side:top;text-align:start;padding:0 0 var(--os-space-xs);color:var(--os-color-text-muted);font-size:var(--os-type-small-font-size)}
 .os-table th,.os-table td{padding:0.85em 1em;text-align:center;vertical-align:middle;border-bottom:1px solid var(--os-color-border)}
-.os-table__rowhead,.os-table__corner,.os-table__group th{text-align:start}
-.os-table__rowhead{font-weight:var(--os-font-weight-body);color:var(--os-color-text)}
+.os-table .os-table__rowhead,.os-table .os-table__corner,.os-table .os-table__group th{text-align:start}
+.os-table .os-table__rowhead{font-weight:var(--os-font-weight-body);color:var(--os-color-text)}
 .os-table thead th{vertical-align:bottom;color:var(--os-color-heading);font-weight:var(--os-font-weight-strong)}
 .os-table__corner{color:var(--os-color-text-muted);font-size:var(--os-type-small-font-size)}
 .os-table__label{display:block;font-family:var(--os-font-heading);font-size:var(--os-type-h4-font-size);line-height:1.2}
