@@ -56,6 +56,9 @@ export function CampaignComposer({
   const designer = can(site, "designer");
   const senders = useSenders(site.id, designer);
   const sender = senders.data?.find((s) => s.id === campaign.senderId) ?? senders.data?.[0];
+  // Say so before anyone writes and presses Send, not after the Hub refuses.
+  const noSender =
+    designer && senders.isSuccess && !senders.data.some((s) => s.status === "verified");
   const [draft, setDraft] = useState<Draft>(() => toDraft(campaign));
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -208,13 +211,28 @@ export function CampaignComposer({
           )
         ) : (
           <>
-            <TestSend siteId={site.id} campaignId={campaign.id} beforeSend={flush} onError={fail} />
+            <TestSend
+              siteId={site.id}
+              campaignId={campaign.id}
+              beforeSend={flush}
+              onError={fail}
+              disabled={noSender}
+            />
             {designer && (
               <>
-                <Button icon={<CalendarClock />} onClick={() => setScheduling(true)}>
+                <Button
+                  icon={<CalendarClock />}
+                  onClick={() => setScheduling(true)}
+                  disabled={noSender}
+                >
                   Schedule
                 </Button>
-                <Button variant="primary" icon={<Send />} onClick={() => setConfirmSend(true)}>
+                <Button
+                  variant="primary"
+                  icon={<Send />}
+                  onClick={() => setConfirmSend(true)}
+                  disabled={noSender}
+                >
                   Send now
                 </Button>
               </>
@@ -223,6 +241,22 @@ export function CampaignComposer({
         )}
       </div>
 
+      {noSender && !problem && (
+        <div className="st-callout st-callout--pending" role="note">
+          <Send aria-hidden="true" />
+          <span>
+            <strong>Connect your email sender before sending.</strong> You can write and save this
+            email now; sending and tests start working once your address is set up.{" "}
+            <button
+              type="button"
+              className="st-linklike"
+              onClick={() => navigate(workspacePath(site.id, "campaigns", "sender"))}
+            >
+              Set up sending
+            </button>
+          </span>
+        </div>
+      )}
       {problem && (
         <div className="st-callout st-callout--danger" role="alert">
           <Send aria-hidden="true" />
@@ -387,11 +421,13 @@ function TestSend({
   campaignId,
   beforeSend,
   onError,
+  disabled,
 }: {
   siteId: string;
   campaignId: string;
   beforeSend: () => Promise<unknown>;
   onError: (err: unknown) => void;
+  disabled?: boolean;
 }) {
   const actions = useCampaignActions(siteId);
   const [open, setOpen] = useState(false);
@@ -402,7 +438,11 @@ function TestSend({
       onOpenChange={setOpen}
       title="Send yourself a test"
       width={300}
-      trigger={<Button icon={<TestTube2 />}>Send a test</Button>}
+      trigger={
+        <Button icon={<TestTube2 />} disabled={disabled}>
+          Send a test
+        </Button>
+      }
     >
       <form
         className="st-form"
