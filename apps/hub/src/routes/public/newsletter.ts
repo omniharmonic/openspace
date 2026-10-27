@@ -9,6 +9,7 @@
 
 import { esc } from "@omniharmonic/openspace-email-render";
 import { Hono } from "hono";
+import { emailDeliverable } from "../../lib/capabilities";
 import { HttpError } from "../../lib/errors";
 import { PAGE_HEADERS, publicPage } from "../../lib/page";
 import {
@@ -40,6 +41,8 @@ export const publicNewsletterRoutes = new Hono<AppEnv>();
 publicNewsletterRoutes.use("/n/:siteId/subscribe", publicSiteCors(), publicErrors("os_newsletter"));
 
 const PENDING_MESSAGE = "Almost there — check your inbox to confirm your subscription.";
+/** Without an email provider no confirmation goes out: promise nothing the Hub can't send. */
+const RECEIVED_MESSAGE = "Thanks — your signup was received.";
 
 publicNewsletterRoutes.post("/n/:siteId/subscribe", async (c) => {
   const { services } = c.var;
@@ -61,8 +64,8 @@ publicNewsletterRoutes.post("/n/:siteId/subscribe", async (c) => {
       status,
       single(fields._anchor),
     );
-  const done = () =>
-    json ? c.json({ ok: true, message: PENDING_MESSAGE }) : c.redirect(back("pending"), 303);
+  const message = emailDeliverable(services) ? PENDING_MESSAGE : RECEIVED_MESSAGE;
+  const done = () => (json ? c.json({ ok: true, message }) : c.redirect(back("pending"), 303));
   if (single(fields._hp)) return done();
 
   const blocked = await gate(

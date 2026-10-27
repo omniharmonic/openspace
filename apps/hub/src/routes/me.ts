@@ -1,14 +1,12 @@
 import { Hono } from "hono";
-import type { AppEnv } from "../types";
 import { hubCapabilities } from "../lib/capabilities";
+import type { AppEnv } from "../types";
 import { publicUser } from "./auth";
 
 export const meRoutes = new Hono<AppEnv>();
 
 /** GET /api/capabilities — what this Hub can deliver (email, payments, Turnstile, hosting). */
-meRoutes.get("/capabilities", (c) =>
-  c.json({ capabilities: hubCapabilities(c.var.services) }),
-);
+meRoutes.get("/capabilities", (c) => c.json({ capabilities: hubCapabilities(c.var.services) }));
 
 /**
  * GET /api/me — `{ user, auth, capabilities }`. Signed out is not an error: `user` is null and `auth` still

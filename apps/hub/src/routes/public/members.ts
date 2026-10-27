@@ -13,6 +13,7 @@
 import { esc } from "@omniharmonic/openspace-email-render";
 import { type Context, Hono } from "hono";
 import { getCookie } from "hono/cookie";
+import { emailDeliverable } from "../../lib/capabilities";
 import { HttpError } from "../../lib/errors";
 import { PAGE_HEADERS, PAGE_HEADERS_REDIRECTING, publicPage } from "../../lib/page";
 import {
@@ -55,6 +56,8 @@ publicMemberRoutes.get("/.well-known/jwks.json", async (c) => {
 publicMemberRoutes.use("/m/:siteId/login", publicSiteCors(), publicErrors("os_member"));
 
 const SENT = "Check your inbox — we've sent you a sign-in link.";
+const NO_EMAIL =
+  "Sign-in links are sent by email, and this site can't send email yet. Please contact the site's owner.";
 
 function loginPageHeaders(siteKey: string | null) {
   if (!siteKey) return PAGE_HEADERS;
@@ -85,6 +88,17 @@ publicMemberRoutes.get("/m/:siteId/login", async (c) => {
     return c.redirect(await memberCallbackUrl(c.var.services, site, remembered, ret), 303);
   }
   if (getCookie(c, HUB_MEMBER_COOKIE)) c.header("Set-Cookie", hubMemberCookie(c, site.id, "", 0));
+  if (!emailDeliverable(c.var.services))
+    return c.html(
+      publicPage({
+        title: "Sign-in isn't available yet",
+        heading: "Sign-in isn't available yet",
+        body: NO_EMAIL,
+        link: { href: siteBaseUrl(site, c.var.config.hubUrl), label: `Back to ${site.name}` },
+      }),
+      503,
+      PAGE_HEADERS,
+    );
   const form = `<form method="post" action="/m/${esc(site.id)}/login">
 <p><label for="email">Email address</label><br><input id="email" name="email" type="email" required autocomplete="email" inputmode="email" style="width:100%;padding:10px;font:inherit;border:1px solid var(--line);border-radius:8px"></p>
 <input type="hidden" name="return_to" value="${esc(ret)}"><input type="hidden" name="_hub" value="1">
@@ -145,6 +159,24 @@ publicMemberRoutes.post("/m/:siteId/login", async (c) => {
         ? sentPage()
         : c.redirect(back("sent"), 303);
   if (single(fields._hp)) return done();
+  // No email provider: a sign-in link can't be sent, so say so instead of "check your inbox".
+  if (!emailDeliverable(services)) {
+    if (json)
+      return c.json(
+        failureBody({ status: 503, code: "email_unavailable", message: NO_EMAIL }),
+        503,
+      );
+    return c.html(
+      publicPage({
+        title: "Sign-in isn't available yet",
+        heading: "Sign-in isn't available yet",
+        body: NO_EMAIL,
+        link: { href: base, label: `Back to ${site.name}` },
+      }),
+      503,
+      PAGE_HEADERS,
+    );
+  }
 
   const blocked = await gate(
     c,

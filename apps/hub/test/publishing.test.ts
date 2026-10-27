@@ -523,9 +523,11 @@ describe("build status webhook", () => {
       },
     });
     const status = async () =>
-      ((await (await call(app, `/api/sites/${site.id}`, { cookie: owner })).json()) as {
-        status: string;
-      }).status;
+      (
+        (await (await call(app, `/api/sites/${site.id}`, { cookie: owner })).json()) as {
+          status: string;
+        }
+      ).status;
     await webhook(app, "workflow_run", run(bad, "failure"));
     expect(await status()).toBe("failed");
     // An old run (started before the newest publish) of some other commit changes nothing.

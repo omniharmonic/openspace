@@ -118,7 +118,10 @@ async function sealInviteToken(services: Services, id: string, token: string) {
 async function storedAcceptUrl(services: Services, r: InvitationRow): Promise<string | null> {
   if (!r.token_sealed) return null;
   try {
-    return acceptUrlFor(services, await openSecret(services.config, r.token_sealed, inviteAad(r.id)));
+    return acceptUrlFor(
+      services,
+      await openSecret(services.config, r.token_sealed, inviteAad(r.id)),
+    );
   } catch {
     return null;
   }
@@ -358,9 +361,7 @@ export async function resendInvitation(
   }
   row.expires_at = now + INVITE_TTL_MS;
   await services.db
-    .prepare(
-      "UPDATE invitations SET token_hash = ?, token_sealed = ?, expires_at = ? WHERE id = ?",
-    )
+    .prepare("UPDATE invitations SET token_hash = ?, token_sealed = ?, expires_at = ? WHERE id = ?")
     .bind(row.token_hash, row.token_sealed ?? null, row.expires_at, row.id)
     .run();
   const emailed = await emailInvitation(services, site, row, user, acceptUrl, log);

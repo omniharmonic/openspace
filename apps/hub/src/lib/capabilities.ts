@@ -28,7 +28,10 @@ export function hubCapabilities(services: Services): HubCapabilities {
   const dev = services.config.devMode;
   return {
     email: { configured: pub.emailProvider !== "dev", devOutbox: dev },
-    payments: { configured: growth.stripeDev || growth.stripeSecretKey !== null, dev: growth.stripeDev },
+    payments: {
+      configured: growth.stripeDev || growth.stripeSecretKey !== null,
+      dev: growth.stripeDev,
+    },
     turnstile: { configured: !pub.turnstile.dev && pub.turnstile.secret !== null },
     hosting: { githubPages: true, cloudflare: true },
   };

@@ -671,18 +671,10 @@ describe("sites API (dev GitHub)", () => {
     const t = Date.parse("2026-10-27T10:00:00Z");
     expect(currentRunState({ state: "failure", sha: "b".repeat(40) }, head, t)).toBe("queued");
     expect(
-      currentRunState(
-        { state: "failure", sha: head, updatedAt: "2026-10-27T09:00:00Z" },
-        head,
-        t,
-      ),
+      currentRunState({ state: "failure", sha: head, updatedAt: "2026-10-27T09:00:00Z" }, head, t),
     ).toBe("queued");
     expect(
-      currentRunState(
-        { state: "success", sha: head, updatedAt: "2026-10-27T10:00:01Z" },
-        head,
-        t,
-      ),
+      currentRunState({ state: "success", sha: head, updatedAt: "2026-10-27T10:00:01Z" }, head, t),
     ).toBe("success");
     expect(currentRunState({ state: "in_progress", sha: head }, head, null)).toBe("in_progress");
     expect(currentRunState({ state: "none" }, head, t)).toBe("none");

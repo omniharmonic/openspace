@@ -5,9 +5,11 @@
  * - Unsubscribe tokens are stateless HMACs of the subscriber id (`unsubscribeToken`) so every
  *   email — including Task 18's campaigns — can carry a stable RFC 8058 one-click link.
  */
+
 import { confirmSubscriptionEmail, unsubscribeHeaders } from "@omniharmonic/openspace-email-render";
 import { z } from "zod";
 import type { SiteRow } from "../db/sites";
+import { emailDeliverable } from "../lib/capabilities";
 import { base64url, randomId, randomToken, sha256Hex, timingSafeEqual } from "../lib/crypto";
 import { badRequest, HttpError } from "../lib/errors";
 import { requireHmacKey } from "../public-env";
@@ -239,6 +241,9 @@ export async function subscribe(
       count,
     )
     .run();
+  // No way to send the confirmation (no email provider): the signup waits as pending and the
+  // owner confirms it in Studio. The visitor is told only that the signup was received.
+  if (!emailDeliverable(services)) return "pending";
   const confirmUrl = `${services.config.hubUrl}/n/confirm/${token}`;
   const mail = confirmSubscriptionEmail({
     site: emailSite(site),
@@ -548,4 +553,33 @@ export async function allSubscribers(db: D1Database, siteId: string): Promise<Su
       .bind(siteId)
       .all<SubscriberRow>()
   ).results;
+}
+
+/**
+ * The owner confirms a pending subscriber by hand (Studio → Subscribers → "Mark as confirmed"),
+ * e.g. while the Hub can't send confirmation emails. Like a CSV import, the owner attests the
+ * person agreed to receive their emails. Null when there is no such pending subscriber.
+ */
+export async function confirmSubscriberManually(
+  services: Services,
+  siteId: string,
+  subscriberId: string,
+): Promise<"confirmed" | "full" | null> {
+  const { db } = services;
+  const row = await db
+    .prepare("SELECT * FROM subscribers WHERE site_id = ? AND id = ? AND status = 'pending'")
+    .bind(siteId, subscriberId)
+    .first<SubscriberRow>();
+  if (!row) return null;
+  const limits = await siteQuotaLimits(db, siteId, services.pub.quotaOverrides);
+  if ((await activeSubscriberCount(db, siteId)) >= limits.subscribers) return "full";
+  const now = services.now();
+  await db
+    .prepare(
+      `UPDATE subscribers SET status = 'confirmed', confirmed_at = ?, confirm_token_hash = NULL,
+         confirm_expires_at = NULL, updated_at = ? WHERE id = ?`,
+    )
+    .bind(now, now, row.id)
+    .run();
+  return "confirmed";
 }

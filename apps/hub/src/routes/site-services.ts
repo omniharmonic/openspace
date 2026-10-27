@@ -41,6 +41,7 @@ import {
 } from "../services/forms";
 import { analyticsReport } from "../services/insights";
 import {
+  confirmSubscriberManually,
   getSubscriber,
   importSubscribers,
   listSubscribers,
@@ -48,7 +49,7 @@ import {
   TagSchema,
   toSubscriberView,
 } from "../services/newsletter";
-import { quotaReport } from "../services/quotas";
+import { quotaExceeded, quotaReport } from "../services/quotas";
 import { publicGuide, REGISTRARS } from "../services/registrars";
 import { getSettings, PatchServiceSettingsSchema, patchSettings } from "../services/settings";
 import { requireRole, siteForUser } from "../services/sites";
@@ -407,6 +408,24 @@ siteServiceRoutes.patch("/:id/subscribers/:subId", async (c) => {
     .run();
   await log(c, site.id, user, "subscriber.update", { id: row.id, ...body });
   const updated = await getSubscriber(services.db, site.id, row.id);
+  return c.json({ subscriber: updated ? toSubscriberView(updated) : null });
+});
+
+/** POST /api/sites/:id/subscribers/:subId/confirm { consent: true } — owner confirms by hand. */
+siteServiceRoutes.post("/:id/subscribers/:subId/confirm", async (c) => {
+  const { site, user } = await siteWith(c, "designer");
+  await readJson(
+    c,
+    z.strictObject({
+      consent: z.literal(true, { message: "Confirm this person agreed to receive your emails." }),
+    }),
+  );
+  const { services } = c.var;
+  const result = await confirmSubscriberManually(services, site.id, c.req.param("subId"));
+  if (!result) throw notFound("That subscriber isn't waiting to confirm.");
+  if (result === "full") throw quotaExceeded("subscriber");
+  await log(c, site.id, user, "subscriber.confirm", { id: c.req.param("subId") });
+  const updated = await getSubscriber(services.db, site.id, c.req.param("subId"));
   return c.json({ subscriber: updated ? toSubscriberView(updated) : null });
 });
 
