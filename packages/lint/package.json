@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/lint",
+  "name": "@omniharmonic/openspace-lint",
   "version": "0.1.0",
   "description": "OpenSpace Design check, SEO check and mobile auto-layout.",
   "license": "MIT",
@@ -35,9 +35,9 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@openspace/blocks": "workspace:*",
-    "@openspace/ops": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/theme": "workspace:*"
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-ops": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*"
   }
 }

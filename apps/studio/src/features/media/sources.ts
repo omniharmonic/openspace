@@ -1,5 +1,5 @@
-import type { ImageMap, ResolvedImage } from "@openspace/renderer";
-import type { SiteDocument } from "@openspace/schema";
+import type { ImageMap, ResolvedImage } from "@omniharmonic/openspace-renderer";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { useMemo } from "react";
 import { create } from "zustand";
 

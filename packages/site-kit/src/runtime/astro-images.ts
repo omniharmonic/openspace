@@ -8,7 +8,7 @@
 import { getImage } from "astro:assets";
 import { mediaImports } from "virtual:openspace/media";
 import { doc } from "virtual:openspace/site";
-import type { ImageMap, ResolvedImage } from "@openspace/renderer";
+import type { ImageMap, ResolvedImage } from "@omniharmonic/openspace-renderer";
 import {
   fallbackFormat,
   fallbackWidth,

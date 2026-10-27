@@ -1,5 +1,9 @@
-import { allBlocks } from "@openspace/blocks";
-import { type AnyBlockDefinition, BLOCK_CATEGORIES, type BlockCategory } from "@openspace/schema";
+import { allBlocks } from "@omniharmonic/openspace-blocks";
+import {
+  type AnyBlockDefinition,
+  BLOCK_CATEGORIES,
+  type BlockCategory,
+} from "@omniharmonic/openspace-schema";
 import { Command } from "cmdk";
 import { Search } from "lucide-react";
 import { Dialog as RDialog } from "radix-ui";

@@ -1,4 +1,4 @@
-import type { COLOR_ROLES, COLOR_SCALE_STEPS } from "@openspace/schema";
+import type { COLOR_ROLES, COLOR_SCALE_STEPS } from "@omniharmonic/openspace-schema";
 
 /** A semantic color role (doc 04 §3.1), e.g. `text-muted`. */
 export type ColorRole = (typeof COLOR_ROLES)[number];

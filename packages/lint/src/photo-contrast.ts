@@ -1,5 +1,5 @@
-import type { Block, RichTextDoc, Section, StyleChoices } from "@openspace/schema";
-import { contrastRatio, toHex } from "@openspace/theme";
+import type { Block, RichTextDoc, Section, StyleChoices } from "@omniharmonic/openspace-schema";
+import { contrastRatio, toHex } from "@omniharmonic/openspace-theme";
 import { NON_TEXT_BLOCKS } from "./content";
 
 /**

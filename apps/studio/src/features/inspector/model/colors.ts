@@ -1,6 +1,6 @@
-import { compiledStylesFor } from "@openspace/renderer";
-import { type ColorTheme, ColorTokenSchema, type Styles } from "@openspace/schema";
-import { isColor, toHex } from "@openspace/theme";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
+import { type ColorTheme, ColorTokenSchema, type Styles } from "@omniharmonic/openspace-schema";
+import { isColor, toHex } from "@omniharmonic/openspace-theme";
 import type { ColorToken, ColorValue } from "../../../ui";
 
 /**

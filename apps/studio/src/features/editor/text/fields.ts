@@ -1,5 +1,5 @@
-import { blocksRegistry } from "@openspace/blocks";
-import type { Block, FieldMeta, RichTextDoc } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { Block, FieldMeta, RichTextDoc } from "@omniharmonic/openspace-schema";
 
 /**
  * The words in a block that can be edited on the canvas: every rich-text and plain text field,

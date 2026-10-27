@@ -1,5 +1,5 @@
-import { cx, siteUrlFor, useRenderContext } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { cx, siteUrlFor, useRenderContext } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import { EditorNotice } from "../shared";
 
 const SearchIcon = ({ size = 20 }: { size?: number }) => (

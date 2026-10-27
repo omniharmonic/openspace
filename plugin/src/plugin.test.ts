@@ -1,10 +1,15 @@
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { getPreset } from "@openspace/blocks";
-import { ALL_TOOLS, createMcpServer, MemorySiteStore, PROMPTS } from "@openspace/mcp-tools";
-import { loadSiteDocument } from "@openspace/site-kit/content";
-import { loadTemplate, TEMPLATE_IDS } from "@openspace/templates";
+import { getPreset } from "@omniharmonic/openspace-blocks";
+import {
+  ALL_TOOLS,
+  createMcpServer,
+  MemorySiteStore,
+  PROMPTS,
+} from "@omniharmonic/openspace-mcp-tools";
+import { loadSiteDocument } from "@omniharmonic/openspace-site-kit/content";
+import { loadTemplate, TEMPLATE_IDS } from "@omniharmonic/openspace-templates";
 import { describe, expect, it } from "vitest";
 import {
   agentFiles,
@@ -76,7 +81,7 @@ describe("plugin structure (plugin-validator checklist)", () => {
     };
     expect(local.mcpServers.openspace).toEqual({
       command: "npx",
-      args: ["-y", "@openspace/cli", "mcp"],
+      args: ["-y", "@omniharmonic/openspace-cli", "mcp"],
     });
     const remote = readJson(join(PLUGIN_ROOT, "examples", "remote-hub.mcp.json")) as {
       mcpServers: Record<string, { type: string; url: string }>;
@@ -89,7 +94,7 @@ describe("plugin structure (plugin-validator checklist)", () => {
     const cli = JSON.parse(
       readFileSync(join(REPO_ROOT, "packages", "cli", "package.json"), "utf8"),
     ) as { name: string; publishConfig: { bin: Record<string, string> } };
-    expect(cli.name).toBe("@openspace/cli");
+    expect(cli.name).toBe("@omniharmonic/openspace-cli");
     expect(Object.keys(cli.publishConfig.bin)).toEqual(["openspace"]);
     expect(readFileSync(join(REPO_ROOT, "packages", "cli", "src", "program.ts"), "utf8")).toMatch(
       /\.command\("mcp"\)/,
@@ -161,7 +166,7 @@ describe("validator catches broken plugins", () => {
 describe("skills and commands match the real MCP server", () => {
   const docs = allMarkdown().map((p) => ({ p, text: readFileSync(p, "utf8") }));
 
-  it("every backticked tool name exists in @openspace/mcp-tools", () => {
+  it("every backticked tool name exists in @omniharmonic/openspace-mcp-tools", () => {
     const unknown: string[] = [];
     for (const { p, text } of docs)
       for (const t of mentionedTools(text)) if (!TOOL_NAMES.has(t)) unknown.push(`${p}: ${t}`);

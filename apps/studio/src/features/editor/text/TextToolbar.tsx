@@ -1,4 +1,4 @@
-import { RICH_LINK_HREF_RE } from "@openspace/schema";
+import { RICH_LINK_HREF_RE } from "@omniharmonic/openspace-schema";
 import type { Editor } from "@tiptap/core";
 import {
   Bold,

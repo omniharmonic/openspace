@@ -1,4 +1,4 @@
-import type { Block } from "@openspace/schema";
+import type { Block } from "@omniharmonic/openspace-schema";
 import { ArrowLeft, CalendarClock, Send, TestTube2, Trash2, Users } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";

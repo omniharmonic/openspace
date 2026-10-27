@@ -1,4 +1,4 @@
-import { apply, type Op } from "@openspace/ops";
+import { apply, type Op } from "@omniharmonic/openspace-ops";
 import { describe, expect, it } from "vitest";
 import { devSiteDocument, DEV_IDS as I } from "../editor/model/dev-site";
 import { describeChanges } from "./changes";

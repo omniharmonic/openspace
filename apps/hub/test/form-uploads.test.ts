@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import type { Form } from "@openspace/schema";
+import type { Form } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { readConfig } from "../src/env";
 import { createServices } from "../src/services";

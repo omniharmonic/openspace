@@ -6,8 +6,8 @@ import {
   type Responsive,
   resolve,
   type Section,
-} from "@openspace/schema";
-import { imageTreatmentClass, TOKEN_VARS, themeClass } from "@openspace/theme";
+} from "@omniharmonic/openspace-schema";
+import { imageTreatmentClass, TOKEN_VARS, themeClass } from "@omniharmonic/openspace-theme";
 import { Component, type ReactNode, useContext } from "react";
 import {
   BlockFieldsContext,

@@ -6,7 +6,7 @@ What's inside:
 
 | Component                        | What it does                                                                                                                                                                                        |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **MCP server** (`.mcp.json`)     | Starts `npx -y @openspace/cli mcp` in the folder Claude Code runs in: the full OpenSpace tool set (read, edit, presets, styles, design check, render, screenshot, publish) against your local site. |
+| **MCP server** (`.mcp.json`)     | Starts `npx -y @omniharmonic/openspace-cli mcp` in the folder Claude Code runs in: the full OpenSpace tool set (read, edit, presets, styles, design check, render, screenshot, publish) against your local site. |
 | **Skill `openspace-web-design`** | The design playbook: preset-first composition, the rapid inspect → design check → edit → screenshot loop, Squarespace-grade craft heuristics, mobile review, never inventing facts.                 |
 | **Skill `openspace-site-setup`** | Create a site from one of the twelve templates with the CLI, connect Claude, publish, connect a domain.                                                                                             |
 | **Skill `openspace-content`**    | Blog posts, events, products, projects and podcast episodes through the content tools.                                                                                                              |
@@ -39,7 +39,7 @@ Requirements: Node.js 22 or newer. For screenshots, install the `playwright` pac
 The bundled MCP server serves **the folder Claude Code was started in**, which must be an OpenSpace site (it contains `openspace.json`). So:
 
 ```sh
-npx -y @openspace/cli new meadow my-site --title "Fernwood Yoga"   # or /openspace:new-site
+npx -y @omniharmonic/openspace-cli new meadow my-site --title "Fernwood Yoga"   # or /openspace:new-site
 cd my-site && npm install
 claude
 ```
@@ -48,7 +48,7 @@ Then check `/mcp` shows `openspace` as connected. If Claude Code is started anyw
 
 Edits are written to `content/` and `media/`. With git, a snapshot tag (`os/snap/agent-…`) is taken before Claude's first edit in each session, so `git checkout os/snap/agent-… -- content media` undoes everything; `publish` commits `content/` and `media/` (only with your confirmation), and pushing puts it online.
 
-To let Claude edit but never commit (for unattended runs), copy [`examples/local-no-publish.mcp.json`](examples/local-no-publish.mcp.json) into your site as `.mcp.json` and disable the plugin's server, or run `claude mcp add openspace -- npx -y @openspace/cli mcp . --no-publish`.
+To let Claude edit but never commit (for unattended runs), copy [`examples/local-no-publish.mcp.json`](examples/local-no-publish.mcp.json) into your site as `.mcp.json` and disable the plugin's server, or run `claude mcp add openspace -- npx -y @omniharmonic/openspace-cli mcp . --no-publish`.
 
 ## Use it with a site on the OpenSpace Hub
 
@@ -90,6 +90,6 @@ Or just ask:
 
 ## Development
 
-The plugin lives in the OpenSpace monorepo at `plugin/`. `pnpm --filter @openspace/claude-plugin test` validates the manifests, frontmatter, every tool and preset the skills mention (against `@openspace/mcp-tools` and `@openspace/blocks`), and builds each page recipe through the real MCP server to check it passes Design check. `claude plugin validate plugin` runs Claude Code's own validator.
+The plugin lives in the OpenSpace monorepo at `plugin/`. `pnpm --filter @omniharmonic/openspace-claude-plugin test` validates the manifests, frontmatter, every tool and preset the skills mention (against `@omniharmonic/openspace-mcp-tools` and `@omniharmonic/openspace-blocks`), and builds each page recipe through the real MCP server to check it passes Design check. `claude plugin validate plugin` runs Claude Code's own validator.
 
 License: MIT.

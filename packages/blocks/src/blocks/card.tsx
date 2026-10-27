@@ -1,11 +1,11 @@
-import { cx, Img, Link, RichText } from "@openspace/renderer";
+import { cx, Img, Link, RichText } from "@omniharmonic/openspace-renderer";
 import {
   type AspectRatio,
   defineBlock,
   f,
   type Link as LinkValue,
   type RichTextDoc,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { ICON_OPTIONS, Icon, type IconName } from "../icons";
 import { aspectField, DEMO, rt, typo } from "../shared";
 

@@ -3,8 +3,8 @@ import {
   type HeaderPreset,
   type Preset,
   type SectionPreset,
-} from "@openspace/blocks";
-import type { OpBody, Position } from "@openspace/ops";
+} from "@omniharmonic/openspace-blocks";
+import type { OpBody, Position } from "@omniharmonic/openspace-ops";
 import {
   type BlockCategory,
   type GridItem,
@@ -12,7 +12,7 @@ import {
   resolve,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { type Command, cloneBlock } from "../editor/model/actions";
 import { locate, type SelItem } from "../editor/model/selection";
 import type { BlockTarget } from "./blockMenuStore";

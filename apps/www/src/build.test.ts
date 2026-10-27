@@ -6,7 +6,7 @@ import { execFile } from "node:child_process";
 import { readdir, readFile, rm } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { promisify } from "node:util";
-import { templateSpecs } from "@openspace/templates";
+import { templateSpecs } from "@omniharmonic/openspace-templates";
 import { beforeAll, describe, expect, it } from "vitest";
 import { WWW_ROOT } from "./site/generate";
 

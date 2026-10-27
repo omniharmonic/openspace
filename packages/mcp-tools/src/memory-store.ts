@@ -1,10 +1,10 @@
 /**
  * In-memory `SiteStore` for tests, demos and the Hub's dev mode. Drafts, published versions,
- * snapshots and media bytes live in maps; every edit is validated with `@openspace/ops`.
+ * snapshots and media bytes live in maps; every edit is validated with `@omniharmonic/openspace-ops`.
  */
-import { blocksRegistry } from "@openspace/blocks";
-import { diff, type Op, summarize, validateAll } from "@openspace/ops";
-import type { BlockRegistry, MediaMeta, SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { diff, type Op, summarize, validateAll } from "@omniharmonic/openspace-ops";
+import type { BlockRegistry, MediaMeta, SiteDocument } from "@omniharmonic/openspace-schema";
 import { ToolError } from "./errors";
 import { type ImageResizer, prepareImage } from "./images";
 import type {

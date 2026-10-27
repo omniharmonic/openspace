@@ -1,5 +1,5 @@
-import { blocksRegistry } from "@openspace/blocks";
-import type { Block, SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { Block, SiteDocument } from "@omniharmonic/openspace-schema";
 import type { EditorStore } from "../editor/model/store";
 import { fieldsOp } from "../inspector/model/edits";
 

@@ -15,7 +15,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { Section, SiteDocument } from "@openspace/schema";
+import type { Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { EyeOff, GripVertical, LayoutGrid, Lock, PanelTop, Pencil, Plus } from "lucide-react";
 import { Button, cx } from "../../ui";
 import { useAddSection } from "../add-section/blockMenuStore";

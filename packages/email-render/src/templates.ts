@@ -1,4 +1,4 @@
-import type { Block, Site, Styles } from "@openspace/schema";
+import type { Block, Site, Styles } from "@omniharmonic/openspace-schema";
 import { EmailRenderError } from "./diag";
 import { esc, oneLine, safeUrl } from "./escape";
 import { type RenderEmailInput, type RenderedEmail, renderWith } from "./layout";

@@ -1,4 +1,4 @@
-import type { MarkType, RichTextDoc, RichTextFieldMeta } from "@openspace/schema";
+import type { MarkType, RichTextDoc, RichTextFieldMeta } from "@omniharmonic/openspace-schema";
 import { Editor } from "@tiptap/core";
 import {
   Bold,

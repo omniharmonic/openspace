@@ -1,4 +1,4 @@
-import type { OpBody } from "@openspace/ops";
+import type { OpBody } from "@omniharmonic/openspace-ops";
 import {
   type CollectionConfig,
   type CollectionItem,
@@ -6,11 +6,11 @@ import {
   type CollectionKind,
   type Redirect,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { slugify } from "../pages/pageOps";
 import { itemDate, KIND_META } from "./kinds";
 
-/** Item edits, collection settings and helpers. Every change is one `@openspace/ops` op list. */
+/** Item edits, collection settings and helpers. Every change is one `@omniharmonic/openspace-ops` op list. */
 
 const pad = (n: number) => String(n).padStart(2, "0");
 

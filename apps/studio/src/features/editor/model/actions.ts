@@ -6,7 +6,7 @@ import {
   type OpBody,
   type Position,
   stamp,
-} from "@openspace/ops";
+} from "@omniharmonic/openspace-ops";
 import {
   type Block,
   type ColorTheme,
@@ -15,7 +15,7 @@ import {
   newId,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { gridReadingOrder, stackToGrid } from "../grid/convert";
 import { canvasSections, locate, type SelItem } from "./selection";
 

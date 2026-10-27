@@ -1,5 +1,5 @@
-import { summaryBlock } from "@openspace/blocks";
-import type { Section, SiteDocument } from "@openspace/schema";
+import { summaryBlock } from "@omniharmonic/openspace-blocks";
+import type { Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";

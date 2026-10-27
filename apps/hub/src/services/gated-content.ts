@@ -13,7 +13,7 @@
  * publish workflow downloads the versions its commit names (`gatedBundle`, authorized by the
  * run's GitHub OIDC token) into the Worker's private R2 bucket before deploying.
  */
-import { type Page, PageSchema } from "@openspace/schema";
+import { type Page, PageSchema } from "@omniharmonic/openspace-schema";
 import type { FileChange, FileContent, GitHubAccess, RepoRef } from "../github/types";
 import { randomToken } from "../lib/crypto";
 import { hmacHex } from "../lib/seal";

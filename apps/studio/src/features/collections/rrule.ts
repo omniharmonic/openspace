@@ -1,4 +1,4 @@
-import { occurrenceDates } from "@openspace/renderer";
+import { occurrenceDates } from "@omniharmonic/openspace-renderer";
 
 /**
  * Repeat rules for events: a friendly model ⇄ RFC 5545 RRULE bodies (`FREQ=WEEKLY;BYDAY=TU`),

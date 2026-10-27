@@ -3,7 +3,7 @@
  * loaded from the local preview server so media and fonts resolve, and a section capture is an
  * element screenshot of `[data-os-id="sec_…"]` in the real page.
  */
-import type { Screenshot, ScreenshotRequest } from "@openspace/mcp-tools";
+import type { Screenshot, ScreenshotRequest } from "@omniharmonic/openspace-mcp-tools";
 
 // biome-ignore lint/suspicious/noExplicitAny: Playwright is optional and untyped here
 type Browser = any;

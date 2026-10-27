@@ -1,4 +1,4 @@
-import { COLOR_THEMES, type Styles } from "@openspace/schema";
+import { COLOR_THEMES, type Styles } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { compileStyles } from "./compile";
 import { auditContrast, CONTRAST_PAIRS, contrastRatio, nearestAccessible } from "./contrast";

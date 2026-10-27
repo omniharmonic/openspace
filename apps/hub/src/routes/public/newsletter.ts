@@ -7,7 +7,7 @@
  * - `POST /n/unsubscribe/:token` — RFC 8058 one-click (`List-Unsubscribe=One-Click`) or the button.
  */
 
-import { esc } from "@openspace/email-render";
+import { esc } from "@omniharmonic/openspace-email-render";
 import { Hono } from "hono";
 import { HttpError } from "../../lib/errors";
 import { PAGE_HEADERS, publicPage } from "../../lib/page";

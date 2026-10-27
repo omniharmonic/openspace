@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
-import { BlockView, RenderContext, type RenderMode } from "@openspace/renderer";
-import { type BehaviorFile, importBehavior } from "@openspace/renderer/node";
-import type { AnyBlockDefinition, Block, SiteDocument } from "@openspace/schema";
+import { BlockView, RenderContext, type RenderMode } from "@omniharmonic/openspace-renderer";
+import { type BehaviorFile, importBehavior } from "@omniharmonic/openspace-renderer/node";
+import type { AnyBlockDefinition, Block, SiteDocument } from "@omniharmonic/openspace-schema";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { HUB, page, SITE_ID, siteWith, stackSection } from "./__fixtures__/site";
@@ -33,7 +33,7 @@ import {
 /**
  * The renderer's real behavior modules, run against this library's markup. Loaded through the
  * renderer's public `./node` export (`importBehavior`), which resolves the same modules as the
- * `@openspace/renderer/behavior-source/<name>` entry.
+ * `@omniharmonic/openspace-renderer/behavior-source/<name>` entry.
  */
 type Behavior = (el: HTMLElement) => void;
 const behaviors: Partial<Record<BehaviorFile, Behavior>> = {};

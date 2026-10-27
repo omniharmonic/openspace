@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/cli",
+  "name": "@omniharmonic/openspace-cli",
   "version": "0.1.0",
   "description": "The openspace command line: check, dev, migrate, new, eject, agents-md, mcp.",
   "license": "MIT",
@@ -41,12 +41,12 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@openspace/blocks": "workspace:*",
-    "@openspace/mcp-tools": "workspace:*",
-    "@openspace/ops": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/site-kit": "workspace:*",
-    "@openspace/template-starter": "workspace:*",
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-mcp-tools": "workspace:*",
+    "@omniharmonic/openspace-ops": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-site-kit": "workspace:*",
+    "@omniharmonic/openspace-template-starter": "workspace:*",
     "commander": "^14.0.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

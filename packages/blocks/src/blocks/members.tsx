@@ -1,5 +1,5 @@
-import { Button, type ButtonRole, cx } from "@openspace/renderer";
-import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
+import { Button, type ButtonRole, cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
 import { Icon } from "../icons";
 import { EditorNotice, headingLevelField, sub, typo, useHub } from "../shared";
 import { Honeypot, TurnstileSlot, useSourcePath } from "./form";

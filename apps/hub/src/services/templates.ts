@@ -1,5 +1,5 @@
-import type { BlockId, PageId, Styles } from "@openspace/schema";
-import { templateSource as registry } from "@openspace/templates";
+import type { BlockId, PageId, Styles } from "@omniharmonic/openspace-schema";
+import { templateSource as registry } from "@omniharmonic/openspace-templates";
 import { basicTemplate } from "../templates/basic";
 import { STARTER_SITE_FILES } from "../templates/starter-files";
 
@@ -137,7 +137,7 @@ function firstImage(files: Record<string, string>): string | null {
 }
 
 /**
- * The launch templates (`@openspace/templates`, Task 9) as the Hub's source: gallery metadata
+ * The launch templates (`@omniharmonic/openspace-templates`, Task 9) as the Hub's source: gallery metadata
  * with three looks and the demo owner, and the template's content plus the starter shell
  * (publish workflow, Astro config, AGENTS.md…) as the new site's files. `fixtures` (the "basic"
  * test template) can be loaded but aren't listed in the gallery.

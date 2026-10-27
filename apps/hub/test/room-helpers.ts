@@ -1,6 +1,6 @@
 import { env, runDurableObjectAlarm } from "cloudflare:test";
-import type { Op } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import type { Op } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { createApp } from "../src/app";
 import { roomStub } from "../src/room";
 import type { DraftRoom } from "../src/room/draft-room";

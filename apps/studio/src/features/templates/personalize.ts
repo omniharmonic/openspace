@@ -1,4 +1,4 @@
-import type { SiteDocument, Styles } from "@openspace/schema";
+import type { SiteDocument, Styles } from "@omniharmonic/openspace-schema";
 import type { TemplateDetail } from "../../api/catalog-types";
 import type { TemplateLook } from "../../api/types";
 

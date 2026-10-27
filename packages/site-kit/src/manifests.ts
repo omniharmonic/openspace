@@ -14,7 +14,7 @@ import {
   type Money,
   type Page,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { contentHash } from "./ids";
 import type { SitePlan } from "./routes";
 

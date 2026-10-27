@@ -4,7 +4,7 @@ import type {
   ImageTreatment,
   MOTION_LEVELS,
   SHAPES,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { fluidClamp } from "./type-scale";
 
 export type Density = (typeof DENSITIES)[number];

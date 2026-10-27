@@ -1,11 +1,16 @@
-import { compiledStylesFor, cx, SectionContext, useRenderContext } from "@openspace/renderer";
+import {
+  compiledStylesFor,
+  cx,
+  SectionContext,
+  useRenderContext,
+} from "@omniharmonic/openspace-renderer";
 import {
   type ColorTheme,
   defineBlock,
   type EmbedValue,
   f,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { useContext } from "react";
 
 /**

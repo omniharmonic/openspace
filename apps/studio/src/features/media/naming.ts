@@ -1,4 +1,4 @@
-import { MEDIA_PATH_RE, type SiteDocument } from "@openspace/schema";
+import { MEDIA_PATH_RE, type SiteDocument } from "@omniharmonic/openspace-schema";
 
 /** Characters of the content hash used in file names (32 bits of SHA-256). */
 export const NAME_HASH_LENGTH = 8;

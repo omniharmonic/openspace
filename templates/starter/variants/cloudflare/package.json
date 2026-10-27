@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.2",
-    "@openspace/site-kit": "^0.1.0",
+    "@omniharmonic/openspace-site-kit": "^0.1.0",
     "astro": "^7.4.2"
   },
   "devDependencies": {
-    "@openspace/cli": "^0.1.0",
+    "@omniharmonic/openspace-cli": "^0.1.0",
     "wrangler": "^4.152.0"
   },
   "engines": {

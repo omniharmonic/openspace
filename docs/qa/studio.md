@@ -1,6 +1,6 @@
 # Studio design review
 
-Every surface was screenshotted with `pnpm --filter @openspace/studio tour` at 1440, 834 and 390
+Every surface was screenshotted with `pnpm --filter @omniharmonic/openspace-studio tour` at 1440, 834 and 390
 in light and dark (114 screenshots per run):
 
 - sign in, dashboard, template gallery, onboarding;
@@ -75,7 +75,7 @@ below are in priority order, each with the fix. Before/after pairs are in [studi
    - Fix: the card body is a grid whose description row absorbs the difference.
 10. **Phone section sheet summaries read "See the schedule primary First class free…".**
     Option values (button style, alignment, layout) were treated as reading text.
-    - Fix: they're excluded in `@openspace/lint`'s `blockText`.
+    - Fix: they're excluded in `@omniharmonic/openspace-lint`'s `blockText`.
 
 ### States and details
 
@@ -130,6 +130,6 @@ More "after" screenshots: [editor, dark](studio/editor-1440-dark.png),
 | Thumbnail docs stale for pages and media (Task 21) | Thumbnails follow page titles, slugs and the media library |
 | `previewUrl` bare path when the repository is unknown (Task 21) | Previews show the placeholder instead of a broken image |
 | Desktop default writes 3xl (Task 21) | Reviewed and kept: 3xl (64/96/128 px by density) is the closest token to every density's section padding, and the hint says so |
-| Lint pulls React through blocks (Task 8) | Not changed: it needs a React-free block-definitions entry in `@openspace/blocks`, a structural change outside a polish pass |
+| Lint pulls React through blocks (Task 8) | Not changed: it needs a React-free block-definitions entry in `@omniharmonic/openspace-blocks`, a structural change outside a polish pass |
 | Stale test comments (Task 21) | Not pursued: the note named no specific comments |
 | Biome format error in `RoomClient.recovery.test.ts` (Task 24) | Already clean on this branch |

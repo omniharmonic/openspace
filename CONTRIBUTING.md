@@ -26,8 +26,8 @@ All four must pass. `pnpm format` applies Biome formatting.
 
 - Commits use conventional-commit subjects, for example `feat(schema): add Section type`.
 - TypeScript is strict and ESM only.
-- Naming: product "OpenSpace", npm scope `@openspace/*`, CSS prefix `--os-` / `os-`, data attributes `data-os-*`.
-- All document edits go through `@openspace/ops` and are validated by `@openspace/schema`.
+- Naming: product "OpenSpace", npm scope `@omniharmonic/openspace-*`, CSS prefix `--os-` / `os-`, data attributes `data-os-*`.
+- All document edits go through `@omniharmonic/openspace-ops` and are validated by `@omniharmonic/openspace-schema`.
 - External services sit behind an interface with a dev implementation, so everything runs locally without secrets.
 - Do not commit `node_modules`, build output or secrets.
 

@@ -7,7 +7,7 @@ import { statSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { writeSiteDocument } from "@openspace/site-kit/content";
+import { writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { documentFiles, formatJson } from "../../../../templates/lib/files";
 import { buildWww } from "./www";
 

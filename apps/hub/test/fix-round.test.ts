@@ -387,7 +387,7 @@ describe("review minors", () => {
     const repo = parseRepo(f.repo);
     const head = (await gh.getRef(repo, MAIN_BRANCH)) as string;
     const pkg = JSON.parse((await gh.readFile(repo, "package.json", head)) as string);
-    pkg.dependencies["@openspace/site-kit"] = "^0.2.0";
+    pkg.dependencies["@omniharmonic/openspace-site-kit"] = "^0.2.0";
     await gh.commitFiles(repo, {
       branch: MAIN_BRANCH,
       expectedHead: head,

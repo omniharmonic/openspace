@@ -10,9 +10,9 @@
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { basename, dirname, join } from "node:path";
-import { compiledStylesFor } from "@openspace/renderer";
-import type { SiteDocument } from "@openspace/schema";
-import { fontsourceCss, fontsourcePackages, googleFontsUrl } from "@openspace/theme";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { fontsourceCss, fontsourcePackages, googleFontsUrl } from "@omniharmonic/openspace-theme";
 import { contentHash } from "../ids";
 
 export interface FontPlan {

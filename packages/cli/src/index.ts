@@ -1,4 +1,4 @@
-export const name = "@openspace/cli";
+export const name = "@omniharmonic/openspace-cli";
 
 export {
   type Budgets,

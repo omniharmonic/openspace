@@ -1,6 +1,6 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { type ContainerId, FOOTER } from "@openspace/ops";
-import type { Block, Section, SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { type ContainerId, FOOTER } from "@omniharmonic/openspace-ops";
+import type { Block, Section, SiteDocument } from "@omniharmonic/openspace-schema";
 
 /** One selected (or hovered) thing on the canvas. */
 export interface SelItem {

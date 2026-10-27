@@ -1,5 +1,5 @@
-import { campaignEmail } from "@openspace/email-render";
-import type { CollectionItem, SiteDocument } from "@openspace/schema";
+import { campaignEmail } from "@omniharmonic/openspace-email-render";
+import type { CollectionItem, SiteDocument } from "@omniharmonic/openspace-schema";
 import { canonicalJson } from "./canonical";
 import {
   CampaignInputSchema,

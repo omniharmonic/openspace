@@ -1,4 +1,4 @@
-import type { MediaMeta, SiteDocument } from "@openspace/schema";
+import type { MediaMeta, SiteDocument } from "@omniharmonic/openspace-schema";
 import { Copy, Crop, Crosshair, ExternalLink, RotateCcw, Trash2 } from "lucide-react";
 import { type PointerEvent as ReactPointerEvent, useEffect, useRef, useState } from "react";
 import { Button, Dialog, Field, Segmented, Slider, TextArea, Toggle, toast } from "../../ui";

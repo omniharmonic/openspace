@@ -8,8 +8,8 @@ import {
   resolve,
   type SectionStyle,
   type StackLayout,
-} from "@openspace/schema";
-import { colorVar, TOKEN_VARS } from "@openspace/theme";
+} from "@omniharmonic/openspace-schema";
+import { colorVar, TOKEN_VARS } from "@omniharmonic/openspace-theme";
 import type { CssVars } from "./cx";
 
 /**
@@ -106,8 +106,8 @@ function rectVars(rect: GridRect, bp: Breakpoint): CssVars {
   return out;
 }
 
-/** Moved to `@openspace/schema` (pure, shared with `@openspace/lint`); re-exported here. */
-export { fallbackMobileRects } from "@openspace/schema";
+/** Moved to `@omniharmonic/openspace-schema` (pure, shared with `@omniharmonic/openspace-lint`); re-exported here. */
+export { fallbackMobileRects } from "@omniharmonic/openspace-schema";
 
 /**
  * Inline vars for one grid item: `--x/--y/--w/--h/--z`, `--tx…`, `--mx…`, bleed lines

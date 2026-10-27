@@ -1,5 +1,5 @@
-import { blocksRegistry, rt } from "@openspace/blocks";
-import type { Block } from "@openspace/schema";
+import { blocksRegistry, rt } from "@omniharmonic/openspace-blocks";
+import type { Block } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { demoCollections } from "../../api/growth-fixtures";
 import { blocksToMarkdoc, freshBlock, markdocToEditorBlocks } from "./markdoc";

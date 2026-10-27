@@ -3,14 +3,14 @@
  * Pure (no Astro, no filesystem) — the Astro route, the integration's post-build outputs
  * (sitemap, feeds, manifests, share images) and tests all use the same plan.
  */
-import { blocksRegistry } from "@openspace/blocks";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import type {
   BlockRegistry,
   CollectionConfig,
   CollectionItem,
   Page,
   SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { feedsFor } from "./feeds-plan";
 import {
   type ComposeContext,

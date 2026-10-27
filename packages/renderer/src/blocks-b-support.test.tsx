@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { CollectionItem, SiteDocument } from "@openspace/schema";
+import type { CollectionItem, SiteDocument } from "@omniharmonic/openspace-schema";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { siteFixture } from "./__fixtures__/site";
@@ -197,7 +197,7 @@ describe("behavior source entry", () => {
   });
 
   it("is importable by package specifier", async () => {
-    const mod = (await import("@openspace/renderer/behavior-source/countdown")) as {
+    const mod = (await import("@omniharmonic/openspace-renderer/behavior-source/countdown")) as {
       default: unknown;
     };
     expect(typeof mod.default).toBe("function");

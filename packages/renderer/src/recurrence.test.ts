@@ -1,4 +1,4 @@
-import type { CollectionItem } from "@openspace/schema";
+import type { CollectionItem } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { nextOccurrence, queryCollection } from "./collections";
 import {

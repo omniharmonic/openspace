@@ -26,7 +26,7 @@ import {
   isId,
   type MediaMeta,
   type RichTextDoc,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { stableId } from "./ids";
 
 export interface MarkdocIssue {

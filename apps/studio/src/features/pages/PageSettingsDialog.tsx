@@ -1,6 +1,6 @@
-import { type Issue, seoCheck, sortIssues } from "@openspace/lint";
-import type { OpBody } from "@openspace/ops";
-import type { Page, SiteDocument } from "@openspace/schema";
+import { type Issue, seoCheck, sortIssues } from "@omniharmonic/openspace-lint";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { Cloud, ImagePlus, KeyRound, Lock, Users, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
@@ -150,7 +150,7 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
     }),
     [page, form, slug],
   );
-  // The same SEO check the CLI and Claude use (@openspace/lint), run on the page as edited.
+  // The same SEO check the CLI and Claude use (@omniharmonic/openspace-lint), run on the page as edited.
   const seoIssues = useMemo(
     () =>
       sortIssues(

@@ -1,5 +1,5 @@
-import type { Op, SiteDocument } from "@openspace/ops";
-import type { Page } from "@openspace/schema";
+import type { Op, SiteDocument } from "@omniharmonic/openspace-ops";
+import type { Page } from "@omniharmonic/openspace-schema";
 import { blocksInOrder, blockText, imagesIn } from "./content";
 import { type CheckOptions, type Issue, issue, opMeta, sortIssues } from "./issue";
 

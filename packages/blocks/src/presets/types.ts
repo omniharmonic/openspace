@@ -1,4 +1,10 @@
-import type { CollectionKind, ColorTheme, Header, Link, Section } from "@openspace/schema";
+import type {
+  CollectionKind,
+  ColorTheme,
+  Header,
+  Link,
+  Section,
+} from "@omniharmonic/openspace-schema";
 
 /** Preset categories (doc 04 §6), in "Add section" menu order. */
 export const PRESET_CATEGORIES = [

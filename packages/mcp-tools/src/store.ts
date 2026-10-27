@@ -2,17 +2,17 @@
  * The `SiteStore` boundary: everything the MCP tools need from wherever a site lives.
  *
  * - `MemorySiteStore` (this package) keeps documents in memory — tests and demos.
- * - `FileSiteStore` (`@openspace/cli`) edits a local checkout through site-kit's content
+ * - `FileSiteStore` (`@omniharmonic/openspace-cli`) edits a local checkout through site-kit's content
  *   loader/writer; publishing is a git commit, snapshots are `os/snap/*` tags.
  * - `HubSiteStore` (Hub, Task 17) maps every call onto the DraftRoom RPC: `getDocument`,
  *   `submit` (as an agent session actor), `startAgentSession`/`endAgentSession`, `publish`,
  *   `rollback`, `snapshot`, plus the versions/preview endpoints.
  *
- * Every mutation goes through `applyOps` with validated `@openspace/ops` operations (Global
+ * Every mutation goes through `applyOps` with validated `@omniharmonic/openspace-ops` operations (Global
  * Constraint 5); stores never take raw page JSON.
  */
-import type { Op, OpIssue } from "@openspace/ops";
-import type { MediaMeta, SiteDocument, StyleChoices } from "@openspace/schema";
+import type { Op, OpIssue } from "@omniharmonic/openspace-ops";
+import type { MediaMeta, SiteDocument, StyleChoices } from "@omniharmonic/openspace-schema";
 
 /** What a connected agent may do. Hub grants are per site and revocable (arch §10.1). */
 export interface Grant {
@@ -168,7 +168,7 @@ export interface TemplateCatalog {
 
 export interface SiteStore {
   readonly capabilities: StoreCapabilities;
-  /** Optional template registry (otherwise `@openspace/templates` or the built-in looks). */
+  /** Optional template registry (otherwise `@omniharmonic/openspace-templates` or the built-in looks). */
   readonly templates?: TemplateCatalog;
 
   listSites(): Promise<SiteSummary[]>;

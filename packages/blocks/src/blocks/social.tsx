@@ -5,8 +5,13 @@ import {
   SocialIcon,
   siteUrlFor,
   useRenderContext,
-} from "@openspace/renderer";
-import { defineBlock, f, SOCIAL_NETWORKS, type SocialProfile } from "@openspace/schema";
+} from "@omniharmonic/openspace-renderer";
+import {
+  defineBlock,
+  f,
+  SOCIAL_NETWORKS,
+  type SocialProfile,
+} from "@omniharmonic/openspace-schema";
 import { Icon } from "../icons";
 
 const NETWORK_OPTIONS = SOCIAL_NETWORKS.map((value) => ({ value, label: networkLabel(value) }));

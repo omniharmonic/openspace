@@ -18,7 +18,7 @@ import {
   type Form,
   type FormField,
   fileFieldAccept,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import type { SiteRow } from "../db/sites";
 import { randomId, timingSafeEqual } from "../lib/crypto";
 import { HttpError } from "../lib/errors";

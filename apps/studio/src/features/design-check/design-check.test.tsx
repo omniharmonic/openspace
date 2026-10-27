@@ -1,5 +1,5 @@
-import type { SiteDocument } from "@openspace/schema";
-import { loadTemplate } from "@openspace/templates";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { loadTemplate } from "@omniharmonic/openspace-templates";
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";

@@ -7,11 +7,11 @@ The product docs use the working name "Commonplace". This repo ships it as **Ope
 
 These bind every task.
 
-1. **Naming.** Product name "OpenSpace". npm scope `@openspace/*`. Site config file `openspace.json` (replaces `commonplace.json`). CLI binary `openspace`. CSS custom property prefix `--os-`, class prefix `os-`, data attributes `data-os-*` (replaces `--cp-`, `cp-`, `data-cp-*`). Draft branch `os/draft`, snapshot tags `os/snap/<name>`. Everything else follows the architecture doc literally.
+1. **Naming.** Product name "OpenSpace". npm scope `@omniharmonic/openspace-*`. Site config file `openspace.json` (replaces `commonplace.json`). CLI binary `openspace`. CSS custom property prefix `--os-`, class prefix `os-`, data attributes `data-os-*` (replaces `--cp-`, `cp-`, `data-cp-*`). Draft branch `os/draft`, snapshot tags `os/snap/<name>`. Everything else follows the architecture doc literally.
 2. **Monorepo.** pnpm workspaces + Turborepo, TypeScript strict (`"strict": true`, `noUncheckedIndexedAccess: true`), ESM only, Node 22, Biome for lint/format, Vitest for unit tests, Playwright for e2e. Layout per architecture §14: `apps/{studio,hub,www,docs}`, `packages/{schema,ops,theme,blocks,renderer,site-kit,email-render,mcp-tools,cli,lint}`, `templates/{starter,<template-id>}`, `plugin/` (Claude Code plugin), `tools/{visual-tests,fixtures}`, `e2e/`.
 3. **Licenses.** packages/* and templates/* MIT; apps/studio and apps/hub AGPL-3.0-only; docs + template designs CC-BY-4.0. Each package.json carries its `license`.
-4. **One renderer (ADR-3).** The `@openspace/renderer` React components are the only way pages become HTML — used by the Studio canvas, the Hub dev preview, site-kit (Astro build) and email/OG generation. Published pages ship zero React runtime; interactivity only through `data-os-behavior` vanilla modules (≤ 3 KB gz each, cart ≤ 12 KB).
-5. **Structured edits only (ADR-2, ADR-9).** All document mutations — Studio, Hub, MCP, CLI — go through `@openspace/ops` operations validated against `@openspace/schema`. No code path writes page JSON any other way.
+4. **One renderer (ADR-3).** The `@omniharmonic/openspace-renderer` React components are the only way pages become HTML — used by the Studio canvas, the Hub dev preview, site-kit (Astro build) and email/OG generation. Published pages ship zero React runtime; interactivity only through `data-os-behavior` vanilla modules (≤ 3 KB gz each, cart ≤ 12 KB).
+5. **Structured edits only (ADR-2, ADR-9).** All document mutations — Studio, Hub, MCP, CLI — go through `@omniharmonic/openspace-ops` operations validated against `@omniharmonic/openspace-schema`. No code path writes page JSON any other way.
 6. **Stable ids.** `pg_`, `sec_`, `blk_`, `med_`, `frm_`, `st_` prefixes + 10-char lowercase base32 (Crockford alphabet). Ids are preserved by every edit.
 7. **Responsive values** `{ d, t?, m? }`; missing breakpoints inherit `m ← t ← d`. Breakpoints: mobile < 768, tablet 768–1199, desktop ≥ 1200. Device previews 1440 / 834 / 390.
 8. **Runs with no external accounts.** Every external dependency (GitHub, Cloudflare account, Stripe, email providers, Turnstile) sits behind an interface with (a) a real implementation that works when credentials are configured and (b) a dev/test implementation that is selected when `DEV_MODE=true` or credentials are absent. The whole product — onboarding, editing, publishing, forms, newsletter, MCP, members, checkout — must be demonstrable locally with `pnpm dev` and testable with Playwright without any secrets.
@@ -34,7 +34,7 @@ Create the workspace skeleton so every later task has a place to land.
 - `.github/workflows/ci.yml`: install, lint, typecheck, test, build.
 - Acceptance: `pnpm install`, `pnpm -w typecheck`, `pnpm -w test`, `pnpm -w build` all succeed from a clean checkout.
 
-### Task 2: `@openspace/schema` — content model
+### Task 2: `@omniharmonic/openspace-schema` — content model
 
 Implements architecture §2.2, §3 and the block-definition API of §4.1 (the type side; rendering lives in renderer/blocks).
 
@@ -48,7 +48,7 @@ Implements architecture §2.2, §3 and the block-definition API of §4.1 (the ty
 - `secrets.ts`: `scanForSecrets(text)` detecting API-key-shaped strings (Stripe sk_, GitHub ghp_/gho_, AWS AKIA, generic high-entropy `key=`), used by check + Hub.
 - Tests: valid/invalid fixtures for every schema, responsive inheritance, markdown round-trips (headings, lists, links, marks, quotes, hard breaks), secret scanner true/false positives, id format.
 
-### Task 3: `@openspace/ops` — operations
+### Task 3: `@omniharmonic/openspace-ops` — operations
 
 Architecture §5.3. Pure TS over schema types.
 
@@ -61,7 +61,7 @@ Architecture §5.3. Pure TS over schema types.
 - `diff(before, after) → Op[]` (used by CLI/local MCP to turn file edits into ops and by update bot).
 - Tests incl. property tests with `fast-check`: apply∘invert = identity; ops on distinct ids commute; validate rejects dangling refs.
 
-### Task 4: `@openspace/theme` — design tokens
+### Task 4: `@omniharmonic/openspace-theme` — design tokens
 
 Doc 04 §2–§5, architecture ADR-11.
 
@@ -77,7 +77,7 @@ Doc 04 §2–§5, architecture ADR-11.
 - `curatedPalettes` (≥ 16 named).
 - Tests: conversions round-trip, every curated palette × 5 themes passes contrast, solver fixes a deliberately failing override, CSS snapshot.
 
-### Task 5: `@openspace/renderer` — page renderer + behaviors
+### Task 5: `@omniharmonic/openspace-renderer` — page renderer + behaviors
 
 Architecture §3.3, §4.2, §4.3.
 
@@ -88,26 +88,26 @@ Architecture §3.3, §4.2, §4.3.
 - Behaviors (vanilla TS, each its own entry, built with esbuild into `dist/behaviors/*.js`, size-budget test): carousel (scroll-snap + buttons + keyboard), lightbox, accordion (enhances `<details>`), tabs, marquee, reveal (IntersectionObserver), menu (mobile nav, focus trap), popup (time/scroll/exit-intent triggers + frequency cap in localStorage), announcement (dismiss), form (async submit + inline validation + Hub-down fallback showing owner email + retry queue), newsletter, video-lite, search (lazy Pagefind UI), cart (≤ 12 KB: localStorage cart, drawer, checkout POST), analytics beacon (~1 KB). A tiny loader `os-behaviors.js` auto-inits by `data-os-behavior`.
 - Tests: SSR snapshot of stack + grid sections, image map usage, behavior size budget, inheritance of responsive props in output CSS vars.
 
-### Task 6: `@openspace/blocks` — block library A (P1 set)
+### Task 6: `@omniharmonic/openspace-blocks` — block library A (P1 set)
 
 Implement with `defineBlock` (schema) + render components (renderer primitives), each with fields, variants, styleSlots, defaults (real-feeling copy), `ai` guidance, and an `icon`. Blocks: text, image, button, gallery (grid, carousel, masonry, slideshow, strips), video (YouTube/Vimeo/PeerTube lite + self-hosted file), quote, testimonial, line, spacer, shape (SVG token colors), form (FR-30 field types, Turnstile hook, success message/redirect; posts to `${hub}/f/:siteId/:formId`), newsletter signup (`/n/:siteId/subscribe`), map (OpenStreetMap static tile image + "Open in Maps" link, no key), social links + share buttons, accordion/FAQ (`<details>` + FAQPage JSON-LD), embed/code (sandboxed iframe srcdoc in preview mode), logo strip, card, icon list (inline SVG icon set ~40 icons), columns helper. Export `allBlocks` and `registerAll()`.
 - Tests: every block validates its defaults, renders without throwing in all variants, and has non-empty ai guidance.
 
-### Task 7: `@openspace/blocks` — block library B (parity set)
+### Task 7: `@omniharmonic/openspace-blocks` — block library B (parity set)
 
 restaurant menu (sections, prices, dietary tags), marquee, pricing table, team grid, stats/numbers, timeline, tabs, before/after (CSS clip + range input behavior), audio / podcast episode, booking embed (Cal.com/Calendly lite load), link list (link-in-bio), summary (posts/events/projects/products with grid/list/carousel/wall layouts and filters — data supplied through a `CollectionsContext`), events list/calendar, chart (static SVG bar/line/pie from a small table), search (Pagefind), product + add-to-cart (cart behavior), donation (one-time/recurring amounts → Hub checkout or external link), member login / gated content notice, social feed (build-time feed data or placeholder), countdown, hours/opening times, contact info/address card, divider with ornament, heading (convenience), quote carousel. Same tests as Task 6. Total library ≥ 40 blocks.
 
-### Task 8: Section presets + `@openspace/lint` (Design check + mobile auto-layout)
+### Task 8: Section presets + `@omniharmonic/openspace-lint` (Design check + mobile auto-layout)
 
 - `packages/blocks/src/presets/`: ≥ 90 section presets across the doc 04 §6 categories (header, hero, about, services, features, gallery, testimonials, pricing, FAQ, team, stats, logos, CTA, contact/location/hours, newsletter, blog summary, events, products, footer). Each preset: id `category/name@version`, label, description, recommended copy lengths, image aspects, designed-for color themes, ai guidance, and a `build()` returning a fresh Section with new ids and real-feeling demo copy. Mix stack and grid layouts (≥ 15 grid presets with overlap).
-- `@openspace/lint`: `designCheck(doc, pageId?) → Issue[]` implementing doc 04 §9 flags (contrast failures via theme audit, > 2 families, heading order, empty sections, oversized images > 2× display, missing alt text, overlapping text in grid sections, no clear CTA, > 3 consecutive same-theme sections, flipping every section, copy length out of preset range) with severity + fix hints + auto-fix where trivial. `autoMobileLayout(section)` generates `m` placements by visual reading order (top-to-bottom, then left-to-right on desktop rects), stacking full width on 8 columns with heights scaled. `seoCheck(page)`.
+- `@omniharmonic/openspace-lint`: `designCheck(doc, pageId?) → Issue[]` implementing doc 04 §9 flags (contrast failures via theme audit, > 2 families, heading order, empty sections, oversized images > 2× display, missing alt text, overlapping text in grid sections, no clear CTA, > 3 consecutive same-theme sections, flipping every section, copy length out of preset range) with severity + fix hints + auto-fix where trivial. `autoMobileLayout(section)` generates `m` placements by visual reading order (top-to-bottom, then left-to-right on desktop rects), stacking full width on 8 columns with heights scaled. `seoCheck(page)`.
 - Tests for each rule and for reading-order layout.
 
 ### Task 9: Templates (12) with three looks each
 
 `templates/<id>/` for meadow, harbor, atelier, ledger, hearth, signal, field-notes, encore, kiln, commons, vow, link — each a full `SiteDocument` as files in the site-repo layout (`openspace.json`, `content/site.json`, `content/styles.json`, `content/pages/*.json`, `content/collections/**`, `media/LICENSES.json`), plus `template.json` (name, description, persona, mood, 3 looks = styles choices variants, thumbnail page id, tags). Content follows doc 04 §7 (pairings, palettes, signature details, required pages) with a plausible fictional owner and real-feeling copy — never lorem ipsum. Photography: remote Unsplash image URLs (`https://images.unsplash.com/photo-…?w=…`) verified to return HTTP 200, recorded with photographer credit in `media/LICENSES.json` (Unsplash License). `templates/index.ts` exports a typed registry `loadTemplate(id)`. Tests: every template validates, every page passes `designCheck` with no errors, every image URL listed in LICENSES.
 
-### Task 10: `@openspace/site-kit` + starter
+### Task 10: `@omniharmonic/openspace-site-kit` + starter
 
 Architecture §2, §4.3–§4.4, §7.1.
 
@@ -116,7 +116,7 @@ Architecture §2, §4.3–§4.4, §7.1.
 - `generateAgentsMd(schema)` exported for CLI/Hub.
 - Test: build a fixture site (`tools/fixtures/meadow-site` assembled from the meadow template) with real `astro build` in a test, asserting pages, feeds, sitemap, zero React runtime in output JS, and HTML identical (modulo image URLs) to `renderPageHtml` output.
 
-### Task 11: `@openspace/mcp-tools` — shared MCP tool set
+### Task 11: `@omniharmonic/openspace-mcp-tools` — shared MCP tool set
 
 Architecture §10.2–§10.3, doc 04 §9.
 
@@ -126,11 +126,11 @@ Architecture §10.2–§10.3, doc 04 §9.
 - `createMcpServer(store, grant)` producing a transport-agnostic JSON-RPC handler implementing MCP (initialize, tools/list, tools/call, resources/list, resources/read, prompts/list, prompts/get) — usable by Streamable HTTP (Hub) and stdio (CLI). Use `@modelcontextprotocol/sdk` types where helpful.
 - In-memory `MemorySiteStore` for tests. Tests drive a full "build a five-section page from a brief" script through the JSON-RPC handler and assert the result validates and passes designCheck with no errors.
 
-### Task 12: `@openspace/cli`
+### Task 12: `@omniharmonic/openspace-cli`
 
 `openspace` binary (commander): `check [--ci]` (schemas, internal links, image refs, size budgets incl. repo media size meter, secret scan; non-zero exit on failure, readable report), `dev` (runs astro dev), `migrate`, `mcp` (stdio MCP over a `FileSiteStore` operating on the local clone: reads content files into a SiteDocument, applies ops, writes files back preserving formatting; publish = git commit on current branch if git present, else noop with message), `new <template> <dir>` (scaffold a site from templates + starter), `eject`, `agents-md`. Tests run check against fixtures (pass + each failure class) and an MCP stdio round-trip.
 
-### Task 13: `@openspace/email-render`
+### Task 13: `@omniharmonic/openspace-email-render`
 
 Blocks → email-safe table HTML for campaigns and transactional mails (text, image, button, line, spacer, quote, columns(2), social links, footer with unsubscribe), inlined styles from compiled tokens, dark-mode meta, plain-text alternative. Templates for: double opt-in confirmation, form notification, magic link, order receipt, campaign wrapper. Tests: snapshot + no `<script>`, all links absolute.
 
@@ -169,7 +169,7 @@ Architecture §8.4, §9.1–§9.3, §7.3; PRD FR-30..33, FR-50..51.
 
 ### Task 17: Hub MCP server
 
-Architecture §10.1. `POST /mcp` Streamable HTTP (JSON responses + SSE when requested) wired to `@openspace/mcp-tools` with a `HubSiteStore` backed by DraftRoom. Auth: OAuth 2.1 authorization server (`/.well-known/oauth-authorization-server`, `/.well-known/oauth-protected-resource`, dynamic client registration `/register`, `/authorize` with GitHub (or dev) sign-in + consent screen listing sites with checkboxes + "Allow publishing", `/token` with PKCE) — use `@cloudflare/workers-oauth-provider` if it fits, else a compact in-house implementation on KV — plus personal access tokens (`/mcp/t/<token>` URL form) created/revoked from Studio. Grants per site, publish permission off by default, rate limit 2,000 ops/day, agent session snapshot at first write. Tests: full OAuth PKCE dance in dev mode, tool call writes reach DraftRoom, publish denied without grant/confirm.
+Architecture §10.1. `POST /mcp` Streamable HTTP (JSON responses + SSE when requested) wired to `@omniharmonic/openspace-mcp-tools` with a `HubSiteStore` backed by DraftRoom. Auth: OAuth 2.1 authorization server (`/.well-known/oauth-authorization-server`, `/.well-known/oauth-protected-resource`, dynamic client registration `/register`, `/authorize` with GitHub (or dev) sign-in + consent screen listing sites with checkboxes + "Allow publishing", `/token` with PKCE) — use `@cloudflare/workers-oauth-provider` if it fits, else a compact in-house implementation on KV — plus personal access tokens (`/mcp/t/<token>` URL form) created/revoked from Studio. Grants per site, publish permission off by default, rate limit 2,000 ops/day, agent session snapshot at first write. Tests: full OAuth PKCE dance in dev mode, tool call writes reach DraftRoom, publish denied without grant/confirm.
 
 ### Task 18: Hub growth + commerce
 
@@ -194,7 +194,7 @@ Architecture §9.2, §9.4, §9.5, §11.2; PRD §5.5–§5.6.
 
 ### Task 20: Studio editor core — canvas, selection, inline editing, layers, undo
 
-- Editor store (Zustand): SiteDocument, current page, selection (multi-select), hover, breakpoint, zoom, panels; every mutation = ops via `@openspace/ops` with undo/redo stacks of inverted ops (unlimited in session).
+- Editor store (Zustand): SiteDocument, current page, selection (multi-select), hover, breakpoint, zoom, panels; every mutation = ops via `@omniharmonic/openspace-ops` with undo/redo stacks of inverted ops (unlimited in session).
 - Canvas: same-origin iframe with token CSS + base CSS + fonts, rendering `PageView` via React portal; device frames 1440/834/390 + "fit"; zoom (⌘+/⌘-/⌘0, pinch, ctrl-wheel) and pan (space-drag) like Figma; hover outlines with block-type label; selection box with handles; floating block toolbar (style, duplicate, move up/down, delete, ask AI); section toolbar (move, duplicate, hide, delete, theme quick-switch, layout mode stack/grid); "+" add-section affordances between sections.
 - Inline rich-text editing with Tiptap mounted on the selected text block, schema-matched to §3.5, toolbar (typography preset, bold/italic/underline/strike, link, lists, quote, highlight), emitting `block.update` ops on change (debounced) — typing latency < 50 ms.
 - Left panel: Pages list + Layers tree (sections → blocks, drag to reorder, visibility/lock toggles, rename labels). Right panel: Inspector placeholder (Task 21).
@@ -252,7 +252,7 @@ Architecture §9.2, §9.4, §9.5, §11.2; PRD §5.5–§5.6.
 
 ### Task 27: Claude Code plugin, docs site, marketing site
 
-- `plugin/`: Claude Code plugin `openspace` — `.claude-plugin/plugin.json`, `.mcp.json` registering the local stdio server (`npx -y @openspace/cli mcp`) and documenting the remote Hub URL option, skills: `openspace-web-design` (doc 04 §9 guidance, preset-first composition workflow, rapid iterate loop: get_page → design_check → edit → preview/screenshot → repeat), `openspace-site-setup`; commands `/openspace:new-site`, `/openspace:design-check`, `/openspace:restyle`, `/openspace:publish`; agent `openspace-designer`. Include README with install instructions (`/plugin marketplace add omniharmonic/openspace`) and a `.claude-plugin/marketplace.json` at repo root.
+- `plugin/`: Claude Code plugin `openspace` — `.claude-plugin/plugin.json`, `.mcp.json` registering the local stdio server (`npx -y @omniharmonic/openspace-cli mcp`) and documenting the remote Hub URL option, skills: `openspace-web-design` (doc 04 §9 guidance, preset-first composition workflow, rapid iterate loop: get_page → design_check → edit → preview/screenshot → repeat), `openspace-site-setup`; commands `/openspace:new-site`, `/openspace:design-check`, `/openspace:restyle`, `/openspace:publish`; agent `openspace-designer`. Include README with install instructions (`/plugin marketplace add omniharmonic/openspace`) and a `.claude-plugin/marketplace.json` at repo root.
 - `apps/docs`: Astro Starlight docs (getting started, editing, styles, domains, connect your AI, Claude Code plugin, forms, newsletter, members, store, self-hosting the Hub, contributing templates, block development).
 - `apps/www`: marketing site + template gallery built with site-kit from an OpenSpace site document (dogfooding).
 

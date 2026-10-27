@@ -1,5 +1,5 @@
-import { cx, Img, RichText } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { cx, Img, RichText } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import { DEMO, rt, typo } from "../shared";
 
 export const quoteBlock = defineBlock({

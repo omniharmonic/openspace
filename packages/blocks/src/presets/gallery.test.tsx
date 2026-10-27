@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { renderPageHtml, unregisterBlocks } from "@openspace/renderer";
-import { COLOR_THEMES, type Section } from "@openspace/schema";
+import { renderPageHtml, unregisterBlocks } from "@omniharmonic/openspace-renderer";
+import { COLOR_THEMES, type Section } from "@omniharmonic/openspace-schema";
 import { afterAll, beforeAll, it } from "vitest";
 import { page, siteWith } from "../__fixtures__/site";
 import { blocksStyleTag, registerAll } from "../index";

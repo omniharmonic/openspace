@@ -1,4 +1,4 @@
-import { autoMobileLayout, isTextBlock } from "@openspace/lint";
+import { autoMobileLayout, isTextBlock } from "@omniharmonic/openspace-lint";
 import {
   type Block,
   fallbackMobileRects,
@@ -10,7 +10,7 @@ import {
   pinnedRect,
   resolve,
   type Section,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 
 /**
  * Pure grid-editing math (arch §3.3): breakpoints, effective placements, measured track
@@ -603,7 +603,7 @@ export function rectsOverlap(a: GridRect, b: GridRect): boolean {
 
 /**
  * Pairs of text blocks that would overlap with `rects` (placements at one breakpoint), counting
- * only pairs that involve one of `ids` when given. Mirrors `@openspace/lint`'s rule: overlap is
+ * only pairs that involve one of `ids` when given. Mirrors `@omniharmonic/openspace-lint`'s rule: overlap is
  * allowed, but text over text can't be read.
  */
 export function textOverlaps(

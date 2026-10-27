@@ -1,5 +1,10 @@
-import { BEHAVIORS, behaviorsInHtml, renderPageHtml, unregisterBlocks } from "@openspace/renderer";
-import { SiteDocumentSchema } from "@openspace/schema";
+import {
+  BEHAVIORS,
+  behaviorsInHtml,
+  renderPageHtml,
+  unregisterBlocks,
+} from "@omniharmonic/openspace-renderer";
+import { SiteDocumentSchema } from "@omniharmonic/openspace-schema";
 import { HtmlValidate } from "html-validate";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { gridSection, page, siteWith, stackSection } from "./__fixtures__/site";

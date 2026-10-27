@@ -1,4 +1,4 @@
-import type { Op } from "@openspace/ops";
+import type { Op } from "@omniharmonic/openspace-ops";
 
 /** The page an op touches (for "Claude is editing Home…" and agent summaries). */
 export function pageOf(op: Op): string | null {

@@ -1,4 +1,4 @@
-export const name = "@openspace/theme";
+export const name = "@omniharmonic/openspace-theme";
 
 export * from "./color";
 export * from "./compile";

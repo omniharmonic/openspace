@@ -1,4 +1,4 @@
-import type { CollectionKind } from "@openspace/schema";
+import type { CollectionKind } from "@omniharmonic/openspace-schema";
 import { CalendarDays, FolderKanban, Mic, Newspaper, Package } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";

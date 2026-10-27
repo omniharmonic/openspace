@@ -13,8 +13,8 @@
  * the same agent session — never one per message. Grants are re-read on every request, so
  * revoking or changing them takes effect immediately.
  */
-import { createMcpServer } from "@openspace/mcp-tools";
-import type { Role } from "@openspace/ops";
+import { createMcpServer } from "@omniharmonic/openspace-mcp-tools";
+import type { Role } from "@omniharmonic/openspace-ops";
 import type { Context } from "hono";
 import type { User } from "../db/users";
 import type { HubConfig } from "../env";

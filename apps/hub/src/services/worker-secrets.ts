@@ -10,7 +10,7 @@
  *
  * Secrets are written *before* the commit that triggers the workflow, so the run reads them.
  */
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import type { SiteRow } from "../db/sites";
 import { getUserRow, toUser } from "../db/users";
 import { type GitHubAccess, MAIN_BRANCH, PUBLISH_WORKFLOW, parseRepo } from "../github/types";

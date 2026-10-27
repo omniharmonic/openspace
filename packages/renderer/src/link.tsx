@@ -1,4 +1,4 @@
-import type { Link as LinkValue, Page, SiteDocument } from "@openspace/schema";
+import type { Link as LinkValue, Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { useRenderContext } from "./context";
 

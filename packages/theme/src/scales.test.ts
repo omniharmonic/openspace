@@ -1,4 +1,4 @@
-import { COLOR_SCALE_STEPS } from "@openspace/schema";
+import { COLOR_SCALE_STEPS } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { inSrgbGamut, oklchToHex, parseColor } from "./color";
 import { relativeLuminance } from "./contrast";

@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/email-render",
+  "name": "@omniharmonic/openspace-email-render",
   "version": "0.1.0",
   "description": "OpenSpace email-render package.",
   "license": "MIT",
@@ -35,7 +35,7 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@openspace/schema": "workspace:*",
-    "@openspace/theme": "workspace:*"
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*"
   }
 }

@@ -1,12 +1,12 @@
-import type { Op, SiteDocument } from "@openspace/ops";
-import { findSection } from "@openspace/ops";
+import type { Op, SiteDocument } from "@omniharmonic/openspace-ops";
+import { findSection } from "@omniharmonic/openspace-ops";
 import {
   type Block,
   GRID_COLUMNS,
   type GridItem,
   type GridRect,
   type Section,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { CONTENT_WIDTHS, isTextBlock, rectWidth } from "./content";
 import { type CheckOptions, opMeta } from "./issue";
 

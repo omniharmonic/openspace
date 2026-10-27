@@ -1,4 +1,4 @@
-import type { Link as LinkValue, SocialProfile } from "@openspace/schema";
+import type { Link as LinkValue, SocialProfile } from "@omniharmonic/openspace-schema";
 import type { ReactNode } from "react";
 import { cx } from "./cx";
 import { Link } from "./link";

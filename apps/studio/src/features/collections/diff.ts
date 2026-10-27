@@ -1,4 +1,4 @@
-import type { CollectionItem } from "@openspace/schema";
+import type { CollectionItem } from "@omniharmonic/openspace-schema";
 import { canonicalJson } from "../../api/canonical";
 
 /** Line diff (longest common subsequence) for reviewing a body. */

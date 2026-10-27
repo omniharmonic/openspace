@@ -7,7 +7,7 @@ import { run } from "./program";
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const CLI_DIR = join(HERE, "..");
 export const MEADOW = join(CLI_DIR, "..", "..", "tools", "fixtures", "meadow-site");
-/** Inside the package so `@openspace/*` resolves by walking up (needed by eject). */
+/** Inside the package so `@omniharmonic/openspace-*` resolves by walking up (needed by eject). */
 export const TMP_ROOT = join(CLI_DIR, ".tmp-tests");
 
 const made: string[] = [];

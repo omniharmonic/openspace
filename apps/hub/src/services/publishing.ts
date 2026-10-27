@@ -1,4 +1,4 @@
-import type { Role } from "@openspace/ops";
+import type { Role } from "@omniharmonic/openspace-ops";
 import { z } from "zod";
 import { audit } from "../db/audit";
 import { listPublishes } from "../db/publishes";

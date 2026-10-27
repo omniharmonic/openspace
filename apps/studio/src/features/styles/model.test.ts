@@ -1,5 +1,5 @@
-import { compiledStylesFor } from "@openspace/renderer";
-import { curatedPalettes } from "@openspace/theme";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
+import { curatedPalettes } from "@omniharmonic/openspace-theme";
 import { describe, expect, it } from "vitest";
 import { devSiteDocument } from "../editor/model/dev-site";
 import { createEditorStore } from "../editor/model/store";

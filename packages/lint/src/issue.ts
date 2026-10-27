@@ -1,4 +1,4 @@
-import type { Op, OpMeta } from "@openspace/ops";
+import type { Op, OpMeta } from "@omniharmonic/openspace-ops";
 
 /** A Design check / SEO check finding. Plain JSON: Studio, MCP and the CLI all show these. */
 export type Severity = "error" | "warning" | "info";

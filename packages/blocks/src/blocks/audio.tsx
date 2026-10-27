@@ -1,5 +1,5 @@
-import { cx, Img, Link, mediaUrl, useRenderContext } from "@openspace/renderer";
-import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
+import { cx, Img, Link, mediaUrl, useRenderContext } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
 import { DEMO, EditorNotice, formatDate, typo, useLocale } from "../shared";
 
 const MIME: Record<string, string> = {

@@ -1,4 +1,4 @@
-import { loadTemplate } from "@openspace/templates";
+import { loadTemplate } from "@omniharmonic/openspace-templates";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";

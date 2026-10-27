@@ -1,5 +1,5 @@
-import { deepEqual, diff, summarize } from "@openspace/ops";
-import { newId, type SiteDocument } from "@openspace/schema";
+import { deepEqual, diff, summarize } from "@omniharmonic/openspace-ops";
+import { newId, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { devSiteDocument } from "../features/editor/model/dev-site";
 import type { BuildNotice, PublishError } from "../features/sync/protocol";
 import { type CatalogMockState, createCatalogMock } from "./catalog-mock";

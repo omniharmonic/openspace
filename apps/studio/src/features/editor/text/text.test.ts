@@ -1,5 +1,5 @@
-import { RichText } from "@openspace/renderer";
-import { type RichTextDoc, RichTextDocSchema } from "@openspace/schema";
+import { RichText } from "@omniharmonic/openspace-renderer";
+import { type RichTextDoc, RichTextDocSchema } from "@omniharmonic/openspace-schema";
 import { Editor } from "@tiptap/core";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";

@@ -4,8 +4,8 @@ import {
   PARAGRAPH_PRESETS,
   type ParagraphPreset,
   RICH_LINK_HREF_RE,
-} from "@openspace/schema";
-import { colorVar } from "@openspace/theme";
+} from "@omniharmonic/openspace-schema";
+import { colorVar } from "@omniharmonic/openspace-theme";
 import {
   type Editor,
   Mark,

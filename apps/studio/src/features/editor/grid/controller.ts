@@ -1,4 +1,4 @@
-import type { GridRect } from "@openspace/schema";
+import type { GridRect } from "@omniharmonic/openspace-schema";
 import { create } from "zustand";
 import { toast } from "../../../ui";
 import { frameTickFreeze } from "../canvas/geometry";

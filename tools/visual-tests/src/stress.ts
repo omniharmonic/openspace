@@ -4,7 +4,13 @@
  * respects what Studio allows (a field's max length, a list's min and max items), so a failure
  * is something an owner could really produce.
  */
-import type { Block, FieldMeta, JsonValue, RichTextDoc, Section } from "@openspace/schema";
+import type {
+  Block,
+  FieldMeta,
+  JsonValue,
+  RichTextDoc,
+  Section,
+} from "@omniharmonic/openspace-schema";
 
 export type FieldMetas = Record<string, FieldMeta>;
 /** Field metadata per block type (`blocksRegistry().meta()`). */

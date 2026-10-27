@@ -1,4 +1,4 @@
-import type { CollectionItem } from "@openspace/schema";
+import type { CollectionItem } from "@omniharmonic/openspace-schema";
 import { Badge } from "../../ui";
 import { date } from "../workspace/format";
 import { effectiveStatus } from "./itemOps";

@@ -1,5 +1,5 @@
-import { cx } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import type { ReactNode } from "react";
 import { sub, typo, useLocale } from "../shared";
 

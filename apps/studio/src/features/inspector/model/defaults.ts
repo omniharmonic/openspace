@@ -1,4 +1,4 @@
-import type { FieldMeta, JsonValue, ListFieldMeta } from "@openspace/schema";
+import type { FieldMeta, JsonValue, ListFieldMeta } from "@omniharmonic/openspace-schema";
 import { cloneBlock } from "../../editor/model/actions";
 
 /**

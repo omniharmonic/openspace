@@ -1,5 +1,5 @@
-import type { ImageMap } from "@openspace/renderer";
-import type { Page, SiteDocument } from "@openspace/schema";
+import type { ImageMap } from "@omniharmonic/openspace-renderer";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   collectionsContextValueFor,
   type DeployLocation,
@@ -8,7 +8,7 @@ import {
   renderDocument,
   renderRoute,
   type SitePlan,
-} from "@openspace/site-kit/render";
+} from "@omniharmonic/openspace-site-kit/render";
 import { BEHAVIOR_SOURCES } from "./behavior-sources";
 
 /**

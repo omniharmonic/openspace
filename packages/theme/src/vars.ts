@@ -21,7 +21,7 @@ import {
   RADIUS_TOKENS,
   SHADOW_TOKENS,
   SPACE_TOKENS,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import {
   BUTTON_PROPS,
   BUTTON_ROLES,

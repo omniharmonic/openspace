@@ -5,7 +5,7 @@ import {
   DTCG_TYPES,
   type DtcgValue,
   type Styles,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import {
   ALL_THEMES,
   CONTRAST_PAIRS,
@@ -18,7 +18,7 @@ import {
   isSafeCssValue,
   type PaletteCandidate,
   toHex,
-} from "@openspace/theme";
+} from "@omniharmonic/openspace-theme";
 
 /**
  * Site Styles model: the patches the panel commits (`styles.patch` paths) and the contrast

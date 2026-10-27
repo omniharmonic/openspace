@@ -1,5 +1,5 @@
-import { copyViolations, getPreset } from "@openspace/blocks";
-import { FOOTER, type Op, type SiteDocument } from "@openspace/ops";
+import { copyViolations, getPreset } from "@omniharmonic/openspace-blocks";
+import { FOOTER, type Op, type SiteDocument } from "@omniharmonic/openspace-ops";
 import {
   type Block,
   COLOR_THEMES,
@@ -9,7 +9,7 @@ import {
   type Page,
   type RichTextDoc,
   type Section,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import {
   compileStyles,
   contrastRatio,
@@ -18,7 +18,7 @@ import {
   nearestAccessible,
   pairingFamilies,
   type ThemeTokens,
-} from "@openspace/theme";
+} from "@omniharmonic/openspace-theme";
 import {
   ACTION_BLOCKS,
   blockDisplayWidth,

@@ -1,5 +1,5 @@
-import { designCheck, type Issue, seoCheck } from "@openspace/lint";
-import { type Op, type OpBody, validate, validateAll } from "@openspace/ops";
+import { designCheck, type Issue, seoCheck } from "@omniharmonic/openspace-lint";
+import { type Op, type OpBody, validate, validateAll } from "@omniharmonic/openspace-ops";
 import {
   BREAKPOINT_INFO,
   BUTTON_STYLES,
@@ -9,14 +9,14 @@ import {
   type Page,
   SHAPES,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import {
   compileStyles,
   curatedPalettes,
   getCuratedPalette,
   getPairing,
   TYPE_PAIRINGS,
-} from "@openspace/theme";
+} from "@omniharmonic/openspace-theme";
 import { z } from "zod";
 import { pagePathOf, resolvePage, type ToolContext } from "../context";
 import { issueLines, ToolError } from "../errors";

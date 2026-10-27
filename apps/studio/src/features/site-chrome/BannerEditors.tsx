@@ -1,11 +1,11 @@
-import { compiledStylesFor } from "@openspace/renderer";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
 import {
   type Announcement,
   AnnouncementSchema,
   type Popup,
   PopupSchema,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { Mail, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Field, Input, NumberScrubInput, Segmented, Select, Slider, TextArea } from "../../ui";

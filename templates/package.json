@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/templates",
+  "name": "@omniharmonic/openspace-templates",
   "version": "1.0.0",
   "description": "OpenSpace launch templates: twelve complete sites (content, styles, media credits) with three looks each, and a typed registry.",
   "license": "MIT",
@@ -38,16 +38,16 @@
     "generate": "UPDATE_TEMPLATES=1 vitest run test/generate.test.ts"
   },
   "dependencies": {
-    "@openspace/blocks": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/site-kit": "workspace:*",
-    "@openspace/theme": "workspace:*",
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-site-kit": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*",
     "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "@openspace/cli": "workspace:*",
-    "@openspace/lint": "workspace:*",
-    "@openspace/renderer": "workspace:*",
+    "@omniharmonic/openspace-cli": "workspace:*",
+    "@omniharmonic/openspace-lint": "workspace:*",
+    "@omniharmonic/openspace-renderer": "workspace:*",
     "@types/jsdom": "^30.0.0",
     "@types/node": "catalog:",
     "axe-core": "^4.14.0",

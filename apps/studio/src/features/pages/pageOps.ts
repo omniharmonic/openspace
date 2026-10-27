@@ -1,11 +1,11 @@
-import type { OpBody } from "@openspace/ops";
-import { newId, type Page, type Redirect, type SiteDocument } from "@openspace/schema";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import { newId, type Page, type Redirect, type SiteDocument } from "@omniharmonic/openspace-schema";
 import type { Command } from "../editor/model/actions";
 import { cloneSection } from "../editor/model/actions";
 import { type Nav, pagesInNav, rowForPage, withoutPage, withPage } from "./navTree";
 import type { PageTemplate } from "./pageTemplates";
 
-/** Commands (op lists) for the Pages manager. Every change is an `@openspace/ops` op. */
+/** Commands (op lists) for the Pages manager. Every change is an `@omniharmonic/openspace-ops` op. */
 
 const SLUG_SEGMENT = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

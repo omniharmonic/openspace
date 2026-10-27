@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { useEffect } from "react";
 import { create } from "zustand";
 import type { EditorStore } from "../editor/model/store";

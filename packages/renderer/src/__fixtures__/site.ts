@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 export const IDS = {
   site: "st_01jb3q8w2n",

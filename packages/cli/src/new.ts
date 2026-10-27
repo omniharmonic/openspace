@@ -1,9 +1,9 @@
 import { existsSync } from "node:fs";
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
-import { CURRENT_SCHEMA_VERSION, newId, type SiteConfig } from "@openspace/schema";
-import { loadSiteDocument, writeSiteDocument } from "@openspace/site-kit/content";
-import { starterFiles } from "@openspace/template-starter";
+import { CURRENT_SCHEMA_VERSION, newId, type SiteConfig } from "@omniharmonic/openspace-schema";
+import { loadSiteDocument, writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
+import { starterFiles } from "@omniharmonic/openspace-template-starter";
 import { writeAgentsMd } from "./agents";
 import { CliError, type Io } from "./io";
 import { monorepoRoot } from "./repo-root";

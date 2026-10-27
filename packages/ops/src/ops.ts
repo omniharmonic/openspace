@@ -18,13 +18,13 @@ import {
   SectionSchema,
   SlugSchema,
   VariantNameSchema,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 
 /**
  * The operation vocabulary (arch §5.3). Every edit — Studio, Hub DraftRoom, MCP agents, CLI —
  * is one of these plain JSON values. Ops target stable ids, are validated against
- * `@openspace/schema` before they are accepted, are invertible (undo) and mergeable (rebase).
+ * `@omniharmonic/openspace-schema` before they are accepted, are invertible (undo) and mergeable (rebase).
  */
 
 /** Op metadata: a unique op id, who made it, and when (ms since epoch; used for LWW). */

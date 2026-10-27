@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { planSite, renderRoute } from "@openspace/site-kit";
+import { planSite, renderRoute } from "@omniharmonic/openspace-site-kit";
 import type { AxeResults } from "axe-core";
 import { JSDOM } from "jsdom";
 import { describe, expect, it } from "vitest";

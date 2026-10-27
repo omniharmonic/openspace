@@ -1,7 +1,7 @@
-import { renderEmail } from "@openspace/email-render";
-import type { Block, SiteDocument } from "@openspace/schema";
+import { renderEmail } from "@omniharmonic/openspace-email-render";
+import type { Block, SiteDocument } from "@omniharmonic/openspace-schema";
 
-/** Blocks an email can carry (what @openspace/email-render knows how to draw). */
+/** Blocks an email can carry (what @omniharmonic/openspace-email-render knows how to draw). */
 export const EMAIL_BLOCKS = [
   "text",
   "heading",

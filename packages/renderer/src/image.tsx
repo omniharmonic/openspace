@@ -4,8 +4,8 @@ import type {
   ImageTreatment,
   ImageValue,
   SiteDocument,
-} from "@openspace/schema";
-import { imageTreatmentClass } from "@openspace/theme";
+} from "@omniharmonic/openspace-schema";
+import { imageTreatmentClass } from "@omniharmonic/openspace-theme";
 import { createContext, useContext } from "react";
 import { useImageMap, useRenderContext } from "./context";
 import { type CssVars, cx } from "./cx";

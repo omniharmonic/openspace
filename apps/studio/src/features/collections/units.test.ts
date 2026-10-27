@@ -1,6 +1,10 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { validate } from "@openspace/ops";
-import { type CollectionItem, CollectionItemSchema, type SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { validate } from "@omniharmonic/openspace-ops";
+import {
+  type CollectionItem,
+  CollectionItemSchema,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { demoCollections } from "../../api/growth-fixtures";
 import { niceTicks } from "../analytics/charts";

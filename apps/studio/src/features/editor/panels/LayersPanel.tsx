@@ -15,7 +15,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { Block, Section, SiteDocument } from "@openspace/schema";
+import type { Block, Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { ChevronRight, Eye, EyeOff, GripVertical, Lock, LockOpen } from "lucide-react";
 import { type KeyboardEvent, type ReactNode, useRef, useState } from "react";
 import { cx, IconButton } from "../../../ui";

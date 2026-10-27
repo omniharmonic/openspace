@@ -8,7 +8,7 @@
  *   same rules as site-kit: SKU = `fm.sku ?? "<collection>/<slug>"`, variant SKU =
  *   `v.sku ?? "<sku>#<n>"`, only published (or due scheduled) items, `available` defaults true.
  */
-import type { Money, SiteDocument } from "@openspace/schema";
+import type { Money, SiteDocument } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import type { SiteRow } from "../db/sites";
 import { siteBaseUrl } from "./email";

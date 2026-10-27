@@ -1,6 +1,6 @@
-import { getPreset, type SectionPreset, sectionPresets } from "@openspace/blocks";
-import { applyAll, validate } from "@openspace/ops";
-import type { Page, SiteDocument } from "@openspace/schema";
+import { getPreset, type SectionPreset, sectionPresets } from "@omniharmonic/openspace-blocks";
+import { applyAll, validate } from "@omniharmonic/openspace-ops";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import {
   btn,

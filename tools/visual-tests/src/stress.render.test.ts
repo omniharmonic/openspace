@@ -10,10 +10,10 @@
 import { cpSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { blocksRegistry, sectionPresets } from "@openspace/blocks";
-import type { Page, Section, SiteDocument } from "@openspace/schema";
-import { deployLocation, planSite, renderRoute } from "@openspace/site-kit";
-import { loadTemplate, TEMPLATE_IDS } from "@openspace/templates";
+import { blocksRegistry, sectionPresets } from "@omniharmonic/openspace-blocks";
+import type { Page, Section, SiteDocument } from "@omniharmonic/openspace-schema";
+import { deployLocation, planSite, renderRoute } from "@omniharmonic/openspace-site-kit";
+import { loadTemplate, TEMPLATE_IDS } from "@omniharmonic/openspace-templates";
 import { it } from "vitest";
 import {
   applyVariation,

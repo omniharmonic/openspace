@@ -1,5 +1,5 @@
-import { buttonBlock, rt, starterSection, textBlock } from "@openspace/blocks";
-import type { Section } from "@openspace/schema";
+import { buttonBlock, rt, starterSection, textBlock } from "@omniharmonic/openspace-blocks";
+import type { Section } from "@omniharmonic/openspace-schema";
 import { ArrowUpRight, FileWarning, GitBranch, TriangleAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";

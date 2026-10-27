@@ -4,7 +4,7 @@ import {
   newId,
   pinnedRect,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { stackSection, stampOp, textBlock } from "./__fixtures__/arbitrary";
 import { IDS, siteFixture } from "./__fixtures__/site";

@@ -1,5 +1,5 @@
-import { blockText } from "@openspace/lint";
-import type { Section, SiteDocument } from "@openspace/schema";
+import { blockText } from "@omniharmonic/openspace-lint";
+import type { Section, SiteDocument } from "@omniharmonic/openspace-schema";
 
 /** Pages in navigation order (folders flattened), then pages not in the navigation. */
 export function pagesInOrder(

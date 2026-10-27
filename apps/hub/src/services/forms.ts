@@ -13,7 +13,12 @@
  *   `{ "version": 1, "hash"?: string, "forms": Form[] | Record<formId, Form> }`, where each form
  *   may carry an extra `"redirectHref"` (the resolved success-redirect URL or path).
  */
-import { type Form, FormSchema, formRedirectHref, type SiteDocument } from "@openspace/schema";
+import {
+  type Form,
+  FormSchema,
+  formRedirectHref,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import type { SiteRow } from "../db/sites";
 import { MAIN_BRANCH, parseRepo } from "../github/types";
 import { sha256Hex } from "../lib/crypto";

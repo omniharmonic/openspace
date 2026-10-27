@@ -1,5 +1,11 @@
-import { cx, Img, Link, SectionContext } from "@openspace/renderer";
-import { type AspectRatio, defineBlock, f, GRID_COLUMNS, type Section } from "@openspace/schema";
+import { cx, Img, Link, SectionContext } from "@omniharmonic/openspace-renderer";
+import {
+  type AspectRatio,
+  defineBlock,
+  f,
+  GRID_COLUMNS,
+  type Section,
+} from "@omniharmonic/openspace-schema";
 import { useContext } from "react";
 import { aspectField, DEMO, useImageUrl } from "../shared";
 

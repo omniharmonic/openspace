@@ -1,13 +1,13 @@
-import { BLOCKS_CSS, registerAll } from "@openspace/blocks";
+import { BLOCKS_CSS, registerAll } from "@omniharmonic/openspace-blocks";
 import {
   BASE_CSS,
   compiledStylesFor,
   type EditorHooks,
   PageView,
   type RichTextHookArgs,
-} from "@openspace/renderer";
-import type { SiteDocument } from "@openspace/schema";
-import { googleFontsUrl } from "@openspace/theme";
+} from "@omniharmonic/openspace-renderer";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { googleFontsUrl } from "@omniharmonic/openspace-theme";
 import {
   cloneElement,
   isValidElement,

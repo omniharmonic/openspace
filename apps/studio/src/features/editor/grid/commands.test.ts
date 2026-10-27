@@ -1,6 +1,11 @@
-import { autoMobileLayout } from "@openspace/lint";
-import { type Op, parseOp } from "@openspace/ops";
-import { type GridLayout, MAX_GRID_ROWS, type Section, type SiteDocument } from "@openspace/schema";
+import { autoMobileLayout } from "@omniharmonic/openspace-lint";
+import { type Op, parseOp } from "@omniharmonic/openspace-ops";
+import {
+  type GridLayout,
+  MAX_GRID_ROWS,
+  type Section,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { afterEach, describe, expect, it } from "vitest";
 import { useSiteRoleStore } from "../../inspector/env";
 import { useEditorUi } from "../editor-store";

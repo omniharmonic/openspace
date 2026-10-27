@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/renderer",
+  "name": "@omniharmonic/openspace-renderer",
   "version": "0.1.0",
   "description": "OpenSpace renderer: React page/section/block renderer, base stylesheet, HTML documents and vanilla behaviors.",
   "license": "MIT",
@@ -60,8 +60,8 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@openspace/schema": "workspace:*",
-    "@openspace/theme": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*",
     "esbuild": "^0.27.7"
   },
   "peerDependencies": {

@@ -1,4 +1,4 @@
-import { buttonBlock, headingBlock, imageBlock, textBlock } from "@openspace/blocks";
+import { buttonBlock, headingBlock, imageBlock, textBlock } from "@omniharmonic/openspace-blocks";
 import {
   type Block,
   type ColorTheme,
@@ -8,7 +8,7 @@ import {
   type RichTextDoc,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 
 /** Small builders for lint tests. */
 

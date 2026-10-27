@@ -1,4 +1,4 @@
-import type { Block, NavItem, Page, Section, SiteDocument } from "@openspace/schema";
+import type { Block, NavItem, Page, Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { apply } from "./apply";
 import { findSection, getPage, locateBlock, locateSection } from "./doc";
 import { type ContainerId, FOOTER, type Op, type OpBody, type OpMeta } from "./ops";

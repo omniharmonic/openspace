@@ -120,7 +120,7 @@ Fixed since review and no longer Partial: members and password pages on the Clou
 |---|---|---|---|
 | 4.4.1 | Settings tab with connector URL; GitHub sign-in once; typed tools; publish with confirmation | **Implemented** | `features/settings/ConnectAiSettings.tsx`; OAuth 2.1 + PKCE via `@cloudflare/workers-oauth-provider` (`apps/hub/src/mcp/oauth.ts`, `routes/mcp.ts`); personal token URLs; e2e `mcp.spec.ts`. |
 | 4.4.2 | Agent edits land in draft; "Claude is editing Home…"; Accept / Undo banner | **Implemented** | DraftRoom agent sessions plus snapshot at first write; e2e `mcp.spec.ts` (live indicator, "Changes by Claude", Undo all). |
-| 4.4.3 | Schema-constrained; code block for deliberate custom code | **Implemented** | All writes through `@openspace/ops` validation; the embed block is always sandboxed (ledger ruling, Task 6). |
+| 4.4.3 | Schema-constrained; code block for deliberate custom code | **Implemented** | All writes through `@omniharmonic/openspace-ops` validation; the embed block is always sandboxed (ledger ruling, Task 6). |
 | 4.4.4 | Free to the project (BYO AI); `AGENTS.md` in every site | **Implemented** | No inference anywhere; `generateAgentsMd` (`packages/site-kit/src/agents-md.ts`), written on site creation. |
 
 ### §4.5 Collaboration and handoff

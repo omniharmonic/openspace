@@ -1,4 +1,9 @@
-import { type Block, plainText, type RichTextDoc, type Section } from "@openspace/schema";
+import {
+  type Block,
+  plainText,
+  type RichTextDoc,
+  type Section,
+} from "@omniharmonic/openspace-schema";
 import type { CopyRule, CopyTarget } from "./types";
 
 /** Counting and locating copy inside sections (shared by preset tests and the Design check). */

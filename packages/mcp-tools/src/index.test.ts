@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { name } from "./index";
 
-describe("@openspace/mcp-tools", () => {
+describe("@omniharmonic/openspace-mcp-tools", () => {
   it("exports its package name", () => {
-    expect(name).toBe("@openspace/mcp-tools");
+    expect(name).toBe("@omniharmonic/openspace-mcp-tools");
   });
 });

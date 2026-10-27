@@ -1,4 +1,4 @@
-import type { CollectionItem, SiteDocument } from "@openspace/schema";
+import type { CollectionItem, SiteDocument } from "@omniharmonic/openspace-schema";
 import { stringify as stringifyYaml } from "yaml";
 import type { Licenses, TemplateMeta } from "./define";
 

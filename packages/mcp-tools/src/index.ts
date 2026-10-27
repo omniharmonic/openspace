@@ -1,10 +1,10 @@
 /**
- * @openspace/mcp-tools — the shared MCP tool set (arch §10): typed, validated site-editing tools,
+ * @omniharmonic/openspace-mcp-tools — the shared MCP tool set (arch §10): typed, validated site-editing tools,
  * resources and prompts behind a transport-agnostic JSON-RPC MCP server. The Hub serves it over
  * Streamable HTTP (Workers) and the CLI over stdio (`openspace mcp`), each with its own
  * `SiteStore`. No Node APIs in this entry.
  */
-export const name = "@openspace/mcp-tools";
+export const name = "@omniharmonic/openspace-mcp-tools";
 
 export { pagePathOf, resolvePage, ToolContext } from "./context";
 export { errorText, invalidInput, issueLines, pathText, ToolError, zodToIssues } from "./errors";

@@ -1,5 +1,5 @@
-import { Button, type ButtonRole, cx } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { Button, type ButtonRole, cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 
 const ROLE_OPTIONS = [
   { value: "primary", label: "Primary" },

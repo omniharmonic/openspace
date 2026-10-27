@@ -1,4 +1,4 @@
-import { blockHeadings } from "@openspace/blocks";
+import { blockHeadings } from "@omniharmonic/openspace-blocks";
 import {
   type Block,
   type GridRect,
@@ -7,7 +7,7 @@ import {
   type RichTextDoc,
   type Section,
   STACK_UNITS,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 
 /** What the checks need to know about blocks and sections. */
 

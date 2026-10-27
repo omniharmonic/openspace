@@ -1,4 +1,4 @@
-import type { Op, OpBody } from "@openspace/ops";
+import type { Op, OpBody } from "@omniharmonic/openspace-ops";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 import { useStore } from "zustand";

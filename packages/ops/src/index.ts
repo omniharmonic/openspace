@@ -1,10 +1,10 @@
 /**
- * @openspace/ops — typed, validated, invertible, mergeable operations over a `SiteDocument`
+ * @omniharmonic/openspace-ops — typed, validated, invertible, mergeable operations over a `SiteDocument`
  * (arch §5.3). Every edit from Studio, the Hub DraftRoom, MCP agents and the CLI is an `Op`.
  */
-export const name = "@openspace/ops";
+export const name = "@omniharmonic/openspace-ops";
 
-export type { SiteDocument } from "@openspace/schema";
+export type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 export * from "./apply";
 export * from "./diff";

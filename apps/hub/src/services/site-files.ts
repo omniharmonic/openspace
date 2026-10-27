@@ -4,7 +4,7 @@ import {
   type Page,
   type SiteDocument,
   SiteDocumentSchema,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import type { FileChange } from "../github/types";
 

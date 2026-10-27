@@ -4,9 +4,9 @@ import { GRID_COLUMNS, type GridLayout, type GridRect } from "./section";
  * Mobile placements the renderer uses for grid items that have no stored `m` rect: stack full
  * width in desktop order (top-to-bottom, then left-to-right by each rect's top-left corner),
  * below every item that does have one. Pure; shared by the renderer (CSS vars) and
- * `@openspace/lint` (overlap checks) so neither depends on the other.
+ * `@omniharmonic/openspace-lint` (overlap checks) so neither depends on the other.
  *
- * Studio and MCP should store real placements from `@openspace/lint`'s `autoMobileLayout`,
+ * Studio and MCP should store real placements from `@omniharmonic/openspace-lint`'s `autoMobileLayout`,
  * which reads banded columns and keeps layered items on their photos; this fallback only keeps
  * unedited sections readable.
  */

@@ -1,4 +1,8 @@
-import type { CollectionConfig, CollectionItem, SiteDocument } from "@openspace/schema";
+import type {
+  CollectionConfig,
+  CollectionItem,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 
 /**
  * Demo collections for Willow Street Yoga (mock Hub, dev only): a journal, events, a small

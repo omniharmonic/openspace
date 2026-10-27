@@ -1,5 +1,5 @@
-import type { OpBody } from "@openspace/ops";
-import { type CollectionConfig, CollectionConfigSchema } from "@openspace/schema";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import { type CollectionConfig, CollectionConfigSchema } from "@omniharmonic/openspace-schema";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";

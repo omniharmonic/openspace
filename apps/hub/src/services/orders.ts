@@ -8,8 +8,8 @@
  * events never decrement twice. The `inventory_no_oversell` trigger aborts a batch that would
  * oversell; that order is refunded and marked `out_of_stock` instead.
  */
-import { esc, renderEmail } from "@openspace/email-render";
-import type { Block } from "@openspace/schema";
+import { esc, renderEmail } from "@omniharmonic/openspace-email-render";
+import type { Block } from "@omniharmonic/openspace-schema";
 import { getSite, type SiteRow } from "../db/sites";
 import { DEV_STRIPE_WEBHOOK_SECRET } from "../growth-env";
 import { timingSafeEqual } from "../lib/crypto";

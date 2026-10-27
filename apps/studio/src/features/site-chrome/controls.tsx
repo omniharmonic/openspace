@@ -1,6 +1,11 @@
-import type { OpBody } from "@openspace/ops";
-import { compiledStylesFor } from "@openspace/renderer";
-import { COLOR_THEMES, type ColorTheme, type Link, type SiteDocument } from "@openspace/schema";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
+import {
+  COLOR_THEMES,
+  type ColorTheme,
+  type Link,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { ImagePlus, X } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { Button, cx, IconButton, Input, Select, Toggle, Tooltip, toast } from "../../ui";

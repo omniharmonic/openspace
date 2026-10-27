@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/blocks",
+  "name": "@omniharmonic/openspace-blocks",
   "version": "0.1.0",
   "description": "OpenSpace blocks package.",
   "license": "MIT",
@@ -39,9 +39,9 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@openspace/renderer": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/theme": "workspace:*",
+    "@omniharmonic/openspace-renderer": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*",
     "lucide": "^1.61.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

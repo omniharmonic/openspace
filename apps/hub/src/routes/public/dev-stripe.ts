@@ -8,7 +8,7 @@
  *   (`handleStripeWebhook`), then 303s to the success URL. `action=cancel` → the cancel URL.
  * - `GET|POST /dev/stripe/connect/:account` — fake Connect onboarding ("Finish setup").
  */
-import { esc } from "@openspace/email-render";
+import { esc } from "@omniharmonic/openspace-email-render";
 import { type Context, Hono } from "hono";
 import { DEV_STRIPE_WEBHOOK_SECRET } from "../../growth-env";
 import { randomId } from "../../lib/crypto";

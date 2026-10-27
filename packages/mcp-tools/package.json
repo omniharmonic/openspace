@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/mcp-tools",
+  "name": "@omniharmonic/openspace-mcp-tools",
   "version": "0.1.0",
   "description": "OpenSpace mcp-tools package.",
   "license": "MIT",
@@ -36,13 +36,13 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "@openspace/blocks": "workspace:*",
-    "@openspace/lint": "workspace:*",
-    "@openspace/ops": "workspace:*",
-    "@openspace/renderer": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/site-kit": "workspace:*",
-    "@openspace/theme": "workspace:*",
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-lint": "workspace:*",
+    "@omniharmonic/openspace-ops": "workspace:*",
+    "@omniharmonic/openspace-renderer": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-site-kit": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*",
     "zod": "^4.6.7"
   }
 }

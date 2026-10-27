@@ -4,8 +4,8 @@ import { chmod, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { siteMigrationRegistry } from "@openspace/schema";
-import { loadSiteDocument } from "@openspace/site-kit/content";
+import { siteMigrationRegistry } from "@omniharmonic/openspace-schema";
+import { loadSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { afterAll, describe, expect, it } from "vitest";
 import { ASTRO_MIN_NODE, runDev } from "./dev";
 import { captureIo } from "./io";
@@ -346,14 +346,14 @@ describe("openspace eject", () => {
     );
     const entrypoints = await readFile(join(kit, "entrypoints.ts"), "utf8");
     expect(entrypoints).toContain('"./src/openspace-kit/cloudflare/endpoints/gated.ts"');
-    expect(entrypoints).not.toMatch(/["']@openspace\/site-kit/);
+    expect(entrypoints).not.toMatch(/["']@omniharmonic\/openspace-site-kit/);
     expect(await readFile(join(kit, "integration.ts"), "utf8")).toContain("ENTRYPOINTS[p]");
 
     const pkg = JSON.parse(await readFile(join(site.dir, "package.json"), "utf8"));
-    expect(pkg.dependencies["@openspace/site-kit"]).toBeUndefined();
+    expect(pkg.dependencies["@omniharmonic/openspace-site-kit"]).toBeUndefined();
     expect(pkg.dependencies["@markdoc/markdoc"]).toBeDefined();
     expect(pkg.dependencies.astro).toBeDefined();
-    expect(pkg.dependencies["@openspace/renderer"]).toMatch(/^\^/);
+    expect(pkg.dependencies["@omniharmonic/openspace-renderer"]).toMatch(/^\^/);
 
     const again = await cli(site.dir, ["eject", "--yes"]);
     expect(again.code).toBe(1);
@@ -367,11 +367,14 @@ describe("openspace eject safety", () => {
     made.push(dir);
     await writeFile(
       join(dir, "package.json"),
-      JSON.stringify({ name: "s", dependencies: { "@openspace/site-kit": "^0.1.0" } }),
+      JSON.stringify({ name: "s", dependencies: { "@omniharmonic/openspace-site-kit": "^0.1.0" } }),
     );
     await mkdir(join(dir, "src/pages"), { recursive: true });
-    await writeFile(join(dir, "astro.config.mjs"), 'import o from "@openspace/site-kit";\n');
-    const kit = join(dir, "node_modules/@openspace/site-kit");
+    await writeFile(
+      join(dir, "astro.config.mjs"),
+      'import o from "@omniharmonic/openspace-site-kit";\n',
+    );
+    const kit = join(dir, "node_modules/@omniharmonic/openspace-site-kit");
     for (const [rel, text] of Object.entries(kitFiles)) {
       await mkdir(join(kit, rel, ".."), { recursive: true });
       await writeFile(join(kit, rel), text);
@@ -380,7 +383,7 @@ describe("openspace eject safety", () => {
   }
   const pkg = (extra = {}) =>
     JSON.stringify({
-      name: "@openspace/site-kit",
+      name: "@omniharmonic/openspace-site-kit",
       version: "0.1.0",
       type: "module",
       exports: { ".": { default: "./src/index.ts" }, "./route": { default: "./src/route.ts" } },
@@ -419,8 +422,8 @@ describe("openspace eject safety", () => {
 
     // A specifier the kit does not export is also fatal.
     await writeFile(
-      join(dir, "node_modules/@openspace/site-kit/src/entrypoints.ts"),
-      'export const E = { a: "@openspace/site-kit/nope" };\n',
+      join(dir, "node_modules/@omniharmonic/openspace-site-kit/src/entrypoints.ts"),
+      'export const E = { a: "@omniharmonic/openspace-site-kit/nope" };\n',
     );
     const r2 = await cli(dir, ["eject", "--yes"]);
     expect(r2.code).toBe(1);
@@ -428,7 +431,7 @@ describe("openspace eject safety", () => {
     expect(existsSync(join(dir, "src/openspace-kit"))).toBe(false);
   });
 
-  const ENTRIES = `export const ENTRYPOINTS = {\n  a: "@openspace/site-kit/route",\n} as const;\n`;
+  const ENTRIES = `export const ENTRYPOINTS = {\n  a: "@omniharmonic/openspace-site-kit/route",\n} as const;\n`;
   const packedPkg = () =>
     pkg({
       exports: {
@@ -447,7 +450,7 @@ describe("openspace eject safety", () => {
     });
     await writeFile(
       join(dir, "src/pages/[...slug].astro"),
-      'import { x } from "@openspace/site-kit/route";\n',
+      'import { x } from "@omniharmonic/openspace-site-kit/route";\n',
     );
     const r = await cli(dir, ["eject", "--yes"]);
     expect(r.code, r.err).toBe(0);
@@ -501,14 +504,14 @@ describe("openspace eject safety", () => {
     await exec("pnpm", ["pack", "--pack-destination", out], { cwd: kitDir });
     const tgz = (await readdir(out)).find((f) => f.endsWith(".tgz")) as string;
     const dir = await fakeSite({});
-    const kit = join(dir, "node_modules/@openspace/site-kit");
+    const kit = join(dir, "node_modules/@omniharmonic/openspace-site-kit");
     await mkdir(kit, { recursive: true });
     await exec("tar", ["-xzf", join(out, tgz), "-C", kit, "--strip-components=1"]);
     const packed = JSON.parse(await readFile(join(kit, "package.json"), "utf8"));
     expect(packed.exports["."].default ?? packed.exports["."]).toMatch(/dist/);
     await writeFile(
       join(dir, "src/pages/[...slug].astro"),
-      'import { renderPage } from "@openspace/site-kit/route";\n',
+      'import { renderPage } from "@omniharmonic/openspace-site-kit/route";\n',
     );
     const r = await cli(dir, ["eject", "--yes"]);
     expect(r.code, r.err).toBe(0);

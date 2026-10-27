@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   ArrowLeft,
   ChevronRight,

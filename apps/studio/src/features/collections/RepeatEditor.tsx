@@ -1,4 +1,4 @@
-import { occurrenceDates } from "@openspace/renderer";
+import { occurrenceDates } from "@omniharmonic/openspace-renderer";
 import { Repeat as RepeatIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cx, Field, Input, Segmented, Select } from "../../ui";

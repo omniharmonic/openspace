@@ -3,8 +3,8 @@
  * request for a local media image, and how `getImage()` results become a renderer
  * `ResolvedImage`.
  */
-import { collectImageSrcs, type ResolvedImage } from "@openspace/renderer";
-import type { Page, SiteDocument } from "@openspace/schema";
+import { collectImageSrcs, type ResolvedImage } from "@omniharmonic/openspace-renderer";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 
 /** Width ladder for responsive images (capped at the master's width, ≤ 2400px masters). */
 export const IMAGE_WIDTHS = [480, 960, 1600, 2400] as const;

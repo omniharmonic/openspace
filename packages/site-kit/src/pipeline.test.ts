@@ -1,8 +1,8 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FormSecurityContext, registerAll } from "@openspace/blocks";
-import { PageView, renderPageHtml } from "@openspace/renderer";
-import type { CollectionItem, Page, SiteDocument } from "@openspace/schema";
+import { FormSecurityContext, registerAll } from "@omniharmonic/openspace-blocks";
+import { PageView, renderPageHtml } from "@omniharmonic/openspace-renderer";
+import type { CollectionItem, Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeAll, describe, expect, it } from "vitest";

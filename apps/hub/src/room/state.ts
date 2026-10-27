@@ -10,8 +10,8 @@ import {
   rebase,
   transformForRole,
   validate,
-} from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+} from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { blockRegistry, presetSection, registryForValidate } from "../blocks";
 import type { ActorKind, ConflictNotice, LoggedOp, SubmitResult } from "./protocol";
 

@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { Check, Copy, Lock, Mail, UserPlus, X } from "lucide-react";
 import { useState } from "react";
 import {

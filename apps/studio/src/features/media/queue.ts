@@ -1,4 +1,4 @@
-import type { MediaMeta } from "@openspace/schema";
+import type { MediaMeta } from "@omniharmonic/openspace-schema";
 
 /**
  * Upload queue persisted in IndexedDB (arch §5.6 step 5): processed files wait here until the

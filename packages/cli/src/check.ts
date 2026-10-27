@@ -4,14 +4,14 @@
  */
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { blocksRegistry } from "@openspace/blocks";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import {
   isMediaPath,
   type MediaMeta,
   type SiteDocument,
   SiteDocumentSchema,
   scanForSecrets,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import {
   COLLECTION_CONFIG_FILE,
   COLLECTIONS_DIR,
@@ -23,7 +23,7 @@ import {
   SITE_FILE,
   SiteContentError,
   STYLES_FILE,
-} from "@openspace/site-kit/content";
+} from "@omniharmonic/openspace-site-kit/content";
 
 export type Severity = "error" | "warning";
 export type CheckRule =

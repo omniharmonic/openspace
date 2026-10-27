@@ -141,7 +141,7 @@ describe("update bot", () => {
     const m = mockFetch([
       [
         "GET",
-        /registry\.npmjs\.org\/@openspace%2fsite-kit/,
+        /registry\.npmjs\.org\/@omniharmonic%2fopenspace-site-kit/,
         () => ({
           versions: {
             "0.1.0": {},
@@ -158,11 +158,11 @@ describe("update bot", () => {
     expect(rel?.changelog.map((e) => e.version)).toEqual(["0.3.0", "0.1.5"]);
     expect(
       bumpPackageJson(
-        '{"dependencies":{"@openspace/site-kit":"^0.1.0","astro":"^5"},"devDependencies":{"@openspace/cli":"^0.1.0"}}',
+        '{"dependencies":{"@omniharmonic/openspace-site-kit":"^0.1.0","astro":"^5"},"devDependencies":{"@omniharmonic/openspace-cli":"^0.1.0"}}',
         "0.3.0",
       ),
     ).toBe(
-      `${JSON.stringify({ dependencies: { "@openspace/site-kit": "^0.3.0", astro: "^5" }, devDependencies: { "@openspace/cli": "^0.3.0" } }, null, 2)}\n`,
+      `${JSON.stringify({ dependencies: { "@omniharmonic/openspace-site-kit": "^0.3.0", astro: "^5" }, devDependencies: { "@omniharmonic/openspace-cli": "^0.3.0" } }, null, 2)}\n`,
     );
   });
 });

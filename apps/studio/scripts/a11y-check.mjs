@@ -1,7 +1,7 @@
 // Accessibility check of Studio's main screens with axe-core in real Chromium, light and dark,
 // plus a keyboard walkthrough of core editing (no mouse). Run against a built mock Studio:
-//   VITE_MOCK_API=1 pnpm --filter @openspace/studio build && pnpm --filter @openspace/studio preview
-//   pnpm --filter @openspace/studio check:a11y [baseUrl]
+//   VITE_MOCK_API=1 pnpm --filter @omniharmonic/openspace-studio build && pnpm --filter @omniharmonic/openspace-studio preview
+//   pnpm --filter @omniharmonic/openspace-studio check:a11y [baseUrl]
 // Fails on any serious or critical axe violation, or a keyboard step that doesn't work.
 import { createRequire } from "node:module";
 

@@ -6,9 +6,14 @@ import {
   feedKey,
   RenderContext,
   type RenderMode,
-} from "@openspace/renderer";
-import { type BehaviorFile, importBehavior } from "@openspace/renderer/node";
-import type { AnyBlockDefinition, Block, CollectionItem, SiteDocument } from "@openspace/schema";
+} from "@omniharmonic/openspace-renderer";
+import { type BehaviorFile, importBehavior } from "@omniharmonic/openspace-renderer/node";
+import type {
+  AnyBlockDefinition,
+  Block,
+  CollectionItem,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { demoCollections, HUB, page, SITE_ID, siteWith, stackSection } from "./__fixtures__/site";

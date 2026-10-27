@@ -4,7 +4,7 @@
  * donation rules) — nothing about price in the request is trusted. Stock is checked here and
  * decremented atomically when the payment completes (webhook, `orders.ts`).
  */
-import { currencyExponent } from "@openspace/email-render";
+import { currencyExponent } from "@omniharmonic/openspace-email-render";
 import type { SiteRow } from "../db/sites";
 import { randomId } from "../lib/crypto";
 import { HttpError } from "../lib/errors";

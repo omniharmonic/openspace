@@ -1,4 +1,10 @@
-import type { Block, Page, RichTextDoc, Section, SiteDocument } from "@openspace/schema";
+import type {
+  Block,
+  Page,
+  RichTextDoc,
+  Section,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { createContext, type ReactNode, useContext } from "react";
 import type { ImageMap } from "./image-map";
 import type { RendererBlockRegistry } from "./registry";

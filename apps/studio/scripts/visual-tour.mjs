@@ -1,7 +1,7 @@
 // Visual tour of Studio for design QA: screenshots every main surface at 1440, 834 and 390 in
 // light and dark, and reports sideways overflow and clipped controls. Run against a mock build:
-//   VITE_MOCK_API=1 pnpm --filter @openspace/studio build && pnpm --filter @openspace/studio preview
-//   pnpm --filter @openspace/studio tour [baseUrl] [outDir] [--only=name,name] [--widths=1440,390]
+//   VITE_MOCK_API=1 pnpm --filter @omniharmonic/openspace-studio build && pnpm --filter @omniharmonic/openspace-studio preview
+//   pnpm --filter @omniharmonic/openspace-studio tour [baseUrl] [outDir] [--only=name,name] [--widths=1440,390]
 import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";

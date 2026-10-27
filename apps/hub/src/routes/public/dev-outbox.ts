@@ -8,7 +8,7 @@
  * - `GET /dev/outbox/:id/html`  the HTML body, sandboxed
  * - `DELETE /dev/outbox`        clear
  */
-import { esc } from "@openspace/email-render";
+import { esc } from "@omniharmonic/openspace-email-render";
 import { Hono } from "hono";
 import { notFound, unauthenticated } from "../../lib/errors";
 import type { AppEnv } from "../../types";

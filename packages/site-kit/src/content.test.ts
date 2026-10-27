@@ -2,7 +2,7 @@ import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Page } from "@openspace/schema";
+import type { Page } from "@omniharmonic/openspace-schema";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   collectionKind,

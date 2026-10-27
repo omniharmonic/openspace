@@ -7,8 +7,8 @@ import type {
   Page,
   Site,
   SiteDocument,
-} from "@openspace/schema";
-import { themeClass } from "@openspace/theme";
+} from "@omniharmonic/openspace-schema";
+import { themeClass } from "@omniharmonic/openspace-theme";
 import type { ReactNode } from "react";
 import { useRenderContext } from "./context";
 import { cx } from "./cx";

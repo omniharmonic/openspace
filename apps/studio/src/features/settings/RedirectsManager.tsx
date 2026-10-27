@@ -1,4 +1,4 @@
-import { type Redirect, RedirectSchema } from "@openspace/schema";
+import { type Redirect, RedirectSchema } from "@omniharmonic/openspace-schema";
 import { ArrowRight, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button, IconButton, Input, Select } from "../../ui";

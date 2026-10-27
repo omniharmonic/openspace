@@ -1,4 +1,4 @@
-import type { MediaMeta, SiteDocument } from "@openspace/schema";
+import type { MediaMeta, SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   AlertTriangle,
   Camera,

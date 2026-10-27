@@ -1,4 +1,4 @@
-import type { CustomFont, Styles } from "@openspace/schema";
+import type { CustomFont, Styles } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { compileStyles } from "./compile";
 import { customFontFaces, customFontPreloads, nearestWeight } from "./custom-fonts";

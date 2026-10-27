@@ -1,13 +1,13 @@
-import { allBlocks } from "@openspace/blocks";
+import { allBlocks } from "@omniharmonic/openspace-blocks";
 import {
   type AnyBlockDefinition,
   type BlockRegistry,
   createBlockRegistry,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 
 /**
  * The block registry the Hub validates ops with (field kinds for locked-section checks, block
- * field validation): the `@openspace/blocks` library, so ops from any client (Studio, MCP,
+ * field validation): the `@omniharmonic/openspace-blocks` library, so ops from any client (Studio, MCP,
  * direct API) get the same field validation. `registerBlocks` can add definitions.
  *
  * `registryForValidate()` returns the registry only when it has definitions: the schema's
@@ -34,4 +34,4 @@ export function registryForValidate(): BlockRegistry | undefined {
 }
 
 /** Preset builds for the Editor section-insert check (M-5). */
-export { presetSection } from "@openspace/blocks";
+export { presetSection } from "@omniharmonic/openspace-blocks";

@@ -16,13 +16,13 @@ how to repeat each check. Each page lists what was measured, what we fixed and w
 Studio checks run against a mock build (no accounts needed):
 
 ```sh
-VITE_MOCK_API=1 pnpm --filter @openspace/studio build
-pnpm --filter @openspace/studio preview            # http://localhost:4173
+VITE_MOCK_API=1 pnpm --filter @omniharmonic/openspace-studio build
+pnpm --filter @omniharmonic/openspace-studio preview            # http://localhost:4173
 
-pnpm --filter @openspace/studio tour [url] [outDir]  # screenshots of every surface + overflow audit
-pnpm --filter @openspace/studio check:phone         # 360/390/430: no sideways scroll, 44px targets
-pnpm --filter @openspace/studio check:a11y          # axe (light + dark) + keyboard walkthrough
-pnpm --filter @openspace/studio check:perf          # first load, JS per route, typing, canvas
+pnpm --filter @omniharmonic/openspace-studio tour [url] [outDir]  # screenshots of every surface + overflow audit
+pnpm --filter @omniharmonic/openspace-studio check:phone         # 360/390/430: no sideways scroll, 44px targets
+pnpm --filter @omniharmonic/openspace-studio check:a11y          # axe (light + dark) + keyboard walkthrough
+pnpm --filter @omniharmonic/openspace-studio check:perf          # first load, JS per route, typing, canvas
 ```
 
 Template checks live in `tools/visual-tests`:

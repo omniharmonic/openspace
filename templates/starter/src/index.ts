@@ -8,7 +8,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const name = "@openspace/template-starter";
+export const name = "@omniharmonic/openspace-template-starter";
 
 export const STARTER_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const SITE_DIR = join(STARTER_DIR, "site");

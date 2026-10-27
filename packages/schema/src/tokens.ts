@@ -3,7 +3,7 @@ import { named } from "./registry";
 
 /**
  * Design-token vocabularies shared by sections, blocks and styles. Content refers to tokens
- * by name; the theme compiler (`@openspace/theme`) turns them into `--os-*` custom properties.
+ * by name; the theme compiler (`@omniharmonic/openspace-theme`) turns them into `--os-*` custom properties.
  */
 
 /** Section/block color themes (doc 04 §3.2). Each is a complete role set from the palette. */

@@ -9,8 +9,8 @@ import {
   rt,
   starterSection,
   textBlock,
-} from "@openspace/blocks";
-import type { Block, ColorTheme, Section } from "@openspace/schema";
+} from "@omniharmonic/openspace-blocks";
+import type { Block, ColorTheme, Section } from "@omniharmonic/openspace-schema";
 
 /**
  * Starter sections offered by the canvas "+" between sections. (The full preset gallery,

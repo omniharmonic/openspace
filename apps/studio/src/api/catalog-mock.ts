@@ -4,14 +4,14 @@ import { type HubApi, HubError, type Site, type TemplateSummary, type User } fro
 
 /**
  * In-memory template documents and update bot for the mock Hub (dev + tests). Template
- * documents come from the real registry (`@openspace/templates`), loaded on first use so it
+ * documents come from the real registry (`@omniharmonic/openspace-templates`), loaded on first use so it
  * never weighs on the default bundle or on tests that don't render templates.
  */
 
-type Registry = typeof import("@openspace/templates");
+type Registry = typeof import("@omniharmonic/openspace-templates");
 let registry: Promise<Registry> | null = null;
 const loadRegistry = () => {
-  registry ??= import("@openspace/templates");
+  registry ??= import("@omniharmonic/openspace-templates");
   return registry;
 };
 

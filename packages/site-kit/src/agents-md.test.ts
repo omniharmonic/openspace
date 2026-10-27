@@ -1,4 +1,4 @@
-import { blocksRegistry } from "@openspace/blocks";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import { describe, expect, it } from "vitest";
 import { generateAgentsMd } from "./agents-md";
 

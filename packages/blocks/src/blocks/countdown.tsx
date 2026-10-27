@@ -1,5 +1,5 @@
-import { Button, cx } from "@openspace/renderer";
-import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
+import { Button, cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
 import { EditorNotice, formatDate, headingLevelField, sub, typo, useLocale } from "../shared";
 
 const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2})$/;

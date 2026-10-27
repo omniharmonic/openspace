@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { newId } from "@openspace/schema";
+import { newId } from "@omniharmonic/openspace-schema";
 import { afterAll, describe, expect, it } from "vitest";
 import { type CheckReport, runCheck } from "./check";
 import { cleanup, cli, editJson, meadowCopy } from "./test-helpers";

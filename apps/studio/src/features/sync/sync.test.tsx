@@ -1,5 +1,5 @@
-import type { OpBody } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { demoSites } from "../../api/fixtures";

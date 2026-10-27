@@ -1,4 +1,4 @@
-import { blocksRegistry } from "@openspace/blocks";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import {
   Accessibility,
   AtSign,

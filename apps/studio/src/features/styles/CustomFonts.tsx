@@ -1,5 +1,5 @@
-import type { OpBody } from "@openspace/ops";
-import { type CustomFont, FONT_CATEGORIES, type Styles } from "@openspace/schema";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import { type CustomFont, FONT_CATEGORIES, type Styles } from "@omniharmonic/openspace-schema";
 import { Trash2, Upload } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { useHub } from "../../api";

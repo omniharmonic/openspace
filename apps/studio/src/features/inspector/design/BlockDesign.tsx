@@ -1,5 +1,5 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { compiledStylesFor } from "@openspace/renderer";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
 import {
   ANIMATIONS,
   type Animation,
@@ -12,8 +12,8 @@ import {
   SHADOW_TOKENS,
   SPACE_TOKENS,
   TYPE_PRESETS,
-} from "@openspace/schema";
-import { SPACE_SCALES } from "@openspace/theme";
+} from "@omniharmonic/openspace-schema";
+import { SPACE_SCALES } from "@omniharmonic/openspace-theme";
 import { useMemo } from "react";
 import { Toggle } from "../../../ui";
 import { useDocStore, useDocStoreApi } from "../../editor/model/context";

@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/schema",
+  "name": "@omniharmonic/openspace-schema",
   "version": "0.1.0",
   "description": "OpenSpace schema package.",
   "license": "MIT",

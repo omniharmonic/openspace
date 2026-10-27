@@ -2,7 +2,13 @@
  * Search-engine outputs: structured data (JSON-LD), sitemap.xml, robots.txt and redirects.
  * FAQ structured data is emitted by the accordion block itself (next to its questions).
  */
-import type { Block, CollectionItem, Page, Redirect, SiteDocument } from "@openspace/schema";
+import type {
+  Block,
+  CollectionItem,
+  Page,
+  Redirect,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { absoluteUrl, xml } from "./feeds";
 import { itemDescription } from "./pages";
 import type { SitePlan, SiteRoute } from "./routes";

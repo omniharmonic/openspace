@@ -1,4 +1,4 @@
-import type { GridRect, SiteDocument } from "@openspace/schema";
+import type { GridRect, SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   ArrowDownToLine,
   ArrowUpToLine,

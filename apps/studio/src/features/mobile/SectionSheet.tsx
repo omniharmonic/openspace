@@ -1,5 +1,5 @@
-import { blockText } from "@openspace/lint";
-import type { SiteDocument } from "@openspace/schema";
+import { blockText } from "@omniharmonic/openspace-lint";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   ArrowDown,
   ArrowLeft,

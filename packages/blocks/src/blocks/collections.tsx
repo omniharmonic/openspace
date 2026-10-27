@@ -10,7 +10,7 @@ import {
   siteUrlFor,
   useCollectionQuery,
   useRenderContext,
-} from "@openspace/renderer";
+} from "@omniharmonic/openspace-renderer";
 import {
   type CollectionItem,
   defineBlock,
@@ -18,7 +18,7 @@ import {
   f,
   type ImageValue,
   type Link as LinkValue,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import type { ReactNode } from "react";
 import { Icon } from "../icons";
 import {

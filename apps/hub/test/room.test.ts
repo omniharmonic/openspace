@@ -1,5 +1,5 @@
 import { env, runInDurableObject } from "cloudflare:test";
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { DevGitHubAccess } from "../src/github/dev";
 import { unwrapRoom } from "../src/room";

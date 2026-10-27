@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { generateAgentsMd } from "@openspace/site-kit";
+import { generateAgentsMd } from "@omniharmonic/openspace-site-kit";
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 import { SITE_DIR, starterFiles, VARIANTS } from "./index";
@@ -149,8 +149,8 @@ describe("starter site shell", () => {
     );
     expect(cf[".github/workflows/publish.yml"]).toContain("wrangler deploy");
     const pkg = JSON.parse((await starterFiles())["package.json"] ?? "{}");
-    expect(pkg.dependencies).toHaveProperty("@openspace/site-kit");
-    expect(pkg.devDependencies).toHaveProperty("@openspace/cli");
+    expect(pkg.dependencies).toHaveProperty("@omniharmonic/openspace-site-kit");
+    expect(pkg.devDependencies).toHaveProperty("@omniharmonic/openspace-cli");
     expect((await starterFiles())["astro.config.mjs"]).toContain("integrations: [openspace()]");
   });
 

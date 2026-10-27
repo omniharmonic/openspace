@@ -1,5 +1,5 @@
-import type { Op, OpBody } from "@openspace/ops";
-import type { RichTextDoc } from "@openspace/schema";
+import type { Op, OpBody } from "@omniharmonic/openspace-ops";
+import type { RichTextDoc } from "@omniharmonic/openspace-schema";
 import { Editor } from "@tiptap/core";
 import { useLayoutEffect, useRef } from "react";
 import { useCommandStore } from "../../../ui/command-store";

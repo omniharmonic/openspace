@@ -1,5 +1,5 @@
-import type { Op } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import type { Op } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
 import type { User } from "../db/users";

@@ -2,7 +2,7 @@
 // 320, 390, 834, 1280, 1440 and 1920 px and at 200% zoom (1280 px at 2×, so 640 CSS px), and
 // report anything that runs past the screen or out of its box. Failing sections are
 // screenshotted. Usage:
-//   OS_STRESS=$PWD/out/stress pnpm --filter @openspace/visual-tests exec vitest run src/stress.render.test.ts
+//   OS_STRESS=$PWD/out/stress pnpm --filter @omniharmonic/openspace-visual-tests exec vitest run src/stress.render.test.ts
 //   node scripts/stress.mjs [out/stress] [--widths=320,390] [--only=hero/] [--shots=out/stress-shots]
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";

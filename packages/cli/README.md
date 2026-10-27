@@ -1,4 +1,4 @@
-# @openspace/cli
+# @omniharmonic/openspace-cli
 
 The `openspace` command line: `check`, `dev`, `migrate`, `new`, `eject`, `agents-md` and `mcp`.
 
@@ -6,7 +6,7 @@ The `openspace` command line: `check`, `dev`, `migrate`, `new`, `eject`, `agents
 
 Runs the OpenSpace MCP server over stdio against a local site folder (default: the current
 folder). It is the same tool set the Hub serves remotely: typed, validated edits (every change is
-an `@openspace/ops` operation checked against the schema), section presets, Site Styles,
+an `@omniharmonic/openspace-ops` operation checked against the schema), section presets, Site Styles,
 Design check, page rendering and screenshots.
 
 ### Claude Code

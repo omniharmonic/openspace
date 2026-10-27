@@ -9,8 +9,8 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { type ImageMap, REMOTE_WIDTHS, type ResolvedImage } from "@openspace/renderer";
-import type { SiteDocument } from "@openspace/schema";
+import { type ImageMap, REMOTE_WIDTHS, type ResolvedImage } from "@omniharmonic/openspace-renderer";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 export interface RemoteImagePlan {
   map: ImageMap;

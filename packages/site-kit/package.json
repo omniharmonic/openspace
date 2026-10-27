@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/site-kit",
+  "name": "@omniharmonic/openspace-site-kit",
   "version": "0.1.0",
   "description": "OpenSpace site-kit: the Astro integration that builds and publishes an OpenSpace site.",
   "license": "MIT",
@@ -140,10 +140,10 @@
   "dependencies": {
     "@fontsource/hanken-grotesk": "^5.3.0",
     "@markdoc/markdoc": "^0.5.10",
-    "@openspace/blocks": "workspace:*",
-    "@openspace/renderer": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/theme": "workspace:*",
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-renderer": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*",
     "@resvg/resvg-js": "^2.6.2",
     "esbuild": "^0.27.7",
     "pagefind": "^1.5.2",

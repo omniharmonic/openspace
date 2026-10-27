@@ -5,7 +5,7 @@
  * - Unsubscribe tokens are stateless HMACs of the subscriber id (`unsubscribeToken`) so every
  *   email — including Task 18's campaigns — can carry a stable RFC 8058 one-click link.
  */
-import { confirmSubscriptionEmail, unsubscribeHeaders } from "@openspace/email-render";
+import { confirmSubscriptionEmail, unsubscribeHeaders } from "@omniharmonic/openspace-email-render";
 import { z } from "zod";
 import type { SiteRow } from "../db/sites";
 import { base64url, randomId, randomToken, sha256Hex, timingSafeEqual } from "../lib/crypto";

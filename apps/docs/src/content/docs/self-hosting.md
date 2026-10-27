@@ -102,8 +102,8 @@ Without the optional ones, those features are simply unavailable on a production
 
 ```sh
 pnpm install
-pnpm --filter @openspace/hub dev     # applies local migrations, starts wrangler dev on :8787
-pnpm --filter @openspace/studio dev  # Studio on :5173
+pnpm --filter @omniharmonic/openspace-hub dev     # applies local migrations, starts wrangler dev on :8787
+pnpm --filter @omniharmonic/openspace-studio dev  # Studio on :5173
 ```
 
 Locally, DEV_MODE is on: GitHub is emulated, emails go to an outbox at `/dev/outbox`, checkout uses a fake Stripe page, and nothing needs an account.

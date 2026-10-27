@@ -1,6 +1,6 @@
-import { blocksRegistry } from "@openspace/blocks";
-import type { Block, ImageValue, RichTextDoc } from "@openspace/schema";
-import { plainText } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { Block, ImageValue, RichTextDoc } from "@omniharmonic/openspace-schema";
+import { plainText } from "@omniharmonic/openspace-schema";
 import {
   ArrowDown,
   ArrowUp,

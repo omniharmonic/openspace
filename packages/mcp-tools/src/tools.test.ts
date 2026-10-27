@@ -1,4 +1,4 @@
-import { compileStyles, contrastRatio } from "@openspace/theme";
+import { compileStyles, contrastRatio } from "@omniharmonic/openspace-theme";
 import { describe, expect, it } from "vitest";
 import {
   base64ToBytes,

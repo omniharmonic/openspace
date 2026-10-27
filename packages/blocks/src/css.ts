@@ -42,7 +42,7 @@ import { videoCss } from "./blocks/video";
  * Everything lives in the `os.blocks` cascade layer, ordered after the renderer's layers and
  * before `os.utilities`, so the site's own (unlayered) custom CSS always wins.
  */
-export const BLOCKS_CSS = `/* OpenSpace block library (@openspace/blocks). Tokens: --os-* from @openspace/theme. */
+export const BLOCKS_CSS = `/* OpenSpace block library (@omniharmonic/openspace-blocks). Tokens: --os-* from @omniharmonic/openspace-theme. */
 @layer os.reset, os.base, os.layout, os.components, os.behaviors, os.blocks, os.utilities;
 @layer os.blocks {
 ${[

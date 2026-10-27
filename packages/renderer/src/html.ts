@@ -1,10 +1,10 @@
-import type { Page, SiteDocument } from "@openspace/schema";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   chosenCustomFont,
   customFontFaces,
   customFontPreloads,
   googleFontsUrl,
-} from "@openspace/theme";
+} from "@omniharmonic/openspace-theme";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BEHAVIOR_LOADER, type BehaviorName, behaviorsInHtml } from "./behaviors-manifest";

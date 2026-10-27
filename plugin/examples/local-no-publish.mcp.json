@@ -2,7 +2,7 @@
   "mcpServers": {
     "openspace": {
       "command": "npx",
-      "args": ["-y", "@openspace/cli", "mcp", ".", "--no-publish"]
+      "args": ["-y", "@omniharmonic/openspace-cli", "mcp", ".", "--no-publish"]
     }
   }
 }

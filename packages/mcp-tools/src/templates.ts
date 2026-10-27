@@ -1,12 +1,12 @@
 /**
  * Template looks for `list_templates` / `apply_template_look`. Sources, in order:
  * 1. the store's injected `templates` catalog (Hub, CLI with a templates folder);
- * 2. an installed `@openspace/templates` package (the template registry, loaded optionally);
+ * 2. an installed `@omniharmonic/openspace-templates` package (the template registry, loaded optionally);
  * 3. built-in looks for the twelve launch templates (doc 04 §7), assembled from the theme
  *    package's template pairings and curated palettes — usable before template content ships.
  */
-import { type StyleChoices, StyleChoicesSchema } from "@openspace/schema";
-import { curatedPalettes, TYPE_PAIRINGS } from "@openspace/theme";
+import { type StyleChoices, StyleChoicesSchema } from "@omniharmonic/openspace-schema";
+import { curatedPalettes, TYPE_PAIRINGS } from "@omniharmonic/openspace-theme";
 import type { SiteStore, TemplateInfo, TemplateLook } from "./store";
 
 type Mood = Pick<StyleChoices, "density" | "shape" | "buttons" | "motion" | "imageTreatment">;
@@ -379,7 +379,7 @@ export function normaliseTemplate(raw: unknown): TemplateInfo | null {
   };
 }
 
-/** Read a `@openspace/templates`-style module (several export shapes are accepted). */
+/** Read a `@omniharmonic/openspace-templates`-style module (several export shapes are accepted). */
 export async function templatesFromModule(
   mod: Record<string, unknown>,
 ): Promise<TemplateInfo[] | null> {
@@ -405,7 +405,7 @@ export async function templatesFromModule(
 }
 
 /** Optional dependency, resolved at runtime only (the specifier is not a literal for bundlers). */
-const OPTIONAL_TEMPLATES_PACKAGE = ["@openspace", "templates"].join("/");
+const OPTIONAL_TEMPLATES_PACKAGE = ["@omniharmonic", "openspace-templates"].join("/");
 
 export async function loadTemplates(
   store: SiteStore,

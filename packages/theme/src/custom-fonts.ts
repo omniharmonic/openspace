@@ -3,7 +3,7 @@
  * the font tokens that use them. The files publish with the site (`media/fonts/`), so the URLs
  * are resolved by the caller (renderer: base path; Studio canvas: preview URLs).
  */
-import type { CustomFont, Styles } from "@openspace/schema";
+import type { CustomFont, Styles } from "@omniharmonic/openspace-schema";
 import { FALLBACK_STACKS } from "./pairings";
 
 const FORMAT: Record<string, string> = { woff2: "woff2", ttf: "truetype", otf: "opentype" };

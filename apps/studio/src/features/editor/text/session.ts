@@ -2,7 +2,12 @@
  * Inline text session state shared by the canvas, the floating toolbar and the editor itself.
  * Tiptap is imported only as a type so this module stays out of the lazy text-editor chunk.
  */
-import { BLOCK_NODE_TYPES, type BlockNodeType, MARK_TYPES, type MarkType } from "@openspace/schema";
+import {
+  BLOCK_NODE_TYPES,
+  type BlockNodeType,
+  MARK_TYPES,
+  type MarkType,
+} from "@omniharmonic/openspace-schema";
 import type { Editor } from "@tiptap/core";
 import { create } from "zustand";
 

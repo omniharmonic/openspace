@@ -1,7 +1,7 @@
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { jpegSize, looksLikeImage, remoteImages, selfHostRemoteImages } from "./remote-images";
 

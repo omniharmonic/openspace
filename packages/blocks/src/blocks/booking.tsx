@@ -1,5 +1,5 @@
-import { Button, cx } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { Button, cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import { Icon } from "../icons";
 import { EditorNotice, headingLevelField, typo } from "../shared";
 

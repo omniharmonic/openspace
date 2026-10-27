@@ -1,5 +1,10 @@
 /* biome-ignore-all lint/suspicious/noExplicitAny: frontmatter is a union keyed by kind; each form reads its own keys. */
-import type { CollectionConfig, CollectionItem, ImageValue, SiteDocument } from "@openspace/schema";
+import type {
+  CollectionConfig,
+  CollectionItem,
+  ImageValue,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { ArrowUpRight, Plus, Trash2 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";

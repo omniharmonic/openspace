@@ -1,11 +1,17 @@
-import { defineBlock, f, type ImageValue, type Link, type RichTextDoc } from "@openspace/schema";
+import {
+  defineBlock,
+  f,
+  type ImageValue,
+  type Link,
+  type RichTextDoc,
+} from "@omniharmonic/openspace-schema";
 import { useContext } from "react";
 import { SectionContext } from "../context";
 import { Img } from "../image";
 import { Button } from "../primitives";
 import { RichText } from "../richtext";
 
-/** Local fixture blocks (the renderer must not depend on @openspace/blocks). */
+/** Local fixture blocks (the renderer must not depend on @omniharmonic/openspace-blocks). */
 export const textBlock = defineBlock({
   type: "text",
   version: 1,

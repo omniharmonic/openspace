@@ -47,7 +47,7 @@ Settings → *Your site's home* explains it in plain words:
 Developers can create a site locally with the CLI instead:
 
 ```sh
-npx -y @openspace/cli new meadow my-site --title "Fernwood Yoga"
+npx -y @omniharmonic/openspace-cli new meadow my-site --title "Fernwood Yoga"
 cd my-site && npm install && npm run dev
 ```
 

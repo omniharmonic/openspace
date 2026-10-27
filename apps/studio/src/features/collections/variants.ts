@@ -1,4 +1,4 @@
-import type { ProductFrontmatter } from "@openspace/schema";
+import type { ProductFrontmatter } from "@omniharmonic/openspace-schema";
 
 export type ProductOption = NonNullable<ProductFrontmatter["options"]>[number];
 export type ProductVariant = NonNullable<ProductFrontmatter["variants"]>[number];

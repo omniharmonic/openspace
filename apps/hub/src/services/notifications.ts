@@ -1,6 +1,6 @@
 /** Owner notifications for form entries: instant emails and the daily digest (FR-32). */
-import { formNotificationEmail } from "@openspace/email-render";
-import type { Form } from "@openspace/schema";
+import { formNotificationEmail } from "@omniharmonic/openspace-email-render";
+import type { Form } from "@omniharmonic/openspace-schema";
 import type { SiteRow } from "../db/sites";
 import type { Logger } from "../lib/log";
 import { emailSite, sendTransactional, siteBaseUrl } from "./email";

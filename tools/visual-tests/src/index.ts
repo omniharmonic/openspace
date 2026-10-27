@@ -1,1 +1,1 @@
-export const name = "@openspace/visual-tests";
+export const name = "@omniharmonic/openspace-visual-tests";

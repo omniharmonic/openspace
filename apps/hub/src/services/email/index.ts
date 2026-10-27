@@ -1,5 +1,5 @@
 /** Transactional mail with per-site quota (architecture §8.4: 500 / month). */
-import type { Site } from "@openspace/schema";
+import type { Site } from "@omniharmonic/openspace-schema";
 import type { SiteRow } from "../../db/sites";
 import type { Services } from "../index";
 import { consumeQuota, quotaExceeded, siteQuotaLimits } from "../quotas";

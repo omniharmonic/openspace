@@ -1,11 +1,11 @@
 /**
- * @openspace/schema — the OpenSpace content model.
+ * @omniharmonic/openspace-schema — the OpenSpace content model.
  *
  * Zod schemas + inferred TypeScript types for every content document, stable ids, responsive
  * values, rich text (with Markdown converters), the block definition API (`defineBlock`, `f.*`),
  * migrations, JSON Schema export and the secret scanner. No React, no Node-only APIs.
  */
-export const name = "@openspace/schema";
+export const name = "@omniharmonic/openspace-schema";
 
 export * from "./block";
 export * from "./block-registry";

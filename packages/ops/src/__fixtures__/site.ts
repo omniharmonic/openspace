@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 /** A small but complete, valid site used across tests (Meadow-style yoga studio). */
 export const IDS = {

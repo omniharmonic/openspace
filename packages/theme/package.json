@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/theme",
+  "name": "@omniharmonic/openspace-theme",
   "version": "0.1.0",
   "description": "OpenSpace design tokens: OKLCH palettes, contrast solver, type pairings and the Site Styles compiler.",
   "license": "MIT",
@@ -35,6 +35,6 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@openspace/schema": "workspace:*"
+    "@omniharmonic/openspace-schema": "workspace:*"
   }
 }

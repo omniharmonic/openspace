@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { type HubBindings, readConfig } from "../src/env";

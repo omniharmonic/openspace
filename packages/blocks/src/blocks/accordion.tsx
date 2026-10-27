@@ -1,5 +1,5 @@
-import { cx, jsonForScript, RichText } from "@openspace/renderer";
-import { defineBlock, f, plainText, type RichTextDoc } from "@openspace/schema";
+import { cx, jsonForScript, RichText } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, plainText, type RichTextDoc } from "@omniharmonic/openspace-schema";
 import { rt, sub, typo } from "../shared";
 
 const faq = (question: string, ...answer: string[]) => ({

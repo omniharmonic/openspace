@@ -10,7 +10,7 @@
  *   creation; existing sites are backfilled here, a few per minute, whenever the Hub's key
  *   changes.
  */
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import type { SiteRow } from "../db/sites";
 import { getUserRow, toUser } from "../db/users";
 import { type GitHubAccess, MAIN_BRANCH, PUBLISH_WORKFLOW, parseRepo } from "../github/types";

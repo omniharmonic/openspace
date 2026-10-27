@@ -1,4 +1,4 @@
-import type { Block, FieldMeta, SiteDocument } from "@openspace/schema";
+import type { Block, FieldMeta, SiteDocument } from "@omniharmonic/openspace-schema";
 import { createContext, useContext } from "react";
 import type { Capabilities } from "../model/permissions";
 

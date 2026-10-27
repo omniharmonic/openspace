@@ -1,4 +1,4 @@
-import type { Role } from "@openspace/ops";
+import type { Role } from "@omniharmonic/openspace-ops";
 
 export type SiteStatus = "building" | "live" | "failed";
 

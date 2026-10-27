@@ -5,7 +5,7 @@ import {
   plainText,
   type RichTextDoc,
   type RichTextFieldMeta,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { Plus } from "lucide-react";
 import { type ComponentType, lazy, type ReactNode, Suspense } from "react";
 import { Button } from "../../../ui";

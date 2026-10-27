@@ -1,5 +1,5 @@
 import "fake-indexeddb/auto";
-import { PopupSchema, type SiteDocument } from "@openspace/schema";
+import { PopupSchema, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { demoSites } from "../../api/fixtures";
@@ -106,7 +106,7 @@ describe("pages & navigation manager", () => {
     await user.click(within(row).getByRole("button", { name: "Page settings" }));
     const dialog = await screen.findByRole("dialog", { name: `${page.title} settings` });
 
-    // The shared SEO check (@openspace/lint) runs on the page as it's edited.
+    // The shared SEO check (@omniharmonic/openspace-lint) runs on the page as it's edited.
     const check = within(dialog).getByRole("list", { name: "Search check" });
     expect(check).toHaveTextContent("This page has no description for search results.");
     const seoTitle = within(dialog).getByLabelText(/Title in search results/);

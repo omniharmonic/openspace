@@ -1,5 +1,5 @@
-import { applyAll, validate } from "@openspace/ops";
-import type { Page, SiteDocument } from "@openspace/schema";
+import { applyAll, validate } from "@omniharmonic/openspace-ops";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { btn, h, img, p, page, siteWith, stackSection } from "./__fixtures__/doc";
 import { designCheck, effectiveTitle, type Issue, seoCheck } from "./index";

@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/docs",
+  "name": "@omniharmonic/openspace-docs",
   "version": "0.1.0",
   "private": true,
   "description": "OpenSpace documentation (Astro Starlight). Content CC-BY-4.0.",
@@ -18,8 +18,8 @@
     "sharp": "^0.35.5"
   },
   "devDependencies": {
-    "@openspace/mcp-tools": "workspace:*",
-    "@openspace/templates": "workspace:*",
+    "@omniharmonic/openspace-mcp-tools": "workspace:*",
+    "@omniharmonic/openspace-templates": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

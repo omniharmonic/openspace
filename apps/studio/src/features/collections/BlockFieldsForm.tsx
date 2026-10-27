@@ -1,4 +1,4 @@
-import type { FieldMeta, ImageValue, Link, RichTextDoc } from "@openspace/schema";
+import type { FieldMeta, ImageValue, Link, RichTextDoc } from "@omniharmonic/openspace-schema";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button, Field, IconButton, Input, Select, TextArea } from "../../ui";

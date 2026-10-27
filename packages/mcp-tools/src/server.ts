@@ -14,8 +14,8 @@ import {
   LATEST_PROTOCOL_VERSION,
   SUPPORTED_PROTOCOL_VERSIONS,
 } from "@modelcontextprotocol/sdk/types.js";
-import { blocksRegistry } from "@openspace/blocks";
-import type { BlockRegistry } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { BlockRegistry } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { ToolContext } from "./context";
 import { errorText, invalidInput, ToolError } from "./errors";

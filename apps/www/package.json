@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/www",
+  "name": "@omniharmonic/openspace-www",
   "version": "0.1.0",
   "private": true,
   "description": "openspace.dev — the OpenSpace marketing site and template gallery, built with OpenSpace itself.",
@@ -13,19 +13,19 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@openspace/blocks": "workspace:*",
-    "@openspace/renderer": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/site-kit": "workspace:*",
-    "@openspace/templates": "workspace:*",
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-renderer": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-site-kit": "workspace:*",
+    "@omniharmonic/openspace-templates": "workspace:*",
     "astro": "^7.4.2",
     "cookie": "^2.0.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@openspace/cli": "workspace:*",
-    "@openspace/lint": "workspace:*",
+    "@omniharmonic/openspace-cli": "workspace:*",
+    "@omniharmonic/openspace-lint": "workspace:*",
     "@types/node": "catalog:",
     "sharp": "^0.35.5",
     "typescript": "catalog:",

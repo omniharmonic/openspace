@@ -5,7 +5,7 @@ import {
   type FormField,
   type FormFieldType,
   FormSchema,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 
 /**
  * Form builder model (FR-30). Only the allowed field types exist in the builder, so a

@@ -1,5 +1,5 @@
-import type { PageId, Section, SiteDocument } from "@openspace/schema";
-import { stableId } from "@openspace/site-kit/ids";
+import type { PageId, Section, SiteDocument } from "@omniharmonic/openspace-schema";
+import { stableId } from "@omniharmonic/openspace-site-kit/ids";
 
 /**
  * Deterministic ids for template content. Section presets mint fresh random ids on every

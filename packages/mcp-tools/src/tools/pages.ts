@@ -1,4 +1,4 @@
-import { type OpBody, pruneNav } from "@openspace/ops";
+import { type OpBody, pruneNav } from "@omniharmonic/openspace-ops";
 import {
   COLOR_THEMES,
   type CollectionItem,
@@ -9,7 +9,7 @@ import {
   type Page,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { pagePathOf, resolvePage } from "../context";
 import { ToolError } from "../errors";

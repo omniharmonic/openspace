@@ -21,9 +21,9 @@ import {
   type StoreCapabilities,
   ToolError,
   type VersionInfo,
-} from "@openspace/mcp-tools";
-import { diff, type Op, summarize } from "@openspace/ops";
-import type { MediaMeta, SiteDocument } from "@openspace/schema";
+} from "@omniharmonic/openspace-mcp-tools";
+import { diff, type Op, summarize } from "@omniharmonic/openspace-ops";
+import type { MediaMeta, SiteDocument } from "@omniharmonic/openspace-schema";
 import { getSiteForUser } from "../db/sites";
 import { getUserRow, toUser } from "../db/users";
 import type { HubBindings } from "../env";

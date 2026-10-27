@@ -1,6 +1,6 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { type Op, type OpBody, stamp, validate } from "@openspace/ops";
-import type { Block, Section, SiteDocument, Styles } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { type Op, type OpBody, stamp, validate } from "@omniharmonic/openspace-ops";
+import type { Block, Section, SiteDocument, Styles } from "@omniharmonic/openspace-schema";
 
 /**
  * "Try a new look" (doc 04 §7.2, arch §11.3): apply another template's Site Styles and preset

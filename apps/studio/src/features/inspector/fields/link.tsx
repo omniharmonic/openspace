@@ -1,4 +1,4 @@
-import type { Link, LinkFieldMeta, SiteDocument } from "@openspace/schema";
+import type { Link, LinkFieldMeta, SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   AtSign,
   ChevronDown,

@@ -1,5 +1,5 @@
-import { cx, Img, mediaUrl, useRenderContext } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { cx, Img, mediaUrl, useRenderContext } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import type { ReactNode } from "react";
 
 const ASPECTS = [

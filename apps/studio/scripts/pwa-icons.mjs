@@ -1,5 +1,5 @@
 // Generates Studio's app icons (PWA manifest, Apple touch icon, favicon) as PNGs from the
-// OpenSpace mark. Run: `pnpm --filter @openspace/studio icons` (outputs are committed).
+// OpenSpace mark. Run: `pnpm --filter @omniharmonic/openspace-studio icons` (outputs are committed).
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

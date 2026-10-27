@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { SiteDocument } from "@openspace/schema";
-import { loadSiteDocument } from "@openspace/site-kit/content";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { loadSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { MemorySiteStore, type MemorySiteStoreOptions } from "./memory-store";
 import { createMcpServer, type McpServerOptions, type OpenSpaceMcpServer } from "./server";
 import type { Grant } from "./store";

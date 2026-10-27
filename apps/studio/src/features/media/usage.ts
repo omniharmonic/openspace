@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 /** Repo-size thresholds (arch §5.6): GitHub Pages' published-site limit is 1 GB. */
 export const REPO_WARN_BYTES = 600 * 1024 * 1024;

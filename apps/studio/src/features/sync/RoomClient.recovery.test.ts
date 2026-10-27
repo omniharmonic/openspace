@@ -1,5 +1,5 @@
-import type { Op, OpBody } from "@openspace/ops";
-import { newId, type SiteDocument } from "@openspace/schema";
+import type { Op, OpBody } from "@omniharmonic/openspace-ops";
+import { newId, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MockRoom } from "../../api/mockRoom";
 import { type HubApi, HubError, type Site } from "../../api/types";

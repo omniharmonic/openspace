@@ -1,4 +1,4 @@
-import { COLOR_ROLES, COLOR_THEMES, type ColorTheme } from "@openspace/schema";
+import { COLOR_ROLES, COLOR_THEMES, type ColorTheme } from "@omniharmonic/openspace-schema";
 import { gamutMap, type Oklch, oklchToHex, parseColor } from "./color";
 import {
   CONTRAST_MINIMUMS,

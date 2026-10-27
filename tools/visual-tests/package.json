@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/visual-tests",
+  "name": "@omniharmonic/openspace-visual-tests",
   "version": "0.1.0",
   "private": true,
   "description": "Visual regression tooling.",
@@ -13,11 +13,11 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@openspace/blocks": "workspace:*",
-    "@openspace/renderer": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/site-kit": "workspace:*",
-    "@openspace/templates": "workspace:*",
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-renderer": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-site-kit": "workspace:*",
+    "@omniharmonic/openspace-templates": "workspace:*",
     "@types/node": "catalog:",
     "astro": "^7.4.2",
     "axe-core": "4.14.0",

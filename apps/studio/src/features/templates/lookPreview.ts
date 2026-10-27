@@ -1,5 +1,5 @@
-import type { Styles } from "@openspace/schema";
-import { compileStyles, fontStack, RADIUS_SCALES } from "@openspace/theme";
+import type { Styles } from "@omniharmonic/openspace-schema";
+import { compileStyles, fontStack, RADIUS_SCALES } from "@omniharmonic/openspace-theme";
 import type { LookStyles } from "../../api/types";
 
 /**

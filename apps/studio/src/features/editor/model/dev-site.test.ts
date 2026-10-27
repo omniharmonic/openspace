@@ -1,5 +1,5 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { validateDocument } from "@openspace/ops";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { validateDocument } from "@omniharmonic/openspace-ops";
 import { describe, expect, it } from "vitest";
 import { devSiteDocument } from "./dev-site";
 

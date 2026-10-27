@@ -1,6 +1,6 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { validateDocument } from "@openspace/ops";
-import type { NavItem, SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { validateDocument } from "@omniharmonic/openspace-ops";
+import type { NavItem, SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { devSiteDocument } from "../editor/model/dev-site";
 import { createEditorStore } from "../editor/model/store";

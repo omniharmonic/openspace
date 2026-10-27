@@ -1,6 +1,6 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Page, SiteDocument } from "@openspace/schema";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { beforeAll, describe, expect, it } from "vitest";
 import { loadSiteDocument } from "../content/index";
 import { deployLocation } from "../deploy";

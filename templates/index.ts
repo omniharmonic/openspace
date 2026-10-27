@@ -1,5 +1,5 @@
 /**
- * @openspace/templates — the twelve launch templates (doc 04 §7), each a complete site
+ * @omniharmonic/openspace-templates — the twelve launch templates (doc 04 §7), each a complete site
  * (`openspace.json`, `content/**`, `media/LICENSES.json`) with three looks, plus a typed
  * registry for the Hub (`TemplateSource`), the Studio gallery and the CLI.
  *
@@ -7,7 +7,7 @@
  * `template.json`, written from `templates/<id>/src/build.ts` by `pnpm generate`. The registry
  * builds the same documents in memory (no filesystem), so it also runs inside a Worker.
  */
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { atelier } from "./atelier/src/build";
 import { commons } from "./commons/src/build";
 import { encore } from "./encore/src/build";
@@ -39,7 +39,7 @@ export type {
 } from "./lib/define";
 export { documentFiles, templateFolderFiles, templateJson } from "./lib/files";
 
-export const name = "@openspace/templates";
+export const name = "@omniharmonic/openspace-templates";
 
 /** Template specs in gallery order (the six MVP templates first, doc 04 §7). */
 export const templateSpecs: readonly TemplateSpec[] = [

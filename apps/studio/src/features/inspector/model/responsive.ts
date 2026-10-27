@@ -1,4 +1,9 @@
-import { type Breakpoint as Bp, isOverridden, type Responsive, resolve } from "@openspace/schema";
+import {
+  type Breakpoint as Bp,
+  isOverridden,
+  type Responsive,
+  resolve,
+} from "@omniharmonic/openspace-schema";
 import type { Breakpoint } from "../../editor/editor-store";
 
 export type { Bp };

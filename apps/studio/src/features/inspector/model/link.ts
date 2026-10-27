@@ -1,5 +1,10 @@
-import { sectionFragment } from "@openspace/renderer";
-import { type Link, LinkSchema, type Section, type SiteDocument } from "@openspace/schema";
+import { sectionFragment } from "@omniharmonic/openspace-renderer";
+import {
+  type Link,
+  LinkSchema,
+  type Section,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 
 /** Link targets (arch §4.1) in picker order, with their names. */
 export const LINK_TYPE_LABEL: Record<Link["type"], string> = {

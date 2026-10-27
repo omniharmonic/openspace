@@ -4,8 +4,8 @@
  * category, tag) and the default 404. They are ordinary `Page` values made of library blocks,
  * so they render through `renderPageHtml` exactly like the owner's pages.
  */
-import { rt } from "@openspace/blocks";
-import { isLive, itemDate } from "@openspace/renderer";
+import { rt } from "@omniharmonic/openspace-blocks";
+import { isLive, itemDate } from "@omniharmonic/openspace-renderer";
 import type {
   Block,
   BlockRegistry,
@@ -19,7 +19,7 @@ import type {
   RichTextDoc,
   Section,
   SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { stableId } from "./ids";
 import { markdocPlainText, markdocToBlocks, requiredDefaults } from "./markdoc";
 

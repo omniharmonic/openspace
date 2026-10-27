@@ -3,7 +3,7 @@ import type {
   CollectionItem,
   ImageValue,
   ReferenceValue,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { createContext, useContext } from "react";
 import { useRenderContext } from "./context";
 import { eventLengthDays, eventOn, expandOccurrences, occurrenceDates } from "./recurrence";

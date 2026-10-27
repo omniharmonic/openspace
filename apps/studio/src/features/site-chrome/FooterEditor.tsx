@@ -1,6 +1,6 @@
-import { FOOTER, type OpBody } from "@openspace/ops";
-import { networkLabel, SocialIcon } from "@openspace/renderer";
-import { SOCIAL_NETWORKS, type SocialProfile } from "@openspace/schema";
+import { FOOTER, type OpBody } from "@omniharmonic/openspace-ops";
+import { networkLabel, SocialIcon } from "@omniharmonic/openspace-renderer";
+import { SOCIAL_NETWORKS, type SocialProfile } from "@omniharmonic/openspace-schema";
 import { MousePointerClick, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button, Field, IconButton, Input, Select, toast } from "../../ui";

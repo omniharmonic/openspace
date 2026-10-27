@@ -46,7 +46,7 @@ describe("starter hosting files", () => {
   it("merges package.json and round-trips back to GitHub Pages", async () => {
     const files: Record<string, string> = {
       "openspace.json": `${JSON.stringify({ deploy: { target: "github-pages", url: "https://x.github.io/y/", customDomain: null } }, null, 2)}\n`,
-      "package.json": `${JSON.stringify({ name: "y", dependencies: { "@openspace/site-kit": "^0.2.0", lodash: "^4" }, devDependencies: {} }, null, 2)}\n`,
+      "package.json": `${JSON.stringify({ name: "y", dependencies: { "@omniharmonic/openspace-site-kit": "^0.2.0", lodash: "^4" }, devDependencies: {} }, null, 2)}\n`,
     };
     const apply = async (target: "cloudflare" | "github-pages") => {
       for (const ch of await hostingChanges(async (p) => files[p] ?? null, target, "Maya-Yoga")) {
@@ -58,7 +58,7 @@ describe("starter hosting files", () => {
     expect(JSON.parse(files["openspace.json"] as string).deploy.target).toBe("cloudflare");
     const pkg = JSON.parse(files["package.json"] as string);
     expect(pkg.dependencies).toMatchObject({
-      "@openspace/site-kit": "^0.2.0",
+      "@omniharmonic/openspace-site-kit": "^0.2.0",
       lodash: "^4",
       "@astrojs/cloudflare": expect.any(String),
     });
@@ -67,7 +67,10 @@ describe("starter hosting files", () => {
     await apply("github-pages");
     expect(files["wrangler.jsonc"]).toBeUndefined();
     const back = JSON.parse(files["package.json"] as string);
-    expect(back.dependencies).toEqual({ "@openspace/site-kit": "^0.2.0", lodash: "^4" });
+    expect(back.dependencies).toEqual({
+      "@omniharmonic/openspace-site-kit": "^0.2.0",
+      lodash: "^4",
+    });
     expect(files[".github/workflows/publish.yml"]).toBe(
       starter["site/.github/workflows/publish.yml"],
     );

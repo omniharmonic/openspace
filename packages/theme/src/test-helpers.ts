@@ -1,4 +1,4 @@
-import { BUTTON_STYLES, COLOR_THEMES } from "@openspace/schema";
+import { BUTTON_STYLES, COLOR_THEMES } from "@omniharmonic/openspace-schema";
 import { contrastRatio, type ThemeColorSet } from "./contrast";
 import { BUTTON_ROLES, buttonTokens } from "./layout";
 import type { ThemeRole } from "./types";

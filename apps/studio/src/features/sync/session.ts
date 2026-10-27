@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { createStore, type StoreApi } from "zustand/vanilla";
 import type { PublishError } from "./protocol";
 

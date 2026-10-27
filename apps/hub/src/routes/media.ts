@@ -7,7 +7,7 @@
  *
  * → 201 `{ media: { path, bytes, existed, mime, sha256, width?, height? } }`
  */
-import { imageSize, sniffImage, stripMetadata } from "@openspace/mcp-tools";
+import { imageSize, sniffImage, stripMetadata } from "@omniharmonic/openspace-mcp-tools";
 import { Hono } from "hono";
 import { z } from "zod";
 import { requireUser } from "../auth/session";

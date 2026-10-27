@@ -1,6 +1,6 @@
-import { FOOTER, type Position } from "@openspace/ops";
-import { compiledStylesFor } from "@openspace/renderer";
-import { COLOR_THEMES, type ColorTheme, type Section } from "@openspace/schema";
+import { FOOTER, type Position } from "@omniharmonic/openspace-ops";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
+import { COLOR_THEMES, type ColorTheme, type Section } from "@omniharmonic/openspace-schema";
 import {
   ArrowDown,
   ArrowUp,

@@ -1,12 +1,18 @@
-import { blocksRegistry, presetSection } from "@openspace/blocks";
-import { designCheck, type Issue, type Severity, seoCheck, sortIssues } from "@openspace/lint";
-import { type Op, type OpBody, transformForRole, validate } from "@openspace/ops";
-import type { Page, SiteDocument } from "@openspace/schema";
+import { blocksRegistry, presetSection } from "@omniharmonic/openspace-blocks";
+import {
+  designCheck,
+  type Issue,
+  type Severity,
+  seoCheck,
+  sortIssues,
+} from "@omniharmonic/openspace-lint";
+import { type Op, type OpBody, transformForRole, validate } from "@omniharmonic/openspace-ops";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 
 /**
  * Studio's Design check (doc 04 §9) and SEO check over the whole site: the same rules and
  * autofixes Claude's `design_check`/`apply_fix` tools and `openspace check` use
- * (`@openspace/lint`). Fixes are `@openspace/ops` operations, applied through the editor store
+ * (`@omniharmonic/openspace-lint`). Fixes are `@omniharmonic/openspace-ops` operations, applied through the editor store
  * like any other edit (validated, undoable, synced).
  */
 

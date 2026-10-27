@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { apply } from "./apply";
 import { findBlock, findSection, getPage } from "./doc";
 import { FOOTER, type Op, type Position } from "./ops";

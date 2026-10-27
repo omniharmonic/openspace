@@ -9,8 +9,8 @@ import { readdir, readFile, rm } from "node:fs/promises";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { ALL_TOOLS, PROMPTS } from "@openspace/mcp-tools";
-import { templateSpecs } from "@openspace/templates";
+import { ALL_TOOLS, PROMPTS } from "@omniharmonic/openspace-mcp-tools";
+import { templateSpecs } from "@omniharmonic/openspace-templates";
 import { beforeAll, describe, expect, it } from "vitest";
 
 const run = promisify(execFile);
@@ -111,7 +111,7 @@ describe("docs content", () => {
     const text = await source("connect-your-ai/claude-code");
     expect(text).toContain("/plugin marketplace add omniharmonic/openspace");
     expect(text).toContain("/plugin install openspace");
-    expect(text).toContain("npx -y @openspace/cli mcp");
+    expect(text).toContain("npx -y @omniharmonic/openspace-cli mcp");
   });
 });
 
