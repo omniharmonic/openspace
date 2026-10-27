@@ -34,6 +34,7 @@ export default defineConfig({
             { label: "Media", slug: "guides/media" },
             { label: "Publishing, history & rollback", slug: "guides/publishing" },
             { label: "Domains", slug: "guides/domains" },
+            { label: "Move from Squarespace", slug: "guides/migrate-from-squarespace" },
           ],
         },
         {

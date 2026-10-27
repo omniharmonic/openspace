@@ -1,0 +1,58 @@
+{
+  "website": { "id": "64jun1per", "siteTitle": "Juniper Ceramics" },
+  "collection": {
+    "id": "64f0journal",
+    "title": "Journal",
+    "urlId": "journal",
+    "typeName": "blog-basic-grid",
+    "type": 1,
+    "fullUrl": "/journal",
+    "description": "<p>Notes from the studio.</p>"
+  },
+  "items": [
+    {
+      "id": "64f0post2",
+      "collectionId": "64f0journal",
+      "recordType": 1,
+      "publishOn": 1746219600000,
+      "addedOn": 1746219600000,
+      "workflowState": 1,
+      "urlId": "glaze-notes",
+      "title": "Glaze notes",
+      "fullUrl": "/journal/glaze-notes",
+      "tags": ["glazes", "studio notes"],
+      "categories": ["Process"],
+      "excerpt": "<p>Our three house glazes and how we mix them.</p>",
+      "body": "<div class=\"sqs-layout sqs-grid-12 columns-12\" data-type=\"item\"><div class=\"row sqs-row\"><div class=\"col sqs-col-12 span-12\"><div class=\"sqs-block html-block sqs-block-html\" data-block-type=\"2\"><div class=\"sqs-block-content\"><div class=\"sqs-html-content\"><p>Our three house glazes: <em>oat</em>, <em>juniper</em> and <em>ash</em>.</p><blockquote><p>Test every bucket before a full load.</p></blockquote></div></div></div></div></div></div>",
+      "author": { "id": "a2", "displayName": "Theo Marsh" },
+      "assetUrl": "https://images.squarespace-cdn.com/content/v1/64jun1per/glaze-tests.jpg",
+      "contentType": "image/jpeg",
+      "originalSize": "1200x1200",
+      "filename": "glaze-tests.jpg"
+    },
+    {
+      "id": "64f0post1",
+      "collectionId": "64f0journal",
+      "recordType": 1,
+      "publishOn": 1741969800000,
+      "addedOn": 1741969800000,
+      "workflowState": 1,
+      "urlId": "2025/3/14/first-firing-of-spring",
+      "title": "First firing of spring",
+      "fullUrl": "/journal/2025/3/14/first-firing-of-spring",
+      "tags": ["kiln"],
+      "categories": ["Studio news"],
+      "excerpt": "<p>The kiln is back on after the winter break.</p>",
+      "body": "<div class=\"sqs-layout sqs-grid-12 columns-12\" data-type=\"item\"><div class=\"row sqs-row\"><div class=\"col sqs-col-12 span-12\"><div class=\"sqs-block html-block sqs-block-html\" data-block-type=\"2\"><div class=\"sqs-block-content\"><div class=\"sqs-html-content\"><p>The kiln is back on after the winter break.</p></div></div></div></div></div></div>",
+      "author": { "id": "a1", "displayName": "Ana Ruiz" },
+      "assetUrl": "https://images.squarespace-cdn.com/content/v1/64jun1per/hero-kiln.jpg",
+      "contentType": "image/jpeg",
+      "originalSize": "2400x1600"
+    }
+  ],
+  "pagination": {
+    "nextPage": true,
+    "nextPageOffset": 1741969800000,
+    "nextPageUrl": "/journal?offset=1741969800000"
+  }
+}

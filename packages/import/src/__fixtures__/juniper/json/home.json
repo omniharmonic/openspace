@@ -1,0 +1,39 @@
+{
+  "website": {
+    "id": "64jun1per",
+    "siteTitle": "Juniper Ceramics",
+    "siteDescription": "<p>Small-batch stoneware and wheel-throwing classes in Portland.</p>",
+    "language": "en-US",
+    "timeZone": "America/Los_Angeles",
+    "baseUrl": "https://www.juniperceramics.example",
+    "socialAccounts": [
+      {
+        "serviceId": 64,
+        "screenname": "Instagram",
+        "profileUrl": "https://www.instagram.com/juniperceramics.example",
+        "iconEnabled": true,
+        "serviceName": "instagram-unauth"
+      },
+      {
+        "serviceId": 20,
+        "screenname": "Pinterest",
+        "profileUrl": "https://www.pinterest.com/juniperceramics.example",
+        "iconEnabled": true,
+        "serviceName": "pinterest-unauth"
+      }
+    ]
+  },
+  "websiteSettings": { "id": "64jun1perset" },
+  "collection": {
+    "id": "64f0home",
+    "title": "Home",
+    "navigationTitle": "Home",
+    "urlId": "home",
+    "typeName": "page",
+    "fullUrl": "/",
+    "homepage": true,
+    "passwordProtected": false,
+    "seoData": { "seoTitle": "", "seoDescription": "", "seoHidden": false }
+  },
+  "empty": false
+}
