@@ -88,6 +88,8 @@ export function PwaNotices() {
       id: "pwa-offline-ready",
       title: "OpenSpace works offline now",
       description: "Your drafts are kept on this device and sync when you’re back online.",
+      // Good to know, not something to act on: out of the way quickly.
+      duration: 4000,
     });
   }, [offlineReady]);
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { Check, Lock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useRetryPublish, useSite } from "../../api";
 import type { TemplateLook, TemplateSummary } from "../../api/types";
@@ -30,11 +30,45 @@ export interface BuildingProgressProps {
 export function BuildingProgress({ siteId, template, look, draft, onDone }: BuildingProgressProps) {
   const { timing } = useConfig();
   const navigate = useNavigate();
+  const failGraceMs = timing.failGraceMs ?? 45_000;
+  const setupTimeoutMs = timing.setupTimeoutMs ?? 5 * 60_000;
+  // "failed" only counts once the Hub has kept saying so for a while: an early "failed" (e.g.
+  // straight from the create response) can be stale while the first publish is on its way.
+  const [failConfirmed, setFailConfirmed] = useState(false);
   // A failed poll (flaky network) keeps polling with backoff; only a "failed" status is a failure.
-  const site = useSite(siteId, { pollMs: timing.pollMs, pollOnError: true });
+  const site = useSite(siteId, {
+    pollMs: timing.pollMs,
+    pollOnError: true,
+    pollWhile: (s) => s.status === "failed" && !failConfirmed,
+  });
   const retry = useRetryPublish();
   const status = site.data?.status;
   const [step, setStep] = useState(0);
+  const [slow, setSlow] = useState(false);
+  const failedSince = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (status !== "failed") {
+      failedSince.current = null;
+      setFailConfirmed(false);
+      return;
+    }
+    failedSince.current ??= Date.now();
+    const left = failGraceMs - (Date.now() - failedSince.current);
+    if (left <= 0) {
+      setFailConfirmed(true);
+      return;
+    }
+    const t = setTimeout(() => setFailConfirmed(true), left);
+    return () => clearTimeout(t);
+  }, [status, failGraceMs]);
+
+  // Never spin forever: after a long wait, say so and offer a way on.
+  useEffect(() => {
+    if (slow || status === "live") return;
+    const t = setTimeout(() => setSlow(true), setupTimeoutMs);
+    return () => clearTimeout(t);
+  }, [slow, status, setupTimeoutMs]);
 
   const steps = [
     `Copying the ${template.name} template`,
@@ -45,7 +79,7 @@ export function BuildingProgress({ siteId, template, look, draft, onDone }: Buil
   const finished = step >= steps.length;
 
   useEffect(() => {
-    if (status === "failed") return;
+    if (status === "failed" && failConfirmed) return;
     if (step < steps.length - 1) {
       const t = setTimeout(() => setStep((s) => s + 1), timing.stepMs);
       return () => clearTimeout(t);
@@ -61,10 +95,11 @@ export function BuildingProgress({ siteId, template, look, draft, onDone }: Buil
       }, timing.settleMs);
       return () => clearTimeout(t);
     }
-  }, [step, status, finished, steps.length, timing, navigate, siteId, onDone]);
+  }, [step, status, failConfirmed, finished, steps.length, timing, navigate, siteId, onDone]);
 
-  const failed = status === "failed";
+  const failed = status === "failed" && failConfirmed;
   const reconnecting = site.isError && !failed;
+  const tooSlow = slow && !failed && !finished;
   const onRetry = () =>
     retry.mutate(siteId, {
       // Earlier steps are done; pick up at publishing.
@@ -111,6 +146,29 @@ export function BuildingProgress({ siteId, template, look, draft, onDone }: Buil
               <p className="st-building__note" role="status">
                 Having trouble reaching OpenSpace. Still trying…
               </p>
+            )}
+            {tooSlow && (
+              <div className="st-building__slow" role="status">
+                <p className="st-building__note">
+                  This is taking longer than usual. Your site has been made and is still being
+                  published — you can keep waiting here, or carry on from your sites and open it
+                  when it’s ready.
+                </p>
+                <div className="st-building__actions">
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setSlow(false);
+                      void site.refetch();
+                    }}
+                  >
+                    Keep waiting
+                  </Button>
+                  <Button variant="ghost" onClick={() => navigate("/sites")}>
+                    Go to your sites
+                  </Button>
+                </div>
+              </div>
             )}
           </>
         )}

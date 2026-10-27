@@ -223,6 +223,11 @@ describe("mobile Studio at 390px", () => {
     expect(store().doc.media[image.src as keyof SiteDocument["media"]]).toBeTruthy();
     expect(image.width).toBeLessThanOrEqual(2400);
     expect(store().undoStack.at(-1)?.label).toBe("Replace photo");
+    // The old photo's description doesn't describe this one: cleared (the design check flags
+    // it), with the old text one tap away.
+    expect(image.alt).toBe("");
+    // (The toast sits outside the modal sheet, so it is aria-hidden to queries by role.)
+    expect(await screen.findByText("Keep old description")).toBeInTheDocument();
   });
 
   it("shows the Design check as a sheet and jumps to an issue's section", async () => {
@@ -247,6 +252,18 @@ describe("mobile Studio at 390px", () => {
     await user.click(within(home).getAllByRole("button", { name: "Show" })[0] as HTMLElement);
     // The issue's section opens in the sheet with the block selected.
     expect(await screen.findByTestId("inspector")).toBeInTheDocument();
+  });
+
+  it("closes the More sheet when it opens Settings", async () => {
+    const { user, router } = await openOnPhone();
+    const tabs = screen.getByRole("navigation", { name: "Studio" });
+    await user.click(within(tabs).getByRole("button", { name: "More" }));
+    const more = await screen.findByRole("dialog", { name: "More" });
+    await user.click(within(more).getByRole("button", { name: "Settings" }));
+    await waitFor(() => expect(router.state.location.pathname).toMatch(/\/settings$/));
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "More" })).not.toBeInTheDocument(),
+    );
   });
 
   it("publishes from the phone", async () => {

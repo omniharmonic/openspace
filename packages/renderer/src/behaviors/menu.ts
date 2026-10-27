@@ -66,7 +66,10 @@ export default function menu(header: HTMLElement): void {
       if (f.open && !panel?.contains(f)) for (const o of folders) if (o !== f) o.open = false;
     });
   }
-  const desktop = matchMedia("(min-width: 1024px)");
+  // A long menu (`--nav-wide`) only goes inline from 1440px.
+  const desktop = matchMedia(
+    `(min-width: ${header.classList.contains("os-header--nav-wide") ? 1440 : 1024}px)`,
+  );
   desktop.addEventListener?.("change", () => {
     if (desktop.matches && !header.classList.contains("is-drawer")) close(false);
   });

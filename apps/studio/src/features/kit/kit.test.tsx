@@ -27,7 +27,9 @@ describe("/kit", () => {
   it("is absent when the kit is turned off (production)", async () => {
     renderStudio("/kit", {}, { ...FAST, showKit: false });
     expect(
-      await screen.findByRole("heading", { name: "There’s nothing at this address" }),
+      await screen.findByRole("heading", { level: 1, name: "There’s nothing at this address" }),
     ).toBeInTheDocument();
+    // The 404 page is a real page: a main landmark around its one h1.
+    expect(screen.getByRole("main")).toContainElement(screen.getByRole("heading", { level: 1 }));
   });
 });

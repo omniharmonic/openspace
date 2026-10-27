@@ -9,6 +9,22 @@ export interface SiteDraft {
   tagline: string;
   brandColor?: string;
   logo?: string;
+  /** Idempotency key for creating this site; every retry of the same details reuses it. */
+  createKey?: string;
+  /** The details `createKey` was made for (a changed draft gets a new key). */
+  createKeyFor?: string;
+}
+
+/** What makes two create requests "the same site". */
+export function draftFingerprint(d: SiteDraft): string {
+  return JSON.stringify([d.template, d.look, d.name.trim(), d.tagline.trim(), d.brandColor ?? ""]);
+}
+
+/** The draft with a create key for its current details (kept if it already has one). */
+export function withCreateKey(d: SiteDraft, newKey: () => string): SiteDraft {
+  const fp = draftFingerprint(d);
+  if (d.createKey && d.createKeyFor === fp) return d;
+  return { ...d, createKey: newKey(), createKeyFor: fp };
 }
 
 const key = (template: string) => `openspace.newSite.${template}`;

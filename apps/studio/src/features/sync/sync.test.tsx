@@ -61,7 +61,13 @@ describe("publishing", () => {
     await user.click(screen.getByRole("button", { name: "Publish" }));
     const again = await screen.findByRole("dialog", { name: "Publish changes" });
     expect(await within(again).findByText("Everything is already live.")).toBeInTheDocument();
-    expect(within(again).getByRole("button", { name: "Publish now" })).toBeDisabled();
+    // No primary "Publish now" for nothing: it says so and offers Done.
+    expect(within(again).queryByRole("button", { name: "Publish now" })).not.toBeInTheDocument();
+    expect(within(again).getByText("Nothing new to publish")).toBeInTheDocument();
+    await user.click(within(again).getByRole("button", { name: "Done" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "Publish changes" })).not.toBeInTheDocument(),
+    );
   });
 
   it("explains a failed publish in plain words and fixes it for me", async () => {

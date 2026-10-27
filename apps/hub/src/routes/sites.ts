@@ -1,6 +1,13 @@
 import { Hono } from "hono";
 import { requireUser } from "../auth/session";
+import { HttpError } from "../lib/errors";
 import { readJson } from "../lib/validate";
+import {
+  claimCreateKey,
+  isValidIdempotencyKey,
+  releaseCreateKey,
+  settleCreateKey,
+} from "../services/idempotency";
 import {
   archiveSite,
   CreateSiteSchema,
@@ -27,11 +34,37 @@ siteRoutes.get("/", async (c) => {
   return c.json({ sites: await listSites(c.var.services, user) });
 });
 
-/** POST /api/sites { template, look?, name, tagline?, brandColor? } */
+/**
+ * POST /api/sites { template, look?, name, tagline?, brandColor? }
+ *
+ * With an `Idempotency-Key` header, repeats of the same request (retries, double clicks) answer
+ * with the site the first one made (200, `Idempotent-Replayed: true`) for 24 hours; while the
+ * first is still running they get 409 `create_in_progress`.
+ */
 siteRoutes.post("/", async (c) => {
   const user = requireUser(c);
   const input = await readJson(c, CreateSiteSchema);
-  const site = await createSite(c.var.services, user, input, { log: c.var.log });
+  const key = c.req.header("Idempotency-Key")?.trim();
+  if (!key) return c.json(await createSite(c.var.services, user, input, { log: c.var.log }), 201);
+  if (!isValidIdempotencyKey(key))
+    throw new HttpError(400, "invalid_idempotency_key", "That Idempotency-Key isn't valid.");
+
+  const { db } = c.var.services;
+  const claim = await claimCreateKey(db, user.id, key, input.name.trim(), c.var.services.now());
+  if (claim.kind === "busy")
+    throw new HttpError(409, "create_in_progress", "Your site is still being created.");
+  if (claim.kind === "replay") {
+    c.header("Idempotent-Replayed", "true");
+    return c.json(await getSiteView(c.var.services, claim.siteId, user, c.var.log), 200);
+  }
+  let site: Awaited<ReturnType<typeof createSite>>;
+  try {
+    site = await createSite(c.var.services, user, input, { log: c.var.log });
+  } catch (err) {
+    await releaseCreateKey(db, user.id, key);
+    throw err;
+  }
+  await settleCreateKey(db, user.id, key, site.id);
   return c.json(site, 201);
 });
 

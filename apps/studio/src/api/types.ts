@@ -150,7 +150,11 @@ export interface HubApi extends ManageApi, GrowthApi, CatalogApi {
   listTemplates(): Promise<TemplateSummary[]>;
   listSites(): Promise<Site[]>;
   getSite(id: string): Promise<Site>;
-  createSite(input: CreateSiteInput): Promise<Site>;
+  /**
+   * `POST /api/sites`. Pass the same `idempotencyKey` on every retry of one create: the Hub
+   * answers repeats with the site the first request made instead of making another.
+   */
+  createSite(input: CreateSiteInput, opts?: { idempotencyKey?: string }): Promise<Site>;
   transferSite(id: string, to: string): Promise<TransferResult>;
   /** Re-runs publishing for a site whose first version didn't go live (`POST /api/sites/:id/publish`). */
   retryPublish(id: string): Promise<Site>;

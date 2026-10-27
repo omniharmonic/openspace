@@ -29,7 +29,7 @@ import { useInspectorRole } from "../inspector/env";
 import { Inspector } from "../inspector/Inspector";
 import { capabilities } from "../inspector/model/permissions";
 import { useUploader } from "../media/useUploader";
-import { imageFieldOf, setBlockImage, waitForMedia } from "./replaceImage";
+import { blockImageAlt, imageFieldOf, setBlockImage, waitForMedia } from "./replaceImage";
 import "./mobile.css";
 
 function ReplacePhoto({
@@ -59,9 +59,24 @@ function ReplacePhoto({
         });
         return;
       }
+      const previousAlt = blockImageAlt(api, container, blockId).trim();
       const err = setBlockImage(api, container, blockId, res.path);
       if (err) toast({ tone: "danger", title: "Couldn’t use that photo", description: err });
-      else toast({ tone: "success", title: "Photo replaced" });
+      else
+        toast({
+          tone: "success",
+          title: "Photo replaced",
+          description: "Describe the new photo in its alt text, for people using screen readers.",
+          ...(previousAlt
+            ? {
+                action: {
+                  label: "Keep old description",
+                  onClick: () =>
+                    void setBlockImage(api, container, blockId, res.path, { alt: previousAlt }),
+                },
+              }
+            : {}),
+        });
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";

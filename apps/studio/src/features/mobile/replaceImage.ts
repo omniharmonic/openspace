@@ -47,15 +47,31 @@ export function waitForMedia(
   });
 }
 
+/** The alt text of a block's current image (before replacing it), if any. */
+export function blockImageAlt(store: EditorStore, container: string, blockId: string): string {
+  const s = store.getState();
+  const page =
+    container === "footer" ? null : s.doc.pages[container as keyof SiteDocument["pages"]];
+  const sections = container === "footer" ? [s.doc.site.footer] : (page?.sections ?? []);
+  const block = sections.flatMap((x) => x.blocks).find((b) => b.id === blockId);
+  const field = block && imageFieldOf(block);
+  if (!block || !field) return "";
+  return (
+    ((block.fields as Record<string, unknown>)[field.key] as ImageValue | undefined)?.alt ?? ""
+  );
+}
+
 /**
- * Point a block's image field at a library file (keeping the alt text the owner wrote, or the
- * file's own), as one undoable edit. Returns an error message, or null.
+ * Point a block's image field at a library file, as one undoable edit. The old picture's alt
+ * text describes the old picture, so it isn't carried over: the file's own alt is used (or none,
+ * which the design check flags) unless `alt` is given. Returns an error message, or null.
  */
 export function setBlockImage(
   store: EditorStore,
   container: string,
   blockId: string,
   path: string,
+  opts: { alt?: string } = {},
 ): string | null {
   const s = store.getState();
   const page =
@@ -66,10 +82,9 @@ export function setBlockImage(
   const field = imageFieldOf(block);
   if (!field) return "This block has no photo.";
   const meta = s.doc.media[path as keyof SiteDocument["media"]];
-  const current = (block.fields as Record<string, unknown>)[field.key] as ImageValue | undefined;
   const next: ImageValue = {
     src: path,
-    alt: current?.alt || meta?.alt || "",
+    alt: opts.alt ?? (meta?.alt || ""),
     ...(meta?.width && meta?.height ? { width: meta.width, height: meta.height } : {}),
     ...(meta?.id ? { mediaId: meta.id } : {}),
     ...(meta?.focal ? { focal: meta.focal as [number, number] } : {}),

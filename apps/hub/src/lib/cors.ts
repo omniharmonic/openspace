@@ -27,7 +27,8 @@ export function studioCors(config: HubConfig): MiddlewareHandler {
     origin: (origin) => (allowed.includes(origin) ? origin : null),
     credentials: true,
     allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
+    allowHeaders: ["Content-Type", "Authorization", "Idempotency-Key"],
+    exposeHeaders: ["Idempotent-Replayed"],
     maxAge: 600,
   });
 }

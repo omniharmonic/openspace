@@ -9,6 +9,8 @@ export interface EmptyStateProps {
   action?: ReactNode;
   className?: string;
   size?: "sm" | "md";
+  /** Heading level for the title (default 3; 1 when the empty state is the whole page). */
+  level?: 1 | 2 | 3;
 }
 
 /** An empty screen is an invitation to act: say what goes here and how to add it. */
@@ -19,11 +21,13 @@ export function EmptyState({
   action,
   className,
   size = "md",
+  level = 3,
 }: EmptyStateProps) {
+  const Heading = `h${level}` as const;
   return (
     <div className={cx("st-empty", `st-empty--${size}`, className)}>
       {icon && <div className="st-empty__icon">{icon}</div>}
-      <h3 className="st-empty__title">{title}</h3>
+      <Heading className="st-empty__title">{title}</Heading>
       {description && <p className="st-empty__desc">{description}</p>}
       {action && <div className="st-empty__action">{action}</div>}
     </div>

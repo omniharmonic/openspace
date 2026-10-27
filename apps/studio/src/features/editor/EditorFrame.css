@@ -324,6 +324,13 @@
   }
 }
 
+/* Tablets and small laptops: a tighter gutter so the page preview gets the room. */
+@media (min-width: 768px) and (max-width: 1099px) {
+  .st-ed-canvas {
+    padding: 24px 16px 72px;
+  }
+}
+
 /* ---------- Narrow screens ---------- */
 @media (max-width: 767px) {
   .st-editor {

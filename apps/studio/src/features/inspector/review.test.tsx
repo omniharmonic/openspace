@@ -253,25 +253,22 @@ describe("media picker seam", () => {
     off();
   });
 
-  it("replacing an image goes through the picker and keeps the alt text", async () => {
+  it("replacing an image goes through the picker and asks for new alt text", async () => {
     const off = registerMediaPicker(async () => ({ src: "https://images.example.com/new.jpg" }));
     const t = setup(<Inspector />, { select: { kind: "block", id: I.heroImage } });
-    const alt = (
-      t.s().doc.pages[I.home as never] as { sections: Section[] }
-    ).sections[0]?.blocks.find((b) => b.id === I.heroImage)?.fields.image as { alt: string };
+    const image = () =>
+      (t.s().doc.pages[I.home as never] as { sections: Section[] }).sections[0]?.blocks.find(
+        (b) => b.id === I.heroImage,
+      )?.fields.image as { src: string; alt: string };
+    const before = image().alt;
     await t.user.click(
       within(panel()).getAllByRole("button", { name: /^Replace/ })[0] as HTMLElement,
     );
-    await waitFor(() => {
-      const img = (
-        t.s().doc.pages[I.home as never] as { sections: Section[] }
-      ).sections[0]?.blocks.find((b) => b.id === I.heroImage)?.fields.image as {
-        src: string;
-        alt: string;
-      };
-      expect(img.src).toBe("https://images.example.com/new.jpg");
-      expect(img.alt).toBe(alt.alt);
-    });
+    await waitFor(() => expect(image().src).toBe("https://images.example.com/new.jpg"));
+    // The old description was of the old picture: cleared, with the old text one click away.
+    expect(image().alt).toBe("");
+    await t.user.click(within(panel()).getByRole("button", { name: "Keep the old description" }));
+    expect(image().alt).toBe(before);
     off();
   });
 });
