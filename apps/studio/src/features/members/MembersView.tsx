@@ -37,6 +37,7 @@ import {
   useDebounced,
   WsHeader,
 } from "../workspace/ui";
+import { ServiceRequirements } from "../commerce/ServiceRequirements";
 import type { AreaProps } from "../workspace/WorkspaceView";
 
 const fail = (title: string) => (err: unknown) =>
@@ -51,6 +52,7 @@ export function MembersView({ site }: AreaProps) {
         title="Members"
         description="People who sign in to your site with a link sent to their email. Give them free or paid tiers, and keep some pages for members only."
       />
+      <ServiceRequirements site={site} feature="members" />
       <Tabs
         value={tab}
         onValueChange={setTab}

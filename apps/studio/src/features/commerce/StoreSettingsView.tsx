@@ -39,6 +39,7 @@ import { date, money, moneyInput, parseMoney } from "../workspace/format";
 import { copyText, errorMessage, SwitchRow, TagInput, WsHeader } from "../workspace/ui";
 import type { AreaProps } from "../workspace/WorkspaceView";
 import "./commerce.css";
+import { ServiceRequirements } from "./ServiceRequirements";
 
 const fail = (title: string) => (err: unknown) =>
   toast({ tone: "danger", title, description: errorMessage(err) });
@@ -60,6 +61,7 @@ export function StoreSettingsView({ site }: AreaProps) {
         title="Store settings"
         description="How you get paid, what shipping costs, and tax. These apply to products, donations and paid memberships."
       />
+      <ServiceRequirements site={site} feature="store" />
       {!designer && (
         <p className="st-ws-hint">
           You can see these settings. The owner or a designer changes them.
