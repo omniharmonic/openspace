@@ -525,7 +525,8 @@ export function cardRows(
       const date = itemDate(item);
       const fields: Record<string, unknown> = {
         aspect: "3:2",
-        heading: fm.title,
+        // Card headings hold up to 90 characters; titles may be up to 200.
+        heading: clipText(fm.title, 90),
         // Card bodies hold up to 400 characters; excerpts may be up to 500.
         body: rt.doc(rt.p(clipText(itemDescription(item) ?? "", 400))),
         link: { type: "item", collection, slug: item.slug } satisfies Link,
@@ -540,7 +541,7 @@ export function cardRows(
               ? formatDate(date, doc.site.locale)
               : undefined;
       if (eyebrow) fields.eyebrow = eyebrow;
-      if (!itemDescription(item)) fields.body = rt.doc(rt.p(fm.title));
+      if (!itemDescription(item)) fields.body = rt.doc(rt.p(clipText(fm.title, 400)));
       const b = makeBlock(ctx, `${seed}#card-${item.slug}`, "card", fields, "stacked");
       b.column = i;
       return b;
