@@ -1,5 +1,6 @@
 /**
- * Squarespace's blog export (Settings → Import & Export → Export → WordPress): a WXR (RSS 2.0 +
+ * A WordPress export (WXR) — WordPress's own Tools → Export, or Squarespace's blog export
+ * (Settings → Import & Export → Export → WordPress): RSS 2.0 +
  * `wp:`, `content:`, `dc:` and `excerpt:` namespaces) file. It is the most faithful source for
  * blog posts — it includes drafts, full bodies, authors, categories and tags.
  */
@@ -22,11 +23,19 @@ export interface WxrItem {
   image?: string;
   id?: string;
   attachmentUrl?: string;
+  /** `wp:postmeta` key → value (Yoast/Rank Math SEO, menu item targets, alt text…). */
+  meta: Record<string, string>;
+  parent?: string;
+  menuOrder?: number;
+  /** Navigation menus (slugs) this `nav_menu_item` belongs to. */
+  menus: string[];
 }
 
 export interface WxrFile {
   title?: string;
   link?: string;
+  description?: string;
+  language?: string;
   items: WxrItem[];
 }
 
@@ -112,6 +121,16 @@ export function parseWxr(xml: string): WxrFile {
       ...(thumb ? { image: `#attachment:${thumb}` } : {}),
       ...(tag(x, "wp:post_id") ? { id: tag(x, "wp:post_id") } : {}),
       ...(tag(x, "wp:attachment_url") ? { attachmentUrl: tag(x, "wp:attachment_url") } : {}),
+      meta: Object.fromEntries(
+        meta.filter((pm) => pm.key).map((pm) => [pm.key as string, pm.value ?? ""]),
+      ),
+      ...(tag(x, "wp:post_parent") && tag(x, "wp:post_parent") !== "0"
+        ? { parent: tag(x, "wp:post_parent") }
+        : {}),
+      ...(tag(x, "wp:menu_order") ? { menuOrder: Number(tag(x, "wp:menu_order")) || 0 } : {}),
+      menus: cats
+        .filter((c) => /domain="nav_menu"/.test(c.attrs))
+        .map((c) => /nicename="([^"]+)"/.exec(c.attrs)?.[1] ?? c.value),
     });
   }
   // Resolve featured images.
@@ -126,6 +145,8 @@ export function parseWxr(xml: string): WxrFile {
   return {
     ...(tag(channel, "title") ? { title: tag(channel, "title") } : {}),
     ...(tag(channel, "link") ? { link: tag(channel, "link") } : {}),
+    ...(tag(channel, "description") ? { description: tag(channel, "description") } : {}),
+    ...(tag(channel, "language") ? { language: tag(channel, "language") } : {}),
     items,
   };
 }

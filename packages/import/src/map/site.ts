@@ -29,6 +29,7 @@ import {
 import { markdocToBlocks } from "@omniharmonic/openspace-site-kit/markdoc";
 import { compileStyles } from "@omniharmonic/openspace-theme";
 import type { MediaImporter } from "../media";
+import { platformLabel } from "../platform";
 import { stripTags } from "../squarespace/blocks";
 import { normalizeIso } from "../squarespace/crawl";
 import { sectionsFromLayoutHtml } from "../squarespace/page";
@@ -39,7 +40,7 @@ import type {
   SqNotice,
   SqPage,
   SqSite,
-} from "../squarespace/types";
+} from "../types";
 import { linkFor, type MapContext, makeBlock } from "./blocks";
 import { mapFooter, mapSection, type SectionContext } from "./sections";
 import { mapTheme } from "./theme";
@@ -298,7 +299,7 @@ async function mapItem(
         ctx.notices.push({
           kind: "commerce",
           where: ctx.where,
-          message: `"${item.title}" is a Squarespace ${p.productType} product; imported as a regular product — check how it should sell.`,
+          message: `"${item.title}" is a ${ctx.platform ?? "Squarespace"} ${p.productType} product; imported as a regular product — check how it should sell.`,
         });
       return {
         kind: "products",
@@ -472,6 +473,7 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
     usesNewsletter,
     siteDark: theme.siteDark,
     siteTitle: sq.title,
+    platform: platformLabel(sq.platform),
     ...(sq.timeZone ? { timeZone: sq.timeZone } : {}),
   });
 
@@ -516,8 +518,7 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
       notices.push({
         kind: "collection",
         where: "/",
-        message:
-          "The home page was a collection on Squarespace; it is now a page listing that collection (the collection has its own address, with a redirect).",
+        message: `The home page was a ${sq.platform === "wordpress" ? "list of posts" : "collection"} on ${platformLabel(sq.platform)}; it is now a page listing that collection (the collection has its own address, with a redirect).`,
       });
     }
     if (!sections.length) {

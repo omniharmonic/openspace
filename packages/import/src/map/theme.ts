@@ -1,5 +1,5 @@
 /**
- * The Squarespace look → OpenSpace Site Styles (never the original CSS): the brand color from the
+ * The original site's look → OpenSpace Site Styles (never the original CSS): the brand color from the
  * site palette's most characterful color, a neutral tint from the background, the nearest curated
  * font pairing, shape/buttons from the button settings and density from section heights. The
  * contrast solver (`compileStyles`) then makes every theme accessible; its adjustments are
@@ -15,7 +15,8 @@ import {
   TYPE_PAIRINGS,
   type TypePairing,
 } from "@omniharmonic/openspace-theme";
-import type { SqSite, SqTheme } from "../squarespace/types";
+import { platformLabel } from "../platform";
+import type { SqSite, SqTheme } from "../types";
 
 export interface ThemeDecision {
   styles: Styles;
@@ -115,6 +116,8 @@ function neutralFor(hex: string | undefined): "warm" | "cool" | "pure" {
 export function mapTheme(site: SqSite): ThemeDecision {
   const t = site.theme;
   const notes: string[] = [];
+  const from = platformLabel(site.platform);
+  const on = site.platform === "generic" ? "on the original site" : `on ${from}`;
   const bg = t.siteBackground ?? t.colors.white;
   const siteDark = bg ? lightness(bg) < 0.4 : false;
   const picked = pickBrand(t);
@@ -122,14 +125,14 @@ export function mapTheme(site: SqSite): ThemeDecision {
   let source: "brand" | "curated" = "brand";
   if (picked) {
     brand = picked.brand;
-    notes.push(`Brand color ${picked.brand} (Squarespace "${picked.from}" color).`);
+    notes.push(`Brand color ${picked.brand} (${from === "Squarespace" ? `Squarespace "${picked.from}"` : `the site's ${picked.from === "accent" ? "accent" : picked.from}`} color).`);
   } else {
     const dark = t.colors.darkAccent ?? t.colors.black;
     // A monochrome site: ink brand; snap to the curated Monochrome palette when close.
     brand = "oklch(0.25 0 0)";
     source = "curated";
     notes.push(
-      `The Squarespace palette has no strong color (${[t.colors.accent, dark].filter(Boolean).join(", ") || "none found"}), so the Monochrome palette is used.`,
+      `The ${from === "Squarespace" ? "Squarespace palette" : "site's palette"} has no strong color (${[t.colors.accent, dark].filter(Boolean).join(", ") || "none found"}), so the Monochrome palette is used.`,
     );
   }
   // Snap to a curated palette when it is visually the same color.
@@ -148,7 +151,7 @@ export function mapTheme(site: SqSite): ThemeDecision {
   const fontsSeen = [t.fonts.heading?.family, t.fonts.body?.family].filter(Boolean);
   if (fontsSeen.length)
     notes.push(
-      `Fonts on Squarespace: ${[...new Set(fontsSeen)].join(" / ")} → pairing "${pairing.name}" (${pairing.heading.family} / ${pairing.body.family})${exact.length ? `, same family for ${exact.join(" and ")}` : ", the closest curated match"}. Licensed fonts can be uploaded in Site Styles → Fonts.`,
+      `Fonts ${on}: ${[...new Set(fontsSeen)].join(" / ")} → pairing "${pairing.name}" (${pairing.heading.family} / ${pairing.body.family})${exact.length ? `, same family for ${exact.join(" and ")}` : ", the closest curated match"}. Licensed fonts can be uploaded in Site Styles → Fonts.`,
     );
   else notes.push(`Fonts couldn't be read; pairing "${pairing.name}" is a neutral default.`);
   const shape =
@@ -174,7 +177,7 @@ export function mapTheme(site: SqSite): ThemeDecision {
   if (t.sizes.h1 && t.sizes.normal) {
     const ratio = t.sizes.h1 / t.sizes.normal;
     notes.push(
-      `Type scale on Squarespace: Heading 1 is ${ratio.toFixed(1)}× body text${ratio > 4 ? " (very large; OpenSpace's display preset is the nearest)" : ""}. Density "${density}" from the section heights.`,
+      `Type scale ${on}: Heading 1 is ${ratio.toFixed(1)}× body text${ratio > 4 ? " (very large; OpenSpace's display preset is the nearest)" : ""}. Density "${density}" from the section heights.`,
     );
   }
   const styles: Styles = {
@@ -204,7 +207,7 @@ export function mapTheme(site: SqSite): ThemeDecision {
     const light = compiled.tokens.themes.light;
     if (bg && light?.background)
       notes.push(
-        `Page background ${bg} on Squarespace → ${light.background} (text contrast ${contrastRatio(light.text, light.background).toFixed(1)}:1).`,
+        `Page background ${bg} ${on} → ${light.background} (text contrast ${contrastRatio(light.text, light.background).toFixed(1)}:1).`,
       );
   } catch {
     // compile problems surface in openspace check

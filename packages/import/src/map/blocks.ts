@@ -17,7 +17,7 @@ import {
 } from "@omniharmonic/openspace-schema";
 import { requiredDefaults } from "@omniharmonic/openspace-site-kit/markdoc";
 import type { MediaImporter } from "../media";
-import type { SqBlock, SqForm, SqNotice } from "../squarespace/types";
+import type { SqBlock, SqForm, SqNotice } from "../types";
 import { htmlToRichText, textToRichText } from "./richtext";
 import { slugify, type UrlMap } from "./urls";
 
@@ -35,6 +35,8 @@ export interface MapContext {
   siteTitle?: string;
   /** The site's IANA time zone (events). */
   timeZone?: string;
+  /** The source platform's name, for report messages ("Squarespace", "WordPress"). */
+  platform?: string;
 }
 
 const registry = blocksRegistry();
@@ -258,7 +260,7 @@ export async function mapForm(ctx: MapContext, sq: SqForm): Promise<Form | undef
   ctx.notices.push({
     kind: "form",
     where: ctx.where,
-    message: `Form "${sq.name}" recreated with ${clean.length} field(s). Submissions now arrive in the OpenSpace inbox; Squarespace storage connections (Google Drive, Mailchimp, Zapier) need setting up again.`,
+    message: `Form "${sq.name}" recreated with ${clean.length} field(s). Submissions now arrive in the OpenSpace inbox; ${ctx.platform ?? "Squarespace"} form integrations (Google Drive, Mailchimp, Zapier…) need setting up again.`,
   });
   return {
     id: newId("frm") as Form["id"],
@@ -374,7 +376,9 @@ export async function mapBlock(
         kind: "form",
         where: ctx.where,
         message:
-          "Newsletter signup recreated. Squarespace Email Campaigns / Mailchimp subscribers are not moved: export your list from Squarespace and import it in the Hub.",
+          ctx.platform && ctx.platform !== "Squarespace"
+            ? `Newsletter signup recreated. Subscribers are not moved: export your list from ${ctx.platform} (or your email service) and import it in the Hub.`
+            : "Newsletter signup recreated. Squarespace Email Campaigns / Mailchimp subscribers are not moved: export your list from Squarespace and import it in the Hub.",
       });
       return one(
         makeBlock(
@@ -591,11 +595,111 @@ export async function mapBlock(
         }),
       );
     }
+    case "heading": {
+      const text = sq.text.replace(/\s+/g, " ").trim();
+      if (!text) return [];
+      if (text.length > 160) {
+        // Too long for a heading block: keep it as a rich-text heading.
+        return one(
+          makeBlock(ctx, "text", {
+            content: {
+              type: "doc",
+              content: [
+                {
+                  type: "heading",
+                  attrs: { level: sq.level },
+                  content: [{ type: "text", text }],
+                },
+                ...(sq.subheading ? textToRichText(sq.subheading).content : []),
+              ],
+            },
+          }),
+        );
+      }
+      return one(
+        makeBlock(
+          ctx,
+          "heading",
+          {
+            text,
+            level: `h${sq.level}`,
+            size: "auto",
+            ...(sq.eyebrow ? { eyebrow: clip(sq.eyebrow, 60) } : {}),
+            ...(sq.subheading ? { subheading: clip(sq.subheading, 280) } : {}),
+          },
+          { variant: "plain", ...(sq.align ? { style: { align: { d: "center" } } } : {}) },
+        ),
+      );
+    }
+    case "testimonial": {
+      const r = await richText(ctx, sq.html);
+      if (!r) return [];
+      const photo = sq.photo ? await img(ctx, sq.photo) : undefined;
+      if (!sq.name)
+        return one(
+          makeBlock(ctx, "quote", {
+            quote: r.doc,
+          }),
+        );
+      return one(
+        makeBlock(
+          ctx,
+          "testimonial",
+          {
+            quote: r.doc,
+            name: clip(sq.name, 80),
+            ...(sq.role ? { role: clip(sq.role, 100) } : {}),
+            ...(photo ? { photo } : {}),
+          },
+          { variant: "card" },
+        ),
+      );
+    }
+    case "table": {
+      const width = Math.max(sq.head?.length ?? 0, ...sq.rows.map((r) => r.length));
+      const fits =
+        width >= 2 &&
+        width <= 7 &&
+        sq.rows.length >= 1 &&
+        sq.rows.length <= 40 &&
+        sq.rows.every((r) => (r[0] ?? "").length <= 80 && r.slice(1).every((c) => c.length <= 60)) &&
+        (sq.head ?? []).slice(1).every((c) => c.length <= 40);
+      if (fits) {
+        const head = sq.head ?? [];
+        const table = makeBlock(
+          ctx,
+          "table",
+          {
+            ...(sq.caption ? { caption: clip(sq.caption, 120) } : {}),
+            ...(head[0] ? { corner: clip(head[0], 40) } : {}),
+            columns: Array.from({ length: width - 1 }, (_, i) => ({
+              label: clip(head[i + 1] || `Column ${i + 2}`, 40),
+              highlight: false,
+            })),
+            rows: sq.rows.map((r) => ({
+              label: clip(r[0] || " ", 80),
+              group: false,
+              cells: Array.from({ length: width - 1 }, (_, i) => ({ value: r[i + 1] ?? "" })),
+            })),
+          },
+          { variant: "lines" },
+        );
+        if (table) return [table];
+      }
+      // Too big for the table block: one paragraph per row.
+      const lines = [...(sq.head ? [sq.head] : []), ...sq.rows].map((r) => r.join(" · "));
+      ctx.notices.push({
+        kind: "unsupported-block",
+        where: ctx.where,
+        message: `A ${width}-column table with ${sq.rows.length} rows doesn't fit OpenSpace's table block (up to 6 columns, 40 rows, short cells); it was kept as text, one line per row.`,
+      });
+      return one(makeBlock(ctx, "text", { content: textToRichText(lines.join("\n\n")) }));
+    }
     case "unknown": {
       ctx.notices.push({
         kind: "unsupported-block",
         where: ctx.where,
-        message: `Squarespace "${sq.type}" block has no direct OpenSpace equivalent${sq.text ? "; its text was kept as a text block" : " and was left out"}.`,
+        message: `${ctx.platform ?? "Squarespace"} "${sq.type}" block has no direct OpenSpace equivalent${sq.text ? "; its text was kept as a text block" : " and was left out"}.`,
       });
       if (!sq.text) return [];
       return one(makeBlock(ctx, "text", { content: textToRichText(sq.text) }));

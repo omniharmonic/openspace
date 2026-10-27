@@ -11,7 +11,7 @@ import { cleanImageUrl, imageFrom, parseBlock, videoUrl } from "./squarespace/bl
 import { normalizeIso } from "./squarespace/crawl";
 import { parseFluidCss, parsePage, sectionsFromLayoutHtml } from "./squarespace/page";
 import { hslTripletToHex, parseTheme } from "./squarespace/theme";
-import type { SqBlock } from "./squarespace/types";
+import type { SqBlock } from "./types";
 import { parseWxr } from "./squarespace/wxr";
 import { composePage, FIXTURE_DIR, JUNIPER_URL, juniperFetch } from "./testing";
 

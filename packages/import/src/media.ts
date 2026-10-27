@@ -6,7 +6,7 @@
  */
 import { type ImageResizer, MAX_IMAGE_EDGE, prepareImage } from "@omniharmonic/openspace-mcp-tools";
 import { type ImageValue, type MediaMeta, newId } from "@omniharmonic/openspace-schema";
-import type { SqImage, SqNotice } from "./squarespace/types";
+import type { SqImage, SqNotice } from "./types";
 
 const SQS_CDN = /(?:^|\.)squarespace-cdn\.com$|(?:^|\.)squarespace\.com$/;
 const FILE_MAX = 25 * 1024 * 1024;
@@ -42,6 +42,8 @@ export interface MediaImporterOptions {
   now?: Date;
   /** Skip downloads (dry runs and tests that only look at structure). */
   offline?: boolean;
+  /** Where the media came from, for its credit line ("Squarespace", "WordPress"). */
+  source?: string;
 }
 
 export class MediaImporter {
@@ -84,6 +86,7 @@ export class MediaImporter {
     }
     if (u.protocol !== "https:") u.protocol = "https:";
     if (!SQS_CDN.test(u.host)) return [u.toString()];
+
     // Pick a width whose long edge stays within the limit (portraits step down).
     const ratio = width && height ? height / width : 1;
     const widths = [1500, 1000, 750, 500].filter((w) => w * Math.max(1, ratio) <= MAX_IMAGE_EDGE);
@@ -97,12 +100,18 @@ export class MediaImporter {
 
   private async download(img: SqImage, where: string): Promise<ImageValue | undefined> {
     if (this.opts.offline) return undefined;
-    const base = decodeURIComponent(new URL(img.url).pathname.split("/").pop() ?? "image").replace(
-      /\+/g,
-      " ",
-    );
+    let base = new URL(img.url).pathname.split("/").pop() || "image";
+    try {
+      base = decodeURIComponent(base).replace(/\+/g, " ");
+    } catch {
+      // keep the raw name
+    }
     let lastError = "";
-    for (const url of this.candidates(img.url, img.width, img.height)) {
+    const tries = [
+      ...this.candidates(img.url, img.width, img.height),
+      ...(img.alternates ?? []).filter((a) => /^https?:\/\//.test(a)),
+    ];
+    for (const url of [...new Set(tries)]) {
       try {
         const prepared = await prepareImage(
           { url, alt: img.alt ?? "", filename: base },
@@ -114,7 +123,7 @@ export class MediaImporter {
         );
         const meta: MediaMeta = { ...prepared.meta };
         if (img.focal) meta.focal = img.focal;
-        meta.credit = { source: "Imported from Squarespace" };
+        meta.credit = { source: `Imported from ${this.opts.source ?? "Squarespace"}` };
         this.files.set(prepared.path, prepared.bytes);
         this.media[prepared.path] = meta;
         return {
@@ -127,7 +136,8 @@ export class MediaImporter {
         };
       } catch (e) {
         lastError = (e as Error).message;
-        if (!/larger than|too_large|px on the long edge/i.test(lastError)) break;
+        if (!/larger than|too_large|px on the long edge/i.test(lastError) && !img.alternates?.length)
+          break;
       }
     }
     this.notices.push({
@@ -138,7 +148,7 @@ export class MediaImporter {
     return undefined;
   }
 
-  /** Download a linked document or audio file (Squarespace `/s/…` files) into `media/files/`. */
+  /** Download a linked document or audio file (`/s/…`, `/wp-content/uploads/…`) into `media/files/`. */
   file(url: string, where = "media"): Promise<string | undefined> {
     let p = this.docs.get(url);
     if (!p) {

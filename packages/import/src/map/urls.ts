@@ -1,10 +1,10 @@
 /**
- * Old Squarespace addresses → new OpenSpace targets: page slugs, collection names and item
+ * Old addresses (any platform) → new OpenSpace targets: page slugs, collection names and item
  * slugs (made URL-safe and unique), the redirects that keep old links and search results
  * working, and link resolution for buttons, navigation and rich text.
  */
 import { type Link, newId, type PageId } from "@omniharmonic/openspace-schema";
-import type { SqSite } from "../squarespace/types";
+import type { SqSite } from "../types";
 
 export const slugify = (s: string, fallback = "page"): string =>
   s
@@ -91,6 +91,14 @@ export class UrlMap {
       this.pages.set(a.from, target);
       this.addRedirect(a.from, this.pagePath(target));
     }
+    // Addresses the importer knows about beyond pages and items (category archives…).
+    for (const r of site.redirects ?? []) {
+      if (this.pages.has(r.from) || this.items.has(r.from) || this.collections.has(r.from)) continue;
+      // `to` is an old address too (`/blog/category/news`): send it where that address went.
+      const to = this.resolve(r.to);
+      if (to.kind === "page" || to.kind === "item" || to.kind === "collection")
+        this.addRedirect(r.from, to.path);
+    }
   }
 
   private addRedirect(from: string, toPath: string) {
@@ -122,7 +130,7 @@ export class UrlMap {
     return t.slug ? `/${t.slug}` : "/";
   }
 
-  /** Resolve a Squarespace href to an OpenSpace link. */
+  /** Resolve an old-site href to an OpenSpace link. */
   resolve(href: string, newTab?: boolean): Resolved {
     const h = href.trim();
     if (/^mailto:/i.test(h)) {
@@ -147,8 +155,12 @@ export class UrlMap {
         path: h,
       };
     }
-    // Squarespace-hosted files (/s/brochure.pdf) are downloaded by the caller.
-    if (/^\/s\/[^/]+\.[A-Za-z0-9]+$/.test(old))
+    // Files on the site (Squarespace /s/brochure.pdf, WordPress /wp-content/uploads/…, any
+    // linked document) are downloaded by the caller.
+    if (
+      /^\/s\/[^/]+\.[A-Za-z0-9]+$/.test(old) ||
+      /\.(?:pdf|docx?|xlsx?|pptx?|zip|txt|csv|epub|mp3|m4a|wav|ogg|mp4)$/i.test(old)
+    )
       return { kind: "file", url: new URL(old, this.site.baseUrl).toString() };
     const page = this.pages.get(old);
     if (page)
