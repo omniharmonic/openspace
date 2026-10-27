@@ -107,7 +107,7 @@ describe("importing the Juniper fixture (HTML and sitemap only)", () => {
         type: "button",
         fields: { label: "Book a class", role: "primary" },
       });
-      expect((button?.fields.link as { type: string }).type).toBe("page");
+      expect((button?.fields.link as { type: string } | undefined)?.type).toBe("page");
     }
     expect(r.build.notices.some((n) => /overlay was darkened from 20%/.test(n.message))).toBe(true);
   });
