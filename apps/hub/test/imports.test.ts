@@ -335,6 +335,18 @@ describe("Move my site (hosted import, dev emulation)", () => {
       .bind(created.import.id)
       .first<{ phase: string }>();
     expect(row?.phase).toBe("importing");
+
+    // A failed move can still be deleted (clean-up of test or abandoned sites).
+    await env.HUB_DB.prepare("UPDATE site_imports SET state = 'failed' WHERE id = ?")
+      .bind(created.import.id)
+      .run();
+    const gone = await call(app, `/api/sites/${created.site.id}`, {
+      method: "DELETE",
+      cookie,
+      json: { confirmName: created.site.name },
+    });
+    expect(gone.status).toBe(200);
+    expect((await call(app, `/api/sites/${created.site.id}`, { cookie })).status).toBe(404);
   });
 
   it("waits for the GitHub App install step, then moves the site", async () => {
