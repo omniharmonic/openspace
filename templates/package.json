@@ -1,5 +1,6 @@
 {
   "name": "@omniharmonic/openspace-templates",
+  "private": true,
   "version": "1.0.0",
   "description": "OpenSpace launch templates: twelve complete sites (content, styles, media credits) with three looks each, and a typed registry.",
   "license": "MIT",
@@ -20,15 +21,6 @@
     ".": {
       "types": "./index.ts",
       "default": "./index.ts"
-    }
-  },
-  "publishConfig": {
-    "access": "public",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      }
     }
   },
   "scripts": {

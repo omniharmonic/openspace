@@ -1,9 +1,10 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { generateAgentsMd } from "@omniharmonic/openspace-site-kit";
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
-import { SITE_DIR, starterFiles, VARIANTS } from "./index";
+import { SITE_DIR, STARTER_DIR, starterFiles, VARIANTS } from "./index";
 
 // GitHub expression strings, built so linters don't read them as template literals.
 const expr = (inner: string) => ["$", "{{ ", inner, " }}"].join("");
@@ -253,5 +254,19 @@ describe("starter site shell", () => {
         await rm(dir, { recursive: true, force: true });
       }
     });
+  });
+});
+
+describe("starterFiles from another root", () => {
+  it("reads a copy laid out like the package (the published CLI bundles one in dist/starter)", async () => {
+    const root = await mkdtemp(join(tmpdir(), "os-starter-"));
+    try {
+      for (const part of ["site", "variants"])
+        await cp(join(STARTER_DIR, part), join(root, part), { recursive: true });
+      expect(await starterFiles("cloudflare", root)).toEqual(await starterFiles("cloudflare"));
+      expect(await starterFiles("github-pages", root)).toEqual(await starterFiles());
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 });

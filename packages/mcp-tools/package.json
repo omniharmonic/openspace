@@ -3,10 +3,25 @@
   "version": "0.1.0",
   "description": "OpenSpace mcp-tools package.",
   "license": "MIT",
+  "author": "The OpenSpace contributors",
+  "homepage": "https://github.com/omniharmonic/openspace#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omniharmonic/openspace.git",
+    "directory": "packages/mcp-tools"
+  },
+  "bugs": {
+    "url": "https://github.com/omniharmonic/openspace/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     ".": {

@@ -1,5 +1,6 @@
 {
   "name": "@omniharmonic/openspace-template-starter",
+  "private": true,
   "version": "0.1.0",
   "description": "OpenSpace starter: the thin Astro site shell (astro.config, page route, publish workflows, AGENTS.md).",
   "license": "MIT",
@@ -15,9 +16,6 @@
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     }
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
