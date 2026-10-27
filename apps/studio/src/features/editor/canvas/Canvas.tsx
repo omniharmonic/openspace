@@ -178,6 +178,10 @@ export function Canvas({
         if (!overlayPointer.inside) api.getState().setHover(null);
       }, 120);
     };
+    const isTextBlock = (blockId: string) => {
+      const s = api.getState();
+      return locate(s.doc, s.pageId, { kind: "block", id: blockId })?.block?.type === "text";
+    };
     /** Start editing the text field under the pointer in this block, if there is one. */
     const editAt = (blockId: string, e: MouseEvent): boolean => {
       const s = api.getState();
@@ -213,6 +217,16 @@ export function Canvas({
         s.selection.length === 1 && s.selection[0]?.id === item.id && item.kind === "block";
       if (already && !e.shiftKey && editAt(item.id, e)) return;
       s.select(item, { additive: e.shiftKey });
+      // Words edit on the first click ("click any words to change them"): a text block starts
+      // editing where it was clicked. Other blocks (photos, buttons…) are selected first.
+      if (
+        !already &&
+        !e.shiftKey &&
+        item.kind === "block" &&
+        isTextBlock(item.id) &&
+        editAt(item.id, e)
+      )
+        return;
       // Picked on the canvas: show what can be changed (Layers keeps its own panel open).
       useEditorUi.getState().revealInspector();
     };

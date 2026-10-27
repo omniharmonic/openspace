@@ -76,8 +76,8 @@ describe("canvas", () => {
     fireEvent.click(q(I.heroImage), { shiftKey: true });
     expect(within(inspector()).getByText("2 blocks selected")).toBeInTheDocument();
 
-    // Clicking the selected text block again starts editing; Tiptap mounts on the block.
-    fireEvent.click(q(I.introText));
+    // One click on words starts editing them ("click any words to change them" — wave 3:
+    // it used to take a double-click); Tiptap mounts on the block.
     fireEvent.click(q(I.introText));
     await waitFor(() =>
       expect(q(I.introText).querySelector("[data-os-inline-editor]")).toBeTruthy(),
