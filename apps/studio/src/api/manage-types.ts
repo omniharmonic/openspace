@@ -118,6 +118,8 @@ export interface McpGrant {
   sites: Array<{ id: string; name: string }>;
   /** May the app publish (still with explicit confirmation per publish)? */
   publish: boolean;
+  /** May the app create new sites (first run from Claude)? */
+  create?: boolean;
   createdAt: string;
   lastUsedAt: string | null;
 }

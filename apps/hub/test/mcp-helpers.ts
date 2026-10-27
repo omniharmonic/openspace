@@ -26,7 +26,13 @@ export async function pkce() {
 export async function oauthConnect(
   app: TestApp,
   cookie: string,
-  opts: { sites: string[]; publish?: boolean; clientName?: string; wrongVerifier?: boolean },
+  opts: {
+    sites: string[];
+    publish?: boolean;
+    create?: boolean;
+    clientName?: string;
+    wrongVerifier?: boolean;
+  },
 ) {
   const reg = await call(app, `${HUB}/register`, {
     method: "POST",
@@ -59,6 +65,7 @@ export async function oauthConnect(
   const form = new URLSearchParams({ handle, action: "allow" });
   for (const s of opts.sites) form.append("site", s);
   if (opts.publish) form.set("publish", "1");
+  if (opts.create) form.set("create", "1");
   const decided = await call(app, `${HUB}/authorize`, {
     method: "POST",
     cookie,

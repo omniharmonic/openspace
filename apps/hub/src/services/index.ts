@@ -1,13 +1,16 @@
 import { mintUserAccessToken } from "../auth/github-tokens";
+import type { User } from "../db/users";
 import type { HubBindings, HubConfig } from "../env";
 import { type GitHubContext, selectGitHubAccess } from "../github";
 import type { FetchLike } from "../github/http";
+import { type InstallationDirectory, selectInstallationDirectory } from "../github/installations";
 import type { GitHubAccess } from "../github/types";
 import { type OperatorConfig, readOperatorConfig } from "../operator-env";
 import { basicTemplate } from "../templates/basic";
 import { createGrowthServices, type GrowthOverrides, type GrowthServices } from "./growth";
 import { createPublicServices, type PublicOverrides, type PublicServices } from "./public";
 import { type PageRenderer, SiteKitRenderer } from "./renderer";
+import { type BrowserBackend, selectBrowserBackend } from "./screenshots";
 import { RegistryTemplateSource, type TemplateSource } from "./templates";
 
 /** Per-request service container (no module-level request state). */
@@ -19,6 +22,8 @@ export interface Services {
   templates: TemplateSource;
   renderer: PageRenderer;
   github(ctx?: GitHubContext): GitHubAccess;
+  /** The GitHub App's installations as this person sees them (the onboarding install step). */
+  installations(user: User): InstallationDirectory;
   /** Outbound fetch (GitHub OAuth etc.); injectable for tests. */
   fetch: FetchLike;
   now(): number;
@@ -28,17 +33,22 @@ export interface Services {
   growth: GrowthServices;
   /** Operator settings: abuse address, budget alerts, campaign warm-up. */
   operator: OperatorConfig;
+  /** Browser for MCP screenshots: Browser Rendering, the dev placeholder, or none. */
+  screenshots: BrowserBackend | null;
 }
 
 export interface ServiceOverrides {
   templates?: TemplateSource;
   renderer?: PageRenderer;
   github?: (ctx: GitHubContext, services: Services) => GitHubAccess;
+  installations?: (user: User, services: Services) => InstallationDirectory;
   fetch?: FetchLike;
   now?: () => number;
   public?: PublicOverrides;
   growth?: GrowthOverrides;
   operator?: Partial<OperatorConfig>;
+  /** Screenshot browser (tests inject a fake); `null` turns screenshots off. */
+  screenshots?: BrowserBackend | null;
 }
 
 /**
@@ -54,6 +64,9 @@ export function createServices(
 ): Services {
   const fetchFn: FetchLike = overrides.fetch ?? ((input, init) => fetch(input, init));
   const now = overrides.now ?? Date.now;
+  const userToken = async (userId: string) =>
+    (await mintUserAccessToken({ db: env.HUB_DB, config, fetch: fetchFn, now }, userId))?.token ??
+    null;
   const services: Services = {
     db: env.HUB_DB,
     uploads: env.UPLOADS,
@@ -76,6 +89,10 @@ export function createServices(
       overrides.growth,
     ),
     operator: { ...readOperatorConfig(env), ...overrides.operator },
+    screenshots:
+      overrides.screenshots !== undefined
+        ? overrides.screenshots
+        : selectBrowserBackend(env, config),
     github: (ctx = {}) =>
       overrides.github
         ? overrides.github(ctx, services)
@@ -85,12 +102,14 @@ export function createServices(
               db: env.HUB_DB,
               fetch: fetchFn,
               now,
-              userToken: async (userId) =>
-                (await mintUserAccessToken({ db: env.HUB_DB, config, fetch: fetchFn, now }, userId))
-                  ?.token ?? null,
+              userToken,
             },
             ctx,
           ),
+    installations: (user) =>
+      overrides.installations
+        ? overrides.installations(user, services)
+        : selectInstallationDirectory({ config, db: env.HUB_DB, fetch: fetchFn, userToken }, user),
   };
   return services;
 }

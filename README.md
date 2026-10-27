@@ -49,8 +49,10 @@ Design and edit OpenSpace sites with Claude Code (local MCP server, web-design s
 
 ```
 /plugin marketplace add omniharmonic/openspace
-/plugin install openspace
+/plugin install openspace@openspace
 ```
+
+(It isn't in Claude's built-in plugin directory; restart Claude Code after installing. No terminal? Use the Claude app instead: Settings → Connectors → Add custom connector → `https://hub.openspace.host/mcp`.)
 
 See [`plugin/README.md`](plugin/README.md).
 

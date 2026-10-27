@@ -8,7 +8,7 @@ import { renderStudio, SAM } from "../../test/render";
 import { useEditorUi } from "../editor/editor-store";
 import type { EditorStore } from "../editor/model/store";
 import { settingsTabFromPath } from "../site-mgmt/SiteManagementHost";
-import { PLUGIN_COMMANDS } from "./ConnectAiSettings";
+import { CLAUDE_APP_SKILLS, PLUGIN_COMMANDS } from "./ConnectAiSettings";
 import { cloudflareTokenUrl, sealSecret } from "./sealedBox";
 
 const sites = demoSites(SAM.login, Date.UTC(2026, 9, 1));
@@ -267,13 +267,23 @@ describe("connect your AI", () => {
     expect(
       screen.getByText("claude mcp add --transport http openspace http://localhost:8787/mcp"),
     ).toBeInTheDocument();
-    expect(screen.getByText(/for site folders on your computer/)).toBeInTheDocument();
+    // The plugin isn't in Claude's built-in list: marketplace first, then plugin@marketplace.
+    expect(screen.getByText(/not/, { selector: "strong" })).toBeInTheDocument();
     for (const cmd of PLUGIN_COMMANDS) expect(screen.getByText(cmd)).toBeInTheDocument();
+    expect(PLUGIN_COMMANDS).toContain("/plugin install openspace@openspace");
+    expect(screen.getByText("claude plugin install openspace@openspace")).toBeInTheDocument();
+    expect(screen.getByText(/quit and reopen Claude Code/)).toBeInTheDocument();
 
     // claude.ai / Claude Desktop: custom connector with the /mcp URL, not the link.
-    await user.click(screen.getByRole("tab", { name: "Claude app" }));
+    await user.click(screen.getByRole("tab", { name: /Claude app/ }));
     expect(screen.getByText("Settings → Connectors")).toBeInTheDocument();
     expect(screen.getByText("http://localhost:8787/mcp")).toBeInTheDocument();
+    // …and the Claude app skills to upload (Customize → Skills), served by the docs site.
+    for (const s of CLAUDE_APP_SKILLS)
+      expect(screen.getByRole("link", { name: `${s.name}.zip` })).toHaveAttribute(
+        "href",
+        `https://docs.openspace.host/skills/${s.name}.zip`,
+      );
 
     // Personal link: no sign-in, the command carries the fresh link.
     await user.click(screen.getByRole("tab", { name: "Personal link" }));

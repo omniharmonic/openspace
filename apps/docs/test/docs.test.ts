@@ -41,6 +41,7 @@ const REQUIRED = [
   "guides/migrate-from-squarespace",
   "connect-your-ai",
   "connect-your-ai/claude",
+  "connect-your-ai/claude-app",
   "connect-your-ai/claude-code",
   "connect-your-ai/tools",
   "grow/forms-and-newsletter",
@@ -75,7 +76,8 @@ describe("docs content", () => {
   });
 
   it("names only real MCP tools and prompts", async () => {
-    // The local stdio server adds tools that reach the web (never served by the Hub).
+    // Tools that reach the web: the local stdio server adds them, and the Hub serves its own
+    // `screenshot_url` (and `import_site`) — they aren't part of the shared tool set.
     const local = ["import_site", "import_squarespace", "screenshot_url"];
     const cliMcp = ["import-tool.ts", "reference-tool.ts"]
       .map((f) => join(REPO, "packages", "cli", "src", "mcp", f))
@@ -84,7 +86,9 @@ describe("docs content", () => {
       await Promise.all(cliMcp.filter(Boolean).map((p) => readFile(p, "utf8")))
     ).join("\n");
     for (const t of local) expect(localSource, t).toContain(`name: "${t}"`);
-    const tools = new Set([...ALL_TOOLS.map((t) => t.name), ...local]);
+    // Hub-only account tools (apps/hub/src/mcp/tools/account.ts).
+    const hubOnly = ["create_site"];
+    const tools = new Set([...ALL_TOOLS.map((t) => t.name), ...local, ...hubOnly]);
     const prompts = new Set(PROMPTS.map((p) => p.name));
     const unknown: string[] = [];
     for (const f of await walk(CONTENT)) {
@@ -166,7 +170,8 @@ describe("docs content", () => {
   it("gives the plugin install commands", async () => {
     const text = await source("connect-your-ai/claude-code");
     expect(text).toContain("/plugin marketplace add omniharmonic/openspace");
-    expect(text).toContain("/plugin install openspace");
+    expect(text).toContain("/plugin install openspace@openspace");
+    expect(text).toContain("claude plugin install openspace@openspace");
     expect(text).toContain("npx -y @omniharmonic/openspace-cli mcp");
   });
 });
@@ -184,6 +189,14 @@ describe("docs build", () => {
 
   it("renders every page to static HTML", () => {
     expect(files).toContain("index.html");
+    // Claude app skills, generated at build time and linked from the docs and Studio.
+    for (const name of [
+      "openspace-migrate",
+      "openspace-web-design",
+      "openspace-content",
+      "openspace-site-setup",
+    ])
+      expect(files, name).toContain(`skills/${name}.zip`);
     expect(files).toContain("404.html");
     for (const slug of REQUIRED) expect(files, slug).toContain(`${slug}/index.html`);
   });

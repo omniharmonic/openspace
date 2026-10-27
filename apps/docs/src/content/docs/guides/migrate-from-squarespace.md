@@ -5,6 +5,10 @@ description: Moving a Squarespace site to OpenSpace is now part of the guide for
 
 Moving from Squarespace is covered, with every option, in **[Move your site to OpenSpace](/guides/migrate-to-openspace/#squarespace)** — the same guide now covers WordPress, Wix, Webflow and any other site.
 
+:::tip[No installs]
+Don't want to use a terminal? Ask Claude on claude.ai or Claude Desktop to move the site for you — the import and the screenshots run in the cloud. See [No installs: the Claude app](/connect-your-ai/claude-app/#3-move-your-squarespace-site).
+:::
+
 In short:
 
 ```sh

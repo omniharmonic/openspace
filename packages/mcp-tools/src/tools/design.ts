@@ -518,7 +518,7 @@ export const screenshot = defineTool({
   name: "screenshot",
   title: "Screenshot",
   description:
-    'PNG screenshot of a draft page or one section at desktop (1440), tablet (834) or mobile (390) width — or "all" three — so you can see the design and iterate. Returns the preview URL as well. Needs a screenshot provider (Playwright locally).',
+    'Screenshot of a draft page or one section at desktop (1440), tablet (834) or mobile (390) width — or "all" three — so you can see the design and iterate. Tall pages may come back as several images, top to bottom. Returns the preview URL as well. Needs a screenshot provider (Playwright locally, Cloudflare Browser Rendering on the Hub).',
   input: z.object({
     site: siteArg,
     page: z.string(),
@@ -552,6 +552,7 @@ export const screenshot = defineTool({
       input.device === "all" ? ["desktop", "tablet", "mobile"] : [input.device ?? "desktop"];
     const images: NonNullable<ToolOutput["images"]> = [];
     const shots: Array<{ device: Device; width: number; height?: number }> = [];
+    const notes: string[] = [];
     for (const device of devices) {
       const shot = await ctx.store.screenshot(siteId, {
         pageId: id,
@@ -566,10 +567,13 @@ export const screenshot = defineTool({
         mimeType: shot.mimeType,
         caption: `${device} ${shot.width}px`,
       });
+      for (const [i, part] of (shot.more ?? []).entries())
+        images.push({ ...part, caption: `${device} ${shot.width}px (part ${i + 2})` });
       shots.push({ device, width: shot.width, height: shot.height });
+      if (shot.note) notes.push(`${device}: ${shot.note}`);
     }
     return {
-      text: `Screenshot${shots.length > 1 ? "s" : ""} of ${page?.title ?? id}${input.section ? ` (section ${input.section})` : ""}: ${shots.map((s) => `${s.device} ${s.width}×${s.height ?? "?"}`).join(", ")}.${url ? ` Preview: ${url}` : ""}`,
+      text: `Screenshot${shots.length > 1 ? "s" : ""} of ${page?.title ?? id}${input.section ? ` (section ${input.section})` : ""}: ${shots.map((s) => `${s.device} ${s.width}×${s.height ?? "?"}`).join(", ")}.${url ? ` Preview: ${url}` : ""}${notes.length ? `\n${notes.join("\n")}` : ""}`,
       data: { url, shots },
       images,
     };

@@ -42,6 +42,7 @@ export default defineConfig({
           label: "Connect your AI",
           items: [
             { label: "Overview", slug: "connect-your-ai" },
+            { label: "No installs: the Claude app", slug: "connect-your-ai/claude-app" },
             { label: "Claude & Claude Desktop", slug: "connect-your-ai/claude" },
             { label: "Claude Code", slug: "connect-your-ai/claude-code" },
             { label: "Tools reference", slug: "connect-your-ai/tools" },
@@ -63,6 +64,7 @@ export default defineConfig({
           items: [
             { label: "Architecture overview", slug: "architecture" },
             { label: "Self-hosting the Hub", slug: "self-hosting" },
+            { label: "GitHub App settings", slug: "operators/github-app" },
             { label: "Budget alerts & abuse", slug: "operators/budget-and-abuse" },
             { label: "The openspace CLI", slug: "developers/cli" },
             { label: "Block development", slug: "developers/block-development" },

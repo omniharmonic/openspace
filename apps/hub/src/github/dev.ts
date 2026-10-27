@@ -44,7 +44,7 @@ interface CommitRow {
 }
 
 /** A stable numeric "account id" for a dev owner login. */
-function devOwnerId(login: string): number {
+export function devOwnerId(login: string): number {
   let h = 0;
   for (const ch of login.toLowerCase()) h = (Math.imul(h, 31) + ch.charCodeAt(0)) | 0;
   return Math.abs(h) || 1;

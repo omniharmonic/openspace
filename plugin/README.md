@@ -24,18 +24,21 @@ What's inside:
 
 ## Install
 
-In Claude Code:
+The plugin is **not** in Claude Code's built-in plugin directory. Add this repository as a plugin marketplace first, then install the plugin from it. In Claude Code, type:
 
 ```
 /plugin marketplace add omniharmonic/openspace
-/plugin install openspace
+/plugin install openspace@openspace
 ```
 
-Or in one step on recent Claude Code versions:
+Then quit and restart Claude Code. The same from a terminal:
 
+```sh
+claude plugin marketplace add omniharmonic/openspace
+claude plugin install openspace@openspace
 ```
-/plugin install openspace --marketplace omniharmonic/openspace
-```
+
+Not a developer? You don't need this plugin: in the Claude app (claude.ai or Claude Desktop) open **Settings → Connectors → Add custom connector** and paste `https://hub.openspace.host/mcp` — nothing to install.
 
 Requirements: Node.js 22.23.4 or newer (Node 24 recommended). For screenshots, install the `playwright` package in your site (`npm i -D playwright`) plus a browser: `npx playwright install chromium`, or an installed Google Chrome. For resizing large uploads, `npm i -D sharp`.
 

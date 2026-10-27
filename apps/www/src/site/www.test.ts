@@ -111,7 +111,7 @@ describe("openspace.host site document", () => {
     for (const phrase of [
       "Bring your site home",
       "/plugin marketplace add omniharmonic/openspace",
-      "/plugin install openspace",
+      "/plugin install openspace@openspace",
       "/openspace:migrate",
       "Squarespace, WordPress, Wix, Webflow or anywhere else",
       "https://docs.openspace.host/guides/migrate-to-openspace/",

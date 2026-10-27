@@ -44,7 +44,8 @@ Replace the placeholder ids in `wrangler.jsonc`'s `production` environment with 
 
 In GitHub → Settings → Developer settings → **GitHub Apps → New GitHub App**:
 
-- **Callback URL**: `https://<your-hub>/auth/github/callback`; turn on "Request user authorization (OAuth) during installation" and expiring user tokens.
+- **Callback URL**: `https://<your-hub>/auth/github/callback`, with expiring user tokens. Leave "Request user authorization (OAuth) during installation" **off**.
+- **Setup URL**: `https://<your-hub>/auth/github/installed`, with **Redirect on update** on — this is how new people come back after installing the App ([details](/operators/github-app/)).
 - **Webhook URL**: `https://<your-hub>/webhooks/github`, with a secret.
 - **Repository permissions**: Contents, Workflows, Pages, Administration, Secrets, Variables and Pull requests — read & write; Actions and Metadata — read. (Variables carry the public Turnstile site key to site builds.) **Account permissions**: Email addresses — read.
 - **Events**: installation, installation repositories, GitHub app authorization, workflow run, push.
@@ -63,6 +64,7 @@ Set in `wrangler.jsonc` (`vars`):
 | `GITHUB_APP_SLUG` | Your GitHub App's slug. |
 | `LOG_LEVEL` | `debug`, `info`, `warn` or `error`. |
 | `MCP_ALLOWED_ORIGINS` | Optional extra browser origins allowed to call `/mcp`. |
+| `SCREENSHOTS` | Optional. `"off"` turns MCP screenshots off; `"stub"` forces the grey placeholder. Unset: the `BROWSER` binding in production, the placeholder in `DEV_MODE`. |
 
 ## Secrets
 
@@ -90,7 +92,17 @@ Without the optional ones, those features are simply unavailable on a production
 
 ## Bindings and schedules
 
-`wrangler.jsonc` declares: D1 `HUB_DB`, KV `CACHE` and `OAUTH_KV`, R2 `UPLOADS`, Durable Objects `DraftRoom` and `RateLimiter`, a rate limiter for analytics beacons, Analytics Engine `ANALYTICS`, the email-sending binding `EMAIL`, and cron triggers for scheduled publishes and campaigns (every minute), retention and digests (daily) and weekly analytics digests. An optional Queue speeds up large campaign sends.
+`wrangler.jsonc` declares: D1 `HUB_DB`, KV `CACHE` and `OAUTH_KV`, R2 `UPLOADS`, Durable Objects `DraftRoom` and `RateLimiter`, a rate limiter for analytics beacons, Analytics Engine `ANALYTICS`, the email-sending binding `EMAIL`, and cron triggers for scheduled publishes and campaigns (every minute), retention and digests (daily) and weekly analytics digests. An optional Queue speeds up large campaign sends. The production environment also binds Cloudflare Browser Rendering as `BROWSER` for MCP screenshots (below).
+
+## Screenshots for Claude (Browser Rendering)
+
+Claude's `screenshot` and `screenshot_url` tools run in a real browser through [Cloudflare Browser Rendering](https://developers.cloudflare.com/browser-run/). The binding is already in `wrangler.jsonc` (`"browser": { "binding": "BROWSER" }` under `env.production`); deploying with it enables the feature on your account. Nothing else is needed: no API token, no secret.
+
+- **Workers Free** works for a small Hub: 10 browser-minutes a day, 3 browsers at once, one new browser every 20 seconds. The Hub reuses an open browser between screenshots to stay within that.
+- **Workers Paid** is recommended for a shared Hub: 10 browser-hours a month included, then $0.09 an hour; 10 concurrent browsers included (averaged monthly), then $2.00 each.
+- Each capture is limited per person (40 every ten minutes, 400 a day) and per site (60 every ten minutes), on top of the MCP limits. Pages get 25 seconds to load; the whole capture stops at 55 seconds.
+- The browser may only load public `http`/`https` addresses: private, loopback, link-local and metadata addresses and internal names are refused for the page and for every request it makes. Drafts are opened with a three-minute signed link bound to one site — never with anyone's session.
+- To turn screenshots off, set the variable `SCREENSHOTS` to `"off"`. Without the binding, the tools explain that screenshots aren't available and Claude falls back to the rendered HTML.
 
 ## Point Studio and sites at your Hub
 

@@ -220,7 +220,8 @@ export function validatePlugin(root = PLUGIN_ROOT): Issue[] {
     const text = readFileSync(readme, "utf8");
     for (const line of [
       "/plugin marketplace add omniharmonic/openspace",
-      "/plugin install openspace",
+      "/plugin install openspace@openspace",
+      "claude plugin install openspace@openspace",
     ])
       if (!text.includes(line)) add(readme, `README must show "${line}"`);
     for (const link of text.matchAll(/\]\(((?:examples|skills|commands|agents)\/[^)]+)\)/g))

@@ -9,6 +9,7 @@ import { securityHeaders } from "./lib/security-headers";
 import { authRoutes } from "./routes/auth";
 import { ciRoutes } from "./routes/ci";
 import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
+import { devGitHubRoutes, githubInstallRoutes } from "./routes/github-install";
 import { growthRoutes } from "./routes/growth";
 import { hostingRoutes } from "./routes/hosting";
 import { mcpGrantRoutes, mcpRoutes, mcpTokenRoutes } from "./routes/mcp";
@@ -84,6 +85,8 @@ export function createApp(options: CreateAppOptions = {}) {
 
   app.get("/health", (c) => c.json({ ok: true }));
   app.route("/auth", authRoutes);
+  app.route("/auth", githubInstallRoutes);
+  app.route("/", devGitHubRoutes);
   app.route("/api", meRoutes);
   app.route("/api/templates", templateRoutes);
   app.route("/api/sites", siteRoutes);

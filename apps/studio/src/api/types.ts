@@ -125,6 +125,18 @@ export interface Site {
   statusDetail?: string | null;
   /** The site's files are private (not readable from raw.githubusercontent). */
   private?: boolean;
+  /**
+   * GitHub permission for OpenSpace (the App install step). `access` other than "ok" means the
+   * owner has to do something on GitHub first; `connectUrl` (a Hub page) takes them there.
+   */
+  github?: { access: GitHubAccess; connectUrl: string | null };
+}
+
+export type GitHubAccess = "ok" | "install" | "repo_access" | "requested";
+
+/** The site waits for the owner to give OpenSpace permission on GitHub. */
+export function needsGitHub(site: Pick<Site, "github"> | null | undefined): boolean {
+  return Boolean(site?.github && site.github.access !== "ok");
 }
 
 /** `POST /api/sites` body. */

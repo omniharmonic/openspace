@@ -34,11 +34,28 @@ export function authorizeUrl(
   return u.toString();
 }
 
-/** Where a person installs the App (optionally pre-filtered to an account). */
-export function installUrl(app: GitHubAppConfig, state?: string): string {
-  const u = new URL(`${GITHUB_WEB}/apps/${app.slug}/installations/new`);
-  if (state) u.searchParams.set("state", state);
+/**
+ * Where a person installs the App. `targetId` (the numeric id of the user or organization)
+ * preselects the account; `state` comes back to the App's Setup URL after the install.
+ */
+export function installUrl(
+  app: Pick<GitHubAppConfig, "slug">,
+  opts: { state?: string; targetId?: number | null } = {},
+): string {
+  const u = new URL(`${GITHUB_WEB}/apps/${encodeURIComponent(app.slug)}/installations/new`);
+  if (opts.targetId) u.searchParams.set("suggested_target_id", String(opts.targetId));
+  if (opts.state) u.searchParams.set("state", opts.state);
   return u.toString();
+}
+
+/** An installation's settings page on GitHub (change repository access, uninstall). */
+export function installationSettingsUrl(inst: {
+  id: number;
+  account: { login: string; type: string };
+}): string {
+  return inst.account.type === "Organization"
+    ? `${GITHUB_WEB}/organizations/${encodeURIComponent(inst.account.login)}/settings/installations/${inst.id}`
+    : `${GITHUB_WEB}/settings/installations/${inst.id}`;
 }
 
 interface TokenResponse {
@@ -127,12 +144,40 @@ export async function getAuthenticatedUser(
   return user;
 }
 
+/** An installation of the App, as the person's user token sees it. */
+export interface UserInstallation {
+  id: number;
+  account: { login: string; id?: number; type?: string } | null;
+  /** "all" repositories, or only "selected" ones (new repositories aren't covered). */
+  repository_selection?: "all" | "selected";
+  suspended_at?: string | null;
+}
+
+/** Installations of this App the user can access (`GET /user/installations`, user token). */
 export async function listUserInstallations(
   token: string,
   fetchFn: FetchLike = fetch,
-): Promise<Array<{ id: number; account: { login: string } | null }>> {
-  const data = await githubRequest<{
-    installations: Array<{ id: number; account: { login: string } | null }>;
-  }>(fetchFn, GITHUB_API, "/user/installations?per_page=100", { token });
+): Promise<UserInstallation[]> {
+  const data = await githubRequest<{ installations: UserInstallation[] }>(
+    fetchFn,
+    GITHUB_API,
+    "/user/installations?per_page=100",
+    { token },
+  );
   return data?.installations ?? [];
+}
+
+/** Numeric id of a user or organization (for `suggested_target_id`); null if unknown. */
+export async function accountId(
+  token: string,
+  login: string,
+  fetchFn: FetchLike = fetch,
+): Promise<number | null> {
+  const data = await githubRequest<{ id: number }>(
+    fetchFn,
+    GITHUB_API,
+    `/users/${encodeURIComponent(login)}`,
+    { token, allow404: true },
+  );
+  return data?.id ?? null;
 }
