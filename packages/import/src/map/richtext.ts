@@ -55,6 +55,8 @@ interface Ctx {
   rewrite: HrefRewriter;
   /** Text alignments seen on paragraphs/headings (for the block's align style). */
   aligns: string[];
+  /** Nesting depth (only top-level paragraphs and headings vote on alignment). */
+  depth: number;
 }
 
 function inline(nodes: readonly Node[], marks: Mark[], ctx: Ctx): InlineNode[] {
@@ -142,8 +144,7 @@ function blocks(nodes: readonly Node[], ctx: Ctx): BlockNode[] {
     flushInline();
     const tag = n.tagName;
     const align = alignOf(n);
-    if (align) ctx.aligns.push(align);
-    else if (/^(?:p|h[1-6])$/.test(tag)) ctx.aligns.push("left");
+    if (ctx.depth === 0 && /^(?:p|h[1-6])$/.test(tag)) ctx.aligns.push(align ?? "left");
     if (tag === "p" || tag === "pre") {
       const marks: Mark[] = tag === "pre" ? [{ type: "code" }] : [];
       const content = tidy(inline(n.childNodes, marks, ctx));
@@ -164,7 +165,9 @@ function blocks(nodes: readonly Node[], ctx: Ctx): BlockNode[] {
       const items = n.childNodes
         .filter((c): c is Element => isElement(c) && c.tagName === "li")
         .map((li) => {
+          ctx.depth++;
           const inner = blocks(li.childNodes, ctx);
+          ctx.depth--;
           return {
             type: "listItem" as const,
             content: inner.length ? inner : [{ type: "paragraph" as const }],
@@ -181,7 +184,9 @@ function blocks(nodes: readonly Node[], ctx: Ctx): BlockNode[] {
           : { type: "orderedList", ...(start > 1 ? { attrs: { start } } : {}), content: items },
       );
     } else if (tag === "blockquote") {
+      ctx.depth++;
       const inner = blocks(n.childNodes, ctx);
+      ctx.depth--;
       if (inner.length) out.push({ type: "blockquote", content: inner });
     } else if (tag === "table") {
       // Tables become one paragraph per row (cells separated by " · ").
@@ -221,7 +226,7 @@ export function htmlToRichText(
   html: string,
   rewrite: HrefRewriter = (h) => h,
 ): RichTextResult | undefined {
-  const ctx: Ctx = { rewrite, aligns: [] };
+  const ctx: Ctx = { rewrite, aligns: [], depth: 0 };
   const root = parseHtmlFragment(html);
   const content = blocks(root.childNodes, ctx);
   if (!content.length) return undefined;

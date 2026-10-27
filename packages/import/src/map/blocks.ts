@@ -31,6 +31,8 @@ export interface MapContext {
   collections: Map<string, string>;
   /** Set when a newsletter block was imported. */
   usesNewsletter: { value: boolean };
+  /** The site's title (stripped from imported SEO titles). */
+  siteTitle?: string;
   /** The site's IANA time zone (events). */
   timeZone?: string;
 }

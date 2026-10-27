@@ -71,7 +71,11 @@ export interface BuildResult {
 }
 
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
-const SITE_SUFFIX = /\s+[—–|·-]\s+[^—–|·]+$/;
+/** "Page — Site" → "Page" (only the site's own name is stripped; the title template adds it). */
+export function stripSiteName(title: string, site: string): string {
+  const esc = site.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return title.replace(new RegExp(`\\s+[—–|·-]\\s+${esc}\\s*$`), "").trim();
+}
 
 const registry = blocksRegistry();
 
@@ -203,8 +207,8 @@ async function mapItem(
   const tags = [...new Set(item.tags.map((t) => clip(t.trim(), 40)).filter(Boolean))].slice(0, 40);
   const categories = [...new Set(item.categories.map((c) => slugify(c, "category")))].slice(0, 20);
   const seo = {
-    ...(item.seo.title && item.seo.title.replace(SITE_SUFFIX, "") !== item.title
-      ? { title: clip(item.seo.title.replace(SITE_SUFFIX, ""), 120) }
+    ...(item.seo.title && stripSiteName(item.seo.title, ctx.siteTitle ?? "") !== item.title
+      ? { title: clip(stripSiteName(item.seo.title, ctx.siteTitle ?? ""), 120) }
       : {}),
     ...(item.seo.description && item.seo.description !== excerptText
       ? { description: clip(item.seo.description, 320) }
@@ -467,6 +471,7 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
     collections: collectionKinds,
     usesNewsletter,
     siteDark: theme.siteDark,
+    siteTitle: sq.title,
     ...(sq.timeZone ? { timeZone: sq.timeZone } : {}),
   });
 
@@ -543,7 +548,7 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
     }
     legibleOverlays(sections, theme.styles, notices, p.path);
     const seoImage = p.seo.image ? await opts.media.image(p.seo.image, p.path) : undefined;
-    const seoTitle = p.seo.title?.replace(SITE_SUFFIX, "").trim();
+    const seoTitle = p.seo.title ? stripSiteName(p.seo.title, sq.title) : undefined;
     const page: Page = {
       id: target.id,
       title: clip(p.title || "Page", 120),
