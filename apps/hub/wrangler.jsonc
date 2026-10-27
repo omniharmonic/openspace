@@ -51,6 +51,9 @@
   "ratelimits": [
     { "name": "BEACON_LIMITER", "namespace_id": "1601", "simple": { "limit": 120, "period": 60 } }
   ],
+  // MCP screenshots (`screenshot`, `screenshot_url`): DEV_MODE uses a placeholder image, so no
+  // browser binding here (local runs and tests need no Cloudflare account). Production binds
+  // Cloudflare Browser Rendering as BROWSER below; set the var SCREENSHOTS="off" to disable.
   // Production: real GitHub App, no dev sign-in. Bindings are not inherited by environments,
   // so they are repeated here (replace the ids with your own resources).
   "env": {
@@ -94,6 +97,10 @@
       // Secrets: EMAIL_FROM, TURNSTILE_SECRET, CF_ACCOUNT_ID, CF_ANALYTICS_TOKEN, HUB_SECRET
       // (or RESEND_API_KEY / POSTMARK_TOKEN with EMAIL_PROVIDER).
       "send_email": [{ "name": "EMAIL" }],
+      // Remote MCP screenshots through Cloudflare Browser Rendering (@cloudflare/puppeteer).
+      // Works on Workers Free (10 browser-minutes/day, 3 concurrent) — Workers Paid recommended
+      // (10 browser-hours/month included, then $0.09/hour). See docs/ops/browser-rendering.md.
+      "browser": { "binding": "BROWSER" },
       "analytics_engine_datasets": [{ "binding": "ANALYTICS", "dataset": "openspace_analytics" }]
       // Task 18 (optional): campaign fan-out through a Queue. Create it first
       // (`wrangler queues create openspace-campaigns`), then add:
