@@ -106,6 +106,16 @@ export function useImageUrl(): (image: ImageValue) => string {
 }
 
 /** `blk_abc` + `q1` → `blk_abc-q1` (stable element ids inside a block). */
+/**
+ * Columns for `n` items when at most `max` fit a row: as few rows as possible, then as even as
+ * possible — 6 logos with room for 5 become 3 + 3 (never 5 + 1), 4 posts in a 3-column wall
+ * become 2 + 2 (never 2 + 2 + an empty column).
+ */
+export function balancedColumns(n: number, max: number): number {
+  if (n <= max) return Math.max(1, n);
+  return Math.ceil(n / Math.ceil(n / max));
+}
+
 export const sub = (id: string, part: string | number) => `${id}-${part}`;
 
 // --- demo photography (Unsplash; real photographs, licensed for free use) ----------------------

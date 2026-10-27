@@ -85,7 +85,7 @@ export const galleryPresets = [
     label: "Masonry wall",
     description: "Photos at their natural proportions in staggered columns.",
     copy: [headline],
-    images: [{ slot: "photos", aspect: "original", count: 7 }],
+    images: [{ slot: "photos", aspect: "original", count: 6 }],
     defaultTheme: "light",
     tags: ["masonry", "portfolio"],
     ai: {
@@ -106,7 +106,6 @@ export const galleryPresets = [
               "weddingAisle",
               "portraitAna",
               "friendsSunset",
-              "portraitSam",
             ],
             460,
           ),

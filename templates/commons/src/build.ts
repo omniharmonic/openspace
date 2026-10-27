@@ -67,7 +67,12 @@ function home() {
             secondaryLink: page(P.members),
           },
           image: {
-            image: photo("hills", 1280, "21:9", "Green hills of the valley seen from above"),
+            image: photo(
+              "autumnFarm",
+              1280,
+              "21:9",
+              "A member farm among autumn trees below the mountains",
+            ),
           },
         },
       }),
@@ -721,7 +726,7 @@ export const commons: TemplateSpec = {
         seo: {
           titleTemplate: "%s · Hudson Valley Food Commons",
           description: "A cooperative of farms, kitchens and food banks in the Hudson Valley.",
-          image: photoUrl("hills", 1200),
+          image: photoUrl("autumnFarm", 1200),
         },
         locale: "en-US",
         integrations: { analytics: true, bookingUrl: null, stripeConnected: false },

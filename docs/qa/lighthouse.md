@@ -211,3 +211,25 @@ doesn't pay for it: within a typing burst the room client sends the first keystr
 then replaces the burst's unsent update of the same fields and sends at most every 400 ms
 (`COALESCE_MS`). A 23-keystroke burst reaches the room as at most 3 ops instead of 23
 (`RoomClient.test.ts`).
+
+## Templates polish (October 27, 2026)
+
+The 13 templates changed by the [polish pass](templates-polish.md), rebuilt through site-kit
+with every new photo self-hosted, Lighthouse mobile, median of 3
+(`node scripts/lighthouse.mjs --runs=3 --min-perf=95 --min-a11y=100 --max-lcp=2000`):
+
+| Template | Perf | A11y | BP | SEO | LCP (s) | CLS | JS (KB) |
+|---|---|---|---|---|---|---|---|
+| atelier | 100 | 100 | 100 | 100 | 1.80 | 0 | 3.4 |
+| beacon | 100 | 100 | 100 | 100 | 1.80 | 0 | 3.2 |
+| commons | 100 | 100 | 100 | 100 | 1.65 | 0 | 1.9 |
+| darkroom | 100 | 100 | 100 | 100 | 1.65 | 0 | 1.9 |
+| encore | 100 | 100 | 100 | 100 | 1.58 | 0 | 3.7 |
+| field-notes | 100 | 100 | 100 | 100 | 1.35 | 0 | 3.2 |
+| gather | 100 | 100 | 100 | 100 | 1.65 | 0 | 4.4 |
+| harbor | 100 | 100 | 100 | 100 | 1.65 | 0 | 2.2 |
+| hearth | 100 | 100 | 100 | 100 | 1.80 | 0 | 3.4 |
+| kiln | 100 | 100 | 100 | 100 | 1.35 | 0 | 3.0 |
+| link | 100 | 100 | 100 | 100 | 1.20 | 0 | 1.7 |
+| meadow | 100 | 100 | 100 | 100 | 1.58 | 0 | 2.7 |
+| orbit | 100 | 100 | 100 | 100 | 1.20 | 0 | 1.9 |

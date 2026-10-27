@@ -276,7 +276,7 @@
           },
           "variant": "default",
           "style": {
-            "colorTheme": "light",
+            "colorTheme": "light-accent",
             "padding": {
               "d": "xl",
               "m": "md"

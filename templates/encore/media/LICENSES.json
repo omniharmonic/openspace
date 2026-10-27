@@ -62,6 +62,17 @@
     },
     {
       "kind": "image",
+      "src": "https://images.unsplash.com/photo-1561447920-ee278fe828a2",
+      "title": "A keyboard player on a stage washed in violet haze",
+      "author": "dreokt",
+      "authorUrl": "https://unsplash.com/@dreokt",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-playing-electronic-keyboard-h5DPNz9kMZA",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
       "src": "https://images.unsplash.com/photo-1605286232233-e448650f5914",
       "title": "A crowd cheering at an outdoor music festival",
       "author": "Tim Toomey",

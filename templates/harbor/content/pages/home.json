@@ -194,8 +194,8 @@
             "items": [
               {
                 "image": {
-                  "src": "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=1560&q=80",
-                  "alt": "Volunteers and neighbors talking over a long table",
+                  "src": "https://images.unsplash.com/photo-1628717341663-0007b0ee2597?w=1560&q=80",
+                  "alt": "Volunteers packing grocery bags at the pantry",
                   "width": 1560,
                   "height": 1040
                 },
@@ -251,10 +251,14 @@
               },
               {
                 "image": {
-                  "src": "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1560&q=80",
-                  "alt": "A white clapboard house with a porch after repairs",
+                  "src": "https://images.unsplash.com/photo-1505798577917-a65157d3320a?w=1560&q=80",
+                  "alt": "A Safe at Home volunteer cutting trim for a repair",
                   "width": 1560,
-                  "height": 1040
+                  "height": 1040,
+                  "focal": [
+                    0.45,
+                    0.5
+                  ]
                 },
                 "heading": "Safe at Home",
                 "body": {

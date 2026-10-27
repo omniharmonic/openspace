@@ -67,7 +67,7 @@ function home() {
         style: {
           background: {
             type: "image",
-            src: photo("urbanGarden", 1920).src,
+            src: photo("seedlings", 1920).src,
             focal: [0.5, 0.5],
             overlay: { color: "background", opacity: 0.8 },
           },
@@ -877,8 +877,8 @@ export const beacon: TemplateSpec = {
               author: "Maya Chen",
               excerpt:
                 "Forty volunteers, thirty-two trees and one very muddy Saturday to open the season.",
-              image: photoUrl("volunteers", 1600),
-              imageAlt: "Volunteers holding shovels at a planting day",
+              image: photoUrl("treePlanting", 1600),
+              imageAlt: "Neighbours kneeling to plant a young tree together",
             },
             "Our first planting day of the season brought forty volunteers to Linden Avenue, where thirty-two London planes and red maples went into the ground before lunch.\n\nThank you to everyone who came — and to Twin Oaks for the coffee.\n",
           ),
@@ -890,8 +890,8 @@ export const beacon: TemplateSpec = {
               author: "Owen Price",
               excerpt:
                 "Squash, beans and a lot of very proud children: the school gardens had their best year yet.",
-              image: photoUrl("urbanGarden", 1600),
-              imageAlt: "Raised beds full of flowers in a school garden",
+              image: photoUrl("chardHarvest", 1600),
+              imageAlt: "A child holding an armful of chard from a school garden",
             },
             "Twelve school gardens grew enough squash, beans and herbs for a harvest lunch at every school this autumn.\n\nNext term, three more schools join the programme.\n",
           ),
@@ -903,8 +903,8 @@ export const beacon: TemplateSpec = {
               author: "Grace Liu",
               excerpt:
                 "Blocks with five-year-old trees were up to 6°F cooler at street level on the hottest days.",
-              image: photoUrl("sapling", 1600),
-              imageAlt: "A young tree seedling held in two hands",
+              image: photoUrl("shadedStreet", 1600),
+              imageAlt: "A street shaded by a canopy of mature plane trees",
             },
             "Volunteers measured street temperatures on twenty blocks during July's heatwave. Blocks with five-year-old trees were up to 6°F cooler than those without.\n\nWe'll use the map to choose next spring's planting sites.\n",
           ),

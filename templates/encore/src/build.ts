@@ -146,7 +146,7 @@ function home() {
           heading: { eyebrow: "On the road", text: "Last winter, night by night" },
           gallery: {
             images: [
-              { image: photo("concert", 320, "1:1", "A crowd under coloured stage lights") },
+              { image: photo("synthStage", 320, "1:1", "Synths on stage in violet haze") },
               { image: photo("stageLights", 320, "1:1", "Stage lights cutting through haze") },
               {
                 image: photo("microphone", 320, "1:1", "A microphone on a stand before soundcheck"),

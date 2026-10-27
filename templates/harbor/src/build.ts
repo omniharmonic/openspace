@@ -102,10 +102,10 @@ function home() {
             items: [
               {
                 image: photo(
-                  "sharedTable",
+                  "foodBank",
                   420,
                   "4:5",
-                  "Volunteers and neighbors talking over a long table",
+                  "Volunteers packing grocery bags at the pantry",
                 ),
                 heading: "Penn Avenue Pantry",
                 body: body(
@@ -130,10 +130,10 @@ function home() {
               },
               {
                 image: photo(
-                  "porchHouse",
+                  "repairVolunteer",
                   420,
                   "4:5",
-                  "A white clapboard house with a porch after repairs",
+                  "A Safe at Home volunteer cutting trim for a repair",
                 ),
                 heading: "Safe at Home",
                 body: body(
@@ -236,10 +236,10 @@ function programs() {
         edit: {
           "image:1": {
             image: photo(
-              "sharedTable",
+              "foodBank",
               640,
               "original",
-              "Neighbors chatting at a long table at the pantry",
+              "Volunteers packing grocery bags at the Penn Avenue Pantry",
             ),
           },
           "text:1": {
@@ -940,8 +940,8 @@ Lines at the pantry got long on Saturday mornings, so from January we're adding 
               author: "Sam Whitfield",
               categories: ["stories"],
               tags: ["safe at home", "volunteers"],
-              image: photoUrl("porchHouse", 1600),
-              imageAlt: "A house with a freshly repaired porch",
+              image: photoUrl("repairVolunteer", 1600),
+              imageAlt: "A Saturday repair crew volunteer at a miter saw",
               excerpt:
                 "Retired electricians, a roofer and two engineering students walk into a basement.",
             },

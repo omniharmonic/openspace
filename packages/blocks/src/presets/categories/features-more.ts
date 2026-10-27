@@ -49,7 +49,7 @@ export const featuresMorePresets = [
         "Materials — Solid wood, oiled not lacquered",
         "Oak and ash from managed forests, finished with oil you can renew yourself. Scratches sand out instead of chipping.",
       );
-      const d = image(photo("stool", 640));
+      const d = image(photo("woodworker", 640));
       const dt = row(
         "Aftercare — We come back every year",
         "An annual visit to oil worktops, adjust hinges and fix anything that's bothering you, for as long as you own the kitchen.",

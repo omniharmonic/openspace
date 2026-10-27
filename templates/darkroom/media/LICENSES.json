@@ -62,17 +62,6 @@
     },
     {
       "kind": "image",
-      "src": "https://images.unsplash.com/photo-1493863641943-9b68992a8d07",
-      "title": "A photographer shooting on a busy city street",
-      "author": "Jakob Owens",
-      "authorUrl": "https://unsplash.com/@jakobowens1",
-      "source": "Unsplash",
-      "sourceUrl": "https://unsplash.com/photos/shallow-focus-photography-of-man-using-a-dslr-camera-DQPP9rVLYGQ",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
-    },
-    {
-      "kind": "image",
       "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
       "title": "Portrait of a woman in a red sweater, laughing",
       "author": "Michael Dam",
@@ -84,34 +73,12 @@
     },
     {
       "kind": "image",
-      "src": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-      "title": "A desert road running straight toward red rock mountains",
-      "author": "Jake Blucker",
-      "authorUrl": "https://unsplash.com/@jakeblucker",
+      "src": "https://images.unsplash.com/photo-1496811425508-6d7ebb7ff32c",
+      "title": "A young woman in a white shirt, bow tie and brown apron looking into the camera",
+      "author": "Steven Cleghorn",
+      "authorUrl": "https://unsplash.com/@buliamti",
       "source": "Unsplash",
-      "sourceUrl": "https://unsplash.com/photos/black-concrete-road-surrounded-by-brown-rocks-tMzCrBkM99Y",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
-    },
-    {
-      "kind": "image",
-      "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-      "title": "A misty river valley with pine trees and granite cliffs at dawn",
-      "author": "Bailey Zindel",
-      "authorUrl": "https://unsplash.com/@baileyzindel",
-      "source": "Unsplash",
-      "sourceUrl": "https://unsplash.com/photos/river-in-yosemite-valley-at-low-light-NRQV-hBF10M",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
-    },
-    {
-      "kind": "image",
-      "src": "https://images.unsplash.com/photo-1509316785289-025f5b846b35",
-      "title": "Red rock buttes rising from a desert valley",
-      "author": "Ganapathy Kumar",
-      "authorUrl": "https://unsplash.com/@gkumar2175",
-      "source": "Unsplash",
-      "sourceUrl": "https://unsplash.com/photos/sandstone-buttes-in-monument-valley-L75D18aVal8",
+      "sourceUrl": "https://unsplash.com/photos/woman-wearing-brown-apron-psomVjxL29Y",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
@@ -150,17 +117,6 @@
     },
     {
       "kind": "image",
-      "src": "https://images.unsplash.com/photo-1542401886-65d6c61db217",
-      "title": "Rippled orange sand dunes under a hazy sky",
-      "author": "Wolfgang Hasselmann",
-      "authorUrl": "https://unsplash.com/@wolfgang_hasselmann",
-      "source": "Unsplash",
-      "sourceUrl": "https://unsplash.com/photos/rolling-sand-dunes-in-desert-landscape-pVr6wvUneMk",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
-    },
-    {
-      "kind": "image",
       "src": "https://images.unsplash.com/photo-1549981832-2ba2ee913334",
       "title": "A photographer framing a shot with a camera held up to her eye",
       "author": "Noémi Macavei-Katócz",
@@ -194,6 +150,17 @@
     },
     {
       "kind": "image",
+      "src": "https://images.unsplash.com/photo-1631396327810-0299385c06bf",
+      "title": "A black-and-white photo of a woodworker shaping a block at his bench",
+      "author": "Bailey Alexander",
+      "authorUrl": "https://unsplash.com/@baileyal3xander",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-is-working-on-a-piece-of-wood-UJfNwtQ7zAs",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
       "src": "https://images.unsplash.com/photo-1639747280804-dd2d6b3d88ac",
       "title": "A smiling man in a green shirt standing outdoors",
       "author": "PodMatch",
@@ -211,6 +178,17 @@
       "authorUrl": "https://unsplash.com/@infectedluna",
       "source": "Unsplash",
       "sourceUrl": "https://unsplash.com/photos/a-bride-and-groom-walking-down-the-aisle-n5xGMMSqLVQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1660796334912-8ce8e9c2cff0",
+      "title": "A man working late at a bench in a dim workshop under a single lamp",
+      "author": "Alex Gruber",
+      "authorUrl": "https://unsplash.com/@alex_gruber",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-working-in-a-shop-rgSLzr82Kd8",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
@@ -249,6 +227,17 @@
     },
     {
       "kind": "image",
+      "src": "https://images.unsplash.com/photo-1713652425093-47778c267769",
+      "title": "An older craftsman with his arms crossed in a cluttered workshop",
+      "author": "Andrew Heald",
+      "authorUrl": "https://unsplash.com/@aheald25",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-in-an-old-fashioned-shop-with-his-arms-crossed-WV6tnAij3rU",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
       "src": "https://images.unsplash.com/photo-1715285977619-6d9357168f46",
       "title": "A couple embracing in a misty green field",
       "author": "Picnu",
@@ -271,12 +260,56 @@
     },
     {
       "kind": "image",
+      "src": "https://images.unsplash.com/photo-1748640858029-53c840ef5a1b",
+      "title": "A shopkeeper resting his chin on his hand behind a counter of flatbreads",
+      "author": "Rawan Yasser",
+      "authorUrl": "https://unsplash.com/@rawanyasser",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-leans-on-a-counter-in-his-shop-1rW3RIxLu7E",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1772758632331-56fcdb6fd45b",
+      "title": "A smiling baker in a hairnet sliding bread from a brick oven",
+      "author": "Yasin Onus",
+      "authorUrl": "https://unsplash.com/@yasinonus",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/baker-smiling-while-preparing-food-in-a-brick-oven-yS8tQoatvmM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1776728016975-45f2197c0d2a",
+      "title": "A black-and-white portrait of a bearded wood carver holding his tools and a figure",
+      "author": "Tim Mossholder",
+      "authorUrl": "https://unsplash.com/@timmossholder",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/elderly-craftsman-with-beard-holding-carving-tools-and-figurine-E5SfRlzUh2Q",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
       "src": "https://images.unsplash.com/photo-1778405953873-413e3d5d8915",
       "title": "A black-and-white close portrait of an older man with a grey beard",
       "author": "Kyle Petzer",
       "authorUrl": "https://unsplash.com/@kylepetzer",
       "source": "Unsplash",
       "sourceUrl": "https://unsplash.com/photos/a-black-and-white-portrait-of-an-older-man-2lKN4bZQ45s",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1783768204400-7e6f402f3738",
+      "title": "A black-and-white photo of a woman kneading dough at a kitchen table",
+      "author": "Lisa Marie Theck",
+      "authorUrl": "https://unsplash.com/@lisa_marie_theck",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-woman-preparing-food-in-a-rustic-kitchen-JzKQSxf4-4Q",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     }

@@ -1071,8 +1071,8 @@ Daniel takes deep tissue and sports massage appointments on Tuesday and Thursday
               },
               registrationUrl: BOOKING,
               price: "$45",
-              image: photoUrl("yogaDeck", 1600),
-              imageAlt: "A woman sitting cross-legged in meditation at sunrise",
+              image: photoUrl("studioStretch", 1600),
+              imageAlt: "Two students resting into a stretch on their mats",
               excerpt:
                 "Three hours of simple breathing practices and guided rest you can take home.",
             },

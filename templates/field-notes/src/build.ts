@@ -93,7 +93,7 @@ function home() {
           },
           button: { label: "Browse the archive", link: url(collectionPath("essays")) },
           summary: {
-            source: { collection: "essays", sort: "date-desc", limit: 4 },
+            source: { collection: "essays", sort: "date-desc", limit: 3 },
             showImage: false,
             emptyMessage: "The next essay is being written. Subscribe to get it first.",
           },
@@ -104,6 +104,8 @@ function home() {
         collection: "essays",
         edit: {
           summary: {
+            // The oldest pieces, so the wall never repeats the recent list above it.
+            source: { collection: "essays", sort: "date-asc", limit: 3 },
             heading: "From the archive",
             linkLabel: "Every essay",
             link: url(collectionPath("essays")),
@@ -592,8 +594,8 @@ export const fieldNotes: TemplateSpec = {
             "2026-10-18",
             8,
             "I walked the same eleven acres every morning for a year. Here is what the field taught me.",
-            "hills",
-            "Green hills seen from above, ridges catching the light",
+            "hayField",
+            "Hay bales in a green field below a barn and a wooded hill",
             `
 On the first of November last year I made myself a promise: every morning, before coffee, I would walk the long field below the house. Same route, same gate, whatever the weather.¹
 
@@ -616,8 +618,8 @@ Knowing a place by heart is slow. It asks for a year, not an afternoon. I'm star
             "2026-10-04",
             6,
             "New England has more stone wall than the moon has craters. Who built them, and why?",
-            "forest",
-            "Sunlight falling through tall trees onto a forest path",
+            "stoneWall",
+            "An old stone wall running through the woods under early snow",
             `
 Walk any Vermont woods and you'll find them: grey stone walls running through trees, enclosing nothing. A century ago these woods were sheep pasture, and every one of those stones was lifted by hand.¹
 
@@ -654,14 +656,54 @@ So I started keeping a weather book: three lines a day, written on the porch wit
             "2026-09-06",
             7,
             "Pruning a forgotten orchard back to life, one tree and one mistake at a time.",
-            "meadow",
-            "Wild poppies scattered through a summer meadow",
+            "appleTree",
+            "A gnarled old apple tree in a grassy field",
             `
 The orchard came with the farm and with no instructions. Twenty-two trees, unpruned since the 1980s, their branches crossing like arguments.
 
 I learned to prune from a library book and a retired orchardist named Lorraine, who watched me make my first cut and said, kindly, "Well. It'll grow back."¹ This autumn, for the first time, we picked enough to press cider.
 `,
             ["She was right about that too. Apple trees forgive almost everything except shade."],
+          ),
+          essay(
+            "the-barn-that-leans",
+            "The barn that leans",
+            "2026-08-23",
+            6,
+            "Our neighbour's barn has leaned a little further east every year since 1938. Nobody minds.",
+            "oldBarn",
+            "A weathered barn with a rusted roof against autumn hills",
+            `
+Every farm on our road has one: a barn that should have fallen down decades ago and hasn't. Ours belongs to the Wilsons, and it leans east, toward the morning, as if it's waiting for something.¹
+
+Old barns were built from what was standing nearby: hemlock beams, pine boards, granite from the field. When they go, they go slowly, a board a winter, until one spring the roof is resting in the hayloft and the swallows move next door.
+
+## Why we keep them
+
+A new pole barn would be cheaper than a season of repairs. But the old ones hold a kind of knowledge: where the wind comes from, which corner floods, how big a hay crop a hill farm used to need.
+`,
+            [
+              "Ed Wilson says his grandfather braced it with a single cable in 1938 and told everyone it would be fine. It has been.",
+            ],
+          ),
+          essay(
+            "in-praise-of-dirt-roads",
+            "In praise of dirt roads",
+            "2026-08-09",
+            5,
+            "Half the roads in our county are gravel. They are slower, muddier and much better company.",
+            "dirtRoad",
+            "A dirt road running between fields and forest under a grey sky",
+            `
+The road to our house is three miles of gravel, graded twice a year and impassable for a fortnight every April. I have come to love it.¹
+
+On a dirt road you drive at the speed of noticing. You see the fox in the hayfield and the first red maple; you stop to talk to whoever is walking. Pave it, and the same three miles become something to get through.
+
+Vermont still has more than eight thousand miles of unpaved town roads. Long may they rattle.
+`,
+            [
+              "Mud season, roughly the first half of April, is when the frost leaves the ground and the road briefly becomes a suggestion.",
+            ],
           ),
         ],
       },

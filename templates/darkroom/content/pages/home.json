@@ -161,10 +161,10 @@
           "v": 1,
           "fields": {
             "image": {
-              "src": "https://images.unsplash.com/photo-1667053508464-eb11b394df83?w=680&q=80",
-              "alt": "Studio portrait from Faces of the Guild",
+              "src": "https://images.unsplash.com/photo-1620122303020-87ec826cf70d?w=680&q=80",
+              "alt": "Black-and-white studio portrait from a private session",
               "width": 680,
-              "height": 850
+              "height": 1020
             },
             "aspect": "4:5",
             "lightbox": false
@@ -177,10 +177,14 @@
           "v": 1,
           "fields": {
             "image": {
-              "src": "https://images.unsplash.com/photo-1703088066010-af61bb552da4?w=680&q=80",
-              "alt": "A lantern-lit street at night, from After Hours",
-              "width": 680,
-              "height": 1020
+              "src": "https://images.unsplash.com/photo-1772758632331-56fcdb6fd45b?w=1240&q=80",
+              "alt": "A baker at his brick oven, from First Light",
+              "width": 1240,
+              "height": 827,
+              "focal": [
+                0.3,
+                0.35
+              ]
             },
             "aspect": "4:5",
             "lightbox": false
@@ -193,10 +197,14 @@
           "v": 1,
           "fields": {
             "image": {
-              "src": "https://images.unsplash.com/photo-1620122303020-87ec826cf70d?w=680&q=80",
-              "alt": "Black-and-white portrait from Faces of the Guild",
+              "src": "https://images.unsplash.com/photo-1776728016975-45f2197c0d2a?w=680&q=80",
+              "alt": "A wood carver with his tools, from Faces of the Guild",
               "width": 680,
-              "height": 1020
+              "height": 1020,
+              "focal": [
+                0.5,
+                0.3
+              ]
             },
             "aspect": "4:5",
             "lightbox": false
@@ -209,8 +217,8 @@
           "v": 1,
           "fields": {
             "image": {
-              "src": "https://images.unsplash.com/photo-1542401886-65d6c61db217?w=1240&q=80",
-              "alt": "Sand dunes at dawn, from Dry Season",
+              "src": "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=1240&q=80",
+              "alt": "A couple's joined hands, from Two Small Weddings",
               "width": 1240,
               "height": 827
             },
@@ -338,10 +346,14 @@
           "v": 1,
           "fields": {
             "image": {
-              "src": "https://images.unsplash.com/photo-1493863641943-9b68992a8d07?w=720&q=80",
-              "alt": "Mara photographing on a city street",
+              "src": "https://images.unsplash.com/photo-1748640858029-53c840ef5a1b?w=720&q=80",
+              "alt": "A shopkeeper at his counter, from First Light",
               "width": 720,
-              "height": 487
+              "height": 1080,
+              "focal": [
+                0.55,
+                0.55
+              ]
             },
             "aspect": "3:2",
             "heading": "Editorial and books",

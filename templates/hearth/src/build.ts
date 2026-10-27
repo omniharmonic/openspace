@@ -216,12 +216,12 @@ function home() {
           gallery: {
             images: [
               {
-                image: photo("pizza", 420, "4:5", "Pizza fresh from the wood oven"),
-                caption: "Diavola, hot honey",
+                image: photo("pastaRagu", 420, "4:5", "Pappardelle with slow-cooked ragù"),
+                caption: "Pappardelle, Sunday ragù",
               },
               {
-                image: photo("saladBowl", 420, "4:5", "A bowl of greens and roasted vegetables"),
-                caption: "Market greens",
+                image: photo("pastaCutting", 420, "4:5", "Cutting fresh tagliatelle by hand"),
+                caption: "Tagliatelle, cut at 3pm",
               },
               {
                 image: photo("dinner", 420, "4:5", "A plated dish on a candlelit table"),
@@ -230,10 +230,6 @@ function home() {
               {
                 image: photo("breadLoaves", 420, "4:5", "Two rustic loaves dusted with flour"),
                 caption: "Our daily bread",
-              },
-              {
-                image: photo("chefPrep", 420, "4:5", "Chopping herbs for salsa verde"),
-                caption: "Salsa verde, 4pm",
               },
               {
                 image: photo("sharedTable", 420, "4:5", "Friends sharing dinner on the terrace"),

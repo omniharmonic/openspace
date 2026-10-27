@@ -21,6 +21,7 @@ import {
   stack,
   text,
 } from "../kit";
+import { raised } from "../parts";
 
 /** Call to action, contact/location/hours and newsletter presets. */
 
@@ -147,7 +148,7 @@ export const ctaPresets = [
             "Sort donations, drive deliveries or cook with us on Saturdays. Training and lunch are on us.",
           ),
         ],
-        { style: { colorTheme: c.theme, padding: { d: "xl", m: "md" } } },
+        { style: { colorTheme: raised(c.theme), padding: { d: "xl", m: "md" } } },
       );
       const cta = button("Sign up to volunteer", c.primary);
       return {

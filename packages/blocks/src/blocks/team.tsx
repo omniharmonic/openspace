@@ -1,6 +1,6 @@
 import { cx, Img, Link } from "@omniharmonic/openspace-renderer";
 import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
-import { DEMO, typo } from "../shared";
+import { balancedColumns, DEMO, typo } from "../shared";
 
 export const teamBlock = defineBlock({
   type: "team",
@@ -56,7 +56,10 @@ export const teamBlock = defineBlock({
   render: ({ fields, variant, style }) => (
     <ul
       className={cx("os-team", `os-team--${variant}`)}
-      style={{ "--t-cols": fields.columns, "--t-tcols": Math.min(Number(fields.columns), 2) }}
+      style={{
+        "--t-cols": balancedColumns(fields.people.length, Number(fields.columns)),
+        "--t-tcols": Math.min(Number(fields.columns), 2),
+      }}
     >
       {fields.people.map((person, i) => {
         const name = person.link ? (
@@ -112,6 +115,6 @@ export const teamCss = `
 .os-team--list{grid-template-columns:minmax(0,1fr);gap:var(--os-space-md)}
 @container block (min-width:36rem){.os-team--list .os-team__person{grid-template-columns:minmax(0,12rem) minmax(0,1fr);gap:var(--os-space-md);align-items:start}}
 .os-team--list .os-team__person+.os-team__person{padding-top:var(--os-space-md);border-top:1px solid var(--os-color-border)}
-.os-team--circles{grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));text-align:center}
+.os-team--circles{grid-template-columns:repeat(auto-fit,minmax(9rem,11rem));justify-content:center;text-align:center}
 .os-team--circles .os-team__photo{width:min(100%,9rem);margin-inline:auto}
 `;

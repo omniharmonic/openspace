@@ -197,7 +197,7 @@
             "source": {
               "collection": "essays",
               "sort": "date-desc",
-              "limit": 4
+              "limit": 3
             },
             "columns": "3",
             "showImage": false,
@@ -237,8 +237,8 @@
             "headingLevel": "h2",
             "source": {
               "collection": "essays",
-              "sort": "date-desc",
-              "limit": 5
+              "sort": "date-asc",
+              "limit": 3
             },
             "columns": "3",
             "showImage": true,

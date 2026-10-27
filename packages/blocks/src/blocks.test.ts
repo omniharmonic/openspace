@@ -5,6 +5,7 @@ import { icons } from "lucide";
 import { afterAll, describe, expect, it } from "vitest";
 import { gridSection, page, siteWith, stackSection } from "./__fixtures__/site";
 import { allBlocks, BLOCKS_CSS, blocksRegistry, ICON_NAMES, registerAll } from "./index";
+import { balancedColumns } from "./shared";
 
 afterAll(() => unregisterBlocks());
 
@@ -318,5 +319,18 @@ describe("image sizes", () => {
       blocks: [{ id: "blk_b", column: 1 }],
     } as never;
     expect(imageSizes(stack, "blk_b")).toBe("(min-width: 1200px) 42vw, calc(100vw - 48px)");
+  });
+});
+
+describe("balanced grid columns", () => {
+  it("never leaves a lone item or an empty column when the count allows", () => {
+    expect(balancedColumns(6, 5)).toBe(3); // 3 + 3, not 5 + 1
+    expect(balancedColumns(6, 4)).toBe(3);
+    expect(balancedColumns(6, 6)).toBe(6);
+    expect(balancedColumns(4, 3)).toBe(2); // 2 + 2, not 3 + 1
+    expect(balancedColumns(7, 4)).toBe(4); // 4 + 3
+    expect(balancedColumns(8, 6)).toBe(4);
+    expect(balancedColumns(2, 3)).toBe(2);
+    expect(balancedColumns(0, 3)).toBe(1);
   });
 });

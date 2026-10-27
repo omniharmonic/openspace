@@ -97,15 +97,15 @@ function home() {
         theme: "light-accent",
         edit: {
           "image:1": {
-            image: photo(
-              "ceramics",
-              640,
-              "original",
-              "Three matte grey bud vases with dried stems",
-            ),
+            image: photo("potterWheel", 640, "original", "Wren throwing a pot on the wheel"),
           },
           "image:2": {
-            image: photo("pottery", 360, "original", "Glazed vases drying on the studio shelf"),
+            image: photo(
+              "greenwareShelves",
+              360,
+              "original",
+              "Cups and bowls waiting for the kiln on the boatshed shelves",
+            ),
           },
           heading: { eyebrow: "The studio", text: "Made slowly, a few at a time" },
           text: {
@@ -711,8 +711,8 @@ export const kiln: TemplateSpec = {
               location: { name: NAME, address: "12 Holmes Street, Mystic, CT" },
               registrationUrl: "https://saltmarshpottery.example/book/wheel-january",
               price: "$240, materials and firing included",
-              image: photoUrl("pottery", 1600),
-              imageAlt: "Stoneware vases on a studio shelf",
+              image: photoUrl("wheelLesson", 1600),
+              imageAlt: "A teacher's hands guiding a student's on the wheel",
               excerpt:
                 "Two mornings on the wheel: centring, throwing and trimming your first cups and bowls.",
             },
@@ -728,8 +728,8 @@ export const kiln: TemplateSpec = {
               location: { name: NAME, address: "12 Holmes Street, Mystic, CT" },
               registrationUrl: "https://saltmarshpottery.example/book/hand-building",
               price: "$140, lunch included",
-              image: photoUrl("ceramics", 1600),
-              imageAlt: "Matte grey vases with dried stems",
+              image: photoUrl("potteryClass", 1600),
+              imageAlt: "Students hand-building pots around the studio table",
               excerpt:
                 "Build a planter and a set of small dishes without a wheel. A gentle start for all ages.",
             },
@@ -745,8 +745,8 @@ export const kiln: TemplateSpec = {
               location: { name: NAME, address: "12 Holmes Street, Mystic, CT" },
               registrationUrl: "https://saltmarshpottery.example/book/glaze-day",
               price: "$120",
-              image: photoUrl("succulent", 1600),
-              imageAlt: "A mint-glazed planter with a succulent",
+              image: photoUrl("glazePainting", 1600),
+              imageAlt: "Brushing a glaze pattern onto a plate",
               excerpt: "Mix and test your own ash glazes, and take home a box of test tiles.",
             },
             "For anyone who has thrown before. Bring three bisque-fired pieces, or buy some from the studio.\n",

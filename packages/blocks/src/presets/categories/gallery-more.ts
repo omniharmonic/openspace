@@ -67,7 +67,7 @@ export const galleryMorePresets = [
       layout: stack({ width: "full", gap: "lg" }),
       blocks: [
         heading("Around the lodge", { eyebrow: "Gallery" }),
-        gallery([["canyon"], ["dunes"], ["valley"], ["mountainLake"], ["road"]], 900, {
+        gallery([["mountainLake"], ["lake"], ["valley"], ["cliffs"], ["hills"]], 900, {
           variant: "carousel",
           aspect: "3:2",
         }),

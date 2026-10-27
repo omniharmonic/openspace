@@ -7,7 +7,7 @@ import {
   type RichTextDoc,
 } from "@omniharmonic/openspace-schema";
 import { ICON_OPTIONS, Icon, type IconName } from "../icons";
-import { aspectField, DEMO, rt, typo } from "../shared";
+import { aspectField, balancedColumns, DEMO, rt, typo } from "../shared";
 
 const BODY = { marks: ["bold", "italic", "link"], blocks: ["paragraph", "bulletList"] } as const;
 
@@ -175,7 +175,10 @@ export const iconListBlock = defineBlock({
   render: ({ fields, variant }) => (
     <ul
       className={cx("os-iconlist", `os-iconlist--${variant}`)}
-      style={{ "--il-cols": fields.columns, "--il-tcols": Math.min(Number(fields.columns), 2) }}
+      style={{
+        "--il-cols": balancedColumns(fields.items.length, Number(fields.columns)),
+        "--il-tcols": Math.min(Number(fields.columns), 2),
+      }}
     >
       {fields.items.map((item, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
@@ -274,7 +277,10 @@ export const columnsBlock = defineBlock({
   render: ({ fields, variant, style }) => (
     <ol
       className={cx("os-columns", `os-columns--${variant}`)}
-      style={{ "--c-cols": fields.columns, "--c-tcols": Math.min(Number(fields.columns), 2) }}
+      style={{
+        "--c-cols": balancedColumns(fields.items.length, Number(fields.columns)),
+        "--c-tcols": Math.min(Number(fields.columns), 2),
+      }}
     >
       {fields.items.map((item, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
@@ -332,7 +338,7 @@ export const cardCss = `
 @container block (min-width:36rem){.os-cardblock--horizontal.has-image{grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:center;gap:var(--os-space-sm)}}
 .os-cardblock--overlay{color:var(--os-color-neutral-50);overflow:hidden;border-radius:var(--os-image-radius)}
 .os-cardblock--overlay.has-image>.os-card__media{grid-area:1/1}
-.os-cardblock--overlay.has-image>.os-cardblock__body{grid-area:1/1;align-self:end;z-index:2;padding:var(--os-space-xl) var(--os-space-sm) var(--os-space-sm);background:linear-gradient(to top,color-mix(in oklab,var(--os-color-neutral-950) 72%,transparent),transparent);border-radius:0 0 var(--os-image-radius) var(--os-image-radius)}
+.os-cardblock--overlay.has-image>.os-cardblock__body{grid-area:1/1;align-self:end;z-index:2;padding:var(--os-space-xl) var(--os-space-sm) var(--os-space-sm);background:linear-gradient(to top,color-mix(in oklab,var(--os-color-neutral-950) 80%,transparent),color-mix(in oklab,var(--os-color-neutral-950) 62%,transparent) 60%,transparent);border-radius:0 0 var(--os-image-radius) var(--os-image-radius)}
 .os-cardblock--overlay.has-image :is(.os-cardblock__title,.os-cardblock__eyebrow,.os-cardblock__text,.os-cardblock__text .os-rich,.os-cardblock__more){color:var(--os-color-neutral-50)}
 .os-cardblock--overlay.no-image{padding:var(--os-space-md);background:var(--os-color-accent);color:var(--os-color-accent-text)}
 .os-cardblock--overlay.no-image :is(.os-cardblock__title,.os-cardblock__eyebrow,.os-cardblock__text,.os-cardblock__text .os-rich,.os-cardblock__more,.os-card__icon){color:var(--os-color-accent-text)}

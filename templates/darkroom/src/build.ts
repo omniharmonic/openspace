@@ -46,7 +46,7 @@ const projects = [
     client: "Personal series",
     excerpt: "Night-shift workers photographed in the last hour before dawn, in their own light.",
     cover: "streetNight" as const,
-    gallery: ["streetNight", "streetShadows", "portraitElder", "photographerStreet"] as const,
+    gallery: ["streetNight", "workshopNight", "streetShadows", "portraitElder"] as const,
   },
   {
     slug: "faces-of-the-guild",
@@ -56,16 +56,17 @@ const projects = [
     excerpt:
       "Forty portraits of furniture makers, printers and weavers for the guild's centenary book.",
     cover: "portraitEditorial" as const,
-    gallery: ["portraitEditorial", "portraitMono", "portraitJonah", "portraitRaf"] as const,
+    gallery: ["portraitEditorial", "woodCarver", "makerShop", "woodworker"] as const,
   },
   {
-    slug: "dry-season",
-    title: "Dry Season",
+    slug: "first-light",
+    title: "First Light",
     year: 2025,
     client: "Editorial, Field & Atlas magazine",
-    excerpt: "A fortnight in the desert with a geologist mapping how dunes move across a year.",
-    cover: "dunes" as const,
-    gallery: ["dunes", "canyon", "road", "valley"] as const,
+    excerpt:
+      "The bakers and shopkeepers of one Brooklyn street, photographed between four and seven in the morning.",
+    cover: "bakerApron" as const,
+    gallery: ["bakerApron", "bakerOven", "bakerKitchen", "shopkeeper"] as const,
   },
   {
     slug: "two-weddings",
@@ -107,29 +108,31 @@ function home() {
           button: { label: "See sessions & prices", secondaryLabel: "Get in touch" },
           "image:1": {
             image: photo(
-              "portraitEditorial",
-              340,
-              "4:5",
-              "Studio portrait from Faces of the Guild",
-            ),
-          },
-          "image:2": {
-            image: photo(
-              "streetNight",
-              340,
-              "4:5",
-              "A lantern-lit street at night, from After Hours",
-            ),
-          },
-          "image:3": {
-            image: photo(
               "portraitMono",
               340,
               "4:5",
-              "Black-and-white portrait from Faces of the Guild",
+              "Black-and-white studio portrait from a private session",
             ),
           },
-          "image:4": { image: photo("dunes", 340, "4:5", "Sand dunes at dawn, from Dry Season") },
+          "image:2": {
+            image: photo("bakerOven", 340, "4:5", "A baker at his brick oven, from First Light"),
+          },
+          "image:3": {
+            image: photo(
+              "woodCarver",
+              340,
+              "4:5",
+              "A wood carver with his tools, from Faces of the Guild",
+            ),
+          },
+          "image:4": {
+            image: photo(
+              "weddingHands",
+              340,
+              "4:5",
+              "A couple's joined hands, from Two Small Weddings",
+            ),
+          },
         },
       }),
       fromPreset("portfolio/project-grid@1", {
@@ -157,7 +160,7 @@ function home() {
           "card:2": {
             heading: "Editorial and books",
             body: body("Portraits and stories for magazines, annual reports and publishers."),
-            image: photo("photographerStreet", 360, "3:2", "Mara photographing on a city street"),
+            image: photo("shopkeeper", 360, "3:2", "A shopkeeper at his counter, from First Light"),
             link: page(P.services, "editorial"),
             linkLabel: "How it works",
           },
