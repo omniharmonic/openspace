@@ -29,6 +29,17 @@
     },
     {
       "kind": "image",
+      "src": "https://images.unsplash.com/photo-1505798577917-a65157d3320a",
+      "title": "An older volunteer in a cap cutting trim with a miter saw indoors",
+      "author": "Annie Gray",
+      "authorUrl": "https://unsplash.com/@anniegray",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-infront-of-miter-saw-WEWTGkPUVT0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
       "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
       "title": "Portrait of a smiling man in a white t-shirt",
       "author": "Joseph Gonzalez",
@@ -112,6 +123,17 @@
       "authorUrl": "https://unsplash.com/@wocintechchat",
       "source": "Unsplash",
       "sourceUrl": "https://unsplash.com/photos/shallow-focus-photo-of-woman-in-gray-jacket-0Zx1bDv5BNY",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1628717341663-0007b0ee2597",
+      "title": "Volunteers packing grocery bags at a food bank",
+      "author": "Ismael Paramo",
+      "authorUrl": "https://unsplash.com/@ismaelparamo",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/women-packing-food-bags-at-distribution-Cns0h4ypRyA",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },

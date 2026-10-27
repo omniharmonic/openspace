@@ -106,6 +106,61 @@
     },
     {
       "kind": "image",
+      "src": "https://images.unsplash.com/photo-1609881583302-61548332039c",
+      "title": "A potter in a clay-spattered apron throwing a pot on the wheel",
+      "author": "Earl Wilcox",
+      "authorUrl": "https://unsplash.com/@earl_plannerzone",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/person-in-blue-denim-jeans-making-clay-pot-7ZK_CuHroq4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1610206349499-c932c3b3aacb",
+      "title": "Studio shelves stacked with cups and bowls waiting to be fired",
+      "author": "Manki Kim",
+      "authorUrl": "https://unsplash.com/@kimdonkey",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/white-ceramic-teacup-on-brown-wooden-shelf-ZOeyUJB6t_Y",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1637548580984-10c48d61b168",
+      "title": "A teacher's hands guiding a student's on a spinning pottery wheel",
+      "author": "Lindsey Elsey",
+      "authorUrl": "https://unsplash.com/@artsmarts",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-group-of-people-working-on-a-pottery-wheel-fmuykMXH-dY",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1657395348373-28a0cb49804b",
+      "title": "A brush painting a butterfly in glaze on a white plate",
+      "author": "Grant Durr",
+      "authorUrl": "https://unsplash.com/@grant_durr",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-child-painting-a-bowl-GjpUt15XbPE",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1682868067843-11fbc221174a",
+      "title": "Students hand-building pots around a table in a bright studio",
+      "author": "Sander Breneman",
+      "authorUrl": "https://unsplash.com/@brenesan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-group-of-women-sitting-at-a-table-working-on-pottery-kJiPUr1KQSE",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
       "src": "https://images.unsplash.com/photo-1780387477222-730504564368",
       "title": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
       "author": "Centre for Ageing Better",

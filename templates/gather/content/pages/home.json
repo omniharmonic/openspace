@@ -435,7 +435,7 @@
     {
       "id": "sec_h91d88mk1w",
       "preset": "cta/card-centered@1",
-      "label": "Card on tinted band",
+      "label": "Centred with accent rule",
       "layout": {
         "mode": "stack",
         "columns": {
@@ -444,12 +444,33 @@
           ]
         },
         "width": "content",
-        "gap": "lg"
+        "gap": "md"
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
       },
       "blocks": [
+        {
+          "id": "blk_e3nbwwp5e6",
+          "type": "line",
+          "v": 1,
+          "fields": {
+            "thickness": "regular",
+            "length": "short",
+            "color": "accent"
+          },
+          "variant": "solid",
+          "style": {
+            "align": {
+              "d": "center",
+              "m": "center"
+            }
+          }
+        },
         {
           "id": "blk_pyxq9pewhe",
           "type": "text",
@@ -487,14 +508,7 @@
           "style": {
             "align": {
               "d": "center"
-            },
-            "colorTheme": "light",
-            "padding": {
-              "d": "xl",
-              "m": "md"
-            },
-            "radius": "md",
-            "border": "subtle"
+            }
           }
         },
         {

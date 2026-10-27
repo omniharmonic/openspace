@@ -1,4 +1,5 @@
 import type { BlockStyle } from "@omniharmonic/openspace-schema";
+import { lineBlock } from "../../blocks/decor";
 import { mapBlock } from "../../blocks/map";
 import { newsletterBlock } from "../../blocks/newsletter";
 import { photo } from "../images";
@@ -121,20 +122,27 @@ export const ctaMorePresets = [
   definePreset({
     category: "cta",
     name: "card-centered",
-    label: "Card on tinted band",
-    description: "A raised card with headline, text and two actions, centred on a tinted section.",
+    label: "Centred with accent rule",
+    description:
+      "A short accent rule over a centred headline, a line of text and two actions, on a tinted band.",
     copy: [headline, copy.body(6, 35)],
     defaultTheme: "light-accent",
-    tags: ["card", "centered", "panel"],
+    tags: ["centered", "rule", "band"],
     links: { primary: "/signup", secondary: "/demo" },
     ai: {
-      purpose: "Frames the final ask as a distinct, tidy panel.",
+      purpose: "A calm, centred final ask with everything — words and both actions — in one group.",
       whenToUse: "Software, courses and memberships.",
       avoid: CTA_AVOID,
     },
     make: (c) => ({
-      layout: stack({ width: "content", gap: "lg" }),
+      layout: stack({ width: "content", gap: "md" }),
+      padding: { d: "2xl", m: "xl" },
       blocks: [
+        make(
+          lineBlock,
+          { thickness: "regular", length: "short", color: "accent" },
+          { variant: "solid", style: { align: { d: "center", m: "center" } } },
+        ),
         text(
           [
             rt.h(2, "Try Frontdesk free for 30 days", "h2"),
@@ -142,7 +150,7 @@ export const ctaMorePresets = [
               "Set up your booking page in an afternoon. No card needed, and we'll move your clients across for you.",
             ),
           ],
-          { align: "center", style: { ...panel("light", "xl"), border: "subtle" } },
+          { align: "center" },
         ),
         button("Start your free trial", c.primary, {
           align: "center",
