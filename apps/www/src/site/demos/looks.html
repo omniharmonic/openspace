@@ -39,15 +39,15 @@ height:100%;border-radius:8px;overflow:hidden;background:var(--bg);color:var(--i
 .btn{display:inline-block;padding:7px 13px;border-radius:var(--r);background:var(--brand);color:var(--on);border:1.5px solid var(--brand);font-size:11px;font-weight:600;white-space:nowrap;transition:background-color .5s,border-radius .5s,color .5s}
 .btn.alt{background:transparent;color:var(--ink);border-color:color-mix(in srgb,var(--ink) 35%,transparent)}
 .site[data-look=clay] .btn:not(.alt){background:transparent;color:var(--brand)}
-.s-hero{flex:1;display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:center;padding:6px 22px 18px;min-height:0}
+.s-hero{flex:1;display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(20px,4vw,56px);align-items:center;padding:6px clamp(22px,4vw,56px) 18px;min-height:0}
 .s-hero p.e{margin:0 0 8px;font-size:10px;letter-spacing:.12em;color:var(--brand);font-weight:600}
-.s-hero h3{margin:0 0 10px;font:var(--hw) clamp(20px,3.6vw,34px)/1.08 var(--serif);letter-spacing:-.015em;text-wrap:balance}
-.s-hero p.l{margin:0 0 14px;color:var(--soft);font-size:12px;max-width:34ch}
+.s-hero .h{margin:0 0 10px;font:var(--hw) clamp(20px,3.5vw,46px)/1.06 var(--serif);letter-spacing:-.015em;text-wrap:balance}
+.s-hero p.l{margin:0 0 14px;color:var(--soft);font-size:clamp(12px,1.2vw,15px);max-width:40ch}
 .s-hero .row{display:flex;gap:8px;flex-wrap:wrap}
-.arch{position:relative;justify-self:end;width:min(100%,250px);aspect-ratio:4/5;max-height:100%;min-height:120px;border-radius:var(--arch);overflow:hidden;background:linear-gradient(180deg,#f7c977 0%,#ec8a4f 38%,#b9483a 66%,#4a2433 100%);transition:border-radius .6s}
+.arch{position:relative;justify-self:end;width:min(100%,280px);aspect-ratio:4/5;max-height:100%;min-height:120px;border-radius:var(--arch);overflow:hidden;background:linear-gradient(180deg,#f7c977 0%,#ec8a4f 38%,#b9483a 66%,#4a2433 100%);transition:border-radius .6s}
 .arch::before{content:"";position:absolute;left:50%;top:30%;width:34%;aspect-ratio:1;border-radius:50%;translate:-50% 0;background:#fff3c9;opacity:.85;filter:blur(1px)}
 .arch::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#5c2a32,#2a1620)}
-.s-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 22px 18px}
+.s-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 clamp(22px,4vw,56px) 18px}
 .s-cards div{background:var(--card);border-radius:var(--rc);padding:10px;font-size:10px;color:var(--soft);transition:border-radius .5s,background-color .5s}
 .s-cards b{display:block;color:var(--ink);font:var(--hw) 13px/1.2 var(--serif);margin-bottom:3px}
 .site[data-look=clay]{--bg:#fbede6;--ink:#2b1d17;--soft:#6a4f44;--brand:#a84a28;--card:#fff8f4;--r:999px;--rc:18px;--arch:22px;--serif:Didot,"Bodoni 72","Bodoni MT",Georgia,serif}
@@ -82,7 +82,7 @@ fieldset{border:0;margin:0;min-width:0}
   <div class="canvas">
    <div class="site" data-look="sage">
     <div class="s-nav"><b>Fernwood Yoga</b><span class="lnk">Classes</span><span class="lnk">Bodywork</span><span class="lnk">Journal</span><span class="btn alt">Book a class</span></div>
-    <div class="s-hero"><div><p class="e">YOGA &amp; BODYWORK, SE PORTLAND</p><h3>Slow yoga and bodywork for real bodies</h3><p class="l">Small, patient classes for every kind of body, and massage therapists who listen first.</p><div class="row"><span class="btn">See the class schedule</span><span class="btn alt">Book a massage</span></div></div><div class="arch" aria-hidden="true"></div></div>
+    <div class="s-hero"><div><p class="e">YOGA &amp; BODYWORK, SE PORTLAND</p><p class="h">Slow yoga and bodywork for real bodies</p><p class="l">Small, patient classes for every kind of body, and massage therapists who listen first.</p><div class="row"><span class="btn">See the class schedule</span><span class="btn alt">Book a massage</span></div></div><div class="arch" aria-hidden="true"></div></div>
     <div class="s-cards"><div><b>Twelve mats</b>Small enough that your teacher learns your name.</div><div><b>Time to arrive</b>Doors open fifteen minutes early.</div><div><b>Tea afterwards</b>Something warm on the bench by the window.</div></div>
    </div>
   </div>

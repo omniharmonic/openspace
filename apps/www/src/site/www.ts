@@ -352,7 +352,7 @@ function cost() {
         ],
       ),
     ],
-    { cols: [5, 7], gap: "2xl", width: "wide" },
+    { cols: [5, 7], t: [12], gap: "2xl", width: "wide" },
     { theme: "light", anchor: "cost", label: "Cost" },
   );
 }
@@ -487,7 +487,7 @@ function claude() {
       ),
       demo("claude", "Demo: three example prompts and the tool calls Claude makes", 540, 1),
     ],
-    { cols: [5, 7], align: "center", gap: "2xl", width: "wide" },
+    { cols: [5, 7], t: [12], align: "center", gap: "2xl", width: "wide" },
     { theme: "dark", anchor: "claude", label: "Claude" },
   );
 }

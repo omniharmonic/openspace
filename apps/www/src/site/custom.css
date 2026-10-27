@@ -254,3 +254,13 @@ code {
   font-size: clamp(2.2rem, 1rem + 5vw, 5.4rem);
   line-height: 1;
 }
+
+@media (min-width: 768px) {
+  #how .os-columns--steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+#numbers .os-stats__value {
+  font-size: clamp(2.1rem, 1.2rem + 3.2vw, 4rem);
+  white-space: nowrap;
+}

@@ -30,7 +30,7 @@ pre div.hot{background:#ffcb5233;box-shadow:inset 3px 0 #ffcb52}
 .guides i{background:#2c40e60d;border-inline:1px solid #2c40e61a}
 .txt,.img{position:relative;grid-row:1}
 .txt{view-transition-name:txt}.img{view-transition-name:img}
-.txt h3{margin:0 0 8px;font:400 clamp(19px,2.4vw,30px)/1.1 "Iowan Old Style",Palatino,Georgia,serif;letter-spacing:-.01em;text-wrap:balance}
+.txt .h{margin:0 0 8px;font:400 clamp(19px,2.4vw,30px)/1.1 "Iowan Old Style",Palatino,Georgia,serif;letter-spacing:-.01em;text-wrap:balance}
 .txt p{margin:0 0 12px;color:var(--soft);font-size:13px}
 .txt .b{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--btn);color:var(--bg);font-size:12px;font-weight:600}
 .img{align-self:stretch;min-height:150px;border-radius:10px;background:radial-gradient(60% 50% at 50% 60%,#e6b878,#b9773e 55%,#6b3e1f 100%)}
@@ -65,7 +65,7 @@ legend{float:left;padding:0;margin-right:4px;color:#5d6378}
    <p class="cap"><span>The same section, rendered</span><span id="n"></span></p>
    <div class="sec">
     <div class="guides" aria-hidden="true"></div>
-    <div class="txt"><h3>Fresh bread, every morning at seven</h3><p>Naturally leavened loaves and morning buns from a small oven on Calder Street.</p><span class="b">See what's baking</span></div>
+    <div class="txt"><p class="h">Fresh bread, every morning at seven</p><p>Naturally leavened loaves and morning buns from a small oven on Calder Street.</p><span class="b">See what's baking</span></div>
     <div class="img" role="img" aria-label="A sourdough loaf"></div>
    </div>
   </div>
@@ -87,7 +87,7 @@ function render(changed){
  const it=doc.layout.items,sec=document.querySelector(".sec"),t=document.querySelector(".txt"),im=document.querySelector(".img");
  const place=(el,r)=>{el.style.gridColumn=`${r.d.x} / span ${r.d.w}`};
  place(t,it.blk_title);place(im,it.blk_photo);
- t.querySelector("h3").textContent=doc.blocks[0].fields.text;
+ t.querySelector(".h").textContent=doc.blocks[0].fields.text;
  sec.dataset.theme=doc.style.colorTheme;
  n.textContent=hist.length?`${hist.length+(hist.length===1?" change":" changes")} in the draft`:"";
  undo.disabled=!hist.length;
