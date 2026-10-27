@@ -90,6 +90,8 @@ export type WorkflowState = "none" | "queued" | "in_progress" | "success" | "fai
 
 export interface WorkflowRun {
   state: WorkflowState;
+  /** GitHub's run id (failed-run details). */
+  id?: number;
   /** Commit the run built, if known. */
   sha?: string;
   url?: string;

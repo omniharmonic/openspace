@@ -12,6 +12,7 @@ import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
 import { devGitHubRoutes, githubInstallRoutes } from "./routes/github-install";
 import { growthRoutes } from "./routes/growth";
 import { hostingRoutes } from "./routes/hosting";
+import { importRoutes, siteImportRoutes } from "./routes/imports";
 import { mcpGrantRoutes, mcpRoutes, mcpTokenRoutes } from "./routes/mcp";
 import { meRoutes } from "./routes/me";
 import { mediaRoutes } from "./routes/media";
@@ -90,6 +91,9 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api", meRoutes);
   app.route("/api/templates", templateRoutes);
   app.route("/api/sites", siteRoutes);
+  // Hosted imports ("Move my site") and in-place conversions of GitHub Pages repositories.
+  app.route("/api/imports", importRoutes);
+  app.route("/api/sites", siteImportRoutes);
   // Task 16: Studio APIs for forms, newsletter, analytics, domains, quotas, audit, export.
   app.route("/api/sites", siteServiceRoutes);
   app.route("/api/domains", domainInfoRoutes);

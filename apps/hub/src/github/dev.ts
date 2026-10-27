@@ -72,7 +72,19 @@ export interface DevGitHubOptions {
   now?: () => number;
   /** Author used when a commit names none. */
   defaultAuthor?: CommitAuthor;
+  /**
+   * What a dispatched workflow does in dev mode, by file name (the hosted import's workflow
+   * commits an emulated import). Workflows without a runner succeed at once (publishing).
+   */
+  runners?: Record<string, DevWorkflowRunner>;
 }
+
+/** Emulates one workflow run; returns the conclusion (and failure details for `failedRun`). */
+export type DevWorkflowRunner = (
+  gh: DevGitHubAccess,
+  repo: RepoRef,
+  input: { workflow: string; ref: string; inputs?: Record<string, string> },
+) => Promise<{ conclusion: "success" | "failure"; failedStep?: string; failedLog?: string }>;
 
 const SHA_RE = /^[0-9a-f]{40}$/;
 const enc = new TextEncoder();
@@ -607,18 +619,25 @@ export class DevGitHubAccess implements GitHubAccess {
   ): Promise<void> {
     await this.requireRepo(repo);
     const sha = await this.resolve(repo, input.ref);
-    const now = this.now();
     // Dev "publishing" is instant: the run completes successfully as soon as it is dispatched.
+    const runner = this.options.runners?.[input.workflow];
+    const outcome = runner ? await runner(this, repo, input) : { conclusion: "success" as const };
+    const now = this.now();
+    const details =
+      outcome.conclusion === "failure"
+        ? { failedStep: outcome.failedStep, failedLog: outcome.failedLog }
+        : {};
     await this.db
       .prepare(
-        "INSERT INTO dev_workflow_runs (repo, workflow, ref, head_sha, inputs_json, status, conclusion, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'completed', 'success', ?, ?)",
+        "INSERT INTO dev_workflow_runs (repo, workflow, ref, head_sha, inputs_json, status, conclusion, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'completed', ?, ?, ?)",
       )
       .bind(
         key(repo),
         input.workflow,
         normalizeRef(input.ref).name,
         sha,
-        JSON.stringify(input.inputs ?? {}),
+        JSON.stringify({ ...(input.inputs ?? {}), ...details }),
+        outcome.conclusion,
         now,
         now,
       )
@@ -654,6 +673,7 @@ export class DevGitHubAccess implements GitHubAccess {
             updated_at: number;
           }>();
     if (!row) return { state: "none" };
+    const runId = (row as { id?: number }).id;
     const state =
       row.status === "completed"
         ? row.conclusion === "success"
@@ -664,6 +684,7 @@ export class DevGitHubAccess implements GitHubAccess {
           : "in_progress";
     return {
       state,
+      ...(typeof runId === "number" ? { id: runId } : {}),
       ...(row.head_sha ? { sha: row.head_sha } : {}),
       updatedAt: new Date(row.updated_at).toISOString(),
     };

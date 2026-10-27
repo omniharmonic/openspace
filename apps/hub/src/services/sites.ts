@@ -10,6 +10,7 @@ import {
 } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
+import { latestImport } from "../db/imports";
 import { insertPublish, latestPublish, publishBySha } from "../db/publishes";
 import {
   getSite,
@@ -41,6 +42,7 @@ import { type DecodedImage, decodeImageDataUrl } from "../lib/image";
 import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
+import type { ImportRequest } from "../templates/import-workflow";
 import { gatedContext as gatedContextFor, loadOpenedDocument, sealFiles } from "./gated-content";
 import {
   asAccessNeed,
@@ -51,6 +53,7 @@ import {
   type GitHubAccessNeed,
   type GitHubAccessState,
 } from "./github-install";
+import { newImportFiles } from "./import-site";
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
 import { draftReady } from "./publishing";
@@ -89,6 +92,8 @@ export interface SiteView {
    * page that sends them to GitHub's install page and back) is set when something is needed.
    */
   github: { access: GitHubAccessState; connectUrl: string | null };
+  /** The site was moved in from another address ("Move my site"): its newest import. */
+  import: { id: string; state: string; kind: string } | null;
 }
 
 export const CreateSiteSchema = z.strictObject({
@@ -175,6 +180,10 @@ export function toSiteView(
       access: need ?? "ok",
       connectUrl: need ? connectGitHubUrl(hubUrl, row.id) : null,
     },
+    import:
+      row.import_id && row.import_state
+        ? { id: row.import_id, state: row.import_state, kind: row.import_kind ?? "url" }
+        : null,
   };
 }
 
@@ -192,7 +201,7 @@ export function slugifyRepoName(name: string): string {
   return slug || "site";
 }
 
-async function uniqueRepoName(
+export async function uniqueRepoName(
   services: Services,
   gh: GitHubAccess,
   owner: string,
@@ -214,7 +223,7 @@ export function previewUrl(hubUrl: string, siteId: string): string {
   return `${hubUrl}/s/${siteId}/`;
 }
 
-function githubPagesUrl(owner: string, name: string): string {
+export function githubPagesUrl(owner: string, name: string): string {
   return `https://${owner.toLowerCase()}.github.io/${name}/`;
 }
 
@@ -282,6 +291,8 @@ export async function getSiteView(services: Services, id: string, user: User, lo
  * setup can be retried from any stage. The logo bytes live in R2 at `logoKey`.
  */
 export interface SiteSetup {
+  /** A hosted import ("Move my site"): the first files are the shell, a placeholder and the import. */
+  import?: { request: ImportRequest; sourceLabel: string };
   template: string;
   look: string;
   tagline: string | null;
@@ -319,11 +330,23 @@ export async function deleteSetupAssets(
 /** The new site's repo files: template shell + personalized document (+ logo). Deterministic. */
 async function buildSiteFiles(
   services: Services,
-  site: { id: string; name: string },
+  site: { id: string; name: string; repo?: string },
   setup: SiteSetup,
   actor: string,
   logoBase64?: string,
 ): Promise<Record<string, string | FileContent>> {
+  if (setup.import) {
+    const repoName = site.repo ? parseRepo(site.repo).name : site.name;
+    return newImportFiles({
+      siteId: site.id,
+      name: site.name,
+      repoName,
+      hubUrl: services.config.hubUrl,
+      deployUrl: setup.deployUrl,
+      sourceLabel: setup.import.sourceLabel,
+      request: setup.import.request,
+    });
+  }
   const template = await services.templates.load(setup.template);
   if (!template) throw new HttpError(404, "template_not_found", "That template doesn't exist.");
   const look = template.meta.looks.find((l) => l.id === setup.look);
@@ -428,7 +451,7 @@ export function currentRunState(
  * create the repo (if missing) → commit the personalized files (if main lacks `openspace.json`)
  * → draft branch → Pages → publish dispatch. Safe to run again after a failure at any stage.
  */
-async function runSetup(
+export async function runSetup(
   services: Services,
   site: SiteRow,
   user: User,
@@ -719,6 +742,14 @@ export async function publishSite(
 ): Promise<SiteView & { publish: PublishResult | null }> {
   let site: SiteRow = await siteForUser(services, id, user);
   requireRole(site as SiteWithRole, "editor");
+  // A repository being converted in place publishes once its owner merges the change.
+  const moving = await latestImport(services.db, id);
+  if (moving?.kind === "convert" && moving.state !== "ready" && moving.state !== "failed")
+    throw new HttpError(
+      409,
+      "convert_pending",
+      "This site switches over once you approve the change on GitHub. Open the move's progress to continue.",
+    );
   const owner = (await ownerOf(services, site)) ?? user;
   const published = await latestPublish(services.db, id);
   const setupUnfinished = site.status === "failed" && (!published || published.kind === "setup");
@@ -993,7 +1024,9 @@ export async function failStalledSetups(services: Services, now: number): Promis
     .prepare(
       `UPDATE sites SET status = 'failed', status_detail = ?, updated_at = ?
        WHERE status = 'building' AND archived_at IS NULL AND created_at < ?
-         AND NOT EXISTS (SELECT 1 FROM publishes p WHERE p.site_id = sites.id)`,
+         AND NOT EXISTS (SELECT 1 FROM publishes p WHERE p.site_id = sites.id)
+         AND NOT EXISTS (SELECT 1 FROM site_imports i WHERE i.site_id = sites.id
+           AND i.state NOT IN ('ready', 'failed'))`,
     )
     .bind(STALLED_SETUP_DETAIL, now, now - STALLED_SETUP_MS)
     .run();

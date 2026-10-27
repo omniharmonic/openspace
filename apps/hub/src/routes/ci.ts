@@ -15,12 +15,14 @@ import { parseRepo } from "../github/types";
 import { HttpError } from "../lib/errors";
 import { OidcError, verifyActionsToken } from "../services/actions-oidc";
 import { gatedBundle, gatedContext } from "../services/gated-content";
+import { openImportForSite, recordProgress, refreshImport } from "../services/imports";
 import {
   adoptRepoIdentity,
   liveRepoIdentity,
   type RepoIdentity,
   repoIdentity,
 } from "../services/site-automation";
+import { CONVERT_BRANCH, IMPORT_WORKFLOW_PATH } from "../templates/import-workflow";
 import type { AppEnv } from "../types";
 
 export const ciRoutes = new Hono<AppEnv>();
@@ -91,4 +93,64 @@ ciRoutes.get("/sites/:id/gated", async (c) => {
       409,
     );
   return c.json({ sha: claims.sha, pages: bundle.pages });
+});
+
+/**
+ * `POST /ci/sites/:id/import` with the import workflow's OIDC token: progress of a hosted import
+ * (`{ id, phase, counts?, sha? }`) for Studio's "Reading your site… Bringing pages across…".
+ * Only the site's own `openspace-import.yml` run (on main or the conversion branch) may report.
+ */
+ciRoutes.post("/sites/:id/import", async (c) => {
+  const { services, config } = c.var;
+  const auth = c.req.header("authorization") ?? "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+  if (!token) throw new HttpError(401, "unauthenticated", "A workflow identity token is required.");
+  let claims: Awaited<ReturnType<typeof verifyActionsToken>>;
+  try {
+    claims = await verifyActionsToken(token, {
+      audience: config.hubUrl,
+      fetch: services.fetch,
+      now: services.now(),
+    });
+  } catch (err) {
+    if (err instanceof OidcError)
+      throw new HttpError(401, "invalid_token", "That workflow identity token isn't valid.");
+    throw err;
+  }
+  const forbidden = () =>
+    new HttpError(403, "forbidden", "This workflow can't report for that site.");
+  const site = await getSite(services.db, c.req.param("id"));
+  const workflowRef = String(claims.workflow_ref ?? "").toLowerCase();
+  if (
+    !site ||
+    site.archived_at !== null ||
+    site.repo.toLowerCase() !== claims.repository.toLowerCase() ||
+    !(
+      workflowRef === `${site.repo}/${IMPORT_WORKFLOW_PATH}@refs/heads/main`.toLowerCase() ||
+      workflowRef ===
+        `${site.repo}/${IMPORT_WORKFLOW_PATH}@refs/heads/${CONVERT_BRANCH}`.toLowerCase()
+    )
+  )
+    throw forbidden();
+  const recorded = await repoIdentity(services.db, site.id);
+  if (recorded && String(claims.repository_id ?? "") !== recorded.repoId) throw forbidden();
+  const body = (await c.req.json().catch(() => ({}))) as {
+    id?: unknown;
+    phase?: unknown;
+    counts?: unknown;
+  };
+  const open = await openImportForSite(services, site.id);
+  if (!open || (typeof body.id === "string" && body.id !== open.id))
+    return c.json({ ok: true, ignored: true });
+  const counts =
+    body.counts && typeof body.counts === "object"
+      ? (body.counts as Record<string, unknown>)
+      : undefined;
+  await recordProgress(services, open.id, {
+    phase: typeof body.phase === "string" ? body.phase : "",
+    ...(counts ? { counts } : {}),
+  });
+  if (body.phase === "failed" || body.phase === "publishing")
+    await refreshImport(services, c.env, open.id, c.var.log);
+  return c.json({ ok: true });
 });

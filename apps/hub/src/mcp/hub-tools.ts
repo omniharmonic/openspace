@@ -12,6 +12,7 @@ import type { Services } from "../services";
 import type { ConnectionRow, GrantSite } from "./db";
 import { screenshotUrlTool } from "./screenshots";
 import { accountTools } from "./tools/account";
+import { importTools } from "./tools/imports";
 
 export interface HubToolContext {
   env: HubBindings;
@@ -28,6 +29,8 @@ export type HubToolFactory = (ctx: HubToolContext) => ToolDefinition[];
 /** Every Hub tool module. Order matters only for duplicate names (the later one wins). */
 export const HUB_TOOL_FACTORIES: HubToolFactory[] = [
   accountTools,
+  // "Move my site": hosted imports and in-place conversions.
+  importTools,
   // screenshot_url fetches the public web through Browser Rendering.
   (ctx) => [screenshotUrlTool(ctx.services.screenshots, ctx.services, ctx.sites, ctx.user.id)],
 ];

@@ -6,6 +6,7 @@ import { roomStub } from "./room";
 import { runDueCampaigns } from "./services/campaigns";
 import { expireInvitations } from "./services/collaborators";
 import { purgeGatedContent } from "./services/gated-content";
+import { refreshOpenImports } from "./services/imports";
 import { createServices, type Services } from "./services/index";
 import { runDueSchedules } from "./services/publishing";
 import { backfillTurnstileVariables, runDueScheduledItems } from "./services/site-automation";
@@ -98,6 +99,7 @@ export async function runScheduled(env: HubBindings, scheduledTime = Date.now())
     ["transfers", () => expireTransfers(services, scheduledTime)],
     // Sites whose creation died part-way: "failed" (Try again / delete), never "Setting up" forever.
     ["stalled-setups", () => failStalledSetups(services, scheduledTime)],
+    ["imports", () => refreshOpenImports(services, env, log)],
     ["invitations", () => expireInvitations(services, scheduledTime)],
     ["purge", () => purgeArchivedSites(env, services, scheduledTime)],
     // Task 18: start due scheduled campaigns; continue sends when there is no Queue.
