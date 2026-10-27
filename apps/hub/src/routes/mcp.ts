@@ -35,7 +35,7 @@ import { requireUser, setSessionCookie } from "../auth/session";
 import { audit } from "../db/audit";
 import { createSession } from "../db/sessions";
 import { listSitesForUser } from "../db/sites";
-import { getUserRow, toUser, type User, upsertDevUser } from "../db/users";
+import { getUserRow, toUser, type User } from "../db/users";
 import { randomToken, sha256Hex } from "../lib/crypto";
 import { HttpError, notFound } from "../lib/errors";
 import { readJson } from "../lib/validate";
@@ -65,7 +65,7 @@ import { endConnectionSessions } from "../mcp/sessions";
 import { handleMcp, type McpAuth } from "../mcp/transport";
 import { requireRole, siteForUser } from "../services/sites";
 import type { AppEnv } from "../types";
-import { devLoginFor } from "./auth";
+import { devLoginUser } from "./auth";
 
 export const mcpRoutes = new Hono<AppEnv>();
 export const mcpGrantRoutes = new Hono<AppEnv>();
@@ -363,11 +363,7 @@ mcpRoutes.post("/authorize/dev-login", async (c) => {
     return html(errorPage("Can't sign in", "Go back to the app and connect again."), 400);
   let user: User;
   try {
-    user = await upsertDevUser(
-      c.var.services.db,
-      { login: devLoginFor(parsed.data.name), name: parsed.data.name },
-      c.var.services.now(),
-    );
+    user = await devLoginUser(c.var.services.db, { name: parsed.data.name }, c.var.services.now());
   } catch {
     return html(errorPage("That name is taken", "Go back and try another name."), 400);
   }

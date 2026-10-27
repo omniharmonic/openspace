@@ -4,7 +4,8 @@ import { z } from "zod";
 import { mintUserAccessToken, storeUserTokens } from "../auth/github-tokens";
 import { clearSessionCookie, requireUser, SESSION_COOKIE, setSessionCookie } from "../auth/session";
 import { createSession, deleteSession } from "../db/sessions";
-import { type User, upsertDevUser, upsertGitHubUser } from "../db/users";
+import { getUserByLogin, type User, upsertDevUser, upsertGitHubUser } from "../db/users";
+import { devInstall } from "../github/installations";
 import {
   authorizeUrl,
   exchangeCode,
@@ -22,7 +23,27 @@ export const authRoutes = new Hono<AppEnv>();
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 const OAUTH_COOKIE = "os_oauth_state";
 
-const DevLoginSchema = z.strictObject({ name: z.string().trim().min(1, "Enter a name").max(60) });
+const DevLoginSchema = z.strictObject({
+  name: z.string().trim().min(1, "Enter a name").max(60),
+  /**
+   * Dev GitHub emulation: a new dev account gets the GitHub App installed (all repositories)
+   * unless this is false — then creating a site goes through the install step (e2e).
+   */
+  installApp: z.boolean().optional(),
+});
+
+/** A brand-new dev account gets the dev GitHub App installed (like a returning GitHub user). */
+export async function devLoginUser(
+  db: D1Database,
+  input: { name: string; installApp?: boolean },
+  now: number,
+): Promise<User> {
+  const login = devLoginFor(input.name);
+  const isNew = !(await getUserByLogin(db, login));
+  const user = await upsertDevUser(db, { login, name: input.name }, now);
+  if (isNew && input.installApp !== false) await devInstall(db, user.login, { now });
+  return user;
+}
 
 /** A GitHub-shaped login from a display name ("Maya Lin" → "maya-lin"). */
 export function devLoginFor(name: string): string {
@@ -51,14 +72,10 @@ export function publicUser(user: User) {
 /** POST /auth/dev/login { name } — DEV_MODE only (Global Constraint 8). */
 authRoutes.post("/dev/login", async (c) => {
   if (!c.var.config.devMode) throw notFound();
-  const { name } = await readJson(c, DevLoginSchema);
+  const input = await readJson(c, DevLoginSchema);
   let user: User;
   try {
-    user = await upsertDevUser(
-      c.var.services.db,
-      { login: devLoginFor(name), name },
-      c.var.services.now(),
-    );
+    user = await devLoginUser(c.var.services.db, input, c.var.services.now());
   } catch {
     throw new HttpError(409, "login_taken", "That name is taken. Try another one.");
   }
@@ -221,13 +238,19 @@ authRoutes.get("/github/callback", async (c) => {
   log.info("github login", { userId: user.id });
 
   if (intent.template && intent.name) {
-    let installationId = installation_id ? Number(installation_id) || null : null;
-    if (!installationId) {
+    // An installation id in the query (GitHub's "install + authorize" flow) is only trusted once
+    // the person's own token lists it; otherwise createSite checks their installations itself.
+    let installationId: number | null = null;
+    if (installation_id) {
       try {
         const installs = await listUserInstallations(accessToken, services.fetch);
         installationId =
-          installs.find((i) => i.account?.login.toLowerCase() === user.login.toLowerCase())?.id ??
-          null;
+          installs.find(
+            (i) =>
+              i.id === Number(installation_id) &&
+              i.account?.login.toLowerCase() === user.login.toLowerCase() &&
+              i.repository_selection !== "selected",
+          )?.id ?? null;
       } catch (err) {
         log.warn("listing installations failed", { err });
       }
@@ -242,6 +265,9 @@ authRoutes.get("/github/callback", async (c) => {
     if (parsed.success) {
       try {
         const site = await createSite(services, user, parsed.data, { log, installationId });
+        // Waiting for the GitHub App install: Studio explains the step, then sends them on.
+        if (site.github.access !== "ok")
+          return c.redirect(`${studio}/sites/${site.id}?github=connect`, 302);
         return c.redirect(`${studio}/sites/${site.id}?welcome=1`, 302);
       } catch (err) {
         log.error("site creation after sign-in failed", { err });

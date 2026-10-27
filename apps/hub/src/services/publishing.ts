@@ -2,7 +2,7 @@ import type { Role } from "@omniharmonic/openspace-ops";
 import { z } from "zod";
 import { audit } from "../db/audit";
 import { listPublishes } from "../db/publishes";
-import type { SiteWithRole } from "../db/sites";
+import type { SiteRow, SiteWithRole } from "../db/sites";
 import type { User } from "../db/users";
 import type { HubBindings } from "../env";
 import { DRAFT_BRANCH, MAIN_BRANCH, parseRepo } from "../github/types";
@@ -354,7 +354,11 @@ export async function runDueSchedules(
 }
 
 /** The draft branch exists — i.e. setup finished and the room can take over publishing. */
-export async function draftReady(services: Services, site: SiteWithRole, owner: User | null) {
+export async function draftReady(
+  services: Services,
+  site: Pick<SiteRow, "id" | "repo" | "installation_id">,
+  owner: User | null,
+) {
   const gh = services.github({ site, user: owner });
   const repo = parseRepo(site.repo);
   if (!(await gh.getRepo(repo))) return false;

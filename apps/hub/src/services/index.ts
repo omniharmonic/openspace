@@ -1,7 +1,9 @@
 import { mintUserAccessToken } from "../auth/github-tokens";
+import type { User } from "../db/users";
 import type { HubBindings, HubConfig } from "../env";
 import { type GitHubContext, selectGitHubAccess } from "../github";
 import type { FetchLike } from "../github/http";
+import { type InstallationDirectory, selectInstallationDirectory } from "../github/installations";
 import type { GitHubAccess } from "../github/types";
 import { type OperatorConfig, readOperatorConfig } from "../operator-env";
 import { basicTemplate } from "../templates/basic";
@@ -19,6 +21,8 @@ export interface Services {
   templates: TemplateSource;
   renderer: PageRenderer;
   github(ctx?: GitHubContext): GitHubAccess;
+  /** The GitHub App's installations as this person sees them (the onboarding install step). */
+  installations(user: User): InstallationDirectory;
   /** Outbound fetch (GitHub OAuth etc.); injectable for tests. */
   fetch: FetchLike;
   now(): number;
@@ -34,6 +38,7 @@ export interface ServiceOverrides {
   templates?: TemplateSource;
   renderer?: PageRenderer;
   github?: (ctx: GitHubContext, services: Services) => GitHubAccess;
+  installations?: (user: User, services: Services) => InstallationDirectory;
   fetch?: FetchLike;
   now?: () => number;
   public?: PublicOverrides;
@@ -54,6 +59,9 @@ export function createServices(
 ): Services {
   const fetchFn: FetchLike = overrides.fetch ?? ((input, init) => fetch(input, init));
   const now = overrides.now ?? Date.now;
+  const userToken = async (userId: string) =>
+    (await mintUserAccessToken({ db: env.HUB_DB, config, fetch: fetchFn, now }, userId))?.token ??
+    null;
   const services: Services = {
     db: env.HUB_DB,
     uploads: env.UPLOADS,
@@ -85,12 +93,14 @@ export function createServices(
               db: env.HUB_DB,
               fetch: fetchFn,
               now,
-              userToken: async (userId) =>
-                (await mintUserAccessToken({ db: env.HUB_DB, config, fetch: fetchFn, now }, userId))
-                  ?.token ?? null,
+              userToken,
             },
             ctx,
           ),
+    installations: (user) =>
+      overrides.installations
+        ? overrides.installations(user, services)
+        : selectInstallationDirectory({ config, db: env.HUB_DB, fetch: fetchFn, userToken }, user),
   };
   return services;
 }
