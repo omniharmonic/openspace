@@ -713,7 +713,10 @@ export async function archiveSite(
   if (confirm.trim() !== site.name.trim())
     throw new HttpError(400, "confirmation_mismatch", "Type the site's name exactly to delete it.");
   try {
-    await services.github({ user, site }).archiveRepo(parseRepo(site.repo));
+    const gh = services.github({ user, site });
+    const repo = parseRepo(site.repo);
+    // A site whose setup never created its repository has nothing to archive.
+    if (await gh.getRepo(repo)) await gh.archiveRepo(repo);
   } catch (err) {
     log?.warn("repo archive failed", { siteId: id, err });
     throw new HttpError(
@@ -802,6 +805,29 @@ export async function cancelTransfer(
 }
 
 /** Expire every pending transfer older than `TRANSFER_TTL_MS` (cron). */
+/** A site still "building" this long after it was created, with nothing ever published, stalled. */
+export const STALLED_SETUP_MS = 10 * 60_000;
+export const STALLED_SETUP_DETAIL =
+  "Setting up this site didn't finish. Try again, or delete it if you don't need it.";
+
+/**
+ * Sites whose creation died part-way (e.g. the Hub was cut off before the repository or the
+ * first publish existed) would say "Setting up" forever: after `STALLED_SETUP_MS` with no
+ * publish recorded they become `failed`, so Studio offers "Try again" (which resumes setup
+ * from the stored details) and deleting them works.
+ */
+export async function failStalledSetups(services: Services, now: number): Promise<number> {
+  const res = await services.db
+    .prepare(
+      `UPDATE sites SET status = 'failed', status_detail = ?, updated_at = ?
+       WHERE status = 'building' AND archived_at IS NULL AND created_at < ?
+         AND NOT EXISTS (SELECT 1 FROM publishes p WHERE p.site_id = sites.id)`,
+    )
+    .bind(STALLED_SETUP_DETAIL, now, now - STALLED_SETUP_MS)
+    .run();
+  return res.meta.changes ?? 0;
+}
+
 export async function expireTransfers(services: Services, now: number): Promise<number> {
   const rows = await services.db
     .prepare(
