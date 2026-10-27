@@ -16,7 +16,7 @@ Ask things like:
 
 | You use | Connect with | Guide |
 |---|---|---|
-| **Claude** on the web or **Claude Desktop** | A custom connector pointed at the Hub | [Claude & Claude Desktop](/connect-your-ai/claude/) |
+| **Claude** on the web or **Claude Desktop** — nothing to install | A custom connector pointed at the Hub, plus the OpenSpace skills | [No installs: the Claude app](/connect-your-ai/claude-app/) · [Claude & Claude Desktop](/connect-your-ai/claude/) |
 | **Claude Code** | Studio sites: `claude mcp add --transport http openspace https://hub.openspace.host/mcp`, then `/mcp` → Authenticate. Site folders on your computer: the OpenSpace plugin | [Claude Code](/connect-your-ai/claude-code/) |
 | **Other MCP apps** | The Hub URL or a personal link | Below |
 

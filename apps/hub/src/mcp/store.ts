@@ -13,6 +13,7 @@ import {
   type ImageUploadInput,
   imageSize,
   type PublishResult,
+  pagePathOf,
   prepareImage,
   type Screenshot,
   type ScreenshotRequest,
@@ -40,9 +41,9 @@ import { loadSiteDocument } from "../services/site-files";
 import { type AgentSessionRef, type GrantSite, recordAgentSession } from "./db";
 import { guardedFetch } from "./ssrf";
 
-/** Optional screenshot provider (Browser Rendering in production; none locally). */
+/** Optional screenshot provider (Browser Rendering in production, a placeholder in dev). */
 export interface ScreenshotProvider {
-  capture(request: ScreenshotRequest): Promise<Screenshot>;
+  capture(siteId: string, pagePath: string, request: ScreenshotRequest): Promise<Screenshot>;
 }
 
 export interface HubSiteStoreOptions {
@@ -419,7 +420,10 @@ export class HubSiteStore implements SiteStore {
     this.site(siteId);
     if (!this.o.screenshots)
       throw new ToolError("Screenshots aren't available on this Hub.", "unsupported");
-    return this.o.screenshots.capture(request);
+    const shots = this.o.screenshots;
+    const doc = await this.getDocument(siteId);
+    const page = doc.pages[request.pageId as keyof typeof doc.pages];
+    return wrap(() => shots.capture(siteId, page ? pagePathOf(page) : "/", request));
   }
 
   async agentsMd(siteId: string): Promise<string | null> {
