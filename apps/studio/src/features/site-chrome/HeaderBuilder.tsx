@@ -24,6 +24,8 @@ export const HEADER_LABEL: Record<HeaderVariant, { name: string; hint: string }>
   stacked: { name: "Stacked", hint: "Logo above the menu" },
   "sidebar-drawer": { name: "Drawer", hint: "Menu slides in from the side" },
   "transparent-overlay": { name: "Over the photo", hint: "Sits on top of the first section" },
+  "nav-left-logo-center": { name: "Logo centered", hint: "Menu left, logo in the middle" },
+  "sidebar-left": { name: "Sidebar", hint: "Logo and menu in a column on the left" },
 };
 
 /** Wireframe of a header layout (inline SVG, follows the chrome theme). */
@@ -92,6 +94,22 @@ export function HeaderThumb({ variant }: { variant: HeaderVariant }) {
         {nav(90, 24, 1)}
       </>
     ),
+    "nav-left-logo-center": (
+      <>
+        {nav(8, 16.5, 3)}
+        {logo(49, 14)}
+        <rect x={98} y={14} width={14} height={8} rx={4} className="cta" />
+      </>
+    ),
+    "sidebar-left": (
+      <>
+        <rect x={0} y={0} width={34} height={48} className="dr" />
+        {logo(6, 6, 18)}
+        {nav(6, 20, 1)}
+        {nav(6, 26, 1)}
+        {nav(6, 32, 1)}
+      </>
+    ),
     "transparent-overlay": (
       <>
         <rect x={0} y={0} width={120} height={48} className="ph" />
@@ -111,6 +129,7 @@ export function HeaderThumb({ variant }: { variant: HeaderVariant }) {
       <rect x={0} y={0} width={120} height={48} className="bg" />
       {variant !== "transparent-overlay" &&
         variant !== "logo-center-nav-below" &&
+        variant !== "sidebar-left" &&
         variant !== "stacked" && <line x1={0} x2={120} y1={36} y2={36} className="ln" />}
       {parts[variant]}
     </svg>

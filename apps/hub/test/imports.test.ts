@@ -12,12 +12,15 @@ import {
   attentionFromReport,
   failureMessage,
   type ImportView,
+  parseFidelitySummary,
   recordProgress,
 } from "../src/services/imports";
 import { loadSiteDocument, siteDocumentToFiles } from "../src/services/site-files";
 import {
   IMPORT_CLI_VERSION,
+  IMPORT_FIDELITY_DIR,
   IMPORT_HELPER_MJS,
+  IMPORT_PLAYWRIGHT_VERSION,
   IMPORT_REQUEST_PATH,
   IMPORT_WORKFLOW_PATH,
   IMPORT_WORKFLOW_YML,
@@ -144,6 +147,70 @@ describe("the import workflow", () => {
     expect(IMPORT_CLI_VERSION).toBe(cliPackage.version);
   });
 
+  it("reads the site in a real browser (cached), compares and tunes, and saves the comparison", () => {
+    // Chromium is always there (cached between runs), like an import on a computer.
+    expect(IMPORT_WORKFLOW_YML).toContain("name: Getting a browser ready");
+    expect(IMPORT_WORKFLOW_YML).toContain("uses: actions/cache@v6");
+    expect(IMPORT_WORKFLOW_YML).toContain("path: ~/.cache/ms-playwright");
+    expect(IMPORT_WORKFLOW_YML).toContain(`key: openspace-chromium-${IMPORT_PLAYWRIGHT_VERSION}-`);
+    expect(IMPORT_WORKFLOW_YML).toContain("install --with-deps chromium");
+    expect(IMPORT_WORKFLOW_YML).toContain("install-deps chromium");
+    expect(IMPORT_WORKFLOW_YML).not.toContain("steps.ready.outputs.render == 'true'");
+    expect(IMPORT_HELPER_MJS).toContain('"-p", process.env.OPENSPACE_PLAYWRIGHT]');
+    for (const flag of [
+      '"--tune"',
+      '"--compare-thumbs"',
+      '"--compare-out"',
+      `"${IMPORT_FIDELITY_DIR}"`,
+    ])
+      expect(IMPORT_HELPER_MJS).toContain(flag);
+  });
+
+  it("keeps only a well-formed fidelity summary, with thumbnails it names", () => {
+    expect(parseFidelitySummary(null)).toBeUndefined();
+    expect(parseFidelitySummary("{nope")).toBeUndefined();
+    expect(parseFidelitySummary(JSON.stringify({ pages: [] }))).toBeUndefined();
+    const f = parseFidelitySummary(
+      JSON.stringify({
+        score: 92.4,
+        before: 80,
+        withoutComponents: 88,
+        withComponents: 92,
+        changes: ["h2: 60px", 7],
+        pages: [
+          {
+            path: "/",
+            device: "desktop",
+            score: 94,
+            before: 81,
+            image: "thumb-home-d.jpg",
+            differs: ["Columns"],
+          },
+          { path: "/about", device: "phone", score: 300, image: "../../secrets.json" },
+          { path: "about", score: 50 },
+        ],
+      }),
+    );
+    expect(f).toEqual({
+      score: 92,
+      before: 80,
+      withoutComponents: 88,
+      withComponents: 92,
+      changes: ["h2: 60px"],
+      pages: [
+        {
+          path: "/",
+          device: "desktop",
+          score: 94,
+          before: 81,
+          image: "thumb-home-d.jpg",
+          differs: ["Columns"],
+        },
+        { path: "/about", device: "phone", score: 100 },
+      ],
+    });
+  });
+
   it("explains failed runs without blaming the person's site for our problems", () => {
     const row = { kind: "url" } as Parameters<typeof failureMessage>[0];
     const ours = failureMessage(
@@ -233,6 +300,33 @@ describe("Move my site (hosted import, dev emulation)", () => {
     expect(view.attention.map((g) => g.title)).toEqual(["Forms and newsletter", "Links"]);
     expect(view.checklist.map((i) => i.kind)).toEqual(["newsletter"]);
     expect(view.siteUrl).toMatch(/\/s\/st_/);
+    // The comparison with the old site: before → after tuning, with side-by-side thumbnails.
+    expect(view.fidelity).toMatchObject({ score: 93, before: 81 });
+    const thumb = view.fidelity?.pages[0]?.image as string;
+    expect(thumb).toMatch(
+      new RegExp(`/api/imports/${created.import.id}/fidelity/thumb-home-d\\.jpg$`),
+    );
+    expect(view.fidelity?.pages[1]).toMatchObject({ device: "phone", image: null });
+    const img = await call(app, new URL(thumb).pathname, { cookie });
+    expect(img.status).toBe(200);
+    expect(img.headers.get("content-type")).toBe("image/jpeg");
+    expect((await img.arrayBuffer()).byteLength).toBeGreaterThan(10);
+    // Only the thumbnails the summary names, only for the site's people.
+    expect(
+      (await call(app, `/api/imports/${created.import.id}/fidelity/thumb-other.jpg`, { cookie }))
+        .status,
+    ).toBe(404);
+    expect(
+      (
+        await call(app, `/api/imports/${created.import.id}/fidelity/fidelity-summary.json`, {
+          cookie,
+        })
+      ).status,
+    ).toBe(404);
+    const stranger = await devLogin(app, "Someone Else");
+    expect([403, 404]).toContain(
+      (await call(app, new URL(thumb).pathname, { cookie: stranger })).status,
+    );
 
     // The repository: the imported content on main, the draft at the same commit.
     const repo = ref(created.site.repo);

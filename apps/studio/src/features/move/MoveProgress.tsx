@@ -53,6 +53,70 @@ export function AttentionPanel({ groups }: { groups: ImportView["attention"] }) 
   );
 }
 
+/** Plain words for a 0–100 match. */
+function matchWords(score: number): string {
+  return score >= 95
+    ? "Practically identical"
+    : score >= 90
+      ? "Very close"
+      : score >= 75
+        ? "Close"
+        : "Recognisably the same, with differences";
+}
+
+/**
+ * How closely the new site matches the old one: the move measured both in a browser, tuned the
+ * new one, and saved side-by-side pictures (old left, new right) of each page.
+ */
+export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }) {
+  if (!fidelity) return null;
+  const improved = fidelity.before !== undefined && fidelity.score > fidelity.before;
+  return (
+    <section className="st-attention st-fidelity" aria-labelledby="fidelity-title">
+      <h2 id="fidelity-title" className="st-attention__title">
+        <Check aria-hidden="true" /> How close it looks: {fidelity.score}/100
+      </h2>
+      <p className="st-attention__lede">
+        {matchWords(fidelity.score)}.{" "}
+        {improved
+          ? `We compared both sites page by page and fine-tuned the new one (it started at ${fidelity.before}/100).`
+          : "We compared both sites page by page, on a computer and a phone."}{" "}
+        Your old site is on the left, the new one on the right.
+        {fidelity.withComponents !== undefined
+          ? " A few sections were rebuilt as custom designs so they look as they did — you can still change every word and picture."
+          : ""}
+      </p>
+      <ul className="st-fidelity__pages">
+        {fidelity.pages.map((p) => (
+          <li key={`${p.path}-${p.device}`} className="st-fidelity__page">
+            {p.image ? (
+              <a href={p.image} target="_blank" rel="noreferrer">
+                <img
+                  src={p.image}
+                  alt={`${p.path} on a ${p.device}: old site left, new site right`}
+                  loading="lazy"
+                />
+              </a>
+            ) : null}
+            <span className="st-fidelity__label">
+              <strong>
+                {p.path === "/" ? "Home" : p.path} · {p.device === "phone" ? "phone" : "computer"}
+              </strong>{" "}
+              {p.before !== undefined && p.before !== p.score
+                ? `${p.before} → ${p.score}`
+                : p.score}
+              /100
+            </span>
+            {p.differs?.length ? (
+              <span className="st-fidelity__differs">Still differs: {p.differs.join(", ")}</span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 /** What to set up after launch (shop, email, domain…), from the move. */
 export function FinishSetup({ items }: { items: ImportView["checklist"] }) {
   if (!items.length) return null;
@@ -285,6 +349,7 @@ export function MoveProgress() {
         {ready && (
           <section className="st-move__review" aria-label="Review">
             <AttentionPanel groups={view.attention} />
+            <FidelityPanel fidelity={view.fidelity} />
             <FinishSetup items={view.checklist} />
           </section>
         )}

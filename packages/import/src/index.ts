@@ -15,13 +15,14 @@ import type { SiteConfig, SiteDocument } from "@omniharmonic/openspace-schema";
 import { writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { CHECKLIST_FILE, type SetupChecklist, setupChecklist } from "./checklist";
 import { type FetchFn, SiteFetcher } from "./fetch";
-import { confirmThemeFonts } from "./fidelity/fonts";
+import { confirmThemeFonts, fitGoogleWeights } from "./fidelity/fonts";
 import { applyLook, lookFromProbe } from "./fidelity/look";
 import { type LookProbe, parseProbe } from "./fidelity/probe";
 import { crawlGeneric, type PageRenderer } from "./generic/crawl";
 import { crawlGitHub, type GitHubCrawl } from "./github/import";
 import { parseGitHubTarget } from "./github/target";
 import { type BuildResult, buildSite } from "./map/site";
+import { fontCategory } from "./map/theme";
 import { MediaImporter } from "./media";
 import { type Detection, detectPlatform, platformInfo, platformLabel } from "./platform";
 import { renderReport } from "./report";
@@ -47,13 +48,25 @@ export {
   type FidelityReport,
   fidelityMarkdown,
   fidelityReport,
+  fontCredit,
   matchSections,
   type PageComparison,
   type SectionComparison,
+  VISUAL_WEIGHT,
+  withVisual,
 } from "./fidelity/compare";
-export { confirmGoogleFonts } from "./fidelity/fonts";
+export {
+  categoryOf,
+  type FontMatch,
+  LICENSED_FONT_HOSTS,
+  metricDistance,
+  nearestOpenFont,
+  servedByLicensedHost,
+} from "./fidelity/font-match";
+export { confirmGoogleFonts, fitGoogleWeights } from "./fidelity/fonts";
 export { applyLook, lookFromProbe } from "./fidelity/look";
 export {
+  type FontMetrics,
   type LookProbe,
   PROBE_SCRIPT,
   type ProbeSection,
@@ -61,6 +74,14 @@ export {
   parseProbe,
 } from "./fidelity/probe";
 export { lookFromTokens, type TokenLook } from "./fidelity/tokens";
+export {
+  nearestAspect,
+  TUNE_GROUPS,
+  type TuneGroup,
+  type TuneInput,
+  type TuneResult,
+  tuneRound,
+} from "./fidelity/tune";
 export { crawlGeneric, type PageRenderer } from "./generic/crawl";
 export { detectRepo, type RepoDetection, type RepoKind } from "./github/detect";
 export { crawlGitHub, type GitHubCrawl, type GitHubCrawlOptions } from "./github/import";
@@ -231,6 +252,33 @@ async function measureLook(site: SqSite, opts: ImportOptions, liveUrl?: string):
       });
     }
   }
+  // No measured typography: the fonts the stylesheets name still carry over (exactly when they're
+  // free on Google Fonts, else their nearest open match) instead of a curated pairing.
+  const t = site.theme;
+  if (!t.typography && (t.fonts.heading?.family || t.fonts.body?.family)) {
+    const role = (f?: { family: string; weight?: number }) =>
+      f?.family && f.family.length <= 60
+        ? {
+            family: f.family,
+            category: fontCategory(f.family),
+            ...(f.weight && f.weight >= 100 && f.weight <= 900
+              ? {
+                  weights: [...new Set([Math.round(f.weight / 100) * 100, 400])].sort(
+                    (a, b) => a - b,
+                  ),
+                }
+              : {}),
+          }
+        : undefined;
+    const heading = role(t.fonts.heading);
+    const body = role(t.fonts.body);
+    const label = role(t.labelFont);
+    t.typography = {
+      ...(heading ? { heading } : {}),
+      ...(body ? { body } : {}),
+      ...(label ? { label } : {}),
+    };
+  }
   await confirmThemeFonts(
     site.theme,
     opts.offline
@@ -263,6 +311,13 @@ async function finish(
     now,
     ...(opts.onProgress ? { onProgress: opts.onProgress } : {}),
   });
+  // Fonts are only asked for in weights Google serves (one bad weight breaks the stylesheet).
+  const typo = build.doc.styles.choices.typography;
+  if (typo && !opts.offline)
+    for (const role of ["heading", "body", "label"] as const) {
+      const f = typo[role];
+      if (f) typo[role] = await fitGoogleWeights(f, (opts.fetch ?? fetch) as typeof fetch);
+    }
   let bytes = 0;
   for (const b of media.files.values()) bytes += b.length;
   const report = renderReport({

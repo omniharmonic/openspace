@@ -27,6 +27,28 @@ export interface AttentionGroup {
   items: string[];
 }
 
+/** How closely the moved site matches the old one (measured in a browser, then auto-tuned). */
+export interface ImportFidelity {
+  /** 0–100 after auto-tuning, and before it. */
+  score: number;
+  before?: number;
+  pages: Array<{
+    path: string;
+    device: "desktop" | "phone";
+    score: number;
+    before?: number;
+    /** Side-by-side thumbnail (old site left, new site right), served by the Hub. */
+    image: string | null;
+    /** The biggest differences still there. */
+    differs?: string[];
+  }>;
+  /** What auto-tuning adjusted. */
+  changes?: string[];
+  /** Score before sections were recreated as custom designs, and with them (when kept). */
+  withoutComponents?: number;
+  withComponents?: number;
+}
+
 export interface ImportView {
   id: string;
   siteId: string;
@@ -42,6 +64,8 @@ export interface ImportView {
   attention: AttentionGroup[];
   /** "Finish setting up" items for after launch. */
   checklist: Array<{ id: string; kind: string; title: string; detail: string }>;
+  /** The before/after comparison with the old site (null when it couldn't be measured). */
+  fidelity?: ImportFidelity | null;
   report: string | null;
   error: string | null;
   /** In-place conversions: the pull request the owner approves. */

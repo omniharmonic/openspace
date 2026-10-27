@@ -475,6 +475,8 @@ export async function crawlSquarespace(opts: CrawlOptions): Promise<SqSite> {
   const budget = { left: opts.maxPages ?? 400 };
   const customCode = new Set<string>();
   const aliases: { from: string; to: string }[] = [];
+  /** Other addresses of the home page (`/shop` when the shop is the home page). */
+  const homeAliases = new Set<string>();
   if (home.page.customHeadCode) customCode.add(home.page.customHeadCode);
 
   const visitTop = async (path: string, pre?: { page: ParsedPage; html: string }) => {
@@ -486,6 +488,7 @@ export async function crawlSquarespace(opts: CrawlOptions): Promise<SqSite> {
     // The home page is also served at its own slug (`/home`): one page, plus a redirect.
     if (path !== "/" && got.page.bodyClasses.includes("homepage")) {
       aliases.push({ from: path, to: "/" });
+      homeAliases.add(path);
       return;
     }
     const json = await getJson(path);
@@ -543,7 +546,11 @@ export async function crawlSquarespace(opts: CrawlOptions): Promise<SqSite> {
       const itemPaths = all.filter(
         (p) =>
           (path === "/"
-            ? /^\/(?:p\/[^/]+|\d{4}\/\d{1,2}\/\d{1,2}\/[^/]+)$/.test(p)
+            ? // A shop as the home page lists items under its own address too (`/shop/p/x`).
+              (kind === "products"
+                ? /^\/(?:[^/]+\/)?p\/[^/]+$/
+                : /^\/(?:p\/[^/]+|\d{4}\/\d{1,2}\/\d{1,2}\/[^/]+)$/
+              ).test(p)
             : p.startsWith(`${path}/`)) &&
           !handled.has(p) &&
           !/\/(?:category|tag|tags|categories)\//.test(p.slice(path.length)),
@@ -620,6 +627,12 @@ export async function crawlSquarespace(opts: CrawlOptions): Promise<SqSite> {
     if (parent && prefixes.has(parent) && !handled.has(parent)) await visitTop(parent);
     if (handled.has(p)) continue;
     if (parent && collections.some((c) => c.path === parent)) continue;
+    // A category view of a collection that is the home page (`/shop/tops`): the home page.
+    if (parent && homeAliases.has(parent) && collections.some((c) => c.path === "/")) {
+      handled.add(p);
+      aliases.push({ from: p, to: "/" });
+      continue;
+    }
     await visitTop(p);
   }
   if (budget.left <= 0)

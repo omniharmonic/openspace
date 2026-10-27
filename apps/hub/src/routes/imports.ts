@@ -8,6 +8,8 @@
  *   existing GitHub Pages repository editable in place (a branch and, when ready, a pull request).
  * - `GET /api/imports/:id` → the import's progress (`ImportView`), moved along on every call.
  * - `POST /api/imports/:id/retry` → run it again ("Try again").
+ * - `GET /api/imports/:id/fidelity/:file` → a side-by-side thumbnail (original | new site) from
+ *   the import's fidelity comparison, read from the site's repository.
  * - `GET /api/sites/:id/import` → `{ import: ImportView | null }`, the site's newest import.
  */
 import { Hono } from "hono";
@@ -18,6 +20,7 @@ import {
   convertRepo,
   createImportSite,
   ImportInputSchema,
+  importFidelityImage,
   importViewFor,
   retryImport,
   siteImportView,
@@ -54,6 +57,23 @@ importRoutes.get("/:id", async (c) => {
 importRoutes.post("/:id/retry", async (c) => {
   const user = requireUser(c);
   return c.json(await retryImport(c.var.services, c.env, c.req.param("id"), user, c.var.log));
+});
+
+importRoutes.get("/:id/fidelity/:file", async (c) => {
+  const user = requireUser(c);
+  const bytes = await importFidelityImage(
+    c.var.services,
+    c.req.param("id"),
+    c.req.param("file"),
+    user,
+  );
+  return new Response(bytes as unknown as BodyInit, {
+    headers: {
+      "content-type": "image/jpeg",
+      "cache-control": "private, max-age=3600",
+      "x-content-type-options": "nosniff",
+    },
+  });
 });
 
 siteImportRoutes.get("/:id/import", async (c) => {

@@ -28,6 +28,12 @@ test("Move my site: address → progress → live site with what needs attention
   await expect(page.getByRole("list", { name: "Progress" })).toContainText("2 pages, 0 images");
   await expect(page.getByRole("heading", { name: "What needs your attention" })).toBeVisible();
   await expect(page.getByText("Forms and newsletter")).toBeVisible();
+  // How close it looks: the run's comparison, before → after tuning, with a side-by-side.
+  await expect(page.getByRole("heading", { name: "How close it looks: 93/100" })).toBeVisible();
+  const thumb = page.getByRole("img", { name: "/ on a desktop: old site left, new site right" });
+  await expect(thumb).toBeVisible();
+  const src = (await thumb.getAttribute("src")) as string;
+  expect((await page.request.get(src)).headers()["content-type"]).toBe("image/jpeg");
   await expect(page.getByRole("heading", { name: /Finish setting up/ })).toBeVisible();
 
   await page.getByRole("button", { name: "Open it in Studio" }).click();

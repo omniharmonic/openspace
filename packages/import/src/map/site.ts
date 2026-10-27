@@ -27,7 +27,8 @@ import {
   toMarkdown,
 } from "@omniharmonic/openspace-schema";
 import { markdocToBlocks } from "@omniharmonic/openspace-site-kit/markdoc";
-import { compileStyles } from "@omniharmonic/openspace-theme";
+import { compileStyles, parseColor, relativeLuminance } from "@omniharmonic/openspace-theme";
+import { colorDistance } from "../fidelity/compare";
 import { applyLayoutHints } from "../fidelity/hints";
 import type { MediaImporter } from "../media";
 import { platformLabel } from "../platform";
@@ -413,22 +414,38 @@ async function mapNav(
   return out.slice(0, 60);
 }
 
-function headerFor(site: SqSite, siteDark: boolean): Header {
+function headerFor(site: SqSite, siteDark: boolean, brand?: string): Header {
   const t = site.theme;
   const variant: Header["variant"] =
     t.headerLayout === "navCenter"
       ? "classic-center"
       : t.headerLayout === "brandingCenter"
-        ? "split-nav"
-        : t.headerLayout === "navLeft"
-          ? "classic-left"
+        ? "nav-left-logo-center"
+        : t.headerLayout === "sidebar"
+          ? "sidebar-left"
           : "classic-left";
+  // A sidebar in the brand color (or dark) keeps it: the header's color theme.
+  let colorTheme: Header["colorTheme"] | undefined = siteDark ? "dark" : undefined;
+  const bg = t.headerBackground;
+  if (variant === "sidebar-left" && bg && /^#[0-9a-f]{6}$/i.test(bg)) {
+    const chromatic = (() => {
+      try {
+        return parseColor(bg).c >= 0.08;
+      } catch {
+        return false;
+      }
+    })();
+    if ((brand && /^#[0-9a-f]{6}$/i.test(brand) && colorDistance(bg, brand) < 24) || chromatic)
+      colorTheme = "brand";
+    else if (relativeLuminance(bg) < 0.18) colorTheme = "dark";
+    else colorTheme = "light";
+  }
   return {
     variant,
     sticky: t.headerFixed === true,
     transparentOnHero: t.headerTransparent === true,
     mobileMenu: "fullscreen",
-    ...(siteDark ? { colorTheme: "dark" as const } : {}),
+    ...(colorTheme ? { colorTheme } : {}),
   };
 }
 
@@ -532,6 +549,7 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
     platform: platformLabel(sq.platform),
     ...(sq.timeZone ? { timeZone: sq.timeZone } : {}),
     ...(sq.theme.eyebrowRule ? { eyebrowRule: true } : {}),
+    ...(opts.config.deploy?.target === "cloudflare" ? { videoBackgrounds: true } : {}),
   });
 
   // Pages.
@@ -709,6 +727,11 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
     };
   }
   const logo = sq.logo ? await opts.media.image(sq.logo, "logo") : undefined;
+  // The browser-tab / home-screen icon (SVG stays vector; .ico files aren't storable).
+  const favicon =
+    sq.favicon && /^https?:\/\//.test(sq.favicon) && !/\.ico(?:[?#]|$)/i.test(sq.favicon)
+      ? await opts.media.image({ url: sq.favicon, alt: "" }, "favicon")
+      : undefined;
   const homeSeoImage = sq.pages.find((p) => p.path === "/")?.seo.image;
   const seoImage = homeSeoImage ? await opts.media.image(homeSeoImage, "site") : undefined;
   const social = sq.social
@@ -731,8 +754,15 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
           },
         }
       : {}),
+    ...(favicon ? { favicon: favicon.src } : {}),
     nav,
-    header: headerFor(sq, theme.siteDark),
+    header: headerFor(
+      sq,
+      theme.siteDark,
+      typeof theme.styles.choices.palette.brand === "string"
+        ? theme.styles.choices.palette.brand
+        : undefined,
+    ),
     footer,
     ...(social?.length ? { social } : {}),
     seo: {
