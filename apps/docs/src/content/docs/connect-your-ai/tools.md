@@ -49,6 +49,15 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 | `list_versions` / `rollback` | Published versions, and restoring one — rollback needs `confirm: true`. |
 | `create_snapshot` | A named save point before a risky change. |
 
+## Local server only
+
+The local server (`openspace mcp`, used by the Claude Code plugin) adds two tools that reach the web:
+
+| Tool | What it does |
+|---|---|
+| `screenshot_url` | PNG of any public page — for example the site you're moving from — at desktop, tablet or phone width, to compare with `screenshot`. |
+| `import_squarespace` | Imports a Squarespace site into a new folder next to the site being served (asks for confirmation first). See [Move from Squarespace](/guides/migrate-from-squarespace/). |
+
 ## Prompts
 
 `design-a-page`, `restyle-site`, `write-blog-post` and `iterate-design`.

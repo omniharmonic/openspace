@@ -1,0 +1,52 @@
+{
+  "collection": {
+    "id": "64f0events",
+    "title": "Events",
+    "urlId": "events",
+    "typeName": "events-stacked",
+    "fullUrl": "/events"
+  },
+  "upcoming": [],
+  "items": [
+    {
+      "id": "64f0ev1",
+      "collectionId": "64f0events",
+      "publishOn": 1760000000000,
+      "workflowState": 1,
+      "urlId": "open-studio-day",
+      "title": "Open studio day",
+      "fullUrl": "/events/open-studio-day",
+      "tags": [],
+      "categories": [],
+      "excerpt": "<p>Come and throw a pot, free.</p>",
+      "body": "<div class=\"sqs-layout\"><div class=\"row sqs-row\"><div class=\"col sqs-col-12 span-12\"><div class=\"sqs-block html-block sqs-block-html\"><div class=\"sqs-block-content\"><div class=\"sqs-html-content\"><p>Drop in any time: wheels, clay and tea are on us.</p></div></div></div></div></div></div>",
+      "startDate": 1794506400000,
+      "endDate": 1794528000000,
+      "location": {
+        "mapLat": 45.5231,
+        "mapLng": -122.6765,
+        "markerLat": 45.5231,
+        "markerLng": -122.6765,
+        "addressTitle": "Juniper Ceramics",
+        "addressLine1": "210 Alder Street",
+        "addressLine2": "Portland, OR 97204",
+        "addressCountry": "United States"
+      }
+    }
+  ],
+  "past": [
+    {
+      "id": "64f0ev0",
+      "publishOn": 1730000000000,
+      "urlId": "winter-market",
+      "title": "Winter market",
+      "fullUrl": "/events/winter-market",
+      "tags": [],
+      "categories": [],
+      "excerpt": "",
+      "body": "<p>Our stall at the winter market.</p>",
+      "startDate": 1733500000000,
+      "endDate": 1733520000000
+    }
+  ]
+}

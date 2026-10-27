@@ -41,6 +41,12 @@ export interface ServiceOverrides {
   operator?: Partial<OperatorConfig>;
 }
 
+/**
+ * The 12 launch templates; the small "basic" fixture stays loadable (never listed) for tests.
+ * One instance per isolate: template data is immutable, and routes cache what they derive from it.
+ */
+const defaultTemplates: TemplateSource = new RegistryTemplateSource([basicTemplate]);
+
 export function createServices(
   env: HubBindings,
   config: HubConfig,
@@ -52,8 +58,7 @@ export function createServices(
     db: env.HUB_DB,
     uploads: env.UPLOADS,
     config,
-    // The 12 launch templates; the small "basic" fixture stays loadable (never listed) for tests.
-    templates: overrides.templates ?? new RegistryTemplateSource([basicTemplate]),
+    templates: overrides.templates ?? defaultTemplates,
     // The one renderer (ADR-3) through site-kit's publishing pipeline.
     renderer: overrides.renderer ?? new SiteKitRenderer(),
     fetch: fetchFn,

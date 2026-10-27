@@ -1,4 +1,4 @@
-# apps/docs — docs.openspace.dev
+# apps/docs — docs.openspace.host
 
 The OpenSpace documentation, built with [Astro Starlight](https://starlight.astro.build). Pages live in `src/content/docs/` as Markdown; the sidebar is in `astro.config.mjs`. Content is licensed CC BY 4.0.
 

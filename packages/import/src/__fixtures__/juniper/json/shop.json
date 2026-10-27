@@ -1,0 +1,72 @@
+{
+  "collection": {
+    "id": "64f0shop",
+    "title": "Shop",
+    "urlId": "shop",
+    "typeName": "products",
+    "type": 13,
+    "fullUrl": "/shop"
+  },
+  "items": [
+    {
+      "id": "64f0mug",
+      "collectionId": "64f0shop",
+      "recordType": 11,
+      "publishOn": 1735722000000,
+      "workflowState": 1,
+      "urlId": "speckled-mug",
+      "title": "Speckled mug",
+      "fullUrl": "/shop/p/speckled-mug",
+      "tags": ["mugs"],
+      "categoryIds": ["c1"],
+      "excerpt": "<p>A 12oz stoneware mug in our oat glaze.</p>",
+      "body": null,
+      "assetUrl": "https://static1.squarespace.com/static/64jun1per/64f0shop/64f0mug/1/",
+      "contentType": "application/octet-stream",
+      "structuredContent": {
+        "_type": "StoreItem",
+        "productType": 1,
+        "variantOptionOrdering": ["Glaze"],
+        "variants": [
+          {
+            "attributes": { "Glaze": "Oat" },
+            "sku": "JC-MUG-OAT",
+            "price": 3800,
+            "priceMoney": { "currency": "USD", "value": "38.00" },
+            "salePrice": 3200,
+            "salePriceMoney": { "currency": "USD", "value": "32.00" },
+            "onSale": true,
+            "unlimited": false,
+            "qtyInStock": 6
+          },
+          {
+            "attributes": { "Glaze": "Juniper" },
+            "sku": "JC-MUG-JUN",
+            "price": 4200,
+            "priceMoney": { "currency": "USD", "value": "42.00" },
+            "salePrice": 0,
+            "onSale": false,
+            "unlimited": false,
+            "qtyInStock": 0
+          }
+        ]
+      },
+      "items": [
+        {
+          "id": "img1",
+          "assetUrl": "https://images.squarespace-cdn.com/content/v1/64jun1per/mugs-row.jpg",
+          "contentType": "image/jpeg",
+          "originalSize": "1200x1200",
+          "title": ""
+        },
+        {
+          "id": "img2",
+          "assetUrl": "https://images.squarespace-cdn.com/content/v1/64jun1per/glaze-tests.jpg",
+          "contentType": "image/jpeg",
+          "originalSize": "1200x1200",
+          "title": "Glaze test tiles"
+        }
+      ]
+    }
+  ]
+}

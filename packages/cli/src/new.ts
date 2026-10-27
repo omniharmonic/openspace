@@ -122,6 +122,44 @@ async function isEmptyDir(dir: string): Promise<boolean> {
   }
 }
 
+/** The starter shell (package.json, Astro config, workflow…) written into `dir`; returns its files. */
+export async function writeShell(
+  dir: string,
+  target: "github-pages" | "cloudflare",
+  slug: string,
+): Promise<Record<string, string>> {
+  const starterRoot = monorepoRoot() ? undefined : bundled("starter");
+  const files = await starterFiles(target, starterRoot);
+  for (const [rel, text] of Object.entries(files)) {
+    const abs = join(dir, rel);
+    await mkdir(dirname(abs), { recursive: true });
+    await writeFile(abs, text);
+  }
+  const pkgPath = join(dir, "package.json");
+  const pkg = JSON.parse(await readFile(pkgPath, "utf8")) as Record<string, unknown>;
+  pkg.name = slug;
+  await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+  return files;
+}
+
+/** `deploy.url` for a new site: explicit, from the GitHub repository, or a placeholder. */
+export function deployUrlFor(
+  opts: Pick<NewOptions, "url" | "repo" | "target">,
+  slug: string,
+): string {
+  const target = opts.target ?? "github-pages";
+  return (
+    opts.url ??
+    (opts.repo
+      ? `https://${opts.repo.split("/")[0]}.github.io/${opts.repo.split("/")[1] ?? slug}`
+      : target === "cloudflare"
+        ? `https://${slug}.pages.dev`
+        : `https://example.github.io/${slug}`)
+  );
+}
+
+export { isEmptyDir, slugify };
+
 /** Scaffold a new site: the starter shell + a template's content, a fresh site id, AGENTS.md. */
 export async function runNew(
   io: Io,
@@ -161,17 +199,7 @@ async function scaffold(
   const slug = slugify(basename(dir));
 
   // 1. The shell.
-  const starterRoot = monorepoRoot() ? undefined : bundled("starter");
-  const files = await starterFiles(targetKind, starterRoot);
-  for (const [rel, text] of Object.entries(files)) {
-    const abs = join(dir, rel);
-    await mkdir(dirname(abs), { recursive: true });
-    await writeFile(abs, text);
-  }
-  const pkgPath = join(dir, "package.json");
-  const pkg = JSON.parse(await readFile(pkgPath, "utf8")) as Record<string, unknown>;
-  pkg.name = slug;
-  await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+  const files = await writeShell(dir, targetKind, slug);
 
   // 2. The template's content.
   for (const part of ["content", "media", "public"]) {
@@ -198,13 +226,7 @@ async function scaffold(
 
   // 3. Identity: fresh site id, current schema, this site's deploy target. All through the
   // validated document writer.
-  const url =
-    opts.url ??
-    (opts.repo
-      ? `https://${opts.repo.split("/")[0]}.github.io/${opts.repo.split("/")[1] ?? slug}`
-      : targetKind === "cloudflare"
-        ? `https://${slug}.pages.dev`
-        : `https://example.github.io/${slug}`);
+  const url = deployUrlFor(opts, slug);
   const doc = await loadSiteDocument(dir);
   const siteId = newId("st");
   doc.config = {

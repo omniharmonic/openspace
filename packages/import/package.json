@@ -1,0 +1,37 @@
+{
+  "name": "@omniharmonic/openspace-import",
+  "version": "0.1.2",
+  "private": true,
+  "description": "Move an existing website into OpenSpace: the Squarespace importer behind `openspace import squarespace`.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./testing": {
+      "types": "./src/testing.ts",
+      "default": "./src/testing.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-lint": "workspace:*",
+    "@omniharmonic/openspace-mcp-tools": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-site-kit": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*",
+    "parse5": "^8.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

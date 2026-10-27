@@ -6,5 +6,5 @@
       "jsdom": ["./test/no-dom-types.d.ts"]
     }
   },
-  "include": ["src", "test", "*.config.ts", "worker-configuration.d.ts"]
+  "include": ["src", "test", "bench", "scripts/*.ts", "*.config.ts", "worker-configuration.d.ts"]
 }

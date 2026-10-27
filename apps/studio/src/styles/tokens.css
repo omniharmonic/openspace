@@ -43,7 +43,7 @@
   /* Status */
   --st-live: #136b41; /* 5.7:1 on --st-live-soft over the panel */
   --st-live-soft: rgb(24 131 80 / 0.11);
-  --st-pending: #a8650d;
+  --st-pending: #8a520a; /* ≥4.5:1 as badge text on --st-pending-soft over bg, panel and canvas */
   --st-pending-soft: rgb(196 125 20 / 0.13);
   --st-danger: #bd2f2f;
   --st-danger-hover: #a32626;

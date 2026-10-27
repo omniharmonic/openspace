@@ -1,0 +1,13 @@
+{
+  // Studio as a static-assets Worker (copy to wrangler.production.local.jsonc and set your domain).
+  // html_handling "none" is required: the service worker precaches /index.html, and a redirected
+  // response (the default /index.html → / 307) makes Safari refuse navigations it serves.
+  "name": "openspace-studio",
+  "compatibility_date": "2026-03-01",
+  "routes": [{ "pattern": "studio.example.com", "custom_domain": true }],
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "html_handling": "none"
+  }
+}

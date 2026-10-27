@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:wp="http://wordpress.org/export/1.2/">
+<channel>
+  <title>Juniper Ceramics</title>
+  <link>https://www.juniperceramics.example</link>
+  <wp:wxr_version>1.2</wp:wxr_version>
+  <item>
+    <title>First firing of spring</title>
+    <link>https://www.juniperceramics.example/journal/2025/3/14/first-firing-of-spring</link>
+    <pubDate>Fri, 14 Mar 2025 16:30:00 +0000</pubDate>
+    <dc:creator>Ana Ruiz</dc:creator>
+    <content:encoded><![CDATA[<p>The kiln is back on after the winter break. We loaded <strong>forty pieces</strong> from the January course.</p>
+<h2>What we changed</h2>
+<ul><li>A slower climb through 600°C</li><li>New shelf posts</li></ul>
+<p><img src="https://images.squarespace-cdn.com/content/v1/64jun1per/kiln-shelf.jpg" alt="A loaded kiln shelf" /></p>
+<p>Read the <a href="https://www.juniperceramics.example/journal/glaze-notes">glaze notes</a>.</p>
+<iframe src="https://player.vimeo.com/video/123456789" width="640" height="360"></iframe>]]></content:encoded>
+    <excerpt:encoded><![CDATA[The kiln is back on after the winter break.]]></excerpt:encoded>
+    <wp:post_id>101</wp:post_id>
+    <wp:post_date>2025-03-14 09:30:00</wp:post_date>
+    <wp:post_date_gmt>2025-03-14 16:30:00</wp:post_date_gmt>
+    <wp:post_name>first-firing-of-spring</wp:post_name>
+    <wp:status>publish</wp:status>
+    <wp:post_type>post</wp:post_type>
+    <category domain="category" nicename="studio-news"><![CDATA[Studio news]]></category>
+    <category domain="post_tag" nicename="kiln"><![CDATA[kiln]]></category>
+    <wp:postmeta><wp:meta_key>_thumbnail_id</wp:meta_key><wp:meta_value><![CDATA[201]]></wp:meta_value></wp:postmeta>
+  </item>
+  <item>
+    <title>Notes on wedging (draft)</title>
+    <link>https://www.juniperceramics.example/journal/notes-on-wedging</link>
+    <dc:creator>Theo Marsh</dc:creator>
+    <content:encoded><![CDATA[<p>Ram's head or spiral? Both, depending on the clay.</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>102</wp:post_id>
+    <wp:post_date>0000-00-00 00:00:00</wp:post_date>
+    <wp:post_name>notes-on-wedging</wp:post_name>
+    <wp:status>draft</wp:status>
+    <wp:post_type>post</wp:post_type>
+    <category domain="post_tag" nicename="technique"><![CDATA[technique]]></category>
+  </item>
+  <item>
+    <title>About Us</title>
+    <link>https://www.juniperceramics.example/about-us</link>
+    <content:encoded><![CDATA[<p>Ana throws; Theo glazes.</p>]]></content:encoded>
+    <wp:post_id>103</wp:post_id>
+    <wp:status>publish</wp:status>
+    <wp:post_type>page</wp:post_type>
+  </item>
+  <item>
+    <title>hero-kiln.jpg</title>
+    <wp:post_id>201</wp:post_id>
+    <wp:post_type>attachment</wp:post_type>
+    <wp:status>inherit</wp:status>
+    <wp:attachment_url>https://images.squarespace-cdn.com/content/v1/64jun1per/hero-kiln.jpg</wp:attachment_url>
+  </item>
+</channel>
+</rss>

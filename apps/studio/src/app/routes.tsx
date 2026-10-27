@@ -148,8 +148,9 @@ function Home() {
 function NotFound() {
   const navigate = useNavigate();
   return (
-    <div className="st-center">
+    <main className="st-center">
       <EmptyState
+        level={1}
         title="There’s nothing at this address"
         description="The link may be out of date. Your sites and templates are a click away."
         action={
@@ -158,7 +159,7 @@ function NotFound() {
           </Button>
         }
       />
-    </div>
+    </main>
   );
 }
 

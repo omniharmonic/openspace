@@ -404,6 +404,67 @@ function ImageTreatments({
   );
 }
 
+const READABILITY_ID = "st-ss-readability";
+
+/** "Accent text on Accent (Dark theme)" */
+export function pairName(f: ContrastIssue["failure"]): string {
+  return `${ROLE_LABEL[f.fg] ?? f.fg} on ${ROLE_LABEL[f.bg] ?? f.bg} (${THEME_NAME[f.theme] ?? f.theme} theme)`;
+}
+
+/** The banner at the top: which pair is hard to read, with the fix one click away. */
+function ContrastAlert({
+  issues,
+  commit,
+  disabled,
+}: {
+  issues: ContrastIssue[];
+  commit: Commit;
+  disabled: boolean;
+}) {
+  const [first] = issues;
+  if (!first) return null;
+  // One color change fixes them all (e.g. dark-theme text on background and on surface).
+  const oneFix = new Set(issues.map((i) => i.fix?.path ?? "")).size === 1;
+  const patch = oneFix ? fixPatch(first) : null;
+  const names = issues.slice(0, 2).map((i) => pairName(i.failure));
+  const more = issues.length - names.length;
+  const show = () => {
+    const el = document.getElementById(READABILITY_ID);
+    el?.scrollIntoView({ block: "start", behavior: "smooth" });
+    el?.querySelector<HTMLElement>(".st-ss-issues")?.focus();
+  };
+  return (
+    <div className="st-ss-alert" role="status">
+      <AlertTriangle aria-hidden="true" />
+      <span className="st-ss-alert__text">
+        {issues.length === 1 ? (
+          <>
+            <strong>{names[0]}</strong> is hard to read.
+          </>
+        ) : (
+          <>
+            {issues.length} color pairs are hard to read: {names.join(", ")}
+            {more > 0 ? ` and ${more} more` : ""}.
+          </>
+        )}
+      </span>
+      {patch && !disabled ? (
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => commit(patch, "Use nearest accessible color")}
+        >
+          Fix it
+        </Button>
+      ) : (
+        <Button size="sm" variant="ghost" onClick={show}>
+          Show
+        </Button>
+      )}
+    </div>
+  );
+}
+
 function ContrastWarnings({
   issues,
   commit,
@@ -420,7 +481,7 @@ function ContrastWarnings({
       </p>
     );
   return (
-    <ul className="st-ss-issues" aria-label="Contrast problems">
+    <ul className="st-ss-issues" aria-label="Contrast problems" tabIndex={-1}>
       {issues.map((i) => {
         const f = i.failure;
         const patch = fixPatch(i);
@@ -584,12 +645,7 @@ export function SiteStylesPanel() {
           Site styles are set by the site’s owner and designers. You can preview them here.
         </RoleNote>
       )}
-      {issues.length > 0 && (
-        <div className="st-ss-alert" role="status">
-          <AlertTriangle aria-hidden="true" /> {issues.length} color{" "}
-          {issues.length === 1 ? "pair is" : "pairs are"} hard to read.
-        </div>
-      )}
+      {issues.length > 0 && <ContrastAlert issues={issues} commit={commit} disabled={disabled} />}
       <PanelSection title="Colors">
         <ThemeStrip styles={styles} />
         <BrandColor styles={styles} commit={commit} disabled={disabled} />
@@ -701,13 +757,15 @@ export function SiteStylesPanel() {
           Always off for visitors who ask their device for reduced motion.
         </p>
       </PanelSection>
-      <PanelSection
-        key={issues.length ? "issues" : "ok"}
-        title="Readability"
-        defaultOpen={issues.length > 0}
-      >
-        <ContrastWarnings issues={issues} commit={commit} disabled={disabled} />
-      </PanelSection>
+      <div id={READABILITY_ID}>
+        <PanelSection
+          key={issues.length ? "issues" : "ok"}
+          title="Readability"
+          defaultOpen={issues.length > 0}
+        >
+          <ContrastWarnings issues={issues} commit={commit} disabled={disabled} />
+        </PanelSection>
+      </div>
       {can && (
         <PanelSection title="Design tokens" defaultOpen={false}>
           <OverridesEditor styles={styles} commit={commit} />

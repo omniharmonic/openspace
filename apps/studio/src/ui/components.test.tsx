@@ -284,6 +284,32 @@ describe("Dialog", () => {
   });
 });
 
+function PublishHost() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button>Site name</Button>
+      <Button onClick={() => setOpen(true)}>Publish</Button>
+      <Dialog open={open} onOpenChange={setOpen} title="Publish changes">
+        <p>Body</p>
+      </Dialog>
+    </>
+  );
+}
+
+describe("Dialog opened from state", () => {
+  it("gives focus back to the button that opened it when closed with Escape", async () => {
+    wrap(<PublishHost />);
+    const publish = screen.getByRole("button", { name: "Publish" });
+    publish.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(await screen.findByRole("dialog", { name: "Publish changes" })).toBeInTheDocument();
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(publish).toHaveFocus();
+  });
+});
+
 describe("Menu", () => {
   it("runs the selected item", async () => {
     const onDuplicate = vi.fn();

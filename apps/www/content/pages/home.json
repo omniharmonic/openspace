@@ -1361,7 +1361,7 @@
             "secondaryLabel": "How it's built",
             "secondaryLink": {
               "type": "url",
-              "url": "https://github.com/omniharmonic/openspace/blob/main/apps/docs/src/content/docs/architecture.md"
+              "url": "https://docs.openspace.host/architecture/"
             }
           },
           "variant": "default",

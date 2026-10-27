@@ -10,11 +10,13 @@ What's inside:
 | **Skill `openspace-web-design`** | The design playbook: preset-first composition, the rapid inspect → design check → edit → screenshot loop, Squarespace-grade craft heuristics, mobile review, never inventing facts.                 |
 | **Skill `openspace-site-setup`** | Create a site from one of the twelve templates with the CLI, connect Claude, publish, connect a domain.                                                                                             |
 | **Skill `openspace-content`**    | Blog posts, events, products, projects and podcast episodes through the content tools.                                                                                                              |
+| **Skill `openspace-migrate`**    | Move a Squarespace site: run the importer, then reach visual parity page by page with side-by-side screenshots of the original and the new site; redirects, the domain move and an honest summary. |
 | **`/openspace:new-site`**        | Create a new site from a template.                                                                                                                                                                  |
 | **`/openspace:iterate`**         | Rapid design iteration on one page, with screenshots after every change.                                                                                                                            |
 | **`/openspace:design-check`**    | A design and SEO review of a page or the whole site.                                                                                                                                                |
 | **`/openspace:restyle`**         | Change the whole look to a mood, through template looks and Site Styles.                                                                                                                            |
 | **`/openspace:publish`**         | Show what changed, check it, and publish after you confirm.                                                                                                                                         |
+| **`/openspace:import-squarespace`** | Move a Squarespace site into a new OpenSpace site and bring it to visual parity.                                                                                                              |
 | **Agent `openspace-designer`**   | An independent design reviewer that uses Design check, screenshots and rendered HTML and returns a prioritised fix list.                                                                            |
 
 ## Install
@@ -50,6 +52,14 @@ Edits are written to `content/` and `media/`. With git, a snapshot tag (`os/snap
 
 To let Claude edit but never commit (for unattended runs), copy [`examples/local-no-publish.mcp.json`](examples/local-no-publish.mcp.json) into your site as `.mcp.json` and disable the plugin's server, or run `claude mcp add openspace -- npx -y @omniharmonic/openspace-cli mcp . --no-publish`.
 
+## Move a Squarespace site
+
+```
+/openspace:import-squarespace https://www.example.com my-site
+```
+
+Claude confirms you own the site, runs `npx -y @omniharmonic/openspace-cli import squarespace` (pages, blog, events, products, images, navigation, forms, SEO, redirects and an approximate look; add `--export` with Squarespace's WordPress export for complete blog posts), reads you `IMPORT-REPORT.md`, and — once you reopen Claude Code in the new folder — compares each page with the original using `screenshot_url` (the old page) and `screenshot` (the new one) at desktop and mobile, fixing differences with presets and Site Styles. It never copies Squarespace's template code. Your Squarespace site stays up until the new one is live on your domain. The local MCP server also offers the import itself as the `import_squarespace` tool (it creates a new folder next to the site being served). See the [migration guide](https://docs.openspace.host/guides/migrate-from-squarespace/).
+
 ## Use it with a site on the OpenSpace Hub
 
 Sites created in Studio live on the Hub; connect Claude Code to the Hub's remote MCP server instead of the local one:
@@ -70,6 +80,7 @@ A ready-made entry is in [`examples/remote-hub.mcp.json`](examples/remote-hub.mc
 /openspace:restyle calmer and more editorial
 /openspace:new-site hearth ember-and-olive a neighbourhood Italian restaurant in Providence
 /openspace:publish Updated class schedule for winter
+/openspace:import-squarespace https://www.fernwoodyoga.com fernwood
 ```
 
 Or just ask:

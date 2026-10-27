@@ -27,7 +27,13 @@ import {
   validatePlugin,
 } from "./index";
 
-const TOOL_NAMES = new Set(ALL_TOOLS.map((t) => t.name));
+/**
+ * Tools only the local stdio server (`openspace mcp`) adds on top of the shared set: they fetch
+ * the web, so the Hub never serves them. Each must really be defined in the CLI.
+ */
+const LOCAL_TOOLS = ["import_squarespace", "screenshot_url"];
+const CLI_MCP = join(REPO_ROOT, "packages", "cli", "src", "mcp");
+const TOOL_NAMES = new Set([...ALL_TOOLS.map((t) => t.name), ...LOCAL_TOOLS]);
 const read = (rel: string) => readFileSync(join(PLUGIN_ROOT, rel), "utf8");
 
 describe("plugin structure (plugin-validator checklist)", () => {
@@ -62,6 +68,7 @@ describe("plugin structure (plugin-validator checklist)", () => {
     const base = (p: string) => p.split("/").pop();
     expect(commandFiles().map(base)).toEqual([
       "design-check.md",
+      "import-squarespace.md",
       "iterate.md",
       "new-site.md",
       "publish.md",
@@ -69,6 +76,7 @@ describe("plugin structure (plugin-validator checklist)", () => {
     ]);
     expect(skillFiles().map((p) => p.split("/").at(-2))).toEqual([
       "openspace-content",
+      "openspace-migrate",
       "openspace-site-setup",
       "openspace-web-design",
     ]);
@@ -218,6 +226,63 @@ describe("skills and commands match the real MCP server", () => {
     expect(agent.body).toContain("`design_check`");
     expect(agent.body).toContain("`screenshot`");
     expect(agent.body).toContain("`render_page`");
+  });
+});
+
+describe("the Squarespace migration skill and command", () => {
+  it("local-only tools are defined in the CLI's MCP server and registered there", () => {
+    const sources = ["import-tool.ts", "reference-tool.ts"]
+      .map((f) => readFileSync(join(CLI_MCP, f), "utf8"))
+      .join("\n");
+    for (const t of LOCAL_TOOLS) expect(sources).toContain(`name: "${t}"`);
+    const index = readFileSync(join(CLI_MCP, "index.ts"), "utf8");
+    expect(index).toMatch(/importSquarespaceTool\(/);
+    expect(index).toMatch(/screenshotUrlTool\(/);
+    for (const t of LOCAL_TOOLS)
+      expect(
+        ALL_TOOLS.some((x) => x.name === t),
+        `${t} must stay local`,
+      ).toBe(false);
+  });
+
+  it("the CLI has the import command the skill runs", () => {
+    const program = readFileSync(join(REPO_ROOT, "packages", "cli", "src", "program.ts"), "utf8");
+    expect(program).toMatch(/\.command\("import"\)/);
+    expect(program).toMatch(/\.command\("squarespace"\)/);
+    for (const flag of ["--owner", "--export", "--target", "--max-pages", "--delay", "--no-media"])
+      expect(program).toContain(flag);
+    const skill = read("skills/openspace-migrate/SKILL.md");
+    for (const flag of ["--owner", "--export", "--target", "--max-pages", "--delay", "--no-media"])
+      expect(skill).toContain(flag);
+    expect(skill).toContain("npx -y @omniharmonic/openspace-cli import squarespace");
+  });
+
+  it("the skill runs the screenshot comparison loop through design tools, never copied code", () => {
+    const skill = read("skills/openspace-migrate/SKILL.md");
+    for (const t of [
+      "screenshot_url",
+      "screenshot",
+      "render_page",
+      "design_check",
+      "apply_fix",
+      "update_section",
+      "insert_section",
+      "place_in_grid",
+      "auto_mobile_layout",
+      "set_styles",
+      "get_draft_diff",
+      "import_squarespace",
+    ])
+      expect(skill, t).toContain(`\`${t}\``);
+    expect(skill).toMatch(/never copy it/i);
+    expect(skill).toMatch(/desktop/);
+    expect(skill).toMatch(/mobile/);
+    expect(skill).toMatch(/robots\.txt/);
+    expect(skill).toMatch(/only then cancel the Squarespace/);
+    expect(skill).toMatch(/honest summary/i);
+    const cmd = readMarkdown(join(PLUGIN_ROOT, "commands", "import-squarespace.md"));
+    expect(cmd.body).toContain("openspace-migrate");
+    expect(cmd.body).toContain("`screenshot_url`");
   });
 });
 

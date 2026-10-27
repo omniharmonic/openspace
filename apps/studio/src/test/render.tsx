@@ -11,7 +11,7 @@ import { useCommandStore } from "../ui/command-store";
 import { useToastStore } from "../ui/toast-store";
 
 export const FAST: Partial<StudioConfig> = {
-  timing: { stepMs: 5, settleMs: 5, pollMs: 10 },
+  timing: { stepMs: 5, settleMs: 5, pollMs: 10, failGraceMs: 30, createRetryMs: 5 },
   showKit: true,
   sync: {
     reconnectBaseMs: 10,
@@ -34,10 +34,13 @@ export function renderStudio(
   path: string,
   hubOptions: MockHubOptions = {},
   config: Partial<StudioConfig> = FAST,
+  /** Patch the mock Hub before the first render (e.g. to make a call fail). */
+  setup?: (hub: ReturnType<typeof createMockHub>) => void,
 ) {
   useToastStore.getState().clear();
   useCommandStore.setState({ open: false, sources: {} });
   const hub = createMockHub({ buildMs: 0, publishStepMs: 20, ...hubOptions });
+  setup?.(hub);
   // Each render gets its own device cache unless a test shares one (to simulate a reload).
   const merged: Partial<StudioConfig> = {
     ...config,
@@ -46,7 +49,7 @@ export function renderStudio(
   const router = createMemoryRouter(createRoutes({ showKit: config.showKit ?? true }), {
     initialEntries: [path],
   });
-  const queryClient = createQueryClient();
+  const queryClient = createQueryClient({ retryBaseMs: 5 });
   const user = userEvent.setup();
   const utils = render(
     <Providers hub={hub} config={merged} queryClient={queryClient}>

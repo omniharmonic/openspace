@@ -2,7 +2,7 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 
-export const SITE = "https://docs.openspace.dev";
+export const SITE = "https://docs.openspace.host";
 export const REPO = "https://github.com/omniharmonic/openspace";
 
 export default defineConfig({
@@ -34,6 +34,7 @@ export default defineConfig({
             { label: "Media", slug: "guides/media" },
             { label: "Publishing, history & rollback", slug: "guides/publishing" },
             { label: "Domains", slug: "guides/domains" },
+            { label: "Move from Squarespace", slug: "guides/migrate-from-squarespace" },
           ],
         },
         {

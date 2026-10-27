@@ -1,5 +1,12 @@
 import { blocksRegistry } from "@omniharmonic/openspace-blocks";
-import { apply, deepEqual, type Op, rebase, validate } from "@omniharmonic/openspace-ops";
+import {
+  apply,
+  deepEqual,
+  footprint,
+  type Op,
+  rebase,
+  validate,
+} from "@omniharmonic/openspace-ops";
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { createStore, type StoreApi } from "zustand/vanilla";
 import type { Site } from "../../api/types";
@@ -156,6 +163,15 @@ interface PendingOp {
 const registry = blocksRegistry();
 
 /** Apply ops in order, keeping the ones that still apply. */
+/** How long an own edit counts as "just edited" for overwrite notices. */
+const RECENT_OWN_MS = 30_000;
+
+const pathsOverlap = (a: readonly string[], b: readonly string[]) => {
+  const n = Math.min(a.length, b.length);
+  for (let i = 0; i < n; i++) if (a[i] !== b[i]) return false;
+  return true;
+};
+
 export function foldOps(doc: SiteDocument, ops: readonly Op[]): { doc: SiteDocument; kept: Op[] } {
   let cur = doc;
   const kept: Op[] = [];
@@ -215,6 +231,8 @@ export class RoomClient {
   private readonly seen = new Set<number>();
   /** Actor → display name, from everyone seen in the room. */
   private readonly names = new Map<string, string>();
+  /** Own edits the room confirmed lately: a later edit of the same field by someone else is news. */
+  private recentOwn: Array<{ op: Op; at: number }> = [];
   /** A document fetch after `stale` is in flight (one per burst). */
   private refetching = false;
   /** The seq a `sync` was last asked from; asking again from it means sync didn't help. */
@@ -724,6 +742,7 @@ export class RoomClient {
     this.seq = seq;
     this.seen.add(seq);
     if (at >= 0) this.pending.splice(at, 1);
+    this.rememberOwn(stored);
     this.prune();
     this.afterPendingChange(changed);
   }
@@ -769,7 +788,53 @@ export class RoomClient {
       }
     }
     this.afterPendingChange(true);
+    this.noticeOverwrite(o, base);
     this.emit({ type: "remote", logged: o });
+  }
+
+  private rememberOwn(op: Op): void {
+    const now = this.now();
+    this.recentOwn = this.recentOwn
+      .filter((r) => now - r.at < RECENT_OWN_MS && r.op.id !== op.id)
+      .concat({ op, at: now })
+      .slice(-50);
+  }
+
+  /**
+   * Someone else's edit replaced a field this person edited moments ago (already confirmed, so
+   * the rebase above can't see it): last writer wins, but not silently. "Ana also edited this",
+   * with their own value one click away.
+   */
+  private noticeOverwrite(o: LoggedOp, before: SiteDocument): void {
+    const now = this.now();
+    this.recentOwn = this.recentOwn.filter((r) => now - r.at < RECENT_OWN_MS);
+    const theirs = footprint(o.op, before).touches.filter((t) => t.kind === "edit");
+    if (!theirs.length) return;
+    const hit = [...this.recentOwn]
+      .reverse()
+      .find((r) =>
+        footprint(r.op, before).touches.some(
+          (t) => t.kind === "edit" && theirs.some((u) => pathsOverlap(t.path, u.path)),
+        ),
+      );
+    if (!hit) return;
+    // Once per own edit: their next keystrokes on the same field don't stack more notices.
+    this.recentOwn = this.recentOwn.filter((r) => r !== hit);
+    const sameActor = o.actor === hit.op.actor;
+    const name = sameActor ? "You (in another window)" : (this.names.get(o.actor) ?? "Someone");
+    this.emit({
+      type: "conflict",
+      notice: {
+        type: "conflict",
+        opId: hit.op.id,
+        reason: "concurrent-edit",
+        message: `${name} also edited this`,
+        paths: theirs.map((t) => t.path.join("/")),
+        winner: "them",
+        by: { actor: o.actor, name },
+        restore: hit.op,
+      },
+    });
   }
 
   private reject(opId: string | null, code: RejectCode, message: string): void {

@@ -4,7 +4,8 @@ import { useNavigate } from "react-router";
 import { useTemplates } from "../../api";
 import type { TemplateLook, TemplateSummary } from "../../api/types";
 import { AppHeader } from "../../app/AppHeader";
-import { Button, Dialog, EmptyState, Segmented, Skeleton, useRegisterCommands } from "../../ui";
+import { LoadError } from "../../app/Connection";
+import { Button, Dialog, Segmented, Skeleton, useRegisterCommands } from "../../ui";
 import { LookPicker } from "./LookPicker";
 import "./TemplateGallery.css";
 import { TemplatePreview } from "./TemplatePreview";
@@ -180,10 +181,10 @@ export function TemplateGallery() {
             ))}
           </div>
         ) : templates.isError ? (
-          <EmptyState
+          <LoadError
             title="Templates didn’t load"
-            description={templates.error.message}
-            action={<Button onClick={() => templates.refetch()}>Try again</Button>}
+            error={templates.error}
+            onRetry={() => void templates.refetch()}
           />
         ) : (
           <div className="st-gallery__grid">
