@@ -43,6 +43,12 @@ export function HelpMenu({ site, side = "right" }: { site: Site; side?: "right" 
       title: "Your site is being set up",
       body: "It usually takes a minute or two. This page updates by itself — you don't need to do anything.",
     };
+  else if (site.status === "failed" && site.import?.state === "failed")
+    now = {
+      title: "The move didn't finish",
+      body: "Your current site is untouched. Try the move again — it picks up from the start.",
+      action: { label: "Try the move again", run: () => go(`/move/${site.import?.id}`) },
+    };
   else if (site.status === "failed")
     now = {
       title: "Your latest publish needs attention",

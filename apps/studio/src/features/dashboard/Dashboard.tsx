@@ -17,6 +17,7 @@ import { type FormEvent, useMemo, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router";
 import {
   useDeleteSite,
+  useRetryImport,
   useRetryPublish,
   useSession,
   useSetupInfo,
@@ -141,7 +142,11 @@ function siteMenu(
     { label: "Copy link", icon: <Copy />, onSelect: () => void copyLink(site.url) },
   ];
   if (site.status === "failed") {
-    items.push({ label: "Try publishing again", icon: <RotateCcw />, onSelect: actions.retry });
+    items.push({
+      label: moveFailed(site) ? "Try the move again" : "Try publishing again",
+      icon: <RotateCcw />,
+      onSelect: actions.retry,
+    });
   }
   if (site.owner === myLogin) {
     items.push(
@@ -308,7 +313,12 @@ function SiteCard({
 }) {
   const look = template?.looks.find((l) => l.id === site.look) ?? template?.looks[0];
   const moving = site.import && importInProgress(site.import.state) ? site.import : null;
-  const href = moving ? `/move/${moving.id}` : `/sites/${site.id}`;
+  const failedMove = moveFailed(site);
+  const href = moving
+    ? `/move/${moving.id}`
+    : failedMove
+      ? `/move/${failedMove}`
+      : `/sites/${site.id}`;
   return (
     <article className="st-sitecard" aria-labelledby={`site-${site.id}`}>
       <Link to={href} className="st-sitecard__preview" tabIndex={-1} aria-hidden="true">
@@ -400,6 +410,11 @@ function SiteCard({
       </div>
     </article>
   );
+}
+
+/** The id of a move (into a new site) that didn't finish: its card offers to try the move again. */
+export function moveFailed(site: Pick<Site, "import">): string | null {
+  return site.import?.state === "failed" && site.import.kind !== "convert" ? site.import.id : null;
 }
 
 /**
@@ -515,8 +530,21 @@ export function Dashboard() {
   const [transferring, setTransferring] = useState<Site | null>(null);
   const [deleting, setDeleting] = useState<Site | null>(null);
   const retry = useRetryPublish();
-  const retryPublish = (s: Site) =>
-    retry.mutate(s.id, {
+  const retryMove = useRetryImport();
+  const retryPublish = (s: Site) => {
+    // A move that didn't finish is retried as a move (not by publishing its placeholder page).
+    const failedMove = moveFailed(s);
+    if (failedMove)
+      return retryMove.mutate(failedMove, {
+        onSuccess: () => navigate(`/move/${failedMove}`),
+        onError: (err) =>
+          toast({
+            tone: "danger",
+            title: "The move couldn’t start again",
+            description: err.message,
+          }),
+      });
+    return retry.mutate(s.id, {
       onSuccess: () =>
         toast({
           title: `Publishing ${s.name} again`,
@@ -529,6 +557,7 @@ export function Dashboard() {
           description: err.message,
         }),
     });
+  };
   const setView = (v: View) => {
     setViewState(v);
     try {
@@ -705,7 +734,10 @@ export function Dashboard() {
                 template={templateById.get(s.template)}
                 menu={menuFor(s)}
                 onRetry={() => retryPublish(s)}
-                retrying={retry.isPending && retry.variables === s.id}
+                retrying={
+                  (retry.isPending && retry.variables === s.id) ||
+                  (retryMove.isPending && retryMove.variables === s.import?.id)
+                }
               />
             ))}
           </div>

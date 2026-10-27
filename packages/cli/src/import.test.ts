@@ -444,6 +444,10 @@ describe("openspace import github", () => {
         join(fixtures, "html-site"),
         "--delay",
         "0",
+        // The hosted import (CLI 0.1.8) passed these to every subcommand; `import github`
+        // rejected --owner, so every GitHub Pages move failed (wave 3 P0). Accepted, no effect.
+        "--owner",
+        "--render",
       ],
       cap.io,
       { fetch: offline },

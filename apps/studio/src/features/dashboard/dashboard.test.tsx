@@ -39,6 +39,30 @@ describe("dashboard", () => {
     expect(within(card).getByText("Setting up")).toBeInTheDocument();
   });
 
+  it("a move that didn't finish is never Live, and Try again retries the move", async () => {
+    const moved: Site = {
+      ...(sites[0] as Site),
+      status: "failed",
+      statusDetail:
+        "The move didn't finish. Open it to try again — your current site is untouched.",
+      import: { id: "imp_failedmove", state: "failed", kind: "url" },
+    };
+    const { user, hub } = renderStudio("/sites", { user: SAM, sites: [moved] });
+    const card = await screen.findByRole("article", { name: "Willow Street Yoga" });
+    expect(within(card).queryByText("Live")).not.toBeInTheDocument();
+    expect(within(card).getByText("Needs attention")).toBeInTheDocument();
+    expect(within(card).getByText(/The move didn't finish/)).toBeInTheDocument();
+    expect(within(card).getByRole("link", { name: "Willow Street Yoga" })).toHaveAttribute(
+      "href",
+      "/move/imp_failedmove",
+    );
+    await user.click(within(card).getByRole("button", { name: "Try again" }));
+    await waitFor(() =>
+      expect(hub.calls.find((c) => c.method === "retryImport")?.args).toEqual(["imp_failedmove"]),
+    );
+    expect(hub.calls.some((c) => c.method === "retryPublish")).toBe(false);
+  });
+
   it("invites people with no sites to make one", async () => {
     const { user, router } = renderStudio("/sites", { user: SAM, sites: [] });
     expect(

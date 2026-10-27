@@ -176,7 +176,7 @@ export function placeholderDocument(input: {
     id: home,
     title: "Home",
     slug: "",
-    seo: { title: null, description: `${input.name} is moving here.`, noindex: true },
+    seo: { title: null, description: `${input.name} is being set up.`, noindex: true },
     sections: [
       {
         id: newId("sec"),
@@ -189,9 +189,7 @@ export function placeholderDocument(input: {
             type: "text",
             v: 1,
             fields: {
-              content: doc(
-                `We're moving this site here from ${input.sourceLabel}. It will be ready in a few minutes.`,
-              ),
+              content: doc("This site is being set up. Please check back soon."),
             },
           },
         ],

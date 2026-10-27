@@ -1,10 +1,17 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
+import { readConfig } from "../src/env";
 import { DevGitHubAccess } from "../src/github/dev";
 import { DRAFT_BRANCH } from "../src/github/types";
+import { createServices } from "../src/services";
 import { guessSiteName, parseImportSource, placeholderDocument } from "../src/services/import-site";
-import { attentionFromReport, type ImportView } from "../src/services/imports";
+import {
+  attentionFromReport,
+  failureMessage,
+  type ImportView,
+  recordProgress,
+} from "../src/services/imports";
 import { loadSiteDocument, siteDocumentToFiles } from "../src/services/site-files";
 import {
   IMPORT_CLI_VERSION,
@@ -98,7 +105,10 @@ describe("what the person pastes", () => {
     });
     const again = loadSiteDocument(siteDocumentToFiles(doc));
     expect(again.site.title).toBe("Maya Yoga");
-    expect(JSON.stringify(again)).toContain("We're moving this site here from maya-yoga.com");
+    // Public while the move runs: it says "being set up", never promises a time.
+    expect(JSON.stringify(again)).toContain("This site is being set up");
+    expect(JSON.stringify(again)).not.toContain("few minutes");
+    expect(again.pages[Object.keys(again.pages)[0] as string]?.seo?.noindex).toBe(true);
   });
 });
 
@@ -124,6 +134,31 @@ describe("the import workflow", () => {
     expect(IMPORT_HELPER_MJS).toContain('"--into-existing"');
     expect(IMPORT_HELPER_MJS).toContain("/ci/sites/");
     expect(IMPORT_HELPER_MJS).toContain('"workflow", "run", "publish.yml"');
+    // --owner/--render are only passed for website addresses: CLI 0.1.8's `import github`
+    // rejected --owner, so every GitHub Pages move failed (wave 3 P0).
+    expect(IMPORT_HELPER_MJS).toContain('if (req.owner && !fromGitHub) args.push("--owner")');
+    expect(IMPORT_HELPER_MJS).toContain('req.mode === "convert" || req.platform === "github"');
+    expect(IMPORT_CLI_VERSION).toBe("0.1.9");
+  });
+
+  it("explains failed runs without blaming the person's site for our problems", () => {
+    const row = { kind: "url" } as Parameters<typeof failureMessage>[0];
+    const ours = failureMessage(
+      row,
+      ["Bringing pages across"],
+      "npm warn exec\nerror: unknown option '--owner'\n",
+    );
+    expect(ours).toContain("on our side");
+    expect(ours).not.toMatch(/public/);
+    const gone = failureMessage(
+      row,
+      ["Bringing pages across"],
+      "Error: GET https://x.example/ failed with 404 Not Found",
+    );
+    expect(gone).toContain("opens in a private browser window");
+    expect(failureMessage(row, ["Bringing pages across"], "")).toBe(
+      "The move stopped while bringing pages across. This is usually temporary — choose Try again.",
+    );
   });
 
   it("turns IMPORT-REPORT.md into What needs your attention", () => {
@@ -229,6 +264,40 @@ describe("Move my site (hosted import, dev emulation)", () => {
       .bind(created.import.id)
       .first<{ attempt: number }>();
     expect(row?.attempt).toBe(2);
+  });
+
+  it("a failed move is never shown as live, and progress never goes backwards", async () => {
+    const app = createApp();
+    const cookie = await devLogin(app, "Fail Fred");
+    const created = (await (
+      await move(app, cookie, { url: "https://fail.example.com" })
+    ).json()) as Created;
+    const site = (await (await call(app, `/api/sites/${created.site.id}`, { cookie })).json()) as {
+      status: string;
+      statusDetail: string | null;
+    };
+    expect(site.status).toBe("failed");
+    expect(site.statusDetail).toContain("The move didn't finish");
+
+    // A running move: "failed" (the run's last report) and late reports keep the step reached.
+    const services = createServices(env, readConfig(env));
+    await env.HUB_DB.prepare(
+      "UPDATE site_imports SET state = 'running', phase = 'importing', error = NULL WHERE id = ?",
+    )
+      .bind(created.import.id)
+      .run();
+    const moving = (await (
+      await call(app, `/api/sites/${created.site.id}`, { cookie })
+    ).json()) as {
+      status: string;
+    };
+    expect(moving.status).toBe("building");
+    await recordProgress(services, created.import.id, { phase: "failed" });
+    await recordProgress(services, created.import.id, { phase: "reading" });
+    const row = await env.HUB_DB.prepare("SELECT phase FROM site_imports WHERE id = ?")
+      .bind(created.import.id)
+      .first<{ phase: string }>();
+    expect(row?.phase).toBe("importing");
   });
 
   it("waits for the GitHub App install step, then moves the site", async () => {
