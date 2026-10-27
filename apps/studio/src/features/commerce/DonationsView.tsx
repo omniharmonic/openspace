@@ -9,6 +9,7 @@ import { workspacePath } from "../workspace/routes";
 import { errorMessage, Stat, WsHeader } from "../workspace/ui";
 import type { AreaProps } from "../workspace/WorkspaceView";
 import "./commerce.css";
+import { ServiceRequirements } from "./ServiceRequirements";
 
 /** Donations: the smallest and largest gift, plus a summary of gifts received. */
 export function DonationsView({ site }: AreaProps) {
@@ -48,6 +49,7 @@ export function DonationsView({ site }: AreaProps) {
           </Button>
         }
       />
+      <ServiceRequirements site={site} feature="donations" />
       <div className="st-stats">
         <Stat
           label="Gifts received"

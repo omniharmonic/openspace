@@ -617,7 +617,26 @@ describe("orders dashboard, refunds, discounts, stock API", () => {
       { ...(env as unknown as Record<string, unknown>), DEV_MODE: "false" },
     );
     expect(prod.status).toBe(503);
-    expect(((await prod.json()) as { error: { code: string } }).error.code).toBe("not_configured");
+    const refused = (await prod.json()) as { message: string; error: { code: string } };
+    expect(refused.error.code).toBe("payments_unavailable");
+    // Visitors never see the Hub's configuration.
+    expect(refused.message).not.toMatch(/STRIPE|key/i);
+    // A no-JS donation/cart form post lands on a plain page with a way back, not raw JSON.
+    const page = await call(
+      app,
+      `/c/${f.siteId}/checkout`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "kind=donation&amount=1000",
+      },
+      { ...(env as unknown as Record<string, unknown>), DEV_MODE: "false" },
+    );
+    expect(page.status).toBe(503);
+    expect(page.headers.get("content-type")).toContain("text/html");
+    const html = await page.text();
+    expect(html).toContain("isn&#39;t set up to take payments yet");
+    expect(html).not.toMatch(/STRIPE_SECRET_KEY|\{"error"/);
   });
 });
 

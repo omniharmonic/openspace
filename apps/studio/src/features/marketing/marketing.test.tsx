@@ -165,6 +165,19 @@ describe("email campaigns", () => {
     expect(router.state.location.pathname).toBe(`/sites/${WILLOW.id}/campaigns/sender`);
   });
 
+  it("warns up front when no sender is connected, before anyone presses Send", async () => {
+    const { hub, queryClient } = await openWorkspace("campaigns/cmp_retreat");
+    await screen.findByRole("textbox", { name: "Subject" });
+    growth(hub).senders.length = 0;
+    await queryClient.invalidateQueries();
+    expect(
+      await screen.findByText("Connect your email sender before sending."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send now" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Send a test" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Schedule" })).toBeDisabled();
+  });
+
   it("only lets designers send; editors write and test", async () => {
     await openWorkspace("campaigns/cmp_retreat", { site: { role: "editor" } });
     await screen.findByRole("textbox", { name: "Subject" });

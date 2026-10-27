@@ -25,7 +25,27 @@ export interface Session {
   auth: { github: boolean; dev: boolean };
   /** Whether the Hub talks to real GitHub or its dev emulation (site files then aren't on GitHub). */
   github?: { configured: boolean; emulated: boolean };
+  /** What this Hub can deliver (absent on older Hubs: read through `useCapabilities`). */
+  capabilities?: HubCapabilities;
 }
+
+/** `GET /api/me` → `capabilities` (also `GET /api/capabilities`). */
+export interface HubCapabilities {
+  /** `configured`: a real email provider. `devOutbox`: DEV_MODE keeps mail in /dev/outbox. */
+  email: { configured: boolean; devOutbox: boolean };
+  /** Platform Stripe checkout (Connect), or DevStripe in DEV_MODE. */
+  payments: { configured: boolean; dev: boolean };
+  turnstile: { configured: boolean };
+  hosting: { githubPages: boolean; cloudflare: boolean };
+}
+
+/** What an older Hub that doesn't report capabilities is assumed to do (its behaviour so far). */
+export const DEFAULT_CAPABILITIES: HubCapabilities = {
+  email: { configured: true, devOutbox: false },
+  payments: { configured: true, dev: false },
+  turnstile: { configured: true },
+  hosting: { githubPages: true, cloudflare: true },
+};
 
 /** Visual parameters of one template "look" — enough to sketch a preview before the renderer is wired. */
 export interface LookStyles {
@@ -233,7 +253,7 @@ export interface PublishResponse {
 }
 
 export interface FixResult {
-  fix: "revert" | "retry" | "enable_pages";
+  fix: "revert" | "retry" | "enable_pages" | "update_node";
   sha: string;
   site: Site;
 }
@@ -249,6 +269,8 @@ export interface SiteVersion {
   error: PublishError | null;
   /** The version the live site is on. */
   current: boolean;
+  /** The site can go back to it (false for a repository's own empty first commit). */
+  restorable?: boolean;
 }
 
 export interface RollbackResult {

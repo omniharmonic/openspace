@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useHub } from "./context";
 import { isTransientError } from "./resilience";
-import { type CreateSiteInput, type GitHubSignInParams, HubError, type Site } from "./types";
+import {
+  type CreateSiteInput,
+  DEFAULT_CAPABILITIES,
+  type GitHubSignInParams,
+  type HubCapabilities,
+  HubError,
+  type Site,
+} from "./types";
 
 export const queryKeys = {
   session: ["session"] as const,
@@ -17,6 +24,26 @@ export function useSession() {
     queryFn: () => hub.getSession(),
     staleTime: 60_000,
   });
+}
+
+/**
+ * What the Hub can deliver (email, payments, Turnstile). Read defensively: until the session
+ * loads, or on an older Hub, it assumes the Hub works as it always has.
+ */
+export function useCapabilities(): HubCapabilities {
+  const caps = useSession().data?.capabilities;
+  return {
+    email: { ...DEFAULT_CAPABILITIES.email, ...caps?.email },
+    payments: { ...DEFAULT_CAPABILITIES.payments, ...caps?.payments },
+    turnstile: { ...DEFAULT_CAPABILITIES.turnstile, ...caps?.turnstile },
+    hosting: { ...DEFAULT_CAPABILITIES.hosting, ...caps?.hosting },
+  };
+}
+
+/** The Hub can't send email (no provider, and not a dev Hub with an outbox). */
+export function useEmailUnavailable(): boolean {
+  const { email } = useCapabilities();
+  return !email.configured && !email.devOutbox;
 }
 
 export function useTemplates() {

@@ -13,6 +13,7 @@ import { workspacePath } from "../workspace/routes";
 import { errorMessage, SearchField, WsHeader } from "../workspace/ui";
 import type { AreaProps } from "../workspace/WorkspaceView";
 import "./commerce.css";
+import { ServiceRequirements } from "./ServiceRequirements";
 
 /** Every product and variant with its stock: track, adjust, set a low-stock warning. */
 export function ProductsStockView({ site }: AreaProps) {
@@ -42,6 +43,7 @@ export function ProductsStockView({ site }: AreaProps) {
           </Button>
         }
       />
+      <ServiceRequirements site={site} feature="store" />
       {products.isPending ? (
         <Skeleton height={160} />
       ) : (products.data?.products.length ?? 0) === 0 ? (

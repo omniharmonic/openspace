@@ -26,6 +26,7 @@ import {
   toast,
 } from "../../ui";
 import { CURRENCIES } from "../collections/fields";
+import { ServiceRequirements } from "../commerce/ServiceRequirements";
 import { useDocStore } from "../editor/model/context";
 import { can, useManageUi } from "../site-mgmt/manage-ui";
 import { ago, date, money, moneyInput, number, parseMoney } from "../workspace/format";
@@ -51,6 +52,7 @@ export function MembersView({ site }: AreaProps) {
         title="Members"
         description="People who sign in to your site with a link sent to their email. Give them free or paid tiers, and keep some pages for members only."
       />
+      <ServiceRequirements site={site} feature="members" />
       <Tabs
         value={tab}
         onValueChange={setTab}

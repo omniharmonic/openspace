@@ -9,7 +9,7 @@ import { purgeGatedContent } from "./services/gated-content";
 import { createServices, type Services } from "./services/index";
 import { runDueSchedules } from "./services/publishing";
 import { backfillTurnstileVariables, runDueScheduledItems } from "./services/site-automation";
-import { deleteSetupAssets, expireTransfers } from "./services/sites";
+import { deleteSetupAssets, expireTransfers, failStalledSetups } from "./services/sites";
 
 /** Per-site Hub data deleted when an archived site's retention ends (arch §8.3, FR-4). */
 const SITE_TABLES = [
@@ -96,6 +96,8 @@ export async function runScheduled(env: HubBindings, scheduledTime = Date.now())
     // Turnstile site key → repository variable for sites that don't have it yet.
     ["turnstile-variables", () => backfillTurnstileVariables(services, log)],
     ["transfers", () => expireTransfers(services, scheduledTime)],
+    // Sites whose creation died part-way: "failed" (Try again / delete), never "Setting up" forever.
+    ["stalled-setups", () => failStalledSetups(services, scheduledTime)],
     ["invitations", () => expireInvitations(services, scheduledTime)],
     ["purge", () => purgeArchivedSites(env, services, scheduledTime)],
     // Task 18: start due scheduled campaigns; continue sends when there is no Queue.

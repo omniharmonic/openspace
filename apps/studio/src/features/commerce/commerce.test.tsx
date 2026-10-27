@@ -298,3 +298,32 @@ describe("donations", () => {
     await waitFor(() => expect(growth(hub).commerce.donationMin).toBe(3));
   });
 });
+
+describe("what the store, donations and members need", () => {
+  it("says up front that GitHub Pages can't run donations, and that the Hub can't take payments", async () => {
+    await openWorkspace("donations", {
+      site: { deployTarget: "github-pages" },
+      hub: { capabilities: { payments: { configured: false, dev: false } } },
+    });
+    const note = await screen.findByRole("note", { name: "What this needs" });
+    expect(note).toHaveTextContent(/Donations won’t work on your live site yet/);
+    expect(note).toHaveTextContent(/Cloudflare hosting/);
+    expect(note).toHaveTextContent(/Stripe payments/);
+  });
+
+  it("members on GitHub Pages without email: both requirements; nothing once on Cloudflare", async () => {
+    await openWorkspace("members", {
+      site: { deployTarget: "github-pages" },
+      hub: { capabilities: { email: { configured: false, devOutbox: false } } },
+    });
+    const note = await screen.findByRole("note", { name: "What this needs" });
+    expect(note).toHaveTextContent(/Cloudflare hosting/);
+    expect(note).toHaveTextContent(/Email sending/);
+  });
+
+  it("shows nothing when the site is on Cloudflare and the Hub can take payments", async () => {
+    await openWorkspace("store", { site: { deployTarget: "cloudflare" } });
+    await screen.findByRole("heading", { name: "Store settings" });
+    expect(screen.queryByRole("note", { name: "What this needs" })).toBeNull();
+  });
+});

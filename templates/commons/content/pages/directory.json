@@ -1,14 +1,14 @@
 {
   "$schema": "https://schema.openspace.dev/v1/page.json",
-  "id": "pg_3cz4x9rxbd",
+  "id": "pg_wx8vvp2eqg",
   "title": "Members",
-  "slug": "members",
+  "slug": "directory",
   "seo": {
     "description": "The directory of Hudson Valley Food Commons members: farms, kitchens, food banks and grocers across nine counties."
   },
   "sections": [
     {
-      "id": "sec_9fv9jgawj4",
+      "id": "sec_j1zt1zkedt",
       "preset": "hero/centered@1",
       "label": "Centered statement",
       "layout": {
@@ -28,7 +28,7 @@
       },
       "blocks": [
         {
-          "id": "blk_8fqtg32mrn",
+          "id": "blk_3zwgpn6mnr",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "id": "blk_ntbc2a2cad",
+          "id": "blk_206gnedgwt",
           "type": "button",
           "v": 1,
           "fields": {
@@ -72,7 +72,7 @@
       ]
     },
     {
-      "id": "sec_3xfz2fq0he",
+      "id": "sec_vcjvgt1jde",
       "preset": "faq/by-topic@1",
       "label": "Member directory",
       "layout": {
@@ -89,7 +89,7 @@
       },
       "blocks": [
         {
-          "id": "blk_8tvgp72nnp",
+          "id": "blk_affsw9v31m",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -102,7 +102,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_bxvs6kppnc",
+          "id": "blk_0s88ze1hdd",
           "type": "tabs",
           "v": 1,
           "fields": {
@@ -363,7 +363,7 @@
       ]
     },
     {
-      "id": "sec_varwwm30e7",
+      "id": "sec_9s26z60g3v",
       "preset": "testimonials/pair@1",
       "label": "Two testimonials",
       "layout": {
@@ -373,7 +373,7 @@
           "m": 29
         },
         "items": {
-          "blk_nabq8p08ve": {
+          "blk_bct50xwzwy": {
             "d": {
               "x": 1,
               "y": 1,
@@ -387,7 +387,7 @@
               "h": 5
             }
           },
-          "blk_msdyt2jns6": {
+          "blk_h2epjfkncb": {
             "d": {
               "x": 1,
               "y": 7,
@@ -401,7 +401,7 @@
               "h": 11
             }
           },
-          "blk_06hjqsg74j": {
+          "blk_jd1ekg65az": {
             "d": {
               "x": 14,
               "y": 7,
@@ -422,7 +422,7 @@
       },
       "blocks": [
         {
-          "id": "blk_nabq8p08ve",
+          "id": "blk_bct50xwzwy",
           "type": "heading",
           "v": 1,
           "fields": {
@@ -434,7 +434,7 @@
           "variant": "plain"
         },
         {
-          "id": "blk_msdyt2jns6",
+          "id": "blk_h2epjfkncb",
           "type": "testimonial",
           "v": 1,
           "fields": {
@@ -464,7 +464,7 @@
           "variant": "minimal"
         },
         {
-          "id": "blk_06hjqsg74j",
+          "id": "blk_jd1ekg65az",
           "type": "testimonial",
           "v": 1,
           "fields": {

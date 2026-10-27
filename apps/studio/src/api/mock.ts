@@ -10,7 +10,9 @@ import { createManageMock, type ManageMockState } from "./manage-mock";
 import { MockRoom } from "./mockRoom";
 import {
   type CreateSiteInput,
+  DEFAULT_CAPABILITIES,
   type HubApi,
+  type HubCapabilities,
   HubError,
   type PublishSchedule,
   type Session,
@@ -49,6 +51,8 @@ export interface MockHubOptions {
   agentPresenceMs?: number;
   /** Seed blog posts, events, products and a podcast into new site drafts (default: demo mode). */
   demoContent?: boolean;
+  /** What the mock Hub reports it can deliver (default: everything works, like a dev Hub). */
+  capabilities?: Partial<HubCapabilities>;
 }
 
 /** Plain-language publish failures the mock can simulate (mirrors the Hub's translations). */
@@ -476,6 +480,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       return {
         user: state.user ? clone(state.user) : null,
         auth: { github: true, dev: options.devAuth ?? true },
+        capabilities: { ...DEFAULT_CAPABILITIES, ...options.capabilities },
       };
     },
 

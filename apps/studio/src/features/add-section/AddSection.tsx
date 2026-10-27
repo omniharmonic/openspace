@@ -7,7 +7,12 @@ import { useInspectorRole } from "../inspector/env";
 import { canAddSections, isDesigner, type Role } from "../inspector/model/permissions";
 import { RoleNote } from "../inspector/ui";
 import { useAddSection } from "./blockMenuStore";
-import { positionFromSelection, presetCommand } from "./insert";
+import {
+  insertedBlockTypes,
+  positionFromSelection,
+  presetCommand,
+  warnIfNeedsCloudflare,
+} from "./insert";
 import { PresetGallery } from "./PresetGallery";
 
 /** Preset targets a role can't use: header/footer need a designer; contributors add none. */
@@ -35,14 +40,14 @@ function usePick() {
       return false;
     }
     const s = api.getState();
-    const r = s.run(
-      presetCommand(
-        s.doc,
-        s.pageId,
-        preset,
-        at ?? positionFromSelection(s.doc, s.pageId, s.selection),
-      ),
+    const cmd = presetCommand(
+      s.doc,
+      s.pageId,
+      preset,
+      at ?? positionFromSelection(s.doc, s.pageId, s.selection),
     );
+    const r = s.run(cmd);
+    if (r.ok) warnIfNeedsCloudflare(s.doc, insertedBlockTypes(cmd));
     if (!r.ok)
       toast({
         tone: "danger",

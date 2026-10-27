@@ -9,6 +9,7 @@ import {
   SiteDocumentSchema,
   suggestLinkTarget,
 } from "@omniharmonic/openspace-schema";
+import { gatedPageLinks, hostingWarnings } from "./hosting";
 import { type CheckOptions, type Issue, issue, opMeta } from "./issue";
 
 /**
@@ -64,6 +65,11 @@ export function describeBrokenLink(doc: SiteDocument, link: BrokenLink): string 
     default:
       return `${where} links to ${link.target}, which isn't a page on your site.`;
   }
+}
+
+/** "The footer links to a members-only page …" — for links to pages GitHub Pages won't publish. */
+export function describeGatedLink(doc: SiteDocument, link: BrokenLink): string {
+  return `${linkPlace(doc, link)} links to a members-only page. Sites on GitHub Pages don't publish members-only pages, so visitors would see "page not found".`;
 }
 
 /** The autofix for a broken link in a block field or the menu: point it at an existing page. */
@@ -137,6 +143,24 @@ export function linkIssues(
             ? "Point the link at a page that exists, or add the missing page. The site can't be published until then."
             : "Point the link at a page that exists, or add the missing page.",
         ...(autofix ? { autofix } : {}),
+      }),
+    );
+  }
+  for (const link of gatedPageLinks(doc)) {
+    const s = link.scope;
+    if (pageId && s.kind === "page" && s.page !== pageId) continue;
+    if (pageId && s.kind === "item") continue;
+    const page = link.container ?? (s.kind === "page" ? s.page : undefined);
+    out.push(
+      issue({
+        rule: "gated-link",
+        severity: "warning",
+        ...(page ? { page } : {}),
+        ...(link.section ? { section: link.section } : {}),
+        ...(link.block ? { block: link.block } : {}),
+        key: `${s.kind === "item" ? `${s.collection}/${s.slug}:` : ""}${link.path.join(".")}`,
+        message: describeGatedLink(doc, link),
+        fix: "Remove the link, point it at a public page, or switch the site to Cloudflare hosting (Settings → Hosting).",
       }),
     );
   }
@@ -221,5 +245,18 @@ export function publishCheck(doc: SiteDocument, options: PublishCheckOptions = {
     };
     (link.severity === "error" ? errors : warnings).push(p);
   }
+  for (const link of gatedPageLinks(doc))
+    warnings.push({
+      rule: "link",
+      severity: "warning",
+      message: describeGatedLink(doc, link),
+      target: link.target,
+      ...(link.container ? { page: link.container } : {}),
+      ...(link.scope.kind === "page" && !link.container ? { page: link.scope.page } : {}),
+      ...(link.section ? { section: link.section } : {}),
+      ...(link.block ? { block: link.block } : {}),
+    });
+  for (const w of hostingWarnings(doc))
+    warnings.push({ rule: "block", severity: "warning", message: w.message, ...w.where });
   return { ok: errors.length === 0, errors, warnings };
 }

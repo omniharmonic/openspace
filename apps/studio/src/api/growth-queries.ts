@@ -162,6 +162,13 @@ export function useSubscriberActions(siteId: string) {
       mutationFn: (id: string) => hub.deleteSubscriber(siteId, id),
       onSuccess: done,
     }),
+    confirm: useMutation({
+      mutationFn: async (id: string) => {
+        if (!hub.confirmSubscriber) throw new Error("This Hub can't confirm subscribers by hand.");
+        return hub.confirmSubscriber(siteId, id);
+      },
+      onSuccess: done,
+    }),
   };
 }
 

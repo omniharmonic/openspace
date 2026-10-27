@@ -525,6 +525,12 @@ export interface GrowthApi {
     patch: { tags?: string[]; firstName?: string; status?: "unsubscribed" },
   ): Promise<Subscriber>;
   deleteSubscriber(siteId: string, subId: string): Promise<void>;
+  /**
+   * The owner confirms a pending subscriber by hand, attesting they agreed to receive emails
+   * (`POST …/subscribers/:id/confirm { consent: true }`) — e.g. while the Hub can't send the
+   * confirmation email.
+   */
+  confirmSubscriber?(siteId: string, subId: string): Promise<Subscriber>;
 
   getAnalytics(siteId: string, range: AnalyticsRange): Promise<AnalyticsReport>;
 

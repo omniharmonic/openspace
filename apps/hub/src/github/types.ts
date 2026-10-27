@@ -79,6 +79,11 @@ export interface CommitTreeInput {
   message: string;
   expectedHead?: string;
   author?: CommitAuthor;
+  /**
+   * Only paths matching this come from `treeOf`; every other file stays exactly as it is on the
+   * branch's head (a publish carries content and media, never the workflow or custom code).
+   */
+  onlyPaths?: (path: string) => boolean;
 }
 
 export type WorkflowState = "none" | "queued" | "in_progress" | "success" | "failure";

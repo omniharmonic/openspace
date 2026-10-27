@@ -154,7 +154,7 @@ describe("agent session ownership", () => {
 });
 
 describe("publish and rollback with commits made directly to the draft", () => {
-  it("publishes what's actually on os/draft (offline-mode / CLI commits are kept)", async () => {
+  it("publishes the content on os/draft (offline-mode / CLI commits), never other files", async () => {
     const { app, owner, site } = await setup();
     await post(app, owner, `/api/sites/${site.id}/room/ops`, {
       ops: [setText(T.heroTitle, "Room edit")],
@@ -165,14 +165,21 @@ describe("publish and rollback with commits made directly to the draft", () => {
       branch: "os/draft",
       expectedHead: head,
       message: "From the CLI",
-      files: [{ path: "README.md", content: "# From the CLI\n" }],
+      files: [
+        { path: "README.md", content: "# From the CLI\n" },
+        { path: "media/cli-note.txt", content: "from the CLI\n" },
+      ],
     });
+    const before = await gh().readFiles(repo, "main", { textOnly: true });
     const res = await post(app, owner, `/api/sites/${site.id}/publish`);
     expect(((await res.json()) as { publish: { status: string } }).publish.status).toBe(
       "published",
     );
     const files = await gh().readFiles(repo, "main", { textOnly: true });
-    expect(files["README.md"]).toBe("# From the CLI\n");
+    // Content from the draft goes live; the README (like the workflow, package.json and custom
+    // code) stays as it is on main.
+    expect(files["media/cli-note.txt"]).toBe("from the CLI\n");
+    expect(files["README.md"]).toBe(before["README.md"]);
     expect(files["content/pages/home.json"]).toContain("Room edit");
     expect(await gh().getRef(repo, "os/draft")).toBe(await gh().getRef(repo, "main"));
   });

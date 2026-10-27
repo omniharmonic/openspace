@@ -140,6 +140,16 @@ export interface Invitation {
   invitedBy: string;
   createdAt: string;
   expiresAt: string;
+  /** The link to share, while the invitation waits (null when the Hub can't show it again). */
+  acceptUrl?: string | null;
+}
+
+/** `POST …/collaborators` and `…/invitations/:id/resend`. */
+export interface InviteResult {
+  invitation: Invitation;
+  acceptUrl: string;
+  /** An email actually went out (false when the Hub has no email provider). */
+  emailed?: boolean;
 }
 
 /** `GET /api/invitations/:token`: what an invitation link offers (no session needed). */
@@ -242,10 +252,9 @@ export interface ManageApi {
   getInvitation?(token: string): Promise<InvitationPreview>;
   /** Accept an invitation link as the signed-in person (`POST /api/invitations/:token/accept`). */
   acceptInvitation?(token: string): Promise<{ siteId: string; role: CollaboratorRole }>;
-  inviteCollaborator(
-    siteId: string,
-    input: InviteInput,
-  ): Promise<{ invitation: Invitation; acceptUrl: string }>;
+  inviteCollaborator(siteId: string, input: InviteInput): Promise<InviteResult>;
+  /** Same link again (or a fresh one), 14 more days, emailed again when the Hub can send mail. */
+  resendInvitation?(siteId: string, invitationId: string): Promise<InviteResult>;
   updateCollaborator(
     siteId: string,
     userId: string,

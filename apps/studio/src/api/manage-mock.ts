@@ -428,6 +428,12 @@ export function createManageMock(ctx: ManageMockContext): {
       const hostname = normalizeDomainInput(input);
       if (!HOSTNAME_RE.test(hostname))
         throw new HubError(400, "invalid_domain", "Enter a domain like mayayoga.com.");
+      if (/(^|\.)(github\.io|workers\.dev|pages\.dev|openspace\.host)$/.test(hostname))
+        throw new HubError(
+          400,
+          "bad_request",
+          "That's a GitHub Pages address, which your site already has. Enter a domain you bought, e.g. mayayoga.com.",
+        );
       const apex = apexOf(hostname);
       const reg = registrarFor(apex);
       return {
@@ -518,15 +524,18 @@ export function createManageMock(ctx: ManageMockContext): {
     async createMcpToken(siteId, label) {
       await call("createMcpToken", [siteId, label]);
       findSite(siteId);
+      const secret = `osmcp_${randomToken(32)}`;
+      const base = "http://localhost:8787/mcp/t/";
       const token: McpToken = {
         id: `mcpt_${randomToken(10)}`,
         label: label.trim() || "Claude",
-        url: `http://localhost:8787/mcp/u/${randomToken(32)}`,
+        // Like the Hub: lists only ever show the link masked; the full one comes back once.
+        url: `${base}osmcp_…${secret.slice(-4)}`,
         createdAt: iso(now()),
         lastUsedAt: null,
       };
       bucket(state.tokens, siteId, () => []).push(token);
-      return clone(token);
+      return { ...clone(token), url: `${base}${secret}` };
     },
     async revokeMcpToken(siteId, tokenId) {
       await call("revokeMcpToken", [siteId, tokenId]);
@@ -581,7 +590,9 @@ export function createManageMock(ctx: ManageMockContext): {
         throw new HubError(400, "invalid_email", "That email address doesn't look right.");
       if (login && collaboratorsOf(site, user).some((c) => c.login === login))
         throw new HubError(409, "already_collaborator", `${login} already works on this site.`);
+      const acceptUrl = `http://localhost:5173/invite/${randomToken(20)}`;
       const invitation: Invitation = {
+        acceptUrl,
         id: `inv_${randomToken(8)}`,
         email,
         login,
@@ -592,10 +603,19 @@ export function createManageMock(ctx: ManageMockContext): {
         expiresAt: iso(now() + 14 * 86_400_000),
       };
       bucket(state.invitations, siteId, () => []).push(invitation);
-      return {
-        invitation: clone(invitation),
-        acceptUrl: `http://localhost:5173/invite/${randomToken(20)}`,
-      };
+      return { invitation: clone(invitation), acceptUrl, emailed: Boolean(email) };
+    },
+    async resendInvitation(siteId, invitationId) {
+      await call("resendInvitation", [siteId, invitationId]);
+      const site = findSite(siteId);
+      if (!canManage(site)) throw forbid("Only owners and designers can resend invitations.");
+      const inv = (state.invitations[siteId] ?? []).find(
+        (i) => i.id === invitationId && i.status === "pending",
+      );
+      if (!inv) throw new HubError(404, "not_found", "That invitation isn't waiting any more.");
+      inv.expiresAt = iso(now() + 14 * 86_400_000);
+      inv.acceptUrl ??= `http://localhost:5173/invite/${randomToken(20)}`;
+      return { invitation: clone(inv), acceptUrl: inv.acceptUrl, emailed: Boolean(inv.email) };
     },
     async updateCollaborator(siteId, userId, patch) {
       const user = await call("updateCollaborator", [siteId, userId, patch]);

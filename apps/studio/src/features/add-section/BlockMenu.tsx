@@ -15,7 +15,12 @@ import { locate, sectionLabel } from "../editor/model/selection";
 import { useInspectorRole } from "../inspector/env";
 import { capabilities } from "../inspector/model/permissions";
 import { type BlockTarget, useBlockMenu } from "./blockMenuStore";
-import { insertBlockCommand, targetFromSelection } from "./insert";
+import {
+  insertBlockCommand,
+  insertedBlockTypes,
+  targetFromSelection,
+  warnIfNeedsCloudflare,
+} from "./insert";
 import "./add-section.css";
 
 export const CATEGORY_LABEL: Record<BlockCategory, string> = {
@@ -106,6 +111,7 @@ export function BlockMenu() {
     const cmd = insertBlockCommand(st.doc, st.pageId, type, target);
     const r = st.run(cmd);
     if (!r.ok) toast({ tone: "danger", title: "That block couldn’t be added here" });
+    else warnIfNeedsCloudflare(st.doc, insertedBlockTypes(cmd));
   };
 
   return (

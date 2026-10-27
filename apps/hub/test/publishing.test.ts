@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { DevGitHubAccess } from "../src/github/dev";
 import { toHex } from "../src/lib/crypto";
 import { unwrapRoom } from "../src/room";
+import { bumpWorkflowNode } from "../src/room/draft-room";
 import { runScheduled } from "../src/scheduled";
 import { translateBuildError } from "../src/services/build-errors";
 import { call } from "./helpers";
@@ -176,6 +177,77 @@ describe("publishing", () => {
       json: { sha: "0".repeat(40) },
     });
     expect(bad.status).toBe(404);
+  });
+
+  it("publish and rollback leave main's workflow and other non-content files alone", async () => {
+    const { app, owner, site } = await setup();
+    const v1 = (await gh().getRef(repo, "main")) as string;
+    // The owner fixes the workflow directly on main (e.g. a newer Node version).
+    const wf = ".github/workflows/publish.yml";
+    const fixed = "# fixed on main\n";
+    await gh().commitFiles(repo, {
+      branch: "main",
+      message: "Build with Node 24",
+      files: [{ path: wf, content: fixed }],
+    });
+    await edit(app, site.id, owner, "After the fix");
+    expect((await publish(app, site.id, owner)).body.publish).toMatchObject({
+      status: "published",
+    });
+    let files = await gh().readFiles(repo, "main", { textOnly: true });
+    expect(files[wf]).toBe(fixed);
+    expect(files["content/pages/home.json"]).toContain("After the fix");
+    // Going back to v1 brings v1's content, not v1's workflow.
+    const res = await call(app, `/api/sites/${site.id}/rollback`, {
+      method: "POST",
+      cookie: owner,
+      json: { sha: v1 },
+    });
+    expect(res.status).toBe(200);
+    files = await gh().readFiles(repo, "main", { textOnly: true });
+    expect(files[wf]).toBe(fixed);
+    expect(files["content/pages/home.json"]).not.toContain("After the fix");
+  });
+
+  it("never rolls back to a commit that isn't a site, and a broken main can still go back", async () => {
+    const { app, owner, site } = await setup();
+    const good = (await gh().getRef(repo, "main")) as string;
+    // A README-only commit on main (like GitHub's "Initial commit", or the bad rollback that
+    // bricked a site): the site's files are gone from main and the draft.
+    const all = await gh().readFiles(repo, "main", { textOnly: true });
+    const wiped = await gh().commitFiles(repo, {
+      branch: "main",
+      message: "Initial commit",
+      files: [
+        ...Object.keys(all).map((path) => ({ path, content: null })),
+        { path: "README.md", content: "# empty\n" },
+      ],
+    });
+    // Refused as a target: it isn't a complete site.
+    const refused = await call(app, `/api/sites/${site.id}/rollback`, {
+      method: "POST",
+      cookie: owner,
+      json: { sha: wiped.sha },
+    });
+    expect(refused.status).toBe(422);
+    expect(((await refused.json()) as { error: { code: string } }).error.code).toBe("not_a_site");
+    // The draft follows the broken main (as after the bad rollback); going back still works.
+    await gh().resetBranch(repo, "os/draft", wiped.sha);
+    const res = await call(app, `/api/sites/${site.id}/rollback`, {
+      method: "POST",
+      cookie: owner,
+      json: { sha: good },
+    });
+    expect(res.status).toBe(200);
+    const files = await gh().readFiles(repo, "main", { textOnly: true });
+    expect(files["openspace.json"]).toBeDefined();
+    expect(files[".github/workflows/publish.yml"]).toBeDefined();
+    expect(await gh().getRef(repo, "os/draft")).toBe(await gh().getRef(repo, "main"));
+    // The versions list marks restorable versions; the site's own versions are.
+    const versions = (await (
+      await call(app, `/api/sites/${site.id}/versions`, { cookie: owner })
+    ).json()) as { versions: Array<{ sha: string; restorable: boolean }> };
+    expect(versions.versions.find((v) => v.sha === good)?.restorable).toBe(true);
   });
 
   it("takes named snapshots and restores them into the draft as ops", async () => {
@@ -503,6 +575,45 @@ describe("build status webhook", () => {
     client.close();
   });
 
+  it("a later successful run of a commit pushed outside the Hub moves a failed site back to live", async () => {
+    const { app, owner, site } = await setup();
+    await edit(app, site.id, owner, "Breaks the site");
+    await publish(app, site.id, owner);
+    const bad = (await gh().getRef(repo, "main")) as string;
+    const run = (sha: string, conclusion: string, createdAt?: string) => ({
+      action: "completed",
+      repository: { full_name: "maya-lin/room-site" },
+      workflow_run: {
+        id: 77,
+        name: "Publish",
+        path: ".github/workflows/publish.yml",
+        head_sha: sha,
+        head_branch: "main",
+        status: "completed",
+        conclusion,
+        ...(createdAt ? { created_at: createdAt } : {}),
+      },
+    });
+    const status = async () =>
+      (
+        (await (await call(app, `/api/sites/${site.id}`, { cookie: owner })).json()) as {
+          status: string;
+        }
+      ).status;
+    await webhook(app, "workflow_run", run(bad, "failure"));
+    expect(await status()).toBe("failed");
+    // An old run (started before the newest publish) of some other commit changes nothing.
+    await webhook(app, "workflow_run", run("b".repeat(40), "success", "2000-01-01T00:00:00Z"));
+    expect(await status()).toBe("failed");
+    // The owner fixed the workflow directly on main: that run succeeded, so the site is live.
+    await webhook(
+      app,
+      "workflow_run",
+      run("c".repeat(40), "success", new Date(Date.now() + 1000).toISOString()),
+    );
+    expect(await status()).toBe("live");
+  });
+
   it("ignores superseded (cancelled) runs and records installation changes", async () => {
     const { app, site } = await setup();
     const res = await webhook(app, "workflow_run", {
@@ -527,6 +638,46 @@ describe("build status webhook", () => {
       .bind(site.id)
       .first<{ installation_id: number }>();
     expect(row?.installation_id).toBe(4242);
+  });
+
+  it("an outdated Node.js in the workflow is named, and 'Fix it for me' updates it on both branches", async () => {
+    expect(
+      translateBuildError({
+        steps: ["build: Run npm run build"],
+        log: 'Node.js v22.23.3 is not supported by Astro!\nPlease upgrade Node.js to a supported version: ">=22.23.4"\n##[error]Process completed with exit code 1.',
+      }),
+    ).toMatchObject({ code: "node_outdated", fix: "update_node" });
+    expect(bumpWorkflowNode("with: { node-version: 22, cache: npm }\n  node-version: '20'\n")).toBe(
+      "with: { node-version: 24, cache: npm }\n  node-version: '24'\n",
+    );
+    expect(bumpWorkflowNode("node-version: 24")).toBe("node-version: 24");
+
+    const { app, owner, site } = await setup();
+    const wf = ".github/workflows/publish.yml";
+    for (const branch of ["main", "os/draft"]) {
+      const text = (await gh().readFile(repo, wf, branch)) as string;
+      await gh().commitFiles(repo, {
+        branch,
+        message: "old node",
+        files: [{ path: wf, content: text.replace(/node-version: 24/g, "node-version: 22") }],
+      });
+    }
+    await edit(app, site.id, owner, "Node test");
+    await publish(app, site.id, owner);
+    const bad = (await gh().getRef(repo, "main")) as string;
+    await env.HUB_DB.prepare(
+      "UPDATE publishes SET status = 'failure', error_code = 'node_outdated' WHERE sha = ?",
+    )
+      .bind(bad)
+      .run();
+    const fix = await call(app, `/api/sites/${site.id}/fix`, { method: "POST", cookie: owner });
+    expect(fix.status).toBe(200);
+    expect(await fix.json()).toMatchObject({ fix: "update_node" });
+    for (const branch of ["main", "os/draft"]) {
+      const text = (await gh().readFile(repo, wf, branch)) as string;
+      expect(text, branch).not.toMatch(/node-version: 22/);
+      expect(text, branch).toMatch(/node-version: 24/);
+    }
   });
 
   it("translates common failures into plain language with a fix", () => {

@@ -98,7 +98,8 @@ function Guide({
     <div className="st-guide">
       <div className="st-guide__head">
         <span className="st-guide__logo" aria-hidden="true">
-          {guide.name.charAt(0).toUpperCase()}
+          {/* A known registrar gets its initial; "your domain provider" gets a globe, not a "Y". */}
+          {known ? guide.name.charAt(0).toUpperCase() : <Globe width={16} height={16} />}
         </span>
         <div>
           <p className="st-guide__title">
@@ -198,9 +199,12 @@ export function DomainsSettings({ site }: { site: Site }) {
         <div className="st-callout st-callout--accent" role="note">
           <Cloud aria-hidden="true" />
           <div>
-            <strong>Your site is hosted on Cloudflare.</strong> Add your domain in your Cloudflare
-            dashboard under Workers → your site → Settings → Domains. We'll guide you through it in
-            a future update.
+            <strong>Your site is hosted on Cloudflare.</strong> Connect your domain in your
+            Cloudflare dashboard: the domain's DNS needs to be on Cloudflare (add it as a site there
+            and switch its nameservers). Then open Workers &amp; Pages → your site → Settings →
+            Domains &amp; Routes → Add → Custom domain, and enter the main domain or a subdomain
+            such as blog.yourdomain.com. Cloudflare adds the DNS records itself — you don't add A or
+            CNAME records by hand.
           </div>
         </div>
         <a

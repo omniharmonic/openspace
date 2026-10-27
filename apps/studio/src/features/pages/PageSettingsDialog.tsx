@@ -341,6 +341,16 @@ function PageSettingsForm({ page, onClose }: { page: Page; onClose: () => void }
                   { value: "members", label: "Members" },
                 ]}
               />
+              {form.access === "public" && (slug === "members" || slug.startsWith("members/")) && (
+                <div className="st-callout st-callout--pending" role="note">
+                  <Cloud aria-hidden="true" />
+                  <div>
+                    <strong>Pages at /members are always members-only.</strong> Give this page
+                    another address to make it public
+                    {!cloudflare && ", and until then it isn't published on GitHub Pages"}.
+                  </div>
+                </div>
+              )}
               {form.access !== "public" && !cloudflare && (
                 <div className="st-callout st-callout--pending" role="note">
                   <Cloud aria-hidden="true" />

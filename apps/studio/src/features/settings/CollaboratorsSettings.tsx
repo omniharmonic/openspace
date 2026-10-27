@@ -7,6 +7,7 @@ import {
   useApprovals,
   useCollaboratorActions,
   useCollaborators,
+  useEmailUnavailable,
 } from "../../api";
 import type { Site, SiteRole } from "../../api/types";
 import {
@@ -99,6 +100,13 @@ function LocksDialog({
   );
 }
 
+function copyInvite(url: string) {
+  void navigator.clipboard?.writeText(url).then(
+    () => toast({ title: "Invitation link copied" }),
+    () => toast({ title: "Copy this link", description: url }),
+  );
+}
+
 /** People: invite by email or GitHub username, roles, section locks, and contributor approvals. */
 export function CollaboratorsSettings({ site }: { site: Site }) {
   const list = useCollaborators(site.id);
@@ -107,7 +115,8 @@ export function CollaboratorsSettings({ site }: { site: Site }) {
   const actions = useCollaboratorActions(site.id);
   const [who, setWho] = useState("");
   const [role, setRole] = useState<CollaboratorRole>("editor");
-  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [inviteLink, setInviteLink] = useState<{ url: string; emailed: boolean } | null>(null);
+  const noEmail = useEmailUnavailable();
   const [locksFor, setLocksFor] = useState<Collaborator | null>(null);
   const [rejecting, setRejecting] = useState<{ id: string; title: string } | null>(null);
   const [note, setNote] = useState("");
@@ -122,11 +131,17 @@ export function CollaboratorsSettings({ site }: { site: Site }) {
     actions.invite.mutate(isEmail ? { email: value, role } : { login: value, role }, {
       onSuccess: (res) => {
         setWho("");
-        setInviteLink(res.acceptUrl);
+        // Only say "we emailed" when an email really went out.
+        const emailed = isEmail && res.emailed !== false && !noEmail;
+        setInviteLink({ url: res.acceptUrl, emailed });
         toast({
           tone: "success",
-          title: "Invitation sent",
-          description: isEmail ? `We emailed ${value}.` : `${value} will see it when they sign in.`,
+          title: emailed || !isEmail ? "Invitation sent" : "Invitation ready",
+          description: emailed
+            ? `We emailed ${value}.`
+            : isEmail
+              ? `Email isn’t set up on this Hub, so send ${value} the invitation link yourself.`
+              : `${value} will see it when they sign in.`,
         });
       },
       onError: (err) =>
@@ -186,14 +201,12 @@ export function CollaboratorsSettings({ site }: { site: Site }) {
             <div className="st-callout st-callout--live" role="status">
               <Check aria-hidden="true" />
               <div>
-                You can also send them this link: <code className="st-code">{inviteLink}</code>{" "}
+                {inviteLink.emailed ? "You can also send them this link:" : "Send them this link:"}{" "}
+                <code className="st-code">{inviteLink.url}</code>{" "}
                 <button
                   type="button"
                   className="st-linklike"
-                  onClick={() => {
-                    void navigator.clipboard?.writeText(inviteLink);
-                    toast({ title: "Invitation link copied" });
-                  }}
+                  onClick={() => copyInvite(inviteLink.url)}
                 >
                   <Copy aria-hidden="true" width={12} height={12} /> Copy
                 </button>
@@ -278,9 +291,49 @@ export function CollaboratorsSettings({ site }: { site: Site }) {
                     <strong>{inv.email ?? `@${inv.login}`}</strong>
                     <span className="st-muted-note">
                       {ROLE_INFO[inv.role].name} · expires{" "}
-                      {new Date(inv.expiresAt).toLocaleDateString()}
+                      {new Date(inv.expiresAt).toLocaleDateString(undefined, {
+                        dateStyle: "medium",
+                      })}
                     </span>
                   </div>
+                  {inv.acceptUrl && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon={<Copy />}
+                      onClick={() => copyInvite(inv.acceptUrl as string)}
+                    >
+                      Copy link
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    loading={actions.resend.isPending && actions.resend.variables === inv.id}
+                    onClick={() =>
+                      actions.resend.mutate(inv.id, {
+                        onSuccess: (res) => {
+                          const emailed = Boolean(inv.email) && res.emailed !== false && !noEmail;
+                          setInviteLink({ url: res.acceptUrl, emailed });
+                          toast({
+                            tone: "success",
+                            title: emailed ? "Invitation sent again" : "Invitation link ready",
+                            description: emailed
+                              ? `We emailed ${inv.email}.`
+                              : "Copy the link and send it to them.",
+                          });
+                        },
+                        onError: (err) =>
+                          toast({
+                            tone: "danger",
+                            title: "Couldn’t resend",
+                            description: err.message,
+                          }),
+                      })
+                    }
+                  >
+                    {inv.email && !noEmail ? "Resend" : inv.acceptUrl ? "Renew link" : "Get link"}
+                  </Button>
                   <Button size="sm" variant="ghost" onClick={() => actions.revoke.mutate(inv.id)}>
                     Cancel invitation
                   </Button>

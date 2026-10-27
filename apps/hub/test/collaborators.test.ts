@@ -209,6 +209,78 @@ describe("collaborators", () => {
   });
 });
 
+describe("invitation links without an email provider", () => {
+  it("keeps the link on the pending row, resends it, and never claims an email went out", async () => {
+    const { app, owner, site } = await setup();
+    // DEV_MODE delivers to the outbox: the invitation is emailed and the link is kept.
+    const dev = (await (
+      await call(app, `/api/sites/${site.id}/collaborators`, {
+        method: "POST",
+        cookie: owner,
+        json: { email: "a@example.com", role: "editor" },
+      })
+    ).json()) as { acceptUrl: string; emailed: boolean; invitation: { id: string } };
+    expect(dev.emailed).toBe(true);
+    const listed = (await (
+      await call(app, `/api/sites/${site.id}/collaborators`, { cookie: owner })
+    ).json()) as { invitations: Array<{ id: string; acceptUrl: string | null }> };
+    expect(listed.invitations[0]?.acceptUrl).toBe(dev.acceptUrl);
+    const again = (await (
+      await call(app, `/api/sites/${site.id}/invitations/${dev.invitation.id}/resend`, {
+        method: "POST",
+        cookie: owner,
+      })
+    ).json()) as { acceptUrl: string; emailed: boolean };
+    expect(again).toMatchObject({ acceptUrl: dev.acceptUrl, emailed: true });
+
+    // A production Hub with no provider: nothing is "emailed"; the link is still handed back.
+    const prod = {
+      ...(env as unknown as Record<string, unknown>),
+      DEV_MODE: "false",
+      TOKEN_ENC_KEY: bytesToBase64(new Uint8Array(32).fill(7)),
+    };
+    const before = await env.HUB_DB.prepare(
+      "SELECT COUNT(*) AS n FROM outbox WHERE kind = 'invitation'",
+    ).first<{ n: number }>();
+    const res = await call(
+      app,
+      `/api/sites/${site.id}/collaborators`,
+      { method: "POST", cookie: owner, json: { email: "b@example.com", role: "editor" } },
+      prod,
+    );
+    expect(res.status).toBe(201);
+    const made = (await res.json()) as {
+      acceptUrl: string;
+      emailed: boolean;
+      invitation: { id: string };
+    };
+    expect(made.emailed).toBe(false);
+    const after = await env.HUB_DB.prepare(
+      "SELECT COUNT(*) AS n FROM outbox WHERE kind = 'invitation'",
+    ).first<{ n: number }>();
+    expect(after?.n).toBe(before?.n);
+    const caps = (await (await call(app, "/api/capabilities", {}, prod)).json()) as {
+      capabilities: { email: { configured: boolean } };
+    };
+    expect(caps.capabilities.email.configured).toBe(false);
+    const list = (await (
+      await call(app, `/api/sites/${site.id}/collaborators`, { cookie: owner }, prod)
+    ).json()) as { invitations: Array<{ id: string; acceptUrl: string | null }> };
+    expect(list.invitations.find((i) => i.id === made.invitation.id)?.acceptUrl).toBe(
+      made.acceptUrl,
+    );
+    const resent = (await (
+      await call(
+        app,
+        `/api/sites/${site.id}/invitations/${made.invitation.id}/resend`,
+        { method: "POST", cookie: owner },
+        prod,
+      )
+    ).json()) as { acceptUrl: string; emailed: boolean };
+    expect(resent).toMatchObject({ acceptUrl: made.acceptUrl, emailed: false });
+  });
+});
+
 describe("ownership transfer (pending)", () => {
   async function pendingTransfer(requestedAt: number) {
     const { app, owner, site } = await setup();

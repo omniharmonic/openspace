@@ -101,6 +101,72 @@ export function normalizeHostname(input: string): string {
   return h;
 }
 
+/**
+ * Hosting platforms' own addresses: nobody can point these at a site (and pointing a site's
+ * custom domain at them breaks it). The Hub's and Studio's hosts are added per request.
+ */
+const PLATFORM_SUFFIXES = [
+  "github.io",
+  "githubusercontent.com",
+  "github.com",
+  "workers.dev",
+  "pages.dev",
+  "openspace.host",
+  "vercel.app",
+  "netlify.app",
+  "herokuapp.com",
+  "web.app",
+  "firebaseapp.com",
+  "azurewebsites.net",
+  "cloudfront.net",
+];
+
+/** Refuse platform hostnames (github.io, workers.dev, the Hub's own host…) with a helpful message. */
+export function assertOwnableDomain(hostname: string, ownHosts: readonly string[] = []): void {
+  const hit = [...PLATFORM_SUFFIXES, ...ownHosts].find(
+    (s) => hostname === s || hostname.endsWith(`.${s}`),
+  );
+  if (!hit) return;
+  throw badRequest(
+    hit === "github.io"
+      ? "That's a GitHub Pages address, which your site already has. Enter a domain you bought, e.g. mayayoga.com."
+      : `${hostname} belongs to a hosting service, not to you, so it can't be connected. Enter a domain you bought, e.g. mayayoga.com.`,
+  );
+}
+
+const hostOf = (url: string) => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+};
+
+/** Hostnames of this Hub and its Studio (never a site's custom domain). */
+export function ownHosts(config: { hubUrl: string; studioOrigin: string }): string[] {
+  return [hostOf(config.hubUrl), hostOf(config.studioOrigin)].filter(
+    (h): h is string => !!h && h !== "localhost" && !/^[\d.]+$/.test(h),
+  );
+}
+
+/**
+ * Registrar steps adjusted for a subdomain (`blog.example.com`): one CNAME on its own label,
+ * the main domain's records left alone. For the main domain, mention ALIAS/ANAME.
+ */
+export function stepsFor(hostname: string, repo: string, steps: readonly string[]): string[] {
+  const apex = apexOf(hostname);
+  if (hostname === apex || hostname === `www.${apex}`)
+    return [
+      ...steps,
+      `If your provider offers an ALIAS or ANAME record for the main domain, you can point it at ${pagesHostFor(repo)} instead of the four A records.`,
+    ];
+  const label = hostname.slice(0, -(apex.length + 1));
+  return [
+    ...steps.filter((s) => !/[“"]@[”"]|main domain|parking/i.test(s)),
+    `Add one CNAME record with host “${label}” (just the part before ${apex}) pointing to ${pagesHostFor(repo)}. Leave the records for ${apex} itself as they are.`,
+  ];
+}
+
 /** The registrable domain (apex) of a hostname. */
 export function apexOf(host: string): string {
   const labels = host.split(".");
@@ -421,15 +487,18 @@ export interface DomainDeps {
 
 export async function lookupDomain(deps: DomainDeps, site: SiteRow, input: string) {
   const hostname = normalizeHostname(input);
+  assertOwnableDomain(hostname, ownHosts(deps.services.config));
   const apex = apexOf(hostname);
   const rdap = await deps.rdap.lookup(apex);
-  const guide = guideFor(rdap?.registrar ?? null, rdap?.nameservers ?? []);
+  const guide = publicGuide(
+    guideFor(rdap?.registrar ?? null, rdap?.nameservers ?? []) ?? GENERIC_GUIDE,
+  );
   return {
     hostname,
     apex,
     registrar: rdap?.registrar ?? null,
     nameservers: rdap?.nameservers ?? [],
-    guide: publicGuide(guide ?? GENERIC_GUIDE),
+    guide: { ...guide, steps: stepsFor(hostname, site.repo, guide.steps) },
     records: recordsFor(hostname, site.repo),
   };
 }
@@ -457,6 +526,7 @@ export async function connectDomain(
   requirePagesTarget(site);
   const { services } = deps;
   const hostname = normalizeHostname(input);
+  assertOwnableDomain(hostname, ownHosts(services.config));
   const now = services.now();
   const taken = await services.db
     .prepare("SELECT site_id, status, created_at, verified_at FROM domains WHERE hostname = ?")

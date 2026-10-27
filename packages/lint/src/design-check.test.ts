@@ -593,6 +593,8 @@ describe("pages assembled from presets", () => {
       const other = designCheck(doc).filter(
         (i) =>
           !i.rule.startsWith("rhythm") &&
+          // Donation / product / sign-in presets on a GitHub Pages site: a hosting note, not design.
+          i.rule !== "needs-cloudflare" &&
           i.severity !== "info" &&
           !(i.rule === "text-over-photo-contrast" && offDesign.has(i.section as never)),
       );

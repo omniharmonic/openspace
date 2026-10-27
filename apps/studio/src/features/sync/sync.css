@@ -351,3 +351,10 @@
     flex-wrap: wrap;
   }
 }
+
+.st-history__failure {
+  flex: 1 1 100%;
+  margin: 0 0 8px;
+  color: var(--st-danger);
+  font-size: var(--st-fs-sm);
+}

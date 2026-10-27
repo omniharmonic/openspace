@@ -5,7 +5,7 @@
   "nav": [
     {
       "type": "page",
-      "page": "pg_3cz4x9rxbd",
+      "page": "pg_wx8vvp2eqg",
       "label": "Members"
     },
     {
@@ -139,7 +139,7 @@
                       {
                         "type": "link",
                         "attrs": {
-                          "href": "/members/"
+                          "href": "/directory/"
                         }
                       }
                     ]

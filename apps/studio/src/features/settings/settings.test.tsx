@@ -28,9 +28,17 @@ function visibleCopy(): string {
 const store = () =>
   (window as unknown as { __osEditorStore: EditorStore }).__osEditorStore.getState();
 
-async function openSettings(tab: string, site: Partial<Site> = {}) {
+async function openSettings(
+  tab: string,
+  site: Partial<Site> = {},
+  hubOptions: Parameters<typeof renderStudio>[1] = {},
+) {
   const list = sites.map((s) => (s.id === willow.id ? { ...s, ...site } : s));
-  const utils = renderStudio(`/sites/${willow.id}/settings/${tab}`, { user: SAM, sites: list });
+  const utils = renderStudio(`/sites/${willow.id}/settings/${tab}`, {
+    user: SAM,
+    sites: list,
+    ...hubOptions,
+  });
   await screen.findByRole("region", { name: "Site settings" });
   return utils;
 }
@@ -185,6 +193,22 @@ describe("domains wizard", () => {
     expect(hub.calls.filter((c) => c.method === "checkDomain").length).toBeGreaterThanOrEqual(3);
   });
 
+  it("refuses platform addresses and shows a globe, not a letter, for an unknown provider", async () => {
+    const { user } = await openSettings("domains");
+    const field = await screen.findByLabelText("Domain");
+    await user.type(field, "omniharmonic.github.io");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText(/GitHub Pages address/)).toBeInTheDocument();
+    await user.clear(field);
+    await user.type(field, "somewhere-unknown.invalid");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(
+      await screen.findByText(/Add these records where you bought your domain/),
+    ).toBeInTheDocument();
+    expect(document.querySelector(".st-guide__logo")?.textContent).toBe("");
+    expect(document.querySelector(".st-guide__logo svg")).not.toBeNull();
+  });
+
   it("stops checking DNS once the domain has failed", async () => {
     const { user, hub } = await openSettings("general");
     await hub.connectDomain(willow.id, "broken.test");
@@ -212,6 +236,19 @@ describe("domains wizard", () => {
 });
 
 describe("connect your AI", () => {
+  it("a saved link is shown masked, with no Copy button that would copy a link that doesn't work", async () => {
+    const { user, hub, queryClient } = await openSettings("ai");
+    await screen.findByRole("button", { name: "Make my link" });
+    await hub.createMcpToken(willow.id, "Laptop");
+    await queryClient.invalidateQueries();
+    const row = (await screen.findByText("Laptop")).closest("li") as HTMLElement;
+    expect(within(row).getByText(/osmcp_…/)).toBeInTheDocument();
+    expect(within(row).queryByRole("button", { name: /Copy/ })).toBeNull();
+    expect(within(row).getByText(/Make a new link below/)).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Claude Code" }));
+    expect(screen.queryByText(/openspace http:.*osmcp_…/)).toBeNull();
+  });
+
   it("makes a personal link, shows Claude and Claude Code steps, and manages app access", async () => {
     const { user, hub } = await openSettings("ai");
     const writeText = vi.fn().mockResolvedValue(undefined);
@@ -219,10 +256,11 @@ describe("connect your AI", () => {
     await user.click(await screen.findByRole("button", { name: "Make my link" }));
     const url = await waitFor(() => {
       const code = document.querySelector(".st-token code");
-      expect(code?.textContent).toMatch(/^http:\/\/localhost:8787\/mcp\/u\//);
+      expect(code?.textContent).toMatch(/^http:\/\/localhost:8787\/mcp\/t\/osmcp_[^…]+$/);
       return code?.textContent as string;
     });
     expect(writeText).toHaveBeenCalledWith(url);
+    expect(screen.getByText(/the full link is only shown once/)).toBeInTheDocument();
     expect(screen.getByText("Settings → Connectors")).toBeInTheDocument();
 
     await user.click(screen.getByRole("tab", { name: "Claude Code" }));
@@ -294,6 +332,25 @@ describe("people", () => {
       ]),
     );
     expect(await screen.findByText("Nothing to review")).toBeInTheDocument();
+  });
+
+  it("without an email provider: never claims an email was sent; the pending row keeps a copyable link", async () => {
+    const { user, hub } = await openSettings(
+      "collaborators",
+      {},
+      { capabilities: { email: { configured: false, devOutbox: false } } },
+    );
+    await screen.findByText("Jordan Lee");
+    await user.type(screen.getByLabelText("Email or GitHub username"), "alex@example.com");
+    await user.click(screen.getByRole("button", { name: "Invite" }));
+    expect(await screen.findByText(/Email isn’t set up on this Hub/)).toBeInTheDocument();
+    expect(screen.queryByText(/We emailed/)).not.toBeInTheDocument();
+    expect(screen.getByText("Send them this link:")).toBeInTheDocument();
+    const row = (await screen.findByText("alex@example.com")).closest("li") as HTMLElement;
+    expect(within(row).getByRole("button", { name: "Copy link" })).toBeInTheDocument();
+    await user.click(within(row).getByRole("button", { name: "Renew link" }));
+    await waitFor(() => expect(hub.calls.some((c) => c.method === "resendInvitation")).toBe(true));
+    expect(screen.queryByText(/We emailed/)).not.toBeInTheDocument();
   });
 
   it("locks sections for one person", async () => {

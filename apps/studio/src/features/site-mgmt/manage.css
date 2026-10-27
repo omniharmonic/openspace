@@ -82,6 +82,11 @@
   margin-left: 4px;
 }
 
+.st-callout__list {
+  margin: 4px 0 6px;
+  padding-left: 18px;
+}
+
 .st-callout--pending {
   background: var(--st-pending-soft);
 }

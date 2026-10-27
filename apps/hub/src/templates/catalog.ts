@@ -1182,9 +1182,9 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "slug": ""
       },
       {
-        "id": "pg_3cz4x9rxbd",
+        "id": "pg_wx8vvp2eqg",
         "title": "Members",
-        "slug": "members"
+        "slug": "directory"
       },
       {
         "id": "pg_767k25afbn",

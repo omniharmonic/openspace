@@ -88,7 +88,7 @@ function StepSketch({ kind }: { kind: "settings" | "add" | "allow" }) {
         <span className="st-sketch__modal">
           <b>Add custom connector</b>
           <i>OpenSpace</i>
-          <i className="is-url">https://…/mcp/u/…</i>
+          <i className="is-url">https://…/mcp/t/…</i>
           <em>Add</em>
         </span>
       )}
@@ -104,7 +104,16 @@ function StepSketch({ kind }: { kind: "settings" | "add" | "allow" }) {
   );
 }
 
-function TokenRow({ token, onRevoke }: { token: McpToken; onRevoke: () => void }) {
+function TokenRow({
+  token,
+  fresh,
+  onRevoke,
+}: {
+  token: McpToken;
+  /** The full link, only for a link made in this visit (the Hub never shows it again). */
+  fresh: string | null;
+  onRevoke: () => void;
+}) {
   const [confirm, setConfirm] = useState(false);
   return (
     <li className="st-token">
@@ -116,7 +125,22 @@ function TokenRow({ token, onRevoke }: { token: McpToken; onRevoke: () => void }
           Made {when(token.createdAt)} · last used {when(token.lastUsedAt)}
         </span>
       </div>
-      <CopyLine value={token.url} label="connection link" />
+      {fresh ? (
+        <>
+          <CopyLine value={fresh} label="connection link" />
+          <p className="st-muted-note" role="note">
+            <strong>Copy it now:</strong> for your security, the full link is only shown once.
+          </p>
+        </>
+      ) : (
+        <>
+          <code className="st-code st-token__masked">{token.url}</code>
+          <p className="st-muted-note">
+            Only the start and end are shown — the full link was shown once, when it was made. Lost
+            it? Make a new link below and turn this one off.
+          </p>
+        </>
+      )}
       <div className="st-row-actions">
         {confirm ? (
           <>
@@ -147,11 +171,15 @@ export function ConnectAiSettings({ site }: { site: Site }) {
   const grants = useMcpGrants();
   const actions = useMcpActions(site.id);
   const [label, setLabel] = useState("Claude");
+  // The just-made link in full (the Hub only returns it once; lists show it masked).
+  const [fresh, setFresh] = useState<{ id: string; url: string } | null>(null);
   const first = tokens.data?.[0];
+  const freshUrl = fresh && tokens.data?.some((t) => t.id === fresh.id) ? fresh.url : null;
 
   const create = () =>
     actions.createToken.mutate(label.trim() || "Claude", {
       onSuccess: (t) => {
+        setFresh({ id: t.id, url: t.url });
         void copy(t.url, "Connection link");
       },
       onError: (err) =>
@@ -182,7 +210,12 @@ export function ConnectAiSettings({ site }: { site: Site }) {
         ) : tokens.data && tokens.data.length > 0 ? (
           <ul className="st-tokens">
             {tokens.data.map((t) => (
-              <TokenRow key={t.id} token={t} onRevoke={() => actions.revokeToken.mutate(t.id)} />
+              <TokenRow
+                key={t.id}
+                token={t}
+                fresh={fresh?.id === t.id ? fresh.url : null}
+                onRevoke={() => actions.revokeToken.mutate(t.id)}
+              />
             ))}
           </ul>
         ) : null}
@@ -268,14 +301,23 @@ export function ConnectAiSettings({ site }: { site: Site }) {
                   {PLUGIN_COMMANDS.map((c) => (
                     <CopyLine key={c} value={c} label="command" />
                   ))}
-                  {first && (
+                  {freshUrl ? (
                     <>
                       <p className="st-muted-note">Or connect with your link directly:</p>
                       <CopyLine
-                        value={`claude mcp add --transport http openspace ${first.url}`}
+                        value={`claude mcp add --transport http openspace ${freshUrl}`}
                         label="command"
                       />
                     </>
+                  ) : (
+                    first && (
+                      <p className="st-muted-note">
+                        Or connect with your link directly:{" "}
+                        <code className="st-code">
+                          claude mcp add --transport http openspace &lt;your link&gt;
+                        </code>
+                      </p>
+                    )
                   )}
                 </div>
               ),

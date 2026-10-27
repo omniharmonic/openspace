@@ -20,6 +20,7 @@ import {
   deviceFrom,
   isBot,
   referrerHost,
+  stripBasePath,
   visitorHash,
 } from "../../services/analytics";
 import { addUsage, siteQuotaLimits } from "../../services/quotas";
@@ -79,7 +80,7 @@ publicAnalyticsRoutes.post("/a/:siteId", async (c) => {
   await services.pub.analytics.write({
     siteId: site.id,
     kind,
-    path: cleanPath(body.p),
+    path: stripBasePath(cleanPath(body.p), site.url),
     referrer: referrerHost(body.r, hosts),
     device: deviceFrom(body.s, ua),
     country: typeof cf?.country === "string" ? cf.country : null,

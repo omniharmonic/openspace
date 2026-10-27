@@ -15,6 +15,7 @@ import {
   listCollaborators,
   previewInvitation,
   removeCollaborator,
+  resendInvitation,
   revokeInvitation,
   UpdateCollaboratorSchema,
   updateCollaborator,
@@ -73,6 +74,20 @@ collaboratorRoutes.delete("/:id/invitations/:invitationId", async (c) => {
   const user = requireUser(c);
   await revokeInvitation(c.var.services, c.req.param("id"), user, c.req.param("invitationId"));
   return c.json({ ok: true });
+});
+
+/** POST /api/sites/:id/invitations/:invitationId/resend → `{ invitation, acceptUrl, emailed }` */
+collaboratorRoutes.post("/:id/invitations/:invitationId/resend", async (c) => {
+  const user = requireUser(c);
+  return c.json(
+    await resendInvitation(
+      c.var.services,
+      c.req.param("id"),
+      user,
+      c.req.param("invitationId"),
+      c.var.log,
+    ),
+  );
 });
 
 /** GET /api/sites/:id/approvals[?status=pending|approved|rejected] */

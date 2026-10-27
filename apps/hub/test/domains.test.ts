@@ -6,6 +6,7 @@ import { DevGitHubAccess } from "../src/github/dev";
 import { DRAFT_BRANCH, MAIN_BRANCH, parseRepo } from "../src/github/types";
 import {
   apexOf,
+  assertOwnableDomain,
   DohResolver,
   dnsChecklist,
   GITHUB_PAGES_IPV4,
@@ -13,6 +14,7 @@ import {
   parseRdap,
   progressMessage,
   recordsFor,
+  stepsFor,
 } from "../src/services/domains";
 import { REGISTRARS } from "../src/services/registrars";
 import { call } from "./helpers";
@@ -123,6 +125,42 @@ describe("domain helpers", () => {
 });
 
 describe("custom domain wizard API", () => {
+  it("refuses platform addresses (github.io, workers.dev, the Hub's own host) with a helpful message", async () => {
+    for (const h of [
+      "foo.github.io",
+      "omniharmonic.github.io",
+      "x.workers.dev",
+      "hub.openspace.host",
+    ])
+      expect(() => assertOwnableDomain(h), h).toThrow(/domain you bought/);
+    expect(() => assertOwnableDomain("hub.example.org", ["hub.example.org"])).toThrow();
+    expect(() => assertOwnableDomain("mayayoga.com")).not.toThrow();
+    const app = makePublicApp();
+    const f = await siteWithForm(app, { form: null });
+    const res = await call(app, `/api/sites/${f.siteId}/domain/lookup`, {
+      method: "POST",
+      cookie: f.cookie,
+      json: { domain: "https://omniharmonic.github.io/site/" },
+    });
+    expect(res.status).toBe(400);
+    expect(JSON.stringify(await res.json())).toMatch(/GitHub Pages address/);
+  });
+
+  it("gives a subdomain one CNAME step instead of main-domain instructions", () => {
+    const generic = [
+      "Sign in where you bought your domain and find the DNS settings.",
+      "Add each record below. Use “@” (or leave it empty) for the main domain and “www” for www.",
+      "Remove any parking-page, forwarding or other A records for the main domain.",
+    ];
+    const sub = stepsFor("blog.mayayoga.com", "maya/site", generic);
+    expect(sub.join(" ")).not.toMatch(/“@”|parking/);
+    expect(sub.at(-1)).toMatch(/CNAME record with host “blog”.*maya\.github\.io/);
+    expect(recordsFor("blog.mayayoga.com", "maya/site")).toEqual([
+      { type: "CNAME", host: "blog", name: "blog.mayayoga.com", value: "maya.github.io" },
+    ]);
+    expect(stepsFor("mayayoga.com", "maya/site", generic).at(-1)).toMatch(/ALIAS or ANAME/);
+  });
+
   it("looks up the registrar and shows registrar-specific steps", async () => {
     const mock = mockFetch([
       [

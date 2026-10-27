@@ -7,9 +7,11 @@ import { getSite, type SiteRow, type SiteWithRole, setRole } from "../db/sites";
 import { getUserByLogin, type User } from "../db/users";
 import type { HubBindings } from "../env";
 import { parseRepo } from "../github/types";
+import { emailDeliverable } from "../lib/capabilities";
 import { randomId, randomToken, sha256Hex } from "../lib/crypto";
 import { forbidden, HttpError, notFound } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
+import { openSecret, sealSecret } from "../lib/seal";
 import { roomStub, unwrapRoom } from "../room";
 import { emailSite, sendTransactional, siteBaseUrl } from "./email";
 import type { Services } from "./index";
@@ -69,6 +71,8 @@ export interface InvitationView {
   invitedBy: string;
   createdAt: string;
   expiresAt: string;
+  /** The link to share (managers only); null when it can't be shown again (Resend makes one). */
+  acceptUrl: string | null;
 }
 
 interface InvitationRow {
@@ -83,9 +87,10 @@ interface InvitationRow {
   created_at: number;
   expires_at: number;
   accepted_at: number | null;
+  token_sealed?: string | null;
 }
 
-const toInvitationView = (r: InvitationRow): InvitationView => ({
+const toInvitationView = (r: InvitationRow, acceptUrl: string | null = null): InvitationView => ({
   id: r.id,
   email: r.email,
   login: r.github_login,
@@ -94,7 +99,33 @@ const toInvitationView = (r: InvitationRow): InvitationView => ({
   invitedBy: r.invited_by,
   createdAt: new Date(r.created_at).toISOString(),
   expiresAt: new Date(r.expires_at).toISOString(),
+  acceptUrl,
 });
+
+const inviteAad = (id: string) => `invitation:${id}`;
+const acceptUrlFor = (services: Services, token: string) =>
+  `${services.config.studioOrigin}/invite/${token}`;
+
+/** Seal the accept token for later display; null when the Hub has no secure storage. */
+async function sealInviteToken(services: Services, id: string, token: string) {
+  try {
+    return await sealSecret(services.config, token, inviteAad(id));
+  } catch {
+    return null;
+  }
+}
+
+async function storedAcceptUrl(services: Services, r: InvitationRow): Promise<string | null> {
+  if (!r.token_sealed) return null;
+  try {
+    return acceptUrlFor(
+      services,
+      await openSecret(services.config, r.token_sealed, inviteAad(r.id)),
+    );
+  } catch {
+    return null;
+  }
+}
 
 /** Only owners and designers manage people; designers can't hand out or touch more than they have. */
 function requireManage(site: SiteWithRole, role?: Role): void {
@@ -150,7 +181,9 @@ export async function listCollaborators(
       )
       .bind(id, services.now())
       .all<InvitationRow>();
-    invitations = inv.results.map(toInvitationView);
+    invitations = await Promise.all(
+      inv.results.map(async (r) => toInvitationView(r, await storedAcceptUrl(services, r))),
+    );
   }
   return { collaborators, invitations };
 }
@@ -207,7 +240,7 @@ export async function inviteCollaborator(
   user: User,
   input: z.infer<typeof InviteSchema>,
   log?: Logger,
-): Promise<{ invitation: InvitationView; acceptUrl: string }> {
+): Promise<{ invitation: InvitationView; acceptUrl: string; emailed: boolean }> {
   const site = await siteForUser(services, id, user);
   requireManage(site, input.role);
   if (input.login) {
@@ -236,10 +269,11 @@ export async function inviteCollaborator(
     expires_at: now + INVITE_TTL_MS,
     accepted_at: null,
   };
+  row.token_sealed = await sealInviteToken(services, row.id, token);
   await services.db
     .prepare(
-      `INSERT INTO invitations (id, site_id, email, github_login, role, token_hash, invited_by, status, created_at, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+      `INSERT INTO invitations (id, site_id, email, github_login, role, token_hash, invited_by, status, created_at, expires_at, token_sealed)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
     )
     .bind(
       row.id,
@@ -251,32 +285,93 @@ export async function inviteCollaborator(
       user.id,
       now,
       row.expires_at,
+      row.token_sealed,
     )
     .run();
-  const acceptUrl = `${services.config.studioOrigin}/invite/${token}`;
-  // Task 16: sent through the Hub's EmailSender (dev outbox in DEV_MODE), counted against the
-  // site's transactional-email quota. A failed send never blocks the invitation: Studio shows
-  // the link to copy either way.
-  if (row.email)
-    await sendInvitationEmail(services, site, row.email, {
-      inviter: user.name ?? user.login,
-      role: input.role,
-      acceptUrl,
-    }).catch((err) =>
-      // Not fatal (Studio shows the link to copy), but the owner's support needs to see it.
-      (log ?? createLogger(services.config.logLevel)).warn("invitation email failed", {
-        siteId: id,
-        invitation: row.id,
-        err,
-      }),
-    );
+  const acceptUrl = acceptUrlFor(services, token);
+  const emailed = await emailInvitation(services, site, row, user, acceptUrl, log);
   await audit(services.db, {
     siteId: id,
     actor: user.id,
     action: "collaborator.invite",
     meta: { invitation: row.id, role: input.role, email: row.email, login: row.github_login },
   });
-  return { invitation: toInvitationView(row), acceptUrl };
+  return { invitation: toInvitationView(row, acceptUrl), acceptUrl, emailed };
+}
+
+/**
+ * Email the invitation when the Hub can deliver mail (a provider, or the dev outbox). A failed
+ * send never blocks the invitation: Studio shows the link to copy either way. Returns whether
+ * an email actually went out — Studio never says "we emailed" otherwise.
+ */
+async function emailInvitation(
+  services: Services,
+  site: SiteRow,
+  row: InvitationRow,
+  user: User,
+  acceptUrl: string,
+  log?: Logger,
+): Promise<boolean> {
+  if (!row.email || !emailDeliverable(services)) return false;
+  try {
+    await sendInvitationEmail(services, site, row.email, {
+      inviter: user.name ?? user.login,
+      role: row.role,
+      acceptUrl,
+    });
+    return true;
+  } catch (err) {
+    // Not fatal (Studio shows the link to copy), but the owner's support needs to see it.
+    (log ?? createLogger(services.config.logLevel)).warn("invitation email failed", {
+      siteId: site.id,
+      invitation: row.id,
+      err,
+    });
+    return false;
+  }
+}
+
+/**
+ * Resend a pending invitation (`POST /api/sites/:id/invitations/:invitationId/resend`): the same
+ * link when the Hub kept it, else a fresh one (the old link stops working). The 14 days start
+ * again; the email goes out again when the Hub can send mail.
+ */
+export async function resendInvitation(
+  services: Services,
+  id: string,
+  user: User,
+  invitationId: string,
+  log?: Logger,
+): Promise<{ invitation: InvitationView; acceptUrl: string; emailed: boolean }> {
+  const site = await siteForUser(services, id, user);
+  requireManage(site);
+  const row = await services.db
+    .prepare("SELECT * FROM invitations WHERE id = ? AND site_id = ? AND status = 'pending'")
+    .bind(invitationId, id)
+    .first<InvitationRow>();
+  if (!row) throw notFound("That invitation isn't waiting any more.");
+  requireManage(site, row.role);
+  const now = services.now();
+  let acceptUrl = await storedAcceptUrl(services, row);
+  if (!acceptUrl) {
+    const token = randomToken(24);
+    row.token_hash = await sha256Hex(token);
+    row.token_sealed = await sealInviteToken(services, row.id, token);
+    acceptUrl = acceptUrlFor(services, token);
+  }
+  row.expires_at = now + INVITE_TTL_MS;
+  await services.db
+    .prepare("UPDATE invitations SET token_hash = ?, token_sealed = ?, expires_at = ? WHERE id = ?")
+    .bind(row.token_hash, row.token_sealed ?? null, row.expires_at, row.id)
+    .run();
+  const emailed = await emailInvitation(services, site, row, user, acceptUrl, log);
+  await audit(services.db, {
+    siteId: id,
+    actor: user.id,
+    action: "collaborator.invite.resend",
+    meta: { invitation: row.id, emailed },
+  });
+  return { invitation: toInvitationView(row, acceptUrl), acceptUrl, emailed };
 }
 
 export async function revokeInvitation(

@@ -15,9 +15,18 @@ export {
   type OutlineHeading,
 } from "./content";
 export { designCheck } from "./design-check";
+export {
+  CLOUDFLARE_BLOCKS,
+  gatedPageLinks,
+  type HostingWarning,
+  hostingWarnings,
+  isGatedPage,
+  onGitHubPages,
+} from "./hosting";
 export { type Autofix, type CheckOptions, type Issue, type Severity, sortIssues } from "./issue";
 export {
   describeBrokenLink,
+  describeGatedLink,
   linkIssues,
   linkPlace,
   type PublishCheck,

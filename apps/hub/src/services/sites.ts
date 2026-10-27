@@ -33,6 +33,7 @@ import {
   MAIN_BRANCH,
   PUBLISH_WORKFLOW,
   parseRepo,
+  type WorkflowRun,
 } from "../github/types";
 import { base64ToBytes, bytesToBase64 } from "../lib/crypto";
 import { forbidden, HttpError, notFound } from "../lib/errors";
@@ -372,6 +373,25 @@ function parseSetup(row: Pick<SiteRow, "setup_json">): SiteSetup | null {
 }
 
 /**
+ * The state of the publish this setup started, from the newest run on main. A run for another
+ * commit, or one that had already finished before our dispatch, belongs to an earlier publish:
+ * ours is still queued (webhooks and the status poll take it from there).
+ */
+export function currentRunState(
+  run: WorkflowRun,
+  head: string,
+  dispatchedAt: number | null,
+): WorkflowRun["state"] {
+  if (run.state === "none") return "none";
+  if (run.sha && run.sha !== head) return "queued";
+  const finished = run.state === "success" || run.state === "failure";
+  const updated = run.updatedAt ? Date.parse(run.updatedAt) : Number.NaN;
+  // GitHub timestamps have second resolution: allow a little slack.
+  if (finished && dispatchedAt !== null && updated < dispatchedAt - 2000) return "queued";
+  return run.state;
+}
+
+/**
  * Bring a site's repository to "set up and published", skipping stages already done:
  * create the repo (if missing) → commit the personalized files (if main lacks `openspace.json`)
  * → draft branch → Pages → publish dispatch. Safe to run again after a failure at any stage.
@@ -391,6 +411,8 @@ async function runSetup(
     return buildSiteFiles(services, site, setup, user.id);
   };
   let stage = "repo";
+  // A commit to main in this run starts the publish workflow on its own (`on: push`).
+  let pushed = false;
   try {
     let head: string | null;
     if (!(await gh.getRepo(repo))) {
@@ -403,6 +425,7 @@ async function runSetup(
         author: { name: user.name ?? user.login },
       });
       head = created.head;
+      pushed = true;
     } else {
       stage = "content";
       head = await gh.getRef(repo, MAIN_BRANCH);
@@ -420,6 +443,7 @@ async function runSetup(
           ),
         });
         head = commit.sha;
+        pushed = true;
       }
     }
     // The content is on main: the setup logo in R2 is no longer needed.
@@ -443,10 +467,26 @@ async function runSetup(
     stage = "pages";
     const url = (await gh.enablePages(repo)).url || site.url;
     stage = "publish";
-    await gh.dispatchWorkflow(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
-    const run = await gh.workflowStatus(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
+    const dispatchedAt = services.now();
+    let dispatched = true;
+    try {
+      await gh.dispatchWorkflow(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
+    } catch (err) {
+      // GitHub often refuses to dispatch a workflow file it indexed seconds ago. The commit we
+      // just pushed already started the same workflow, so the site is building, not failed.
+      if (!pushed) throw err;
+      dispatched = false;
+      opts.log?.warn("publish dispatch failed; the push run publishes", { siteId: site.id, err });
+    }
+    let run: WorkflowRun = { state: "none" };
+    try {
+      run = await gh.workflowStatus(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
+    } catch (err) {
+      opts.log?.warn("publish run lookup failed", { siteId: site.id, err });
+    }
+    const state = currentRunState(run, head, dispatched ? dispatchedAt : null);
     const status: SiteStatus =
-      run.state === "success" ? "live" : run.state === "failure" ? "failed" : "building";
+      state === "success" ? "live" : state === "failure" ? "failed" : "building";
     // The first version is a publish too: "Fix it for me" and history can go back to it.
     if (!(await publishBySha(services.db, site.id, head)))
       await insertPublish(
@@ -458,7 +498,7 @@ async function runSetup(
           prev_sha: null,
           summary: `Create ${site.name}`,
           actor: user.id,
-          status: run.state === "none" ? "queued" : run.state,
+          status: state === "none" ? "queued" : state,
         },
         services.now(),
       );
@@ -673,7 +713,10 @@ export async function archiveSite(
   if (confirm.trim() !== site.name.trim())
     throw new HttpError(400, "confirmation_mismatch", "Type the site's name exactly to delete it.");
   try {
-    await services.github({ user, site }).archiveRepo(parseRepo(site.repo));
+    const gh = services.github({ user, site });
+    const repo = parseRepo(site.repo);
+    // A site whose setup never created its repository has nothing to archive.
+    if (await gh.getRepo(repo)) await gh.archiveRepo(repo);
   } catch (err) {
     log?.warn("repo archive failed", { siteId: id, err });
     throw new HttpError(
@@ -762,6 +805,29 @@ export async function cancelTransfer(
 }
 
 /** Expire every pending transfer older than `TRANSFER_TTL_MS` (cron). */
+/** A site still "building" this long after it was created, with nothing ever published, stalled. */
+export const STALLED_SETUP_MS = 10 * 60_000;
+export const STALLED_SETUP_DETAIL =
+  "Setting up this site didn't finish. Try again, or delete it if you don't need it.";
+
+/**
+ * Sites whose creation died part-way (e.g. the Hub was cut off before the repository or the
+ * first publish existed) would say "Setting up" forever: after `STALLED_SETUP_MS` with no
+ * publish recorded they become `failed`, so Studio offers "Try again" (which resumes setup
+ * from the stored details) and deleting them works.
+ */
+export async function failStalledSetups(services: Services, now: number): Promise<number> {
+  const res = await services.db
+    .prepare(
+      `UPDATE sites SET status = 'failed', status_detail = ?, updated_at = ?
+       WHERE status = 'building' AND archived_at IS NULL AND created_at < ?
+         AND NOT EXISTS (SELECT 1 FROM publishes p WHERE p.site_id = sites.id)`,
+    )
+    .bind(STALLED_SETUP_DETAIL, now, now - STALLED_SETUP_MS)
+    .run();
+  return res.meta.changes ?? 0;
+}
+
 export async function expireTransfers(services: Services, now: number): Promise<number> {
   const rows = await services.db
     .prepare(

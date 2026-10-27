@@ -161,4 +161,27 @@ describe("subscribers", () => {
     );
     await waitFor(() => expect(growth(hub).subscribers.some((s) => s.email === email)).toBe(false));
   });
+
+  it("without an email provider: explains, and the owner confirms a pending person by hand", async () => {
+    const { user, hub } = await openWorkspace("subscribers", {
+      hub: { capabilities: { email: { configured: false, devOutbox: false } } },
+    });
+    expect(await screen.findByText(/Confirmation emails can’t be sent yet/)).toBeInTheDocument();
+    expect(screen.queryByText(/confirm by email/)).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByRole("row").length).toBeGreaterThan(2));
+    const pending = growth(hub).subscribers.find((s) => s.status === "pending");
+    expect(pending).toBeDefined();
+    await user.click(screen.getByRole("button", { name: `${pending?.email} options` }));
+    await user.click(await screen.findByRole("menuitem", { name: "Mark as confirmed" }));
+    await user.click(
+      within(await screen.findByRole("dialog")).getByRole("button", {
+        name: "They agreed — confirm",
+      }),
+    );
+    await waitFor(() =>
+      expect(growth(hub).subscribers.find((s) => s.email === pending?.email)?.status).toBe(
+        "confirmed",
+      ),
+    );
+  });
 });

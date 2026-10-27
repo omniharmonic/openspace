@@ -5,8 +5,9 @@ import { createApp } from "../src/app";
 import { DevGitHubAccess } from "../src/github/dev";
 import { GitHubApiError } from "../src/github/types";
 import { bytesToBase64 } from "../src/lib/crypto";
+import { runScheduled } from "../src/scheduled";
 import { loadSiteDocument } from "../src/services/site-files";
-import { slugifyRepoName } from "../src/services/sites";
+import { currentRunState, STALLED_SETUP_MS, slugifyRepoName } from "../src/services/sites";
 import { basicTemplate } from "../src/templates/basic";
 import { call, cookieFrom, devLogin } from "./helpers";
 import { generateAppKey, pem } from "./keys";
@@ -236,8 +237,8 @@ describe("sites API (dev GitHub)", () => {
     const live = await call(app, `/s/${site.id}/`);
     expect(live.status).toBe(200);
     // Owner content on the Hub origin is sandboxed (opaque origin: no Hub cookies or APIs).
-    expect(live.headers.get("content-security-policy")).toBe(
-      "sandbox allow-scripts allow-popups allow-forms",
+    expect(live.headers.get("content-security-policy")).toMatch(
+      /^sandbox allow-scripts allow-popups allow-forms; frame-ancestors /,
     );
     expect(live.headers.get("x-content-type-options")).toBe("nosniff");
     const html = await live.text();
@@ -645,6 +646,85 @@ describe("sites API (dev GitHub)", () => {
       (await call(healthy, `/api/sites/${site.id}/publish`, { method: "POST", cookie: stranger }))
         .status,
     ).toBe(404);
+  });
+
+  it("a create that died part-way becomes failed after a while; Try again finishes it; delete works without a repo", async () => {
+    let die = true;
+    const app = createApp({
+      services: {
+        github: (_ctx, sv) => {
+          const dev = new DevGitHubAccess(sv.db);
+          const make = dev.createRepoFromTemplate.bind(dev);
+          dev.createRepoFromTemplate = async (input) => {
+            if (die) throw new Error("Worker exceeded CPU time limit.");
+            return make(input);
+          };
+          return dev;
+        },
+      },
+    });
+    const cookie = await devLogin(app, "Stalled Person");
+    // Simulate the request being cut off: the row exists, still "building", nothing published.
+    const { site } = await create(app, cookie, { template: "basic", name: "Cut Off" });
+    await env.HUB_DB.prepare(
+      "UPDATE sites SET status = 'building', status_detail = NULL, created_at = ? WHERE id = ?",
+    )
+      .bind(Date.now() - STALLED_SETUP_MS - 1000, site.id)
+      .run();
+    const { site: other } = await create(app, cookie, { template: "basic", name: "Second Cut" });
+    await env.HUB_DB.prepare(
+      "UPDATE sites SET status = 'building', status_detail = NULL, created_at = ? WHERE id = ?",
+    )
+      .bind(Date.now() - STALLED_SETUP_MS - 1000, other.id)
+      .run();
+    await runScheduled(env, Date.now());
+    const view = (await (await call(app, `/api/sites/${site.id}`, { cookie })).json()) as SiteJson;
+    expect(view.status).toBe("failed");
+    expect(view.statusDetail).toMatch(/didn't finish/);
+    // Try again resumes setup from the stored details.
+    die = false;
+    const retry = await call(app, `/api/sites/${site.id}/publish`, { method: "POST", cookie });
+    expect(await retry.json()).toMatchObject({ status: "live" });
+    // The other one is deleted although it has no repository.
+    const del = await call(app, `/api/sites/${other.id}`, {
+      method: "DELETE",
+      cookie,
+      json: { confirm: "Second Cut" },
+    });
+    expect(del.status).toBe(200);
+  });
+
+  it("a refused workflow dispatch after the first push is building, not failed", async () => {
+    const app = createApp({
+      services: {
+        github: (_ctx, s) => {
+          const dev = new DevGitHubAccess(s.db);
+          dev.dispatchWorkflow = async () => {
+            throw new GitHubApiError("Workflow does not have 'workflow_dispatch' trigger", 422);
+          };
+          return dev;
+        },
+      },
+    });
+    const cookie = await devLogin(app, "Push Run");
+    const { res, site } = await create(app, cookie, { template: "basic", name: "Pushed" });
+    expect(res.status).toBe(201);
+    expect(site.status).toBe("building");
+    expect(site.statusDetail).toBeNull();
+  });
+
+  it("an earlier run of another commit doesn't decide a new setup's status", () => {
+    const head = "a".repeat(40);
+    const t = Date.parse("2026-10-27T10:00:00Z");
+    expect(currentRunState({ state: "failure", sha: "b".repeat(40) }, head, t)).toBe("queued");
+    expect(
+      currentRunState({ state: "failure", sha: head, updatedAt: "2026-10-27T09:00:00Z" }, head, t),
+    ).toBe("queued");
+    expect(
+      currentRunState({ state: "success", sha: head, updatedAt: "2026-10-27T10:00:01Z" }, head, t),
+    ).toBe("success");
+    expect(currentRunState({ state: "in_progress", sha: head }, head, null)).toBe("in_progress");
+    expect(currentRunState({ state: "none" }, head, t)).toBe("none");
   });
 
   it("reports updates when the template has a newer version", async () => {

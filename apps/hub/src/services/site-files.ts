@@ -185,6 +185,21 @@ export function siteDocumentToFiles(doc: SiteDocument): Record<string, string> {
 }
 
 /** True for repo paths whose contents are derived from the `SiteDocument`. */
+/**
+ * Files a publish or rollback carries from the draft (or an earlier version) to `main`: the
+ * site's content, media and `openspace.json`. Everything else — the publish workflow,
+ * `package.json`, Astro config, custom code — stays as it is on `main`, so a fix made there
+ * (or by the update bot / a hosting switch) is never undone by publishing.
+ */
+export function isPublishedPath(path: string): boolean {
+  return path === CONFIG_PATH || path.startsWith("content/") || path.startsWith("media/");
+}
+
+/** The same, without `openspace.json` (a rollback keeps today's hosting target and Hub URL). */
+export function isContentPath(path: string): boolean {
+  return path.startsWith("content/") || path.startsWith("media/");
+}
+
 export function isDocumentPath(path: string): boolean {
   if (
     path === CONFIG_PATH ||

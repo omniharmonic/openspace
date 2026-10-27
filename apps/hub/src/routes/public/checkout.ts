@@ -11,6 +11,7 @@
  */
 import { Hono } from "hono";
 import { HttpError } from "../../lib/errors";
+import { PAGE_HEADERS, publicPage } from "../../lib/page";
 import {
   allowedOrigins,
   type FieldValues,
@@ -107,43 +108,67 @@ publicCheckoutRoutes.post("/c/:siteId/checkout", async (c) => {
   if (single(fields._hp))
     throw new HttpError(422, "invalid_request", "We couldn't start checkout. Please try again.");
 
-  const blocked = await gate(c, site, "checkout", null, { turnstile: false });
-  if (blocked) throw new HttpError(blocked.status, blocked.code, blocked.message);
+  let started: { url: string; orderId: string };
+  try {
+    const blocked = await gate(c, site, "checkout", null, { turnstile: false });
+    if (blocked) throw new HttpError(blocked.status, blocked.code, blocked.message);
 
-  const kind = single(fields.kind) ?? "cart";
-  const email = single(fields.email);
-  let input: CheckoutInput;
-  if (kind === "donation") {
-    const settings = await growthSettings(services.db, site.id);
-    const currency = validCurrency(single(fields.currency) ?? settings.currency);
-    const interval = single(fields.interval) ?? "once";
-    if (interval !== "once" && interval !== "month")
-      throw new HttpError(422, "invalid_interval", "Choose one-time or monthly.");
-    input = {
-      kind: "donation",
-      currency,
-      interval,
-      email,
-      amount: donationAmount(
-        {
-          amount: single(fields.amount),
-          custom_amount: single(fields.custom_amount),
-          custom: single(fields.custom),
-        },
+    const kind = single(fields.kind) ?? "cart";
+    const email = single(fields.email);
+    let input: CheckoutInput;
+    if (kind === "donation") {
+      const settings = await growthSettings(services.db, site.id);
+      const currency = validCurrency(single(fields.currency) ?? settings.currency);
+      const interval = single(fields.interval) ?? "once";
+      if (interval !== "once" && interval !== "month")
+        throw new HttpError(422, "invalid_interval", "Choose one-time or monthly.");
+      input = {
+        kind: "donation",
         currency,
-        { min: settings.donationMin, max: settings.donationMax },
-      ),
-    };
-  } else if (kind === "membership") {
-    const tierId = single(fields.tier) ?? "";
-    if (!/^tier_[0-9a-z]{4,20}$/.test(tierId))
-      throw new HttpError(422, "invalid_tier", "That membership isn't available.");
-    input = { kind: "membership", tierId, email };
-  } else if (kind === "cart") {
-    input = { kind: "cart", items: parseCartItems(items), email };
-  } else throw new HttpError(422, "invalid_request", "Unknown checkout type.");
-
-  const { url, orderId } = await createCheckout(services, site, input, { success, cancel });
+        interval,
+        email,
+        amount: donationAmount(
+          {
+            amount: single(fields.amount),
+            custom_amount: single(fields.custom_amount),
+            custom: single(fields.custom),
+          },
+          currency,
+          { min: settings.donationMin, max: settings.donationMax },
+        ),
+      };
+    } else if (kind === "membership") {
+      const tierId = single(fields.tier) ?? "";
+      if (!/^tier_[0-9a-z]{4,20}$/.test(tierId))
+        throw new HttpError(422, "invalid_tier", "That membership isn't available.");
+      input = { kind: "membership", tierId, email };
+    } else if (kind === "cart") {
+      input = { kind: "cart", items: parseCartItems(items), email };
+    } else throw new HttpError(422, "invalid_request", "Unknown checkout type.");
+    started = await createCheckout(services, site, input, { success, cancel });
+  } catch (err) {
+    // Visitors never see raw errors or the Hub's configuration (e.g. a missing Stripe key):
+    // a plain page (no-JS form posts navigate here) or a short JSON message for the site's script.
+    if (!(err instanceof HttpError) || err.status < 500) throw err;
+    c.var.log.warn("checkout unavailable", { siteId: site.id, code: err.code });
+    const message =
+      err.code === "not_configured"
+        ? `${site.name} isn't set up to take payments yet. Nothing was charged.`
+        : "Checkout isn't available right now. Nothing was charged — please try again later.";
+    if (json)
+      return c.json({ ok: false, message, error: { code: "payments_unavailable", message } }, 503);
+    return c.html(
+      publicPage({
+        title: "Payments aren't available",
+        heading: "Payments aren't available yet",
+        body: message,
+        link: { href: base, label: `Back to ${site.name}` },
+      }),
+      503,
+      PAGE_HEADERS,
+    );
+  }
+  const { url, orderId } = started;
   return json ? c.json({ ok: true, url, orderId }) : c.redirect(url, 303);
 });
 

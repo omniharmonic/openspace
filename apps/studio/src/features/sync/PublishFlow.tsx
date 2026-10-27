@@ -417,6 +417,7 @@ const FIX_COPY: Record<string, string> = {
     "Went back to the last version that worked. Your changes are still in the draft, so you can correct them and publish again.",
   retry: "Trying again.",
   enable_pages: "Turned your site’s hosting back on and trying again.",
+  update_node: "Updated your site’s publishing setup and trying again.",
 };
 
 /** Publishing progress: Publishing… → Live (with link) or Couldn’t publish (+ Fix it for me). */
