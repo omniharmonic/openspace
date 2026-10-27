@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 import { createMcpServer, type OpenSpaceMcpServer } from "@omniharmonic/openspace-mcp-tools";
 import { afterAll, describe, expect, it } from "vitest";
 import { FileSiteStore } from "./mcp/file-store";
-import { createScreenshotter, loadPlaywright } from "./mcp/screenshot";
+import { createScreenshotter, loadPlaywright, prepareScript } from "./mcp/screenshot";
 import { cleanup, MEADOW, meadowCopy } from "./test-helpers";
 
 const exec = promisify(execFile);
@@ -218,6 +218,36 @@ describe("FileSiteStore (local MCP)", () => {
     } finally {
       await server.close();
       await store.close();
+    }
+  }, 60_000);
+
+  it("before a capture, loads lazy images and hides sticky chrome outside the section", async (t) => {
+    const pw = await loadPlaywright();
+    if (!("chromium" in pw)) return t.skip();
+    // biome-ignore lint/suspicious/noExplicitAny: Playwright is optional and untyped here
+    let browser: any;
+    try {
+      browser = await pw.chromium.launch({ headless: true });
+    } catch {
+      return t.skip();
+    }
+    try {
+      const page = await browser.newPage({ viewport: { width: 390, height: 600 } });
+      const px =
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+      await page.setContent(
+        `<header id="h" style="position:sticky;top:0;height:80px">Header</header>
+         <div style="height:3000px"></div>
+         <section data-os-id="sec_target"><img id="i" loading="lazy" src="${px}" width="10" height="10"></section>`,
+      );
+      await page.evaluate(prepareScript("sec_target"));
+      expect(await page.evaluate("getComputedStyle(document.getElementById('h')).visibility")).toBe(
+        "hidden",
+      );
+      expect(await page.evaluate("document.getElementById('i').loading")).toBe("eager");
+      expect(await page.evaluate("document.getElementById('i').complete")).toBe(true);
+    } finally {
+      await browser.close();
     }
   }, 60_000);
 
