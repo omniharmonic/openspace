@@ -31,8 +31,8 @@ const IMAGES: Record<string, [number, number]> = {
   "ana-theo.jpg": [1500, 1000],
 };
 
-/** A valid, tiny (flat color) PNG of the given size. */
-export function pngBytes(width: number, height: number): Uint8Array {
+/** A valid, tiny (flat color) PNG of the given size; `seed` picks its shade (distinct files). */
+export function pngBytes(width: number, height: number, seed = ""): Uint8Array {
   const chunk = (type: string, data: Buffer) => {
     const len = Buffer.alloc(4);
     len.writeUInt32BE(data.length);
@@ -46,7 +46,9 @@ export function pngBytes(width: number, height: number): Uint8Array {
   ihdr.writeUInt32BE(height, 4);
   ihdr[8] = 8; // bit depth
   ihdr[9] = 0; // grayscale
-  const row = Buffer.alloc(width + 1, 0x99);
+  let shade = 0x99;
+  for (const ch of seed) shade = (shade * 31 + ch.charCodeAt(0)) % 251;
+  const row = Buffer.alloc(width + 1, shade);
   row[0] = 0;
   const raw = Buffer.alloc((width + 1) * height);
   for (let y = 0; y < height; y++) row.copy(raw, y * (width + 1));
@@ -150,7 +152,7 @@ export function juniperFetch(log: FixtureFetchLog = { urls: [] }): FetchFn {
       const [w0, h0] = size;
       const w = fmt ? Math.min(w0, Number(fmt[1])) : w0;
       const h = Math.round((h0 * w) / w0);
-      return ok(pngBytes(w, h) as unknown as BodyInit, "image/png");
+      return ok(pngBytes(w, h, name) as unknown as BodyInit, "image/png");
     }
     if (url.toString().startsWith(SITE_CSS)) return ok(read("site.css"), "text/css");
     if (url.host !== new URL(JUNIPER_URL).host) return notFound();
@@ -193,7 +195,11 @@ function fixtureAsset(url: URL): Response | undefined {
   if (/\.(?:jpe?g|png|webp)$/i.test(url.pathname)) {
     const m = /-(\d+)x(\d+)\.[a-z]+$/i.exec(url.pathname);
     const [w, h] = m ? [Number(m[1]), Number(m[2])] : [1600, 1000];
-    return ok(pngBytes(Math.min(w, 2400), Math.min(h, 2400)) as unknown as BodyInit, "image/png");
+    const stem = url.pathname.replace(/-\d+x\d+(?=\.[a-z]+$)/i, "");
+    return ok(
+      pngBytes(Math.min(w, 2400), Math.min(h, 2400), stem) as unknown as BodyInit,
+      "image/png",
+    );
   }
   if (/\.pdf$/i.test(url.pathname))
     return ok(

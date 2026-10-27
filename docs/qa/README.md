@@ -12,6 +12,7 @@ how to repeat each check. Each page lists what was measured, what we fixed and w
 | [templates-v2.md](templates-v2.md) | Templates v2: 277 presets, 20 templates — checks, stress, Lighthouse, visual-review fixes |
 | [templates-polish.md](templates-polish.md) | Art-director polish pass: balanced grids, CTA fixes, on-brief and unrepeated photos, before/after |
 | [templates/](templates/) | Template screenshots (Task 9, templates v2) and stress samples |
+| [import-fidelity.md](import-fidelity.md) | How a moved site's fidelity score is measured and scored (checks + screenshot similarity), auto-tuning, font licensing, results |
 
 ## Repeating the checks
 

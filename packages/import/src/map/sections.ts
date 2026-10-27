@@ -193,14 +193,30 @@ async function mapSectionParts(ctx: SectionContext, sq: SqSection): Promise<Sect
   const bg = sq.background?.image
     ? await ctx.media.image({ ...sq.background.image, alt: "" }, ctx.where)
     : undefined;
-  if (sq.background?.video)
+  const video = sq.background?.video;
+  // A video file plays where the hosting serves large files (Cloudflare); elsewhere, and for
+  // YouTube/Vimeo backgrounds, the section keeps its still image and the report says so.
+  const videoFile =
+    video && ctx.videoBackgrounds && /^https:\/\/[^\s]+\.(?:mp4|webm)(?:[?#]|$)/i.test(video)
+      ? await ctx.media.file(video, ctx.where)
+      : undefined;
+  if (video && !videoFile)
     ctx.notices.push({
-      kind: "other",
+      kind: "media",
       where: ctx.where,
-      message:
-        "A section's background video wasn't imported (OpenSpace background videos are uploaded files). Its poster image, if any, is used instead.",
+      message: `A section's background video${/^https?:/.test(video) ? ` (${video})` : ""} is shown as its still image${bg ? "" : " (it had none, so the section has a plain background)"}. Background videos can play once the site moves to Cloudflare hosting; upload the video file there in Site Styles → the section's background.`,
     });
   const style = styleFor(sq, ctx, bg?.src);
+  if (videoFile)
+    style.background = {
+      type: "video",
+      src: videoFile as never,
+      ...(bg ? { poster: bg.src } : {}),
+      ...(sq.background?.image?.focal ? { focal: sq.background.image.focal } : {}),
+      ...(style.background?.type === "image" && style.background.overlay
+        ? { overlay: style.background.overlay }
+        : {}),
+    };
   const width = sq.contentWidth ? WIDTHS[sq.contentWidth] : undefined;
   const align = sq.align === "center" ? ("center" as const) : undefined;
 

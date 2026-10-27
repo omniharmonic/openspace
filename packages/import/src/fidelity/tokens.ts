@@ -5,6 +5,7 @@
  * section padding and gutter. Names are read by meaning (`display-xl`, `body-lg`, `label`,
  * `button`, `contentMax`, `sectionPadDesktop`…), so it works for any file shaped like that.
  */
+
 import type {
   LayoutChoices,
   TypeScalePreset,
@@ -12,6 +13,7 @@ import type {
   TypographyChoices,
 } from "@omniharmonic/openspace-schema";
 import { fontCategory } from "../map/theme";
+import type { FontMetrics } from "./probe";
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -67,6 +69,12 @@ export interface TokenLook {
   /** Families by role, for the pairing fallback. */
   fonts: { heading?: string; body?: string; label?: string };
   eyebrowRule?: boolean;
+  /** Measured shapes of the fonts (a browser probe), by family. */
+  metrics?: Record<string, FontMetrics>;
+  /** Licensed web-font services the page loaded fonts from. */
+  fontHosts?: string[];
+  /** The page sits beside a full-height sidebar (left), with this background. */
+  sidebar?: { side: "left" | "right"; background?: string };
 }
 
 const ROLE_KEYS = {

@@ -21,6 +21,25 @@ export interface ProbeText {
   weight: number;
   italic: boolean;
   color?: string;
+  /** Set in small capitals (`font-variant: small-caps`). */
+  smallCaps?: boolean;
+}
+
+/**
+ * A font as drawn on the page, measured on a canvas at 100px with the element's own font stack
+ * (so the face the visitor sees): x-height and cap height (em), the average lowercase advance
+ * (em), and the weights the page uses.
+ */
+export interface FontMetrics {
+  xHeight: number;
+  capHeight: number;
+  width: number;
+  /** Lowercase glyphs as tall as capitals: a small-caps face. */
+  smallCaps?: boolean;
+  /** What the glyphs look like: feet on the "l" (serif), equal advances (monospace). */
+  category?: "serif" | "sans-serif" | "monospace";
+  weights: number[];
+  italic?: boolean;
 }
 
 export interface ProbeSection {
@@ -41,12 +60,50 @@ export interface ProbeSection {
   /** Italic lines (closing lines, pull quotes). */
   italicLines: number;
   /** The largest image: where it sits and how wide it is (share of the section). */
-  image?: { side: "left" | "right" | "center"; widthShare: number; top: number };
+  image?: {
+    side: "left" | "right" | "center";
+    widthShare: number;
+    top: number;
+    /** Shown width ÷ height (the crop a visitor sees). */
+    aspect?: number;
+    /** Share of the viewport width. */
+    viewShare?: number;
+  };
+  /** Running text color (`#rrggbb`). */
+  textColor?: string;
+  /** The fill of the section's first filled button (`#rrggbb`). */
+  button?: string;
+  /**
+   * What the section is made of, where (a computer-width probe): its words, pictures, buttons and
+   * links with their boxes and text styles — enough to recreate an unmappable section as a
+   * custom component on theme tokens (never its CSS). Absent for sections with forms, video,
+   * embeds or more than 30 parts.
+   */
+  blueprint?: BlueprintItem[];
   /** Distance from the section top to its first text (px). */
   padTop?: number;
+  /** Where the section's own content (text, images, forms) starts and ends (page px). */
+  contentTop?: number;
+  contentBottom?: number;
   align?: "left" | "center";
   /** First words of the section, for matching. */
   text: string;
+  /** More of its words (up to 20 000 characters), for matching parts of long sections. */
+  words?: string;
+}
+
+export interface BlueprintItem {
+  kind: "heading" | "text" | "image" | "button" | "link";
+  /** Heading level (1–6). */
+  level?: number;
+  text?: string;
+  href?: string;
+  /** The picture's best address (`currentSrc`) and alt text. */
+  src?: string;
+  alt?: string;
+  /** Page-pixel box. */
+  box: { x: number; y: number; w: number; h: number };
+  style?: ProbeText & { align?: string };
 }
 
 export interface LookProbe {
@@ -85,6 +142,12 @@ export interface LookProbe {
   sections: ProbeSection[];
   /** Total page height (px). */
   height: number;
+  /** Measured fonts by family (first family of each role's stack). */
+  fonts?: Record<string, FontMetrics>;
+  /** Font files and font stylesheets the page loaded (to tell licensed services apart). */
+  fontRequests?: string[];
+  /** A full-height column of identity and navigation beside the page (sidebar themes). */
+  sidebar?: { side: "left" | "right"; width: number; background?: string };
 }
 
 /** In-page script (an expression evaluating to a Promise<LookProbe>). */
@@ -138,6 +201,7 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       weight: Number(s.fontWeight) || 400,
       italic: s.fontStyle === "italic" || s.fontStyle.startsWith("oblique"),
       color: toHex(s.color),
+      ...(/small-caps/.test(s.fontVariantCaps || s.fontVariant || "") ? { smallCaps: true } : {}),
     };
   };
   const bgOf = (el) => {
@@ -150,34 +214,127 @@ export const PROBE_SCRIPT = String.raw`(async () => {
   const isUpperish = (t, el) => t.case === "uppercase" || (ownText(el).length > 2 && ownText(el) === ownText(el).toUpperCase() && /[A-Z]/.test(ownText(el)));
 
   // --- sections -------------------------------------------------------------------------------
-  const chrome = (el) => !!el.closest("header, [role=banner], nav, .os-header, .os-announcement, .os-menu, dialog");
+  const chrome = (el) => !!(el.closest("header") && !el.closest("header").closest("article, main, section, .os-section")) || !!el.closest("[role=banner], nav, .os-header, .os-announcement, .os-menu, dialog, aside, [role=complementary], #sidebar, #secondary, .widget-area, .os-popup, [id*=cookie], [class*=cookie]");
   let sections = [...document.querySelectorAll(".os-section")].filter((e) => visible(e) && !e.closest(".os-footer") && !e.parentElement.closest(".os-section"));
   if (!sections.length) {
     const tops = [...document.querySelectorAll("section")].filter((e) => visible(e) && !chrome(e) && !e.parentElement.closest("section") && e.getBoundingClientRect().width >= vw * 0.85 && e.getBoundingClientRect().height >= 60);
     if (tops.length >= 2) sections = tops;
   }
   if (!sections.length) {
-    // Descend from <main> (or body) while one child holds most of the page.
-    let box = document.querySelector("main") || document.body;
-    for (let i = 0; i < 8; i++) {
-      const kids = [...box.children].filter((e) => visible(e) && !chrome(e) && !/^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(e.tagName));
-      const big = kids.filter((e) => e.getBoundingClientRect().height >= 60);
-      if (big.length === 1 && big[0].getBoundingClientRect().height > box.getBoundingClientRect().height * 0.6) box = big[0];
-      else {
-        // Paragraphs of one article aren't sections: many short children make one section.
-        const hs = big.map((e) => e.getBoundingClientRect().height).sort((a, b) => a - b);
-        sections = big.length > 3 && hs[Math.floor(hs.length / 2)] < 220 ? [box] : big;
-        break;
+    // Visual bands, from the body down: a wrapper with one big child is looked through; children
+    // stacked one above the other are separate bands; children side by side or layered (a
+    // banner's photo and words) make one band; many short children are one article.
+    const kidsOf = (el, min = 40) => [...el.children].filter((e) => visible(e) && !chrome(e) && !e.matches("footer, [role=contentinfo], .os-footer, #footer, #preFooter, .pre-footer") && !/^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE|LINK)$/.test(e.tagName) && e.getBoundingClientRect().height >= min);
+    const empty = (e) => !ownText(e) && !e.querySelector("img, picture, svg, video, iframe, input, canvas") && !/^(IMG|PICTURE|SVG|VIDEO|IFRAME|CANVAS)$/.test(e.tagName);
+    const bands = (el, depth) => {
+      const kids = kidsOf(el);
+      if (!kids.length || depth > 14) return [el];
+      const er = el.getBoundingClientRect();
+      if (kids.length === 1) {
+        const kr = kids[0].getBoundingClientRect();
+        return kr.height >= er.height * 0.5 || depth < 3 ? bands(kids[0], depth + 1) : [el];
       }
-    }
+      const rs = kids.map((k) => k.getBoundingClientRect()).sort((a, b) => a.top - b.top);
+      const stacked = rs.every((r, i) => i === 0 || r.top >= rs[i - 1].bottom - 12);
+      if (!stacked) {
+        // One dominant child among small ones (a page wrapper with a skip link): look through it.
+        const big = kids.filter((k) => k.getBoundingClientRect().height >= er.height * 0.6);
+        if (big.length === 1 && depth < 6) return bands(big[0], depth + 1);
+        // The page's own content beside a sidebar: look into the part holding <main>.
+        const mainKid = kids.find((k) => k.matches("main, [role=main], #main, #content, .site-content") || k.querySelector("main, [role=main], #main"));
+        return mainKid && depth < 10 ? bands(mainKid, depth + 1) : [el];
+      }
+      const hs = rs.map((r) => r.height).sort((a, b) => a - b);
+      // A row of columns (an image beside words) is a band of its own, even inside an article.
+      // (Looking through single-child wrappers: an image card's figure inside its block.)
+      const isRow = (k) => {
+        let box = k;
+        for (let n = 0; n < 6; n++) {
+          const ks = kidsOf(box).filter((e) => !empty(e));
+          if (ks.length === 1) {
+            box = ks[0];
+            continue;
+          }
+          const rs = ks.map((e) => e.getBoundingClientRect());
+          return rs.some((a, i) => rs.some((b, j) => j > i && Math.abs(a.left - b.left) > 40 && a.top < b.bottom - 12 && b.top < a.bottom - 12));
+        }
+        return false;
+      };
+      if (kids.length > 3 && hs[Math.floor(hs.length / 2)] < 220 && depth > 2 && !kids.some(isRow)) return [el];
+      // Runs of short blocks between rows stay together (one band of words).
+      const out = [];
+      let run = [];
+      const flush = () => {
+        if (run.length === 1) out.push(run[0]);
+        else if (run.length) out.push(run);
+        run = [];
+      };
+      for (const k of kidsOf(el, 8)) {
+        if (empty(k)) continue;
+        if (isRow(k) || k.getBoundingClientRect().height >= 220) {
+          // A short run just above (a page title, a section heading) belongs to what follows.
+          const runH = run.reduce((n, e) => n + e.getBoundingClientRect().height, 0);
+          if (run.length && runH < 160) {
+            out.push([...run, k]);
+            run = [];
+            continue;
+          }
+          flush();
+          out.push(...(isRow(k) ? [k] : bands(k, depth + 1)));
+        } else run.push(k);
+      }
+      flush();
+      return out;
+    };
+    // A run of blocks measured as one section.
+    const group = (els) => ({
+      els,
+      getBoundingClientRect() {
+        const rs = els.map((e) => e.getBoundingClientRect());
+        const left = Math.min(...rs.map((r) => r.left));
+        const top = Math.min(...rs.map((r) => r.top));
+        const right = Math.max(...rs.map((r) => r.right));
+        const bottom = Math.max(...rs.map((r) => r.bottom));
+        return { left, top, right, bottom, width: right - left, height: bottom - top };
+      },
+      querySelectorAll(sel) {
+        if (/:scope/.test(sel)) return [...els, ...els.flatMap((e) => [...e.children])];
+        return els.flatMap((e) => [...(e.matches(sel) ? [e] : []), ...e.querySelectorAll(sel)]);
+      },
+      querySelector(sel) {
+        return this.querySelectorAll(sel)[0] || null;
+      },
+      get innerText() {
+        return els.map((e) => e.innerText || e.textContent || "").join(" ");
+      },
+      get textContent() {
+        return els.map((e) => e.textContent || "").join(" ");
+      },
+      get parentElement() {
+        return els[0].parentElement;
+      },
+      closest(sel) {
+        return els[0].closest(sel);
+      },
+      contains(x) {
+        return els.some((e) => e.contains(x));
+      },
+    });
+    sections = bands(document.body, 0)
+      .filter((e) => e !== document.body)
+      .map((e) => (Array.isArray(e) ? group(e) : e))
+      .filter((e) => e.getBoundingClientRect().height >= 60);
   }
-  sections = sections.filter((e) => !e.closest("footer, .os-footer, [role=contentinfo], #footer-sections"));
+  // The footer region (with Squarespace 7.0's pre-footer, which an import moves into the footer)
+  // is chrome on both sides.
+  const FOOTERISH = "footer, .os-footer, [role=contentinfo], #footer-sections, #preFooter, .pre-footer";
+  sections = sections.filter((e) => !e.closest(FOOTERISH));
   const headSel = "h1, h2, h3, h4, .os-heading__text";
   const textSel = "p, li, blockquote, h3, h4, dd, figcaption";
   const all = [];
   const out = sections.slice(0, 40).map((sec, index) => {
     const r = rect(sec);
-    const bgEl = [sec, ...sec.querySelectorAll(":scope > *, :scope > * > *")].find((e) => {
+    const bgEl = [...(sec.els ? [] : [sec]), ...sec.querySelectorAll(":scope > *, :scope > * > *")].find((e) => {
       const s = cs(e);
       const er = e.getBoundingClientRect();
       return s.backgroundImage && s.backgroundImage !== "none" && !/gradient/.test(s.backgroundImage) && er.width >= r.width * 0.8 && er.height >= r.height * 0.6;
@@ -186,7 +343,7 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       const er = e.getBoundingClientRect();
       return visible(e) && er.width >= r.width * 0.9 && er.height >= r.height * 0.7;
     });
-    const res = { index, top: Math.round(r.top), height: Math.round(r.height), background: bgOf(sec), columns: 1, italicLines: 0, text: ownText(sec).slice(0, 120) };
+    const res = { index, top: Math.round(r.top), height: Math.round(r.height), background: bgOf(sec.els ? sec.els[0] : sec), columns: 1, italicLines: 0, text: ownText(sec).slice(0, 120), words: ownText(sec).slice(0, 20000) };
     if (bgEl || coverImg) res.backgroundImage = true;
     const h = [...sec.querySelectorAll(headSel)].find((e) => visible(e) && ownText(e).length > 1);
     if (h) {
@@ -224,6 +381,9 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       res.align = cs(h).textAlign === "center" ? "center" : "left";
       res.padTop = Math.round(Math.min(hr.top, eb ? rect(eb).top : hr.top) - r.top);
     }
+    // The section's first filled button: its fill.
+    const btnEl = [...sec.querySelectorAll("a, button, input[type=submit]")].find((e) => visible(e) && !e.closest("nav, header") && ownText(e).length > 1 && ownText(e).length <= 40 && toHex(cs(e).backgroundColor) && parseFloat(cs(e).paddingLeft) >= 8);
+    if (btnEl) res.button = toHex(cs(btnEl).backgroundColor);
     // Running text: the most-used style among paragraphs.
     const paras = [...sec.querySelectorAll(textSel)].filter((e) => visible(e) && ownText(e).length >= 30 && !e.querySelector("p, li"));
     const tally = new Map();
@@ -238,7 +398,10 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       tally.get(k).n += ownText(p).length;
     }
     const best = [...tally.values()].sort((a, b) => b.n - a.n)[0];
-    if (best) res.body = best.t;
+    if (best) {
+      res.body = best.t;
+      if (best.t.color) res.textColor = best.t.color;
+    }
     // Columns: text items whose vertical spans overlap, at distinct left edges.
     const items = [...sec.querySelectorAll(textSel + ", h2, img")].filter((e) => visible(e) && (e.tagName === "IMG" ? e.getBoundingClientRect().width > 60 : ownText(e).length >= 12)).map(rect);
     for (const a of items) {
@@ -247,13 +410,46 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       for (const b of items) if (b.top <= mid && b.bottom >= mid && !lefts.some((l) => Math.abs(l - b.left) < 40)) lefts.push(b.left);
       res.columns = Math.max(res.columns, Math.min(6, lefts.length));
     }
+    // The section's parts and where they sit (to recreate it as a component when needed).
+    if (!sec.querySelector("form, input, textarea, select, iframe, video, canvas, embed, object")) {
+      const parts = [];
+      const inPart = (e) => parts.some((p) => p.el.contains(e));
+      const btnLike = (e) => { const st = cs(e); return (toHex(st.backgroundColor) || parseFloat(st.borderTopWidth) >= 1) && parseFloat(st.paddingLeft) >= 8; };
+      const els = [...sec.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, img, a, button")].filter((e) => visible(e));
+      for (const e of els) {
+        if (inPart(e) || parts.length > 30) continue;
+        const t = ownText(e);
+        const box = rect(e);
+        const at = { x: Math.round(box.left), y: Math.round(box.top), w: Math.round(box.width), h: Math.round(box.height) };
+        if (e.tagName === "IMG") {
+          if (box.width < 40 || box.height < 30 || e === coverImg) continue;
+          parts.push({ el: e, item: { kind: "image", src: e.currentSrc || e.src, alt: (e.alt || "").slice(0, 300), box: at } });
+        } else if (/^H[1-6]$/.test(e.tagName)) {
+          if (!t) continue;
+          parts.push({ el: e, item: { kind: "heading", level: Number(e.tagName[1]), text: t.slice(0, 300), box: at, style: { ...textOf(e), align: cs(e).textAlign } } });
+        } else if (e.tagName === "A" || e.tagName === "BUTTON") {
+          if (!t || t.length > 60 || e.closest("p, li, h1, h2, h3, h4, h5, h6, blockquote")) continue;
+          parts.push({ el: e, item: { kind: btnLike(e) ? "button" : "link", text: t, href: e.getAttribute("href") || "", box: at, style: { ...textOf(e), align: cs(e).textAlign } } });
+        } else {
+          if (!t || e.querySelector("p, li, h1, h2, h3, h4, h5, h6, img")) continue;
+          parts.push({ el: e, item: { kind: "text", text: t.slice(0, 1500), box: at, style: { ...textOf(e), align: cs(e).textAlign } } });
+        }
+      }
+      if (parts.length && parts.length <= 30) res.blueprint = parts.map((p) => p.item);
+    }
+    // Where the section's own content starts and ends (for the spacing between sections).
+    const content = [...sec.querySelectorAll(textSel + ", h1, h2, img, picture, video, iframe, form, button, a")].filter((e) => visible(e) && (/^(IMG|PICTURE|VIDEO|IFRAME|FORM)$/.test(e.tagName) || ownText(e).length > 1)).map(rect);
+    if (content.length) {
+      res.contentTop = Math.round(Math.min(...content.map((c) => c.top)));
+      res.contentBottom = Math.round(Math.max(...content.map((c) => c.bottom)));
+    }
     // The largest image (not the background).
     const imgs = [...sec.querySelectorAll("img, picture, svg, video")].filter((e) => visible(e) && e !== coverImg).map((e) => ({ e, r: rect(e) })).filter((x) => x.r.width * x.r.height > r.width * r.height * 0.04);
     imgs.sort((a, b) => b.r.width * b.r.height - a.r.width * a.r.height);
     if (imgs[0]) {
       const ir = imgs[0].r;
       const cx = (ir.left + ir.width / 2) / vw;
-      res.image = { side: cx < 0.42 ? "left" : cx > 0.58 ? "right" : "center", widthShare: Math.round((ir.width / Math.max(1, r.width)) * 100) / 100, top: Math.round(ir.top - r.top) };
+      res.image = { side: cx < 0.42 ? "left" : cx > 0.58 ? "right" : "center", widthShare: Math.round((ir.width / Math.max(1, r.width)) * 100) / 100, top: Math.round(ir.top - r.top), aspect: Math.round((ir.width / Math.max(1, ir.height)) * 100) / 100, viewShare: Math.round((ir.width / vw) * 100) / 100 };
     }
     return res;
   });
@@ -294,11 +490,19 @@ export const PROBE_SCRIPT = String.raw`(async () => {
   if (eb) presets.eyebrow = eb;
   const header = document.querySelector(".os-header, header, [role=banner]") || document.querySelector("nav");
   if (header) {
-    const links = [...header.querySelectorAll("nav a, a")].filter((a) => visible(a) && ownText(a).length > 1 && ownText(a).length < 30 && toHex(cs(a).backgroundColor) === undefined && !a.matches(".os-header__brand, .os-button"));
+    // The menu's links: the header's <nav>, else the page's main navigation, else the header.
+    const navEl = header.querySelector("nav") || [...document.querySelectorAll("nav, [role=navigation]")].find((n) => visible(n) && !n.closest("footer") && n.querySelectorAll("a").length >= 2);
+    // A link to the home page is the site's name, not a menu entry.
+    const homeLink = (a) => { try { const u = new URL(a.href, location.href); return u.origin === location.origin && !u.hash && /^\/?(?:index\.html)?$/.test(u.pathname); } catch (e) { return false; } };
+    const linkOk = (a) => visible(a) && ownText(a).length > 1 && ownText(a).length < 30 && toHex(cs(a).backgroundColor) === undefined && !a.matches(".os-header__brand, .os-button, [rel=home]") && !a.closest(".os-header__brand, [class*=site-title], [class*=brand]") && !homeLink(a);
+    let links = navEl ? [...navEl.querySelectorAll("a")].filter(linkOk) : [];
+    if (!links.length) links = [...header.querySelectorAll("a")].filter(linkOk);
     const mid = links[Math.floor(links.length / 2)];
     if (mid) presets.nav = textOf(mid);
     // The site title set as text (a wordmark), not a logo image.
-    const brand = [...header.querySelectorAll(".os-header__title, [class*=wordmark], [class*=logo], [class*=brand], [class*=site-title], a[href='/'], a[href='./'], a[rel=home]")].find((e) => visible(e) && ownText(e).length > 1 && ownText(e).length <= 40 && !e.querySelector("img, svg"));
+    // The innermost element holding the title text (an OpenSpace title span, not its link).
+    const brandOk = (e) => visible(e) && ownText(e).length > 1 && ownText(e).length <= 40 && !e.querySelector("img, svg");
+    const brand = [...header.querySelectorAll(".os-header__title")].find(brandOk) || [...header.querySelectorAll("[class*=wordmark], [class*=logo], [class*=brand], [class*=site-title], a[href='/'], a[href='./'], a[rel=home]")].filter(brandOk).find((e, _, list) => !list.some((o) => o !== e && e.contains(o)));
     if (brand) presets.wordmark = textOf(brand);
   }
   const isButton = (e) => {
@@ -322,13 +526,80 @@ export const PROBE_SCRIPT = String.raw`(async () => {
   const lefts = out.filter((s) => s.heading && s.align !== "center").map((s) => s.heading.left).filter((l) => l > 0 && l < vw / 2);
   lefts.sort((a, b) => a - b);
   const left = lefts.length ? lefts[Math.floor(lefts.length / 2)] : undefined;
-  const pads = out.map((s) => s.padTop).filter((p) => p !== undefined && p > 0 && p < 400).sort((a, b) => a - b);
+  // Section spacing: the gap between one section's content and the next one's, halved (the
+  // padding each side contributes) — measured the same way whether the sections have their own
+  // padding (OpenSpace) or sit in a flow with gaps between them.
+  const gaps = [];
+  for (let i = 1; i < out.length; i++) {
+    const a = out[i - 1], b = out[i];
+    if (a.contentBottom === undefined || b.contentTop === undefined) continue;
+    const g = b.contentTop - a.contentBottom;
+    if (g > 0 && g < 800) gaps.push(g / 2);
+  }
+  const pads = (gaps.length ? gaps : out.map((s) => s.padTop)).filter((p) => p !== undefined && p > 0 && p < 400).sort((a, b) => a - b);
   const layout = {};
   if (left !== undefined) {
     layout.contentWidth = Math.round(vw - 2 * left);
     layout.left = Math.round(left);
   }
   if (pads.length) layout.sectionPadding = pads[Math.floor(pads.length / 2)];
+  // --- fonts as drawn ---------------------------------------------------------------------------
+  const fonts = {};
+  try {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const used = new Map();
+    for (const t of [presets.h1, presets.h2, presets.h3, presets.body, presets.lead, presets.eyebrow, presets.button, presets.nav, presets.wordmark, ...all.map((a) => a.t)]) {
+      if (!t || !t.family) continue;
+      const u = used.get(t.family) || { stack: t.stack || t.family, weights: new Set(), italic: false };
+      u.weights.add(Math.round(t.weight / 100) * 100);
+      if (t.italic) u.italic = true;
+      used.set(t.family, u);
+    }
+    for (const [family, u] of [...used].slice(0, 6)) {
+      // Measured at the regular weight, like the open families it's matched against.
+      ctx.font = "400 100px " + u.stack;
+      const m = (s) => ctx.measureText(s);
+      const xh = m("x").actualBoundingBoxAscent / 100;
+      const ch = m("H").actualBoundingBoxAscent / 100;
+      const width = m("abcdefghijklmnopqrstuvwxyz").width / 2600;
+      if (!(xh > 0 && ch > 0)) continue;
+      const l = m("l");
+      const stem = ((l.actualBoundingBoxLeft || 0) + (l.actualBoundingBoxRight || 0)) / 100;
+      const mono = Math.abs(m("i").width - m("m").width) < 1;
+      const category = mono ? "monospace" : stem > 0.17 ? "serif" : "sans-serif";
+      fonts[family] = { category, xHeight: Math.round(xh * 1000) / 1000, capHeight: Math.round(ch * 1000) / 1000, width: Math.round(width * 1000) / 1000, weights: [...u.weights].sort((a, b) => a - b), ...((m("gpqy").actualBoundingBoxDescent / 100 < 0.04 && xh / ch > 0.6) || (xh / ch > 0.78 && width > 0.58) ? { smallCaps: true } : {}), ...(u.italic ? { italic: true } : {}) };
+    }
+  } catch (e) {}
+  // A sidebar: a full-height column at the page's edge holding the navigation, the page beside it.
+  let sidebar;
+  if (vw >= 1000) {
+    const cands = [...document.querySelectorAll("body *")].filter((e) => {
+      if (!visible(e) || e.closest("footer")) return false;
+      const r = e.getBoundingClientRect();
+      const edge = r.left <= vw * 0.03 ? "left" : r.right >= vw * 0.97 ? "right" : undefined;
+      return edge && r.width >= vw * 0.12 && r.width <= vw * 0.36 && r.height >= innerHeight * 0.7 && e.querySelectorAll("a").length >= 3 && e.querySelector("nav, ul, [class*=menu]");
+    });
+    const el = cands.find((e) => !cands.some((o) => o !== e && o.contains(e)));
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const side = r.left <= vw * 0.03 ? "left" : "right";
+      // The page's words sit beside it, not under it.
+      const words = [...document.querySelectorAll("main p, article p, #content p, .content p, p")].filter((p) => visible(p) && !el.contains(p) && !chrome(p) && cs(p).position !== "fixed" && !p.closest("[style*=fixed]") && ownText(p).length > 40).slice(0, 8);
+      const beside = words.length && words.every((p) => { const pr = p.getBoundingClientRect(); return side === "left" ? pr.left >= r.right - 4 : pr.right <= r.left + 4; });
+      // Its color: its own, else a full-height band the page paints behind it (body::before).
+      let background = toHex(cs(el).backgroundColor);
+      if (!background)
+        for (const host of [document.body, doc])
+          for (const pseudo of ["::before", "::after"]) {
+            const ps = getComputedStyle(host, pseudo);
+            const w = parseFloat(ps.width);
+            if (!background && ps.content !== "none" && toHex(ps.backgroundColor) && w > 0 && Math.abs(w - r.right) < vw * 0.08) background = toHex(ps.backgroundColor);
+          }
+      if (beside) sidebar = { side, width: Math.round(r.width), background: background || bgOf(el) };
+    }
+  }
+  const fontRequests = [...new Set(performance.getEntriesByType("resource").map((e) => e.name).filter((n) => /\.(?:woff2?|ttf|otf|eot)(?:[?#]|$)|typekit|fonts\.(?:googleapis|gstatic|net|com)|typography\.com|myfonts|webtype|typenetwork|fontdeck|edgefonts|\/fonts?\//i.test(n)))].slice(0, 40);
   return {
     url: location.href,
     viewport: vw,
@@ -339,6 +610,9 @@ export const PROBE_SCRIPT = String.raw`(async () => {
     layout,
     sections: out,
     height: doc.scrollHeight,
+    fonts,
+    fontRequests,
+    ...(sidebar ? { sidebar } : {}),
   };
 })()`;
 

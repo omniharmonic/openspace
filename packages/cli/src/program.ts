@@ -5,7 +5,7 @@ import { renderAgentsMd, writeAgentsMd } from "./agents";
 import { type Budgets, formatReport, githubAnnotations, runCheck } from "./check";
 import { astroNodeProblem, runDev, type Spawner } from "./dev";
 import { EJECT_WARNING, runEject } from "./eject";
-import { compareSummary, runCompare } from "./fidelity";
+import { addFidelityToSummary, browserReady, compareSummary, runCompare } from "./fidelity";
 import { type GatedSyncDeps, runGatedSync } from "./gated-sync";
 import { importSummary, runImportSite } from "./import";
 import { CliError, colorEnabled, type Io, paint } from "./io";
@@ -177,6 +177,8 @@ export function createProgram(
     measure?: boolean;
     compare?: boolean;
     compareOut?: string;
+    compareThumbs?: boolean;
+    tune?: number | boolean;
   };
   const commonImportOptions = (
     c: Command,
@@ -241,7 +243,17 @@ export function createProgram(
         "--compare",
         "afterwards, compare the import with the original in a browser: a per-section fidelity report and side-by-side images (needs Playwright)",
       )
-      .option("--compare-out <dir>", "where --compare writes its report (default <dir>/.fidelity)");
+      .option("--compare-out <dir>", "where --compare writes its report (default <dir>/.fidelity)")
+      .option(
+        "--compare-thumbs",
+        "with --compare: small first-screen side-by-sides and fidelity-summary.json (what the hosted import saves for Studio)",
+      )
+      .option(
+        "--tune <rounds>",
+        "auto-tune after importing: adjust styles and sections from a browser comparison, re-render and keep the best (default 3 rounds when Playwright is installed)",
+        Number,
+      )
+      .option("--no-tune", "don't auto-tune after importing");
   };
   const runImportCommand = async (
     url: string,
@@ -266,7 +278,7 @@ export function createProgram(
     io.err(
       `Importing ${url}${opts.owner ? " (owner mode: also reading ?format=json)" : ""}${opts.render ? " (rendering pages in a browser)" : ""}. Requests are paced and robots.txt is honoured.`,
     );
-    const { platform: _p, compare, compareOut, ...rest } = opts;
+    const { platform: _p, compare, compareOut, compareThumbs, tune, ...rest } = opts;
     const r = await runImportSite(io, url, dir, {
       ...rest,
       target: "github-pages",
@@ -274,15 +286,39 @@ export function createProgram(
       ...(deps.fetch ? { fetch: deps.fetch } : {}),
     });
     for (const line of importSummary(r)) io.out(line);
-    if (compare) {
-      io.err(`Comparing with ${r.result.liveUrl} in a browser…`);
-      const c = await runCompare(
-        r.result.liveUrl,
-        r.dir,
-        compareOut ? { out: resolve(io.cwd, compareOut) } : {},
-        (l) => io.err(`  ${l}`),
-      );
-      for (const line of compareSummary(c)) io.out(line);
+    // Auto-tuning (default when a browser is available and the import read the real site).
+    const rounds =
+      tune === false
+        ? 0
+        : typeof tune === "number" && Number.isFinite(tune)
+          ? Math.max(0, Math.min(5, tune))
+          : opts.measure !== false && opts.media !== false && !deps.fetch && (await browserReady())
+            ? 3
+            : 0;
+    if (compare || rounds) {
+      io.err(`${rounds ? "Tuning against" : "Comparing with"} ${r.result.liveUrl} in a browser…`);
+      try {
+        const c = await runCompare(
+          r.result.liveUrl,
+          r.dir,
+          {
+            ...(compareOut ? { out: resolve(io.cwd, compareOut) } : {}),
+            images: Boolean(compare) && !compareThumbs,
+            ...(compareThumbs ? { thumbs: true } : {}),
+            tune: rounds,
+          },
+          (l) => io.err(`  ${l}`),
+        );
+        for (const line of compareSummary(c)) io.out(line);
+        if (c.tuning?.changes.length) {
+          // Tuned content is checked again (it was validated when written).
+          r.check = await runCheck(r.dir);
+        }
+        if (opts.summary) await addFidelityToSummary(resolve(io.cwd, opts.summary), c);
+      } catch (e) {
+        if (compare) throw e;
+        io.err(`  Auto-tuning skipped: ${(e as Error).message.split("\n")[0]}`);
+      }
     }
     if (opts.intoExisting) {
       if (!r.check.ok) setExit(1);
@@ -371,12 +407,25 @@ export function createProgram(
     .option("--page <path...>", "site paths to compare (default: up to 6 pages)")
     .option("--out <dir>", "where to write the report and images (default <dir>/.fidelity)")
     .option("--no-images", "only the report, no side-by-side images")
+    .option(
+      "--tune <rounds>",
+      "auto-tune: adjust Site Styles and sections from the differences, re-render, keep the best (up to 5 rounds)",
+      Number,
+    )
+    .option("--thumbs", "small first-screen side-by-sides and fidelity-summary.json")
     .option("--json", "print the report as JSON")
     .action(
       async (
         original: string,
         dir: string,
-        opts: { page?: string[]; out?: string; images?: boolean; json?: boolean },
+        opts: {
+          page?: string[];
+          out?: string;
+          images?: boolean;
+          json?: boolean;
+          tune?: number;
+          thumbs?: boolean;
+        },
       ) => {
         const r = await runCompare(
           original,
@@ -385,6 +434,8 @@ export function createProgram(
             ...(opts.page ? { pages: opts.page } : {}),
             ...(opts.out ? { out: resolve(io.cwd, opts.out) } : {}),
             ...(opts.images === false ? { images: false } : {}),
+            ...(opts.tune ? { tune: opts.tune } : {}),
+            ...(opts.thumbs ? { thumbs: true } : {}),
           },
           (l) => io.err(l),
         );

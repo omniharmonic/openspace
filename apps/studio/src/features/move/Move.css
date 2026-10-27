@@ -322,3 +322,29 @@
     gap: 32px;
   }
 }
+
+.st-fidelity__pages {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.st-fidelity__page {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+}
+.st-fidelity__page img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--st-line);
+  border-radius: 0.5rem;
+  background: #fff;
+}
+.st-fidelity__differs {
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+}

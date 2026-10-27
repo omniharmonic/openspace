@@ -14,7 +14,7 @@ import {
 import { createMcpServer } from "@omniharmonic/openspace-mcp-tools";
 import { afterAll, describe, expect, it } from "vitest";
 import { runCheck } from "./check";
-import { originalUrl } from "./fidelity";
+import { addFidelityToSummary, fidelitySummary, originalUrl } from "./fidelity";
 import { defaultFolder } from "./import";
 import { captureIo } from "./io";
 import { compareFidelityTool } from "./mcp/fidelity-tool";
@@ -463,6 +463,67 @@ describe("compare_fidelity (local MCP tool)", () => {
     );
     expect(originalUrl("https://www.example.com", "/")).toBe("https://www.example.com/");
     expect(originalUrl("example.com/", "/a/b")).toBe("https://example.com/a/b/");
+  });
+
+  it("summarises a tuned comparison for Studio (before → after, thumbnails, what still differs)", async () => {
+    const page = (path: string, viewport: number, score: number, failing: string[] = []) => ({
+      path,
+      original: "",
+      imported: "",
+      viewport,
+      score,
+      checks: failing.map((what, i) => ({
+        area: "type" as const,
+        what,
+        original: "a",
+        imported: "b",
+        ok: false,
+        weight: 3 - i,
+      })),
+      sections: [],
+    });
+    const before = { score: 80, pages: [page("/", 1440, 78), page("/", 390, 82)] };
+    const after = {
+      score: 91,
+      pages: [page("/", 1440, 93, ["Heading 1 size", "Columns"]), page("/", 390, 89)],
+    };
+    const s = fidelitySummary(
+      after,
+      { before, changes: ["h1: 96px"], rounds: 1 },
+      { "/@1440": "thumb-home-d.jpg" },
+    );
+    expect(s).toEqual({
+      version: 1,
+      score: 91,
+      before: 80,
+      changes: ["h1: 96px"],
+      pages: [
+        {
+          path: "/",
+          device: "desktop",
+          score: 93,
+          before: 78,
+          image: "thumb-home-d.jpg",
+          differs: ["Heading 1 size", "Columns"],
+        },
+        { path: "/", device: "phone", score: 89, before: 82 },
+      ],
+    });
+    // The import's --summary gains the score.
+    const dir = await tmpDir();
+    const file = join(dir, "summary.json");
+    await writeFile(file, JSON.stringify({ pages: 3 }));
+    await addFidelityToSummary(file, {
+      report: after,
+      markdown: "",
+      out: dir,
+      images: [],
+      tuning: { before, changes: [], rounds: 1 },
+    });
+    expect(JSON.parse(await readFile(file, "utf8"))).toEqual({
+      pages: 3,
+      fidelity: { score: 91, before: 80 },
+    });
   });
 });
 

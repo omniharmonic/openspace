@@ -11,7 +11,7 @@ import { markdocToBlocks } from "@omniharmonic/openspace-site-kit/markdoc";
 import { beforeAll, describe, expect, it } from "vitest";
 import { parseDocument } from "./dom";
 import { hiddenClassesFromCss, parseHtmlPage, unspace } from "./html/extract";
-import { bestRendition, parseSrcset, wpOriginal } from "./html/image";
+import { bestRendition, focalFromObjectPosition, parseSrcset, wpOriginal } from "./html/image";
 import { googleFontFamilies, themeFromCss } from "./html/theme";
 import { detectPlatform, type ImportResult, importSite, parsePlatform } from "./index";
 import {
@@ -101,13 +101,26 @@ describe("platform detection", () => {
 });
 
 describe("HTML helpers", () => {
-  it("picks the largest rendition at or under 2400px, smaller ones as fallbacks", () => {
+  it("picks the smallest rendition as large as the stored size, else the original upload", () => {
     const set = parseSrcset(
-      "https://x.example/wp-content/uploads/a-300x200.jpg 300w, https://x.example/wp-content/uploads/a-2048x1365.jpg 2048w, https://x.example/wp-content/uploads/a-2560x1707.jpg 2560w",
+      "https://x.example/wp-content/uploads/a-300x200.jpg 300w, https://x.example/wp-content/uploads/a-2048x1365.jpg 2048w, https://x.example/wp-content/uploads/a-2560x1707.jpg 2560w, https://x.example/wp-content/uploads/a-4000x2667.jpg 4000w",
     );
     const best = bestRendition(undefined, set, "https://x.example");
-    expect(best?.url).toMatch(/a-2048x1365\.jpg$/);
-    expect(best?.alternates[0]).toMatch(/a-300x200\.jpg$/);
+    expect(best?.url).toMatch(/a-2560x1707\.jpg$/);
+    expect(best?.alternates[0]).toMatch(/a-2048x1365\.jpg$/);
+    // Renditions that stop short of the stored size: the original upload first.
+    const small = bestRendition(
+      undefined,
+      parseSrcset(
+        "https://x.example/wp-content/uploads/b-300x200.jpg 300w, https://x.example/wp-content/uploads/b-1024x683.jpg 1024w",
+      ),
+      "https://x.example",
+    );
+    expect(small?.url).toBe("https://x.example/wp-content/uploads/b.jpg");
+    expect(small?.alternates[0]).toMatch(/b-1024x683\.jpg$/);
+    expect(focalFromObjectPosition("object-position: 30% 20%")).toEqual([0.3, 0.2]);
+    expect(focalFromObjectPosition("object-position: top right")).toEqual([1, 0]);
+    expect(focalFromObjectPosition("object-position: center")).toBeUndefined();
     expect(wpOriginal("https://x.example/wp-content/uploads/2024/01/a-1024x683.jpg")).toBe(
       "https://x.example/wp-content/uploads/2024/01/a.jpg",
     );
@@ -283,7 +296,9 @@ describe("importing the Fernhill WordPress fixture (REST API + WXR export)", () 
     expect(types(about)).toEqual(["text", "image", "text", "video", "line", "table"]);
     const img = blocksOf(about).find((b) => b.type === "image");
     expect(img?.fields.caption).toBe("The team on a Saturday morning");
-    expect((img?.fields.image as { src: string } | undefined)?.src).toMatch(/team-2048x1536/);
+    expect((img?.fields.image as { src: string } | undefined)?.src).toMatch(
+      /\/team-[a-z0-9]{4}\.png$/,
+    ); // the original upload, not a rendition
     const table = blocksOf(about).find((b) => b.type === "table");
     expect(table?.fields).toMatchObject({ caption: "Daily loaves", corner: "Loaf" });
     const team = pageBySlug(r, "about/team");

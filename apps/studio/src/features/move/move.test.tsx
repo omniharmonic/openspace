@@ -50,6 +50,16 @@ describe("Move my site (hosted import)", () => {
       .getByRole("heading", { name: "What needs your attention" })
       .closest("section") as HTMLElement;
     expect(within(attention).getByText("Forms and newsletter")).toBeInTheDocument();
+    // How close it looks, before → after tuning, with old | new thumbnails per page.
+    const fidelity = screen
+      .getByRole("heading", { name: "How close it looks: 93/100" })
+      .closest("section") as HTMLElement;
+    expect(within(fidelity).getByText(/it started at 84\/100/)).toBeInTheDocument();
+    expect(
+      within(fidelity).getByRole("img", { name: "/ on a desktop: old site left, new site right" }),
+    ).toBeInTheDocument();
+    expect(within(fidelity).getByText(/85 → 94/)).toBeInTheDocument();
+    expect(within(fidelity).getByText("Still differs: Image placement")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Finish setting up/ })).toBeInTheDocument();
     expect(screen.getByText("Use your own web address")).toBeInTheDocument();
 

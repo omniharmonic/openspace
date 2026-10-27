@@ -57,6 +57,28 @@ const DEMO_ATTENTION = [
   },
 ];
 
+/** A side-by-side thumbnail for the mock (an inline SVG: old site left, new site right). */
+const DEMO_THUMB = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 728 400"><rect width="360" height="400" fill="#1c1917"/><rect x="368" width="360" height="400" fill="#1c1917"/><rect x="40" y="60" width="200" height="28" fill="#ede6d8"/><rect x="408" y="60" width="200" height="28" fill="#ede6d8"/><rect x="40" y="110" width="120" height="14" fill="#b8714a"/><rect x="408" y="110" width="120" height="14" fill="#b8714a"/></svg>',
+)}`;
+
+const DEMO_FIDELITY = {
+  score: 93,
+  before: 84,
+  changes: ["h2: 60px", "buttons on dark sections #b8714a, as on the original"],
+  pages: [
+    { path: "/", device: "desktop" as const, score: 94, before: 85, image: DEMO_THUMB },
+    { path: "/", device: "phone" as const, score: 91, before: 82, image: DEMO_THUMB },
+    {
+      path: "/about",
+      device: "desktop" as const,
+      score: 92,
+      image: null,
+      differs: ["Image placement"],
+    },
+  ],
+};
+
 const DEMO_CHECKLIST = [
   {
     id: "newsletter",
@@ -205,6 +227,7 @@ export function createImportMock(ctx: ImportMockContext): {
       counts,
       attention: state === "ready" ? DEMO_ATTENTION : [],
       checklist: state === "ready" ? DEMO_CHECKLIST : [],
+      fidelity: state === "ready" ? DEMO_FIDELITY : null,
       report: state === "ready" ? "# Import report\n" : null,
       error: state === "failed" ? headline : null,
       pullRequest:

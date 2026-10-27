@@ -42,6 +42,7 @@ import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import {
   CONVERT_BRANCH,
+  IMPORT_FIDELITY_DIR,
   IMPORT_REQUEST_PATH,
   IMPORT_WORKFLOW,
   type ImportRequest,
@@ -136,6 +137,103 @@ export interface ImportCounts {
   items: number;
   media: number;
   redirects: number;
+  /** The run's fidelity comparison (`.openspace/fidelity/fidelity-summary.json`), when it ran. */
+  fidelity?: ImportFidelity;
+}
+
+/** How closely the moved site matches the original, page by page (saved by the workflow). */
+export interface ImportFidelity {
+  /** 0–100 after auto-tuning, and before it. */
+  score: number;
+  before?: number;
+  pages: Array<{
+    path: string;
+    device: "desktop" | "phone";
+    score: number;
+    before?: number;
+    /** Thumbnail file in the fidelity folder (original left, new site right). */
+    image?: string;
+    /** The biggest differences still there. */
+    differs?: string[];
+  }>;
+  /** What auto-tuning changed. */
+  changes?: string[];
+  /** The score before sections were recreated as custom components, and with them. */
+  withoutComponents?: number;
+  withComponents?: number;
+}
+
+/** The fidelity comparison as Studio shows it (thumbnails served by the Hub). */
+export interface ImportFidelityView extends Omit<ImportFidelity, "pages"> {
+  pages: Array<Omit<ImportFidelity["pages"][number], "image"> & { image: string | null }>;
+}
+
+const THUMB_FILE = /^thumb-[a-z0-9-]{1,80}\.jpg$/;
+const num = (v: unknown) =>
+  typeof v === "number" && Number.isFinite(v)
+    ? Math.max(0, Math.min(100, Math.round(v)))
+    : undefined;
+
+/** `fidelity-summary.json` as written by the CLI → a bounded, checked `ImportFidelity`. */
+export function parseFidelitySummary(text: string | null): ImportFidelity | undefined {
+  if (!text) return undefined;
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+  if (!raw || typeof raw !== "object") return undefined;
+  const r = raw as Record<string, unknown>;
+  const score = num(r.score);
+  if (score === undefined || !Array.isArray(r.pages)) return undefined;
+  const str = (v: unknown, max: number) => (typeof v === "string" ? v.slice(0, max) : undefined);
+  const pages: ImportFidelity["pages"] = [];
+  for (const p of r.pages.slice(0, 24)) {
+    if (!p || typeof p !== "object") continue;
+    const q = p as Record<string, unknown>;
+    const path = str(q.path, 200);
+    const pageScore = num(q.score);
+    if (!path?.startsWith("/") || pageScore === undefined) continue;
+    const before = num(q.before);
+    const image = str(q.image, 100);
+    const differs = Array.isArray(q.differs)
+      ? q.differs
+          .map((d) => str(d, 80))
+          .filter((d): d is string => !!d)
+          .slice(0, 3)
+      : [];
+    pages.push({
+      path,
+      device: q.device === "phone" ? "phone" : "desktop",
+      score: pageScore,
+      ...(before !== undefined ? { before } : {}),
+      ...(image && THUMB_FILE.test(image) ? { image } : {}),
+      ...(differs.length ? { differs } : {}),
+    });
+  }
+  const before = num(r.before);
+  const changes = Array.isArray(r.changes)
+    ? r.changes
+        .map((c) => str(c, 160))
+        .filter((c): c is string => !!c)
+        .slice(0, 20)
+    : [];
+  const without = num(r.withoutComponents);
+  const withC = num(r.withComponents);
+  return {
+    score,
+    ...(before !== undefined ? { before } : {}),
+    pages,
+    ...(changes.length ? { changes } : {}),
+    ...(without !== undefined ? { withoutComponents: without } : {}),
+    ...(withC !== undefined ? { withComponents: withC } : {}),
+  };
+}
+
+/** Is this a thumbnail the import's fidelity summary names? */
+export function isFidelityThumb(counts: ImportCounts | null, file: string): boolean {
+  return THUMB_FILE.test(file) && !!counts?.fidelity?.pages.some((p) => p.image === file);
 }
 
 export interface AttentionGroup {
@@ -158,6 +256,8 @@ export interface ImportView {
   attention: AttentionGroup[];
   /** "Finish setting up" items (content/setup-checklist.json). */
   checklist: Array<{ id: string; kind: string; title: string; detail: string }>;
+  /** How closely the new site matches the old one (before → after auto-tuning), when measured. */
+  fidelity: ImportFidelityView | null;
   report: string | null;
   error: string | null;
   pullRequest: { number: number; url: string } | null;
@@ -352,6 +452,17 @@ export function toImportView(
     counts,
     attention: attentionFromReport(row.report),
     checklist,
+    fidelity: counts?.fidelity
+      ? {
+          ...counts.fidelity,
+          pages: counts.fidelity.pages.map((p) => ({
+            ...p,
+            image: p.image
+              ? `${services.config.hubUrl}/api/imports/${row.id}/fidelity/${p.image}`
+              : null,
+          })),
+        }
+      : null,
     report: row.report,
     error: row.state === "failed" ? row.error : null,
     pullRequest: row.pr_number && row.pr_url ? { number: row.pr_number, url: row.pr_url } : null,
@@ -881,11 +992,15 @@ async function finishedContent(
   row: ImportRow,
   head: string,
 ): Promise<Partial<ImportRow>> {
-  const [report, checklist] = await Promise.all([
+  const [report, checklist, fidelity] = await Promise.all([
     gh.readFile(repo, "IMPORT-REPORT.md", head).catch(() => null),
     gh.readFile(repo, "content/setup-checklist.json", head).catch(() => null),
+    gh.readFile(repo, `${IMPORT_FIDELITY_DIR}/fidelity-summary.json`, head).catch(() => null),
   ]);
-  const counts = parseJson<ImportCounts>(row.counts_json) ?? (await countsFromTree(gh, repo, head));
+  const counts: ImportCounts =
+    parseJson<ImportCounts>(row.counts_json) ?? (await countsFromTree(gh, repo, head));
+  const measured = parseFidelitySummary(fidelity);
+  if (measured) counts.fidelity = measured;
   return {
     head_sha: head,
     report: report ? report.slice(0, 200_000) : null,
@@ -1127,6 +1242,27 @@ export async function importViewFor(
   const fresh = (await refreshImport(services, env, importId, log)) ?? row;
   const s = (await getSite(services.db, site.id)) ?? site;
   return toImportView(services, fresh, s);
+}
+
+/** A fidelity thumbnail of an import (original | new site), read from the site's repository. */
+export async function importFidelityImage(
+  services: Services,
+  importId: string,
+  file: string,
+  user: User,
+): Promise<Uint8Array> {
+  const row = await getImport(services.db, importId);
+  if (!row) throw new HttpError(404, "not_found", "We couldn't find that move.");
+  const site = await siteForUser(services, row.site_id, user);
+  const counts = parseJson<ImportCounts>(row.counts_json);
+  if (!row.head_sha || !isFidelityThumb(counts, file))
+    throw new HttpError(404, "not_found", "That picture isn't part of this move.");
+  const gh = services.github({ site, user });
+  const bytes = await gh
+    .readFileBytes(parseRepo(site.repo), `${IMPORT_FIDELITY_DIR}/${file}`, row.head_sha)
+    .catch(() => null);
+  if (!bytes) throw new HttpError(404, "not_found", "That picture isn't there any more.");
+  return bytes;
 }
 
 /** The newest import of a site (Studio's progress screen). */

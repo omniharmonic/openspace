@@ -42,6 +42,7 @@ import type {
   SqSection,
   SqSeo,
 } from "../types";
+import { bestIcon } from "./icons";
 import { backgroundImageOf, imageFromImg, isDecorative } from "./image";
 
 export interface HtmlArticle {
@@ -1694,6 +1695,16 @@ function chromeHeader(
   base: string,
 ): HtmlPage["header"] {
   const h = header ? navFromHeader(header, base) : { nav: [] };
+  // A header whose only link is the site's own name (sidebar themes keep the menu elsewhere).
+  const home = (href: string) => {
+    try {
+      const u = new URL(href, base);
+      return u.origin === new URL(base).origin && /^\/?$/.test(u.pathname);
+    } catch {
+      return false;
+    }
+  };
+  if (h.nav.length && h.nav.every((i) => i.type === "link" && home(i.href))) h.nav = [];
   if (!h.nav.length) {
     const nav = find(
       body,
@@ -1887,10 +1898,7 @@ function parseHtmlPageInner(html: string, url: string, opts: ExtractOptions): Ht
         );
     }
   }
-  const favEl = find(
-    head,
-    (e) => e.tagName === "link" && /(?:^|\s)icon(?:\s|$)/i.test(attr(e, "rel") ?? ""),
-  );
+  const favicon = bestIcon(head, base);
   const htmlEl = root;
   const textLength = text(pruned).length;
   const seo: SqSeo = {
@@ -1908,9 +1916,7 @@ function parseHtmlPageInner(html: string, url: string, opts: ExtractOptions): Ht
     seo,
     ...(attr(htmlEl, "lang") ? { lang: attr(htmlEl, "lang") } : {}),
     ...(metaContent(head, "generator") ? { generator: metaContent(head, "generator") } : {}),
-    ...(favEl && attr(favEl, "href")
-      ? { favicon: safeAbs(attr(favEl, "href") as string, base) }
-      : {}),
+    ...(favicon ? { favicon } : {}),
     ...(siteName ? { siteName } : {}),
     header: chromeHeader(body, header, base),
     footer: footer ? footerSections(footer, base) : [],

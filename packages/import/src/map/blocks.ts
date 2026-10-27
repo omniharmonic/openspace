@@ -40,6 +40,11 @@ export interface MapContext {
   platform?: string;
   /** The site draws a short accent rule between eyebrows and headings. */
   eyebrowRule?: boolean;
+  /**
+   * Background videos can play (the Cloudflare hosting target serves large files); otherwise a
+   * section's background video becomes its still image.
+   */
+  videoBackgrounds?: boolean;
 }
 
 const registry = blocksRegistry();

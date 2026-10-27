@@ -362,6 +362,8 @@ describe("Header", () => {
     "stacked",
     "sidebar-drawer",
     "transparent-overlay",
+    "nav-left-logo-center",
+    "sidebar-left",
   ] as const;
 
   it.each(variants)("renders the %s layout", (variant) => {
@@ -376,6 +378,11 @@ describe("Header", () => {
       expect(out).toContain("os-nav__list--start");
       expect(out).toContain("os-header__brand--split");
     }
+    if (variant === "sidebar-left") {
+      // The column shows the title (beside any logo) and the tagline.
+      expect(out).toContain('class="os-header__title"');
+      if (site.tagline) expect(out).toContain(`<p class="os-header__tagline">${site.tagline}</p>`);
+    } else expect(out).not.toContain("os-header__tagline");
     if (variant === "transparent-overlay") {
       // Overlays the first section, so it takes the hero's theme.
       expect(out).toContain(

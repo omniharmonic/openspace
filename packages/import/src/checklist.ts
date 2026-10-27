@@ -187,5 +187,24 @@ export function setupChecklist(sq: SqSite, build: BuildResult): SetupChecklist {
       where: [...new Set(code.map((n) => n.where))].slice(0, 10),
       status: "todo",
     });
+  // Fonts that couldn't be copied (licensed, or of unknown licence): their nearest free match
+  // stands in until the owner uploads the real files under their own web licence.
+  const fonts = (sq.theme.fontSubstitutes ?? []).filter((f) => f.source !== "system");
+  if (fonts.length)
+    items.push({
+      id: "font-licence",
+      kind: "other",
+      title: "Use your own font licence",
+      detail: `Your old site used ${fonts
+        .map((f) => `${f.original}${f.service ? ` (from ${f.service})` : ""}`)
+        .join(
+          " and ",
+        )}, which we're not allowed to copy, so the closest free ${fonts.length > 1 ? "fonts stand" : "font stands"} in (${fonts
+        .map((f) => f.substitute)
+        .join(
+          ", ",
+        )}). If you have a web licence, download the font files (WOFF2) from the font service and upload them in Site Styles → Your fonts — they're stored in media/fonts/ — then choose them for your headings and text.`,
+      status: "todo",
+    });
   return { version: 1, source: "import", from, items };
 }
