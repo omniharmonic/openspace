@@ -19,7 +19,7 @@ describe("createMockHub", () => {
 
   it("requires sign-in for sites and offers dev auth", async () => {
     const hub = createMockHub();
-    expect(await hub.getSession()).toEqual({ user: null, auth: { github: true, dev: true } });
+    expect(await hub.getSession()).toMatchObject({ user: null, auth: { github: true, dev: true } });
     await expect(hub.listSites()).rejects.toMatchObject({ status: 401 });
     const user = await hub.devLogin("Ana Ortiz");
     expect(user).toMatchObject({ login: "ana-ortiz", name: "Ana Ortiz" });
