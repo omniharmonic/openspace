@@ -164,6 +164,94 @@ function stackSection(
   return section;
 }
 
+type Placed = { block: Block; column: number };
+type RichNode = { type: string; attrs?: { level?: number }; content?: unknown[] };
+
+const headingLevelOf = (b: Block): number | undefined =>
+  b.type === "heading" ? Number(String(b.fields.level ?? "h2").slice(1)) || 2 : undefined;
+const textOfNodes = (nodes: unknown): number => JSON.stringify(nodes ?? "").length;
+
+/**
+ * A long article in one column (an "about" page, a template's read-me) is a run of chapters, each
+ * opening with a heading; visitors and the original's own layout read them as separate bands. It
+ * becomes one section per chapter (split before each heading of the article's top level), so
+ * each chapter can be moved, restyled or hidden on its own. Short runs stay one section.
+ */
+export function splitAtHeadings(blocks: Placed[]): Placed[][] {
+  const count = (level: number) => {
+    let n = 0;
+    for (const { block } of blocks) {
+      if (headingLevelOf(block) === level) n++;
+      if (block.type === "text") {
+        const doc = block.fields.content as { content?: RichNode[] } | undefined;
+        for (const node of doc?.content ?? [])
+          if (node.type === "heading" && node.attrs?.level === level) n++;
+      }
+    }
+    return n;
+  };
+  const size = blocks.reduce(
+    (n, { block }) =>
+      n + (block.type === "text" ? textOfNodes(block.fields.content) : textOfNodes(block.fields)),
+    0,
+  );
+  // A list of media objects (cover, title, blurb) splits however short it is.
+  const media = blocks.filter(
+    ({ block }) => block.type === "image" && block.fields.size === "original",
+  ).length;
+  if (size < 2400 && media < 2) return [blocks];
+  const level = count(2) >= 2 ? 2 : count(3) >= 3 ? 3 : undefined;
+  if (!level) return [blocks];
+  const out: Placed[][] = [[]];
+  const cur = () => out[out.length - 1] as Placed[];
+  const start = () => {
+    if (!cur().length) return;
+    // A media object's picture sits just above its heading: it moves with it.
+    const last = cur().at(-1) as Placed;
+    const carry = last.block.type === "image" && last.block.fields.size === "original";
+    if (!carry) out.push([]);
+    else if (cur().length > 1) {
+      cur().pop();
+      out.push([last]);
+    }
+  };
+  for (const p of blocks) {
+    if (headingLevelOf(p.block) === level) {
+      // An eyebrow-ish short text just above stays with its heading: only split on content.
+      start();
+      cur().push(p);
+      continue;
+    }
+    if (p.block.type !== "text") {
+      cur().push(p);
+      continue;
+    }
+    const doc = p.block.fields.content as { type: string; content?: RichNode[] };
+    const parts: RichNode[][] = [[]];
+    for (const node of doc.content ?? []) {
+      if (
+        node.type === "heading" &&
+        node.attrs?.level === level &&
+        (parts.at(-1) as RichNode[]).length
+      )
+        parts.push([]);
+      (parts.at(-1) as RichNode[]).push(node);
+    }
+    parts.forEach((nodes, i) => {
+      if (i > 0 || (nodes[0]?.type === "heading" && nodes[0].attrs?.level === level)) start();
+      cur().push({
+        ...p,
+        block: {
+          ...p.block,
+          ...(i > 0 ? { id: newId("blk") as Block["id"] } : {}),
+          fields: { ...p.block.fields, content: { ...doc, content: nodes } },
+        },
+      });
+    });
+  }
+  return out.filter((c) => c.length);
+}
+
 async function mapBlocks(ctx: SectionContext, blocks: SqBlock[], inGrid = false): Promise<Block[]> {
   const out: Block[] = [];
   for (const b of blocks) out.push(...(await mapBlock(ctx, b, { inGrid })));
@@ -295,22 +383,24 @@ async function mapSectionParts(ctx: SectionContext, sq: SqSection): Promise<Sect
       run = undefined;
       return;
     }
-    out.push(
-      stackSection(
-        run.blocks,
-        run.spans,
-        out.length
-          ? {
-              ...style,
-              // A photo stays with the first part; a plain color continues behind every part.
-              background: style.background?.type === "color" ? style.background : undefined,
-              minHeight: undefined,
-            }
-          : style,
-        width,
-        align,
-      ),
-    );
+    const parts = run.spans.length === 1 ? splitAtHeadings(run.blocks) : [run.blocks];
+    for (const part of parts)
+      out.push(
+        stackSection(
+          part,
+          run.spans,
+          out.length
+            ? {
+                ...style,
+                // A photo stays with the first part; a plain color continues behind every part.
+                background: style.background?.type === "color" ? style.background : undefined,
+                minHeight: undefined,
+              }
+            : style,
+          width,
+          align,
+        ),
+      );
     run = undefined;
   };
   for (const row of sq.layout.rows) {

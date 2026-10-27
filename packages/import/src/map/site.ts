@@ -442,6 +442,14 @@ function headerFor(site: SqSite, siteDark: boolean, brand?: string): Header {
   }
   return {
     variant,
+    ...(t.logoHeight
+      ? {
+          logoHeight: {
+            d: Math.round(t.logoHeight.d),
+            ...(t.logoHeight.m ? { m: Math.round(t.logoHeight.m) } : {}),
+          },
+        }
+      : {}),
     sticky: t.headerFixed === true,
     transparentOnHero: t.headerTransparent === true,
     mobileMenu: "fullscreen",
@@ -725,6 +733,18 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
       style: { colorTheme: theme.siteDark ? "dark" : "light-accent" },
       blocks: text ? [text] : [],
     };
+  }
+  // The footer's own color as measured (a charcoal band under a white page): its theme and fill.
+  const footBg = sq.theme.footerBackground;
+  if (footer && footBg && /^#[0-9a-f]{6}$/i.test(footBg) && !footer.style.background) {
+    const dark = relativeLuminance(footBg) < 0.18;
+    if (dark || relativeLuminance(footBg) < 0.97) {
+      footer.style = {
+        ...footer.style,
+        colorTheme: dark ? "dark" : (footer.style.colorTheme ?? "light"),
+        background: { type: "color", color: footBg },
+      };
+    }
   }
   const logo = sq.logo ? await opts.media.image(sq.logo, "logo") : undefined;
   // The browser-tab / home-screen icon (SVG stays vector; .ico files aren't storable).

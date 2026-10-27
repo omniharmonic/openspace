@@ -349,13 +349,19 @@ export async function mapBlock(
       const href = sq.href ?? sq.card?.button?.href;
       const link = href ? await linkFor(ctx, href) : undefined;
       return one(
-        makeBlock(ctx, "image", {
-          image,
-          aspect: "original",
-          lightbox: false,
-          ...(caption ? { caption: clip(caption, 200) } : {}),
-          ...(link ? { link } : {}),
-        }),
+        makeBlock(
+          ctx,
+          "image",
+          {
+            image,
+            aspect: "original",
+            lightbox: false,
+            ...(caption ? { caption: clip(caption, 200) } : {}),
+            ...(link ? { link } : {}),
+            ...(sq.natural ? { size: "original" } : {}),
+          },
+          sq.natural ? { style: { align: { d: "start" } } } : {},
+        ),
       );
     }
     case "gallery": {
@@ -382,7 +388,8 @@ export async function mapBlock(
           "gallery",
           {
             images,
-            aspect: sq.layout === "grid" ? "1:1" : "original",
+            aspect: sq.layout === "grid" || sq.fit === "contain" ? "1:1" : "original",
+            ...(sq.fit === "contain" ? { fit: "contain" } : {}),
             columns: images.length >= 4 && sq.layout === "grid" ? "4" : "3",
             lightbox: true,
             showCaptions: images.some((i) => i.caption),

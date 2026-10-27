@@ -212,6 +212,7 @@ export function parseTheme(css: string, bodyClasses: readonly string[] = []): Sq
     has("tweak-fixed-header-style-scroll-back")
   )
     theme.headerFixed = true;
-  if (has("tweak-transparent-header")) theme.headerTransparent = true;
+  // 7.1 tweak, and 7.0 templates (Bedford, Marquee…) whose header sits over the page banner.
+  if (has("tweak-transparent-header") || has("transparent-header")) theme.headerTransparent = true;
   return theme;
 }

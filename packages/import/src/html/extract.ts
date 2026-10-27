@@ -168,7 +168,7 @@ const INLINE_TAGS = new Set([
   "wbr",
 ]);
 const BOILERPLATE =
-  /(?:^|[\s_-])(?:cookie|consent|gdpr|cc-window|popup|modal|skip-link|skip-to|screen-reader|sr-only|visually-hidden|visuallyhidden|w-nav-overlay|mobile-menu|menu-overlay|offcanvas|breadcrumbs?|pagination|nav-links|post-navigation|comments?-area|comment-respond|share-buttons|sharedaddy|jp-relatedposts|wp-block-navigation|search-form|searchform|announcement-bar|back-to-top|wixui-anchor-menu|elementor-hidden|w-form-done|w-form-fail|w-webflow-badge)(?:$|[\s_-])/i;
+  /(?:^|[\s_-])(?:cookie|consent|gdpr|cc-window|popup|modal|skip-link|skip-to|screen-reader|sr-only|visually-hidden|visuallyhidden|w-nav-overlay|mobile-menu|menu-overlay|offcanvas|breadcrumbs?|pagination|nav-links|post-navigation|comments?-area|comment-respond|share-buttons|sharedaddy|jp-relatedposts|wp-block-navigation|search-form|searchform|announcement-bar|back-to-top|wixui-anchor-menu|elementor-hidden|w-form-done|w-form-fail|w-webflow-badge|contact-form-submission|contact-form-success)(?:$|[\s_-])/i;
 
 /** Classes the site's CSS hides on desktop (responsive duplicates such as `hide-desktop`). */
 let hiddenClasses: ReadonlySet<string> = new Set();
@@ -921,14 +921,37 @@ function leafBlocks(el: Element, ctx: WalkCtx, out: SqBlock[]) {
     }
     if (imgEl) {
       const im = imageFromImg(imgEl, ctx.base);
-      const cap = text(find(el, (e) => e.tagName === "figcaption"));
+      const capEl = find(el, (e) => e.tagName === "figcaption");
+      // A media object (a book with its cover, title and blurb): the caption is content of its
+      // own — a heading and paragraphs — read as blocks under the picture; a small picture (its
+      // declared width ≤ 400px) stays at its own size instead of filling the column.
+      const structured =
+        capEl && !!find(capEl, (e) => HEADINGS.has(e.tagName) || e.tagName === "p");
+      if (structured && im) {
+        const declared = Number(attr(imgEl, "width") ?? 0);
+        const a = find(el, (e) => e.tagName === "a" && !!find(e, (x) => x === imgEl));
+        const href = a ? attr(a, "href") : undefined;
+        out.push({
+          kind: "image",
+          image: im,
+          ...(declared > 0 && declared <= 400 ? { natural: true } : {}),
+          ...(href && !/\.(?:jpe?g|png|webp|gif|avif)(?:\?|$)/i.test(href) && !href.startsWith("#")
+            ? { href }
+            : {}),
+        });
+        walk(capEl, ctx, out, 1);
+        return;
+      }
+      const cap = text(capEl);
       const a =
         tag === "a" ? el : find(el, (e) => e.tagName === "a" && !!find(e, (x) => x === imgEl));
       const href = a ? attr(a, "href") : undefined;
+      const declared = Number(attr(imgEl, "width") ?? 0);
       if (im)
         out.push({
           kind: "image",
           image: im,
+          ...(declared > 0 && declared <= 400 ? { natural: true } : {}),
           ...(cap ? { caption: cap } : {}),
           ...(href && !/\.(?:jpe?g|png|webp|gif|avif)(?:\?|$)/i.test(href) && !href.startsWith("#")
             ? { href }
@@ -1336,10 +1359,39 @@ function liftHeading(sec: SqSection) {
     }
 }
 
+/**
+ * A row of small pictures side by side (thumbnails, each linking to the full photo): one gallery
+ * grid, as visitors saw it, instead of each picture stretched across the column.
+ */
+function thumbnailRuns(blocks: SqBlock[]): SqBlock[] {
+  const out: SqBlock[] = [];
+  let run: Extract<SqBlock, { kind: "image" }>[] = [];
+  const flush = () => {
+    if (run.length >= 3)
+      out.push({
+        kind: "gallery",
+        layout: "grid",
+        images: run.map((b) => b.image),
+      });
+    else out.push(...run);
+    run = [];
+  };
+  for (const b of blocks) {
+    if (b.kind === "image" && !b.caption && (b.image.width ?? 999) <= 240) run.push(b);
+    else {
+      flush();
+      out.push(b);
+    }
+  }
+  flush();
+  return out;
+}
+
 function toSection(el: Element, ctx: WalkCtx): SqSection | undefined {
   const bg = sectionBackground(el, ctx.base);
   const inner = withoutBackground(el, bg, ctx.base);
   const rows = rowsOf(inner, ctx).filter((r) => r.columns.some((c) => c.blocks.length));
+  for (const r of rows) for (const c of r.columns) c.blocks = thumbnailRuns(c.blocks);
   if (!rows.length && !bg) return undefined;
   const style = attr(el, "style") ?? "";
   const tall = /min-height\s*:\s*(\d+)(vh|px)/i.exec(style);

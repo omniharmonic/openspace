@@ -22,6 +22,7 @@ import { themeFromCss } from "../html/theme";
 import { socialNetwork } from "../squarespace/crawl";
 import { parseWxr, type WxrFile, type WxrItem } from "../squarespace/wxr";
 import type {
+  SqBlock,
   SqCollection,
   SqImage,
   SqItem,
@@ -438,6 +439,11 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
     }
   const pages: SqPage[] = [];
   const builders = new Set<string>();
+  // Classic themes print each page's title above its content (`<h1 class="entry-title">`); the
+  // REST content doesn't include it, so it is added back as the page's Heading 1.
+  const showsTitles = /<h1[^>]*class="[^"]*\b(?:entry-title|page-title|wp-block-post-title)\b/.test(
+    homeHtml,
+  );
   for (const e of pageEntries.sort((a, b) => (a.menuOrder ?? 0) - (b.menuOrder ?? 0))) {
     if (e === postsPage) continue;
     if (COMMERCE_SLUGS.test(e.slug) && e.path.split("/").filter(Boolean).length === 1) {
@@ -455,7 +461,11 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
       path: e.path,
       title: e.title,
       seo: { ...(e.image && !e.seo.image ? { image: e.image } : {}), ...e.seo },
-      sections: bodySections(e.html, base, postsPath, notices, e.path),
+      sections: withPageTitle(
+        bodySections(e.html, base, postsPath, notices, e.path),
+        e.title,
+        showsTitles,
+      ),
       ...(nav.length && !navPaths.has(e.path) && e.path !== "/" ? { hidden: true } : {}),
     });
   }
@@ -646,4 +656,39 @@ function wxrNav(
     out.push({ type: "link", ...link });
   }
   return out;
+}
+
+/** The page's title as its Heading 1, opening the first section (unless the content has one). */
+export function withPageTitle(sections: SqSection[], title: string, shows: boolean): SqSection[] {
+  if (!shows || !title.trim()) return sections;
+  const norm = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const first = sections[0];
+  const blocks =
+    first?.layout.mode === "classic"
+      ? first.layout.rows.flatMap((r) => r.columns.flatMap((c) => c.blocks))
+      : [];
+  const opening = blocks[0];
+  if (
+    opening &&
+    ((opening.kind === "heading" && norm(opening.text) === norm(title)) ||
+      (opening.kind === "text" && /^\s*<h1/i.test(opening.html)))
+  )
+    return sections;
+  const heading: SqBlock = { kind: "heading", text: title, level: 1 };
+  if (first && first.layout.mode === "classic" && !first.background?.image && !first.role) {
+    const row = first.layout.rows[0];
+    if (row && row.columns.length === 1) {
+      row.columns[0]?.blocks.unshift(heading);
+      return sections;
+    }
+    first.layout.rows.unshift({ columns: [{ span: 12, blocks: [heading] }] });
+    return sections;
+  }
+  return [
+    {
+      theme: "",
+      layout: { mode: "classic", rows: [{ columns: [{ span: 12, blocks: [heading] }] }] },
+    },
+    ...sections,
+  ];
 }

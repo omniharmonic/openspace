@@ -20,7 +20,14 @@ export interface ComponentGenInput {
   /** The original's family for each font role, to pick `--os-font-<role>`. */
   roles: { heading?: string; body?: string; label?: string };
   /** The section theme's role colours (`#rrggbb`), to pick `--os-color-<role>`. */
-  colors?: Partial<Record<"text" | "heading" | "text-muted" | "accent" | "link", string>>;
+  colors?: Partial<
+    Record<
+      "text" | "heading" | "text-muted" | "accent" | "link" | "surface" | "border" | "background",
+      string
+    >
+  >;
+  /** The original site's origin: its own links in rich text become paths on the new site. */
+  origin?: string;
   /** Turn an original address into a site link (a page of the new site, or the address). */
   link: (href: string) => Link | undefined;
 }
@@ -38,7 +45,12 @@ const round = (n: number, d = 2) => Math.round(n * 10 ** d) / 10 ** d;
 /** A section that can be recreated: words or pictures to place, nothing interactive. */
 export function canGenerate(section: ProbeSection): boolean {
   const b = section.blueprint;
-  return !!b && b.length >= 2 && b.length <= 30 && section.height <= 2400;
+  return (
+    !!b &&
+    b.filter((i) => i.kind !== "rule" && i.kind !== "panel").length >= 2 &&
+    b.length <= 36 &&
+    section.height <= 2400
+  );
 }
 
 export function componentFromBlueprint(input: ComponentGenInput): GeneratedComponent | undefined {
@@ -58,7 +70,9 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
   const css: string[] = [
     ":scope { width: min(100%, " + Math.round(width) + "px); margin-inline: auto; }",
     ".gx { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); grid-auto-rows: minmax(8px, auto); column-gap: 0; }",
-    ".gx__i { margin: 0; min-width: 0; overflow-wrap: break-word; }",
+    ".gx__i { position: relative; z-index: 1; margin: 0; min-width: 0; overflow-wrap: break-word; }",
+    ".gx__i p { margin: 0; }",
+    ".gx__p { z-index: 0; }",
     ".gx__img picture, .gx__img img { display: block; width: 100%; height: 100%; object-fit: cover; }",
   ];
   const phone: string[] = [];
@@ -98,6 +112,10 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
           ]),
     ].join("; ");
   };
+  const tokenColor = (hex: string | undefined, fallback: string) => {
+    const v = colorVar(hex);
+    return v === "inherit" ? fallback : v;
+  };
   items.forEach((it, k) => {
     const n = k + 1;
     const cls = `gx__i gx__i${n}`;
@@ -106,6 +124,23 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
     const row = Math.floor((it.box.y - top) / 8) + 1;
     const rows = Math.max(1, Math.round(it.box.h / 8));
     const place = `grid-column: ${col} / span ${span}; grid-row: ${row} / span ${rows}`;
+    if (it.kind === "rule") {
+      // An accent rule: a short bar in the theme's accent (or border) color.
+      parts.push(`<hr class="gx__p gx__r${n}">`);
+      css.push(
+        `.gx__r${n} { ${place.replace(/span \d+$/, "span 1")}; align-self: start; width: 100%; height: 0; margin: 0; border: 0; border-top: ${Math.max(1, Math.min(8, it.box.h))}px solid ${tokenColor(it.color, "var(--os-color-border)")}; }`,
+      );
+      return;
+    }
+    if (it.kind === "panel") {
+      // A panel behind words: its fill and border on theme colors, never exact ones.
+      parts.push(`<div class="gx__p gx__p${n}" aria-hidden="true"></div>`);
+      css.push(
+        `.gx__p${n} { ${place}; ${it.color ? `background: ${tokenColor(it.color, "var(--os-color-surface)")};` : ""} ${it.border ? `border: ${Math.max(1, Math.min(8, it.border.width))}px solid ${tokenColor(it.border.color, "var(--os-color-border)")};` : ""} border-radius: ${Math.min(48, Math.round(it.radius ?? 0))}px; }`,
+      );
+      phone.push(`.gx__p${n} { display: none; }`);
+      return;
+    }
     if (it.kind === "image") {
       const key = `image${n}`;
       fields[key] = { kind: "image", label: `Picture ${n}` };
@@ -149,6 +184,22 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
       return;
     }
     const key = `text${n}`;
+    const doc = it.kind === "text" ? richDoc(it.runs, input.origin) : undefined;
+    if (doc) {
+      // A paragraph with links or emphasis: a rich text field, so they stay editable.
+      fields[key] = {
+        kind: "richText",
+        label: `Text ${n}`,
+        marks: ["bold", "italic", "link"],
+        blocks: ["paragraph"],
+        maxLength: 3000,
+      };
+      values[key] = doc;
+      parts.push(`<div class="${cls}">{{rich ${key}}}</div>`);
+      css.push(`.gx__i${n} { ${place}; ${typeCss(it.style, false)}; }`);
+      phone.push(`.gx__i${n} { ${typeCss(it.style, true)}; }`);
+      return;
+    }
     const text = (it.text ?? "").slice(0, it.kind === "heading" ? 300 : 1500);
     fields[key] = {
       kind: "text",
@@ -182,4 +233,56 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
     section: { width: "wide" },
   };
   return { def, fields: values };
+}
+
+/** A paragraph's runs (words with links, bold, italics) → a one-paragraph rich text document. */
+function richDoc(
+  runs: BlueprintItem["runs"],
+  origin?: string,
+): Record<string, unknown> | undefined {
+  if (!runs?.length) return undefined;
+  const content: Record<string, unknown>[] = [];
+  for (const r of runs) {
+    if (r.t === "\n") {
+      content.push({ type: "hardBreak" });
+      continue;
+    }
+    const text = r.t;
+    if (!text) continue;
+    const marks: Record<string, unknown>[] = [];
+    if (r.b) marks.push({ type: "bold" });
+    if (r.i) marks.push({ type: "italic" });
+    const href = r.href && safeHref(r.href, origin);
+    if (href) marks.push({ type: "link", attrs: { href } });
+    const last = content[content.length - 1] as
+      | { type: string; text?: string; marks?: unknown[] }
+      | undefined;
+    // Neighbouring runs with the same marks merge into one text node.
+    if (last?.type === "text" && JSON.stringify(last.marks ?? []) === JSON.stringify(marks)) {
+      last.text = `${last.text}${text}`;
+      continue;
+    }
+    content.push({ type: "text", text, ...(marks.length ? { marks } : {}) });
+  }
+  // Trim the paragraph's outer spaces.
+  const first = content[0] as { type: string; text?: string } | undefined;
+  if (first?.type === "text" && first.text) first.text = first.text.replace(/^\s+/, "");
+  const end = content[content.length - 1] as { type: string; text?: string } | undefined;
+  if (end?.type === "text" && end.text) end.text = end.text.replace(/\s+$/, "");
+  const kept = content.filter((c) => c.type !== "text" || (c as { text?: string }).text);
+  if (!kept.length) return undefined;
+  return { type: "doc", content: [{ type: "paragraph", content: kept }] };
+}
+
+/** A link a rich text mark accepts: https, mailto/tel, or a path on the new site. */
+function safeHref(href: string, origin?: string): string | undefined {
+  if (/^(?:mailto:|tel:)/i.test(href)) return href;
+  try {
+    const u = new URL(href);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return undefined;
+    if (origin && u.origin === origin) return `${u.pathname}${u.hash}` || "/";
+    return u.toString();
+  } catch {
+    return undefined;
+  }
 }

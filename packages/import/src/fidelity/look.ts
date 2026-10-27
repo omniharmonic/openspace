@@ -22,6 +22,13 @@ const norm = (s: string | undefined) => (s ?? "").toLowerCase().replace(/[^a-z0-
 const GENERIC =
   /^(?:serif|sans-serif|monospace|system-ui|ui-\w+|-apple-system|blinkmacsystemfont)$/i;
 
+/** Rough RGB distance between two #rrggbb colors. */
+const colorGap = (a: string, b: string) => {
+  const p = (h: string) => [1, 3, 5].map((i) => Number.parseInt(h.slice(i, i + 2), 16) || 0);
+  const [x, y] = [p(a), p(b)];
+  return Math.sqrt(x.reduce((n, v, i) => n + (v - (y[i] ?? 0)) ** 2, 0));
+};
+
 const round = (n: number, d = 1) => Math.round(n * 10 ** d) / 10 ** d;
 
 function stepOf(t: ProbeText, mobile?: ProbeText, opts: { weight?: boolean } = {}): TypeStep {
@@ -149,6 +156,26 @@ export function lookFromProbe(d: LookProbe, m?: LookProbe): TokenLook | undefine
     L.contentWidth < d.viewport - 40
   )
     layout.contentWidth = Math.round(L.contentWidth / 8) * 8;
+  // The content on a raised card over a different page background (a blog theme's white
+  // panel): the card surface, the page color around it, and the measure the card sets.
+  const page = d.pageBackground;
+  const panels = d.sections.filter(
+    (s) =>
+      page &&
+      s.background &&
+      s.left !== undefined &&
+      s.width !== undefined &&
+      s.left >= 24 &&
+      s.left + s.width <= d.viewport - 24 &&
+      (s.raised || colorGap(s.background, page) >= 10),
+  );
+  if (page && d.viewport >= 768 && panels.length && panels.length * 2 >= d.sections.length) {
+    layout.surface = "card";
+    layout.pageBackground = page;
+    const measures = panels.map((s) => s.textWidth).filter((w): w is number => !!w);
+    const w = measures.sort((a, b) => a - b)[Math.floor(measures.length / 2)];
+    if (w && w >= 360 && w <= 1600) layout.contentWidth = Math.round(w / 8) * 8;
+  }
   if (L.sectionPadding && L.sectionPadding >= 16 && L.sectionPadding <= 320)
     layout.sectionPadding = Math.round(L.sectionPadding);
   if (layout.sectionPadding && m?.layout.sectionPadding && m.layout.sectionPadding <= 240)
@@ -193,6 +220,17 @@ export function lookFromProbe(d: LookProbe, m?: LookProbe): TokenLook | undefine
     ...(d.eyebrowRule ? { eyebrowRule: true } : {}),
     ...(d.fonts && Object.keys(d.fonts).length ? { metrics: { ...m?.fonts, ...d.fonts } } : {}),
     ...(hosts.length ? { fontHosts: hosts } : {}),
+    ...(d.logoHeight && d.logoHeight >= 16 && d.logoHeight <= 240
+      ? {
+          logoHeight: {
+            d: d.logoHeight,
+            ...(m?.logoHeight && m.logoHeight >= 16 && m.logoHeight <= 240
+              ? { m: m.logoHeight }
+              : {}),
+          },
+        }
+      : {}),
+    ...(d.footerBackground ? { footerBackground: d.footerBackground } : {}),
     ...(d.sidebar
       ? {
           sidebar: {
@@ -236,6 +274,9 @@ export function applyLook(
     theme.headerLayout = "sidebar";
     if (look.sidebar.background) theme.headerBackground = look.sidebar.background;
   }
+  if (look.logoHeight && !keep(theme.logoHeight)) theme.logoHeight = look.logoHeight;
+  if (look.footerBackground && !keep(theme.footerBackground))
+    theme.footerBackground = look.footerBackground;
   if (look.metrics) theme.fontMetrics = { ...look.metrics, ...(theme.fontMetrics ?? {}) };
   if (look.fontHosts)
     theme.fontHosts = [...new Set([...(theme.fontHosts ?? []), ...look.fontHosts])];

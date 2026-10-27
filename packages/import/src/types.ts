@@ -61,6 +61,8 @@ export type SqBlock =
       image: SqImage;
       caption?: string;
       href?: string;
+      /** Shown no wider than the picture itself (a book cover beside its blurb). */
+      natural?: boolean;
       /** Squarespace image-block layouts with text (card, overlap, stack, poster…). */
       card?: SqImageCard;
     }
@@ -68,6 +70,8 @@ export type SqBlock =
       kind: "gallery";
       images: (SqImage & { caption?: string; href?: string })[];
       layout: "grid" | "masonry" | "slideshow" | "carousel" | "strips";
+      /** Each photo shown whole inside the slideshow's frame. */
+      fit?: "contain";
     }
   | {
       kind: "button";
@@ -327,6 +331,10 @@ export interface SqTheme {
   headerLayout?: string;
   /** The header's (or sidebar's) own background color, when measured. */
   headerBackground?: string;
+  /** The header logo's shown height (px, computer and phone), when measured. */
+  logoHeight?: { d: number; m?: number };
+  /** The footer's background color, when measured. */
+  footerBackground?: string;
   headerFixed?: boolean;
   headerTransparent?: boolean;
   /** Section theme name used by the header. */
