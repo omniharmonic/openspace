@@ -365,6 +365,13 @@ html:not(.os-js) .os-header__toggle{display:none}
 @media (min-width:768px){.os-header__logo{height:var(--tlogo-h,2.5rem)}}
 @media (min-width:1200px){.os-header__logo{height:var(--logo-h,2.5rem)}}
 
+/* A raised content card over the page background (Site Styles → layout.surface "card"). */
+.os-page.has-surface-card{background:var(--os-page-bg,${v(c.surface)})}
+@media (min-width:768px){
+.has-surface-card>.os-main{flex:none;margin:8.3333% 8.3333% 0;padding-block:8.3333% 0;background:${v(c.background)};box-shadow:0 0 1px rgb(0 0 0 / 0.15)}
+.has-surface-card>.os-footer{margin:8.3333% 8.3333% 8.3333%;box-shadow:0 0 1px rgb(0 0 0 / 0.15)}
+}
+
 /* Footer */
 .os-footer{margin-top:auto}
 .os-footer .os-footer__section:not(.has-pad){padding-block:${v(T.space["2xl"])}}

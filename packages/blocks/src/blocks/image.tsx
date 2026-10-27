@@ -6,7 +6,7 @@ import {
   GRID_COLUMNS,
   type Section,
 } from "@omniharmonic/openspace-schema";
-import { useContext } from "react";
+import { type CSSProperties, useContext } from "react";
 import { aspectField, DEMO, useImageUrl } from "../shared";
 
 export const imageBlock = defineBlock({
@@ -25,6 +25,12 @@ export const imageBlock = defineBlock({
     caption: f.text({ optional: true, maxLength: 200, ai: "Optional; one short sentence." }),
     link: f.link({ optional: true, help: "Make the whole image a link" }),
     lightbox: f.boolean({ default: false, help: "Open a larger view when clicked" }),
+    size: f.select({
+      options: ["fill", "original"],
+      optional: true,
+      label: "Size",
+      help: "Fill the column, or show the picture no wider than its own size (a book cover, a small portrait)",
+    }),
   },
   variants: ["default", "caption-overlay", "inset"],
   styleSlots: ["radius", "shadow", "imageTreatment", "align", "padding", "animation"],
@@ -108,9 +114,13 @@ function ImageView({ id, fields, variant }: { id: string; fields: ImageFields; v
       </a>
     );
   }
+  // "Original size": never wider than the picture itself (aligned by the block's alignment).
+  const natural =
+    !grid && fields.size === "original" && fields.image.width ? fields.image.width : 0;
   return (
     <figure
-      className={cx("os-image", `os-image--${variant}`, grid && "is-fill")}
+      className={cx("os-image", `os-image--${variant}`, grid && "is-fill", natural && "is-natural")}
+      style={natural ? ({ "--os-image-max": `${natural}px` } as CSSProperties) : undefined}
       data-os-behavior={!fields.link && fields.lightbox ? "lightbox" : undefined}
     >
       {media}
@@ -124,7 +134,13 @@ function ImageView({ id, fields, variant }: { id: string; fields: ImageFields; v
 export const imageCss = `
 .os-image{position:relative;display:grid;gap:var(--os-space-2xs)}
 .os-image.is-fill{height:100%;grid-template-rows:minmax(0,1fr);grid-auto-rows:auto}
-.os-image.is-fill>.os-image__link{display:block;height:100%}
+.os-image.is-fill>.os-image.is-natural{max-inline-size:min(100%,var(--os-image-max))}
+.os-align-center .os-image.is-natural,.os-align-center>.os-image.is-natural{margin-inline:auto}
+.os-align-end .os-image.is-natural{margin-inline-start:auto}
+.os-image__link{display:block;height:100%}
+.os-image.is-natural{max-inline-size:min(100%,var(--os-image-max))}
+.os-align-center .os-image.is-natural,.os-align-center>.os-image.is-natural{margin-inline:auto}
+.os-align-end .os-image.is-natural{margin-inline-start:auto}
 .os-image__link{display:block;color:inherit;border-radius:var(--os-image-radius)}
 .os-image__caption{font-size:var(--os-type-small-font-size);line-height:var(--os-type-small-line-height);color:var(--os-color-text-muted)}
 .os-image--caption-overlay .os-image__caption{position:absolute;inset:auto 0 0 0;z-index:2;padding:var(--os-space-lg) var(--os-space-sm) var(--os-space-xs);color:var(--os-color-neutral-50);background:linear-gradient(to top,color-mix(in oklab,var(--os-color-neutral-950) 62%,transparent),color-mix(in oklab,var(--os-color-neutral-950) 0%,transparent));border-radius:0 0 var(--os-image-radius) var(--os-image-radius);pointer-events:none}

@@ -60,6 +60,15 @@ export const galleryBlock = defineBlock({
       display: "segmented",
       help: "Columns on wide screens (grid and masonry)",
     }),
+    fit: f.select({
+      options: [
+        { value: "cover", label: "Fill the frame" },
+        { value: "contain", label: "Show whole photos" },
+      ],
+      optional: true,
+      label: "Fit",
+      help: "Slideshows and carousels: crop each photo to the frame, or show it whole inside it",
+    }),
     lightbox: f.boolean({ default: true, help: "Open photos in a full-screen viewer" }),
     showCaptions: f.boolean({ default: false, label: "Show captions" }),
   },
@@ -113,7 +122,14 @@ function Gallery({ id, fields, variant }: { id: string; fields: GalleryFields; v
   const carousel = variant === "carousel" || variant === "slideshow";
 
   const media = (item: Item, i: number) => {
-    const img = <Img src={item.image} sizes={sizes} aspect={crop ?? "original"} />;
+    const img = (
+      <Img
+        src={item.image}
+        sizes={sizes}
+        aspect={crop ?? "original"}
+        {...(fields.fit === "contain" && crop ? { fit: "contain" as const } : {})}
+      />
+    );
     if (item.link)
       return (
         <Link to={item.link as LinkValue} className="os-gallery__link">

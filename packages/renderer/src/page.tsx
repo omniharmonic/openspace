@@ -59,7 +59,11 @@ export function PageView(props: PageViewProps) {
     <RenderContext.Provider value={{ doc, page, mode, basePath, hubUrl }}>
       <ImageResolverContext.Provider value={imageMap}>
         <div
-          className={cx("os-page", header.overlay && !header.hidden && "has-overlay-header")}
+          className={cx(
+            "os-page",
+            header.overlay && !header.hidden && "has-overlay-header",
+            doc.styles.choices.layout?.surface === "card" && "has-surface-card",
+          )}
           data-os-page={page.id}
           style={logoVars}
         >
