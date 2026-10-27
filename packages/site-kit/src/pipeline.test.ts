@@ -10,7 +10,14 @@ import { loadSiteDocument } from "./content/index";
 import { deployLocation } from "./deploy";
 import { atomFeed, buildFeeds, icalFeed, podcastFeed, rssFeed } from "./feeds";
 import { catalogManifest, formsManifest } from "./manifests";
-import { addTurnstileLoader, ogSpec, renderRoute, routePage, siteStylesheets } from "./render";
+import {
+  addTurnstileLoader,
+  ogSpec,
+  renderRoute,
+  routePage,
+  siteStylesheets,
+  unlinkMembersArea,
+} from "./render";
 import { planSite, type SitePlan } from "./routes";
 import {
   cloudflareRedirects,
@@ -243,6 +250,15 @@ describe("rendering", () => {
     });
     expect(html).toContain('og:image" content="https://maya.github.io/maya-yoga/media/social.jpg"');
     expect(html).not.toContain("/_os/og/");
+  });
+
+  it("turns links into the members area into text off Cloudflare (they would 404)", () => {
+    const html =
+      '<head><a href="/r/members/">x</a></head><body><p><a href="/r/members/">Members</a> · <a class="b" href="/r/members/faq/"><strong>FAQ</strong></a> · <a href="/r/membership/">Join</a> · <a href="/r/about/">About</a></p></body>';
+    expect(unlinkMembersArea(html, "/r")).toBe(
+      '<head><a href="/r/members/">x</a></head><body><p>Members · <strong>FAQ</strong> · <a href="/r/membership/">Join</a> · <a href="/r/about/">About</a></p></body>',
+    );
+    expect(unlinkMembersArea('<body><a href="/members">M</a></body>', "")).toBe("<body>M</body>");
   });
 
   it("publishes one stylesheet named by content hash (tokens, base, blocks)", () => {

@@ -307,9 +307,26 @@ export function renderDocument(opts: RenderDocumentOptions): string {
     },
     `${basePath}/_os/behaviors`,
   );
-  return opts.turnstileSiteKey
+  const out = opts.turnstileSiteKey
     ? addTurnstileLoader(wrapped, `${basePath}/_os/turnstile.js`)
     : wrapped;
+  return doc.config.deploy.target === "cloudflare" ? out : unlinkMembersArea(out, basePath);
+}
+
+/**
+ * The members area (`/members/…`) only exists on the Cloudflare hosting option; elsewhere
+ * (GitHub Pages) links into it would 404, so they become plain text (a footer "Members" link in
+ * a template, a rich-text link). Navigation already drops pages that aren't published.
+ */
+export function unlinkMembersArea(html: string, basePath: string): string {
+  const at = html.indexOf("<body");
+  if (at < 0) return html;
+  const base = basePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(
+    `<a\\b[^>]*\\shref="${base}/members(?:/[^"]*)?"[^>]*>([\\s\\S]*?)</a>`,
+    "g",
+  );
+  return html.slice(0, at) + html.slice(at).replace(re, "$1");
 }
 
 /** Render a planned route to a complete HTML document. */
