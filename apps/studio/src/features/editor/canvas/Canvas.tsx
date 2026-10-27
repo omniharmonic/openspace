@@ -178,9 +178,11 @@ export function Canvas({
         if (!overlayPointer.inside) api.getState().setHover(null);
       }, 120);
     };
-    const isTextBlock = (blockId: string) => {
+    /** Blocks whose words edit on the first click (a button is picked first: it has a link). */
+    const wordsFirst = (blockId: string) => {
       const s = api.getState();
-      return locate(s.doc, s.pageId, { kind: "block", id: blockId })?.block?.type === "text";
+      const type = locate(s.doc, s.pageId, { kind: "block", id: blockId })?.block?.type;
+      return type !== undefined && type !== "button";
     };
     /** Start editing the text field under the pointer in this block, if there is one. */
     const editAt = (blockId: string, e: MouseEvent): boolean => {
@@ -217,18 +219,13 @@ export function Canvas({
         s.selection.length === 1 && s.selection[0]?.id === item.id && item.kind === "block";
       if (already && !e.shiftKey && editAt(item.id, e)) return;
       s.select(item, { additive: e.shiftKey });
-      // Words edit on the first click ("click any words to change them"): a text block starts
-      // editing where it was clicked. Other blocks (photos, buttons…) are selected first.
-      if (
-        !already &&
-        !e.shiftKey &&
-        item.kind === "block" &&
-        isTextBlock(item.id) &&
-        editAt(item.id, e)
-      )
-        return;
       // Picked on the canvas: show what can be changed (Layers keeps its own panel open).
       useEditorUi.getState().revealInspector();
+      // Words edit on the first click ("click any words to change them"): clicking a heading or
+      // paragraph starts editing where it was clicked. Photos (no words under the pointer) and
+      // buttons are selected first.
+      if (!already && !e.shiftKey && item.kind === "block" && wordsFirst(item.id))
+        editAt(item.id, e);
     };
     const onDblClick = (e: MouseEvent) => {
       const item = itemAt(e.target);
