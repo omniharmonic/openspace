@@ -249,6 +249,18 @@ describe("mobile Studio at 390px", () => {
     expect(await screen.findByTestId("inspector")).toBeInTheDocument();
   });
 
+  it("closes the More sheet when it opens Settings", async () => {
+    const { user, router } = await openOnPhone();
+    const tabs = screen.getByRole("navigation", { name: "Studio" });
+    await user.click(within(tabs).getByRole("button", { name: "More" }));
+    const more = await screen.findByRole("dialog", { name: "More" });
+    await user.click(within(more).getByRole("button", { name: "Settings" }));
+    await waitFor(() => expect(router.state.location.pathname).toMatch(/\/settings$/));
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog", { name: "More" })).not.toBeInTheDocument(),
+    );
+  });
+
   it("publishes from the phone", async () => {
     const { user, hub } = await openOnPhone();
     act(() => {
