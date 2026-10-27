@@ -1,11 +1,11 @@
-import { type Op, type OpBody, validateAll, validateDocument } from "@openspace/ops";
-import type { MediaId, SiteConfig, SiteDocument, SiteId } from "@openspace/schema";
+import { type Op, type OpBody, validateAll, validateDocument } from "@omniharmonic/openspace-ops";
+import type { MediaId, SiteConfig, SiteDocument, SiteId } from "@omniharmonic/openspace-schema";
 import type { TemplateLook, TemplateMeta } from "./templates";
 
 /**
  * Turn a template's document into a new site's document: site id/hub/deploy in `openspace.json`,
  * name and tagline in `site.json` and the hero, the chosen look's styles and an optional brand
- * color. Content changes go through `@openspace/ops` (Global Constraint 5).
+ * color. Content changes go through `@omniharmonic/openspace-ops` (Global Constraint 5).
  */
 export interface PersonalizeInput {
   siteId: SiteId;

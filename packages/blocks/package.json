@@ -1,12 +1,27 @@
 {
-  "name": "@openspace/blocks",
+  "name": "@omniharmonic/openspace-blocks",
   "version": "0.1.0",
   "description": "OpenSpace blocks package.",
   "license": "MIT",
+  "author": "The OpenSpace contributors",
+  "homepage": "https://github.com/omniharmonic/openspace#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omniharmonic/openspace.git",
+    "directory": "packages/blocks"
+  },
+  "bugs": {
+    "url": "https://github.com/omniharmonic/openspace/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     ".": {
@@ -39,9 +54,9 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@openspace/renderer": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/theme": "workspace:*",
+    "@omniharmonic/openspace-renderer": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*",
     "lucide": "^1.61.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

@@ -1,4 +1,4 @@
-import type { ColorTheme } from "@openspace/schema";
+import type { ColorTheme } from "@omniharmonic/openspace-schema";
 
 /** Names of the five section color themes as Studio shows them. */
 export const THEME_LABEL: Record<ColorTheme, string> = {

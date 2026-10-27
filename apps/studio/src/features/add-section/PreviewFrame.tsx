@@ -1,7 +1,7 @@
-import { BLOCKS_CSS, registerAll } from "@openspace/blocks";
-import { BASE_CSS, compiledStylesFor, RenderContext } from "@openspace/renderer";
-import type { Page, SiteDocument } from "@openspace/schema";
-import { googleFontsUrl } from "@openspace/theme";
+import { BLOCKS_CSS, registerAll } from "@omniharmonic/openspace-blocks";
+import { BASE_CSS, compiledStylesFor, RenderContext } from "@omniharmonic/openspace-renderer";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
+import { googleFontsUrl } from "@omniharmonic/openspace-theme";
 import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 

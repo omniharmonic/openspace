@@ -10,7 +10,7 @@ import { SiteSchema } from "./site";
 import { StylesSchema } from "./styles";
 
 /**
- * The whole site's content as one value: what `@openspace/ops` operates on, what Studio holds
+ * The whole site's content as one value: what `@omniharmonic/openspace-ops` operates on, what Studio holds
  * in memory and what the Hub/MCP read. Each record key mirrors a file location:
  * pages by page id, collection items by collection name and slug, media by repo path.
  */

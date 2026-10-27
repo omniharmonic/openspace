@@ -2,7 +2,7 @@
  * Feeds (PRD §5.3): RSS 2.0 + Atom for blogs, iCalendar for events, podcast RSS with Apple
  * (itunes:) and Podcasting 2.0 tags. Pure string builders over the route plan.
  */
-import type { CollectionItem, SiteDocument } from "@openspace/schema";
+import type { CollectionItem, SiteDocument } from "@omniharmonic/openspace-schema";
 import { type FeedFormat, feedsFor } from "./feeds-plan";
 import { itemDescription } from "./pages";
 import type { SitePlan } from "./routes";

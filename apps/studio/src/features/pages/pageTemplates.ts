@@ -18,8 +18,8 @@ import {
   starterSection,
   summaryBlock,
   textBlock,
-} from "@openspace/blocks";
-import type { Block, ColorTheme, Section } from "@openspace/schema";
+} from "@omniharmonic/openspace-blocks";
+import type { Block, ColorTheme, Section } from "@omniharmonic/openspace-schema";
 
 /**
  * Page templates for "Add page" (Task 24): each builds real sections from library blocks with

@@ -4,7 +4,7 @@ import {
   f,
   type RichTextDoc,
   SiteDocumentSchema,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";

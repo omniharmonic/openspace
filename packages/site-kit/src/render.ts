@@ -3,7 +3,7 @@
  * the image map from Astro's `getImage()`), the Cloudflare Worker (gated pages) and tests.
  * Every page goes through `renderPageHtml` — the one renderer (ADR-3).
  */
-import { BLOCKS_CSS, FormSecurityContext, registerAll } from "@openspace/blocks";
+import { BLOCKS_CSS, FormSecurityContext, registerAll } from "@omniharmonic/openspace-blocks";
 import {
   BASE_CSS,
   BEHAVIOR_LOADER,
@@ -18,8 +18,8 @@ import {
   type ResolvedImage,
   renderPageHtml,
   type SocialFeedPost,
-} from "@openspace/renderer";
-import type { Page, SiteDocument } from "@openspace/schema";
+} from "@omniharmonic/openspace-renderer";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { createElement, type ReactElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { DeployLocation } from "./deploy";

@@ -1,5 +1,5 @@
-import type { MediaMeta } from "@openspace/schema";
-import { MediaMetaSchema } from "@openspace/schema";
+import type { MediaMeta } from "@omniharmonic/openspace-schema";
+import { MediaMetaSchema } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { dominantColor, fitWithin, suggestFocal } from "./analyze";
 import {

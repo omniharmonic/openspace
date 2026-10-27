@@ -1,5 +1,5 @@
-import { type Op, summarize } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import { type Op, summarize } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 export interface TrailerActor {
   name: string;

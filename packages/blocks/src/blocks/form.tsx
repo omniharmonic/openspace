@@ -1,4 +1,4 @@
-import { Button, cx, resolveLink, useRenderContext } from "@openspace/renderer";
+import { Button, cx, resolveLink, useRenderContext } from "@omniharmonic/openspace-renderer";
 import {
   DEFAULT_FILE_KINDS,
   DEFAULT_FILE_MAX_MB,
@@ -8,7 +8,7 @@ import {
   type FormField,
   f,
   fileFieldAccept,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { createContext, type ReactNode, useContext } from "react";
 import { sub, useHub, useOwnerEmail } from "../shared";
 

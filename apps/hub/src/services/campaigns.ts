@@ -1,6 +1,6 @@
 /**
  * Email campaigns (arch §9.2, PRD §5.5): composed from email-safe blocks, rendered by
- * `@openspace/email-render`, sent through the owner's own sender to confirmed subscribers in a
+ * `@omniharmonic/openspace-email-render`, sent through the owner's own sender to confirmed subscribers in a
  * tag segment. Every message carries an RFC 8058 one-click unsubscribe (headers + footer link).
  *
  * Sending: the campaign is claimed (`draft|scheduled → sending`), its recipients are frozen into
@@ -8,8 +8,8 @@
  * (Queue consumers, the cron, an inline send) never mail anyone twice. Clicks go through
  * `/e/c/<recipient>.<sig>/<n>`, which only redirects to link n of THIS campaign's frozen list.
  */
-import { campaignEmail } from "@openspace/email-render";
-import { type Block, BlockSchema } from "@openspace/schema";
+import { campaignEmail } from "@omniharmonic/openspace-email-render";
+import { type Block, BlockSchema } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import type { SiteRow } from "../db/sites";
 import { getSite } from "../db/sites";

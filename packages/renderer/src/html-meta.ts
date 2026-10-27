@@ -3,8 +3,8 @@
  * compiled styles). Kept apart from `html.ts` so importing them never pulls `react-dom/server`
  * into a browser bundle.
  */
-import type { Page, SiteDocument, Styles } from "@openspace/schema";
-import { type CompiledStyles, compileStyles } from "@openspace/theme";
+import type { Page, SiteDocument, Styles } from "@omniharmonic/openspace-schema";
+import { type CompiledStyles, compileStyles } from "@omniharmonic/openspace-theme";
 import type { ImageMap } from "./image-map";
 import { mediaUrl } from "./link";
 

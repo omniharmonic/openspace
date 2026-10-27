@@ -1,4 +1,4 @@
-import { BlockSchema } from "@openspace/schema";
+import { BlockSchema } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 
 /**

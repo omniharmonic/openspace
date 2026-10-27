@@ -1,5 +1,5 @@
 {
-  "name": "@openspace/claude-plugin",
+  "name": "@omniharmonic/openspace-claude-plugin",
   "version": "0.1.0",
   "private": true,
   "description": "OpenSpace plugin for Claude Code: local MCP server, web-design skills, commands and a design-review agent.",
@@ -17,10 +17,10 @@
     "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "@openspace/blocks": "workspace:*",
-    "@openspace/mcp-tools": "workspace:*",
-    "@openspace/site-kit": "workspace:*",
-    "@openspace/templates": "workspace:*",
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-mcp-tools": "workspace:*",
+    "@omniharmonic/openspace-site-kit": "workspace:*",
+    "@omniharmonic/openspace-templates": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

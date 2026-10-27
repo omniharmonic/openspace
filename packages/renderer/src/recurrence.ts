@@ -1,4 +1,4 @@
-import type { CollectionItem } from "@openspace/schema";
+import type { CollectionItem } from "@omniharmonic/openspace-schema";
 
 /**
  * Repeating events (RFC 5545 RRULE bodies such as `FREQ=WEEKLY;BYDAY=TU,TH;COUNT=10`), the

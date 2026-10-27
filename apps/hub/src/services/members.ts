@@ -7,7 +7,7 @@
  * to the site's `/_os/auth/callback?token=…&return=…`, where the site Worker verifies it against
  * the JWKS and sets its own session cookie.
  */
-import { magicLinkEmail } from "@openspace/email-render";
+import { magicLinkEmail } from "@omniharmonic/openspace-email-render";
 import { z } from "zod";
 import type { SiteRow } from "../db/sites";
 import type { User } from "../db/users";

@@ -9,8 +9,8 @@ import { createServer, type Server } from "node:http";
 import { createRequire } from "node:module";
 import type { AddressInfo } from "node:net";
 import { dirname, extname, join, normalize, sep } from "node:path";
-import { renderPreviewHtml } from "@openspace/mcp-tools";
-import type { SiteDocument } from "@openspace/schema";
+import { renderPreviewHtml } from "@omniharmonic/openspace-mcp-tools";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 const TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -32,7 +32,7 @@ const TYPES: Record<string, string> = {
 function behaviorsDir(): string | null {
   try {
     const req = createRequire(import.meta.url);
-    const pkg = req.resolve("@openspace/renderer/package.json");
+    const pkg = req.resolve("@omniharmonic/openspace-renderer/package.json");
     const dir = join(dirname(pkg), "dist", "behaviors");
     return existsSync(dir) ? dir : null;
   } catch {

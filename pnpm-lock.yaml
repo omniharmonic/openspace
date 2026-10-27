@@ -54,10 +54,10 @@ importers:
         specifier: ^0.35.5
         version: 0.35.5(@types/node@22.20.5)
     devDependencies:
-      '@openspace/mcp-tools':
+      '@omniharmonic/openspace-mcp-tools':
         specifier: workspace:*
         version: link:../../packages/mcp-tools
-      '@openspace/templates':
+      '@omniharmonic/openspace-templates':
         specifier: workspace:*
         version: link:../../templates
       '@types/node':
@@ -75,31 +75,31 @@ importers:
       '@cloudflare/workers-oauth-provider':
         specifier: ^1.2.4
         version: 1.2.4
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
-      '@openspace/email-render':
+      '@omniharmonic/openspace-email-render':
         specifier: workspace:*
         version: link:../../packages/email-render
-      '@openspace/mcp-tools':
+      '@omniharmonic/openspace-mcp-tools':
         specifier: workspace:*
         version: link:../../packages/mcp-tools
-      '@openspace/ops':
+      '@omniharmonic/openspace-ops':
         specifier: workspace:*
         version: link:../../packages/ops
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../../packages/schema
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../../packages/site-kit
-      '@openspace/templates':
+      '@omniharmonic/openspace-templates':
         specifier: workspace:*
         version: link:../../templates
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../../packages/theme
       blakejs:
@@ -166,31 +166,31 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.3.1)
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
-      '@openspace/email-render':
+      '@omniharmonic/openspace-email-render':
         specifier: workspace:*
         version: link:../../packages/email-render
-      '@openspace/lint':
+      '@omniharmonic/openspace-lint':
         specifier: workspace:*
         version: link:../../packages/lint
-      '@openspace/ops':
+      '@omniharmonic/openspace-ops':
         specifier: workspace:*
         version: link:../../packages/ops
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../../packages/schema
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../../packages/site-kit
-      '@openspace/templates':
+      '@omniharmonic/openspace-templates':
         specifier: workspace:*
         version: link:../../templates
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../../packages/theme
       '@tanstack/react-query':
@@ -293,19 +293,19 @@ importers:
 
   apps/www:
     dependencies:
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../../packages/schema
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../../packages/site-kit
-      '@openspace/templates':
+      '@omniharmonic/openspace-templates':
         specifier: workspace:*
         version: link:../../templates
       astro:
@@ -321,10 +321,10 @@ importers:
         specifier: ^19.3.1
         version: 19.3.1(react@19.3.1)
     devDependencies:
-      '@openspace/cli':
+      '@omniharmonic/openspace-cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@openspace/lint':
+      '@omniharmonic/openspace-lint':
         specifier: workspace:*
         version: link:../../packages/lint
       '@types/node':
@@ -357,13 +357,13 @@ importers:
 
   packages/blocks:
     dependencies:
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../renderer
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../theme
       lucide:
@@ -406,24 +406,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.32.2
         version: 1.32.2(zod@4.6.7)
-      '@openspace/blocks':
-        specifier: workspace:*
-        version: link:../blocks
-      '@openspace/mcp-tools':
-        specifier: workspace:*
-        version: link:../mcp-tools
-      '@openspace/ops':
-        specifier: workspace:*
-        version: link:../ops
-      '@openspace/schema':
-        specifier: workspace:*
-        version: link:../schema
-      '@openspace/site-kit':
-        specifier: workspace:*
-        version: link:../site-kit
-      '@openspace/template-starter':
-        specifier: workspace:*
-        version: link:../../templates/starter
       commander:
         specifier: ^14.0.3
         version: 14.0.3
@@ -437,6 +419,24 @@ importers:
         specifier: '>=0.33'
         version: 0.35.5(@types/node@22.20.5)
     devDependencies:
+      '@omniharmonic/openspace-blocks':
+        specifier: workspace:*
+        version: link:../blocks
+      '@omniharmonic/openspace-mcp-tools':
+        specifier: workspace:*
+        version: link:../mcp-tools
+      '@omniharmonic/openspace-ops':
+        specifier: workspace:*
+        version: link:../ops
+      '@omniharmonic/openspace-schema':
+        specifier: workspace:*
+        version: link:../schema
+      '@omniharmonic/openspace-site-kit':
+        specifier: workspace:*
+        version: link:../site-kit
+      '@omniharmonic/openspace-template-starter':
+        specifier: workspace:*
+        version: link:../../templates/starter
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.5
@@ -455,10 +455,10 @@ importers:
 
   packages/email-render:
     dependencies:
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../theme
     devDependencies:
@@ -477,16 +477,16 @@ importers:
 
   packages/lint:
     dependencies:
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../blocks
-      '@openspace/ops':
+      '@omniharmonic/openspace-ops':
         specifier: workspace:*
         version: link:../ops
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../theme
     devDependencies:
@@ -508,25 +508,25 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.32.2
         version: 1.32.2(zod@4.6.7)
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../blocks
-      '@openspace/lint':
+      '@omniharmonic/openspace-lint':
         specifier: workspace:*
         version: link:../lint
-      '@openspace/ops':
+      '@omniharmonic/openspace-ops':
         specifier: workspace:*
         version: link:../ops
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../renderer
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../site-kit
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../theme
       zod:
@@ -548,7 +548,7 @@ importers:
 
   packages/ops:
     dependencies:
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
       immer:
@@ -576,10 +576,10 @@ importers:
 
   packages/renderer:
     dependencies:
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../theme
       esbuild:
@@ -641,16 +641,16 @@ importers:
       '@markdoc/markdoc':
         specifier: ^0.5.10
         version: 0.5.10(@types/react@19.3.0)(react@19.3.1)
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../blocks
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../renderer
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../theme
       '@resvg/resvg-js':
@@ -711,7 +711,7 @@ importers:
 
   packages/theme:
     dependencies:
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
@@ -734,16 +734,16 @@ importers:
         specifier: ^2.9.1
         version: 2.9.1
     devDependencies:
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../packages/blocks
-      '@openspace/mcp-tools':
+      '@omniharmonic/openspace-mcp-tools':
         specifier: workspace:*
         version: link:../packages/mcp-tools
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../packages/site-kit
-      '@openspace/templates':
+      '@omniharmonic/openspace-templates':
         specifier: workspace:*
         version: link:../templates
       '@types/node':
@@ -758,29 +758,29 @@ importers:
 
   templates:
     dependencies:
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../packages/blocks
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../packages/schema
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../packages/site-kit
-      '@openspace/theme':
+      '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../packages/theme
       yaml:
         specifier: ^2.9.1
         version: 2.9.1
     devDependencies:
-      '@openspace/cli':
+      '@omniharmonic/openspace-cli':
         specifier: workspace:*
         version: link:../packages/cli
-      '@openspace/lint':
+      '@omniharmonic/openspace-lint':
         specifier: workspace:*
         version: link:../packages/lint
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../packages/renderer
       '@types/jsdom':
@@ -807,7 +807,7 @@ importers:
 
   templates/starter:
     dependencies:
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../../packages/site-kit
       yaml:
@@ -829,16 +829,16 @@ importers:
 
   tools/fixtures:
     dependencies:
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../../packages/schema
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../../packages/site-kit
       astro:
@@ -875,19 +875,19 @@ importers:
 
   tools/visual-tests:
     devDependencies:
-      '@openspace/blocks':
+      '@omniharmonic/openspace-blocks':
         specifier: workspace:*
         version: link:../../packages/blocks
-      '@openspace/renderer':
+      '@omniharmonic/openspace-renderer':
         specifier: workspace:*
         version: link:../../packages/renderer
-      '@openspace/schema':
+      '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../../packages/schema
-      '@openspace/site-kit':
+      '@omniharmonic/openspace-site-kit':
         specifier: workspace:*
         version: link:../../packages/site-kit
-      '@openspace/templates':
+      '@omniharmonic/openspace-templates':
         specifier: workspace:*
         version: link:../../templates
       '@types/node':

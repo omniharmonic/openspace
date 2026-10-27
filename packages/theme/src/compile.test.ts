@@ -1,4 +1,4 @@
-import { type Styles, StylesSchema } from "@openspace/schema";
+import { type Styles, StylesSchema } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { compileStyles } from "./compile";
 import { contrastRatio } from "./contrast";

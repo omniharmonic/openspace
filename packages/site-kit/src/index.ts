@@ -1,12 +1,12 @@
 /**
- * @openspace/site-kit — the Astro integration and build pipeline for OpenSpace sites.
+ * @omniharmonic/openspace-site-kit — the Astro integration and build pipeline for OpenSpace sites.
  *
  * - `openspace()` for `astro.config.mjs`
- * - `@openspace/site-kit/content`: `loadSiteDocument` / `writeSiteDocument`
- * - `@openspace/site-kit/route`: the page route used by `src/pages/[...slug].astro`
+ * - `@omniharmonic/openspace-site-kit/content`: `loadSiteDocument` / `writeSiteDocument`
+ * - `@omniharmonic/openspace-site-kit/route`: the page route used by `src/pages/[...slug].astro`
  * - pure planners (routes, feeds, sitemap, JSON-LD, manifests) and `generateAgentsMd`
  */
-export const name = "@openspace/site-kit";
+export const name = "@omniharmonic/openspace-site-kit";
 
 export { type AgentsMdOptions, generateAgentsMd } from "./agents-md";
 export * from "./content/index";
@@ -14,7 +14,12 @@ export { type DeployLocation, deployLocation } from "./deploy";
 export * from "./feeds";
 export { type FeedFormat, type FeedPlan, feedsFor } from "./feeds-plan";
 export { contentHash, type StableIdPrefix, stableId, stableSuffix } from "./ids";
-export { type OpenSpaceOptions, openspace, openspace as default } from "./integration";
+export {
+  CLOUDFLARE_ADAPTER_OPTIONS,
+  type OpenSpaceOptions,
+  openspace,
+  openspace as default,
+} from "./integration";
 export * from "./manifests";
 export {
   blockFromTag,

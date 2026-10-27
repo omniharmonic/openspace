@@ -1,6 +1,6 @@
 /**
  * `FileSiteStore`: the MCP tools against a local site checkout. Reads and writes go through
- * site-kit's content loader/writer (formatting-stable), every edit is validated `@openspace/ops`
+ * site-kit's content loader/writer (formatting-stable), every edit is validated `@omniharmonic/openspace-ops`
  * operations, and with git:
  * - the draft is the working tree, the published version is HEAD;
  * - `publish` commits `content/` and `media/` on the current branch (push to deploy);
@@ -13,7 +13,7 @@ import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { blocksRegistry } from "@openspace/blocks";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import {
   type AgentSession,
   type ApplyContext,
@@ -31,10 +31,10 @@ import {
   type TemplateCatalog,
   ToolError,
   type VersionInfo,
-} from "@openspace/mcp-tools";
-import { diff, type Op, summarize, validateAll } from "@openspace/ops";
-import type { BlockRegistry, MediaMeta, SiteDocument } from "@openspace/schema";
-import { loadSiteDocument, writeSiteDocument } from "@openspace/site-kit/content";
+} from "@omniharmonic/openspace-mcp-tools";
+import { diff, type Op, summarize, validateAll } from "@omniharmonic/openspace-ops";
+import type { BlockRegistry, MediaMeta, SiteDocument } from "@omniharmonic/openspace-schema";
+import { loadSiteDocument, writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { Git } from "./git";
 import { type PreviewServer, startPreviewServer } from "./preview-server";
 import type { Screenshotter } from "./screenshot";

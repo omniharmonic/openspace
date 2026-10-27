@@ -1,4 +1,4 @@
-import { compiledStylesFor } from "@openspace/renderer";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
 import {
   BUTTON_STYLES,
   DENSITIES,
@@ -7,7 +7,7 @@ import {
   MOTION_LEVELS,
   SHAPES,
   type Styles,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import {
   curatedPalettes,
   flattenDtcg,
@@ -17,7 +17,7 @@ import {
   type PaletteCandidate,
   TYPE_PAIRINGS,
   type TypePairing,
-} from "@openspace/theme";
+} from "@omniharmonic/openspace-theme";
 import { AlertTriangle, Check, ImagePlus, Plus, Trash2, Wand2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, cx, Input, Segmented, Select, toast } from "../../ui";

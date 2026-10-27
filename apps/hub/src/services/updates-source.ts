@@ -1,5 +1,5 @@
 /**
- * Where the update bot learns about new `@openspace/site-kit` releases (arch §11.2).
+ * Where the update bot learns about new `@omniharmonic/openspace-site-kit` releases (arch §11.2).
  *
  * - `NpmUpdateSource`: the npm registry packument. Changelog lines come from each version's
  *   `openspace.changelog` (string[]) and `openspace.security` (boolean) package.json fields.
@@ -104,9 +104,12 @@ export class NpmUpdateSource implements UpdateSource {
   ) {}
 
   async latest(current: string): Promise<Release | null> {
-    const res = await this.fetchFn(`${this.registry.replace(/\/+$/, "")}/@openspace%2fsite-kit`, {
-      headers: { Accept: "application/json" },
-    });
+    const res = await this.fetchFn(
+      `${this.registry.replace(/\/+$/, "")}/@omniharmonic%2fopenspace-site-kit`,
+      {
+        headers: { Accept: "application/json" },
+      },
+    );
     if (!res.ok) throw new Error(`npm registry returned ${res.status}`);
     const body = (await res.json()) as {
       versions?: Record<string, { openspace?: { changelog?: unknown; security?: unknown } }>;

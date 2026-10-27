@@ -1,5 +1,5 @@
 /**
- * Update bot (arch §11.2). Daily, each site's `@openspace/site-kit` version (from `package.json`
+ * Update bot (arch §11.2). Daily, each site's `@omniharmonic/openspace-site-kit` version (from `package.json`
  * on main) is compared with the latest compatible release. A newer one becomes an update branch
  * `os/update-<version>` with the version bump, a pull request with the plain-language changelog,
  * and a `site_updates` record Studio shows as "Update available". Applying squash-merges the PR
@@ -27,9 +27,9 @@ import { growthSettings } from "./commerce";
 import type { Services } from "./index";
 import { compareSemver, parseVersion, type Release } from "./updates-source";
 
-export const KIT_PACKAGE = "@openspace/site-kit";
+export const KIT_PACKAGE = "@omniharmonic/openspace-site-kit";
 /** Packages released in lock-step with site-kit; bumped together. */
-const LOCKSTEP = /^@openspace\/(site-kit|cli|blocks|renderer|theme|schema)$/;
+const LOCKSTEP = /^@omniharmonic\/openspace-(site-kit|cli|blocks|renderer|theme|schema)$/;
 
 export type UpdateStatus =
   | "pending"

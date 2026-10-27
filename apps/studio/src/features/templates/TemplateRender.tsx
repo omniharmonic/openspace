@@ -23,7 +23,7 @@ export interface TemplateRenderProps {
 }
 
 /**
- * A template's home page, rendered live by `@openspace/renderer` in the chosen look (and with
+ * A template's home page, rendered live by `@omniharmonic/openspace-renderer` in the chosen look (and with
  * the owner's name, tagline, color and logo when given). The template's document is fetched
  * the first time the render comes near the viewport and cached for the session.
  */

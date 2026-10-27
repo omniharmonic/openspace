@@ -1,5 +1,5 @@
-import { cx, Img, Link, SocialLinks, useRenderContext } from "@openspace/renderer";
-import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
+import { cx, Img, Link, SocialLinks, useRenderContext } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
 import { ICON_OPTIONS, Icon, type IconName } from "../icons";
 import { DEMO } from "../shared";
 

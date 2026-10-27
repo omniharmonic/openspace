@@ -1,7 +1,7 @@
 /** Virtual modules provided by the `openspace()` integration's Vite plugin. */
 declare module "virtual:openspace/site" {
-  import type { SiteDocument } from "@openspace/schema";
-  import type { RuntimeOptions } from "@openspace/site-kit";
+  import type { SiteDocument } from "@omniharmonic/openspace-schema";
+  import type { RuntimeOptions } from "@omniharmonic/openspace-site-kit";
   export const doc: SiteDocument;
   export const options: RuntimeOptions;
 }

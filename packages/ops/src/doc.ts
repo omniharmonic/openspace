@@ -9,7 +9,7 @@ import {
   resolve,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { type ContainerId, FOOTER, type Position, type Rows } from "./ops";
 
 /** A precondition failure while applying an op (missing target, bad position…). */

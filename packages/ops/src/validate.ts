@@ -9,7 +9,7 @@ import {
   SiteDocumentSchema,
   SiteSchema,
   StylesSchema,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { produce } from "immer";
 import type { z } from "zod";
 import { mutate } from "./apply";

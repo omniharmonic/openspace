@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import type { Form } from "@openspace/schema";
+import type { Form } from "@omniharmonic/openspace-schema";
 import { createApp } from "../src/app";
 import { DevGitHubAccess } from "../src/github/dev";
 import { MAIN_BRANCH, parseRepo } from "../src/github/types";

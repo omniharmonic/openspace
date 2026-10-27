@@ -1,4 +1,4 @@
-// Bundles the renderer's behavior modules exactly as @openspace/renderer's build does
+// Bundles the renderer's behavior modules exactly as @omniharmonic/openspace-renderer's build does
 // (BEHAVIOR_ESBUILD in packages/renderer/src/node.ts). Shared by embed-behaviors.mjs and the
 // vitest config (which checks the embedded copy is current).
 import { readdirSync } from "node:fs";

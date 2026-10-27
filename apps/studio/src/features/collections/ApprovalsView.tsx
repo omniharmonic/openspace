@@ -1,6 +1,6 @@
-import { blocksRegistry } from "@openspace/blocks";
-import type { CollectionItem } from "@openspace/schema";
-import { itemPage } from "@openspace/site-kit/pages";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { CollectionItem } from "@omniharmonic/openspace-schema";
+import { itemPage } from "@omniharmonic/openspace-site-kit/pages";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, CheckCheck, MessageSquareReply } from "lucide-react";
 import { useMemo, useState } from "react";

@@ -1,4 +1,9 @@
-import { type ColorTheme, newId, type Section, type StackLayout } from "@openspace/schema";
+import {
+  type ColorTheme,
+  newId,
+  type Section,
+  type StackLayout,
+} from "@omniharmonic/openspace-schema";
 
 /**
  * Starter looks: the plain stacked layouts Studio's page templates, "+" starters and the 404 page

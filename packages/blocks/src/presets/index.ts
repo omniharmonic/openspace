@@ -1,4 +1,4 @@
-import type { ColorTheme, Section } from "@openspace/schema";
+import type { ColorTheme, Section } from "@omniharmonic/openspace-schema";
 import { aboutPresets } from "./categories/about";
 import { contactPresets, ctaPresets, newsletterPresets } from "./categories/action";
 import { footerPresets, headerPresets as headers } from "./categories/chrome";

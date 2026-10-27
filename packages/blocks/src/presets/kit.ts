@@ -13,7 +13,7 @@ import {
   type SectionStyle,
   type SpaceToken,
   withScratchIds,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { buttonBlock } from "../blocks/button";
 import { headingBlock } from "../blocks/heading";
 import { imageBlock } from "../blocks/image";

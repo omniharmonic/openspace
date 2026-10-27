@@ -1,4 +1,4 @@
-import type { InlineNode, RichTextDoc } from "@openspace/schema";
+import type { InlineNode, RichTextDoc } from "@omniharmonic/openspace-schema";
 import { contactInfoBlock, hoursBlock } from "../../blocks/business";
 import { lineBlock } from "../../blocks/decor";
 import { newsletterBlock } from "../../blocks/newsletter";

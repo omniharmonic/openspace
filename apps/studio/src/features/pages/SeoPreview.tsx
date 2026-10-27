@@ -1,5 +1,5 @@
-import { pageDescription, pageTitle, siteUrlFor } from "@openspace/renderer";
-import type { Page, SiteDocument } from "@openspace/schema";
+import { pageDescription, pageTitle, siteUrlFor } from "@omniharmonic/openspace-renderer";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { Globe } from "lucide-react";
 import { useState } from "react";
 import { Segmented } from "../../ui";
@@ -17,7 +17,7 @@ function truncate(text: string, max: number): string {
 
 /**
  * Live previews of how a page appears in a Google result and as a social card, using the same
- * title/description fallbacks the published page uses (`@openspace/renderer`).
+ * title/description fallbacks the published page uses (`@omniharmonic/openspace-renderer`).
  */
 export function SeoPreview({ doc, page }: { doc: SiteDocument; page: Page }) {
   const [view, setView] = useState<"google" | "social">("google");

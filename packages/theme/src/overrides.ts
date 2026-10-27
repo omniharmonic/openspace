@@ -1,4 +1,4 @@
-import type { DtcgGroup, DtcgToken, DtcgValue } from "@openspace/schema";
+import type { DtcgGroup, DtcgToken, DtcgValue } from "@omniharmonic/openspace-schema";
 import { isColor } from "./color";
 import { cssVar } from "./vars";
 

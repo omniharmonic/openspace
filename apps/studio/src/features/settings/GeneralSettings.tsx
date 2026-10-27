@@ -1,4 +1,4 @@
-import { LocaleSchema, type SiteDocument } from "@openspace/schema";
+import { LocaleSchema, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { useState } from "react";
 import { useRenameSite } from "../../api";
 import type { Site } from "../../api/types";

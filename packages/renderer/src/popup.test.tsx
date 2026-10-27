@@ -1,4 +1,4 @@
-import { defineBlock, f, type SiteDocument } from "@openspace/schema";
+import { defineBlock, f, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it } from "vitest";
 import { IDS, siteFixture } from "./__fixtures__/site";

@@ -3,7 +3,7 @@
  * a role on the site; every mutating action writes the audit log. See the Task 16 report for the
  * full contract.
  */
-import type { Role } from "@openspace/ops";
+import type { Role } from "@omniharmonic/openspace-ops";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { z } from "zod";

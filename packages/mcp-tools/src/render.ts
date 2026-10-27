@@ -3,9 +3,9 @@
  * page of its own (header and footer included so it is styled exactly as on the site), or just
  * the section's markup (`fragment`).
  */
-import { blocksStyleTag, registerAll } from "@openspace/blocks";
-import { renderPageHtml } from "@openspace/renderer";
-import type { Page, SiteDocument } from "@openspace/schema";
+import { blocksStyleTag, registerAll } from "@omniharmonic/openspace-blocks";
+import { renderPageHtml } from "@omniharmonic/openspace-renderer";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { ToolError } from "./errors";
 
 let registered = false;

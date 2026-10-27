@@ -1,6 +1,6 @@
-import { getBlock, unregisterBlocks } from "@openspace/renderer";
-import { BLOCK_CATEGORIES, isId } from "@openspace/schema";
-import { allTokenVars } from "@openspace/theme";
+import { getBlock, unregisterBlocks } from "@omniharmonic/openspace-renderer";
+import { BLOCK_CATEGORIES, isId } from "@omniharmonic/openspace-schema";
+import { allTokenVars } from "@omniharmonic/openspace-theme";
 import { icons } from "lucide";
 import { afterAll, describe, expect, it } from "vitest";
 import { gridSection, page, siteWith, stackSection } from "./__fixtures__/site";

@@ -35,7 +35,7 @@ export function deviceAspect(frameWidth: number): number {
 }
 
 /**
- * A template in a look, rendered live by `@openspace/renderer` from the template's real
+ * A template in a look, rendered live by `@omniharmonic/openspace-renderer` from the template's real
  * document. The interactive preview uses the Hub's full preview page when it has one (every
  * page, links and behaviors working), else the live render, scrollable.
  */

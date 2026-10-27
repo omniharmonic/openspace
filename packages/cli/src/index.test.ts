@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { name } from "./index";
 
-describe("@openspace/cli", () => {
+describe("@omniharmonic/openspace-cli", () => {
   it("exports its package name", () => {
-    expect(name).toBe("@openspace/cli");
+    expect(name).toBe("@omniharmonic/openspace-cli");
   });
 });

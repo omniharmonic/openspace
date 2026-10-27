@@ -1,6 +1,6 @@
-import { esc } from "@openspace/email-render";
-import type { ImageMap, ResolvedImage } from "@openspace/renderer";
-import type { Page, SiteDocument } from "@openspace/schema";
+import { esc } from "@omniharmonic/openspace-email-render";
+import type { ImageMap, ResolvedImage } from "@omniharmonic/openspace-renderer";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { type Context, Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { getSite, getSiteForUser, type SiteRow } from "../db/sites";

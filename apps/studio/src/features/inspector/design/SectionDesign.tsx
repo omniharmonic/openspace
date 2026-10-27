@@ -1,5 +1,5 @@
-import type { OpBody } from "@openspace/ops";
-import { compiledStylesFor } from "@openspace/renderer";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
 import {
   type Animation,
   CONTENT_WIDTHS,
@@ -9,7 +9,7 @@ import {
   type SectionStyle,
   type SPACE_TOKENS,
   type StackLayout,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { ArrowLeft, ArrowRight, LayoutGrid, Rows3, Smartphone } from "lucide-react";
 import { useMemo } from "react";
 import {
@@ -641,7 +641,7 @@ export function SectionDesign({
               icon={<Smartphone />}
               disabled={disabled}
               onClick={async () => {
-                const { autoMobileLayoutOps } = await import("@openspace/lint");
+                const { autoMobileLayoutOps } = await import("@omniharmonic/openspace-lint");
                 const s = api.getState();
                 const ops = autoMobileLayoutOps(s.doc, container, section.id, { reset: true });
                 if (ops.length)

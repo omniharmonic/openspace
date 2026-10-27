@@ -1,8 +1,8 @@
-import type { FieldKind, Section } from "@openspace/schema";
+import type { FieldKind, Section } from "@omniharmonic/openspace-schema";
 
 /**
  * What the signed-in person may change from the inspector, mirroring the Hub's role rules
- * (`transformForRole` in `@openspace/ops`), so controls that would be refused are never offered:
+ * (`transformForRole` in `@omniharmonic/openspace-ops`), so controls that would be refused are never offered:
  *
  * - **owner / designer**: everything, including exact values (the Designer escape hatch).
  * - **editor**: content of unlocked sections; block styles on unlocked sections; on locked

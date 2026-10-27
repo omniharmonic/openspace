@@ -1,5 +1,5 @@
 /** Small, self-contained HTML pages the Hub serves to visitors (confirm, unsubscribe). */
-import { esc } from "@openspace/email-render";
+import { esc } from "@omniharmonic/openspace-email-render";
 
 export function publicPage(opts: {
   title: string;

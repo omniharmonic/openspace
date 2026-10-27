@@ -5,7 +5,7 @@ description: How OpenSpace works — site repositories, Studio, the Hub, deploy 
 
 OpenSpace has four moving parts.
 
-1. **Site repositories** — one per website, in the owner's GitHub account. Content is JSON and Markdoc, design choices are tokens, media are optimized master images, and a thin Astro shell depends on the versioned `@openspace/site-kit` package. A GitHub Actions workflow builds and publishes it.
+1. **Site repositories** — one per website, in the owner's GitHub account. Content is JSON and Markdoc, design choices are tokens, media are optimized master images, and a thin Astro shell depends on the versioned `@omniharmonic/openspace-site-kit` package. A GitHub Actions workflow builds and publishes it.
 2. **Studio** — the visual editor: a static React app that renders the *same* block components the published site uses, inside a canvas frame.
 3. **The Hub** — one shared service on Cloudflare Workers (D1, R2, KV, Durable Objects, Queues). It handles GitHub sign-in, coordinates live drafts, hosts the MCP server, and provides what static sites can't: forms, newsletters, analytics, members, checkout webhooks, scheduled publishing and template updates.
 4. **Deploy targets** — GitHub Pages (default, for content sites) or the owner's own Cloudflare account (stores, members-only and password pages).
@@ -28,7 +28,7 @@ OpenSpace has four moving parts.
 |---|---|
 | **Static-first output with Astro** | Free hosting, speed and durability. Published pages ship no React runtime. |
 | **Edit structured JSON, never raw HTML** | Humans and agents make precise changes without breaking layouts; migrations stay possible. |
-| **One renderer for canvas and production** | `@openspace/renderer` produces both, so Studio is truly what-you-see-is-what-you-get. |
+| **One renderer for canvas and production** | `@omniharmonic/openspace-renderer` produces both, so Studio is truly what-you-see-is-what-you-get. |
 | **One public repo per site, in the owner's account** | Ownership, portability, free Pages and Actions. |
 | **Thin site repo + versioned site-kit** | Improvements reach every site through update pull requests; "eject" stays possible. |
 | **Draft branch + per-site draft room; squash on publish** | Live collaborative and agent edits, and a clean published history. |
@@ -72,7 +72,7 @@ Blocks are React components used only for server-side rendering at build time an
 
 ## The MCP server
 
-Tools are defined once in `@openspace/mcp-tools` and served two ways:
+Tools are defined once in `@omniharmonic/openspace-mcp-tools` and served two ways:
 
 - **Remote** — the Hub's `/mcp` endpoint (Streamable HTTP). The Hub is an OAuth 2.1 authorization server for MCP clients (dynamic registration, PKCE) and an OAuth client of GitHub; consent grants are per site, with publishing off by default. Personal-token links (`/mcp/t/…`) cover one site without OAuth.
 - **Local** — `openspace mcp` over stdio against a folder, with a local preview server and Playwright screenshots.
@@ -83,16 +83,16 @@ Every tool call becomes validated operations in the same path as human edits; de
 
 | Package | Role | License |
 |---|---|---|
-| `@openspace/schema` | Zod schemas, types, JSON Schema, migrations | MIT |
-| `@openspace/ops` | Operations: apply, invert, validate, rebase, summarize, diff | MIT |
-| `@openspace/theme` | Token compiler, OKLCH palettes, contrast solver, font pairings | MIT |
-| `@openspace/blocks` | The block library and section presets | MIT |
-| `@openspace/renderer` | Page, section and grid renderer, behaviors | MIT |
-| `@openspace/site-kit` | The Astro integration | MIT |
-| `@openspace/email-render` | Blocks → email-safe HTML | MIT |
-| `@openspace/mcp-tools` | MCP tools, resources and prompts shared by Hub and CLI | MIT |
-| `@openspace/lint` | Design check, SEO check, automatic mobile layout | MIT |
-| `@openspace/cli` | `check`, `dev`, `new`, `migrate`, `eject`, `agents-md`, `mcp` | MIT |
+| `@omniharmonic/openspace-schema` | Zod schemas, types, JSON Schema, migrations | MIT |
+| `@omniharmonic/openspace-ops` | Operations: apply, invert, validate, rebase, summarize, diff | MIT |
+| `@omniharmonic/openspace-theme` | Token compiler, OKLCH palettes, contrast solver, font pairings | MIT |
+| `@omniharmonic/openspace-blocks` | The block library and section presets | MIT |
+| `@omniharmonic/openspace-renderer` | Page, section and grid renderer, behaviors | MIT |
+| `@omniharmonic/openspace-site-kit` | The Astro integration | MIT |
+| `@omniharmonic/openspace-email-render` | Blocks → email-safe HTML | MIT |
+| `@omniharmonic/openspace-mcp-tools` | MCP tools, resources and prompts shared by Hub and CLI | MIT |
+| `@omniharmonic/openspace-lint` | Design check, SEO check, automatic mobile layout | MIT |
+| `@omniharmonic/openspace-cli` | `check`, `dev`, `new`, `migrate`, `eject`, `agents-md`, `mcp` | MIT |
 | `apps/studio`, `apps/hub` | The editor and the Hub | AGPL-3.0 |
 
 Documentation and template designs are CC BY 4.0.

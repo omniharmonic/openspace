@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
-import { diff, type Op, type OpIssue, type Role } from "@openspace/ops";
-import type { DeployTarget, SiteDocument } from "@openspace/schema";
+import { diff, type Op, type OpIssue, type Role } from "@omniharmonic/openspace-ops";
+import type { DeployTarget, SiteDocument } from "@omniharmonic/openspace-schema";
 import { audit } from "../db/audit";
 import { insertPublish, latestPublish, type PublishRow, updatePublish } from "../db/publishes";
 import { getSite, type SiteRow, type SiteStatus, updateSite } from "../db/sites";

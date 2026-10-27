@@ -1,4 +1,4 @@
-import { TOKEN_VARS, TYPE_PRESET_NAMES } from "@openspace/theme";
+import { TOKEN_VARS, TYPE_PRESET_NAMES } from "@omniharmonic/openspace-theme";
 
 /**
  * `os.css` — the OpenSpace base stylesheet, shared by every site and cacheable forever per
@@ -37,7 +37,7 @@ const button = (role: "primary" | "secondary" | "tertiary") => {
 const M = T.motion;
 const ease = v(M.ease);
 
-export const BASE_CSS = `/* OpenSpace base stylesheet (@openspace/renderer). Tokens: --os-* from @openspace/theme. */
+export const BASE_CSS = `/* OpenSpace base stylesheet (@omniharmonic/openspace-renderer). Tokens: --os-* from @omniharmonic/openspace-theme. */
 @layer os.reset, os.base, os.layout, os.components, os.behaviors, os.utilities;
 
 @layer os.reset {

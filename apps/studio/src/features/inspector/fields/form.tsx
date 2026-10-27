@@ -8,7 +8,7 @@ import {
   type FormFieldMeta,
   type FormFieldType,
   type Link,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Button, Input, Menu, Segmented, Select, Toggle } from "../../../ui";

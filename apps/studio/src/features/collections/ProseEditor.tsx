@@ -1,4 +1,4 @@
-import type { RichTextDoc } from "@openspace/schema";
+import type { RichTextDoc } from "@omniharmonic/openspace-schema";
 import { Editor } from "@tiptap/core";
 import {
   Bold,

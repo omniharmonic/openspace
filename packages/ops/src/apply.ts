@@ -1,4 +1,4 @@
-import type { Block, GridItem, Section, SiteDocument } from "@openspace/schema";
+import type { Block, GridItem, Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { produce } from "immer";
 import {
   autoPlace,

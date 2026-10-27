@@ -1,6 +1,6 @@
 /** Studio's analytics report (visits, top pages, sources, devices, form conversions) + weekly digest. */
-import { renderEmail } from "@openspace/email-render";
-import type { Block } from "@openspace/schema";
+import { renderEmail } from "@omniharmonic/openspace-email-render";
+import type { Block } from "@omniharmonic/openspace-schema";
 import type { SiteRow } from "../db/sites";
 import type { Logger } from "../lib/log";
 import { type AnalyticsData, type Range, rangeBounds } from "./analytics";

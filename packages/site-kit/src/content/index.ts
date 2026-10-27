@@ -1,5 +1,5 @@
 /**
- * `@openspace/site-kit/content` — read and write a site repository's content as one
+ * `@omniharmonic/openspace-site-kit/content` — read and write a site repository's content as one
  * `SiteDocument` (arch §2.1). Shared by the Astro integration, the CLI, the local MCP server
  * and anything else that edits a checkout. Writing is formatting-stable: unchanged files are
  * left untouched byte-for-byte, so load → write is a no-op.
@@ -20,7 +20,7 @@ import {
   SiteDocumentSchema,
   SiteSchema,
   StylesSchema,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import type { z } from "zod";
 import {
   COLLECTION_CONFIG_FILE,

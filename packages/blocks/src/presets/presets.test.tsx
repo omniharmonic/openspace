@@ -1,4 +1,4 @@
-import { renderPageHtml, unregisterBlocks } from "@openspace/renderer";
+import { renderPageHtml, unregisterBlocks } from "@omniharmonic/openspace-renderer";
 import {
   COLOR_THEMES,
   HeaderSchema,
@@ -7,7 +7,7 @@ import {
   type Section,
   SectionSchema,
   SiteDocumentSchema,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { HtmlValidate } from "html-validate";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { page, siteWith } from "../__fixtures__/site";

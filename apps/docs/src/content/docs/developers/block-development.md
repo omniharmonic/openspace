@@ -9,8 +9,8 @@ Blocks live in `packages/blocks` (MIT). One definition drives three things: the 
 
 ```tsx
 // packages/blocks/src/blocks/quote.tsx (abridged)
-import { cx, RichText } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { cx, RichText } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 
 export const quoteBlock = defineBlock({
   type: "quote",
@@ -61,7 +61,7 @@ export const quoteBlock = defineBlock({
 Add the block to `allBlocks` in `packages/blocks/src/index.ts`. The library's tests then check that every block validates its defaults, renders in every variant without throwing, and has non-empty AI guidance; add tests for anything specific to yours.
 
 ```sh
-pnpm --filter @openspace/blocks test
+pnpm --filter @omniharmonic/openspace-blocks test
 pnpm -w typecheck && pnpm -w test
 ```
 

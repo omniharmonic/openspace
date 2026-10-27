@@ -1,11 +1,11 @@
-import { CROCKFORD_ALPHABET } from "@openspace/schema";
+import { CROCKFORD_ALPHABET } from "@omniharmonic/openspace-schema";
 
 /**
  * Deterministic ids for content site-kit generates at build time (collection item pages,
  * Markdoc blocks, list pages). The same seed always yields the same id, so builds are
  * reproducible and the HTML only changes when content does. Pure JS (no node:crypto) so it
- * also runs inside the Cloudflare Worker. Dependency-free apart from `@openspace/schema`, and
- * importable on its own as `@openspace/site-kit/ids`.
+ * also runs inside the Cloudflare Worker. Dependency-free apart from `@omniharmonic/openspace-schema`, and
+ * importable on its own as `@omniharmonic/openspace-site-kit/ids`.
  */
 export function hash53(input: string, seed = 0): number {
   let h1 = 0xdeadbeef ^ seed;

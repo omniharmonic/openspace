@@ -1,4 +1,4 @@
-import type { CollectionItem } from "@openspace/schema";
+import type { CollectionItem } from "@omniharmonic/openspace-schema";
 import { CalendarDays, Copy, MoreHorizontal, Plus, Repeat, Settings2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";

@@ -1,10 +1,10 @@
-import type { Styles } from "@openspace/schema";
+import type { Styles } from "@omniharmonic/openspace-schema";
 import {
   compileStyles,
   DEFAULT_PAIRING_ID,
   type FontFamilySpec,
   getPairing,
-} from "@openspace/theme";
+} from "@omniharmonic/openspace-theme";
 import type { EmailWarning } from "./diag";
 import { safeColor } from "./escape";
 

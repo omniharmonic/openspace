@@ -8,7 +8,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
 
-export const name = "@openspace/claude-plugin";
+export const name = "@omniharmonic/openspace-claude-plugin";
 
 /** The plugin folder (`plugin/`). */
 export const PLUGIN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");

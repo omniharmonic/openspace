@@ -1,5 +1,11 @@
-import type { BlockNode, InlineNode, Mark, RichTextDoc, TypePreset } from "@openspace/schema";
-import { colorVar } from "@openspace/theme";
+import type {
+  BlockNode,
+  InlineNode,
+  Mark,
+  RichTextDoc,
+  TypePreset,
+} from "@omniharmonic/openspace-schema";
+import { colorVar } from "@omniharmonic/openspace-theme";
 import { Fragment, type ReactNode, useContext } from "react";
 import { BlockFieldsContext, fieldPathOf, useEditor, useRenderContext } from "./context";
 import { cx } from "./cx";

@@ -1,5 +1,5 @@
-import { cx } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import { typo } from "../shared";
 
 /** Stats / numbers and timeline. */

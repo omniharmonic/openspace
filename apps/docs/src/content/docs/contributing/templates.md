@@ -12,8 +12,8 @@ Each template lives in `templates/<id>/` as a complete site — `openspace.json`
 In this repository, templates are generated from a short TypeScript file (`templates/<id>/src/build.ts`) using a small authoring kit: start from section presets with `fromPreset(…)`, rewrite their copy for your fictional owner, and let the kit validate every block. Then:
 
 ```sh
-pnpm --filter @openspace/templates generate   # write the template files
-pnpm --filter @openspace/templates test       # the quality gates below
+pnpm --filter @omniharmonic/openspace-templates generate   # write the template files
+pnpm --filter @omniharmonic/openspace-templates test       # the quality gates below
 ```
 
 ## The quality bar

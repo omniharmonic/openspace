@@ -1,4 +1,4 @@
-import type { Role } from "@openspace/ops";
+import type { Role } from "@omniharmonic/openspace-ops";
 import {
   CssColorSchema,
   type MediaId,
@@ -7,7 +7,7 @@ import {
   type SiteDocument,
   type SiteId,
   scanValueForSecrets,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
 import { insertPublish, latestPublish, publishBySha } from "../db/publishes";

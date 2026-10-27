@@ -4,9 +4,9 @@ import {
   PRESET_CATEGORY_LABELS,
   type Preset,
   type PresetCategory,
-} from "@openspace/blocks";
-import { Footer, Header, SectionView } from "@openspace/renderer";
-import type { Page, Section, SiteDocument } from "@openspace/schema";
+} from "@omniharmonic/openspace-blocks";
+import { Footer, Header, SectionView } from "@omniharmonic/openspace-renderer";
+import type { Page, Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { Search } from "lucide-react";
 import { memo, useMemo, useState } from "react";
 import { cx, Input, Select } from "../../ui";

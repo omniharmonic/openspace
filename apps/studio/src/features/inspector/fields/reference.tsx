@@ -7,7 +7,7 @@ import {
   type ReferenceValue,
   type SiteDocument,
   scanForSecrets,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { ArrowDown, ArrowUp, ShieldAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Input, NumberScrubInput, Segmented, Select, Toggle } from "../../../ui";

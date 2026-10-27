@@ -6,7 +6,7 @@ import {
   type PhotoKey,
   photo as presetPhoto,
   rt,
-} from "@openspace/blocks";
+} from "@omniharmonic/openspace-blocks";
 import {
   type Block,
   type BlockStyle,
@@ -22,7 +22,7 @@ import {
   type SectionLayout,
   type SectionStyle,
   type SpaceToken,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { pageId } from "./ids";
 
 /**
@@ -476,7 +476,7 @@ export interface PageOpts {
   /** Share image (a photo URL); defaults to the site's. */
   image?: string;
   seoTitle?: string;
-  header?: import("@openspace/schema").HeaderOverride;
+  header?: import("@omniharmonic/openspace-schema").HeaderOverride;
 }
 
 /** A page with SEO description (50–160 characters). */
@@ -487,7 +487,7 @@ export function makePage(
   description: string,
   sections: Section[],
   o: PageOpts = {},
-): import("@openspace/schema").Page {
+): import("@omniharmonic/openspace-schema").Page {
   const seo: Record<string, unknown> = { description };
   if (o.seoTitle) seo.title = o.seoTitle;
   if (o.image) seo.image = o.image;
@@ -500,7 +500,7 @@ export function makePage(
     ...(o.hidden ? { hidden: true } : {}),
     ...(o.header ? { header: o.header } : {}),
     sections,
-  } as import("@openspace/schema").Page;
+  } as import("@omniharmonic/openspace-schema").Page;
 }
 
 /** Paragraphs of footer links: an eyebrow title, then one link per line. */

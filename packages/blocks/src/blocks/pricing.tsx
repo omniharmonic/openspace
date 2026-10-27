@@ -1,5 +1,5 @@
-import { Button, cx } from "@openspace/renderer";
-import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
+import { Button, cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
 import { Icon } from "../icons";
 import { typo } from "../shared";
 

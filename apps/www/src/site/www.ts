@@ -1,11 +1,11 @@
 /**
  * openspace.dev — the OpenSpace marketing site and template gallery, authored as an OpenSpace
- * site document (dogfooding): section presets from @openspace/blocks rewritten with the
+ * site document (dogfooding): section presets from @omniharmonic/openspace-blocks rewritten with the
  * templates' authoring kit, Site Styles tokens, and the launch templates' own metadata and
  * screenshots. `generate.ts` writes it to `content/` and site-kit builds it like any other site.
  */
-import type { ImageValue, MediaMeta, SiteDocument } from "@openspace/schema";
-import { type TemplateSpec, templateSpecs } from "@openspace/templates";
+import type { ImageValue, MediaMeta, SiteDocument } from "@omniharmonic/openspace-schema";
+import { type TemplateSpec, templateSpecs } from "@omniharmonic/openspace-templates";
 import { buildTemplate, type Licenses } from "../../../../templates/lib/define";
 import {
   body,

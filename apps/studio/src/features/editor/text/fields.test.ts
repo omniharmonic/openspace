@@ -1,4 +1,4 @@
-import { buttonBlock, columnsBlock, rt } from "@openspace/blocks";
+import { buttonBlock, columnsBlock, rt } from "@omniharmonic/openspace-blocks";
 import { Editor } from "@tiptap/core";
 import { describe, expect, it } from "vitest";
 import { fromTiptap, restrictDoc, toTiptap } from "./convert";

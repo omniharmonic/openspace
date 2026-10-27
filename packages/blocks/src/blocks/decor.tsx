@@ -1,6 +1,6 @@
-import { cx } from "@openspace/renderer";
-import { defineBlock, f, SPACE_TOKENS } from "@openspace/schema";
-import { colorVar } from "@openspace/theme";
+import { cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, SPACE_TOKENS } from "@omniharmonic/openspace-schema";
+import { colorVar } from "@omniharmonic/openspace-theme";
 import type { ReactNode } from "react";
 
 /** Line, spacer and shape: small structural and decorative blocks. */

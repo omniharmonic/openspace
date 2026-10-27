@@ -1,5 +1,5 @@
-import { blocksRegistry } from "@openspace/blocks";
-import type { Block, JsonValue, Section, SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { Block, JsonValue, Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { LayoutPanelTop, Monitor, MousePointer2, Plus, Smartphone, Tablet } from "lucide-react";
 import { useMemo } from "react";
 import { Button, EmptyState, Segmented, Tabs, Toggle } from "../../ui";

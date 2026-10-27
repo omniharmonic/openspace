@@ -4,7 +4,7 @@
  * `media/YYYY/MM/<name>-<id>.<ext>` path and `MediaMeta`. Resizing above 2400 px needs a
  * resizer (sharp in the CLI); without one an oversized image is refused with a clear message.
  */
-import { type MediaMeta, newId } from "@openspace/schema";
+import { type MediaMeta, newId } from "@omniharmonic/openspace-schema";
 import { ToolError } from "./errors";
 import type { ImageUploadInput } from "./store";
 

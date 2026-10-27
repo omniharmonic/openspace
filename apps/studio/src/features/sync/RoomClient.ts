@@ -1,6 +1,6 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { apply, deepEqual, type Op, rebase, validate } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { apply, deepEqual, type Op, rebase, validate } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { createStore, type StoreApi } from "zustand/vanilla";
 import type { Site } from "../../api/types";
 import { type DraftCache, draftKey } from "./cache";
@@ -27,7 +27,7 @@ import {
  *
  * Local edits apply instantly (optimistic), are saved to the device (IndexedDB) and are sent
  * with `baseSeq = seq`. Someone else's op advances `confirmed`, and pending edits are rebased
- * over it with the same `@openspace/ops` `rebase` the room runs, so both sides converge; the
+ * over it with the same `@omniharmonic/openspace-ops` `rebase` the room runs, so both sides converge; the
  * room's `ack` carries the op as stored, which replaces the local version. When the room says
  * the editor is `stale` (or the connection was away too long) the document is reloaded and the
  * pending edits are replayed on top.

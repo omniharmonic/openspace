@@ -1,4 +1,4 @@
-import { formBlock } from "@openspace/blocks";
+import { formBlock } from "@omniharmonic/openspace-blocks";
 import {
   FORBIDDEN_FORM_FIELD_TYPES,
   FORM_FIELD_TYPES,
@@ -7,7 +7,7 @@ import {
   type ListFieldMeta,
   type Section,
   type StackLayout,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { devSiteDocument, DEV_IDS as I } from "../../editor/model/dev-site";
 import { checkEmbed } from "../fields/reference";

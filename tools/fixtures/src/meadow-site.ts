@@ -10,7 +10,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { blocksRegistry, rt } from "@openspace/blocks";
+import { blocksRegistry, rt } from "@omniharmonic/openspace-blocks";
 import type {
   Block,
   CollectionItem,
@@ -18,8 +18,8 @@ import type {
   Page,
   Section,
   SiteDocument,
-} from "@openspace/schema";
-import { requiredDefaults, stableId, writeSiteDocument } from "@openspace/site-kit";
+} from "@omniharmonic/openspace-schema";
+import { requiredDefaults, stableId, writeSiteDocument } from "@omniharmonic/openspace-site-kit";
 
 export const MEADOW_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "meadow-site");
 

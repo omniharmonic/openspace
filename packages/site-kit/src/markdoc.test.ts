@@ -1,5 +1,5 @@
-import { blocksRegistry } from "@openspace/blocks";
-import type { MediaMeta } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { MediaMeta } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { markdocPlainText, markdocToBlocks } from "./markdoc";
 

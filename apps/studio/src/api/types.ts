@@ -1,4 +1,4 @@
-import type { SiteDocument, Styles } from "@openspace/schema";
+import type { SiteDocument, Styles } from "@omniharmonic/openspace-schema";
 import type { BuildState, PublishError, RoomSocket } from "../features/sync/protocol";
 import type { CatalogApi } from "./catalog-types";
 import type { GrowthApi } from "./growth-types";

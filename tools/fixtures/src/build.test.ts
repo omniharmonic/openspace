@@ -8,8 +8,8 @@ import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { gzipSync } from "node:zlib";
-import { BEHAVIORS, type ResolvedImage } from "@openspace/renderer";
-import { FormSchema } from "@openspace/schema";
+import { BEHAVIORS, type ResolvedImage } from "@omniharmonic/openspace-renderer";
+import { FormSchema } from "@omniharmonic/openspace-schema";
 import {
   deployLocation,
   imageWidths,
@@ -18,7 +18,7 @@ import {
   planSite,
   renderRoute,
   type SitePlan,
-} from "@openspace/site-kit";
+} from "@omniharmonic/openspace-site-kit";
 import { beforeAll, describe, expect, it } from "vitest";
 import { MEADOW_DIR } from "./meadow-site";
 

@@ -1,11 +1,11 @@
-import { allBlocks } from "@openspace/blocks";
+import { allBlocks } from "@omniharmonic/openspace-blocks";
 import {
   FIELD_KINDS,
   type FieldMeta,
   type Form,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";

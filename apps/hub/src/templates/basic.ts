@@ -1,4 +1,4 @@
-import type { Page, Site, SiteConfig, Styles } from "@openspace/schema";
+import type { Page, Site, SiteConfig, Styles } from "@omniharmonic/openspace-schema";
 import type { BuiltinTemplate } from "../services/templates";
 
 /**
@@ -298,19 +298,19 @@ const PACKAGE_JSON = json({
   private: true,
   type: "module",
   scripts: { dev: "astro dev", build: "astro build", check: "openspace check" },
-  dependencies: { "@openspace/site-kit": "^0.1.0", astro: "^5.0.0" },
-  devDependencies: { "@openspace/cli": "^0.1.0" },
+  dependencies: { "@omniharmonic/openspace-site-kit": "^0.1.0", astro: "^5.0.0" },
+  devDependencies: { "@omniharmonic/openspace-cli": "^0.1.0" },
 });
 
-const ASTRO_CONFIG = `import openspace from "@openspace/site-kit";
+const ASTRO_CONFIG = `import openspace from "@omniharmonic/openspace-site-kit";
 import { defineConfig } from "astro/config";
 
 export default defineConfig({ integrations: [openspace()] });
 `;
 
 const SLUG_PAGE = `---
-export { getStaticPaths } from "@openspace/site-kit/routes";
-import Page from "@openspace/site-kit/Page.astro";
+export { getStaticPaths } from "@omniharmonic/openspace-site-kit/routes";
+import Page from "@omniharmonic/openspace-site-kit/Page.astro";
 ---
 <Page {...Astro.props} />
 `;

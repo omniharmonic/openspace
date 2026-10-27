@@ -1,5 +1,5 @@
 import "fake-indexeddb/auto";
-import { type MediaMeta, MediaMetaSchema, type SiteDocument } from "@openspace/schema";
+import { type MediaMeta, MediaMetaSchema, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TEMPLATE_FIXTURES } from "../../api/fixtures";
 import { createMockHub } from "../../api/mock";

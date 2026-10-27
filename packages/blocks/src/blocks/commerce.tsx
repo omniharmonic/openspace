@@ -7,8 +7,8 @@ import {
   useCollectionQuery,
   useImageMap,
   useRenderContext,
-} from "@openspace/renderer";
-import { defineBlock, f, type Link as LinkValue } from "@openspace/schema";
+} from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
 import {
   currencyExponent,
   EditorNotice,

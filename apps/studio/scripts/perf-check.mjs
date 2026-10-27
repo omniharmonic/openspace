@@ -1,8 +1,8 @@
 // Studio performance check (PRD §7.1): first load of the editor under a throttled "fast 4G,
 // mid-range phone" profile, JavaScript transferred per route, typing latency in the inspector
 // and the time from a keystroke to the canvas showing it. Run against a built mock Studio:
-//   VITE_MOCK_API=1 pnpm --filter @openspace/studio build && pnpm --filter @openspace/studio preview
-//   pnpm --filter @openspace/studio check:perf [baseUrl] [--dist=dist] [--runs=3]
+//   VITE_MOCK_API=1 pnpm --filter @omniharmonic/openspace-studio build && pnpm --filter @omniharmonic/openspace-studio preview
+//   pnpm --filter @omniharmonic/openspace-studio check:perf [baseUrl] [--dist=dist] [--runs=3]
 import { readFileSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";

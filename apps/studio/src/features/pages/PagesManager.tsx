@@ -15,7 +15,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { NavItem, Page, SiteDocument } from "@openspace/schema";
+import type { NavItem, Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   ArrowDown,
   ArrowUp,

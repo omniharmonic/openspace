@@ -107,7 +107,7 @@ summaries.
 
 ## Studio
 
-Measured with `pnpm --filter @openspace/studio check:perf` against the mock build, Chromium with
+Measured with `pnpm --filter @omniharmonic/openspace-studio check:perf` against the mock build, Chromium with
 "fast 4G" network (40 ms RTT, 9 Mbps) and CPU slowed ×4, cold cache, signed in. "First load" ends
 when the page's sections are on the canvas (editor) or the site cards are shown (dashboard).
 Median of 5. The machine was shared with other jobs (load average about 20), so absolute

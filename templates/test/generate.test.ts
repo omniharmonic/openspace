@@ -2,13 +2,13 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadSiteDocument, writeSiteDocument } from "@openspace/site-kit/content";
+import { loadSiteDocument, writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { describe, expect, it } from "vitest";
 import { loadTemplate, TEMPLATE_IDS, templateFolderFiles } from "../index";
 
 /**
  * Templates are data in the repo: `templates/<id>/` holds the files generated from
- * `templates/<id>/src/build.ts`. `pnpm --filter @openspace/templates generate` (UPDATE_TEMPLATES=1)
+ * `templates/<id>/src/build.ts`. `pnpm --filter @omniharmonic/openspace-templates generate` (UPDATE_TEMPLATES=1)
  * rewrites them through site-kit's `writeSiteDocument`; otherwise this test fails when the
  * committed files drift from the generators.
  */

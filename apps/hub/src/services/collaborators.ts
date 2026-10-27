@@ -1,6 +1,6 @@
-import { renderEmail } from "@openspace/email-render";
-import { ROLES, type Role } from "@openspace/ops";
-import type { Block } from "@openspace/schema";
+import { renderEmail } from "@omniharmonic/openspace-email-render";
+import { ROLES, type Role } from "@omniharmonic/openspace-ops";
+import type { Block } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
 import { getSite, type SiteRow, type SiteWithRole, setRole } from "../db/sites";

@@ -1,4 +1,4 @@
-import { blocksRegistry } from "@openspace/blocks";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import {
   type Block,
   type BlockRegistry,
@@ -8,8 +8,12 @@ import {
   newId,
   type RichTextDoc,
   toMarkdown,
-} from "@openspace/schema";
-import { type MarkdocIssue, markdocToBlocks, requiredDefaults } from "@openspace/site-kit/markdoc";
+} from "@omniharmonic/openspace-schema";
+import {
+  type MarkdocIssue,
+  markdocToBlocks,
+  requiredDefaults,
+} from "@omniharmonic/openspace-site-kit/markdoc";
 
 /**
  * Item bodies are Markdoc (arch §3.6): prose as Markdown, every other block as a tag whose name

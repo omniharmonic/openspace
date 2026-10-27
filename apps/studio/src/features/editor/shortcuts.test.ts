@@ -1,4 +1,4 @@
-import type { Section, SiteDocument } from "@openspace/schema";
+import type { Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setLayoutMode } from "./model/actions";
 import { devSiteDocument, DEV_IDS as I } from "./model/dev-site";

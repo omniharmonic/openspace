@@ -1,4 +1,4 @@
-import type { Position } from "@openspace/ops";
+import type { Position } from "@omniharmonic/openspace-ops";
 import { create } from "zustand";
 
 /** Where the block menu inserts: a section, optionally a stack column and an anchor block. */

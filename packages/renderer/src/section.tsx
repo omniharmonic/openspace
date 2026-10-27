@@ -1,5 +1,5 @@
-import type { Section, SectionBackground } from "@openspace/schema";
-import { themeClass } from "@openspace/theme";
+import type { Section, SectionBackground } from "@omniharmonic/openspace-schema";
+import { themeClass } from "@omniharmonic/openspace-theme";
 import { createContext, type ReactNode, useContext } from "react";
 import { BlockView, MissingBlock } from "./block";
 import { SectionContext, useEditor, useRenderContext } from "./context";

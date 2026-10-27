@@ -4,7 +4,7 @@
  * neither as IP literals, internal names nor what the name resolves to — checked on every
  * redirect hop (`fetchImage` follows redirects by hand and calls this for each hop).
  */
-import { ToolError } from "@openspace/mcp-tools";
+import { ToolError } from "@omniharmonic/openspace-mcp-tools";
 import type { FetchLike } from "../github/http";
 import type { DnsResolver } from "../services/domains";
 

@@ -1,4 +1,4 @@
-import { resolveImage, useImageMap, useRenderContext } from "@openspace/renderer";
+import { resolveImage, useImageMap, useRenderContext } from "@omniharmonic/openspace-renderer";
 import {
   type BlockStyle,
   f,
@@ -8,7 +8,7 @@ import {
   type ParagraphPreset,
   type RichTextDoc,
   type TypePreset,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import type { ReactNode } from "react";
 import { Icon } from "./icons";
 

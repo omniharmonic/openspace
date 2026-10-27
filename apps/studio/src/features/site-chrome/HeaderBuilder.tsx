@@ -1,6 +1,6 @@
-import { headerPresets } from "@openspace/blocks";
-import type { OpBody } from "@openspace/ops";
-import type { HeaderVariant, NavItem, SiteDocument } from "@openspace/schema";
+import { headerPresets } from "@omniharmonic/openspace-blocks";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import type { HeaderVariant, NavItem, SiteDocument } from "@omniharmonic/openspace-schema";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cx, Field, Input, Segmented, Slider } from "../../ui";

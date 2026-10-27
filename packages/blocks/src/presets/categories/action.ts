@@ -1,4 +1,4 @@
-import { type Form, newId } from "@openspace/schema";
+import { type Form, newId } from "@omniharmonic/openspace-schema";
 import { contactInfoBlock, hoursBlock } from "../../blocks/business";
 import { iconListBlock } from "../../blocks/card";
 import { donationBlock } from "../../blocks/commerce";

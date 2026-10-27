@@ -432,7 +432,7 @@ export type CampaignStatus = "draft" | "scheduled" | "sending" | "sent" | "faile
 
 /** Blocks as stored by the Hub (schema `Block`s; email-safe types only). */
 export interface CampaignBody {
-  blocks: import("@openspace/schema").Block[];
+  blocks: import("@omniharmonic/openspace-schema").Block[];
 }
 
 export interface CampaignView {

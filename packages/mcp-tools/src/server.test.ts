@@ -1,8 +1,8 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { blocksRegistry } from "@openspace/blocks";
-import { designCheck } from "@openspace/lint";
-import { validateDocument } from "@openspace/ops";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { designCheck } from "@omniharmonic/openspace-lint";
+import { validateDocument } from "@omniharmonic/openspace-ops";
 import { describe, expect, it } from "vitest";
 import { MemorySiteStore } from "./memory-store";
 import { createMcpServer, handleMcpRequest } from "./server";

@@ -1,7 +1,12 @@
-import { BLOCKS_CSS, registerAll } from "@openspace/blocks";
-import { BASE_CSS, compiledStylesFor, type ImageMap, PageView } from "@openspace/renderer";
-import type { Page, SiteDocument } from "@openspace/schema";
-import { googleFontsUrl } from "@openspace/theme";
+import { BLOCKS_CSS, registerAll } from "@omniharmonic/openspace-blocks";
+import {
+  BASE_CSS,
+  compiledStylesFor,
+  type ImageMap,
+  PageView,
+} from "@omniharmonic/openspace-renderer";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
+import { googleFontsUrl } from "@omniharmonic/openspace-theme";
 import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { cx } from "../../ui";
@@ -127,7 +132,7 @@ export function homeOf(doc: SiteDocument): Page | undefined {
 }
 
 /**
- * A live render of a site through `@openspace/renderer` — the same components as the canvas
+ * A live render of a site through `@omniharmonic/openspace-renderer` — the same components as the canvas
  * and the published site — scaled down from device width into any box. The frame runs no
  * scripts (sandboxed, same-origin only so Studio can portal React content into it) and is
  * mounted only near the viewport.

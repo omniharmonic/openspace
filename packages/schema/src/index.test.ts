@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import * as schema from "./index";
 
-describe("@openspace/schema", () => {
+describe("@omniharmonic/openspace-schema", () => {
   it("exports its package name", () => {
-    expect(schema.name).toBe("@openspace/schema");
+    expect(schema.name).toBe("@omniharmonic/openspace-schema");
   });
 
   it("exports the public API", () => {

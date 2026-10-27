@@ -1,4 +1,4 @@
-import type { Block } from "@openspace/schema";
+import type { Block } from "@omniharmonic/openspace-schema";
 import { AlertTriangle, Monitor, Moon, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Segmented } from "../../ui";
@@ -7,7 +7,7 @@ import { forceDark, inertLinks, previewEmail } from "./emailPreview";
 
 export type PreviewMode = "desktop" | "mobile" | "dark";
 
-/** Live email preview: desktop, phone and dark mode, drawn by @openspace/email-render. */
+/** Live email preview: desktop, phone and dark mode, drawn by @omniharmonic/openspace-email-render. */
 export function EmailPreviewPane({
   blocks,
   subject,

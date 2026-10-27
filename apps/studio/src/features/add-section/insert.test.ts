@@ -1,5 +1,5 @@
-import { allPresets, getPreset } from "@openspace/blocks";
-import { GRID_COLUMNS, type GridLayout, SectionSchema } from "@openspace/schema";
+import { allPresets, getPreset } from "@omniharmonic/openspace-blocks";
+import { GRID_COLUMNS, type GridLayout, SectionSchema } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { setLayoutMode } from "../editor/model/actions";
 import { devSiteDocument, DEV_IDS as I } from "../editor/model/dev-site";

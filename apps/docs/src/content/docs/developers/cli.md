@@ -3,14 +3,14 @@ title: The openspace CLI
 description: Create, check, preview, migrate and eject OpenSpace sites, and run the local MCP server, with the openspace command.
 ---
 
-The `openspace` command (package `@openspace/cli`, MIT) works on a site folder. Every new site lists it as a dev dependency, so inside a site `npx openspace …` just works; elsewhere use `npx -y @openspace/cli …`.
+The `openspace` command (package `@omniharmonic/openspace-cli`, MIT) works on a site folder. Every new site lists it as a dev dependency, so inside a site `npx openspace …` just works; elsewhere use `npx -y @omniharmonic/openspace-cli …`.
 
 ## `openspace new <template> <dir>`
 
 Create a site from a template.
 
 ```sh
-npx -y @openspace/cli new harbor riverbend --title "Riverbend Neighbors" --repo riverbend/site
+npx -y @omniharmonic/openspace-cli new harbor riverbend --title "Riverbend Neighbors" --repo riverbend/site
 ```
 
 | Option | Meaning |

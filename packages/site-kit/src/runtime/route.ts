@@ -5,7 +5,7 @@
  *
  * ```astro
  * ---
- * import { renderPage, staticPaths } from "@openspace/site-kit/route";
+ * import { renderPage, staticPaths } from "@omniharmonic/openspace-site-kit/route";
  * export const getStaticPaths = staticPaths;
  * const html = await renderPage(Astro.props);
  * ---
@@ -15,7 +15,7 @@
 /// <reference path="../virtual.d.ts" />
 
 import { doc, options } from "virtual:openspace/site";
-import type { ImageMap } from "@openspace/renderer";
+import type { ImageMap } from "@omniharmonic/openspace-renderer";
 import { renderRoute } from "../render";
 import { planSite, type SitePlan, type SiteRoute } from "../routes";
 import { resolveImages } from "./astro-images";

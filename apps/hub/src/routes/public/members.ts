@@ -10,7 +10,7 @@
  * - `GET  /m/:siteId/verify/:token` — "Continue" page (GET never uses the link: mail scanners
  *   prefetch links). `POST` uses it once and 303s to `<site>/_os/auth/callback?token=<JWT>&return=`.
  */
-import { esc } from "@openspace/email-render";
+import { esc } from "@omniharmonic/openspace-email-render";
 import { type Context, Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { HttpError } from "../../lib/errors";

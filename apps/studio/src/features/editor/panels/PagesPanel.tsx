@@ -1,4 +1,4 @@
-import type { Page, SiteDocument } from "@openspace/schema";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { EyeOff, FileText, House } from "lucide-react";
 import { cx } from "../../../ui";
 import { useDocStore, useDocStoreApi } from "../model/context";

@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 /**
  * A content-less document (no pages, empty footer) that backs the editor while a new site is

@@ -1,4 +1,8 @@
-import type { AnyBlockDefinition, BlockDefinition, FieldsShape } from "@openspace/schema";
+import type {
+  AnyBlockDefinition,
+  BlockDefinition,
+  FieldsShape,
+} from "@omniharmonic/openspace-schema";
 import type { ReactNode } from "react";
 
 /**

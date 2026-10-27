@@ -6,7 +6,7 @@ Please do not open a public issue for security problems. Email security@openspac
 
 ## Scope
 
-In scope: Studio, Hub, the `@openspace/*` packages, templates, and the Claude Code plugin. Of particular interest: authentication and member gating, webhook signature verification, sandboxing of code and embed blocks, secret leakage into site content, and price tampering in checkout.
+In scope: Studio, Hub, the `@omniharmonic/openspace-*` packages, templates, and the Claude Code plugin. Of particular interest: authentication and member gating, webhook signature verification, sandboxing of code and embed blocks, secret leakage into site content, and price tampering in checkout.
 
 ## Supported versions
 

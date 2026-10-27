@@ -1,6 +1,6 @@
-import { rt } from "@openspace/blocks";
-import { apply, type Op, parseOp } from "@openspace/ops";
-import type { Section, SiteDocument } from "@openspace/schema";
+import { rt } from "@omniharmonic/openspace-blocks";
+import { apply, type Op, parseOp } from "@omniharmonic/openspace-ops";
+import type { Section, SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import {
   copyItems,

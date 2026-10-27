@@ -1,5 +1,5 @@
-import { type CustomFont, newId, type Styles } from "@openspace/schema";
-import { customFontFaces } from "@openspace/theme";
+import { type CustomFont, newId, type Styles } from "@omniharmonic/openspace-schema";
+import { customFontFaces } from "@omniharmonic/openspace-theme";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { sha256Hex, slugifyName } from "../media/naming";
 import { previewUrl, readMediaBytes, useMediaSources } from "../media/sources";

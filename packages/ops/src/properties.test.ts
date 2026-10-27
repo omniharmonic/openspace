@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { buildOp, type Choice, choiceArb, idFrom, stampOp } from "./__fixtures__/arbitrary";

@@ -4,7 +4,7 @@ import type {
   ImageValue,
   MediaFieldMeta,
   MediaValue,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { Film, ImageIcon, Music } from "lucide-react";
 import { type KeyboardEvent, type PointerEvent, useRef, useState } from "react";
 import { Button, Input, Segmented, Toggle } from "../../../ui";

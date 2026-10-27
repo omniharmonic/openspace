@@ -8,7 +8,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const name = "@openspace/template-starter";
+export const name = "@omniharmonic/openspace-template-starter";
 
 export const STARTER_DIR = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const SITE_DIR = join(STARTER_DIR, "site");
@@ -25,14 +25,19 @@ async function walk(dir: string, base = dir): Promise<string[]> {
   return out.sort();
 }
 
-/** The shell's files (repo path → contents) for a deploy target. */
+/**
+ * The shell's files (repo path → contents) for a deploy target. `root` is a folder laid out like
+ * this package (`site/`, `variants/<name>/`); the published CLI passes the copy it bundles.
+ */
 export async function starterFiles(
   variant: StarterVariant = "github-pages",
+  root: string = STARTER_DIR,
 ): Promise<Record<string, string>> {
   const files: Record<string, string> = {};
-  for (const rel of await walk(SITE_DIR)) files[rel] = await readFile(join(SITE_DIR, rel), "utf8");
+  const siteDir = join(root, "site");
+  for (const rel of await walk(siteDir)) files[rel] = await readFile(join(siteDir, rel), "utf8");
   if (variant !== "github-pages") {
-    const dir = VARIANTS[variant];
+    const dir = join(root, "variants", variant);
     for (const rel of await walk(dir)) files[rel] = await readFile(join(dir, rel), "utf8");
   }
   return files;

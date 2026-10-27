@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": [
+        "src/**",
+        "scripts/**",
+        "package.json",
+        "tsconfig*.json",
+        "tsup.config.*",
+        "$TURBO_ROOT$/templates/*/content/**",
+        "$TURBO_ROOT$/templates/*/media/**",
+        "$TURBO_ROOT$/templates/*/public/**",
+        "$TURBO_ROOT$/templates/*/openspace.json",
+        "$TURBO_ROOT$/templates/*/template.json",
+        "$TURBO_ROOT$/templates/starter/site/**",
+        "$TURBO_ROOT$/templates/starter/variants/**"
+      ]
+    }
+  }
+}

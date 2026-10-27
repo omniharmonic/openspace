@@ -1,15 +1,15 @@
 /**
- * @openspace/blocks — the OpenSpace block library (the P1 set plus the Squarespace-parity set). Each block is a `defineBlock`
+ * @omniharmonic/openspace-blocks — the OpenSpace block library (the P1 set plus the Squarespace-parity set). Each block is a `defineBlock`
  * definition (fields, variants, style slots, defaults, AI guidance, icon) whose `render` is a
- * React component built from `@openspace/renderer` primitives. Rendered to static HTML; any
+ * React component built from `@omniharmonic/openspace-renderer` primitives. Rendered to static HTML; any
  * interactivity comes from the renderer's vanilla `data-os-behavior` modules.
  */
-import { registerBlocks } from "@openspace/renderer";
+import { registerBlocks } from "@omniharmonic/openspace-renderer";
 import {
   type AnyBlockDefinition,
   type BlockRegistry,
   createBlockRegistry,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { accordionBlock } from "./blocks/accordion";
 import { audioBlock } from "./blocks/audio";
 import { bookingBlock } from "./blocks/booking";
@@ -46,7 +46,7 @@ import { teamBlock } from "./blocks/team";
 import { textBlock } from "./blocks/text";
 import { videoBlock } from "./blocks/video";
 
-export const name = "@openspace/blocks";
+export const name = "@omniharmonic/openspace-blocks";
 
 export { accordionBlock } from "./blocks/accordion";
 export { audioBlock, audioMime } from "./blocks/audio";

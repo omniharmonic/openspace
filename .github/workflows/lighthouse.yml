@@ -24,7 +24,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @openspace/e2e exec playwright install --with-deps chromium
+      - run: pnpm --filter @omniharmonic/openspace-e2e exec playwright install --with-deps chromium
       - name: Build the template demos
         working-directory: tools/visual-tests
         run: node scripts/build-templates.mjs

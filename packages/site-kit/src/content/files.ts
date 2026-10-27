@@ -3,7 +3,7 @@ import {
   type CollectionConfig,
   type CollectionItem,
   type CollectionKind,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
 /**

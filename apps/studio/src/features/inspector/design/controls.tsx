@@ -1,4 +1,4 @@
-import type { Responsive } from "@openspace/schema";
+import type { Responsive } from "@omniharmonic/openspace-schema";
 import { AlignCenter, AlignLeft, AlignRight, Link2, Unlink } from "lucide-react";
 import type { ReactNode } from "react";
 import { Segmented, Tooltip } from "../../../ui";

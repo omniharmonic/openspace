@@ -1,4 +1,4 @@
-import type { SiteConfig } from "@openspace/schema";
+import type { SiteConfig } from "@omniharmonic/openspace-schema";
 
 export interface DeployLocation {
   /** Astro `site`: the origin the site is served from (no path). */

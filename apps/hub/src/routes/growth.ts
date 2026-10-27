@@ -3,7 +3,7 @@
  * role on the site (shown in brackets in the report); every mutation writes the audit log. The
  * full contract is in the Task 18 report.
  */
-import type { Role } from "@openspace/ops";
+import type { Role } from "@omniharmonic/openspace-ops";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import { requireUser } from "../auth/session";

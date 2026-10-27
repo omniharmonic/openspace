@@ -1,7 +1,7 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { seoCheck, sortIssues } from "@openspace/lint";
-import type { Block, CollectionItem, Page, SiteDocument } from "@openspace/schema";
-import { itemPage } from "@openspace/site-kit/pages";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { seoCheck, sortIssues } from "@omniharmonic/openspace-lint";
+import type { Block, CollectionItem, Page, SiteDocument } from "@omniharmonic/openspace-schema";
+import { itemPage } from "@omniharmonic/openspace-site-kit/pages";
 import {
   AlertTriangle,
   ArrowLeft,

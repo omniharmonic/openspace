@@ -1,5 +1,5 @@
-import type { Op, OpIssue, Role } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import type { Op, OpIssue, Role } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 /**
  * DraftRoom wire protocol as Studio speaks it. Mirrors `apps/hub/src/room/protocol.ts` (Task 15):

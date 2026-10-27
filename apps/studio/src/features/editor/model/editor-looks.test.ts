@@ -1,6 +1,11 @@
-import { presetSection, sectionPresets } from "@openspace/blocks";
-import { lockedSectionsOf, type Op, type OpBody, transformForRole } from "@openspace/ops";
-import { newId, type Page, type Section, type SiteDocument } from "@openspace/schema";
+import { presetSection, sectionPresets } from "@omniharmonic/openspace-blocks";
+import {
+  lockedSectionsOf,
+  type Op,
+  type OpBody,
+  transformForRole,
+} from "@omniharmonic/openspace-ops";
+import { newId, type Page, type Section, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { PAGE_TEMPLATES } from "../../pages/pageTemplates";
 import { NOT_FOUND_TEMPLATE } from "../../settings/AdvancedSettings";

@@ -1,4 +1,9 @@
-import { autoMobileLayout, mobileHeight, mobileRowCount, readingOrder } from "@openspace/lint";
+import {
+  autoMobileLayout,
+  mobileHeight,
+  mobileRowCount,
+  readingOrder,
+} from "@omniharmonic/openspace-lint";
 import {
   type Block,
   GRID_COLUMNS,
@@ -6,7 +11,7 @@ import {
   type GridRect,
   type Section,
   type StackLayout,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { ROW_PX } from "./model";
 
 /**
@@ -17,7 +22,7 @@ import { ROW_PX } from "./model";
  *   `autoMobileLayout` (so it stays automatic), unless the stack had its own phone stacking
  *   order (`layout.order.m`, else tablet's, which phones inherit) — then the columns stack in
  *   that order, sized like `autoMobileLayout` sizes them.
- * - Grid → stack: one column in visual reading order (`@openspace/lint` `readingOrder`: bands,
+ * - Grid → stack: one column in visual reading order (`@omniharmonic/openspace-lint` `readingOrder`: bands,
  *   then columns left to right), not insertion order.
  */
 

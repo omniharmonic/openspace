@@ -10,7 +10,7 @@
 import { copyFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { compiledStylesFor, type SocialFeedPost } from "@openspace/renderer";
+import { compiledStylesFor, type SocialFeedPost } from "@omniharmonic/openspace-renderer";
 import type { AstroIntegration } from "astro";
 import { loadSiteDocument } from "./content/index";
 import { type DeployLocation, deployLocation } from "./deploy";
@@ -82,7 +82,7 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
   };
 
   return {
-    name: "@openspace/site-kit",
+    name: "@omniharmonic/openspace-site-kit",
     hooks: {
       "astro:config:setup": async ({
         config,
@@ -233,7 +233,7 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
             ],
             // The route imports virtual modules; OpenSpace packages are always bundled (workspace
             // checkouts ship TypeScript sources).
-            ssr: { noExternal: [/^@openspace\//] },
+            ssr: { noExternal: [/^@omniharmonic\/openspace-/] },
           },
         });
       },

@@ -1,6 +1,14 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { invert, type Op, type OpBody, parseOp, rebase, stamp, validate } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import {
+  invert,
+  type Op,
+  type OpBody,
+  parseOp,
+  rebase,
+  stamp,
+  validate,
+} from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { pageOf } from "../features/sync/ops-meta";
 import type {
   ActorKind,

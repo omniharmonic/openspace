@@ -1,5 +1,5 @@
-import { autoMobileLayout } from "@openspace/lint";
-import type { ContainerId, OpBody } from "@openspace/ops";
+import { autoMobileLayout } from "@omniharmonic/openspace-lint";
+import type { ContainerId, OpBody } from "@omniharmonic/openspace-ops";
 import {
   type Block,
   fallbackMobileRects,
@@ -9,7 +9,7 @@ import {
   MAX_GRID_ROWS,
   pinnedRect,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { type Command, cloneBlock, OpBuilder } from "../model/actions";
 import { locate, type SelItem } from "../model/selection";
 import {

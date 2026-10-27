@@ -4,9 +4,9 @@ The OpenSpace documentation, built with [Astro Starlight](https://starlight.astr
 
 | Command | What it does |
 |---|---|
-| `pnpm --filter @openspace/docs dev` | Local preview with live reload. |
-| `pnpm --filter @openspace/docs build` | Static build to `dist/` (with Pagefind search). |
-| `pnpm --filter @openspace/docs test` | Checks every required page exists, internal links resolve, and the docs match the code (MCP tool names, templates, Hub secrets, links from the plugin and openspace.dev); runs a real build. |
+| `pnpm --filter @omniharmonic/openspace-docs dev` | Local preview with live reload. |
+| `pnpm --filter @omniharmonic/openspace-docs build` | Static build to `dist/` (with Pagefind search). |
+| `pnpm --filter @omniharmonic/openspace-docs test` | Checks every required page exists, internal links resolve, and the docs match the code (MCP tool names, templates, Hub secrets, links from the plugin and openspace.dev); runs a real build. |
 
 Both scripts use Astro's programmatic API, so they run on Node 22 versions the `astro` CLI refuses (it needs 22.23.4+).
 

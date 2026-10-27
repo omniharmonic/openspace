@@ -6,7 +6,7 @@ import {
   type Page,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 
 export const SITE_ID = "st_01jb3q8w2n";
 export const HUB = "https://hub.openspace.dev";

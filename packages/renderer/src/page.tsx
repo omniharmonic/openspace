@@ -1,4 +1,4 @@
-import type { Page, SiteDocument } from "@openspace/schema";
+import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import type { ReactNode } from "react";
 import { AnnouncementBar, Footer, SitePopup } from "./chrome";
 import {

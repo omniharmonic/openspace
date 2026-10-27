@@ -3,7 +3,7 @@
  * lifecycle (a snapshot before the first edit) and role filtering before ops reach the store.
  */
 
-import { presetSection } from "@openspace/blocks";
+import { presetSection } from "@omniharmonic/openspace-blocks";
 import {
   FOOTER,
   lockedSectionsOf,
@@ -11,8 +11,8 @@ import {
   type OpBody,
   type OpIssue,
   transformForRole,
-} from "@openspace/ops";
-import type { BlockRegistry, Page, SiteDocument } from "@openspace/schema";
+} from "@omniharmonic/openspace-ops";
+import type { BlockRegistry, Page, SiteDocument } from "@omniharmonic/openspace-schema";
 import { issueLines, ToolError } from "./errors";
 import type { AgentSession, Grant, SiteStore } from "./store";
 

@@ -4,8 +4,8 @@ import type {
   ColorTheme,
   Popup as PopupSettings,
   Site,
-} from "@openspace/schema";
-import { themeClass } from "@openspace/theme";
+} from "@omniharmonic/openspace-schema";
+import { themeClass } from "@omniharmonic/openspace-theme";
 import { type ReactNode, useContext } from "react";
 import { BlockView } from "./block";
 import { BlockRegistryContext } from "./context";

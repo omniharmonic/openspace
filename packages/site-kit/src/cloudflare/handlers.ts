@@ -22,8 +22,8 @@
  * Misconfiguration (no session secret, Hub keys unreachable) answers 503 with a plain notice,
  * never a misleading "your link expired" or a raw 500.
  */
-import { escapeHtml, type ImageMap } from "@openspace/renderer";
-import { type Page, PageSchema, type SiteDocument } from "@openspace/schema";
+import { escapeHtml, type ImageMap } from "@omniharmonic/openspace-renderer";
+import { type Page, PageSchema, type SiteDocument } from "@omniharmonic/openspace-schema";
 import type { DeployLocation } from "../deploy";
 import { stableId } from "../ids";
 import { collectionsContextValueFor, renderDocument, type SiteAssets } from "../render";

@@ -1,5 +1,10 @@
-import { getPreset, PRESET_CATEGORIES, type Preset, presetCatalog } from "@openspace/blocks";
-import { FOOTER } from "@openspace/ops";
+import {
+  getPreset,
+  PRESET_CATEGORIES,
+  type Preset,
+  presetCatalog,
+} from "@omniharmonic/openspace-blocks";
+import { FOOTER } from "@omniharmonic/openspace-ops";
 import {
   type Block,
   type BlockMeta,
@@ -7,8 +12,8 @@ import {
   type Page,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
-import { compileStyles, getPairing } from "@openspace/theme";
+} from "@omniharmonic/openspace-schema";
+import { compileStyles, getPairing } from "@omniharmonic/openspace-theme";
 import { z } from "zod";
 import { pagePathOf, resolvePage, type ToolContext } from "../context";
 import { ToolError } from "../errors";

@@ -1,5 +1,5 @@
-import { cx, Img } from "@openspace/renderer";
-import { defineBlock, f, type ImageValue } from "@openspace/schema";
+import { cx, Img } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, type ImageValue } from "@omniharmonic/openspace-schema";
 import { aspectField, sub } from "../shared";
 
 const photo = (id: string, alt: string, width: number, height: number): ImageValue => ({

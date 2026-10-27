@@ -7,7 +7,7 @@ import {
   type Page,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import fc from "fast-check";
 import { type ContainerId, FOOTER, type Op, type OpBody } from "../ops";
 

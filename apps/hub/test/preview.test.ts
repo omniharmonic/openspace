@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
-import type { SiteDocument } from "@openspace/schema";
-import { planSite, renderRoute } from "@openspace/site-kit/render";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { planSite, renderRoute } from "@omniharmonic/openspace-site-kit/render";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { BEHAVIOR_SOURCES } from "../src/services/behavior-sources";

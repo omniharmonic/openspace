@@ -1,4 +1,4 @@
-import type { Block, Site } from "@openspace/schema";
+import type { Block, Site } from "@omniharmonic/openspace-schema";
 import type { Warn } from "./diag";
 import { esc, safeUrl } from "./escape";
 import { type RtCtx, richTextHtml, richTextPlain } from "./richtext";

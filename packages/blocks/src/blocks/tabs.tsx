@@ -1,5 +1,5 @@
-import { cx, RichText } from "@openspace/renderer";
-import { defineBlock, f, type RichTextDoc } from "@openspace/schema";
+import { cx, RichText } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f, type RichTextDoc } from "@omniharmonic/openspace-schema";
 import { rt, sub } from "../shared";
 
 const tab = (label: string, ...paragraphs: string[]) => ({

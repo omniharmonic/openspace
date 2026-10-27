@@ -1,13 +1,30 @@
 {
-  "name": "@openspace/site-kit",
+  "name": "@omniharmonic/openspace-site-kit",
   "version": "0.1.0",
   "description": "OpenSpace site-kit: the Astro integration that builds and publishes an OpenSpace site.",
   "license": "MIT",
+  "author": "The OpenSpace contributors",
+  "homepage": "https://github.com/omniharmonic/openspace#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omniharmonic/openspace.git",
+    "directory": "packages/site-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/omniharmonic/openspace/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [
     "dist",
-    "src"
+    "src",
+    "!src/**/*.test.ts",
+    "!src/**/__tests__",
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     ".": {
@@ -140,10 +157,10 @@
   "dependencies": {
     "@fontsource/hanken-grotesk": "^5.3.0",
     "@markdoc/markdoc": "^0.5.10",
-    "@openspace/blocks": "workspace:*",
-    "@openspace/renderer": "workspace:*",
-    "@openspace/schema": "workspace:*",
-    "@openspace/theme": "workspace:*",
+    "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-renderer": "workspace:*",
+    "@omniharmonic/openspace-schema": "workspace:*",
+    "@omniharmonic/openspace-theme": "workspace:*",
     "@resvg/resvg-js": "^2.6.2",
     "esbuild": "^0.27.7",
     "pagefind": "^1.5.2",

@@ -6,9 +6,13 @@
  */
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
-import { BEHAVIOR_LOADER, BEHAVIORS, behaviorsInHtml } from "@openspace/renderer";
-import { BEHAVIOR_ESBUILD, behaviorDistPath, behaviorSourcePath } from "@openspace/renderer/node";
-import type { SiteDocument } from "@openspace/schema";
+import { BEHAVIOR_LOADER, BEHAVIORS, behaviorsInHtml } from "@omniharmonic/openspace-renderer";
+import {
+  BEHAVIOR_ESBUILD,
+  behaviorDistPath,
+  behaviorSourcePath,
+} from "@omniharmonic/openspace-renderer/node";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { build as esbuild } from "esbuild";
 import * as pagefind from "pagefind";
 import type { DeployLocation } from "../deploy";

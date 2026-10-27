@@ -1,6 +1,6 @@
-import { cx } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
-import { colorVar } from "@openspace/theme";
+import { cx } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
+import { colorVar } from "@omniharmonic/openspace-theme";
 import { typo } from "../shared";
 
 /** Heading (a convenience over rich text) and the ornamental divider. */

@@ -2,7 +2,7 @@
 
 ## Studio: axe
 
-`pnpm --filter @openspace/studio check:a11y` runs axe-core 4.14 in Chromium on Studio's main
+`pnpm --filter @omniharmonic/openspace-studio check:a11y` runs axe-core 4.14 in Chromium on Studio's main
 screens, in light and in dark, at 1440 px with reduced motion, so colors are measured after
 panels finish fading in.
 
@@ -54,7 +54,7 @@ the ring on keyboard focus however it arrived.
 
 ## Phones
 
-`pnpm --filter @openspace/studio check:phone` (360 / 390 / 430) now also opens the block
+`pnpm --filter @omniharmonic/openspace-studio check:phone` (360 / 390 / 430) now also opens the block
 inspector sheet and its Design tab. Its controls are 44×44 like the rest of the phone layout:
 
 - formatting buttons;

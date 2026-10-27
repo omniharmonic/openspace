@@ -1,4 +1,4 @@
-import type { OpIssue } from "@openspace/ops";
+import type { OpIssue } from "@omniharmonic/openspace-ops";
 import type { z } from "zod";
 
 /**

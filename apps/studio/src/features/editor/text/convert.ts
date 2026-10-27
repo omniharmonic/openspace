@@ -7,7 +7,7 @@ import {
   PARAGRAPH_PRESETS,
   RICH_LINK_HREF_RE,
   type RichTextDoc,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import type { JSONContent } from "@tiptap/core";
 
 /** OpenSpace rich text → Tiptap JSON. An empty document becomes one empty paragraph. */

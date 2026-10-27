@@ -3,10 +3,10 @@
  * AGENTS.md, the design guidance (doc 04 §9) and the preset catalog — so the agent composes with
  * presets and tokens rather than inventing styles.
  */
-import { presetCatalog } from "@openspace/blocks";
-import { blockFieldsJsonSchema, toJsonSchema } from "@openspace/schema";
-import { generateAgentsMd } from "@openspace/site-kit/agents-md";
-import { compileStyles } from "@openspace/theme";
+import { presetCatalog } from "@omniharmonic/openspace-blocks";
+import { blockFieldsJsonSchema, toJsonSchema } from "@omniharmonic/openspace-schema";
+import { generateAgentsMd } from "@omniharmonic/openspace-site-kit/agents-md";
+import { compileStyles } from "@omniharmonic/openspace-theme";
 import type { ToolContext } from "./context";
 import { ToolError } from "./errors";
 import { DESIGN_GUIDANCE, ITERATION_GUIDANCE } from "./guidance";

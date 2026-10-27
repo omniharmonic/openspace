@@ -1,4 +1,4 @@
-import type { Section } from "@openspace/schema";
+import type { Section } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { applyVariation, type FieldMetas, scaleWords } from "./stress";
 

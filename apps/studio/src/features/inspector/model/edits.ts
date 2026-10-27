@@ -1,4 +1,4 @@
-import type { OpBody } from "@openspace/ops";
+import type { OpBody } from "@omniharmonic/openspace-ops";
 import type {
   Block,
   BlockStyle,
@@ -6,7 +6,7 @@ import type {
   SectionLayout,
   SiteDocument,
   StackLayout,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { locate } from "../../editor/model/selection";
 import type { CommitOptions, CommitResult, EditorDocState } from "../../editor/model/store";
 

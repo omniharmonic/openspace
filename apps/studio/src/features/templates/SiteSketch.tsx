@@ -25,7 +25,7 @@ export interface SiteSketchProps {
 /**
  * A typographic sketch of a site in a template look — palette, type pairing,
  * radius and image shape — drawn with plain HTML. Stands in for the real
- * renderer preview until `@openspace/renderer` is wired in (Tasks 21/26).
+ * renderer preview until `@omniharmonic/openspace-renderer` is wired in (Tasks 21/26).
  */
 export function SiteSketch({
   styles,

@@ -1,4 +1,9 @@
-import type { BlockRegistry, ColorTheme, Section, SiteDocument } from "@openspace/schema";
+import type {
+  BlockRegistry,
+  ColorTheme,
+  Section,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { findBlock, findSection, locateBlock } from "./doc";
 import { invert } from "./invert";
 import type { Op } from "./ops";

@@ -2,7 +2,7 @@
  * D1 records for the MCP server (migration 0300): connections (an OAuth client or a personal
  * token), their per-site grants, MCP sessions and the daily operation counter.
  */
-import type { Role } from "@openspace/ops";
+import type { Role } from "@omniharmonic/openspace-ops";
 import { randomId } from "../lib/crypto";
 
 export type ConnectionKind = "oauth" | "token";

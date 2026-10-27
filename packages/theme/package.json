@@ -1,12 +1,27 @@
 {
-  "name": "@openspace/theme",
+  "name": "@omniharmonic/openspace-theme",
   "version": "0.1.0",
   "description": "OpenSpace design tokens: OKLCH palettes, contrast solver, type pairings and the Site Styles compiler.",
   "license": "MIT",
+  "author": "The OpenSpace contributors",
+  "homepage": "https://github.com/omniharmonic/openspace#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omniharmonic/openspace.git",
+    "directory": "packages/theme"
+  },
+  "bugs": {
+    "url": "https://github.com/omniharmonic/openspace/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     ".": {
@@ -35,6 +50,6 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@openspace/schema": "workspace:*"
+    "@omniharmonic/openspace-schema": "workspace:*"
   }
 }

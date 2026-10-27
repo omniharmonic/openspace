@@ -1,4 +1,4 @@
-import type { Op, OpBody } from "@openspace/ops";
+import type { Op, OpBody } from "@omniharmonic/openspace-ops";
 import { toast } from "../../../ui/toast-store";
 import { locate } from "../model/selection";
 import type { EditorStore } from "../model/store";

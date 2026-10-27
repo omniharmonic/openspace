@@ -1,7 +1,7 @@
-import { blockText } from "@openspace/lint";
-import { deepEqual } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
-import { loadTemplate } from "@openspace/templates";
+import { blockText } from "@omniharmonic/openspace-lint";
+import { deepEqual } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { loadTemplate } from "@omniharmonic/openspace-templates";
 import { describe, expect, it } from "vitest";
 import { createEditorStore } from "../editor/model/store";
 import { lookSiteStyles, planLook, presetParts, previewLook } from "./mapping";

@@ -1,5 +1,5 @@
-import { cx, RichText } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { cx, RichText } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import { rt } from "../shared";
 
 export const textBlock = defineBlock({

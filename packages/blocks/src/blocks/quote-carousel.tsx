@@ -1,5 +1,5 @@
-import { cx, Img } from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+import { cx, Img } from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import { CarouselControls, DEMO, sub, typo } from "../shared";
 
 export const quoteCarouselBlock = defineBlock({

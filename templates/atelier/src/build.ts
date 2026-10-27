@@ -1,4 +1,4 @@
-import type { Section } from "@openspace/schema";
+import type { Section } from "@omniharmonic/openspace-schema";
 import type { TemplateSpec } from "../../lib/define";
 import { project } from "../../lib/define";
 import {

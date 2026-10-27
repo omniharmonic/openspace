@@ -1,15 +1,15 @@
 import { cp, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { blocksRegistry } from "@openspace/blocks";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import {
   CURRENT_SCHEMA_VERSION,
   type MigrateSiteOptions,
   migrateSite,
   type SiteContentLike,
   type SiteDocument,
-} from "@openspace/schema";
-import { loadSiteDocument, writeSiteDocument } from "@openspace/site-kit/content";
+} from "@omniharmonic/openspace-schema";
+import { loadSiteDocument, writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 
 export interface MigrateResult {
   from: number;

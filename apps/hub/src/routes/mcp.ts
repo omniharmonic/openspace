@@ -25,7 +25,7 @@
 
 import type { AuthRequest } from "@cloudflare/workers-oauth-provider";
 import { AuthorizationError, authorizationErrorRedirect } from "@cloudflare/workers-oauth-provider";
-import type { Role } from "@openspace/ops";
+import type { Role } from "@omniharmonic/openspace-ops";
 import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { z } from "zod";

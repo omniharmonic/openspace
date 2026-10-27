@@ -1,7 +1,7 @@
 import { cpSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { planSite, renderRoute } from "@openspace/site-kit";
+import { planSite, renderRoute } from "@omniharmonic/openspace-site-kit";
 import { it } from "vitest";
 import { loadTemplate, TEMPLATE_IDS } from "../index";
 

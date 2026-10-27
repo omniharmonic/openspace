@@ -1,5 +1,5 @@
-import { diff, type Op, stats, summarize } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import { diff, type Op, stats, summarize } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 
 /** What publishing would change, in plain words ("3 pages edited", "2 images added"). */
 export interface ChangeSummary {

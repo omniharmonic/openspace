@@ -5,7 +5,7 @@ import { request } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { createMcpServer, type OpenSpaceMcpServer } from "@openspace/mcp-tools";
+import { createMcpServer, type OpenSpaceMcpServer } from "@omniharmonic/openspace-mcp-tools";
 import { afterAll, describe, expect, it } from "vitest";
 import { FileSiteStore } from "./mcp/file-store";
 import { createScreenshotter, loadPlaywright } from "./mcp/screenshot";

@@ -1,4 +1,4 @@
-import { COLOR_SCALE_STEPS } from "@openspace/schema";
+import { COLOR_SCALE_STEPS } from "@omniharmonic/openspace-schema";
 import { gamutMap, mixHue, type Oklch, parseColor } from "./color";
 import type { ColorScale, ScaleStep } from "./types";
 

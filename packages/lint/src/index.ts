@@ -1,9 +1,9 @@
 /**
- * @openspace/lint — Studio's Design check and SEO check, and the grid mobile auto-layout
- * (doc 04 §9, arch §3.3). Pure functions over a `SiteDocument`; fixes are `@openspace/ops`
+ * @omniharmonic/openspace-lint — Studio's Design check and SEO check, and the grid mobile auto-layout
+ * (doc 04 §9, arch §3.3). Pure functions over a `SiteDocument`; fixes are `@omniharmonic/openspace-ops`
  * operations so Studio, MCP and the CLI apply them like any other edit.
  */
-export const name = "@openspace/lint";
+export const name = "@omniharmonic/openspace-lint";
 
 export {
   blockDisplayWidth,

@@ -1,11 +1,11 @@
-import { cx, Img, Link, useRenderContext } from "@openspace/renderer";
+import { cx, Img, Link, useRenderContext } from "@omniharmonic/openspace-renderer";
 import {
   type AspectRatio,
   defineBlock,
   f,
   type ImageValue,
   type Link as LinkValue,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { ASPECT_OPTIONS, CarouselControls, DEMO, sub, useImageUrl } from "../shared";
 
 const COLUMN_OPTIONS = [

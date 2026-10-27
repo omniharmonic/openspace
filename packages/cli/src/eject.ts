@@ -3,7 +3,7 @@ import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, posix, relative, sep } from "node:path";
 import { CliError, type Io } from "./io";
 
-export const KIT_PACKAGE = "@openspace/site-kit";
+export const KIT_PACKAGE = "@omniharmonic/openspace-site-kit";
 export const EJECT_DIR = "src/openspace-kit";
 
 export interface EjectResult {
@@ -25,11 +25,11 @@ interface KitPackage {
 }
 
 function locateKit(cwd: string): KitPackage {
-  // Find node_modules/@openspace/site-kit by walking up; resolving the entry would fail for a
+  // Find node_modules/@omniharmonic/openspace-site-kit by walking up; resolving the entry would fail for a
   // published layout whose exports point at dist files that are not installed.
   let pkgRoot: string | undefined;
   for (let dir = cwd; ; ) {
-    const candidate = join(dir, "node_modules", "@openspace", "site-kit");
+    const candidate = join(dir, "node_modules", "@omniharmonic", "openspace-site-kit");
     if (existsSync(join(candidate, "package.json"))) {
       pkgRoot = candidate;
       break;
@@ -76,7 +76,7 @@ export function sourceFor(target: string): string | undefined {
 }
 
 /**
- * Map each `@openspace/site-kit[/sub]` specifier to the ejected file it will resolve to.
+ * Map each `@omniharmonic/openspace-site-kit[/sub]` specifier to the ejected file it will resolve to.
  * Every mapped file must exist in the kit's source; otherwise eject fails before writing.
  */
 function specifierMap(kit: KitPackage): Map<string, string> {
@@ -101,14 +101,17 @@ function specifierMap(kit: KitPackage): Map<string, string> {
  */
 export function rewriteEntrypoints(source: string, specs: Map<string, string>): string {
   let count = 0;
-  const out = source.replace(/(["'])(@openspace\/site-kit(?:\/[\w./-]+)?)\1/g, (_m, q, spec) => {
-    const target = specs.get(spec);
-    if (!target)
-      throw new CliError(`Cannot eject: entrypoint ${spec} is not in the kit's exports.`);
-    count++;
-    return `${q}./${target}${q}`;
-  });
-  if (count === 0 || /["']@openspace\/site-kit/.test(out))
+  const out = source.replace(
+    /(["'])(@omniharmonic\/openspace-site-kit(?:\/[\w./-]+)?)\1/g,
+    (_m, q, spec) => {
+      const target = specs.get(spec);
+      if (!target)
+        throw new CliError(`Cannot eject: entrypoint ${spec} is not in the kit's exports.`);
+      count++;
+      return `${q}./${target}${q}`;
+    },
+  );
+  if (count === 0 || /["']@omniharmonic\/openspace-site-kit/.test(out))
     throw new CliError(
       "Cannot eject: src/entrypoints.ts in this site-kit version is not in the expected shape. Nothing was changed.",
     );
@@ -144,7 +147,7 @@ export async function runEject(io: Io): Promise<EjectResult> {
   const entrypointsFile = join(kit.sourceDir, "entrypoints.ts");
   if (!existsSync(entrypointsFile))
     throw new CliError(
-      "Cannot eject: this site-kit version has no src/entrypoints.ts. Update @openspace/site-kit first. Nothing was changed.",
+      "Cannot eject: this site-kit version has no src/entrypoints.ts. Update @omniharmonic/openspace-site-kit first. Nothing was changed.",
     );
   // Everything that can fail is computed before the first write.
   const patchedEntrypoints = rewriteEntrypoints(await readFile(entrypointsFile, "utf8"), specs);
@@ -164,10 +167,13 @@ export async function runEject(io: Io): Promise<EjectResult> {
   for (const rel of candidates) {
     const abs = join(root, rel);
     const text = await readFile(abs, "utf8");
-    const next = text.replace(/(["'])(@openspace\/site-kit(?:\/[\w./-]+)?)\1/g, (m, q, spec) => {
-      const target = specs.get(spec);
-      return target ? `${q}${relSpec(rel, target)}${q}` : m;
-    });
+    const next = text.replace(
+      /(["'])(@omniharmonic\/openspace-site-kit(?:\/[\w./-]+)?)\1/g,
+      (m, q, spec) => {
+        const target = specs.get(spec);
+        return target ? `${q}${relSpec(rel, target)}${q}` : m;
+      },
+    );
     if (next !== text) edits.push({ abs, next });
     if (next !== text) rewritten.push(rel);
   }

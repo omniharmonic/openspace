@@ -1,4 +1,4 @@
-import type { MediaMeta, SiteDocument } from "@openspace/schema";
+import type { MediaMeta, SiteDocument } from "@omniharmonic/openspace-schema";
 import { create } from "zustand";
 import { type HubApi, HubError } from "../../api/types";
 import type { ImageCodec, ImageEdit } from "./codec";

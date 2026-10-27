@@ -4,7 +4,7 @@ import type {
   NumberFieldMeta,
   SelectFieldMeta,
   TextFieldMeta,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ColorPicker, Input, NumberScrubInput, Toggle } from "../../../ui";
 import { fromPickerValue, paletteTokens, toPickerValue } from "../model/colors";

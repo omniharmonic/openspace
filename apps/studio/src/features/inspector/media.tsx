@@ -1,4 +1,9 @@
-import { HttpsUrlSchema, isMediaPath, type MediaMeta, type SiteDocument } from "@openspace/schema";
+import {
+  HttpsUrlSchema,
+  isMediaPath,
+  type MediaMeta,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { ImageIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { create } from "zustand";

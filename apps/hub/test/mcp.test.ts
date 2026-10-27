@@ -1,5 +1,5 @@
 import { env } from "cloudflare:test";
-import type { SiteDocument } from "@openspace/schema";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app";
 import { redactSecrets } from "../src/lib/log";

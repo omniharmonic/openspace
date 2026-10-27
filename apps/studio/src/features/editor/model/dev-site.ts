@@ -13,8 +13,14 @@ import {
   socialLinksBlock,
   testimonialBlock,
   textBlock,
-} from "@openspace/blocks";
-import type { Block, ColorTheme, Page, Section, SiteDocument } from "@openspace/schema";
+} from "@omniharmonic/openspace-blocks";
+import type {
+  Block,
+  ColorTheme,
+  Page,
+  Section,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 
 /**
  * A complete site document built from the real block library, used by the mock Hub

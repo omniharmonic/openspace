@@ -12,7 +12,7 @@
  * and the draft branch. Once Task 15's DraftRoom owns the draft, this should go through the room
  * (as a config change) so an open editing session doesn't overwrite it.
  */
-import { HostnameSchema, type SiteConfig, SiteConfigSchema } from "@openspace/schema";
+import { HostnameSchema, type SiteConfig, SiteConfigSchema } from "@omniharmonic/openspace-schema";
 import { audit } from "../db/audit";
 import { type SiteRow, updateSite } from "../db/sites";
 import type { User } from "../db/users";

@@ -1,4 +1,4 @@
-import type { CollectionConfig, CollectionKind } from "@openspace/schema";
+import type { CollectionConfig, CollectionKind } from "@omniharmonic/openspace-schema";
 
 export type FeedFormat = "rss" | "atom" | "ical" | "podcast";
 

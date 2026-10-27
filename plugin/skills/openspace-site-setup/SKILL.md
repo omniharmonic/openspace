@@ -6,7 +6,7 @@ version: 0.1.0
 
 # Setting up an OpenSpace site
 
-OpenSpace sites are ordinary folders (and GitHub repositories) holding `openspace.json`, `content/` (JSON pages, site settings, styles, Markdoc collections), `media/`, and a thin Astro shell that builds through `@openspace/site-kit`. There are two ways to work on one:
+OpenSpace sites are ordinary folders (and GitHub repositories) holding `openspace.json`, `content/` (JSON pages, site settings, styles, Markdoc collections), `media/`, and a thin Astro shell that builds through `@omniharmonic/openspace-site-kit`. There are two ways to work on one:
 
 - **Studio + Hub (no terminal):** the person signs in with GitHub at Studio, picks a template, and is live in about three minutes. Claude connects through the Hub's remote MCP connector. Point non-technical owners here.
 - **Local folder + CLI (this plugin's default):** create the site with `openspace new`, edit it with Claude through the local MCP server (`openspace mcp`), publish by committing and pushing.
@@ -37,7 +37,7 @@ Choose by the person's purpose, not their favourite color — looks change color
 ## 2. Create the site locally
 
 ```sh
-npx -y @openspace/cli new meadow my-site --title "Fernwood Yoga" --repo maya/fernwood-yoga
+npx -y @omniharmonic/openspace-cli new meadow my-site --title "Fernwood Yoga" --repo maya/fernwood-yoga
 cd my-site
 npm install
 ```
@@ -62,7 +62,7 @@ Useful commands inside the site:
 
 ## 3. Connect Claude
 
-With this plugin installed, Claude Code starts `npx -y @openspace/cli mcp` in the folder Claude Code was opened in. Start Claude Code **inside the site folder** (`cd my-site && claude`) so the server finds `openspace.json`. Check with `/mcp` that `openspace` is connected; the tools then appear (`get_site`, `design_check`, `screenshot`…).
+With this plugin installed, Claude Code starts `npx -y @omniharmonic/openspace-cli mcp` in the folder Claude Code was opened in. Start Claude Code **inside the site folder** (`cd my-site && claude`) so the server finds `openspace.json`. Check with `/mcp` that `openspace` is connected; the tools then appear (`get_site`, `design_check`, `screenshot`…).
 
 - Screenshots need two things: the `playwright` package in the site (`npm i -D playwright`) and a browser — `npx playwright install chromium`, or an installed Google Chrome. Without them, `screenshot` explains what's missing and `render_page` still works.
 - Large uploads (> 2400 px) are resized when `sharp` is installed; otherwise they're refused with a hint.
@@ -103,7 +103,7 @@ Editing `openspace.json` is a person's job — Claude's MCP tools can't change i
 
 ## Troubleshooting
 
-- _MCP server failed to start:_ Claude Code isn't running in a site folder (no `openspace.json`), or Node is older than 22. Run `npx -y @openspace/cli mcp` by hand to see the message.
+- _MCP server failed to start:_ Claude Code isn't running in a site folder (no `openspace.json`), or Node is older than 22. Run `npx -y @omniharmonic/openspace-cli mcp` by hand to see the message.
 - _`npm run dev` says Node is too old:_ install Node 22.23.4 or newer (Astro's requirement).
 - _Publish workflow fails at `openspace check`:_ run `npx openspace check` locally; it names the file and field.
 - _Pages shows a 404 at the new domain:_ DNS hasn't propagated or the Pages custom domain isn't set yet; recheck in a few minutes.

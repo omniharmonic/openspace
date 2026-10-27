@@ -1,5 +1,5 @@
-import { blocksRegistry } from "@openspace/blocks";
-import type { Block } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { Block } from "@omniharmonic/openspace-schema";
 import { ArrowLeft, Gauge, Mail, Plus, Send, ShieldCheck, TriangleAlert } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";

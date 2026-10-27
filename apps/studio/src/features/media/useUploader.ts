@@ -1,4 +1,4 @@
-import type { MediaMeta } from "@openspace/schema";
+import type { MediaMeta } from "@omniharmonic/openspace-schema";
 import { useEffect, useState } from "react";
 import { useHub } from "../../api";
 import type { Site } from "../../api/types";

@@ -1,4 +1,4 @@
-import { PRESET_IMAGE_CREDITS } from "@openspace/blocks";
+import { PRESET_IMAGE_CREDITS } from "@omniharmonic/openspace-blocks";
 import {
   type CollectionConfig,
   type CollectionItem,
@@ -10,7 +10,7 @@ import {
   type SiteDocument,
   type StyleChoices,
   type Styles,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { stabilizeIds, stableId } from "./ids";
 
 /** One of a template's three looks: a Site Styles combination shown in the gallery. */

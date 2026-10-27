@@ -1,10 +1,10 @@
 /**
- * @openspace/renderer — the one renderer (ADR-3). React components that turn OpenSpace content
+ * @omniharmonic/openspace-renderer — the one renderer (ADR-3). React components that turn OpenSpace content
  * into HTML for the Studio canvas, the Hub preview, site-kit builds and OG/email generation.
  * Published pages ship no React runtime: interactivity comes from vanilla `data-os-behavior`
- * modules (see `./behaviors-manifest` and the `@openspace/renderer/node` entry for files).
+ * modules (see `./behaviors-manifest` and the `@omniharmonic/openspace-renderer/node` entry for files).
  */
-export const name = "@openspace/renderer";
+export const name = "@omniharmonic/openspace-renderer";
 
 export * from "./behaviors-manifest";
 export {

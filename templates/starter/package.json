@@ -1,5 +1,6 @@
 {
-  "name": "@openspace/template-starter",
+  "name": "@omniharmonic/openspace-template-starter",
+  "private": true,
   "version": "0.1.0",
   "description": "OpenSpace starter: the thin Astro site shell (astro.config, page route, publish workflows, AGENTS.md).",
   "license": "MIT",
@@ -16,9 +17,6 @@
       "default": "./src/index.ts"
     }
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -31,7 +29,7 @@
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@openspace/site-kit": "workspace:*",
+    "@omniharmonic/openspace-site-kit": "workspace:*",
     "yaml": "^2.9.1"
   }
 }

@@ -4,7 +4,7 @@
  * config, `wrangler.jsonc`) and the Cloudflare packages in `package.json` (merged, so update-bot
  * bumps and owner additions stay). Secrets are sealed in the browser and only relayed.
  */
-import type { DeployTarget, SiteConfig } from "@openspace/schema";
+import type { DeployTarget, SiteConfig } from "@omniharmonic/openspace-schema";
 import type { FileChange } from "../github/types";
 import { CLOUDFLARE_PACKAGE_ADDITIONS, STARTER_HOSTING_FILES } from "../templates/starter-files";
 import { CONFIG_PATH } from "./site-files";

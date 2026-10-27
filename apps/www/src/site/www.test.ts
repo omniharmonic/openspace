@@ -1,9 +1,9 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { runCheck } from "@openspace/cli";
-import { designCheck, seoCheck } from "@openspace/lint";
-import { SiteDocumentSchema } from "@openspace/schema";
-import { loadSiteDocument } from "@openspace/site-kit/content";
-import { templateSpecs } from "@openspace/templates";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { runCheck } from "@omniharmonic/openspace-cli";
+import { designCheck, seoCheck } from "@omniharmonic/openspace-lint";
+import { SiteDocumentSchema } from "@omniharmonic/openspace-schema";
+import { loadSiteDocument } from "@omniharmonic/openspace-site-kit/content";
+import { templateSpecs } from "@omniharmonic/openspace-templates";
 import { describe, expect, it } from "vitest";
 import { WWW_ROOT } from "./generate";
 

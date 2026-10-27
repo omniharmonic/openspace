@@ -1,4 +1,10 @@
-import type { BlockNode, InlineNode, ListItemNode, Mark, RichTextDoc } from "@openspace/schema";
+import type {
+  BlockNode,
+  InlineNode,
+  ListItemNode,
+  Mark,
+  RichTextDoc,
+} from "@omniharmonic/openspace-schema";
 import type { Warn } from "./diag";
 import { esc, safeUrl } from "./escape";
 import type { EmailTheme } from "./theme";

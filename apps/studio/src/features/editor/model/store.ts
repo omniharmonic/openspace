@@ -1,13 +1,20 @@
-import { blocksRegistry } from "@openspace/blocks";
-import { invert, type Op, type OpBody, type OpIssue, stamp, validate } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import {
+  invert,
+  type Op,
+  type OpBody,
+  type OpIssue,
+  stamp,
+  validate,
+} from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { createStore, type StoreApi } from "zustand/vanilla";
 import { defaultTextField, type EditingField } from "../text/fields";
 import type { Command } from "./actions";
 import { locate, type SelItem, sameItem } from "./selection";
 
 /**
- * The editor's document store. Every change to the document is a list of `@openspace/ops`
+ * The editor's document store. Every change to the document is a list of `@omniharmonic/openspace-ops`
  * operations: validated, applied, and recorded with its inverse so undo/redo are just more ops.
  *
  * Sync seam (Task 23): `onLocalOps` reports every op this client applies (edits, undos and

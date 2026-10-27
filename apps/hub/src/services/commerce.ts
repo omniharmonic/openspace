@@ -3,7 +3,7 @@
  * (arch §9.5, PRD §5.6). Checkout lives in `checkout.ts`; webhooks and orders in `orders.ts`.
  */
 
-import { renderEmail } from "@openspace/email-render";
+import { renderEmail } from "@omniharmonic/openspace-email-render";
 import { z } from "zod";
 import type { SiteRow } from "../db/sites";
 import type { User } from "../db/users";

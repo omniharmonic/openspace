@@ -1,9 +1,10 @@
 import { existsSync } from "node:fs";
 import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
-import { CURRENT_SCHEMA_VERSION, newId, type SiteConfig } from "@openspace/schema";
-import { loadSiteDocument, writeSiteDocument } from "@openspace/site-kit/content";
-import { starterFiles } from "@openspace/template-starter";
+import { fileURLToPath } from "node:url";
+import { CURRENT_SCHEMA_VERSION, newId, type SiteConfig } from "@omniharmonic/openspace-schema";
+import { loadSiteDocument, writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
+import { starterFiles } from "@omniharmonic/openspace-template-starter";
 import { writeAgentsMd } from "./agents";
 import { CliError, type Io } from "./io";
 import { monorepoRoot } from "./repo-root";
@@ -37,6 +38,17 @@ interface TemplateSource {
   root: string;
   usedFallback: boolean;
 }
+
+/**
+ * The published CLI bundles the starter and the launch templates next to its code
+ * (`dist/starter/`, `dist/templates/`, written by scripts/bundle-templates.mjs at build time).
+ * Undefined when running from source, where the checkout's folders are used instead.
+ */
+const HERE = dirname(fileURLToPath(import.meta.url));
+const bundled = (name: string): string | undefined => {
+  const dir = join(HERE, name);
+  return existsSync(dir) ? dir : undefined;
+};
 
 const slugify = (s: string) =>
   s
@@ -76,6 +88,7 @@ async function resolveTemplate(id: string, io: Io, opts: NewOptions): Promise<Te
     opts.templatesDir,
     io.env.OPENSPACE_TEMPLATES_DIR,
     repo ? join(repo, "templates") : undefined,
+    bundled("templates"),
   ].filter((d): d is string => Boolean(d));
   let known = false;
   for (const dir of dirs) {
@@ -84,9 +97,14 @@ async function resolveTemplate(id: string, io: Io, opts: NewOptions): Promise<Te
       return { root, usedFallback: false };
     if (existsSync(join(root, "template.json"))) known = true;
   }
+  const bundledTemplates = bundled("templates");
   const fallback =
     io.env.OPENSPACE_FALLBACK_TEMPLATE ??
-    (repo ? join(repo, "tools", "fixtures", "meadow-site") : undefined);
+    (repo
+      ? join(repo, "tools", "fixtures", "meadow-site")
+      : bundledTemplates
+        ? join(bundledTemplates, "meadow")
+        : undefined);
   if ((known || id === "starter") && fallback && existsSync(join(fallback, "content", "site.json")))
     return { root: fallback, usedFallback: true };
   const all = (await Promise.all(dirs.map(templateIds))).flat();
@@ -143,7 +161,8 @@ async function scaffold(
   const slug = slugify(basename(dir));
 
   // 1. The shell.
-  const files = await starterFiles(targetKind);
+  const starterRoot = monorepoRoot() ? undefined : bundled("starter");
+  const files = await starterFiles(targetKind, starterRoot);
   for (const [rel, text] of Object.entries(files)) {
     const abs = join(dir, rel);
     await mkdir(dirname(abs), { recursive: true });

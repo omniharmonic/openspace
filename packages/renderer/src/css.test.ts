@@ -1,4 +1,4 @@
-import { allTokenVars, compileStyles } from "@openspace/theme";
+import { allTokenVars, compileStyles } from "@omniharmonic/openspace-theme";
 import { describe, expect, it } from "vitest";
 import { siteFixture } from "./__fixtures__/site";
 import { BASE_CSS } from "./styles/base-css";

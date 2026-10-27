@@ -1,4 +1,4 @@
-import type { ImageValue } from "@openspace/schema";
+import type { ImageValue } from "@omniharmonic/openspace-schema";
 
 /**
  * Demo photography for section presets. Every photo is an Unsplash image (Unsplash License:

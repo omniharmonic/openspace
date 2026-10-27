@@ -9,8 +9,8 @@ import {
   SocialIcon,
   useCollections,
   useRenderContext,
-} from "@openspace/renderer";
-import { defineBlock, f } from "@openspace/schema";
+} from "@omniharmonic/openspace-renderer";
+import { defineBlock, f } from "@omniharmonic/openspace-schema";
 import { EditorNotice, headingLevelField, typo } from "../shared";
 
 /** Button role (a variable keeps the a11y role lint off the Button prop). */

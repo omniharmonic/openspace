@@ -1,4 +1,4 @@
-export const name = "@openspace/email-render";
+export const name = "@omniharmonic/openspace-email-render";
 
 export { EmailRenderError, type EmailWarning } from "./diag";
 export { esc, safeUrl } from "./escape";

@@ -1,4 +1,4 @@
-import type { GridRect } from "@openspace/schema";
+import type { GridRect } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import {
   type Box,

@@ -1,4 +1,4 @@
-import { type Block, type Site, type Styles, StylesSchema } from "@openspace/schema";
+import { type Block, type Site, type Styles, StylesSchema } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import {
   campaignEmail,

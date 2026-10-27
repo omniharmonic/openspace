@@ -3,7 +3,7 @@ import type {
   CollectionItem,
   CollectionKind,
   SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { humanize } from "../workspace/format";
 
 /** Plain-language names, defaults and starter values for each collection kind. */

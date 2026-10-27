@@ -20,7 +20,7 @@ You need Node.js 22 or newer. Screenshots need the `playwright` package in your 
 
 | Part | What it does |
 |---|---|
-| **MCP server** | Starts `npx -y @openspace/cli mcp` in the folder Claude Code runs in: the full OpenSpace tool set against your local site. |
+| **MCP server** | Starts `npx -y @omniharmonic/openspace-cli mcp` in the folder Claude Code runs in: the full OpenSpace tool set against your local site. |
 | **Skill: web design** | Preset-first composition, the iteration loop, Squarespace-grade craft heuristics, mobile review and the "never invent facts" rule. |
 | **Skill: site setup** | Creating a site from a template, connecting Claude, publishing, connecting a domain. |
 | **Skill: content** | Blog posts, events, products, projects and podcast episodes. |
@@ -36,7 +36,7 @@ You need Node.js 22 or newer. Screenshots need the `playwright` package in your 
 The plugin's MCP server serves **the folder Claude Code was started in**, so start Claude Code inside your site (a folder with `openspace.json`):
 
 ```sh
-npx -y @openspace/cli new meadow my-site --title "Fernwood Yoga"
+npx -y @omniharmonic/openspace-cli new meadow my-site --title "Fernwood Yoga"
 cd my-site && npm install
 claude
 ```
@@ -65,7 +65,7 @@ The `preview` tool starts a small preview server on `127.0.0.1` that renders you
 For scheduled jobs or agents working without you, register the server with `--no-publish` so the connection can edit the draft but never commit or roll back:
 
 ```sh
-claude mcp add openspace -- npx -y @openspace/cli mcp . --no-publish
+claude mcp add openspace -- npx -y @omniharmonic/openspace-cli mcp . --no-publish
 ```
 
 Other options: `--no-screenshots`, and `--preview-port <n>` for a fixed preview port.

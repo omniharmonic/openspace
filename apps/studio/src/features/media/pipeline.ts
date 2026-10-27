@@ -3,7 +3,7 @@ import {
   type MediaMeta,
   newId,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { dominantColor, fitWithin, hasTransparency, suggestFocal } from "./analyze";
 import { browserCodec, type ImageCodec, type ImageEdit } from "./codec";
 import { stripMetadata } from "./metadata";

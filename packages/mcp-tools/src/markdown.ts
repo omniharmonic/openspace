@@ -11,7 +11,7 @@ import {
   fromMarkdown,
   type RichTextDoc,
   toMarkdown,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);

@@ -1,4 +1,4 @@
-import type { NavItem, NavLeaf, SiteDocument } from "@openspace/schema";
+import type { NavItem, NavLeaf, SiteDocument } from "@omniharmonic/openspace-schema";
 
 /**
  * Pure helpers for the navigation tree (`site.nav`): flatten it into rows for the Pages

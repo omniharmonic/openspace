@@ -4,7 +4,7 @@
  */
 import type { Readable, Writable } from "node:stream";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { createMcpServer, type ImageResizer } from "@openspace/mcp-tools";
+import { createMcpServer, type ImageResizer } from "@omniharmonic/openspace-mcp-tools";
 import { CliError, type Io } from "../io";
 import { FileSiteStore } from "./file-store";
 import { createScreenshotter, loadPlaywright } from "./screenshot";

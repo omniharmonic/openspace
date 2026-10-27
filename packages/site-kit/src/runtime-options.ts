@@ -1,4 +1,4 @@
-import type { ImageMap, SocialFeedPost } from "@openspace/renderer";
+import type { ImageMap, SocialFeedPost } from "@omniharmonic/openspace-renderer";
 import type { DeployLocation } from "./deploy";
 import type { SiteAssets } from "./render";
 

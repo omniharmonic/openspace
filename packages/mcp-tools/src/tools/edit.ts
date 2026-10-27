@@ -1,5 +1,11 @@
-import { autoMobileLayoutOps } from "@openspace/lint";
-import { FOOTER, findBlock, findSection, locateBlock, type OpBody } from "@openspace/ops";
+import { autoMobileLayoutOps } from "@omniharmonic/openspace-lint";
+import {
+  FOOTER,
+  findBlock,
+  findSection,
+  locateBlock,
+  type OpBody,
+} from "@omniharmonic/openspace-ops";
 import {
   type Block,
   type BlockRegistry,
@@ -8,7 +14,7 @@ import {
   newId,
   type Section,
   type SiteDocument,
-} from "@openspace/schema";
+} from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { resolvePage, type ToolContext } from "../context";
 import { ToolError } from "../errors";

@@ -1,5 +1,5 @@
-import type { OpBody } from "@openspace/ops";
-import type { SiteDocument } from "@openspace/schema";
+import type { OpBody } from "@omniharmonic/openspace-ops";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { CloudOff, Sparkles } from "lucide-react";
 import type { MockHub } from "../../api/mock";
 import { useRegisterCommands } from "../../ui";

@@ -1,5 +1,5 @@
-import type { Preset } from "@openspace/blocks";
-import type { Position } from "@openspace/ops";
+import type { Preset } from "@omniharmonic/openspace-blocks";
+import type { Position } from "@omniharmonic/openspace-ops";
 import { useState } from "react";
 import { Button, Dialog, toast } from "../../ui";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
