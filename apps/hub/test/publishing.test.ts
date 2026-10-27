@@ -503,6 +503,43 @@ describe("build status webhook", () => {
     client.close();
   });
 
+  it("a later successful run of a commit pushed outside the Hub moves a failed site back to live", async () => {
+    const { app, owner, site } = await setup();
+    await edit(app, site.id, owner, "Breaks the site");
+    await publish(app, site.id, owner);
+    const bad = (await gh().getRef(repo, "main")) as string;
+    const run = (sha: string, conclusion: string, createdAt?: string) => ({
+      action: "completed",
+      repository: { full_name: "maya-lin/room-site" },
+      workflow_run: {
+        id: 77,
+        name: "Publish",
+        path: ".github/workflows/publish.yml",
+        head_sha: sha,
+        head_branch: "main",
+        status: "completed",
+        conclusion,
+        ...(createdAt ? { created_at: createdAt } : {}),
+      },
+    });
+    const status = async () =>
+      ((await (await call(app, `/api/sites/${site.id}`, { cookie: owner })).json()) as {
+        status: string;
+      }).status;
+    await webhook(app, "workflow_run", run(bad, "failure"));
+    expect(await status()).toBe("failed");
+    // An old run (started before the newest publish) of some other commit changes nothing.
+    await webhook(app, "workflow_run", run("b".repeat(40), "success", "2000-01-01T00:00:00Z"));
+    expect(await status()).toBe("failed");
+    // The owner fixed the workflow directly on main: that run succeeded, so the site is live.
+    await webhook(
+      app,
+      "workflow_run",
+      run("c".repeat(40), "success", new Date(Date.now() + 1000).toISOString()),
+    );
+    expect(await status()).toBe("live");
+  });
+
   it("ignores superseded (cancelled) runs and records installation changes", async () => {
     const { app, site } = await setup();
     const res = await webhook(app, "workflow_run", {

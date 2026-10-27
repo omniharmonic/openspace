@@ -6,7 +6,7 @@ import { DevGitHubAccess } from "../src/github/dev";
 import { GitHubApiError } from "../src/github/types";
 import { bytesToBase64 } from "../src/lib/crypto";
 import { loadSiteDocument } from "../src/services/site-files";
-import { slugifyRepoName } from "../src/services/sites";
+import { currentRunState, slugifyRepoName } from "../src/services/sites";
 import { basicTemplate } from "../src/templates/basic";
 import { call, cookieFrom, devLogin } from "./helpers";
 import { generateAppKey, pem } from "./keys";
@@ -645,6 +645,47 @@ describe("sites API (dev GitHub)", () => {
       (await call(healthy, `/api/sites/${site.id}/publish`, { method: "POST", cookie: stranger }))
         .status,
     ).toBe(404);
+  });
+
+  it("a refused workflow dispatch after the first push is building, not failed", async () => {
+    const app = createApp({
+      services: {
+        github: (_ctx, s) => {
+          const dev = new DevGitHubAccess(s.db);
+          dev.dispatchWorkflow = async () => {
+            throw new GitHubApiError("Workflow does not have 'workflow_dispatch' trigger", 422);
+          };
+          return dev;
+        },
+      },
+    });
+    const cookie = await devLogin(app, "Push Run");
+    const { res, site } = await create(app, cookie, { template: "basic", name: "Pushed" });
+    expect(res.status).toBe(201);
+    expect(site.status).toBe("building");
+    expect(site.statusDetail).toBeNull();
+  });
+
+  it("an earlier run of another commit doesn't decide a new setup's status", () => {
+    const head = "a".repeat(40);
+    const t = Date.parse("2026-10-27T10:00:00Z");
+    expect(currentRunState({ state: "failure", sha: "b".repeat(40) }, head, t)).toBe("queued");
+    expect(
+      currentRunState(
+        { state: "failure", sha: head, updatedAt: "2026-10-27T09:00:00Z" },
+        head,
+        t,
+      ),
+    ).toBe("queued");
+    expect(
+      currentRunState(
+        { state: "success", sha: head, updatedAt: "2026-10-27T10:00:01Z" },
+        head,
+        t,
+      ),
+    ).toBe("success");
+    expect(currentRunState({ state: "in_progress", sha: head }, head, null)).toBe("in_progress");
+    expect(currentRunState({ state: "none" }, head, t)).toBe("none");
   });
 
   it("reports updates when the template has a newer version", async () => {

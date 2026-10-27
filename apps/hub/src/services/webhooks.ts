@@ -56,6 +56,7 @@ interface WorkflowRunPayload {
     conclusion: string | null;
     html_url?: string;
     display_title?: string;
+    created_at?: string;
   };
 }
 
@@ -159,7 +160,15 @@ async function onWorkflowRun(
     );
   // Only the newest publish decides the site's status.
   const latest = await latestPublish(services.db, site.id);
-  if (!latest || latest.sha === run.head_sha) {
+  // A successful run of a commit the Hub didn't publish (a fix pushed to main, a re-run after a
+  // failed setup) started after the newest publish means the site is live again.
+  const runStarted = run.created_at ? Date.parse(run.created_at) : Number.NaN;
+  const recoversFailure =
+    state === "success" &&
+    !publish &&
+    site.status === "failed" &&
+    (!latest || !(runStarted < latest.created_at));
+  if (!latest || latest.sha === run.head_sha || recoversFailure) {
     const status: SiteStatus =
       state === "success" ? "live" : state === "failure" ? "failed" : "building";
     await updateSite(services.db, site.id, { status, status_detail: error?.title ?? null }, now);
