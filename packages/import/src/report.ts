@@ -60,7 +60,11 @@ export function renderReport(r: ReportInput): string {
   /** Where the old site lives, for prose ("on Squarespace", "on the original site"). */
   const onOld = info.id === "generic" ? "the original site" : label;
   const command =
-    info.importer === "squarespace" ? "squarespace" : info.importer === "wordpress" ? "wordpress" : "url";
+    info.importer === "squarespace"
+      ? "squarespace"
+      : info.importer === "wordpress"
+        ? "wordpress"
+        : "url";
   const L: string[] = [];
   const pages = build.pages;
   const items = build.collections.reduce((n, c) => n + c.items, 0);
@@ -177,7 +181,12 @@ export function renderReport(r: ReportInput): string {
       e.where.add(n.where);
       counts.set(n.message, e);
     }
+    let shown = 0;
     for (const [message, e] of counts) {
+      if (++shown > 15) {
+        L.push(`- … and ${counts.size - 15} more like these.`);
+        break;
+      }
       const where = [...e.where];
       L.push(
         `- ${message}${where.length ? ` _(${where.slice(0, 4).join(", ")}${where.length > 4 ? `, +${where.length - 4} more` : ""})_` : ""}`,
@@ -230,12 +239,12 @@ export function renderReport(r: ReportInput): string {
     "   - add the custom domain in OpenSpace (`deploy.customDomain` in `openspace.json`, or the Hub);",
   );
   L.push(
-    `   - at your DNS provider (${isSq ? "Squarespace Domains" : info.id === "generic" ? "your registrar" : `${label} Domains, your registrar`} or elsewhere), point the records at the new host as the domain guide says (GitHub Pages: \`A\`/\`CNAME\` records; Cloudflare: the Pages project's records);`,
+    `   - at your DNS provider (${isSq ? "Squarespace Domains" : info.id === "generic" || info.id === "wordpress" ? "your registrar" : `${label} Domains, your registrar`} or elsewhere), point the records at the new host as the domain guide says (GitHub Pages: \`A\`/\`CNAME\` records; Cloudflare: the Pages project's records);`,
   );
   L.push(
     isSq
       ? "   - keep the Squarespace subscription until the new site serves your domain over HTTPS and the redirects work; then cancel it (and transfer the domain away from Squarespace if you like)."
-      : `   - keep ${info.id === "generic" ? "the old hosting" : `the ${label} plan`} until the new site serves your domain over HTTPS and the redirects work; then cancel it (and transfer the domain if you like).`,
+      : `   - keep ${info.id === "generic" ? "the old hosting" : info.id === "wordpress" ? "the WordPress hosting" : `the ${label} plan`} until the new site serves your domain over HTTPS and the redirects work; then cancel it (and transfer the domain if you like).`,
   );
   L.push("");
   return `${L.join("\n")}\n`;

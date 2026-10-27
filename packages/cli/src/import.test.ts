@@ -57,7 +57,7 @@ describe("openspace import squarespace", () => {
     expect(await readFile(join(dir, "AGENTS.md"), "utf8")).toContain("Juniper Ceramics");
     const check = await runCheck(dir);
     expect(check.findings.filter((f) => f.severity === "error")).toEqual([]);
-    expect(r.out).toMatch(/Imported Juniper Ceramics into .*juniper:/);
+    expect(r.out).toMatch(/Imported Juniper Ceramics \(Squarespace\) into .*juniper:/);
     expect(r.out).toMatch(/openspace check: OK — 0 error\(s\)/);
     expect(r.out).toContain("/openspace:import-squarespace");
     expect(r.err).toContain("robots.txt is honoured");

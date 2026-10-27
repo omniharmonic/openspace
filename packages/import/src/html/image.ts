@@ -122,7 +122,14 @@ export function bestRendition(
   return { url: unique[0] as string, alternates: unique.slice(1, 4) };
 }
 
-const LAZY_SRC = ["data-src", "data-lazy-src", "data-original", "data-orig-src", "data-image", "src"];
+const LAZY_SRC = [
+  "data-src",
+  "data-lazy-src",
+  "data-original",
+  "data-orig-src",
+  "data-image",
+  "src",
+];
 const LAZY_SRCSET = ["data-srcset", "data-lazy-srcset", "srcset"];
 
 const isPlaceholder = (u: string | undefined) =>

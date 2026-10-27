@@ -14,11 +14,11 @@ import type { ImageResizer } from "@omniharmonic/openspace-mcp-tools";
 import type { SiteConfig, SiteDocument } from "@omniharmonic/openspace-schema";
 import { writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { type FetchFn, SiteFetcher } from "./fetch";
+import { crawlGeneric, type PageRenderer } from "./generic/crawl";
 import { type BuildResult, buildSite } from "./map/site";
 import { MediaImporter } from "./media";
-import { renderReport } from "./report";
-import { crawlGeneric, type PageRenderer } from "./generic/crawl";
 import { type Detection, detectPlatform, platformInfo, platformLabel } from "./platform";
+import { renderReport } from "./report";
 import { crawlSquarespace } from "./squarespace/crawl";
 import type { Platform, SqSite } from "./types";
 import { crawlWordPress } from "./wordpress/crawl";
@@ -26,18 +26,17 @@ import { crawlWordPress } from "./wordpress/crawl";
 export const name = "@omniharmonic/openspace-import";
 
 export { parseRobots, RobotsDisallowed, robotsAllows, SiteFetcher, USER_AGENT } from "./fetch";
-export { htmlToRichText } from "./map/richtext";
-export { blocksToMarkdoc, buildSite } from "./map/site";
-export { nearestPairing } from "./map/theme";
-export { UrlMap } from "./map/urls";
-export { MediaImporter } from "./media";
-export { renderReport } from "./report";
 export { crawlGeneric, type PageRenderer } from "./generic/crawl";
 export { sitemapUrls } from "./html/discover";
 export { type HtmlPage, parseHtmlPage, sectionsFrom } from "./html/extract";
 export { bestRendition, imageFromImg, parseSrcset } from "./html/image";
 export { type ComputedLook, themeFromCss } from "./html/theme";
+export { htmlToRichText } from "./map/richtext";
 export { applyNearestPreset, nearestPreset } from "./map/sections";
+export { blocksToMarkdoc, buildSite } from "./map/site";
+export { nearestPairing } from "./map/theme";
+export { UrlMap } from "./map/urls";
+export { MediaImporter } from "./media";
 export {
   type Detection,
   detectPlatform,
@@ -48,6 +47,7 @@ export {
   platformInfo,
   platformLabel,
 } from "./platform";
+export { renderReport } from "./report";
 export { crawlSquarespace, NotSquarespaceError } from "./squarespace/crawl";
 export { parsePage } from "./squarespace/page";
 export { parseTheme } from "./squarespace/theme";

@@ -177,8 +177,14 @@ const RULES: { platform: Platform; tests: [RegExp, string][] }[] = [
     platform: "webflow",
     tests: [
       [/data-wf-(?:page|site)=/i, "Webflow page attributes"],
-      [/(?:assets|uploads-ssl|cdn\.prod)\.website-files\.com|assets-global\.website-files\.com/i, "Webflow asset host"],
-      [/<meta[^>]+content=["']Webflow["'][^>]*name=["']generator|name=["']generator["'][^>]+content=["']Webflow/i, "Webflow generator"],
+      [
+        /(?:assets|uploads-ssl|cdn\.prod)\.website-files\.com|assets-global\.website-files\.com/i,
+        "Webflow asset host",
+      ],
+      [
+        /<meta[^>]+content=["']Webflow["'][^>]*name=["']generator|name=["']generator["'][^>]+content=["']Webflow/i,
+        "Webflow generator",
+      ],
     ],
   },
   {
@@ -223,7 +229,9 @@ const RULES: { platform: Platform; tests: [RegExp, string][] }[] = [
   },
   {
     platform: "hostinger",
-    tests: [[/zyrosite\.com|<meta[^>]+generator[^>]+Hostinger|zyro\.com/i, "Hostinger/Zyro assets"]],
+    tests: [
+      [/zyrosite\.com|<meta[^>]+generator[^>]+Hostinger|zyro\.com/i, "Hostinger/Zyro assets"],
+    ],
   },
 ];
 
@@ -236,10 +244,7 @@ export function generatorOf(html: string): string | undefined {
 }
 
 /** Detect the platform from a home page's HTML (and optionally its response headers). */
-export function detectPlatform(
-  html: string,
-  headers: Record<string, string> = {},
-): Detection {
+export function detectPlatform(html: string, headers: Record<string, string> = {}): Detection {
   const generator = generatorOf(html);
   const h = Object.fromEntries(Object.entries(headers).map(([k, v]) => [k.toLowerCase(), v]));
   const wpApi =
@@ -298,7 +303,10 @@ export function detectPlatform(
 
 /** Accept the user's spelling of a platform (`--platform wix`). */
 export function parsePlatform(s: string): Platform | undefined {
-  const k = s.trim().toLowerCase().replace(/[^a-z]/g, "");
+  const k = s
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
   if (k === "url" || k === "html" || k === "other" || k === "any") return "generic";
   return (Object.keys(PLATFORMS) as Platform[]).find((p) => p === k);
 }

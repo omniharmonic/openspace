@@ -572,7 +572,7 @@ export async function mapBlock(
     }
     case "cards": {
       const items = [];
-      for (const c of sq.items.slice(0, 12)) {
+      for (const c of sq.items.slice(0, 48)) {
         const image = c.image ? await img(ctx, c.image) : undefined;
         const link = c.href ? await linkFor(ctx, c.href) : undefined;
         const body: RichTextDoc = (c.html ? (await richText(ctx, c.html))?.doc : undefined) ?? {
@@ -587,13 +587,18 @@ export async function mapBlock(
         });
       }
       if (!items.length) return [];
-      return one(
-        makeBlock(ctx, "columns", {
-          items,
+      // The columns block holds up to 8 cards: longer grids continue in another block.
+      const out: Block[] = [];
+      for (let i = 0; i < items.length; i += 8) {
+        const chunk = items.slice(i, i + 8);
+        const b = makeBlock(ctx, "columns", {
+          items: chunk,
           columns: String(Math.max(2, Math.min(4, items.length))) as "2" | "3" | "4",
           aspect: "4:5",
-        }),
-      );
+        });
+        if (b) out.push(b);
+      }
+      return out;
     }
     case "heading": {
       const text = sq.text.replace(/\s+/g, " ").trim();
@@ -662,7 +667,9 @@ export async function mapBlock(
         width <= 7 &&
         sq.rows.length >= 1 &&
         sq.rows.length <= 40 &&
-        sq.rows.every((r) => (r[0] ?? "").length <= 80 && r.slice(1).every((c) => c.length <= 60)) &&
+        sq.rows.every(
+          (r) => (r[0] ?? "").length <= 80 && r.slice(1).every((c) => c.length <= 60),
+        ) &&
         (sq.head ?? []).slice(1).every((c) => c.length <= 40);
       if (fits) {
         const head = sq.head ?? [];

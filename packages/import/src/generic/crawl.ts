@@ -6,19 +6,17 @@
  */
 import { RobotsDisallowed, type SiteFetcher } from "../fetch";
 import { isPagePath, sitemapUrls } from "../html/discover";
-import { type HtmlPage, parseHtmlPage, sitePath, stripSuffix } from "../html/extract";
+import {
+  type HtmlPage,
+  hiddenClassesFromCss,
+  parseHtmlPage,
+  sitePath,
+  stripSuffix,
+} from "../html/extract";
 import { type ComputedLook, themeFromCss } from "../html/theme";
 import { platformLabel } from "../platform";
 import { socialNetwork } from "../squarespace/crawl";
-import type {
-  Platform,
-  SqCollection,
-  SqItem,
-  SqNavItem,
-  SqNotice,
-  SqPage,
-  SqSite,
-} from "../types";
+import type { Platform, SqCollection, SqItem, SqNavItem, SqNotice, SqPage, SqSite } from "../types";
 
 /** Renders a page in a real browser (Playwright) for sites built by JavaScript. */
 export interface PageRenderer {
@@ -37,7 +35,8 @@ export interface GenericCrawlOptions {
   render?: PageRenderer;
 }
 
-const BLOG_NAMES = /^\/(?:blog|news|journal|articles|posts|stories|updates|insights|writing|notes|press)$/i;
+const BLOG_NAMES =
+  /^\/(?:blog|news|journal|articles|posts|stories|updates|insights|writing|notes|press)$/i;
 
 export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
   const progress = opts.onProgress ?? (() => undefined);
@@ -52,6 +51,7 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
     throw new Error(`"${opts.url}" is not a web address.`);
   }
   let look: ComputedLook | undefined;
+  let hiddenClasses = new Set<string>();
   const sources = new Set<string>(["page HTML"]);
 
   const getPage = async (
@@ -65,7 +65,7 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
         const r = await opts.render.render(url);
         sources.add("pages rendered in a browser");
         if (path === "/" && r.look) look = r.look;
-        return { page: parseHtmlPage(r.html, r.url || url, o), html: r.html };
+        return { page: parseHtmlPage(r.html, r.url || url, { ...o, hiddenClasses }), html: r.html };
       }
       const r = await f.text(url);
       if (!r || r.status >= 400) {
@@ -73,10 +73,14 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
         return undefined;
       }
       if (!/html/i.test(r.contentType) && r.contentType) return undefined;
-      return { page: parseHtmlPage(r.text, r.url || url, o), html: r.text };
+      return { page: parseHtmlPage(r.text, r.url || url, { ...o, hiddenClasses }), html: r.text };
     } catch (e) {
       if (e instanceof RobotsDisallowed) {
-        notices.push({ kind: "robots", where: path, message: "robots.txt asks tools not to read this page; skipped." });
+        notices.push({
+          kind: "robots",
+          where: path,
+          message: "robots.txt asks tools not to read this page; skipped.",
+        });
         return undefined;
       }
       notices.push({ kind: "fetch", where: path, message: (e as Error).message });
@@ -85,9 +89,11 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
   };
 
   progress(`Reading ${base}`);
-  const home = await getPage("/");
+  let home = await getPage("/");
   if (!home)
-    throw new Error(`Couldn't read ${base}. Check the address and that the site is public (not password-protected).`);
+    throw new Error(
+      `Couldn't read ${base}. Check the address and that the site is public (not password-protected).`,
+    );
   // Follow a redirect to the canonical host (http → https, apex → www).
   base = new URL(home.page.url).origin;
 
@@ -100,10 +106,18 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
       const r = await f.text(u.toString());
       if (r && r.status < 400) css += `\n${r.text.slice(0, 800_000)}`;
     } catch {
-      notices.push({ kind: "theme", where: href, message: "Couldn't read a stylesheet; colors and fonts are approximate." });
+      notices.push({
+        kind: "theme",
+        where: href,
+        message: "Couldn't read a stylesheet; colors and fonts are approximate.",
+      });
     }
   }
   const theme = themeFromCss(css, look);
+  // Responsive duplicates the CSS hides on desktop: read the home page again without them.
+  hiddenClasses = opts.render ? new Set() : hiddenClassesFromCss(css);
+  if (hiddenClasses.size)
+    home = { html: home.html, page: parseHtmlPage(home.html, home.page.url, { hiddenClasses }) };
   if (home.page.header.sticky) theme.headerFixed = true;
   if (home.page.header.overlay) theme.headerTransparent = true;
 
@@ -125,20 +139,28 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
       if (p && isPagePath(p)) navPaths.push(p);
     }
   const budget = opts.maxPages ?? 400;
-  const queue: string[] = [...new Set(["/", ...navPaths, ...sm.paths])];
+  // Navigation first, then the sitemap's shallow pages before deep ones (posts, items).
+  const depth = (p: string) => p.split("/").filter(Boolean).length;
+  const sitemapOrder = sm.paths
+    .map((p, i) => ({ p, i }))
+    .sort((a, b) => depth(a.p) - depth(b.p) || a.i - b.i)
+    .map((x) => x.p);
+  const queue: string[] = [...new Set(["/", ...navPaths, ...sitemapOrder])];
   const seen = new Set<string>(queue);
   const crawlLinks = !sm.paths.length;
   const fetched = new Map<string, HtmlPage>([["/", home.page]]);
   const canonicalOf = new Map<string, string>();
-  const canon = (html: string) => /<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']+)["']/i.exec(html)?.[1];
+  const canon = (html: string) =>
+    /<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']+)["']/i.exec(html)?.[1];
   const homeCanon = canon(home.html);
   if (homeCanon) canonicalOf.set("/", sitePath(homeCanon, base) ?? "/");
   const enqueueLinks = (p: HtmlPage) => {
     if (!crawlLinks) return;
-    for (const l of p.links) if (!seen.has(l) && isPagePath(l)) {
-      seen.add(l);
-      queue.push(l);
-    }
+    for (const l of p.links)
+      if (!seen.has(l) && isPagePath(l)) {
+        seen.add(l);
+        queue.push(l);
+      }
   };
   enqueueLinks(home.page);
   for (let i = 1; i < queue.length && fetched.size < budget; i++) {
@@ -153,7 +175,11 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
     enqueueLinks(got.page);
   }
   if (fetched.size >= budget && queue.length > budget)
-    notices.push({ kind: "other", where: "site", message: `Stopped after ${budget} pages; raise --max-pages to import the rest.` });
+    notices.push({
+      kind: "other",
+      where: "site",
+      message: `Stopped after ${budget} pages; raise --max-pages to import the rest.`,
+    });
 
   // Duplicates: pages whose canonical address is another page become aliases of it.
   const aliases: { from: string; to: string }[] = [];
@@ -181,8 +207,12 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
     if (parent === "/" ? posts.length < 3 : posts.length < 2 && !BLOG_NAMES.test(parent)) continue;
     let path = parent;
     if (!fetched.has(parent) || parent === "/") {
-      const listing = [...fetched.keys()].find((k) => BLOG_NAMES.test(k) && !collections.some((c) => c.path === k));
-      path = listing ?? (/^\/(?:post|posts|article|p)$/.test(parent) || parent === "/" ? "/journal" : parent);
+      const listing = [...fetched.keys()].find(
+        (k) => BLOG_NAMES.test(k) && !collections.some((c) => c.path === k),
+      );
+      path =
+        listing ??
+        (/^\/(?:post|posts|article|p)$/.test(parent) || parent === "/" ? "/journal" : parent);
     }
     const listPage = fetched.get(path);
     const c: SqCollection = {
@@ -242,14 +272,19 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
     if (!textual) thin++;
     pages.push({
       path: p.path,
-      title: p.path === "/" ? "Home" : (navTitle ?? stripSuffix(p.title, home.page.siteName) ?? p.title),
+      title:
+        p.path === "/" ? "Home" : (navTitle ?? stripSuffix(p.title, home.page.siteName) ?? p.title),
       ...(navTitle ? { navTitle } : {}),
       seo: p.seo,
       sections,
       ...(!navTitle && p.path !== "/" && nav.length ? { hidden: true } : {}),
     });
   }
-  if (thin && !opts.render && (platform === "wix" || platform === "framer" || thin >= Math.max(2, pages.length / 3)))
+  if (
+    thin &&
+    !opts.render &&
+    (platform === "wix" || platform === "framer" || thin >= Math.max(2, pages.length / 3))
+  )
     notices.push({
       kind: "fetch",
       where: "site",
@@ -259,13 +294,15 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
     notices.push({
       kind: "other",
       where: "site",
-      message: "Wix strips and absolute-positioned layouts were turned into OpenSpace sections and columns; check spacing and alignment in the visual parity pass.",
+      message:
+        "Wix strips and absolute-positioned layouts were turned into OpenSpace sections and columns; check spacing and alignment in the visual parity pass.",
     });
   if (platform === "webflow")
     notices.push({
       kind: "other",
       where: "site",
-      message: "Webflow interactions and animations were not copied; OpenSpace's own motion setting (Site Styles) is used instead.",
+      message:
+        "Webflow interactions and animations were not copied; OpenSpace's own motion setting (Site Styles) is used instead.",
     });
 
   // Site identity.
@@ -286,7 +323,9 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
     baseUrl: base,
     title: title.trim(),
     ...(home.page.seo.description ? { description: home.page.seo.description } : {}),
-    ...(home.page.header.logo ? { logo: { ...home.page.header.logo, alt: home.page.header.logo.alt || title } } : {}),
+    ...(home.page.header.logo
+      ? { logo: { ...home.page.header.logo, alt: home.page.header.logo.alt || title } }
+      : {}),
     ...(home.page.favicon ? { favicon: home.page.favicon } : {}),
     ...(lang ? { locale: lang } : {}),
     social,
@@ -305,4 +344,5 @@ export async function crawlGeneric(opts: GenericCrawlOptions): Promise<SqSite> {
   };
 }
 
-const escapeHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

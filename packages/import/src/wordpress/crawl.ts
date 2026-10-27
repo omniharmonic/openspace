@@ -11,7 +11,13 @@
  */
 import { parseHtmlFragment } from "../dom";
 import { RobotsDisallowed, type SiteFetcher } from "../fetch";
-import { type HtmlPage, parseHtmlPage, sectionsFrom, sitePath } from "../html/extract";
+import {
+  type HtmlPage,
+  hiddenClassesFromCss,
+  parseHtmlPage,
+  sectionsFrom,
+  sitePath,
+} from "../html/extract";
 import { themeFromCss } from "../html/theme";
 import { socialNetwork } from "../squarespace/crawl";
 import { parseWxr, type WxrFile, type WxrItem } from "../squarespace/wxr";
@@ -44,7 +50,8 @@ export class NotWordPressError extends Error {}
 
 type Json = Record<string, unknown>;
 const str = (v: unknown): string | undefined => (typeof v === "string" && v.trim() ? v : undefined);
-const rendered = (v: unknown): string => str((v as { rendered?: unknown } | undefined)?.rendered) ?? "";
+const rendered = (v: unknown): string =>
+  str((v as { rendered?: unknown } | undefined)?.rendered) ?? "";
 
 const BLOG_SLUGS = /^(?:blog|news|journal|articles|posts|stories|updates|insights|writing)$/i;
 const COMMERCE_SLUGS = /^(?:cart|checkout|my-account|basket|shop|wishlist)$/i;
@@ -174,7 +181,9 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
     );
   const apiRoot =
     opts.apiRoot ??
-    /<link[^>]+rel=["']https:\/\/api\.w\.org\/["'][^>]*href=["']([^"']+)["']/i.exec(homeHtml)?.[1] ??
+    /<link[^>]+rel=["']https:\/\/api\.w\.org\/["'][^>]*href=["']([^"']+)["']/i.exec(
+      homeHtml,
+    )?.[1] ??
     `${base}/wp-json/`;
   const endpoint = (route: string, params = "") => {
     const root = apiRoot.endsWith("/") || apiRoot.includes("rest_route=") ? apiRoot : `${apiRoot}/`;
@@ -195,7 +204,8 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
     }
   };
   const index = await getJson<Json>(endpoint(""));
-  const rest = !!index && Array.isArray(index.namespaces) && (index.namespaces as string[]).includes("wp/v2");
+  const rest =
+    !!index && Array.isArray(index.namespaces) && (index.namespaces as string[]).includes("wp/v2");
   if (!rest && !wxr && home && !/wp-content|wp-includes|wp-json/.test(homeHtml))
     throw new NotWordPressError(`${base} doesn't look like a WordPress site.`);
   const namespaces = new Set<string>(rest ? (index?.namespaces as string[]) : []);
@@ -208,18 +218,26 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
         "The WordPress REST API isn't public on this site, so pages and posts were read from their HTML. Pass the WordPress export (Tools → Export) with --export for complete content.",
     });
 
-  const budget = { left: opts.maxPages ?? 400 };
+  const max = opts.maxPages ?? 400;
+  const budget = { left: max };
+  /** Up to `max` entries of a route (pages and posts each get the full allowance). */
   const listAll = async (route: string, params: string): Promise<Json[]> => {
     const out: Json[] = [];
-    for (let page = 1; page <= 50 && budget.left > 0; page++) {
+    const per = Math.min(100, max);
+    for (let page = 1; page <= 50 && out.length < max; page++) {
       progress(`${route} (page ${page})`);
-      const list = await getJson<Json[]>(endpoint(route, `${params}&per_page=100&page=${page}`));
+      const list = await getJson<Json[]>(endpoint(route, `${params}&per_page=${per}&page=${page}`));
       if (!Array.isArray(list) || !list.length) break;
       out.push(...list);
-      budget.left -= list.length;
-      if (list.length < 100) break;
+      if (list.length < per) break;
     }
-    return out;
+    if (out.length >= max)
+      notices.push({
+        kind: "other",
+        where: route,
+        message: `Stopped after ${max} entries; raise --max-pages to import the rest.`,
+      });
+    return out.slice(0, max);
   };
 
   // Attachments (WXR) for featured images and [gallery] shortcodes.
@@ -290,8 +308,12 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
           categories: terms
             .filter((t) => t.taxonomy === "category" && t.slug !== "uncategorized")
             .map((t) => decodeEntities(String(t.name))),
-          tags: terms.filter((t) => t.taxonomy === "post_tag").map((t) => decodeEntities(String(t.name))),
-          ...(excerptHtml(rendered(p.excerpt)) ? { excerpt: excerptHtml(rendered(p.excerpt)) } : {}),
+          tags: terms
+            .filter((t) => t.taxonomy === "post_tag")
+            .map((t) => decodeEntities(String(t.name))),
+          ...(excerptHtml(rendered(p.excerpt))
+            ? { excerpt: excerptHtml(rendered(p.excerpt)) }
+            : {}),
           ...(wpMediaImage(featured) ? { image: wpMediaImage(featured) } : {}),
           seo,
           ...(typeof p.menu_order === "number" ? { menuOrder: p.menu_order } : {}),
@@ -306,7 +328,7 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
       if (it.postType !== "page" && it.postType !== "post") continue;
       if (it.status === "trash" || it.status === "auto-draft" || it.status === "inherit") continue;
       const slug = it.slug ?? "";
-      const where = it.path ?? `/${slug}`;
+      const where = it.status === "publish" && it.path ? it.path : `/${slug || it.id}`;
       const html = wpRawToHtml(it.contentHtml, { attachments, notices, where });
       const existing = entries.find((e) => e.type === it.postType && e.slug === slug && slug);
       if (existing) {
@@ -326,7 +348,12 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
       const thumb = it.meta._thumbnail_id ? attachments.get(it.meta._thumbnail_id) : undefined;
       entries.push({
         type: it.postType,
-        path: it.status === "publish" && it.path ? it.path : it.postType === "post" ? `/${slug || it.id}` : where,
+        path:
+          it.status === "publish" && it.path
+            ? it.path
+            : it.postType === "post"
+              ? `/${slug || it.id}`
+              : where,
         slug: slug || `post-${it.id ?? entries.length}`,
         title: decodeEntities(it.title) || "Untitled",
         html,
@@ -384,7 +411,10 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
       tags: e.tags,
       categories: e.categories,
       ...(e.excerpt ? { excerptHtml: e.excerpt } : {}),
-      sections: bodySections(e.html, base, postsPath, notices, e.path).map((s) => ({ ...s, role: undefined })),
+      sections: bodySections(e.html, base, postsPath, notices, e.path).map((s) => ({
+        ...s,
+        role: undefined,
+      })),
       ...(e.image ? { image: e.image } : {}),
       seo: e.seo,
       ...(e.status === "draft" ? { draft: true } : {}),
@@ -482,7 +512,9 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
     (wxr?.description && decodeEntities(wxr.description)) ||
     home?.seo.description;
   let css = home?.inlineCss ?? "";
-  for (const href of (home?.stylesheets ?? []).filter((h) => /\/themes\/|style\.css|global|theme/i.test(h)).slice(0, 4)) {
+  for (const href of (home?.stylesheets ?? [])
+    .filter((h) => /\/themes\/|style\.css|global|theme/i.test(h))
+    .slice(0, 4)) {
     try {
       const r = await f.text(new URL(href, base).toString());
       if (r && r.status < 400) css += `\n${r.text.slice(0, 800_000)}`;
@@ -491,6 +523,11 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
     }
   }
   const theme = themeFromCss(css);
+  const hidden = hiddenClassesFromCss(css);
+  if (home && hidden.size) {
+    const again = parseHtmlPage(homeHtml, home.url, { hiddenClasses: hidden });
+    home = { ...home, header: again.header, footer: again.footer };
+  }
   if (home?.header.sticky) theme.headerFixed = true;
   const social: SqSite["social"] = [];
   for (const url of home?.social ?? []) {
@@ -502,14 +539,21 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
   notices.push({
     kind: "other",
     where: "site",
-    message: "Comments are not imported (OpenSpace sites have no comments); export them from WordPress if you want to keep them.",
+    message:
+      "Comments are not imported (OpenSpace sites have no comments); export them from WordPress if you want to keep them.",
   });
   return {
     baseUrl: base,
     title,
     ...(description ? { description } : {}),
-    ...(home?.header.logo ? { logo: { ...home.header.logo, alt: home.header.logo.alt || title } } : {}),
-    ...(str(index?.site_icon_url) ? { favicon: index?.site_icon_url as string } : home?.favicon ? { favicon: home.favicon } : {}),
+    ...(home?.header.logo
+      ? { logo: { ...home.header.logo, alt: home.header.logo.alt || title } }
+      : {}),
+    ...(str(index?.site_icon_url)
+      ? { favicon: index?.site_icon_url as string }
+      : home?.favicon
+        ? { favicon: home.favicon }
+        : {}),
     ...(lang ? { locale: lang } : {}),
     social,
     nav,
@@ -538,11 +582,15 @@ function bodySections(
 ): SqSection[] {
   if (!html.trim()) return [];
   const root = parseHtmlFragment(html);
-  return sectionsFrom(root, base, { postsPath });
+  return sectionsFrom(root, base, { postsPath, flat: true });
 }
 
 /** Navigation from the export's menus (the first menu, or one called primary/main/header). */
-function wxrNav(wxr: WxrFile | undefined, base: string, entries: { path: string; slug: string }[]): SqNavItem[] {
+function wxrNav(
+  wxr: WxrFile | undefined,
+  base: string,
+  entries: { path: string; slug: string }[],
+): SqNavItem[] {
   if (!wxr) return [];
   const items = wxr.items.filter((i) => i.postType === "nav_menu_item");
   if (!items.length) return [];
@@ -558,8 +606,8 @@ function wxrNav(wxr: WxrFile | undefined, base: string, entries: { path: string;
     const href =
       m._menu_item_type === "custom"
         ? m._menu_item_url
-        : target?.link ??
-          (target?.slug ? entries.find((e) => e.slug === target.slug)?.path : undefined);
+        : (target?.link ??
+          (target?.slug ? entries.find((e) => e.slug === target.slug)?.path : undefined));
     const label = decodeEntities(i.title || target?.title || "");
     if (!href || !label) return undefined;
     try {

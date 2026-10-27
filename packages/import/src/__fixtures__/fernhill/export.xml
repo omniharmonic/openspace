@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:wp="http://wordpress.org/export/1.2/">
+<channel>
+	<title>Fernhill Bakery</title>
+	<link>https://fernhill.example</link>
+	<description>Slow bread from a small oven</description>
+	<language>en-GB</language>
+	<wp:wxr_version>1.2</wp:wxr_version>
+	<item>
+		<title><![CDATA[Our first loaf]]></title>
+		<link>https://fernhill.example/2025/03/our-first-loaf/</link>
+		<dc:creator><![CDATA[rosa]]></dc:creator>
+		<content:encoded><![CDATA[<!-- wp:paragraph -->
+<p>It was a cold March morning when Gus finally rose.</p>
+<!-- /wp:paragraph -->]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>21</wp:post_id>
+		<wp:post_date_gmt><![CDATA[2025-03-14 07:30:00]]></wp:post_date_gmt>
+		<wp:post_name><![CDATA[our-first-loaf]]></wp:post_name>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_parent>0</wp:post_parent>
+		<wp:menu_order>0</wp:menu_order>
+		<wp:post_type><![CDATA[post]]></wp:post_type>
+		<category domain="category" nicename="baking"><![CDATA[Baking]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_yoast_wpseo_metadesc]]></wp:meta_key><wp:meta_value><![CDATA[From the export: how a stubborn starter became a bakery.]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title><![CDATA[Winter menu (draft)]]></title>
+		<link>https://fernhill.example/?p=23</link>
+		<dc:creator><![CDATA[rosa]]></dc:creator>
+		<content:encoded><![CDATA[Our winter menu is nearly ready.
+
+[caption id="attachment_41" align="aligncenter" width="1200"]<img class="size-large wp-image-41" src="https://fernhill.example/wp-content/uploads/2025/11/stollen.jpg" alt="Stollen" width="1200" height="800" /> Stollen, dusted and ready[/caption]
+
+Expect:
+- stollen
+- rye with caraway
+
+[gallery ids="41,42"]
+
+https://www.youtube.com/watch?v=aBcDeFgHiJk
+
+[newsletter_signup]]]></content:encoded>
+		<excerpt:encoded><![CDATA[]]></excerpt:encoded>
+		<wp:post_id>23</wp:post_id>
+		<wp:post_date_gmt><![CDATA[0000-00-00 00:00:00]]></wp:post_date_gmt>
+		<wp:post_date><![CDATA[2025-11-20 10:00:00]]></wp:post_date>
+		<wp:post_name><![CDATA[winter-menu]]></wp:post_name>
+		<wp:status><![CDATA[draft]]></wp:status>
+		<wp:post_parent>0</wp:post_parent>
+		<wp:menu_order>0</wp:menu_order>
+		<wp:post_type><![CDATA[post]]></wp:post_type>
+		<category domain="post_tag" nicename="seasonal"><![CDATA[seasonal]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_thumbnail_id]]></wp:meta_key><wp:meta_value><![CDATA[42]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title><![CDATA[Old offers]]></title>
+		<link>https://fernhill.example/old-offers/</link>
+		<content:encoded><![CDATA[<p>Nothing to see.</p>]]></content:encoded>
+		<wp:post_id>24</wp:post_id>
+		<wp:post_name><![CDATA[old-offers]]></wp:post_name>
+		<wp:status><![CDATA[draft]]></wp:status>
+		<wp:post_type><![CDATA[page]]></wp:post_type>
+	</item>
+	<item>
+		<title><![CDATA[stollen]]></title>
+		<wp:post_id>41</wp:post_id>
+		<wp:post_type><![CDATA[attachment]]></wp:post_type>
+		<wp:status><![CDATA[inherit]]></wp:status>
+		<wp:attachment_url><![CDATA[https://fernhill.example/wp-content/uploads/2025/11/stollen.jpg]]></wp:attachment_url>
+		<wp:postmeta><wp:meta_key><![CDATA[_wp_attachment_image_alt]]></wp:meta_key><wp:meta_value><![CDATA[Stollen on a board]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title><![CDATA[rye]]></title>
+		<wp:post_id>42</wp:post_id>
+		<wp:post_type><![CDATA[attachment]]></wp:post_type>
+		<wp:status><![CDATA[inherit]]></wp:status>
+		<wp:attachment_url><![CDATA[https://fernhill.example/wp-content/uploads/2025/11/rye.jpg]]></wp:attachment_url>
+	</item>
+	<item>
+		<title><![CDATA[Classes]]></title>
+		<wp:post_id>51</wp:post_id>
+		<wp:post_type><![CDATA[nav_menu_item]]></wp:post_type>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:menu_order>1</wp:menu_order>
+		<category domain="nav_menu" nicename="primary"><![CDATA[Primary]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_menu_item_type]]></wp:meta_key><wp:meta_value><![CDATA[custom]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_menu_item_url]]></wp:meta_key><wp:meta_value><![CDATA[https://fernhill.example/classes/]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_menu_item_menu_item_parent]]></wp:meta_key><wp:meta_value><![CDATA[0]]></wp:meta_value></wp:postmeta>
+	</item>
+</channel>
+</rss>

@@ -43,7 +43,8 @@ export function autop(raw: string): string {
     .join("\n");
 }
 
-const escAttr = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const escAttr = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
 function attrsOf(s: string): Record<string, string> {
   const out: Record<string, string> = {};
@@ -52,20 +53,34 @@ function attrsOf(s: string): Record<string, string> {
   return out;
 }
 
-const HANDLED = new Set(["caption", "wp_caption", "gallery", "embed", "video", "audio", "playlist"]);
+const HANDLED = new Set([
+  "caption",
+  "wp_caption",
+  "gallery",
+  "embed",
+  "video",
+  "audio",
+  "playlist",
+]);
 
 /** Expand the shortcodes OpenSpace can represent; strip (and report) the rest. */
 export function expandShortcodes(html: string, ctx: WpContentContext): string {
   let t = html;
   // [caption …]<img …> Caption[/caption]
-  t = t.replace(/\[(?:wp_)?caption([^\]]*)\]([\s\S]*?)\[\/(?:wp_)?caption\]/gi, (_, _a, inner: string) => {
-    const img = /(<a[^>]*>\s*)?<img[^>]*>(\s*<\/a>)?/i.exec(inner)?.[0] ?? "";
-    const cap = inner.replace(img, "").trim();
-    return `<figure class="wp-caption">${img}${cap ? `<figcaption>${cap}</figcaption>` : ""}</figure>`;
-  });
+  t = t.replace(
+    /\[(?:wp_)?caption([^\]]*)\]([\s\S]*?)\[\/(?:wp_)?caption\]/gi,
+    (_, _a, inner: string) => {
+      const img = /(<a[^>]*>\s*)?<img[^>]*>(\s*<\/a>)?/i.exec(inner)?.[0] ?? "";
+      const cap = inner.replace(img, "").trim();
+      return `<figure class="wp-caption">${img}${cap ? `<figcaption>${cap}</figcaption>` : ""}</figure>`;
+    },
+  );
   // [gallery ids="1,2,3"]
   t = t.replace(/\[gallery([^\]]*)\]/gi, (_, a: string) => {
-    const ids = (attrsOf(a).ids ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    const ids = (attrsOf(a).ids ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     const figs = ids
       .map((id) => ctx.attachments.get(id))
       .filter((x): x is Attachment => !!x)
@@ -84,7 +99,9 @@ export function expandShortcodes(html: string, ctx: WpContentContext): string {
     return `<figure class="wp-block-gallery">${figs.join("")}</figure>`;
   });
   // [embed]url[/embed]
-  t = t.replace(/\[embed[^\]]*\]([\s\S]*?)\[\/embed\]/gi, (_, url: string) => embedFigure(url.trim()));
+  t = t.replace(/\[embed[^\]]*\]([\s\S]*?)\[\/embed\]/gi, (_, url: string) =>
+    embedFigure(url.trim()),
+  );
   // [video src=""] / [audio mp3=""]
   t = t.replace(/\[video([^\]]*)\](?:[\s\S]*?\[\/video\])?/gi, (_, a: string) => {
     const at = attrsOf(a);
@@ -98,15 +115,20 @@ export function expandShortcodes(html: string, ctx: WpContentContext): string {
   });
   // Anything else: [name …]…[/name] or [name …].
   const seen = new Set<string>();
-  t = t.replace(/\[([a-z_][\w-]*)(?=[\s\]/])([^\]]*)\](?:([\s\S]*?)\[\/\1\])?/gi, (all, name: string, _a, inner?: string) => {
-    const n = name.toLowerCase();
-    if (HANDLED.has(n)) return all;
-    seen.add(n);
-    // Layout shortcodes (columns, rows) keep their content.
-    return /^(?:vc_|et_pb_|fusion_|one_|two_|three_|column|row|section|container|tab|toggle|accordion)/.test(n)
-      ? (inner ?? "")
-      : "";
-  });
+  t = t.replace(
+    /\[([a-z_][\w-]*)(?=[\s\]/])([^\]]*)\](?:([\s\S]*?)\[\/\1\])?/gi,
+    (all, name: string, _a, inner?: string) => {
+      const n = name.toLowerCase();
+      if (HANDLED.has(n)) return all;
+      seen.add(n);
+      // Layout shortcodes (columns, rows) keep their content.
+      return /^(?:vc_|et_pb_|fusion_|one_|two_|three_|column|row|section|container|tab|toggle|accordion)/.test(
+        n,
+      )
+        ? (inner ?? "")
+        : "";
+    },
+  );
   if (seen.size)
     ctx.notices.push({
       kind: "unsupported-block",
@@ -140,27 +162,31 @@ export function wpRawToHtml(raw: string, ctx: WpContentContext): string {
   let t = raw;
   if (/<!--\s*wp:/.test(t)) {
     const unknown = new Set<string>();
-    t = t.replace(/<!--\s*wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)\s*(\{[\s\S]*?\})?\s*\/-->/g, (_, n: string, json?: string) => {
-      const name = n.includes("/") ? n : `core/${n}`;
-      let attrs: Record<string, unknown> = {};
-      try {
-        attrs = json ? (JSON.parse(json) as Record<string, unknown>) : {};
-      } catch {
-        attrs = {};
-      }
-      const dyn = DYNAMIC[name];
-      if (dyn) return dyn(attrs);
-      if (name === "core/block") {
-        ctx.notices.push({
-          kind: "unsupported-block",
-          where: ctx.where,
-          message: "A reusable block (synced pattern) was referenced here; recreate it or paste its content.",
-        });
+    t = t.replace(
+      /<!--\s*wp:([a-z0-9-]+(?:\/[a-z0-9-]+)?)\s*(\{[\s\S]*?\})?\s*\/-->/g,
+      (_, n: string, json?: string) => {
+        const name = n.includes("/") ? n : `core/${n}`;
+        let attrs: Record<string, unknown> = {};
+        try {
+          attrs = json ? (JSON.parse(json) as Record<string, unknown>) : {};
+        } catch {
+          attrs = {};
+        }
+        const dyn = DYNAMIC[name];
+        if (dyn) return dyn(attrs);
+        if (name === "core/block") {
+          ctx.notices.push({
+            kind: "unsupported-block",
+            where: ctx.where,
+            message:
+              "A reusable block (synced pattern) was referenced here; recreate it or paste its content.",
+          });
+          return "";
+        }
+        if (!CHROME.test(name)) unknown.add(name);
         return "";
-      }
-      if (!CHROME.test(name)) unknown.add(name);
-      return "";
-    });
+      },
+    );
     // Embeds keep their URL in the wrapper (the extractor reads it); drop the comments.
     t = t.replace(/<!--\s*\/?wp:[^>]*?-->/g, "");
     if (unknown.size)
@@ -172,7 +198,9 @@ export function wpRawToHtml(raw: string, ctx: WpContentContext): string {
     return expandShortcodes(t, ctx);
   }
   // Classic editor: bare video URLs on their own line are oEmbeds.
-  t = t.replace(/^\s*(https?:\/\/\S+)\s*$/gm, (line, url: string) => (videoUrl(url) ? embedFigure(url) : line));
+  t = t.replace(/^\s*(https?:\/\/\S+)\s*$/gm, (line, url: string) =>
+    videoUrl(url) ? embedFigure(url) : line,
+  );
   return autop(expandShortcodes(t, ctx));
 }
 

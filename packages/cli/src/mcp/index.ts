@@ -7,7 +7,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { createMcpServer, type ImageResizer } from "@omniharmonic/openspace-mcp-tools";
 import { CliError, type Io } from "../io";
 import { FileSiteStore } from "./file-store";
-import { importSquarespaceTool } from "./import-tool";
+import { importSiteTool, importSquarespaceTool } from "./import-tool";
 import { createUrlScreenshotter, screenshotUrlTool } from "./reference-tool";
 import { createScreenshotter, loadPlaywright } from "./screenshot";
 
@@ -64,6 +64,7 @@ export async function runMcp(io: Io, dir: string, opts: McpOptions = {}): Promis
     {
       // Local only: these fetch the web (import writes a new site folder next to this one).
       tools: [
+        importSiteTool({ siteRoot: dir }),
         importSquarespaceTool({ siteRoot: dir }),
         screenshotUrlTool(urlShooter, "error" in pw ? pw.error : undefined),
       ],

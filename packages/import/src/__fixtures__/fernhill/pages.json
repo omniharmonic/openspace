@@ -1,0 +1,149 @@
+[
+ {
+  "id": 2,
+  "slug": "home",
+  "link": "https://fernhill.example/",
+  "title": {
+   "rendered": "Home"
+  },
+  "content": {
+   "rendered": "\n<div class=\"wp-block-cover alignfull\" style=\"min-height:80vh\"><span class=\"wp-block-cover__background has-background-dim\"></span><img class=\"wp-block-cover__image-background wp-image-30\" alt=\"\" src=\"https://fernhill.example/wp-content/uploads/2024/01/oven-1024x683.jpg\" srcset=\"https://fernhill.example/wp-content/uploads/2024/01/oven-1024x683.jpg 1024w, https://fernhill.example/wp-content/uploads/2024/01/oven-2048x1365.jpg 2048w\" data-object-fit=\"cover\"/><div class=\"wp-block-cover__inner-container\">\n<p class=\"has-small-font-size\">Since 2019</p>\n<h1 class=\"wp-block-heading has-text-align-center\">Slow bread from a small oven</h1>\n<p class=\"has-text-align-center\">Naturally leavened loaves, baked every morning in Fernhill.</p>\n<div class=\"wp-block-buttons\"><div class=\"wp-block-button\"><a class=\"wp-block-button__link wp-element-button\" href=\"https://fernhill.example/classes/\">Book a class</a></div><div class=\"wp-block-button is-style-outline\"><a class=\"wp-block-button__link wp-element-button\" href=\"https://fernhill.example/about/\">Our story</a></div></div>\n</div></div>\n<div class=\"wp-block-group alignfull has-background\" style=\"background-color:#f1e6d6\">\n<h2 class=\"wp-block-heading\">What we bake</h2>\n<div class=\"wp-block-columns\">\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><h3 class=\"wp-block-heading\">Sourdough</h3><p>Country loaves with a 36-hour ferment and a deep, blistered crust.</p></div>\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><h3 class=\"wp-block-heading\">Pastries</h3><p>Laminated by hand: croissants, cardamom buns and seasonal danishes.</p></div>\n<div class=\"wp-block-column\" style=\"flex-basis:33.33%\"><h3 class=\"wp-block-heading\">Classes</h3><p>Small weekend classes where you shape and bake your own loaf.</p></div>\n</div></div>\n<figure class=\"wp-block-gallery has-nested-images columns-3 is-cropped\">\n<figure class=\"wp-block-image size-large\"><img src=\"https://fernhill.example/wp-content/uploads/2024/02/loaves-1024x682.jpg\" srcset=\"https://fernhill.example/wp-content/uploads/2024/02/loaves-1024x682.jpg 1024w, https://fernhill.example/wp-content/uploads/2024/02/loaves-2048x1365.jpg 2048w, https://fernhill.example/wp-content/uploads/2024/02/loaves-300x200.jpg 300w\" width=\"2000\" height=\"1333\" alt=\"Loaves cooling on a rack\" class=\"\" loading=\"lazy\"/></figure>\n<figure class=\"wp-block-image size-large\"><img src=\"https://fernhill.example/wp-content/uploads/2024/02/buns-1024x682.jpg\" srcset=\"https://fernhill.example/wp-content/uploads/2024/02/buns-1024x682.jpg 1024w, https://fernhill.example/wp-content/uploads/2024/02/buns-2048x1365.jpg 2048w, https://fernhill.example/wp-content/uploads/2024/02/buns-300x200.jpg 300w\" width=\"2000\" height=\"1333\" alt=\"Cardamom buns\" class=\"\" loading=\"lazy\"/><figcaption class=\"wp-element-caption\">Cardamom buns, Saturdays only</figcaption></figure>\n<figure class=\"wp-block-image size-large\"><img src=\"https://fernhill.example/wp-content/uploads/2024/02/flour-1024x682.jpg\" srcset=\"https://fernhill.example/wp-content/uploads/2024/02/flour-1024x682.jpg 1024w, https://fernhill.example/wp-content/uploads/2024/02/flour-2048x1365.jpg 2048w, https://fernhill.example/wp-content/uploads/2024/02/flour-300x200.jpg 300w\" width=\"2000\" height=\"1333\" alt=\"Flour on the bench\" class=\"\" loading=\"lazy\"/></figure>\n</figure>\n<figure class=\"wp-block-pullquote\"><blockquote><p>The best bread in the county, and the kindest bakers.</p><cite>Local Food Guide</cite></blockquote></figure>\n<h2 class=\"wp-block-heading\">From the journal</h2>\n<ul class=\"wp-block-latest-posts__list wp-block-latest-posts\"><li><a class=\"wp-block-latest-posts__post-title\" href=\"https://fernhill.example/2025/09/rye-season/\">Rye season</a></li><li><a class=\"wp-block-latest-posts__post-title\" href=\"https://fernhill.example/2025/03/our-first-loaf/\">Our first loaf</a></li></ul>\n"
+  },
+  "excerpt": {
+   "rendered": ""
+  },
+  "parent": 0,
+  "menu_order": 0,
+  "featured_media": 0,
+  "_embedded": {},
+  "yoast_head_json": {
+   "title": "Fernhill Bakery &#8211; Sourdough in Fernhill",
+   "description": "Naturally leavened bread and pastries, baked every morning.",
+   "og_image": [
+    {
+     "url": "https://fernhill.example/wp-content/uploads/2024/01/oven.jpg",
+     "width": 2400,
+     "height": 1600
+    }
+   ],
+   "robots": {
+    "index": "index"
+   }
+  }
+ },
+ {
+  "id": 5,
+  "slug": "about",
+  "link": "https://fernhill.example/about/",
+  "title": {
+   "rendered": "About &amp; story"
+  },
+  "content": {
+   "rendered": "\n<p>Fernhill Bakery started in a garage with one deck oven and a <strong>very</strong> stubborn starter called Gus.</p>\n<p>Today we bake for the village every morning. Read <a href=\"https://fernhill.example/2025/03/our-first-loaf/\">how it began</a> or download our <a href=\"https://fernhill.example/wp-content/uploads/2024/03/price-list.pdf\">price list</a>.</p>\n<figure class=\"wp-block-image size-large\"><a href=\"https://fernhill.example/classes/\"><img src=\"https://fernhill.example/wp-content/uploads/2024/02/team-1024x768.jpg\" srcset=\"https://fernhill.example/wp-content/uploads/2024/02/team-1024x768.jpg 1024w, https://fernhill.example/wp-content/uploads/2024/02/team-2048x1536.jpg 2048w, https://fernhill.example/wp-content/uploads/2024/02/team-300x225.jpg 300w\" width=\"2000\" height=\"1500\" alt=\"The baking team\" class=\"\" loading=\"lazy\"/></a><figcaption>The team on a Saturday morning</figcaption></figure>\n<ul><li>Organic flour from Hollow Mill</li><li>Water from our own well</li><li>Salt, time and patience</li></ul>\n<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube\"><div class=\"wp-block-embed__wrapper\"><iframe title=\"Shaping a batard\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/aBcDeFgHiJk?feature=oembed\" allowfullscreen></iframe></div></figure>\n<hr class=\"wp-block-separator\"/>\n<figure class=\"wp-block-table\"><table><thead><tr><th>Loaf</th><th>Weight</th><th>Price</th></tr></thead><tbody><tr><td>Country</td><td>900 g</td><td>£5.50</td></tr><tr><td>Rye</td><td>750 g</td><td>£5.00</td></tr></tbody></table><figcaption>Daily loaves</figcaption></figure>\n"
+  },
+  "excerpt": {
+   "rendered": ""
+  },
+  "parent": 0,
+  "menu_order": 1,
+  "featured_media": 0,
+  "_embedded": {}
+ },
+ {
+  "id": 6,
+  "slug": "team",
+  "link": "https://fernhill.example/about/team/",
+  "title": {
+   "rendered": "The team"
+  },
+  "content": {
+   "rendered": "<div class=\"wp-block-media-text alignwide is-stacked-on-mobile\"><figure class=\"wp-block-media-text__media\"><img src=\"https://fernhill.example/wp-content/uploads/2024/02/rosa-1024x1280.jpg\" srcset=\"https://fernhill.example/wp-content/uploads/2024/02/rosa-1024x1280.jpg 1024w, https://fernhill.example/wp-content/uploads/2024/02/rosa-2048x2560.jpg 2048w, https://fernhill.example/wp-content/uploads/2024/02/rosa-300x375.jpg 300w\" width=\"1200\" height=\"1500\" alt=\"Rosa, head baker\" class=\"\" loading=\"lazy\"/></figure><div class=\"wp-block-media-text__content\"><h2 class=\"wp-block-heading\">Rosa Lind</h2><p>Head baker and keeper of Gus the starter since day one.</p></div></div>"
+  },
+  "excerpt": {
+   "rendered": ""
+  },
+  "parent": 5,
+  "menu_order": 2,
+  "featured_media": 0,
+  "_embedded": {}
+ },
+ {
+  "id": 7,
+  "slug": "classes",
+  "link": "https://fernhill.example/classes/",
+  "title": {
+   "rendered": "Classes"
+  },
+  "content": {
+   "rendered": "\n<p>Our classes run on Saturday afternoons for up to eight people.</p>\n<details class=\"wp-block-details\"><summary>Do I need any experience?</summary><p>None at all: we start from the very beginning.</p></details>\n<details class=\"wp-block-details\"><summary>What should I bring?</summary><p>Just an apron. We provide everything else, including a loaf to take home.</p></details>\n<div class=\"wp-block-buttons\"><div class=\"wp-block-button\"><a class=\"wp-block-button__link wp-element-button\" href=\"https://fernhill.example/contact/\">Ask about dates</a></div></div>\n[booking_widget id=\"4\"]\n"
+  },
+  "excerpt": {
+   "rendered": ""
+  },
+  "parent": 0,
+  "menu_order": 3,
+  "featured_media": 0,
+  "_embedded": {}
+ },
+ {
+  "id": 8,
+  "slug": "news",
+  "link": "https://fernhill.example/news/",
+  "title": {
+   "rendered": "News"
+  },
+  "content": {
+   "rendered": ""
+  },
+  "excerpt": {
+   "rendered": ""
+  },
+  "parent": 0,
+  "menu_order": 4,
+  "featured_media": 0,
+  "_embedded": {}
+ },
+ {
+  "id": 9,
+  "slug": "contact",
+  "link": "https://fernhill.example/contact/",
+  "title": {
+   "rendered": "Contact"
+  },
+  "content": {
+   "rendered": "\n<p>Questions about orders or classes? Send us a note.</p>\n<div class=\"wpcf7 js\" id=\"wpcf7-f12-p9-o1\" lang=\"en-GB\" dir=\"ltr\"><form action=\"/contact/#wpcf7-f12-p9-o1\" method=\"post\" class=\"wpcf7-form init\" aria-label=\"Contact form\">\n<div style=\"display: none;\"><input type=\"hidden\" name=\"_wpcf7\" value=\"12\" /></div>\n<p><label> Your name<br /><span class=\"wpcf7-form-control-wrap\" data-name=\"your-name\"><input size=\"40\" class=\"wpcf7-form-control wpcf7-text wpcf7-validates-as-required\" aria-required=\"true\" value=\"\" type=\"text\" name=\"your-name\" /></span></label></p>\n<p><label> Your email<br /><span class=\"wpcf7-form-control-wrap\" data-name=\"your-email\"><input size=\"40\" class=\"wpcf7-form-control wpcf7-email\" aria-required=\"true\" value=\"\" type=\"email\" name=\"your-email\" /></span></label></p>\n<p><label> Topic<br /><select name=\"topic\"><option value=\"\">—</option><option>Orders</option><option>Classes</option></select></label></p>\n<p><label> Your message<br /><textarea cols=\"40\" rows=\"10\" name=\"your-message\"></textarea></label></p>\n<p><input class=\"wpcf7-form-control wpcf7-submit\" type=\"submit\" value=\"Send message\" /></p>\n</form></div>\n<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2483!2d-1.2577!3d51.7520!2m3!1f0!2f0!3f0\" width=\"600\" height=\"450\" loading=\"lazy\"></iframe>\n"
+  },
+  "excerpt": {
+   "rendered": ""
+  },
+  "parent": 0,
+  "menu_order": 5,
+  "featured_media": 0,
+  "_embedded": {},
+  "yoast_head_json": {
+   "title": "Contact Fernhill Bakery",
+   "description": "Find us on Mill Lane or send a message.",
+   "robots": {
+    "index": "noindex"
+   }
+  }
+ },
+ {
+  "id": 10,
+  "slug": "cart",
+  "link": "https://fernhill.example/cart/",
+  "title": {
+   "rendered": "Cart"
+  },
+  "content": {
+   "rendered": "<div class=\"woocommerce\"></div>"
+  },
+  "excerpt": {
+   "rendered": ""
+  },
+  "parent": 0,
+  "menu_order": 6,
+  "featured_media": 0,
+  "_embedded": {}
+ }
+]

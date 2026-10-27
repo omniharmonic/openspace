@@ -27,11 +27,16 @@ export async function sitemapUrls(
   try {
     const robots = await fetcher.text(new URL("/robots.txt", base).toString());
     if (robots && robots.status < 400)
-      for (const m of robots.text.matchAll(/^\s*sitemap\s*:\s*(\S+)/gim)) queue.push(m[1] as string);
+      for (const m of robots.text.matchAll(/^\s*sitemap\s*:\s*(\S+)/gim))
+        queue.push(m[1] as string);
   } catch {
     // no robots.txt
   }
-  if (!queue.length) queue.push(new URL("/sitemap.xml", base).toString(), new URL("/sitemap_index.xml", base).toString());
+  if (!queue.length)
+    queue.push(
+      new URL("/sitemap.xml", base).toString(),
+      new URL("/sitemap_index.xml", base).toString(),
+    );
   const seen = new Set<string>();
   const paths: string[] = [];
   const lastmod = new Map<string, string>();
@@ -45,12 +50,18 @@ export async function sitemapUrls(
       if (r && r.status < 400 && /<(?:urlset|sitemapindex)\b/.test(r.text)) xml = r.text;
     } catch (e) {
       if (e instanceof RobotsDisallowed)
-        notices.push({ kind: "robots", where: url, message: "robots.txt asks tools not to read this sitemap; skipped." });
+        notices.push({
+          kind: "robots",
+          where: url,
+          message: "robots.txt asks tools not to read this sitemap; skipped.",
+        });
       continue;
     }
     if (!xml) continue;
     if (/<sitemapindex\b/.test(xml)) {
-      for (const m of xml.matchAll(/<sitemap>[\s\S]*?<loc>\s*([^<\s]+)\s*<\/loc>[\s\S]*?<\/sitemap>/g)) {
+      for (const m of xml.matchAll(
+        /<sitemap>[\s\S]*?<loc>\s*([^<\s]+)\s*<\/loc>[\s\S]*?<\/sitemap>/g,
+      )) {
         const loc = (m[1] as string).replace(/&amp;/g, "&");
         // Images/videos/products sitemaps aren't pages.
         if (/image|video|product|attachment|author|tag/i.test(loc)) continue;

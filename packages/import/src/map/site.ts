@@ -33,14 +33,7 @@ import { platformLabel } from "../platform";
 import { stripTags } from "../squarespace/blocks";
 import { normalizeIso } from "../squarespace/crawl";
 import { sectionsFromLayoutHtml } from "../squarespace/page";
-import type {
-  SqCollection,
-  SqItem,
-  SqNavItem,
-  SqNotice,
-  SqPage,
-  SqSite,
-} from "../types";
+import type { SqCollection, SqItem, SqNavItem, SqNotice, SqPage, SqSite } from "../types";
 import { linkFor, type MapContext, makeBlock } from "./blocks";
 import { mapFooter, mapSection, type SectionContext } from "./sections";
 import { mapTheme } from "./theme";

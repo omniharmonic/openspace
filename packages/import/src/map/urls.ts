@@ -93,7 +93,8 @@ export class UrlMap {
     }
     // Addresses the importer knows about beyond pages and items (category archives…).
     for (const r of site.redirects ?? []) {
-      if (this.pages.has(r.from) || this.items.has(r.from) || this.collections.has(r.from)) continue;
+      if (this.pages.has(r.from) || this.items.has(r.from) || this.collections.has(r.from))
+        continue;
       // `to` is an old address too (`/blog/category/news`): send it where that address went.
       const to = this.resolve(r.to);
       if (to.kind === "page" || to.kind === "item" || to.kind === "collection")

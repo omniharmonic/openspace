@@ -57,11 +57,17 @@ const GENERIC_FONTS =
 function firstFamily(v: string | undefined): string | undefined {
   if (!v) return undefined;
   for (const raw of v.split(",")) {
-    const f = raw.trim().replace(/^["']|["']$/g, "").trim();
+    const f = raw
+      .trim()
+      .replace(/^["']|["']$/g, "")
+      .trim();
     if (f && !GENERIC_FONTS.test(f)) return f;
   }
   // Only generic families: keep a recognizable one (Helvetica / Arial read as sans).
-  const f = v.split(",")[0]?.trim().replace(/^["']|["']$/g, "");
+  const f = v
+    .split(",")[0]
+    ?.trim()
+    .replace(/^["']|["']$/g, "");
   return f && !/^var\(|inherit|initial/.test(f) ? f : undefined;
 }
 
@@ -83,10 +89,13 @@ function resolver(vars: Map<string, string>) {
   const resolve = (v: string | undefined, depth = 0): string | undefined => {
     if (!v) return undefined;
     if (depth > 6) return v;
-    return v.replace(/var\(\s*(--[\w-]+)\s*(?:,\s*([^()]*(?:\([^()]*\))?[^()]*))?\)/g, (_, name: string, fb?: string) => {
-      const got = vars.get(name);
-      return resolve(got ?? fb ?? "", depth + 1) ?? "";
-    });
+    return v.replace(
+      /var\(\s*(--[\w-]+)\s*(?:,\s*([^()]*(?:\([^()]*\))?[^()]*))?\)/g,
+      (_, name: string, fb?: string) => {
+        const got = vars.get(name);
+        return resolve(got ?? fb ?? "", depth + 1) ?? "";
+      },
+    );
   };
   return resolve;
 }
@@ -107,11 +116,16 @@ const sizeRem = (v: string | undefined): number | undefined => {
   return m[2] === "px" ? n / 16 : n;
 };
 
-const isBodySel = (s: string) => /^(?:html|body|:root|\.site|#site|\.page-wrapper|\.wp-site-blocks|#SITE_CONTAINER)$/i.test(s);
-const isHeadingSel = (s: string) => /^(?:h1|h2|\.h1|\.h2|h1\s*\.[\w-]+|\.heading-1|\.wp-block-heading|\.elementor-heading-title|\.font_0|\.font_2)$/i.test(s);
+const isBodySel = (s: string) =>
+  /^(?:html|body|:root|\.site|#site|\.page-wrapper|\.wp-site-blocks|#SITE_CONTAINER)$/i.test(s);
+const isHeadingSel = (s: string) =>
+  /^(?:h1|h2|\.h1|\.h2|h1\s*\.[\w-]+|\.heading-1|\.wp-block-heading|\.elementor-heading-title|\.font_0|\.font_2)$/i.test(
+    s,
+  );
 const isButtonSel = (s: string) =>
-  /(?:^|\s|\.)(?:btn|button|w-button|wp-block-button__link|wp-element-button|elementor-button|wixui-button|cta)\b/i.test(s) &&
-  !/:(?:hover|focus|active|disabled)/.test(s);
+  /(?:^|\s|\.)(?:btn|button|w-button|wp-block-button__link|wp-element-button|elementor-button|wixui-button|cta)\b/i.test(
+    s,
+  ) && !/:(?:hover|focus|active|disabled)/.test(s);
 
 /** Google Fonts `family=Playfair+Display:wght@400;700&family=Inter` → names. */
 export function googleFontFamilies(css: string): string[] {
@@ -154,16 +168,23 @@ export function themeFromCss(css: string, computed: ComputedLook = {}): SqTheme 
   const background =
     colorOf(computed.background) ??
     colorOf(pick(isBodySel, ["background-color", "background"])) ??
-    colorOf(vars.get("--wp--preset--color--base") ? resolve(vars.get("--wp--preset--color--base")) : undefined);
+    colorOf(
+      vars.get("--wp--preset--color--base")
+        ? resolve(vars.get("--wp--preset--color--base"))
+        : undefined,
+    );
   const textColor =
     colorOf(computed.text) ??
     colorOf(pick(isBodySel, ["color"])) ??
     colorOf(resolve(vars.get("--wp--preset--color--contrast")));
   const buttonBgRaw = computed.buttonBg ?? pick(isButtonSel, ["background-color", "background"]);
   const buttonBg = colorOf(buttonBgRaw);
-  const link = colorOf(computed.link) ?? colorOf(pick((s) => s === "a" || s === "a:link", ["color"]));
+  const link =
+    colorOf(computed.link) ?? colorOf(pick((s) => s === "a" || s === "a:link", ["color"]));
   const named = [...vars.entries()]
-    .filter(([k]) => /primary|accent|brand|secondary|highlight|theme-color|main-color|vivid/i.test(k))
+    .filter(([k]) =>
+      /primary|accent|brand|secondary|highlight|theme-color|main-color|vivid/i.test(k),
+    )
     .map(([, v]) => colorOf(resolve(v)))
     .find(chromatic);
   // Most used chromatic color, as a last resort.
@@ -177,11 +198,23 @@ export function themeFromCss(css: string, computed: ComputedLook = {}): SqTheme 
   // Fonts.
   const google = googleFontFamilies(css);
   const wpHeading = firstFamily(resolve(vars.get("--wp--preset--font-family--heading")));
-  const wpBody = firstFamily(resolve(vars.get("--wp--preset--font-family--body") ?? vars.get("--wp--preset--font-family--system-font")));
+  const wpBody = firstFamily(
+    resolve(
+      vars.get("--wp--preset--font-family--body") ??
+        vars.get("--wp--preset--font-family--system-font"),
+    ),
+  );
   const headingFamily =
-    firstFamily(computed.headingFont) ?? firstFamily(pick(isHeadingSel, ["font-family"])) ?? wpHeading ?? google[0];
+    firstFamily(computed.headingFont) ??
+    firstFamily(pick(isHeadingSel, ["font-family"])) ??
+    wpHeading ??
+    google[0];
   const bodyFamily =
-    firstFamily(computed.bodyFont) ?? firstFamily(pick(isBodySel, ["font-family"])) ?? wpBody ?? google[1] ?? google[0];
+    firstFamily(computed.bodyFont) ??
+    firstFamily(pick(isBodySel, ["font-family"])) ??
+    wpBody ??
+    google[1] ??
+    google[0];
   const headingWeight =
     computed.headingWeight ?? (Number(pick(isHeadingSel, ["font-weight"])) || undefined);
   // Buttons.
@@ -211,7 +244,9 @@ export function themeFromCss(css: string, computed: ComputedLook = {}): SqTheme 
     ...(background ? { siteBackground: background } : {}),
     fonts: {
       ...(headingFamily
-        ? { heading: { family: headingFamily, ...(headingWeight ? { weight: headingWeight } : {}) } }
+        ? {
+            heading: { family: headingFamily, ...(headingWeight ? { weight: headingWeight } : {}) },
+          }
         : {}),
       ...(bodyFamily ? { body: { family: bodyFamily } } : {}),
     },

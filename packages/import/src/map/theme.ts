@@ -125,7 +125,9 @@ export function mapTheme(site: SqSite): ThemeDecision {
   let source: "brand" | "curated" = "brand";
   if (picked) {
     brand = picked.brand;
-    notes.push(`Brand color ${picked.brand} (${from === "Squarespace" ? `Squarespace "${picked.from}"` : `the site's ${picked.from === "accent" ? "accent" : picked.from}`} color).`);
+    notes.push(
+      `Brand color ${picked.brand} (${from === "Squarespace" ? `Squarespace "${picked.from}"` : `the site's ${picked.from === "accent" ? "accent" : picked.from}`} color).`,
+    );
   } else {
     const dark = t.colors.darkAccent ?? t.colors.black;
     // A monochrome site: ink brand; snap to the curated Monochrome palette when close.

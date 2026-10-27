@@ -93,7 +93,8 @@ export function parseWxr(xml: string): WxrFile {
       value: tag(pm.value, "wp:meta_value"),
     }));
     const thumb = meta.find((pm) => pm.key === "_thumbnail_id")?.value;
-    const date = tag(x, "wp:post_date_gmt") ?? tag(x, "wp:post_date");
+    const gmt = tag(x, "wp:post_date_gmt");
+    const date = gmt && !gmt.startsWith("0000") ? gmt : (tag(x, "wp:post_date") ?? gmt);
     const pubDate = tag(x, "pubDate");
     let iso: string | undefined;
     if (date && /^\d{4}-\d{2}-\d{2}/.test(date) && !date.startsWith("0000"))

@@ -136,7 +136,10 @@ export class MediaImporter {
         };
       } catch (e) {
         lastError = (e as Error).message;
-        if (!/larger than|too_large|px on the long edge/i.test(lastError) && !img.alternates?.length)
+        if (
+          !/larger than|too_large|px on the long edge/i.test(lastError) &&
+          !img.alternates?.length
+        )
           break;
       }
     }
