@@ -13,8 +13,8 @@ import {
   Rows3,
   Trash2,
 } from "lucide-react";
-import { type FormEvent, useMemo, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import {
   useDeleteSite,
   useRetryImport,
@@ -509,6 +509,58 @@ function GardenerTable({
   );
 }
 
+/** What came back from GitHub's install page (`/sites?github=…`), said once, in plain words. */
+const GITHUB_OUTCOMES: Record<
+  string,
+  { tone?: "success" | "danger"; title: string; text: string }
+> = {
+  connected: {
+    tone: "success",
+    title: "GitHub is connected",
+    text: "Your sites can be saved and published.",
+  },
+  cancelled: {
+    title: "The GitHub step wasn’t finished",
+    text: "No problem. If a site still needs it, its card shows Connect GitHub — choose it to try again.",
+  },
+  requested: {
+    title: "Request sent",
+    text: "Your organization’s owner needs to approve OpenSpace on GitHub. We’ll carry on once they do.",
+  },
+  repo_access: {
+    title: "One more permission",
+    text: "OpenSpace can only see some of your repositories. The site’s card shows how to give it access.",
+  },
+  not_yours: {
+    tone: "danger",
+    title: "That GitHub permission belongs to a different account",
+    text: "Sign in to GitHub as yourself and try again.",
+  },
+  error: {
+    tone: "danger",
+    title: "We couldn’t check with GitHub just now",
+    text: "Wait a moment, then try again.",
+  },
+};
+
+function useGitHubOutcome() {
+  const [params, setParams] = useSearchParams();
+  const outcome = params.get("github");
+  useEffect(() => {
+    if (!outcome) return;
+    const o = GITHUB_OUTCOMES[outcome];
+    if (o) toast({ ...(o.tone ? { tone: o.tone } : {}), title: o.title, description: o.text });
+    setParams(
+      (p) => {
+        const next = new URLSearchParams(p);
+        next.delete("github");
+        return next;
+      },
+      { replace: true },
+    );
+  }, [outcome, setParams]);
+}
+
 const VIEW_KEY = "openspace.dashboard.view";
 
 function readView(): View {
@@ -526,6 +578,7 @@ export function Dashboard() {
   const sites = useSites({ enabled: Boolean(user), pollMs: timing.pollMs * 2 });
   const templates = useTemplates();
   const navigate = useNavigate();
+  useGitHubOutcome();
   const [view, setViewState] = useState<View>(readView);
   const [transferring, setTransferring] = useState<Site | null>(null);
   const [deleting, setDeleting] = useState<Site | null>(null);

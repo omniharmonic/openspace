@@ -124,6 +124,10 @@ describe("onboarding: template → details → sign in → building → editor",
   it("skips sign-in when already signed in", async () => {
     const { user } = renderStudio("/new/signal?look=volt", { user: SAM });
     await user.type(await screen.findByLabelText("Site name"), "Tidewater");
+    // Already signed in: the steps don't show a "Sign in" step.
+    const steps = screen.getByRole("list", { name: "Steps" });
+    expect(within(steps).queryByText("Sign in")).not.toBeInTheDocument();
+    expect(within(steps).getByText("Go live")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Create my site" }));
     expect(
       await screen.findByRole("heading", { name: "Setting up your site…" }),

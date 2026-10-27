@@ -1,6 +1,7 @@
 import type { Redirect } from "@omniharmonic/openspace-schema";
 import {
   ArrowUpRight,
+  Bot,
   Check,
   Clock,
   ExternalLink,
@@ -8,7 +9,6 @@ import {
   HandHeart,
   Inbox,
   Lock,
-  Bot,
   Mail,
   PenLine,
   Sparkles,

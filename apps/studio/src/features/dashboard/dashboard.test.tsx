@@ -63,6 +63,12 @@ describe("dashboard", () => {
     expect(hub.calls.some((c) => c.method === "retryPublish")).toBe(false);
   });
 
+  it("says what happened when GitHub sends someone back without finishing", async () => {
+    const { router } = renderStudio("/sites?github=cancelled", { user: SAM, sites });
+    expect(await screen.findByText("The GitHub step wasn’t finished")).toBeInTheDocument();
+    await waitFor(() => expect(router.state.location.search).toBe(""));
+  });
+
   it("invites people with no sites to make one", async () => {
     const { user, router } = renderStudio("/sites", { user: SAM, sites: [] });
     expect(
