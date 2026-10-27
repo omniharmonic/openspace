@@ -35,7 +35,10 @@ export function remoteImages(doc: SiteDocument): Map<string, { width?: number; h
     }
     const o = v as Record<string, unknown>;
     for (const [k, x] of Object.entries(o)) {
-      if (typeof x === "string" && /^(src|image|poster)$/.test(k) && isRemote(x)) {
+      // Any image field: `src` of image values (photos, portraits, avatars, gallery items,
+      // backgrounds, posters) and plain-string ones (`seo.image`, `avatar`, `cover`, …). Links
+      // (`href`/`url`) never point at a photo the page shows.
+      if (typeof x === "string" && !/^(href|url|link)$/i.test(k) && isRemote(x)) {
         const dims = {
           ...(typeof o.width === "number" ? { width: o.width } : {}),
           ...(typeof o.height === "number" ? { height: o.height } : {}),
@@ -85,6 +88,21 @@ const variant = (src: string, w: number, fm: string) => {
   if (!u.searchParams.has("q")) u.searchParams.set("q", "80");
   return u.toString();
 };
+
+/**
+ * Widths to publish for a photo the content asks for at `master` px: the renderer's widths up
+ * to it, and for small photos (portraits, avatars: below the renderer's widths' midpoint) the
+ * photo's own width and twice it, so they are sharp on 2x screens instead of being skipped
+ * (and hot-linked) for being smaller than the smallest renderer width.
+ */
+export function remoteWidths(master: number): number[] {
+  const out = new Set<number>(REMOTE_WIDTHS.filter((w) => w <= master));
+  if (master < 960) {
+    out.add(master);
+    out.add(master * 2);
+  }
+  return [...out].sort((a, b) => a - b);
+}
 
 const DOWNLOAD_TIMEOUT_MS = 20_000;
 
@@ -148,7 +166,7 @@ async function plan(
       const [src, dims] = next;
       const hash = createHash("sha256").update(src).digest("hex").slice(0, 12);
       const master = Number(new URL(src).searchParams.get("w")) || 1080;
-      const widths = REMOTE_WIDTHS.filter((w) => w <= master);
+      const widths = remoteWidths(master);
       if (!widths.length) continue;
       const largest = widths[widths.length - 1] as number;
       const byFormat: Record<string, string[]> = {};
