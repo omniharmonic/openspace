@@ -269,10 +269,10 @@ describe("importing the Juniper fixture (HTML and sitemap only)", () => {
       expect.arrayContaining([
         {
           from: "/journal/2025/3/14/first-firing-of-spring",
-          to: "/journal/first-firing-of-spring",
+          to: "/journal/first-firing-of-spring/",
           status: 301,
         },
-        { from: "/shop/p/speckled-mug", to: "/shop/speckled-mug", status: 301 },
+        { from: "/shop/p/speckled-mug", to: "/shop/speckled-mug/", status: 301 },
       ]),
     );
   });

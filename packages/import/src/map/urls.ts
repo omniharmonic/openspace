@@ -93,9 +93,17 @@ export class UrlMap {
     }
   }
 
-  private addRedirect(from: string, to: string) {
+  private addRedirect(from: string, toPath: string) {
+    // Published addresses end in a slash: point straight at them (no second hop).
+    const to = toPath === "/" || toPath.endsWith("/") ? toPath : `${toPath}/`;
     const safe = encodeURI(from).replace(/[?#]/g, "");
-    if (!safe.startsWith("/") || safe === to || this.redirects.some((r) => r.from === safe)) return;
+    if (
+      !safe.startsWith("/") ||
+      safe === toPath ||
+      safe === to ||
+      this.redirects.some((r) => r.from === safe)
+    )
+      return;
     this.redirects.push({ from: safe, to });
   }
 
