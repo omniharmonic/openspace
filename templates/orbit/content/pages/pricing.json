@@ -1,0 +1,608 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_scxghk4vxy",
+  "title": "Pricing",
+  "slug": "pricing",
+  "seo": {
+    "description": "Relay pricing: free for two seats, then $15 or $29 per seat a month. Compare every plan feature by feature and save 20% yearly."
+  },
+  "sections": [
+    {
+      "id": "sec_1pcy2tyj8a",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_m8y90cnqa4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Pay for seats, not conversations",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Pricing",
+            "subheading": "Free for two seats, forever. Paid plans add a help centre, rules and reports — with 20% off when you pay yearly."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_yqr0app24s",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start free",
+            "link": {
+              "type": "url",
+              "url": "https://app.relay.example/signup"
+            },
+            "role": "primary",
+            "secondaryLabel": "Talk to sales",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_gk5sprgha6"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_pd1mnvk7g6",
+      "preset": "pricing/full-comparison@1",
+      "label": "Plans with full comparison",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_x69yrrzhqm",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Simple, per-seat pricing",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Plans",
+            "subheading": "Every plan includes unlimited conversations, customers and help articles."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_0s8dsjtsv2",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Starter",
+                "price": "$0",
+                "period": "for 2 seats",
+                "description": "For founders answering their own email.",
+                "features": [
+                  {
+                    "text": "Shared inbox"
+                  },
+                  {
+                    "text": "Saved replies"
+                  },
+                  {
+                    "text": "Email and chat"
+                  }
+                ],
+                "buttonLabel": "Start free",
+                "link": {
+                  "type": "url",
+                  "url": "https://app.relay.example/signup"
+                },
+                "featured": false
+              },
+              {
+                "name": "Team",
+                "price": "$15",
+                "period": "per seat / month",
+                "description": "For support teams of three to thirty.",
+                "features": [
+                  {
+                    "text": "Everything in Starter"
+                  },
+                  {
+                    "text": "Help centre on your domain"
+                  },
+                  {
+                    "text": "Rules, tags and SLAs"
+                  },
+                  {
+                    "text": "Reports"
+                  }
+                ],
+                "buttonLabel": "Try Team free",
+                "link": {
+                  "type": "url",
+                  "url": "https://app.relay.example/signup"
+                },
+                "featured": true,
+                "badge": "Most teams"
+              },
+              {
+                "name": "Business",
+                "price": "$29",
+                "period": "per seat / month",
+                "description": "For larger teams with security reviews.",
+                "features": [
+                  {
+                    "text": "Everything in Team"
+                  },
+                  {
+                    "text": "SSO and audit log"
+                  },
+                  {
+                    "text": "Named success manager"
+                  }
+                ],
+                "buttonLabel": "Talk to sales",
+                "link": {
+                  "type": "url",
+                  "url": "/contact/"
+                },
+                "featured": false
+              }
+            ]
+          },
+          "variant": "cards"
+        },
+        {
+          "id": "blk_5cywdw2hhp",
+          "type": "table",
+          "v": 1,
+          "fields": {
+            "caption": "What's included in each Relay plan",
+            "columns": [
+              {
+                "label": "Starter",
+                "detail": "$0",
+                "highlight": false
+              },
+              {
+                "label": "Team",
+                "detail": "$15",
+                "highlight": true
+              },
+              {
+                "label": "Business",
+                "detail": "$29",
+                "highlight": false
+              }
+            ],
+            "rows": [
+              {
+                "label": "Inbox",
+                "group": true,
+                "cells": []
+              },
+              {
+                "label": "Shared inbox",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Live chat",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Rules and SLAs",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Help centre",
+                "group": true,
+                "cells": []
+              },
+              {
+                "label": "Articles",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "25"
+                  },
+                  {
+                    "value": "Unlimited"
+                  },
+                  {
+                    "value": "Unlimited"
+                  }
+                ]
+              },
+              {
+                "label": "Custom domain",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Security",
+                "group": true,
+                "cells": []
+              },
+              {
+                "label": "SSO",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Audit log",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              }
+            ],
+            "corner": "Features"
+          },
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_wsq47vqfw8",
+      "preset": "faq/two-column@1",
+      "label": "Questions in two columns",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 18,
+          "m": 32
+        },
+        "items": {
+          "blk_3xkc9m7pre": {
+            "d": {
+              "x": 4,
+              "y": 1,
+              "w": 18,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_7ah0ha4b9p": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 12,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 8,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_ctk49j25aw": {
+            "d": {
+              "x": 13,
+              "y": 7,
+              "w": 12,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 12
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_3xkc9m7pre",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Questions about billing",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "FAQ"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_7ah0ha4b9p",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "What counts as a seat?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Anyone who replies to customers. Read-only teammates are free."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I switch plans later?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes, any time. We prorate the difference on your next invoice."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "lines"
+        },
+        {
+          "id": "blk_ctk49j25aw",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Do you offer nonprofit discounts?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Registered nonprofits get 50% off Team and Business."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "How does the free trial work?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Team features free for 14 days, then you choose a plan or stay on Starter."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_rnq7dw1cvv",
+      "preset": "cta/with-testimonial@1",
+      "label": "Action with review",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_e4krgbxgv7",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Start free, upgrade when it helps",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Most teams move to Team in their second month."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_rd4nt3kbgn",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Create a workspace",
+            "link": {
+              "type": "url",
+              "url": "https://app.relay.example/signup"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_zv8bz3ch4k",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We trialled four tools. Relay was the one the whole team actually liked using."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Marta Oyelaran",
+            "role": "Support lead, Orchard Pay",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Portrait of a woman with long brown hair in a striped shirt",
+              "width": 320,
+              "height": 479
+            },
+            "rating": 5
+          },
+          "column": 1,
+          "variant": "card",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    }
+  ]
+}

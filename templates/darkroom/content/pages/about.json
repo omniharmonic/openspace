@@ -1,0 +1,449 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_2rv4hb1aae",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Mara Quill has photographed people for magazines, publishers and families for twelve years. Read about her approach, clients and press."
+  },
+  "sections": [
+    {
+      "id": "sec_1vm7f1cawf",
+      "preset": "hero/personal-intro@1",
+      "label": "Personal introduction",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            0,
+            1
+          ],
+          "t": [
+            0,
+            1
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_hm77zz4npr",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1549981832-2ba2ee913334?w=840&q=80",
+              "alt": "Mara Quill holding her camera",
+              "width": 840,
+              "height": 1260
+            },
+            "aspect": "1:1",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default",
+          "style": {
+            "imageTreatment": "circle"
+          }
+        },
+        {
+          "id": "blk_c551zw0xx5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "I'm Mara. I take my time.",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About",
+            "subheading": "Twelve years photographing people for magazines, publishers and their families — always in natural light, always slowly."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_9bpwbn1atm",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Sessions & prices",
+            "link": {
+              "type": "page",
+              "page": "pg_7dmpqcv4k7"
+            },
+            "role": "primary",
+            "secondaryLabel": "Write to me",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_qp79g004am"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_gbgsdre5ev",
+      "preset": "about/story-numbers@1",
+      "label": "Story with numbers",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_1mv7qe7p17",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "From darkroom assistant to my own studio",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The story"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_wjp6wnsg6a",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I learned to print in a basement darkroom in Philadelphia, then spent six years assisting editorial photographers before going on my own in 2014."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I still shoot a roll of film on every job, and every client gets one hand-printed photograph in the post."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_h640j49yrh",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "2014",
+                "label": "Working for myself since"
+              },
+              {
+                "value": "600+",
+                "label": "Portrait sessions"
+              },
+              {
+                "value": "38",
+                "label": "Magazine and book commissions"
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "large"
+        }
+      ]
+    },
+    {
+      "id": "sec_m6ydj6yn7p",
+      "preset": "about/recognition@1",
+      "label": "Awards and recognition",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_2c6bad0eg5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Exhibitions and awards",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Recognition"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_8evpfmk4n6",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A few moments I'm proud of, and the people who made them possible."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_pyk3rq3se3",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "award",
+                "title": "Portrait Prize shortlist, 2025",
+                "text": "For Faces of the Guild."
+              },
+              {
+                "icon": "image",
+                "title": "After Hours, solo exhibition",
+                "text": "Atlantic Avenue Gallery, 2026."
+              },
+              {
+                "icon": "book-open",
+                "title": "Faces of the Guild, the book",
+                "text": "Published by Saltmarsh Press."
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 1,
+          "variant": "list",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_jn350f2acq",
+      "preset": "testimonials/press-quotes@1",
+      "label": "Press quotes",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            4,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_vcqgxpxj3k",
+          "type": "quote",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Patient, unshowy portraits that let their subjects breathe."
+                    }
+                  ]
+                }
+              ]
+            },
+            "source": "Field & Atlas"
+          },
+          "column": 0,
+          "variant": "classic"
+        },
+        {
+          "id": "blk_aredwxe4tk",
+          "type": "quote",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "One of the most humane portrait books of the year."
+                    }
+                  ]
+                }
+              ]
+            },
+            "source": "The Evening Ledger"
+          },
+          "column": 1,
+          "variant": "classic"
+        },
+        {
+          "id": "blk_2t8sxq95xy",
+          "type": "quote",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Quill's night portraits glow without a single flash."
+                    }
+                  ]
+                }
+              ]
+            },
+            "source": "City Arts Weekly"
+          },
+          "column": 2,
+          "variant": "classic"
+        }
+      ]
+    },
+    {
+      "id": "sec_qqwad45934",
+      "preset": "cta/big-type@1",
+      "label": "Big type call to action",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            9,
+            3
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_1s0k8bgvdw",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Let's make a portrait you'll keep.",
+            "level": "h2",
+            "size": "display"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_am2bfknm45",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get in touch",
+            "link": {
+              "type": "page",
+              "page": "pg_qp79g004am"
+            },
+            "role": "primary"
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

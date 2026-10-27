@@ -1,0 +1,39 @@
+{
+  "kind": "blog",
+  "label": "Changelog",
+  "itemLabel": "Release",
+  "slugPattern": "{date}-{title}",
+  "list": {
+    "layout": "list",
+    "pageSize": 20,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": true,
+    "showRelated": false
+  },
+  "taxonomies": {
+    "categories": [
+      {
+        "slug": "new",
+        "label": "New"
+      },
+      {
+        "slug": "improved",
+        "label": "Improved"
+      },
+      {
+        "slug": "fixed",
+        "label": "Fixed"
+      }
+    ],
+    "tags": false
+  },
+  "feed": {
+    "enabled": true,
+    "title": "Relay changelog",
+    "description": "What's new in Relay."
+  }
+}

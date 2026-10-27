@@ -1,0 +1,141 @@
+{
+  "$comment": "Licenses for the demo media in the Orbit template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1460925895917-afdab827c52f",
+      "title": "A laptop on a desk showing a light dashboard with graphs",
+      "author": "Carlos Muza",
+      "authorUrl": "https://unsplash.com/@kmuza",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/laptop-computer-on-glass-top-table-hpjSkU2UYSU",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6",
+      "title": "A smiling man in a grey t-shirt outdoors",
+      "author": "Elizeu Dias",
+      "authorUrl": "https://unsplash.com/@elishavision",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/selective-focus-of-man-smiling-during-daytime-2EGNqazbAMk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+      "title": "A monitor showing charts and a dashboard in a dark room",
+      "author": "Luke Chesser",
+      "authorUrl": "https://unsplash.com/@lukechesser",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/graphs-of-performance-analytics-on-a-laptop-screen-JKUTrJ4vK00",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956",
+      "title": "Portrait of a woman with dark hair pinned up, smiling",
+      "author": "Jake Nackos",
+      "authorUrl": "https://unsplash.com/@jakenackos",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1582005450386-52b25f82d9bb",
+      "title": "People working on laptops in a bright open office",
+      "author": "S O C I A L . C U T",
+      "authorUrl": "https://unsplash.com/@socialcut",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/3-women-sitting-on-chair-in-front-of-table-with-laptop-computers-r0saAQNjEjQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1583508915901-b5f84c1dcde1",
+      "title": "A developer working at a desk with two monitors",
+      "author": "Luke Peters",
+      "authorUrl": "https://unsplash.com/@lukepeters",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-in-gray-dress-shirt-sitting-on-chair-in-front-of-computer-monitor-B6JINerWMz0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1589362281138-e3f7ebe47f1a",
+      "title": "A minimal desk with a laptop and a small plant",
+      "author": "Minh Pham",
+      "authorUrl": "https://unsplash.com/@minhphamdesign",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/macbook-pro-on-brown-wooden-table-IisDPFNUS4k",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1614436201459-156d322d38c6",
+      "title": "A smiling woman with a shoulder-length bob by the water",
+      "author": "Halil Ibrahim Cetinkaya",
+      "authorUrl": "https://unsplash.com/@hicetinkaya",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-brown-scarf-and-brown-scarf-WzGC8xSyqfg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1639747280804-dd2d6b3d88ac",
+      "title": "A smiling man in a green shirt standing outdoors",
+      "author": "PodMatch",
+      "authorUrl": "https://unsplash.com/@podmatch",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-in-a-green-shirt-is-posing-for-a-picture-GEnCnYhA1J4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1675716921224-e087a0cca69a",
+      "title": "Two people in conversation at a busy meetup",
+      "author": "M ACCELERATOR",
+      "authorUrl": "https://unsplash.com/@m_accelerator",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-group-of-people-standing-in-a-room-yTsy3PYFPtc",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1758873268695-1b55590e507a",
+      "title": "Four colleagues laughing together at a computer screen",
+      "author": "Vitaly Gariev",
+      "authorUrl": "https://unsplash.com/@silverkblack",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/diverse-team-collaborating-around-a-computer-screen-Y32qbykD69g",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

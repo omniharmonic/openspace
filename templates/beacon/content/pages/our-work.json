@@ -1,0 +1,855 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_zxh6325yyt",
+  "title": "Our work",
+  "slug": "our-work",
+  "seo": {
+    "description": "How Shade Street Trust chooses where to plant, how trees are cared for and what twelve school gardens grow. Our programmes and results."
+  },
+  "sections": [
+    {
+      "id": "sec_4nfrn2v5nw",
+      "preset": "hero/frame-photo@1",
+      "label": "Framed photograph",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 29,
+          "m": 28
+        },
+        "items": {
+          "blk_ng7pq6x4vz": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 24,
+              "h": 22
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 14
+            }
+          },
+          "blk_9713bd4mzx": {
+            "d": {
+              "x": 2,
+              "y": 15,
+              "w": 10,
+              "h": 12,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 12,
+              "w": 8,
+              "h": 13,
+              "z": 2
+            }
+          },
+          "blk_k3sthpdaes": {
+            "d": {
+              "x": 2,
+              "y": 27,
+              "w": 10,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 26,
+              "w": 8,
+              "h": 3
+            }
+          }
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "lg",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_ng7pq6x4vz",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1631195414013-85b70ff2c180?w=2880&q=80",
+              "alt": "A community garden of raised beds between houses",
+              "width": 2880,
+              "height": 1922
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_9713bd4mzx",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Our work"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1,
+                    "preset": "h1"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Planting where the heat is worst"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We use the city's heat maps to choose blocks, then plant only where residents ask for trees."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_k3sthpdaes",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get involved",
+            "link": {
+              "type": "page",
+              "page": "pg_rpwvmy6qxn"
+            },
+            "role": "primary",
+            "secondaryLabel": "Donate",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_aa79ztc7zb"
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_c708dqbpxx",
+      "preset": "features/alternating-rows@1",
+      "label": "Alternating feature rows",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 59,
+          "m": 71
+        },
+        "items": {
+          "blk_8w9nnfz516": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_gkys4ntrhj": {
+            "d": {
+              "x": 1,
+              "y": 8,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 8,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_py9wee8w32": {
+            "d": {
+              "x": 15,
+              "y": 12,
+              "w": 10,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_fs6r7rwda5": {
+            "d": {
+              "x": 13,
+              "y": 26,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 30,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_jdwzmpmjq0": {
+            "d": {
+              "x": 1,
+              "y": 30,
+              "w": 10,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 41,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_5038gxwgte": {
+            "d": {
+              "x": 1,
+              "y": 44,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 52,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_qvhvbcs4gg": {
+            "d": {
+              "x": 15,
+              "y": 48,
+              "w": 10,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 63,
+              "w": 8,
+              "h": 9
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_8w9nnfz516",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "From sapling to shade",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Programmes"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_gkys4ntrhj",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1544928938-6852c1925194?w=1280&q=80",
+              "alt": "Volunteers ready to plant",
+              "width": 1280,
+              "height": 1707
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_py9wee8w32",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Street trees"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Residents choose the trees"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Every block gets a walk-through with a tree officer, and neighbours vote on species that suit the street."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_fs6r7rwda5",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1631195414013-85b70ff2c180?w=1280&q=80",
+              "alt": "Flower beds in a school garden",
+              "width": 1280,
+              "height": 854
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_jdwzmpmjq0",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "School gardens"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Lessons you can eat"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Weekly garden lessons at twelve schools, ending each term with a harvest lunch for the whole class."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_5038gxwgte",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1524247108137-732e0f642303?w=1280&q=80",
+              "alt": "A keeper planting around a young tree",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_qvhvbcs4gg",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Keepers"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Care that lasts"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Trained keepers water and mulch through the first three summers, when young trees need it most."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ],
+      "anchor": "schools"
+    },
+    {
+      "id": "sec_205bzp4p3g",
+      "preset": "impact/growth-chart@1",
+      "label": "Growth over the years",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_eeg15b613j",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "More trees every year",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Results"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_zngex1swyg",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We count a tree only when it has survived its first summer. Last year, 93 in every 100 did."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_c7dqs21tcs",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "About the trust",
+            "link": {
+              "type": "page",
+              "page": "pg_96z8gajatg"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_68abfz3dq6",
+          "type": "chart",
+          "v": 1,
+          "fields": {
+            "title": "Trees planted each year",
+            "description": "Trees planted and alive after their first summer.",
+            "rows": [
+              {
+                "label": "2021",
+                "value": 280
+              },
+              {
+                "label": "2022",
+                "value": 410
+              },
+              {
+                "label": "2023",
+                "value": 560
+              },
+              {
+                "label": "2024",
+                "value": 720
+              },
+              {
+                "label": "2025",
+                "value": 940
+              }
+            ],
+            "suffix": "%",
+            "showValues": true,
+            "showTable": false
+          },
+          "column": 1,
+          "variant": "column",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_9a7dgvfv3p",
+      "preset": "gallery/captioned-grid@1",
+      "label": "Captioned grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_zw1y316t5w",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Planting season, 2025",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Photos"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_2xrqpj25c4",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "images": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1544928938-6852c1925194?w=880&q=80",
+                  "alt": "Two smiling volunteers holding shovels at a tree planting",
+                  "width": 880,
+                  "height": 1173
+                },
+                "caption": "Planting day on Linden Avenue"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1777150895644-2ca253ee1c93?w=1360&q=80",
+                  "alt": "Hands cupping a young seedling in dark soil",
+                  "width": 1360,
+                  "height": 1088
+                },
+                "caption": "A London plane, ready to go in"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1524247108137-732e0f642303?w=1640&q=80",
+                  "alt": "A volunteer planting flowers in a garden bed",
+                  "width": 1640,
+                  "height": 1093
+                },
+                "caption": "Mulching at Harbour Primary"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1631195414013-85b70ff2c180?w=1640&q=80",
+                  "alt": "A community garden of raised flower beds between houses",
+                  "width": 1640,
+                  "height": 1095
+                },
+                "caption": "The garden at Eastport Middle"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=1640&q=80",
+                  "alt": "Young seedlings sprouting in a dark tray of soil",
+                  "width": 1640,
+                  "height": 1093
+                },
+                "caption": "Seedlings in the nursery"
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1782386963665-b83ce1d6752e?w=1640&q=80",
+                  "alt": "Gloved hands planting seedlings in a garden bed",
+                  "width": 1640,
+                  "height": 1094
+                },
+                "caption": "Tools for a keeper kit"
+              }
+            ],
+            "aspect": "4:5",
+            "columns": "3",
+            "lightbox": true,
+            "showCaptions": true
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_x7tk60qa3w",
+      "preset": "cta/photo-split-dark@1",
+      "label": "Photo half with action",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 26,
+          "m": 29
+        },
+        "items": {
+          "blk_57a560atf1": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 26,
+              "bleed": "left"
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 14,
+              "bleed": "both"
+            }
+          },
+          "blk_kver1q185j": {
+            "d": {
+              "x": 14,
+              "y": 8,
+              "w": 10,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 16,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_aj9x1hck6t": {
+            "d": {
+              "x": 14,
+              "y": 19,
+              "w": 10,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 27,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "none",
+          "m": "none"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_57a560atf1",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1544928938-6852c1925194?w=1920&q=80",
+              "alt": "Volunteers smiling at a planting day",
+              "width": 1920,
+              "height": 2560
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_kver1q185j",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Volunteer"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "One Saturday morning plants a whole block"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "No experience needed. We bring tools, trees and breakfast."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_aj9x1hck6t",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Join a planting day",
+            "link": {
+              "type": "page",
+              "page": "pg_rpwvmy6qxn"
+            },
+            "role": "primary"
+          },
+          "variant": "default"
+        }
+      ]
+    }
+  ]
+}

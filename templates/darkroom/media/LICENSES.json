@@ -1,0 +1,284 @@
+{
+  "$comment": "Licenses for the demo media in the Darkroom template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1429292394373-ddbcc6bb7468",
+      "title": "A lone figure crossing a sunlit street between long shadows",
+      "author": "Molly Porter",
+      "authorUrl": "https://unsplash.com/@mollyporter",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/grayscale-photo-of-woman-walking-on-road-K7oqWgDJQ6E",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6",
+      "title": "A couple's hands with wedding rings resting on a bouquet",
+      "author": "Drew Coffman",
+      "authorUrl": "https://unsplash.com/@drewcoffman",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-and-woman-holding-hands-llWjwo200fo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df",
+      "title": "A city skyline stretching to the lake at golden hour",
+      "author": "Pedro Lastra",
+      "authorUrl": "https://unsplash.com/@peterlaster",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/white-and-brown-city-buildings-during-daytime-Nyvq2juw4_o",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1483366774565-c783b9f70e2c",
+      "title": "Curving white architecture against a pale sky",
+      "author": "Kimon Maritz",
+      "authorUrl": "https://unsplash.com/@kimonmaritz",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/worms-eye-view-photography-of-concrete-building-mQiZnKwGXW0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1487958449943-2429e8be8625",
+      "title": "A white angular building against a bright, clear sky",
+      "author": "Lance Anderson",
+      "authorUrl": "https://unsplash.com/@lanceanderson",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/rock-and-roll-hall-of-fame-cleveland-QdAAasrZhdk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1493863641943-9b68992a8d07",
+      "title": "A photographer shooting on a busy city street",
+      "author": "Jakob Owens",
+      "authorUrl": "https://unsplash.com/@jakobowens1",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/shallow-focus-photography-of-man-using-a-dslr-camera-DQPP9rVLYGQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      "title": "Portrait of a woman in a red sweater, laughing",
+      "author": "Michael Dam",
+      "authorUrl": "https://unsplash.com/@michaeldam",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/closeup-photography-of-woman-smiling-mEZ3PoFGs_k",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+      "title": "A desert road running straight toward red rock mountains",
+      "author": "Jake Blucker",
+      "authorUrl": "https://unsplash.com/@jakeblucker",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/black-concrete-road-surrounded-by-brown-rocks-tMzCrBkM99Y",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+      "title": "A misty river valley with pine trees and granite cliffs at dawn",
+      "author": "Bailey Zindel",
+      "authorUrl": "https://unsplash.com/@baileyzindel",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/river-in-yosemite-valley-at-low-light-NRQV-hBF10M",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1509316785289-025f5b846b35",
+      "title": "Red rock buttes rising from a desert valley",
+      "author": "Ganapathy Kumar",
+      "authorUrl": "https://unsplash.com/@gkumar2175",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/sandstone-buttes-in-monument-valley-L75D18aVal8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6",
+      "title": "A smiling man in a grey t-shirt outdoors",
+      "author": "Elizeu Dias",
+      "authorUrl": "https://unsplash.com/@elishavision",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/selective-focus-of-man-smiling-during-daytime-2EGNqazbAMk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "title": "Portrait of a woman in a black top against a soft violet wall",
+      "author": "Aiony Haust",
+      "authorUrl": "https://unsplash.com/@aiony",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-wearing-black-crew-neck-shirt-3TLl_97HNJo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6",
+      "title": "Portrait of a young man in a black hat, smiling",
+      "author": "ian dooley",
+      "authorUrl": "https://unsplash.com/@sadswim",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-near-white-wall-d1UPkiFd04A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1542401886-65d6c61db217",
+      "title": "Rippled orange sand dunes under a hazy sky",
+      "author": "Wolfgang Hasselmann",
+      "authorUrl": "https://unsplash.com/@wolfgang_hasselmann",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/rolling-sand-dunes-in-desert-landscape-pVr6wvUneMk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1549981832-2ba2ee913334",
+      "title": "A photographer framing a shot with a camera held up to her eye",
+      "author": "Noémi Macavei-Katócz",
+      "authorUrl": "https://unsplash.com/@noemimk",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-holding-black-dslr-camera-zrk7WirlxgM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1614436201459-156d322d38c6",
+      "title": "A smiling woman with a shoulder-length bob by the water",
+      "author": "Halil Ibrahim Cetinkaya",
+      "authorUrl": "https://unsplash.com/@hicetinkaya",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-brown-scarf-and-brown-scarf-WzGC8xSyqfg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1620122303020-87ec826cf70d",
+      "title": "A black-and-white studio portrait of a young woman",
+      "author": "Yash mevawala",
+      "authorUrl": "https://unsplash.com/@yash_mevawala",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/grayscale-photo-of-woman-in-black-shirt-_hQfqHt0MTg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1639747280804-dd2d6b3d88ac",
+      "title": "A smiling man in a green shirt standing outdoors",
+      "author": "PodMatch",
+      "authorUrl": "https://unsplash.com/@podmatch",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-in-a-green-shirt-is-posing-for-a-picture-GEnCnYhA1J4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1660286156087-911df708e663",
+      "title": "A couple walking back down the aisle as guests cheer",
+      "author": "Asdrubal luna",
+      "authorUrl": "https://unsplash.com/@infectedluna",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-bride-and-groom-walking-down-the-aisle-n5xGMMSqLVQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1667053508464-eb11b394df83",
+      "title": "A studio portrait of a woman against a soft grey backdrop",
+      "author": "Dmitry Ganin",
+      "authorUrl": "https://unsplash.com/@ganinph",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-woman-with-a-straight-face-JRa8lCQQhSs",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1686476020928-1834ccef445b",
+      "title": "A dark ribbed building facade in shadow",
+      "author": "refargotohp",
+      "authorUrl": "https://unsplash.com/@refargotohp",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-black-building-with-a-clock-on-the-side-of-it-4_f068pZszc",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1703088066010-af61bb552da4",
+      "title": "A city street at night strung with red lanterns",
+      "author": "Marc Kleen",
+      "authorUrl": "https://unsplash.com/@marckleen",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-person-walking-down-a-street-with-red-decorations-e1f9yY-DzoY",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1715285977619-6d9357168f46",
+      "title": "A couple embracing in a misty green field",
+      "author": "Picnu",
+      "authorUrl": "https://unsplash.com/@arununnikrishnan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-and-a-woman-standing-in-a-field-AUczdWwUasw",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1731566971965-acfb1151fc34",
+      "title": "A bride and groom touching foreheads in black and white",
+      "author": "Hector Reyes",
+      "authorUrl": "https://unsplash.com/@capture_it",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-and-a-woman-standing-next-to-each-other-Rd-3aKo5HyU",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1778405953873-413e3d5d8915",
+      "title": "A black-and-white close portrait of an older man with a grey beard",
+      "author": "Kyle Petzer",
+      "authorUrl": "https://unsplash.com/@kylepetzer",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-black-and-white-portrait-of-an-older-man-2lKN4bZQ45s",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

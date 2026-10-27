@@ -1,0 +1,113 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "beacon",
+  "name": "Beacon",
+  "description": "A mission-first site for nonprofits and campaigns, with donate buttons throughout, monthly giving, a campaign goal, impact numbers and volunteer days.",
+  "persona": "Nonprofits, charities & campaigns",
+  "mood": "Hopeful, clear, trustworthy",
+  "version": "1.0.0",
+  "tags": [
+    "nonprofit",
+    "charity",
+    "donate",
+    "campaign",
+    "volunteer",
+    "impact"
+  ],
+  "sample": {
+    "name": "Shade Street Trust",
+    "tagline": "Street trees for the hottest blocks in Eastport."
+  },
+  "thumbnailPage": "pg_nq67de47fc",
+  "looks": [
+    {
+      "id": "canopy",
+      "name": "Canopy",
+      "description": "Leaf green on warm paper with Libre Caslon headings.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.52 0.12 150)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "libre-caslon-nunito-sans",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "sunrise",
+      "name": "Sunrise",
+      "description": "A bold coral accent, DM Serif headings and confident pill buttons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.63 0.17 35)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "dm-serif-dm-sans",
+        "density": "comfortable",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "expressive",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "civic",
+      "name": "Civic",
+      "description": "Deep blue, Public Sans and square corners — sober and official.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.45 0.13 255)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "newsreader-public-sans",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "none",
+        "imageTreatment": "none"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_nq67de47fc",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_96z8gajatg",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_zxh6325yyt",
+      "title": "Our work",
+      "slug": "our-work"
+    },
+    {
+      "id": "pg_rpwvmy6qxn",
+      "title": "Get involved",
+      "slug": "get-involved"
+    },
+    {
+      "id": "pg_aa79ztc7zb",
+      "title": "Donate",
+      "slug": "donate"
+    },
+    {
+      "id": "pg_tz56z4ahvt",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

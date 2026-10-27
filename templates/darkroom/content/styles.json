@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.32 0.02 260)",
+      "neutral": "pure",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "eb-garamond-inter",
+    "density": "airy",
+    "shape": "sharp",
+    "buttons": "underline",
+    "motion": "subtle",
+    "imageTreatment": "none"
+  }
+}

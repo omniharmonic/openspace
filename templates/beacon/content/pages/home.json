@@ -1,0 +1,701 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_nq67de47fc",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Shade Street Trust plants and cares for street trees on the hottest blocks in Eastport, with the neighbours who live there. Donate or volunteer."
+  },
+  "sections": [
+    {
+      "id": "sec_qeche61h2v",
+      "preset": "hero/cause@1",
+      "label": "Cause with donate button",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            1,
+            0
+          ],
+          "t": [
+            1,
+            0
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_7j4cryaxr1",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1544928938-6852c1925194?w=1040&q=80",
+              "alt": "Two volunteers with shovels at a planting day",
+              "width": 1040,
+              "height": 1387
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_2he81khsxw",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Shade for every street in Eastport",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Shade Street Trust",
+            "subheading": "We plant trees on the hottest blocks first and teach neighbours to care for them. Sixty dollars plants and waters one for three years."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_12j3s4v2a6",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Plant a tree",
+            "link": {
+              "type": "page",
+              "page": "pg_aa79ztc7zb"
+            },
+            "role": "primary",
+            "secondaryLabel": "How we work",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_zxh6325yyt"
+            }
+          },
+          "column": 1,
+          "variant": "large"
+        },
+        {
+          "id": "blk_571j3ktwag",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "4,820",
+                "label": "Street trees planted since 2015"
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_5ypm31t1k0",
+      "preset": "impact/numbers-over-photo@1",
+      "label": "Impact numbers over photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1631195414013-85b70ff2c180?w=3236&q=80",
+          "focal": [
+            0.5,
+            0.5
+          ],
+          "overlay": {
+            "color": "background",
+            "opacity": 0.8
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_b1a4j0cvfk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A greener year, together",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "2025 in numbers"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_pe90e6gjnc",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "940",
+                "label": "Trees planted this year"
+              },
+              {
+                "value": "93%",
+                "label": "Still thriving after summer"
+              },
+              {
+                "value": "310",
+                "label": "Neighbours trained as keepers"
+              }
+            ]
+          },
+          "variant": "row",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_29qak3cp3p",
+      "preset": "impact/program-stories@1",
+      "label": "Programme stories",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 25,
+          "m": 56
+        },
+        "items": {
+          "blk_8kkxd9kcfh": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 7
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_nyp529twy1": {
+            "d": {
+              "x": 1,
+              "y": 9,
+              "w": 8,
+              "h": 17
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 15
+            }
+          },
+          "blk_ada2jfr29e": {
+            "d": {
+              "x": 9,
+              "y": 9,
+              "w": 8,
+              "h": 17
+            },
+            "m": {
+              "x": 1,
+              "y": 26,
+              "w": 8,
+              "h": 15
+            }
+          },
+          "blk_adzzm1r1n3": {
+            "d": {
+              "x": 17,
+              "y": 9,
+              "w": 8,
+              "h": 17
+            },
+            "m": {
+              "x": 1,
+              "y": 42,
+              "w": 8,
+              "h": 15
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_8kkxd9kcfh",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Three ways we cool a city",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Our work",
+            "subheading": "Each programme is run with residents, schools and the city's parks team."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_nyp529twy1",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1777150895644-2ca253ee1c93?w=800&q=80",
+              "alt": "Hands holding a young tree seedling",
+              "width": 800,
+              "height": 640
+            },
+            "aspect": "3:2",
+            "eyebrow": "940 this year",
+            "heading": "Trees on hot blocks",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We map surface temperatures and plant where shade is missing most."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_zxh6325yyt"
+            },
+            "linkLabel": "See the map"
+          },
+          "variant": "stacked"
+        },
+        {
+          "id": "blk_ada2jfr29e",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1631195414013-85b70ff2c180?w=800&q=80",
+              "alt": "Raised flower beds in a community garden",
+              "width": 800,
+              "height": 534
+            },
+            "aspect": "3:2",
+            "eyebrow": "Twelve schools",
+            "heading": "Gardens at school",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Raised beds and weekly lessons that end with a harvest lunch."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_zxh6325yyt",
+              "anchor": "schools"
+            },
+            "linkLabel": "Visit a garden"
+          },
+          "variant": "stacked"
+        },
+        {
+          "id": "blk_adzzm1r1n3",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1524247108137-732e0f642303?w=800&q=80",
+              "alt": "A volunteer planting flowers in a bed",
+              "width": 800,
+              "height": 533
+            },
+            "aspect": "3:2",
+            "eyebrow": "310 keepers",
+            "heading": "Keepers on every block",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We train neighbours to water, mulch and prune the trees outside their door."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_rpwvmy6qxn"
+            },
+            "linkLabel": "Become a keeper"
+          },
+          "variant": "stacked"
+        }
+      ]
+    },
+    {
+      "id": "sec_7g91c60076",
+      "preset": "testimonials/split-portrait@1",
+      "label": "Portrait and quote",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_jcfcxebdmf",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=960&q=80",
+              "alt": "Rosa Delgado, a tree keeper on Linden Avenue",
+              "width": 960,
+              "height": 1440
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_sv86zj6sjj",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Our block used to be the hottest on the map. Five summers later the kids play outside in July, and I know every tree by name."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Rosa Delgado",
+            "role": "Tree keeper, Linden Avenue"
+          },
+          "column": 1,
+          "variant": "large"
+        },
+        {
+          "id": "blk_wx1vhj4431",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Read our story",
+            "link": {
+              "type": "page",
+              "page": "pg_96z8gajatg"
+            },
+            "role": "tertiary"
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_9k21zgvtb2",
+      "preset": "impact/campaign-goal@1",
+      "label": "Campaign goal",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_ps00f7q9r8",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Two hundred trees for Harbour Ward",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Spring appeal",
+            "subheading": "Help us plant the ward with the least shade in the city before the summer heat arrives."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_c1h06vzrge",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "$8,450",
+                "label": "Raised so far"
+              },
+              {
+                "value": "$12,000",
+                "label": "Our goal"
+              },
+              {
+                "value": "214",
+                "label": "Neighbours have given"
+              }
+            ]
+          },
+          "variant": "row",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_f8p9s5drdc",
+          "type": "countdown",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "target": "2027-04-30T23:59:00-05:00",
+            "showSeconds": false,
+            "doneMessage": "The spring appeal has closed. Thank you!"
+          },
+          "variant": "inline",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_98q6mraw69",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Give to the appeal",
+            "link": {
+              "type": "page",
+              "page": "pg_aa79ztc7zb"
+            },
+            "role": "primary"
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_h4gjb50ktn",
+      "preset": "blog/latest-grid@1",
+      "label": "Latest posts",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_fp18k2tpfr",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "heading": "News from the street",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "news",
+              "sort": "date-desc",
+              "limit": 3
+            },
+            "columns": "3",
+            "showImage": true,
+            "showDate": true,
+            "showExcerpt": true,
+            "showMeta": false,
+            "linkLabel": "All news",
+            "link": {
+              "type": "url",
+              "url": "/news/"
+            },
+            "emptyMessage": "News from planting season is on its way."
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_6177n0rbh0",
+      "preset": "newsletter/with-benefits@1",
+      "label": "Signup with benefits",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_nmj87y7g90",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Get the seasonal letter",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Newsletter"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_50v1mj34re",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "calendar",
+                "title": "Planting days before anyone else"
+              },
+              {
+                "icon": "sprout",
+                "title": "Care tips for your street tree"
+              },
+              {
+                "icon": "heart",
+                "title": "Stories from the blocks"
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "checklist"
+        },
+        {
+          "id": "blk_pj7bv9ns86",
+          "type": "newsletter",
+          "v": 1,
+          "fields": {
+            "heading": "Four letters a year",
+            "askName": true,
+            "placeholder": "you@example.com",
+            "buttonLabel": "Sign me up",
+            "successMessage": "Thank you — the next letter goes out with the season."
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_gk5sprgha6",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Talk to the Relay team about demos, migrations, security reviews or anything else. We reply to every message within one working day."
+  },
+  "sections": [
+    {
+      "id": "sec_th7tny32pe",
+      "preset": "contact/quote-request@1",
+      "label": "Quote request",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_jb9jqrr2ev",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Talk to a human",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_g8a9asdgaq",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "message-circle",
+                "title": "Replies within a working day",
+                "text": "Usually much faster."
+              },
+              {
+                "icon": "repeat",
+                "title": "Free migration help",
+                "text": "From any helpdesk or mailbox."
+              },
+              {
+                "icon": "shield-check",
+                "title": "Security reviews welcome",
+                "text": "Questionnaires answered in a week."
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_j4pvgpkw9j",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_y744bent5r",
+              "name": "Sales and support",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Work email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "topic",
+                  "label": "What's it about?",
+                  "required": true,
+                  "width": "full",
+                  "options": [
+                    "A demo",
+                    "Moving from another tool",
+                    "Security and billing",
+                    "Something else"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "How can we help?",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send message",
+              "success": {
+                "type": "message",
+                "message": "Thanks — a real person will reply within one working day."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_x45snh2cxc",
+      "preset": "contact/cards-row@1",
+      "label": "Contact options",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            4,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_kbby96evk5",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Support",
+            "headingLevel": "h2",
+            "directions": false,
+            "note": "For customers, any time",
+            "email": "help@relay.example"
+          },
+          "column": 0,
+          "variant": "card"
+        },
+        {
+          "id": "blk_jb1mex35z0",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Sales",
+            "headingLevel": "h2",
+            "email": "hello@relay.example",
+            "directions": false,
+            "note": "Demos and pricing"
+          },
+          "column": 1,
+          "variant": "card"
+        },
+        {
+          "id": "blk_wgf6vmjxhn",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Company",
+            "headingLevel": "h2",
+            "address": "Relay Software Ltd\n12 Wharf Road, London N1 7GR",
+            "directions": true,
+            "note": "Registered office only"
+          },
+          "column": 2,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}
