@@ -538,7 +538,59 @@ export function tuneRound(
         const block = section.blocks.find(
           (b: Block) => b.type === "heading" && norm(String(b.fields.text ?? "")) === norm(i.text),
         );
-        if (!block) continue;
+        // A card's or a column's heading (blocks with a heading style slot).
+        const holder = block
+          ? undefined
+          : section.blocks.find(
+              (b: Block) =>
+                (b.type === "card" && norm(String(b.fields.heading ?? "")) === norm(i.text)) ||
+                (b.type === "columns" &&
+                  Array.isArray(b.fields.items) &&
+                  (b.fields.items as { heading?: string }[]).some(
+                    (x) => norm(x.heading) === norm(i.text),
+                  )),
+            );
+        if (holder && pick !== "lead") {
+          const style = (holder.style ?? {}) as NonNullable<Block["style"]>;
+          if (style.typography?.heading === pick) continue;
+          holder.style = {
+            ...style,
+            typography: { ...(style.typography ?? {}), heading: pick },
+          } as Block["style"];
+          changes.push(
+            `${m.path}: "${o.text.slice(0, 40)}" set at the ${pick} size, as on the original`,
+          );
+          continue;
+        }
+        if (!block) {
+          // A heading inside rich text: the heading node's own preset (display, h1–h4, eyebrow).
+          let done = false;
+          for (const b of section.blocks) {
+            if (b.type !== "text" || done) continue;
+            const doc = b.fields.content as
+              | {
+                  content?: {
+                    type: string;
+                    attrs?: Record<string, unknown>;
+                    content?: { text?: string }[];
+                  }[];
+                }
+              | undefined;
+            for (const node of doc?.content ?? []) {
+              const words = (node.content ?? []).map((x) => x.text ?? "").join("");
+              if (node.type !== "heading" || norm(words) !== norm(i.text)) continue;
+              if (pick === "lead" || node.attrs?.preset === pick) break;
+              node.attrs = { ...(node.attrs ?? {}), preset: pick };
+              done = true;
+              break;
+            }
+          }
+          if (done)
+            changes.push(
+              `${m.path}: "${o.text.slice(0, 40)}" set at the ${pick} size, as on the original`,
+            );
+          continue;
+        }
         if (["display", "h1", "h2", "h3", "h4"].includes(pick)) {
           if (block.fields.size === pick) continue;
           block.fields.size = pick;

@@ -224,12 +224,21 @@ function cardBlocks(card: NonNullable<Extract<SqBlock, { kind: "image" }>["card"
 function parseRow(row: Element): SqRow {
   const columns = children(row)
     .filter((e) => classes(e).some((c) => /^sqs-col-\d+$/.test(c)))
-    .map((col) => {
+    .flatMap((col) => {
       const span = Number(classValue(col, "span-") ?? classValue(col, "sqs-col-") ?? 12);
-      return {
-        span: Number.isFinite(span) && span > 0 ? Math.min(12, span) : 12,
-        blocks: columnBlocks(col),
-      };
+      // A column that only holds a row of its own (two products side by side in an 8-wide
+      // column): its columns join this row, at their own spans.
+      const inner = children(col).filter((c) => !/^(?:SCRIPT|STYLE)$/i.test(c.tagName));
+      if (inner.length === 1 && hasClass(inner[0] as Element, "sqs-row")) {
+        const nested = parseRow(inner[0] as Element).columns.filter((c) => c.blocks.length);
+        if (nested.length > 1) return nested;
+      }
+      return [
+        {
+          span: Number.isFinite(span) && span > 0 ? Math.min(12, span) : 12,
+          blocks: columnBlocks(col),
+        },
+      ];
     });
   if (!columns.length) return { columns: [{ span: 12, blocks: columnBlocks(row) }] };
   return { columns };

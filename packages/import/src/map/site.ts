@@ -734,6 +734,9 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
       blocks: text ? [text] : [],
     };
   }
+  // A footer the original set as one line of side-by-side groups (name · links · ©): its
+  // paragraphs become that many columns (start, centre, end), in small labels when they were.
+  if (footer) splitFooterLine(footer, sq.theme.footerColumns, sq.theme.footerLabels === true);
   // The footer's own color as measured (a charcoal band under a white page): its theme and fill.
   const footBg = sq.theme.footerBackground;
   if (footer && footBg && /^#[0-9a-f]{6}$/i.test(footBg) && !footer.style.background) {
@@ -864,3 +867,37 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
 }
 
 export type { SqPage };
+
+/** One text block of N paragraphs in a one-column footer → N columns, as the original's line. */
+export function splitFooterLine(footer: Section, columns?: number, labels = false): void {
+  if (!columns || columns < 2 || columns > 4) return;
+  if (footer.layout.mode !== "stack" || footer.layout.columns.d.length !== 1) return;
+  const texts = footer.blocks.filter((b) => b.type === "text");
+  if (footer.blocks.length !== 1 || texts.length !== 1) return;
+  const block = texts[0] as Block;
+  const doc = block.fields.content as {
+    type: string;
+    content?: { type: string; attrs?: Record<string, unknown> }[];
+  };
+  const paras = doc.content ?? [];
+  if (paras.length !== columns || paras.some((p) => p.type !== "paragraph")) return;
+  const span = Math.floor(12 / columns);
+  const spans = paras.map((_, i) => (i === paras.length - 1 ? 12 - span * (columns - 1) : span));
+  const aligns = paras.map((_, i) =>
+    i === 0 ? "start" : i === paras.length - 1 ? "end" : "center",
+  ) as ("start" | "center" | "end")[];
+  footer.blocks = paras.map((p, i) => ({
+    ...block,
+    id: (i === 0 ? block.id : newId("blk")) as Block["id"],
+    column: i,
+    fields: {
+      ...block.fields,
+      content: {
+        ...doc,
+        content: [labels ? { ...p, attrs: { ...(p.attrs ?? {}), preset: "eyebrow" } } : p],
+      },
+    },
+    style: { ...(block.style ?? {}), align: { d: aligns[i] as "start", m: "start" } },
+  }));
+  footer.layout = { ...footer.layout, columns: { d: spans, m: [12] }, align: "center" };
+}

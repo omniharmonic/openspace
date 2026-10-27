@@ -167,6 +167,9 @@ export interface LookProbe {
   logoHeight?: number;
   /** The footer's background color. */
   footerBackground?: string;
+  /** How many groups of words sit side by side on the footer's first line, and their style. */
+  footerColumns?: number;
+  footerText?: ProbeText;
   /** The page's own background behind every section (`body`). */
   pageBackground?: string;
   /** A full-height column of identity and navigation beside the page (sidebar themes). */
@@ -693,7 +696,25 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       const logo = head && [...head.querySelectorAll("img, svg")].find((e) => visible(e) && e.getBoundingClientRect().height >= 16 && e.getBoundingClientRect().width >= 24);
       if (logo) out.logoHeight = Math.round(logo.getBoundingClientRect().height);
       const foot = [...document.querySelectorAll(".os-footer, footer, [role=contentinfo], #footer")].filter(visible).pop();
-      if (foot) { const c = toHex(cs(foot).backgroundColor) || [...foot.querySelectorAll("*")].map((e) => toHex(cs(e).backgroundColor)).find(Boolean); if (c) out.footerBackground = c; }
+      if (foot) {
+        const c = toHex(cs(foot).backgroundColor) || [...foot.querySelectorAll("*")].map((e) => toHex(cs(e).backgroundColor)).find(Boolean);
+        if (c) out.footerBackground = c;
+        // Its first line of words: how many groups sit side by side, and their style.
+        const leaves = [...foot.querySelectorAll("p, li, a, span, small, div, h2, h3, h4")].filter((e) => visible(e) && ownText(e) && ![...e.children].some((k) => ownText(k) && /^(P|DIV|UL|LI|H2|H3|H4)$/.test(k.tagName)));
+        const lines = leaves.map((e) => ({ e, r: rect(e) }));
+        if (lines.length) {
+          const top = Math.min(...lines.map((l) => l.r.top));
+          const row = lines.filter((l) => l.r.top <= top + 24);
+          const groups = [];
+          for (const l of row.sort((a, b) => a.r.left - b.r.left)) {
+            const g = groups[groups.length - 1];
+            if (g && l.r.left - g.right < 48) g.right = Math.max(g.right, l.r.right);
+            else groups.push({ left: l.r.left, right: l.r.right });
+          }
+          out.footerColumns = groups.length;
+          out.footerText = textOf(row[0].e);
+        }
+      }
       return out;
     })(),
     ...(sidebar ? { sidebar } : {}),

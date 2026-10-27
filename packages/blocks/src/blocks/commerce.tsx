@@ -8,8 +8,14 @@ import {
   useImageMap,
   useRenderContext,
 } from "@omniharmonic/openspace-renderer";
-import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
 import {
+  type AspectRatio,
+  defineBlock,
+  f,
+  type Link as LinkValue,
+} from "@omniharmonic/openspace-schema";
+import {
+  ASPECT_OPTIONS,
   currencyExponent,
   EditorNotice,
   formatMoney,
@@ -60,6 +66,19 @@ export const productBlock = defineBlock({
     quantity: f.boolean({ default: true, label: "Quantity picker" }),
     buttonLabel: f.text({ maxLength: 30, default: "Add to cart" }),
     detailsLabel: f.text({ maxLength: 30, default: "View details" }),
+    showPrice: f.boolean({ optional: true, default: true, label: "Show the price" }),
+    showBuy: f.boolean({
+      optional: true,
+      default: true,
+      label: "Show Add to cart",
+      help: "Off: just the picture and name, linking to the product's page (a shop grid)",
+    }),
+    imageAspect: f.select({
+      options: ASPECT_OPTIONS,
+      optional: true,
+      label: "Image shape",
+      help: "Crop for the product photo (default portrait 4:5)",
+    }),
   },
   variants: ["card", "split", "minimal"],
   styleSlots: [
@@ -130,7 +149,7 @@ export const productBlock = defineBlock({
         {image && variant !== "minimal" ? (
           <Img
             src={image}
-            aspect="4:5"
+            aspect={(fields.imageAspect ?? "4:5") as AspectRatio}
             sizes={
               variant === "split"
                 ? "(min-width: 768px) 50vw, 100vw"
@@ -152,7 +171,7 @@ export const productBlock = defineBlock({
               </a>
             </h3>
           ) : null}
-          {price ? (
+          {price && fields.showPrice !== false ? (
             <p className="os-product__price">
               <PriceText price={price} />
             </p>
@@ -160,7 +179,7 @@ export const productBlock = defineBlock({
           {fields.showDescription && fm.excerpt ? (
             <p className="os-product__desc">{fm.excerpt}</p>
           ) : null}
-          {firstAvailable && !canSell ? (
+          {fields.showBuy === false ? null : firstAvailable && !canSell ? (
             <OpeningSoon
               kind="store"
               hint="Visitors see this friendly “opening soon” note instead of “Add to cart” until you turn on your shop in Finish setting up (about 10 minutes, free)."
@@ -234,7 +253,7 @@ export const productBlock = defineBlock({
             <EditorNotice>Give this product a SKU so it can be added to the cart.</EditorNotice>
           )}
           {/* No "View details" link on the product's own page (an empty label). */}
-          {fields.detailsLabel ? (
+          {fields.detailsLabel && fields.showBuy !== false ? (
             <a className="os-product__details" href={href}>
               {fields.detailsLabel}
               <span className="os-visually-hidden">: {fm.title}</span>

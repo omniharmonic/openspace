@@ -120,7 +120,7 @@ function ImageView({ id, fields, variant }: { id: string; fields: ImageFields; v
   return (
     <figure
       className={cx("os-image", `os-image--${variant}`, grid && "is-fill", natural && "is-natural")}
-      style={natural ? ({ "--os-image-max": `${natural}px` } as CSSProperties) : undefined}
+      style={natural ? ({ "--image-max": `${natural}px` } as CSSProperties) : undefined}
       data-os-behavior={!fields.link && fields.lightbox ? "lightbox" : undefined}
     >
       {media}
@@ -134,11 +134,11 @@ function ImageView({ id, fields, variant }: { id: string; fields: ImageFields; v
 export const imageCss = `
 .os-image{position:relative;display:grid;gap:var(--os-space-2xs)}
 .os-image.is-fill{height:100%;grid-template-rows:minmax(0,1fr);grid-auto-rows:auto}
-.os-image.is-fill>.os-image.is-natural{max-inline-size:min(100%,var(--os-image-max))}
+.os-image.is-fill>.os-image.is-natural{max-inline-size:min(100%,var(--image-max))}
 .os-align-center .os-image.is-natural,.os-align-center>.os-image.is-natural{margin-inline:auto}
 .os-align-end .os-image.is-natural{margin-inline-start:auto}
 .os-image__link{display:block;height:100%}
-.os-image.is-natural{max-inline-size:min(100%,var(--os-image-max))}
+.os-image.is-natural{max-inline-size:min(100%,var(--image-max))}
 .os-align-center .os-image.is-natural,.os-align-center>.os-image.is-natural{margin-inline:auto}
 .os-align-end .os-image.is-natural{margin-inline-start:auto}
 .os-image__link{display:block;color:inherit;border-radius:var(--os-image-radius)}

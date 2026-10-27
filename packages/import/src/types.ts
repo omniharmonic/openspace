@@ -107,7 +107,12 @@ export type SqBlock =
   | { kind: "line" }
   | { kind: "social" }
   | { kind: "audio"; url: string; title?: string }
-  | { kind: "product"; path?: string }
+  | {
+      kind: "product";
+      path?: string;
+      /** Parts the block hides (Squarespace's product block display settings). */
+      show?: { price?: false; excerpt?: false; buy?: false };
+    }
   | {
       kind: "cards";
       items: SqCard[];
@@ -335,6 +340,9 @@ export interface SqTheme {
   logoHeight?: { d: number; m?: number };
   /** The footer's background color, when measured. */
   footerBackground?: string;
+  /** Groups of words side by side on the footer's first line, and whether they're small labels. */
+  footerColumns?: number;
+  footerLabels?: boolean;
   headerFixed?: boolean;
   headerTransparent?: boolean;
   /** Section theme name used by the header. */

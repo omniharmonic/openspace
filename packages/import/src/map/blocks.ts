@@ -609,7 +609,12 @@ export async function mapBlock(
         makeBlock(
           ctx,
           "product",
-          { product: { collection: item.collection, items: [item.slug] } },
+          {
+            product: { collection: item.collection, items: [item.slug] },
+            ...(sq.show?.excerpt === false ? { showDescription: false } : {}),
+            ...(sq.show?.price === false ? { showPrice: false } : {}),
+            ...(sq.show?.buy === false ? { showBuy: false, imageAspect: "1:1" } : {}),
+          },
           { variant: "card" },
         ),
       );

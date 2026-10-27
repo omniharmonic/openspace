@@ -167,14 +167,15 @@ export function lookFromProbe(d: LookProbe, m?: LookProbe): TokenLook | undefine
       s.width !== undefined &&
       s.left >= 24 &&
       s.left + s.width <= d.viewport - 24 &&
-      (s.raised || colorGap(s.background, page) >= 10),
+      s.raised === true &&
+      colorGap(s.background, page) >= 10,
   );
   if (page && d.viewport >= 768 && panels.length && panels.length * 2 >= d.sections.length) {
     layout.surface = "card";
     layout.pageBackground = page;
     const measures = panels.map((s) => s.textWidth).filter((w): w is number => !!w);
     const w = measures.sort((a, b) => a - b)[Math.floor(measures.length / 2)];
-    if (w && w >= 360 && w <= 1600) layout.contentWidth = Math.round(w / 8) * 8;
+    if (w && w >= 480 && w <= 1600) layout.contentWidth = Math.round(w / 8) * 8;
   }
   if (L.sectionPadding && L.sectionPadding >= 16 && L.sectionPadding <= 320)
     layout.sectionPadding = Math.round(L.sectionPadding);
@@ -231,6 +232,16 @@ export function lookFromProbe(d: LookProbe, m?: LookProbe): TokenLook | undefine
         }
       : {}),
     ...(d.footerBackground ? { footerBackground: d.footerBackground } : {}),
+    ...(d.footerColumns && d.footerColumns >= 2 && d.footerColumns <= 4
+      ? {
+          footerColumns: d.footerColumns,
+          ...(d.footerText &&
+          d.footerText.size <= 14 &&
+          (d.footerText.case === "uppercase" || d.footerText.letterSpacing >= 0.08)
+            ? { footerLabels: true }
+            : {}),
+        }
+      : {}),
     ...(d.sidebar
       ? {
           sidebar: {
@@ -277,6 +288,10 @@ export function applyLook(
   if (look.logoHeight && !keep(theme.logoHeight)) theme.logoHeight = look.logoHeight;
   if (look.footerBackground && !keep(theme.footerBackground))
     theme.footerBackground = look.footerBackground;
+  if (look.footerColumns && !keep(theme.footerColumns)) {
+    theme.footerColumns = look.footerColumns;
+    if (look.footerLabels) theme.footerLabels = true;
+  }
   if (look.metrics) theme.fontMetrics = { ...look.metrics, ...(theme.fontMetrics ?? {}) };
   if (look.fontHosts)
     theme.fontHosts = [...new Set([...(theme.fontHosts ?? []), ...look.fontHosts])];
