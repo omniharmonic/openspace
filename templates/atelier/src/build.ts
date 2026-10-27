@@ -107,34 +107,34 @@ function home() {
               images: [
                 {
                   image: photo(
-                    "mountainLake",
+                    "lake",
                     1440,
                     "3:2",
-                    "Snowy peaks reflected in a still mountain lake, from Cordillera",
+                    "A rowing boat on a turquoise lake below jagged peaks, from Cordillera",
                   ),
                 },
                 {
                   image: photo(
-                    "architecture",
+                    "poolHouse",
                     1440,
                     "3:2",
-                    "A white angular building against a clear sky, from White City",
+                    "A white modernist villa and its pool among palms, from White City",
                   ),
                 },
                 {
                   image: photo(
-                    "coast",
+                    "beach",
                     1440,
                     "3:2",
-                    "Turquoise surf meeting a sandy shore from above, from Salt & Glass",
+                    "Low waves washing onto an empty beach at sunset, from Salt & Glass",
                   ),
                 },
                 {
                   image: photo(
-                    "meadow",
+                    "hills",
                     1440,
                     "3:2",
-                    "Wild poppies scattered through a summer meadow, from Field Studies",
+                    "Rolling green hills catching the evening light, from Field Studies",
                   ),
                 },
                 {

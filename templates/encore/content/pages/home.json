@@ -264,10 +264,14 @@
             "images": [
               {
                 "image": {
-                  "src": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=960&q=80",
-                  "alt": "A crowd under coloured stage lights",
-                  "width": 960,
-                  "height": 640
+                  "src": "https://images.unsplash.com/photo-1561447920-ee278fe828a2?w=1280&q=80",
+                  "alt": "Synths on stage in violet haze",
+                  "width": 1280,
+                  "height": 631,
+                  "focal": [
+                    0.42,
+                    0.55
+                  ]
                 }
               },
               {

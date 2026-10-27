@@ -56,34 +56,34 @@
             "images": [
               {
                 "image": {
-                  "src": "https://images.unsplash.com/photo-1783611066016-59e16b0ac1c8?w=2880&q=80",
-                  "alt": "Snowy peaks reflected in a still mountain lake, from Cordillera",
+                  "src": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=2880&q=80",
+                  "alt": "A rowing boat on a turquoise lake below jagged peaks, from Cordillera",
                   "width": 2880,
                   "height": 1920
                 }
               },
               {
                 "image": {
-                  "src": "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=2880&q=80",
-                  "alt": "A white angular building against a clear sky, from White City",
+                  "src": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=2880&q=80",
+                  "alt": "A white modernist villa and its pool among palms, from White City",
                   "width": 2880,
                   "height": 1920
                 }
               },
               {
                 "image": {
-                  "src": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=2880&q=80",
-                  "alt": "Turquoise surf meeting a sandy shore from above, from Salt & Glass",
+                  "src": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=2880&q=80",
+                  "alt": "Low waves washing onto an empty beach at sunset, from Salt & Glass",
                   "width": 2880,
-                  "height": 5126
+                  "height": 1915
                 }
               },
               {
                 "image": {
-                  "src": "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=2880&q=80",
-                  "alt": "Wild poppies scattered through a summer meadow, from Field Studies",
-                  "width": 2880,
-                  "height": 1908
+                  "src": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=2600&q=80",
+                  "alt": "Rolling green hills catching the evening light, from Field Studies",
+                  "width": 2600,
+                  "height": 1548
                 }
               },
               {
