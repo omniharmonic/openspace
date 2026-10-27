@@ -286,3 +286,20 @@ describe("components keep rich text, rules and panels on tokens", () => {
     expect(def.css).not.toMatch(/#[0-9a-f]{6}/i);
   });
 });
+
+describe("a page title in a wrapper of its own", () => {
+  it("opens the content below it instead of sitting alone in a section", () => {
+    const html = `<!doctype html><html><head><title>About</title></head><body><main><article>
+      <header class="entry-header"><h1 class="entry-title">About</h1></header>
+      <div class="entry-content"><p>The foundation supports open source publishing for everyone, everywhere, always.</p>
+      <p>A second paragraph so this reads as an article body with some length to it.</p></div>
+    </article></main></body></html>`;
+    const page = parseHtmlPage(html, "https://x.example/");
+    expect(page.sections).toHaveLength(1);
+    const first =
+      page.sections[0]?.layout.mode === "classic"
+        ? page.sections[0].layout.rows[0]?.columns[0]?.blocks[0]
+        : undefined;
+    expect(JSON.stringify(first)).toContain("About");
+  });
+});

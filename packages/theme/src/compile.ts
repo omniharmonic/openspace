@@ -231,7 +231,6 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   if (lay?.contentWidth !== undefined) widths.content = `${lay.contentWidth}px`;
   if (lay?.narrowWidth !== undefined) widths.narrow = `${lay.narrowWidth}px`;
   for (const [k, v] of Object.entries(widths)) root.set(varName("width", k), v);
-  if (lay?.pageBackground) root.set(varName("page", "bg"), lay.pageBackground);
   for (const [k, v] of Object.entries(radiusTokens(choices.shape)))
     root.set(varName("radius", k), v);
   for (const [k, v] of Object.entries(SHADOW_VALUES)) root.set(varName("shadow", k), v);

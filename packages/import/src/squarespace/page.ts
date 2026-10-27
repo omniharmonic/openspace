@@ -584,16 +584,18 @@ export function parsePage(html: string): ParsedPage {
         headerEl,
         (e) =>
           e.tagName === "img" &&
-          !!closest(e, (p) =>
-            classes(p).some(
-              (c) =>
-                attr(p, "id") === "logoImage" ||
-                attr(p, "id") === "logo" ||
-                c === "header-title-logo" ||
-                c === "logo-image" ||
-                c === "site-logo" ||
-                c === "logo",
-            ),
+          !!closest(
+            e,
+            (p) =>
+              attr(p, "id") === "logoImage" ||
+              attr(p, "id") === "logo" ||
+              classes(p).some(
+                (c) =>
+                  c === "header-title-logo" ||
+                  c === "logo-image" ||
+                  c === "site-logo" ||
+                  c === "logo",
+              ),
           ),
       )
     : undefined;
@@ -884,6 +886,8 @@ function bannerSection(body: Element, skip: (e: Element) => boolean): SqSection 
           ? { subheading: after.map((p) => text(p)).join(" ") }
           : {}),
         align: "center",
+        // The banner's title is set larger than any heading (the display size).
+        display: true,
       });
     links.forEach((p, i) => {
       const a = p.tagName === "a" ? p : (find(p, byTag("a")) as Element);

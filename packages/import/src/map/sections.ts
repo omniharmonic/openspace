@@ -430,6 +430,18 @@ async function mapSectionParts(ctx: SectionContext, sq: SqSection): Promise<Sect
   flush();
   if (!out.length && bg) out.push(stackSection([], [12], style, width, align));
   if (sq.role && out.length === 1) applyNearestPreset(out[0] as Section, sq.role, !sq.theme);
+  // A slideshow that shows whole photos sits in a narrower frame, as Squarespace draws it.
+  for (const s of out)
+    if (
+      s.layout.mode === "stack" &&
+      s.blocks.length === 1 &&
+      s.blocks[0]?.type === "gallery" &&
+      s.blocks[0].fields.fit === "contain" &&
+      (!s.layout.width || s.layout.width === "wide" || s.layout.width === "full")
+    ) {
+      s.layout.width = "narrow";
+      delete s.preset;
+    }
   // Only the first section keeps the background; strip `undefined`s.
   for (const s of out)
     for (const k of Object.keys(s.style) as (keyof SectionStyle)[])

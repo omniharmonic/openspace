@@ -124,7 +124,14 @@ export function lookFromProbe(d: LookProbe, m?: LookProbe): TokenLook | undefine
         scale[p] = { ...scale[p], font: "heading", ...(w >= 100 && w <= 900 ? { weight: w } : {}) };
     }
   }
-  if (scale.h1) scale.display = { ...scale.h1 };
+  // The display size: the page's banner title when it has one (well above its headings, often
+  // in the label font and capitals), else the Heading 1.
+  if (P.display)
+    scale.display = {
+      ...stepOf(P.display, M.display, { weight: true }),
+      font: roleOf(P.display),
+    };
+  else if (scale.h1) scale.display = { ...scale.h1 };
   if (P.lead) scale.lead = { ...stepOf(P.lead, M.lead), font: roleOf(P.lead) };
   if (P.small) scale.small = stepOf(P.small, M.small);
   if (P.eyebrow)

@@ -43,7 +43,9 @@ export const TUNE_GROUPS = [
   "fonts",
   "rhythm",
   "rhythm-phone",
+  "widths",
   "colors",
+  "page-color",
   "buttons",
   "layout",
   "headings",
@@ -330,6 +332,41 @@ export function tuneRound(
     layout.contentWidth = Math.round(cw / 8) * 8;
     changes.push(`content width ${layout.contentWidth}px`);
   }
+  // Per page: a page whose words sit in a narrower (or the site's) column than ours — its
+  // sections take the content width, or the narrow width set to the original's measure.
+  if (on("widths")) {
+    const content = layout.contentWidth;
+    for (const m of desk) {
+      const check = m.comparison.checks.find((c) => c.what === "Content width" && !c.ok);
+      const want = m.original.layout.contentWidth;
+      const have = m.imported.layout.contentWidth;
+      const page = pageOf(doc, m.path);
+      if (!check || !want || !have || !page || want >= have) continue;
+      let width: "content" | "narrow" | undefined;
+      if (content && Math.abs(content - want) / want <= 0.06) width = "content";
+      else if (want >= 360 && want <= 1600) {
+        layout.narrowWidth ??= Math.round(want / 8) * 8;
+        if (Math.abs(layout.narrowWidth - want) / want <= 0.06) width = "narrow";
+      }
+      if (!width) continue;
+      let n = 0;
+      for (const section of page.sections) {
+        if (section.layout.mode !== "stack" || section.layout.width === "full") continue;
+        if (
+          section.style.background?.type === "image" ||
+          section.style.background?.type === "video"
+        )
+          continue;
+        const cur = section.layout.width ?? "content";
+        if (cur === width) continue;
+        if (width === "content") delete section.layout.width;
+        else section.layout.width = width;
+        delete section.preset;
+        n++;
+      }
+      if (n) changes.push(`${m.path}: ${n} section(s) at the ${width} width, as on the original`);
+    }
+  }
   const pad = (list: TuneInput[]) =>
     median(
       list
@@ -378,7 +415,7 @@ export function tuneRound(
 
   // --- text and heading colors per section theme (bone on obsidian, ink on paper) ---------------
   const inks = new Map<string, { text: string[]; heading: string[]; background: string[] }>();
-  for (const m of on("colors") ? desk : []) {
+  for (const m of on("colors") || on("page-color") ? desk : []) {
     const page = pageOf(doc, m.path);
     if (!page || m.imported.sections.length !== page.sections.length) continue;
     for (const s of m.comparison.sections) {
@@ -409,7 +446,10 @@ export function tuneRound(
     }
   }
   for (const [theme, e] of inks)
-    for (const role of ["text", "heading", "background"] as const) {
+    for (const role of [
+      ...(on("colors") ? (["text", "heading"] as const) : []),
+      ...(on("page-color") ? (["background"] as const) : []),
+    ]) {
       const list = e[role];
       const first = list[0];
       // Only a color the original used throughout that theme.
@@ -739,6 +779,25 @@ export function tuneRound(
         // One original section per imported section (an article split in parts isn't recreated).
         if (m.comparison.sections.filter((x) => x.importedIndex === s.importedIndex).length > 1)
           continue;
+        // Nor one whose words also live in another imported section (the original's band spans
+        // two of ours): recreating it would show those words twice.
+        const bag = (t: string) =>
+          new Set(
+            t
+              .toLowerCase()
+              .split(/[^a-z0-9]+/)
+              .filter((w) => w.length > 3),
+          );
+        const mine = bag(`${o.heading?.text ?? ""} ${o.words ?? o.text}`);
+        const shared = m.imported.sections.some((x, j) => {
+          if (j === s.importedIndex) return false;
+          const theirs = bag(x.words ?? x.text);
+          if (theirs.size < 4) return false;
+          let n = 0;
+          for (const w of theirs) if (mine.has(w)) n++;
+          return n / theirs.size >= 0.5;
+        });
+        if (shared) continue;
         const name = `imported-${(page.slug || "home").replace(/[^a-z0-9]+/g, "-")}-${s.index + 1}`
           .replace(/-+/g, "-")
           .slice(0, 40)

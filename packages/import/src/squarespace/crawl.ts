@@ -291,7 +291,8 @@ function itemFromHtml(path: string, page: ParsedPage, kind: SqCollectionKind): S
     const offers = (Array.isArray(rawOffers) ? rawOffers[0] : rawOffers) as
       | Record<string, unknown>
       | undefined;
-    const price = Number(offers?.price);
+    // An Offer's price, or an AggregateOffer's lowest (products with variants).
+    const price = Number(offers?.price ?? offers?.lowPrice);
     item.product = {
       price: Number.isFinite(price) ? Math.round(price * 100) : 0,
       currency: typeof offers?.priceCurrency === "string" ? offers.priceCurrency : "USD",
@@ -548,7 +549,8 @@ export async function crawlSquarespace(opts: CrawlOptions): Promise<SqSite> {
           (path === "/"
             ? // A shop as the home page lists items under its own address too (`/shop/p/x`).
               (kind === "products"
-                ? /^\/(?:[^/]+\/)?p\/[^/]+$/
+                ? // Variant products keep a slash in their slug (`/shop/p/linen-top-/-blue`).
+                  /^\/(?:[^/]+\/)?p\/[^/].*$/
                 : /^\/(?:p\/[^/]+|\d{4}\/\d{1,2}\/\d{1,2}\/[^/]+)$/
               ).test(p)
             : p.startsWith(`${path}/`)) &&

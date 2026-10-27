@@ -263,6 +263,8 @@ ${button("tertiary")}
 .os-header__brand--split,.os-nav,.os-header__tagline{display:none}
 .os-header__actions{display:none;align-items:center;gap:${v(T.space.xs)}}
 .os-header__actions .os-button{min-height:2.5rem;padding-block:0.5rem}
+/* A short label stays on one line beside narrow columns (it wraps on phones if it must). */
+@media (min-width:768px){.os-button{white-space:nowrap;flex-shrink:0}}
 .os-header__toggle,.os-header__cart,.os-menu__close{position:relative;display:inline-grid;place-items:center;width:2.75rem;height:2.75rem;padding:0;border:0;border-radius:${v(T.radius.full)};background:transparent;color:inherit}
 .os-header__toggle:hover,.os-header__cart:hover,.os-menu__close:hover{background:${v(c.surface)}}
 html:not(.os-js) .os-header__toggle{display:none}
@@ -366,7 +368,7 @@ html:not(.os-js) .os-header__toggle{display:none}
 @media (min-width:1200px){.os-header__logo{height:var(--logo-h,2.5rem)}}
 
 /* A raised content card over the page background (Site Styles → layout.surface "card"). */
-.os-page.has-surface-card{background:var(--os-page-bg,${v(c.surface)})}
+.os-page.has-surface-card{background:var(--page-bg,${v(c.surface)})}
 @media (min-width:768px){
 .has-surface-card>.os-main{flex:none;margin:8.3333% 8.3333% 0;padding-block:8.3333% 0;background:${v(c.background)};box-shadow:0 0 1px rgb(0 0 0 / 0.15)}
 .has-surface-card>.os-footer{margin:8.3333% 8.3333% 8.3333%;box-shadow:0 0 1px rgb(0 0 0 / 0.15)}

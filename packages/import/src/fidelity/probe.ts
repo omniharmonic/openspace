@@ -545,6 +545,20 @@ export const PROBE_SCRIPT = String.raw`(async () => {
   if (h2) presets.h2 = h2;
   const h3 = median(styleOfAll("h3"));
   if (h3) presets.h3 = h3;
+  // A display line: the page's largest short text, well above its headings (a banner's title
+  // set in a paragraph). Read when importing; the comparison doesn't check it.
+  {
+    const ref = Math.max(presets.h1 ? presets.h1.size : 0, presets.h2 ? presets.h2.size : 0, 16);
+    let best;
+    for (const e of document.querySelectorAll("p, strong, b, span, h1, h2, h3, div")) {
+      if (!visible(e) || !inMain(e)) continue;
+      const t = ownText(e);
+      if (t.length < 3 || t.length > 60 || [...e.children].some((k) => ownText(k) === t && k.tagName !== "BR" && !/^(STRONG|B|EM|I|SPAN)$/.test(k.tagName))) continue;
+      const st = textOf(e);
+      if (st.size >= ref * 1.3 && (!best || st.size > best.size)) best = st;
+    }
+    if (best) presets.display = best;
+  }
   const tally = new Map();
   for (const { el, t } of all) {
     const k = t.family + "|" + t.size;

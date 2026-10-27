@@ -49,6 +49,7 @@ describe("Squarespace 7.0 pages", () => {
         level: 2,
         eyebrow: "Sustainability",
         align: "center",
+        display: true,
       },
       { kind: "button", label: "Learn More", href: "/about", style: "primary" },
     ]);

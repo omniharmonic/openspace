@@ -151,7 +151,7 @@ export function nearestOpenFont(family: string, metrics?: FontMetrics): FontMatc
     for (const [name, cat, xHeight, capHeight, width] of list) {
       let d = metricDistance(metrics, { xHeight, capHeight, width });
       // A known equivalent wins a near tie.
-      if (eq.includes(name)) d -= 0.02 * (eq.length - eq.indexOf(name));
+      if (eq.includes(name)) d -= 0.004 * (eq.length - eq.indexOf(name));
       if (!best || d < (best.distance ?? Number.POSITIVE_INFINITY))
         best = { family: name, category: cat, via: "metrics", distance: Math.max(0, d) };
     }

@@ -1489,6 +1489,44 @@ export function sectionsFrom(
     }
     out.push(s);
   }
+  return mergeTitleSections(out);
+}
+
+/**
+ * A page title kept in a wrapper of its own (WordPress's `.entry-header` above `.entry-content`)
+ * opens the content that follows: one section, not a heading alone in a band of space.
+ */
+function mergeTitleSections(sections: SqSection[]): SqSection[] {
+  const out: SqSection[] = [];
+  for (let i = 0; i < sections.length; i++) {
+    const s = sections[i] as SqSection;
+    const next = sections[i + 1];
+    const blocks =
+      s.layout.mode === "classic"
+        ? s.layout.rows.flatMap((r) => r.columns.flatMap((c) => c.blocks))
+        : [];
+    const onlyTitle =
+      blocks.length === 1 &&
+      !s.background &&
+      !s.role &&
+      ((blocks[0]?.kind === "heading" && blocks[0].level <= 2) ||
+        (blocks[0]?.kind === "text" &&
+          /^\s*<h[12][^>]*>[^<]*(?:<[^h/][^>]*>[^<]*<\/[^>]+>[^<]*)*<\/h[12]>\s*$/i.test(
+            blocks[0].html,
+          )));
+    if (
+      onlyTitle &&
+      next &&
+      !next.background &&
+      !next.role &&
+      next.layout.mode === "classic" &&
+      next.layout.rows[0]?.columns.length === 1
+    ) {
+      next.layout.rows[0].columns[0]?.blocks.unshift(blocks[0] as SqBlock);
+      continue;
+    }
+    out.push(s);
+  }
   return out;
 }
 

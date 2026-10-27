@@ -55,6 +55,12 @@ export function PageView(props: PageViewProps) {
     ? responsiveVars("logo-h", header.logoHeight, (px) => `${px}px`)
     : undefined;
 
+  // The page color around a raised content card (a validated CSS color from Site Styles).
+  const pageBg = doc.styles.choices.layout?.pageBackground;
+  const pageVars =
+    pageBg && doc.styles.choices.layout?.surface === "card"
+      ? ({ ...(logoVars ?? {}), "--page-bg": pageBg } as typeof logoVars)
+      : logoVars;
   const content = (
     <RenderContext.Provider value={{ doc, page, mode, basePath, hubUrl }}>
       <ImageResolverContext.Provider value={imageMap}>
@@ -65,7 +71,7 @@ export function PageView(props: PageViewProps) {
             doc.styles.choices.layout?.surface === "card" && "has-surface-card",
           )}
           data-os-page={page.id}
-          style={logoVars}
+          style={pageVars}
         >
           <a className="os-skip-link" href="#main">
             Skip to content
