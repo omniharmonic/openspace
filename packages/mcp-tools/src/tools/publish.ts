@@ -30,7 +30,7 @@ export const publish = defineTool({
     const siteId = await ctx.siteId(input.site);
     if (!ctx.grant.publish)
       throw new ToolError(
-        "This connection isn't allowed to publish. The owner can publish from Studio, or allow publishing for this connection.",
+        "This connection isn't allowed to publish. Publish from Studio, or ask the site owner to allow publishing for this connection in Studio → Settings → Connect your AI.",
         "forbidden",
       );
     if (!ctx.store.capabilities.canPublish)

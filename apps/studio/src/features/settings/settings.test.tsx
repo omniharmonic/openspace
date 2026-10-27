@@ -245,7 +245,7 @@ describe("connect your AI", () => {
     expect(within(row).getByText(/osmcp_…/)).toBeInTheDocument();
     expect(within(row).queryByRole("button", { name: /Copy/ })).toBeNull();
     expect(within(row).getByText(/Make a new link below/)).toBeInTheDocument();
-    await user.click(screen.getByRole("tab", { name: "Claude Code" }));
+    await user.click(screen.getByRole("tab", { name: "Personal link" }));
     expect(screen.queryByText(/openspace http:.*osmcp_…/)).toBeNull();
   });
 
@@ -261,13 +261,35 @@ describe("connect your AI", () => {
     });
     expect(writeText).toHaveBeenCalledWith(url);
     expect(screen.getByText(/the full link is only shown once/)).toBeInTheDocument();
-    expect(screen.getByText("Settings → Connectors")).toBeInTheDocument();
 
+    // Claude Code signs in to the Hub's /mcp (OAuth); the plugin is optional, for skills.
     await user.click(screen.getByRole("tab", { name: "Claude Code" }));
+    expect(
+      screen.getByText("claude mcp add --transport http openspace http://localhost:8787/mcp"),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/for site folders on your computer/)).toBeInTheDocument();
     for (const cmd of PLUGIN_COMMANDS) expect(screen.getByText(cmd)).toBeInTheDocument();
+
+    // claude.ai / Claude Desktop: custom connector with the /mcp URL, not the link.
+    await user.click(screen.getByRole("tab", { name: "Claude app" }));
+    expect(screen.getByText("Settings → Connectors")).toBeInTheDocument();
+    expect(screen.getByText("http://localhost:8787/mcp")).toBeInTheDocument();
+
+    // Personal link: no sign-in, the command carries the fresh link.
+    await user.click(screen.getByRole("tab", { name: "Personal link" }));
     expect(
       screen.getByText(`claude mcp add --transport http openspace ${url}`),
     ).toBeInTheDocument();
+
+    // The link is draft-only until the owner explicitly allows it to publish (with a warning).
+    expect(screen.getByText(/Draft only/)).toBeInTheDocument();
+    await user.click(screen.getByRole("switch", { name: "Allow the Claude link to publish" }));
+    expect(screen.getByText(/could then publish to your live site/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Allow publishing" }));
+    await waitFor(() =>
+      expect(hub.calls.find((c) => c.method === "setMcpTokenPublish")?.args?.[2]).toBe(true),
+    );
+    expect(await screen.findByText(/Can publish · asks you/)).toBeInTheDocument();
 
     // Grants: allow publishing, then disconnect.
     await user.click(await screen.findByRole("switch", { name: "Claude can publish" }));

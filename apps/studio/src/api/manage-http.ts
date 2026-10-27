@@ -135,6 +135,12 @@ export function createManageHttp({
     async revokeMcpToken(siteId, tokenId) {
       await request("DELETE", `${site(siteId)}/mcp/tokens/${enc(tokenId)}`);
     },
+    async setMcpTokenPublish(siteId, tokenId, publish) {
+      return unwrap<McpToken>(
+        await request("PATCH", `${site(siteId)}/mcp/tokens/${enc(tokenId)}`, { publish }),
+        "token",
+      );
+    },
     async listMcpGrants() {
       return unwrap<McpGrant[]>(await request("GET", "/api/mcp/grants"), "grants");
     },

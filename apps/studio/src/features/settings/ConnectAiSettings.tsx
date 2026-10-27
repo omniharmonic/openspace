@@ -1,6 +1,12 @@
 import { Check, Copy, Link2, Plus, Terminal, Trash2, Unplug } from "lucide-react";
 import { useState } from "react";
-import { type McpToken, useMcpActions, useMcpGrants, useMcpTokens } from "../../api";
+import {
+  hubMcpUrl,
+  type McpToken,
+  useMcpActions,
+  useMcpGrants,
+  useMcpTokens,
+} from "../../api";
 import type { Site } from "../../api/types";
 import {
   Badge,
@@ -14,6 +20,10 @@ import {
   toast,
 } from "../../ui";
 
+/**
+ * The OpenSpace plugin for Claude Code: skills and slash commands (design check, new page, …).
+ * Its own MCP server works on site folders on your computer; Studio sites connect to the Hub.
+ */
 export const PLUGIN_COMMANDS = [
   "/plugin marketplace add omniharmonic/openspace",
   "/plugin install openspace",
@@ -88,7 +98,7 @@ function StepSketch({ kind }: { kind: "settings" | "add" | "allow" }) {
         <span className="st-sketch__modal">
           <b>Add custom connector</b>
           <i>OpenSpace</i>
-          <i className="is-url">https://…/mcp/t/…</i>
+          <i className="is-url">https://…/mcp</i>
           <em>Add</em>
         </span>
       )}
@@ -107,14 +117,21 @@ function StepSketch({ kind }: { kind: "settings" | "add" | "allow" }) {
 function TokenRow({
   token,
   fresh,
+  canAllowPublish,
   onRevoke,
+  onPublish,
 }: {
   token: McpToken;
   /** The full link, only for a link made in this visit (the Hub never shows it again). */
   fresh: string | null;
+  /** Only the site owner may let a link publish. */
+  canAllowPublish: boolean;
   onRevoke: () => void;
+  onPublish: (publish: boolean) => void;
 }) {
   const [confirm, setConfirm] = useState(false);
+  const [confirmPublish, setConfirmPublish] = useState(false);
+  const publishes = token.publish === true;
   return (
     <li className="st-token">
       <div className="st-token__head">
@@ -141,6 +158,45 @@ function TokenRow({
           </p>
         </>
       )}
+      <div className="st-token__publish">
+        {publishes ? (
+          <Badge tone="pending">Can publish · asks you before each publish</Badge>
+        ) : (
+          <span className="st-muted-note">Draft only: changes wait for you to publish.</span>
+        )}
+        {canAllowPublish &&
+          (confirmPublish ? (
+            <div className="st-token__confirm" role="alert">
+              <span className="st-media-warn">
+                Anyone who has this link could then publish to your live site. Only allow this for
+                a link you keep private; you can turn it off here at any time.
+              </span>
+              <Button size="sm" variant="ghost" onClick={() => setConfirmPublish(false)}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={() => {
+                  setConfirmPublish(false);
+                  onPublish(true);
+                }}
+              >
+                Allow publishing
+              </Button>
+            </div>
+          ) : (
+            <span className="st-grant__publish">
+              <span>Allow this link to publish</span>
+              <Toggle
+                size="sm"
+                checked={publishes}
+                aria-label={`Allow the ${token.label} link to publish`}
+                onCheckedChange={(on) => (on ? setConfirmPublish(true) : onPublish(false))}
+              />
+            </span>
+          ))}
+      </div>
       <div className="st-row-actions">
         {confirm ? (
           <>
@@ -163,8 +219,9 @@ function TokenRow({
 }
 
 /**
- * Connect your AI (PRD §4.4, FR-40): a personal connector link for Claude (or any MCP-capable
- * agent), step-by-step instructions, the Claude Code plugin, and the apps that have access.
+ * Connect your AI (PRD §4.4, FR-40): three separate flows — Claude Code and the Claude app sign
+ * in to the Hub's `/mcp` (OAuth, URL from `VITE_HUB_URL`), or a personal link (no sign-in,
+ * draft-only unless the owner allows it to publish) — plus the apps that have access.
  */
 export function ConnectAiSettings({ site }: { site: Site }) {
   const tokens = useMcpTokens(site.id);
@@ -174,6 +231,9 @@ export function ConnectAiSettings({ site }: { site: Site }) {
   // The just-made link in full (the Hub only returns it once; lists show it masked).
   const [fresh, setFresh] = useState<{ id: string; url: string } | null>(null);
   const first = tokens.data?.[0];
+  const isOwner = (site.role ?? "owner") === "owner";
+  const mcpUrl = hubMcpUrl();
+  const claudeCodeCommand = `claude mcp add --transport http openspace ${mcpUrl}`;
   const freshUrl = fresh && tokens.data?.some((t) => t.id === fresh.id) ? fresh.url : null;
 
   const create = () =>
@@ -201,7 +261,8 @@ export function ConnectAiSettings({ site }: { site: Site }) {
               Your connection link
             </h3>
             <p className="st-card__desc">
-              Personal to you. Anyone with it can ask to edit this site, so keep it private.
+              Personal to you, for {site.name} only, with no sign-in step. Anyone with it can edit
+              the draft, so keep it private. A link can't publish unless you allow it.
             </p>
           </div>
         </div>
@@ -214,7 +275,27 @@ export function ConnectAiSettings({ site }: { site: Site }) {
                 key={t.id}
                 token={t}
                 fresh={fresh?.id === t.id ? fresh.url : null}
+                canAllowPublish={isOwner}
                 onRevoke={() => actions.revokeToken.mutate(t.id)}
+                onPublish={(publish) =>
+                  actions.setTokenPublish.mutate(
+                    { id: t.id, publish },
+                    {
+                      onSuccess: () =>
+                        toast({
+                          title: publish
+                            ? `${t.label} link can publish`
+                            : `${t.label} link is draft-only again`,
+                        }),
+                      onError: (err) =>
+                        toast({
+                          tone: "danger",
+                          title: "Couldn’t change that link",
+                          description: err.message,
+                        }),
+                    },
+                  )
+                }
               />
             ))}
           </ul>
@@ -252,26 +333,63 @@ export function ConnectAiSettings({ site }: { site: Site }) {
           aria-label="AI app"
           items={[
             {
+              value: "code",
+              label: "Claude Code",
+              content: (
+                <div className="st-settings__stack">
+                  <ol className="st-steps">
+                    <li>
+                      <div>
+                        <Terminal aria-hidden="true" /> In a terminal, add OpenSpace to Claude
+                        Code:
+                      </div>
+                      <CopyLine value={claudeCodeCommand} label="command" />
+                    </li>
+                    <li>
+                      In Claude Code, type <code className="st-code">/mcp</code>, pick{" "}
+                      <strong>openspace</strong> and choose <strong>Authenticate</strong>.
+                    </li>
+                    <li>
+                      Sign in with GitHub, tick <strong>{site.name}</strong>, and decide whether
+                      Claude may publish (off unless you choose it). You can change this below.
+                    </li>
+                    <li>
+                      Ask Claude something like{" "}
+                      <em>“Add an FAQ section to my home page about class sizes.”</em>
+                    </li>
+                  </ol>
+                  <p className="st-muted-note">
+                    Rather not sign in? Use your personal link instead (see{" "}
+                    <strong>Personal link</strong>).
+                  </p>
+                  <p className="st-muted-note">
+                    <strong>Optional:</strong> the OpenSpace plugin adds skills and slash
+                    commands, such as a design check. Its own built-in server is for site folders
+                    on your computer, so for {site.name} keep the connection above.
+                  </p>
+                  {PLUGIN_COMMANDS.map((c) => (
+                    <CopyLine key={c} value={c} label="command" />
+                  ))}
+                </div>
+              ),
+            },
+            {
               value: "claude",
-              label: "Claude",
+              label: "Claude app",
               content: (
                 <ol className="st-steps st-steps--sketch">
-                  <li className={first ? "is-done" : undefined}>
-                    <div>
-                      <strong>Make your link</strong> above and copy it.
-                    </div>
-                  </li>
                   <li>
                     <div>
-                      In Claude, open <strong>Settings → Connectors</strong> and choose{" "}
-                      <strong>Add custom connector</strong>.
+                      In claude.ai or Claude Desktop, open <strong>Settings → Connectors</strong>{" "}
+                      and choose <strong>Add custom connector</strong>.
                     </div>
                     <StepSketch kind="settings" />
                   </li>
                   <li>
                     <div>
-                      Name it <strong>OpenSpace</strong>, paste your link as the URL, and click{" "}
-                      <strong>Add</strong>.
+                      Name it <strong>OpenSpace</strong>, use this URL, and click{" "}
+                      <strong>Add</strong>:
+                      <CopyLine value={mcpUrl} label="connector URL" />
                     </div>
                     <StepSketch kind="add" />
                   </li>
@@ -290,46 +408,45 @@ export function ConnectAiSettings({ site }: { site: Site }) {
               ),
             },
             {
-              value: "code",
-              label: "Claude Code",
+              value: "link",
+              label: "Personal link",
               content: (
                 <div className="st-settings__stack">
                   <p className="st-muted-note">
-                    <Terminal aria-hidden="true" /> In Claude Code, install the OpenSpace plugin. It
-                    connects with your GitHub sign-in and knows how your site is put together.
+                    Your link works without signing in, for this site only. It edits the draft;
+                    it can publish only if you allow that on the link above.
                   </p>
-                  {PLUGIN_COMMANDS.map((c) => (
-                    <CopyLine key={c} value={c} label="command" />
-                  ))}
-                  {freshUrl ? (
-                    <>
-                      <p className="st-muted-note">Or connect with your link directly:</p>
-                      <CopyLine
-                        value={`claude mcp add --transport http openspace ${freshUrl}`}
-                        label="command"
-                      />
-                    </>
-                  ) : (
-                    first && (
-                      <p className="st-muted-note">
-                        Or connect with your link directly:{" "}
+                  <ol className="st-steps">
+                    <li className={first ? "is-done" : undefined}>
+                      <div>
+                        <strong>Make your link</strong> above and copy it.
+                      </div>
+                    </li>
+                    <li>
+                      <div>
+                        <strong>Claude Code:</strong> run
+                      </div>
+                      {freshUrl ? (
+                        <CopyLine
+                          value={`claude mcp add --transport http openspace ${freshUrl}`}
+                          label="command"
+                        />
+                      ) : (
                         <code className="st-code">
-                          claude mcp add --transport http openspace &lt;your link&gt;
+                          claude mcp add --transport http openspace "&lt;your link&gt;"
                         </code>
-                      </p>
-                    )
-                  )}
+                      )}
+                    </li>
+                    <li>
+                      <strong>claude.ai or Claude Desktop:</strong> Settings → Connectors → Add
+                      custom connector, and paste the link as the URL. No sign-in step.
+                    </li>
+                    <li>
+                      <strong>Other apps</strong> that support MCP over HTTP: add the link as a
+                      remote server.
+                    </li>
+                  </ol>
                 </div>
-              ),
-            },
-            {
-              value: "other",
-              label: "Other apps",
-              content: (
-                <p className="st-muted-note">
-                  Any app that supports MCP connectors over HTTP can use your link: add it as a
-                  remote server and sign in when asked.
-                </p>
               ),
             },
           ]}

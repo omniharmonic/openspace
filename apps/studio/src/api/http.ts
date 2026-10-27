@@ -32,6 +32,16 @@ import {
 
 export const DEFAULT_HUB_URL = "http://localhost:8787";
 
+/** The Hub this Studio talks to (`VITE_HUB_URL`), without a trailing slash. */
+export function configuredHubUrl(env: Partial<ImportMetaEnv> = import.meta.env): string {
+  return (env.VITE_HUB_URL || DEFAULT_HUB_URL).replace(/\/+$/, "");
+}
+
+/** The Hub's remote MCP endpoint (OAuth sign-in), e.g. `https://hub.openspace.host/mcp`. */
+export function hubMcpUrl(env: Partial<ImportMetaEnv> = import.meta.env): string {
+  return `${configuredHubUrl(env)}/mcp`;
+}
+
 export interface HttpHubOptions {
   baseUrl?: string;
   fetch?: typeof fetch;

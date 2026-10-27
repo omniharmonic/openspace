@@ -103,6 +103,11 @@ export interface McpToken {
   url: string;
   createdAt: string;
   lastUsedAt: string | null;
+  /**
+   * Whether this link may publish the live site. Off unless the owner explicitly allows it
+   * (owner-only, revocable, enforced by the Hub on every request).
+   */
+  publish?: boolean;
 }
 
 /** An AI app the person allowed to edit their sites (`/api/mcp/grants`). */
@@ -243,6 +248,8 @@ export interface ManageApi {
   listMcpTokens(siteId: string): Promise<McpToken[]>;
   createMcpToken(siteId: string, label: string): Promise<McpToken>;
   revokeMcpToken(siteId: string, tokenId: string): Promise<void>;
+  /** Owner-only: allow (or stop) one personal link publishing. */
+  setMcpTokenPublish(siteId: string, tokenId: string, publish: boolean): Promise<McpToken>;
   listMcpGrants(): Promise<McpGrant[]>;
   revokeMcpGrant(grantId: string): Promise<void>;
   setMcpGrantPublish(grantId: string, publish: boolean): Promise<McpGrant>;
