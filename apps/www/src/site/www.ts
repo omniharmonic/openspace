@@ -57,24 +57,26 @@ export const MIGRATE_GUIDE = `${DOCS}/guides/migrate-from-squarespace/`;
 /**
  * Donation links: Stripe Payment Links, one per amount (US dollars). This is the ONE place they
  * live; the home page, the Support page and the savings calculator all read from here.
- * The REPLACE_ME links are placeholders until the real Payment Links exist.
+ * Live Stripe Payment Links (product "Gift to OpenSpace"); monthly gifts are managed at MANAGE_GIFTS.
  */
 export const DONATE = {
   oneTime: {
-    10: "https://donate.stripe.com/REPLACE_ME_10",
-    25: "https://donate.stripe.com/REPLACE_ME_25",
-    50: "https://donate.stripe.com/REPLACE_ME_50",
-    100: "https://donate.stripe.com/REPLACE_ME_100",
-    250: "https://donate.stripe.com/REPLACE_ME_250",
-    custom: "https://donate.stripe.com/REPLACE_ME_custom",
+    10: "https://donate.stripe.com/9B6eVdcEE1JE53zeWIgMw00",
+    25: "https://donate.stripe.com/bJe4gz9ss8828fL7uggMw01",
+    50: "https://donate.stripe.com/9B65kDbAAdsmfId29WgMw02",
+    100: "https://donate.stripe.com/7sY9AT3445ZUgMhaGsgMw03",
+    250: "https://donate.stripe.com/fZu00jaww8823Zvg0MgMw04",
+    custom: "https://donate.stripe.com/eVqcN55cc73Y0Nj29WgMw05",
   },
   monthly: {
-    3: "https://donate.stripe.com/REPLACE_ME_3_monthly",
-    5: "https://donate.stripe.com/REPLACE_ME_5_monthly",
-    10: "https://donate.stripe.com/REPLACE_ME_10_monthly",
-    20: "https://donate.stripe.com/REPLACE_ME_20_monthly",
+    3: "https://buy.stripe.com/28EbJ1eMM9c6dA58ykgMw06",
+    5: "https://buy.stripe.com/bJe28r5cc4VQeE97uggMw07",
+    10: "https://buy.stripe.com/dRm3cv5cccoi7bH15SgMw08",
+    20: "https://buy.stripe.com/aFadR9fQQdsm9jPg0MgMw09",
   },
 } as const;
+/** Stripe customer portal: donors sign in with their email to change or stop a monthly gift. */
+export const MANAGE_GIFTS = "https://billing.stripe.com/p/login/9B6eVdcEE1JE53zeWIgMw00";
 const REPO = url(GITHUB);
 const startWith = (id: string) => url(`${STUDIO}/new/${id}`);
 
@@ -1510,6 +1512,16 @@ function supportPage() {
               {
                 question: "Is my gift tax-deductible?",
                 answer: body("No. Gifts aren't tax-deductible unless this page says otherwise."),
+              },
+              {
+                question: "How do I change or stop a monthly gift?",
+                answer: rt.doc(
+                  rt.p([
+                    "Any time, in two clicks: ",
+                    rt.link("manage your gift", MANAGE_GIFTS),
+                    " signs you in with the email you gave at checkout, then cancel or update your card. Cancelling takes effect right away.",
+                  ]),
+                ),
               },
               {
                 question: "How are payments handled?",
