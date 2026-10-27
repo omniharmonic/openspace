@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CollectionConfigSchema, CollectionItemSchema } from "./collections";
+import { ComponentsSchema } from "./components/definition";
 import { SiteConfigSchema } from "./config";
 import { PageIdSchema } from "./ids";
 import { MediaMetaSchema } from "./media";
@@ -27,6 +28,11 @@ export const SiteDocumentSchema = named(
       /** `_collection.json` per collection name (optional; collections may rely on defaults). */
       collectionConfigs: z.record(CollectionNameSchema, CollectionConfigSchema).optional(),
       media: z.record(MediaPathSchema, MediaMetaSchema),
+      /**
+       * Custom components by name (`content/components/<name>.json`, ADR custom-components).
+       * Optional: documents without components are unchanged.
+       */
+      components: ComponentsSchema.optional(),
     })
     .superRefine((doc, ctx) => {
       const slugs = new Map<string, string>();
@@ -114,6 +120,14 @@ export const SiteDocumentSchema = named(
             message: `Collection ${name} mixes item kinds`,
           });
         }
+      }
+      for (const [name, def] of Object.entries(doc.components ?? {})) {
+        if (def.name !== name)
+          ctx.addIssue({
+            code: "custom",
+            path: ["components", name, "name"],
+            message: `Component name ${def.name} does not match its key ${name}`,
+          });
       }
       const mediaIds = new Map<string, string>();
       for (const [path, meta] of Object.entries(doc.media)) {

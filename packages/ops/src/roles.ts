@@ -1,8 +1,10 @@
-import type {
-  BlockRegistry,
-  ColorTheme,
-  Section,
-  SiteDocument,
+import {
+  type BlockRegistry,
+  type ColorTheme,
+  componentSection,
+  type Section,
+  type SiteDocument,
+  withComponents,
 } from "@omniharmonic/openspace-schema";
 import { findBlock, findSection, locateBlock } from "./doc";
 import { invert } from "./invert";
@@ -71,6 +73,14 @@ function sectionLook(section: Section): unknown {
 /** True if `section` looks exactly like a preset build or a section already in the document. */
 export function isKnownSectionLook(section: Section, context: RoleContext): boolean {
   const look = sectionLook(section);
+  // A custom component's section, built with the component's section defaults.
+  const ref = /^component\/([a-z0-9-]+)@\d+$/.exec(section.preset ?? "");
+  const def = ref ? context.doc?.components?.[ref[1] as string] : undefined;
+  if (def) {
+    const built = componentSection(def, { colorTheme: section.style?.colorTheme });
+    // Block ids differ in a fresh build; the look compares layout and style only.
+    if (deepEqual(sectionLook(built), look)) return true;
+  }
   if (section.preset && context.presetSection) {
     const built = context.presetSection(section.preset, section.style?.colorTheme);
     if (built && deepEqual(sectionLook(built), look)) return true;
@@ -161,7 +171,12 @@ export function transformForRole(
 ): RoleDecision {
   const allow: RoleDecision = { allowed: true, op };
   if (role === "owner" || role === "designer") return allow;
-  const { doc, registry } = context;
+  const { doc } = context;
+  // Custom components count as block types for field-kind checks.
+  const registry =
+    context.registry && doc ? withComponents(context.registry, doc.components) : context.registry;
+  if (op.op === "component.upsert" || op.op === "component.delete")
+    return deny("Only owners and designers can change a component's design");
 
   if (role === "contributor") {
     if (op.op !== "collection.upsert")

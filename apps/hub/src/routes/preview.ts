@@ -1,6 +1,11 @@
 import { esc } from "@omniharmonic/openspace-email-render";
-import type { ImageMap, ResolvedImage } from "@omniharmonic/openspace-renderer";
-import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
+import {
+  componentPreview,
+  type ImageMap,
+  parseComponentPreviewPath,
+  type ResolvedImage,
+} from "@omniharmonic/openspace-renderer";
+import { COLOR_THEMES, type Page, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { type Context, Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { getSite, getSiteForUser, type SiteRow } from "../db/sites";
@@ -525,14 +530,28 @@ const draft = async (c: Context<AppEnv>) => {
     return htmlPage(c, 404, "Site not found", "This site doesn't exist or you don't have access.");
   // The live draft (the room's document, including edits not yet saved to the draft branch).
   const { doc } = await unwrapRoom(roomStub(c.env, siteId).getDocument(siteId));
-  return render(
-    c,
-    doc,
-    restPath(c, `/p/${siteId}`),
-    "draft",
-    `/p/${siteId}`,
-    await draftImageMap(c, siteId, doc),
-  );
+  const rest = restPath(c, `/p/${siteId}`);
+  // A custom component on its own (`/_os/component/<name>/`): MCP preview_component screenshots.
+  const component = parseComponentPreviewPath(rest, new URL(c.req.url).searchParams);
+  if (component) {
+    if (!doc.components?.[component.name])
+      return htmlPage(c, 404, "Component not found", "This site has no component by that name.");
+    const preview = componentPreview(doc, component.name, {
+      ...(component.fields ? { fields: component.fields } : {}),
+      ...(component.colorTheme && (COLOR_THEMES as readonly string[]).includes(component.colorTheme)
+        ? { colorTheme: component.colorTheme as (typeof COLOR_THEMES)[number] }
+        : {}),
+    });
+    return render(
+      c,
+      preview.doc,
+      `/${preview.page.slug}/`,
+      "draft",
+      `/p/${siteId}`,
+      await draftImageMap(c, siteId, preview.doc),
+    );
+  }
+  return render(c, doc, rest, "draft", `/p/${siteId}`, await draftImageMap(c, siteId, doc));
 };
 previewRoutes.get("/p/:siteId", draft);
 previewRoutes.get("/p/:siteId/*", draft);

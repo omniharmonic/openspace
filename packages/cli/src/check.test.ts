@@ -288,3 +288,69 @@ describe("openspace check", () => {
     expect(r.out).not.toMatch(/\u001b\[/);
   });
 });
+
+describe("openspace check: custom components", () => {
+  const quote = {
+    name: "pull-quote",
+    label: "Pull quote",
+    version: 1,
+    fields: { quote: { kind: "text" } },
+    defaults: { quote: "Breathe." },
+    template: "<blockquote>{{quote}}</blockquote>",
+    css: "blockquote { font-family: var(--os-font-heading); }",
+  };
+  async function withInstance(root: string, css = quote.css) {
+    const { mkdir } = await import("node:fs/promises");
+    await mkdir(join(root, "content/components"), { recursive: true });
+    await writeFile(
+      join(root, "content/components/pull-quote.json"),
+      `${JSON.stringify({ ...quote, css }, null, 2)}\n`,
+    );
+    await editJson(join(root, "content/pages/home.json"), (p) => {
+      p.sections.push({
+        id: newId("sec"),
+        layout: { mode: "stack", columns: { d: [12] } },
+        style: {},
+        blocks: [
+          { id: newId("blk"), type: "component/pull-quote", v: 1, fields: { quote: "Hello" } },
+        ],
+      });
+    });
+  }
+
+  it("passes with a valid component and a site-kit that renders it", async () => {
+    const root = await meadowCopy();
+    await withInstance(root);
+    const report = await runCheck(root);
+    expect(report.findings.filter((f) => f.severity === "error")).toEqual([]);
+  });
+
+  it("fails on component quality errors and on an old site-kit", async () => {
+    const root = await meadowCopy();
+    await withInstance(
+      root,
+      "blockquote { animation: spin 1s infinite } @keyframes spin { to { transform: rotate(1turn) } }",
+    );
+    await writeFile(
+      join(root, "package.json"),
+      JSON.stringify({ dependencies: { "@omniharmonic/openspace-site-kit": "0.1.9" } }),
+    );
+    const report = await runCheck(root);
+    expect(rules(report)).toContain("component");
+    expect(rules(report)).toContain("kit");
+    expect(report.findings.find((f) => f.rule === "kit")?.message).toMatch(
+      /latest OpenSpace update/,
+    );
+  });
+
+  it("names the component file when its definition is invalid", async () => {
+    const root = await meadowCopy();
+    await withInstance(root);
+    await editJson(join(root, "content/components/pull-quote.json"), (c) => {
+      c.template = "<script>x</script>";
+    });
+    const report = await runCheck(root);
+    expect(report.ok).toBe(false);
+    expect(report.findings.some((f) => f.file === "content/components/pull-quote.json")).toBe(true);
+  });
+});

@@ -5,6 +5,8 @@ import {
   CollectionConfigSchema,
   CollectionItemSchema,
   CollectionNameSchema,
+  ComponentDefinitionSchema,
+  ComponentNameSchema,
   GridItemSchema,
   GridRectSchema,
   MAX_GRID_ROWS,
@@ -240,6 +242,30 @@ export const CollectionConfigUpsertOpSchema = op("collectionConfig.upsert", {
   keepEmpty: z.boolean().optional(),
 });
 
+/**
+ * Creates or replaces a custom component definition (`content/components/<name>.json`). Owners and
+ * designers only. `instances` sets the version and fields of existing instances in the same step
+ * (a migration to a new version, or the inverse restoring them).
+ */
+export const ComponentUpsertOpSchema = op("component.upsert", {
+  component: ComponentDefinitionSchema,
+  instances: z
+    .record(
+      BlockIdSchema,
+      z.strictObject({ v: z.int().min(1), fields: z.record(z.string(), z.unknown()) }),
+    )
+    .optional(),
+  /** With an inverse delete: keep an empty `components` object instead of dropping it. */
+  keepEmpty: z.boolean().optional(),
+});
+
+/** Removes a component definition. Refused while any section still uses it. */
+export const ComponentDeleteOpSchema = op("component.delete", {
+  name: ComponentNameSchema,
+  /** Keep an empty `components` object instead of dropping it. */
+  keepEmpty: z.boolean().optional(),
+});
+
 export const OpSchema = z.discriminatedUnion("op", [
   BlockUpdateOpSchema,
   BlockInsertOpSchema,
@@ -261,6 +287,8 @@ export const OpSchema = z.discriminatedUnion("op", [
   CollectionUpsertOpSchema,
   CollectionDeleteOpSchema,
   CollectionConfigUpsertOpSchema,
+  ComponentUpsertOpSchema,
+  ComponentDeleteOpSchema,
 ]);
 
 export type Op = z.infer<typeof OpSchema>;
@@ -286,6 +314,8 @@ export type MediaRemoveOp = OpOf<"media.remove">;
 export type CollectionUpsertOp = OpOf<"collection.upsert">;
 export type CollectionDeleteOp = OpOf<"collection.delete">;
 export type CollectionConfigUpsertOp = OpOf<"collectionConfig.upsert">;
+export type ComponentUpsertOp = OpOf<"component.upsert">;
+export type ComponentDeleteOp = OpOf<"component.delete">;
 
 /** Every op type, in vocabulary order. */
 export const OP_TYPES = OpSchema.options.map((o) => o.shape.op.value) as OpType[];

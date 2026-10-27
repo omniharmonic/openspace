@@ -9,6 +9,7 @@ import {
 } from "@omniharmonic/openspace-schema";
 import { imageTreatmentClass, TOKEN_VARS, themeClass } from "@omniharmonic/openspace-theme";
 import { Component, type ReactNode, useContext } from "react";
+import { componentDefinitionFor } from "./component";
 import {
   BlockFieldsContext,
   BlockRegistryContext,
@@ -184,10 +185,20 @@ export function BlockView({ block, section }: BlockViewProps) {
   const registry = useContext(BlockRegistryContext) ?? globalRegistry;
   const ctx = useRenderContext();
   const editor = useEditor();
-  const def = registry.get(block.type) as RendererBlockDefinition | undefined;
+  // Custom components resolve from the document being rendered (`component/<name>`).
+  const component = registry.get(block.type)
+    ? undefined
+    : componentDefinitionFor(ctx.doc, block.type);
+  const def =
+    component && "def" in component
+      ? component.def
+      : (registry.get(block.type) as RendererBlockDefinition | undefined);
   // Hidden blocks are skipped everywhere but Studio, which shows them ghosted.
   if (block.hidden && ctx.mode !== "editor") return null;
-  const prepared = prepare(def, block, ctx.mode);
+  const prepared: Prepared =
+    component && "reason" in component
+      ? { ok: false, reason: component.reason }
+      : prepare(def, block, ctx.mode);
 
   const content: ReactNode = prepared.ok ? (
     <BlockErrorBoundary block={block}>

@@ -40,7 +40,7 @@ const gridLayout = (doc: SiteDocument): GridLayout =>
   doc.pages[home]?.sections[1]?.layout as GridLayout;
 
 describe("op vocabulary", () => {
-  it("covers every op the architecture lists, plus collectionConfig.upsert", () => {
+  it("covers every op the architecture lists, plus collectionConfig.upsert and components", () => {
     expect(OP_TYPES.sort()).toEqual(
       [
         "block.update",
@@ -63,6 +63,8 @@ describe("op vocabulary", () => {
         "collection.upsert",
         "collection.delete",
         "collectionConfig.upsert",
+        "component.upsert",
+        "component.delete",
       ].sort(),
     );
   });

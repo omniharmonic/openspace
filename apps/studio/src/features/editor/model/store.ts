@@ -11,6 +11,7 @@ import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { createStore, type StoreApi } from "zustand/vanilla";
 import { defaultTextField, type EditingField } from "../text/fields";
 import type { Command } from "./actions";
+import { setStudioComponents } from "./registry";
 import { locate, type SelItem, sameItem } from "./selection";
 
 /**
@@ -457,5 +458,10 @@ export function createEditorStore(options: CreateEditorStoreOptions): EditorStor
       });
     },
   }));
+  // Panels resolve custom component fields through the registry; keep it on this document.
+  setStudioComponents(options.doc.components);
+  store.subscribe((state, prev) => {
+    if (state.doc.components !== prev.doc.components) setStudioComponents(state.doc.components);
+  });
   return store;
 }

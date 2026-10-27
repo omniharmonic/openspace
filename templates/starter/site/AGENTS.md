@@ -36,12 +36,24 @@ content/pages/home.json      the home page (slug ""); other pages mirror their U
 content/pages/about.json     → /about/      content/pages/services/pricing.json → /services/pricing/
 content/collections/<name>/_collection.json   collection kind, list + item page layout, feeds
 content/collections/<name>/<slug>.mdoc        one item: YAML frontmatter + Markdoc body
+content/components/<name>.json                a custom component (designer section)
 media/                       images ≤ 2400px on the long edge, audio, files
 ```
 
 A page is `{ id, title, slug, seo?, sections: [...] }`; a section has a `layout` (`stack` with
 column spans that add up to 12, or `grid`) and `blocks`; a block is
 `{ id, type, v, fields, variant?, style? }`.
+
+## Custom components
+
+Designer sections for moments the blocks can't express. `content/components/<name>.json` holds
+typed `fields`, sample `defaults`, a logic-light `template` (`{{field}}`, `{{rich f}}`,
+`{{image f}}`, `{{button f label=g}}`, `{{#if}}`, `{{#each}}`; no scripts, no raw HTML), scoped
+`css` on theme tokens (`var(--os-color-…)`, `var(--os-space-…)`) and optional `js` (the body of
+`function (root, ctx)`, progressive enhancement only, no network). Pages use one as a block
+`{ "type": "component/<name>", "v": <version>, "fields": {…} }`. Every word, image and link is a
+field, so owners keep editing in Studio. Prefer blocks and presets; `openspace check` enforces
+the component gates (accessibility, reduced motion, budgets).
 
 ## Collection items (Markdoc)
 

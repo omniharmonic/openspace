@@ -98,6 +98,29 @@ export function diff(before: SiteDocument, after: SiteDocument, options: DiffOpt
   };
   for (const id of allBlocks(work)) if (!afterBlocks.has(id)) removeBlock(id);
 
+  // 3b. Custom components, before content that uses them (instances of a changed definition
+  // take their version and fields from `after` in the same step).
+  const afterBlockById = new Map<string, Block>();
+  for (const b of after.site.footer.blocks) afterBlockById.set(b.id, b);
+  for (const p of Object.values(after.pages))
+    for (const s of p.sections) for (const b of s.blocks) afterBlockById.set(b.id, b);
+  for (const [name, def] of Object.entries(after.components ?? {})) {
+    if (deepEqual(work.components?.[name], def)) continue;
+    const instances: Record<string, { v: number; fields: Record<string, unknown> }> = {};
+    for (const id of allBlocks(work)) {
+      const wb = locateBlock(work, id)?.block;
+      const ab = afterBlockById.get(id);
+      if (!wb || !ab || wb.type !== `component/${name}` || ab.type !== wb.type) continue;
+      if (wb.v !== ab.v || !deepEqual(wb.fields, ab.fields))
+        instances[id] = { v: ab.v, fields: clone(ab.fields) };
+    }
+    emit({
+      op: "component.upsert",
+      component: clone(def),
+      ...(Object.keys(instances).length ? { instances } : {}),
+    });
+  }
+
   // 4. New pages: whole when none of their content exists yet, otherwise empty then filled.
   for (const page of Object.values(after.pages)) {
     if (getPage(work, page.id)) continue;
@@ -285,6 +308,12 @@ export function diff(before: SiteDocument, after: SiteDocument, options: DiffOpt
   for (const [name, config] of Object.entries(ac ?? {}))
     if (!deepEqual(wc[name], config))
       emit({ op: "collectionConfig.upsert", collection: name, config: clone(config) });
+
+  // 12. Components nobody uses any more (after the content that used them is gone).
+  const ac2 = after.components;
+  for (const name of Object.keys(work.components ?? {}))
+    if (!ac2 || !Object.hasOwn(ac2, name))
+      emit({ op: "component.delete", name, ...(ac2 ? { keepEmpty: true } : {}) });
 
   return ops;
 }

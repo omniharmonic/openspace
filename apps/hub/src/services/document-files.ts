@@ -19,7 +19,7 @@ const SHA_RE = /^[0-9a-f]{40}$/;
 const MAX_CACHED_CHARS = 20 * 1024 * 1024;
 const TTL_S = 30 * 24 * 3600;
 
-export const documentFilesKey = (siteId: string, sha: string) => `docfiles/v1/${siteId}/${sha}`;
+export const documentFilesKey = (siteId: string, sha: string) => `docfiles/v2/${siteId}/${sha}`;
 
 export async function readDocumentFiles(
   gh: GitHubAccess,

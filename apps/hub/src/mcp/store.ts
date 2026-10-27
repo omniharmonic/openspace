@@ -421,6 +421,8 @@ export class HubSiteStore implements SiteStore {
     if (!this.o.screenshots)
       throw new ToolError("Screenshots aren't available on this Hub.", "unsupported");
     const shots = this.o.screenshots;
+    // A preview path (e.g. a custom component on its own) wins over the page's path.
+    if (request.path) return wrap(() => shots.capture(siteId, request.path as string, request));
     const doc = await this.getDocument(siteId);
     const page = doc.pages[request.pageId as keyof typeof doc.pages];
     return wrap(() => shots.capture(siteId, page ? pagePathOf(page) : "/", request));

@@ -434,12 +434,18 @@ importers:
       '@omniharmonic/openspace-import':
         specifier: workspace:*
         version: link:../import
+      '@omniharmonic/openspace-lint':
+        specifier: workspace:*
+        version: link:../lint
       '@omniharmonic/openspace-mcp-tools':
         specifier: workspace:*
         version: link:../mcp-tools
       '@omniharmonic/openspace-ops':
         specifier: workspace:*
         version: link:../ops
+      '@omniharmonic/openspace-renderer':
+        specifier: workspace:*
+        version: link:../renderer
       '@omniharmonic/openspace-schema':
         specifier: workspace:*
         version: link:../schema
@@ -551,6 +557,9 @@ importers:
         specifier: workspace:*
         version: link:../theme
     devDependencies:
+      '@omniharmonic/openspace-renderer':
+        specifier: workspace:*
+        version: link:../renderer
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.5

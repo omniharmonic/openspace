@@ -1,6 +1,6 @@
-import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import { type ContainerId, FOOTER } from "@omniharmonic/openspace-ops";
 import type { Block, Section, SiteDocument } from "@omniharmonic/openspace-schema";
+import { studioRegistry } from "./registry";
 
 /** One selected (or hovered) thing on the canvas. */
 export interface SelItem {
@@ -121,7 +121,7 @@ export function firstChildOf(
 /** Human label for a block type ("Text", "Image"). */
 export function blockLabel(type: string): string {
   return (
-    blocksRegistry().get(type)?.label ??
+    studioRegistry().get(type)?.label ??
     type.replace(/(^|-)([a-z])/g, (_m, sep, c) => (sep ? " " : "") + c.toUpperCase())
   );
 }

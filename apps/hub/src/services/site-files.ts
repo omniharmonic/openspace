@@ -22,6 +22,7 @@ import type { FileChange } from "../github/types";
  * content/pages/services/pricing.json  → slug "services/pricing"
  * content/collections/<name>/_collection.json → doc.collectionConfigs[name]
  * content/collections/<name>/<slug>.mdoc      → doc.collections[name][slug] (YAML frontmatter + Markdoc)
+ * content/components/<name>.json              → doc.components[name] (custom components)
  * ```
  *
  * Everything else in the repo (src/, public/, media bytes, presets, workflows…) is not part of
@@ -34,6 +35,7 @@ export const STYLES_PATH = "content/styles.json";
 export const MEDIA_INDEX_PATH = "content/media.json";
 export const PAGES_DIR = "content/pages/";
 export const COLLECTIONS_DIR = "content/collections/";
+export const COMPONENTS_DIR = "content/components/";
 const HOME_FILE = "home.json";
 
 export class SiteFilesError extends Error {
@@ -109,6 +111,7 @@ export function loadSiteDocument(files: Record<string, string>): SiteDocument {
   const pages: Record<string, unknown> = {};
   const collections: Record<string, Record<string, unknown>> = {};
   const collectionConfigs: Record<string, unknown> = {};
+  const components: Record<string, unknown> = {};
   const itemFiles: Array<{ name: string; slug: string; path: string }> = [];
 
   for (const path of Object.keys(files).sort()) {
@@ -118,6 +121,11 @@ export function loadSiteDocument(files: Record<string, string>): SiteDocument {
       if (Object.hasOwn(pages, key))
         throw new SiteFilesError(`Page id ${key} appears in more than one file`);
       pages[key] = page;
+      continue;
+    }
+    if (path.startsWith(COMPONENTS_DIR) && path.endsWith(".json")) {
+      const name = path.slice(COMPONENTS_DIR.length, -".json".length);
+      if (!name.includes("/")) components[name] = parseJson(files, path);
       continue;
     }
     if (path.startsWith(COLLECTIONS_DIR)) {
@@ -146,6 +154,7 @@ export function loadSiteDocument(files: Record<string, string>): SiteDocument {
     pages,
     collections,
     ...(Object.keys(collectionConfigs).length ? { collectionConfigs } : {}),
+    ...(Object.keys(components).length ? { components } : {}),
     media: files[MEDIA_INDEX_PATH] === undefined ? {} : parseJson(files, MEDIA_INDEX_PATH),
   };
   const parsed = SiteDocumentSchema.safeParse(raw);
@@ -181,6 +190,8 @@ export function siteDocumentToFiles(doc: SiteDocument): Record<string, string> {
         item.frontmatter as Record<string, unknown>,
         item.body,
       );
+  for (const [name, def] of Object.entries(doc.components ?? {}))
+    files[`${COMPONENTS_DIR}${name}.json`] = json(def);
   return files;
 }
 
@@ -209,6 +220,8 @@ export function isDocumentPath(path: string): boolean {
   )
     return true;
   if (path.startsWith(PAGES_DIR) && path.endsWith(".json")) return true;
+  if (path.startsWith(COMPONENTS_DIR))
+    return path.endsWith(".json") && !path.slice(COMPONENTS_DIR.length).includes("/");
   if (path.startsWith(COLLECTIONS_DIR)) {
     const rel = path.slice(COLLECTIONS_DIR.length).split("/");
     return rel.length === 2 && (rel[1] === "_collection.json" || (rel[1] ?? "").endsWith(".mdoc"));

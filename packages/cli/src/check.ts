@@ -5,6 +5,7 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { componentIssues, componentsKitGate, usesComponents } from "@omniharmonic/openspace-lint";
 import {
   findBrokenLinks,
   isMediaPath,
@@ -13,10 +14,12 @@ import {
   type SiteDocument,
   SiteDocumentSchema,
   scanForSecrets,
+  withComponents,
 } from "@omniharmonic/openspace-schema";
 import {
   COLLECTION_CONFIG_FILE,
   COLLECTIONS_DIR,
+  COMPONENTS_DIR,
   CONFIG_FILE,
   ITEM_EXT,
   loadSite,
@@ -37,7 +40,9 @@ export type CheckRule =
   | "media"
   | "size"
   | "secret"
-  | "gating";
+  | "gating"
+  | "component"
+  | "kit";
 
 export interface Finding {
   severity: Severity;
@@ -131,6 +136,8 @@ function fileForDocPath(
         : `${COLLECTIONS_DIR}/${a}/${b}${ITEM_EXT}`;
     case "collectionConfigs":
       return `${COLLECTIONS_DIR}/${a}/${COLLECTION_CONFIG_FILE}`;
+    case "components":
+      return `${COMPONENTS_DIR}/${a}.json`;
     default:
       return "content";
   }
@@ -142,6 +149,7 @@ function fileDepth(path: readonly (string | number | symbol)[]): number {
     case "pages":
     case "media":
     case "collectionConfigs":
+    case "components":
       return 2;
     case "collections":
       return 3;
@@ -206,7 +214,7 @@ export async function runCheck(root: string, options: CheckOptions = {}): Promis
           message: i.message,
         });
     }
-    for (const issue of blocksRegistry().validateDocument(doc))
+    for (const issue of withComponents(blocksRegistry(), doc.components).validateDocument(doc))
       add({
         severity: "error",
         rule: "block",
@@ -214,6 +222,52 @@ export async function runCheck(root: string, options: CheckOptions = {}): Promis
         path: dotPath(issue.path.slice(fileDepth(issue.path))) || undefined,
         message: issue.message,
       });
+  }
+
+  // --- custom components: quality gates and a site-kit that can render them -------------------
+  if (doc) {
+    for (const i of componentIssues(doc))
+      add({
+        severity: i.severity === "error" ? "error" : "warning",
+        rule: "component",
+        file:
+          i.page && i.page !== "footer"
+            ? (pageFiles[i.page] ?? PAGES_DIR)
+            : i.page === "footer"
+              ? SITE_FILE
+              : COMPONENTS_DIR,
+        message: `${i.message} ${i.fix}`,
+      });
+    if (usesComponents(doc)) {
+      const read = async (rel: string) => {
+        try {
+          return await readFile(join(root, rel), "utf8");
+        } catch {
+          return null;
+        }
+      };
+      const installedPkg = await read("node_modules/@omniharmonic/openspace-site-kit/package.json");
+      let installed: string | null = null;
+      try {
+        installed = installedPkg
+          ? ((JSON.parse(installedPkg) as { version?: string }).version ?? null)
+          : null;
+      } catch {
+        installed = null;
+      }
+      const gate = componentsKitGate({
+        installed,
+        packageJson: await read("package.json"),
+        packageLock: await read("package-lock.json"),
+      });
+      if (!gate.ok)
+        add({
+          severity: "error",
+          rule: "kit",
+          file: "package.json",
+          message: gate.message as string,
+        });
+    }
   }
 
   // --- media folder ---------------------------------------------------------------------------

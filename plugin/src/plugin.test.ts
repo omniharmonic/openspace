@@ -404,14 +404,40 @@ describe("every JSON example in the skills and commands is valid", () => {
       expect(recipes(`\`\`\`json\n${JSON.stringify(value)}\n\`\`\``)).toHaveLength(1);
       return; // composed through the real tools in "page recipes" above
     }
-    // Anything else must be a create_post call: run it through the real server.
-    expect(Object.keys(value)).toEqual(expect.arrayContaining(["collection", "title", "body"]));
     const doc = await loadSiteDocument(FIXTURE);
     const server = createMcpServer(
       new MemorySiteStore({ sites: [doc] }),
       { sites: "*", publish: false, role: "owner" },
       { assumeInitialized: true },
     );
+    // A custom component definition: create it, place it and expect no blocking findings.
+    if (typeof value.template === "string" && value.fields) {
+      const call = async (name: string, args: Record<string, unknown>) =>
+        (
+          (await server.handle({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "tools/call",
+            params: { name, arguments: args },
+          })) as unknown as {
+            result: {
+              isError?: boolean;
+              content: { text?: string }[];
+              structuredContent?: { findings?: { severity: string }[] };
+            };
+          }
+        ).result;
+      const created = await call("create_component", { component: value });
+      expect(created.isError ?? false, created.content[0]?.text).toBe(false);
+      const placed = await call("insert_component", { page: "/", name: value.name });
+      expect(placed.isError ?? false, placed.content[0]?.text).toBe(false);
+      expect(
+        (placed.structuredContent?.findings ?? []).filter((f) => f.severity === "error"),
+      ).toEqual([]);
+      return;
+    }
+    // Anything else must be a create_post call: run it through the real server.
+    expect(Object.keys(value)).toEqual(expect.arrayContaining(["collection", "title", "body"]));
     const r = (await server.handle({
       jsonrpc: "2.0",
       id: 1,

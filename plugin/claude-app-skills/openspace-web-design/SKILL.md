@@ -1,9 +1,9 @@
 ---
 name: openspace-web-design
-description: Design or redesign pages on an OpenSpace site with the OpenSpace connector: preset-first composition and a fast check, edit and screenshot loop to Squarespace-grade polish.
+description: Design pages on an OpenSpace site with the OpenSpace connector: presets first, custom components for bespoke moments owners can still edit, and a fast check, edit and screenshot loop.
 license: MIT
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   for: claude.ai and Claude Desktop with the OpenSpace connector (https://hub.openspace.host/mcp)
 ---
 
@@ -17,7 +17,8 @@ Design work here is composition and judgement, not CSS. The levers, in the order
 2. **Copy and images** — replace demo copy with the owner's words; keep within each preset's copy ranges.
 3. **Section color themes** — `light`, `light-accent`, `dark`, `dark-accent`, `brand`; they create rhythm.
 4. **Site Styles** — palette, pairing, density, shape, buttons, motion, image treatment, or a whole template look.
-5. **Exact values** (token overrides, grid placement) — only when the owner asks for something precise.
+5. **Custom components** — bespoke designer sections (own markup, scoped CSS, a little JS) for the moments presets can't express. Owners still edit them through fields. See "Custom components" below.
+6. **Exact values** (token overrides, grid placement) — only when the owner asks for something precise.
 
 Never write inline CSS, never invent facts, and never publish unless the owner explicitly asks. Presets arrive with another business's sample people, quotes, prices and contact details: replace them with the owner's real content (or ask for it) — Design check reports what is left as `sample-content`, and placeholder text as `placeholder-text`.
 
@@ -88,6 +89,19 @@ More detailed heuristics (hero formulas, section-by-section guidance, restyle mo
 - Use `overrides` (exact DTCG token values) only for an exact brand requirement. Contrast is enforced: failing overrides move to the nearest accessible shade (`onContrast: "adjust"`), or are refused with `"reject"`.
 - After a restyle, screenshot the home page at desktop and mobile and one inner page; re-run `design_check`.
 
+## Custom components (bespoke moments)
+
+Presets first, always. Use a custom component only when the design calls for something no preset can express — an editorial hero with an animated reveal, a layered photo collage, a horizontal story, a bento grid, a testimonial marquee — and at most one or two per page. Each is one section whose words, images and links are **fields** the owner edits in OpenSpace like any other section.
+
+1. `list_components` shows the site's components and the **Designer components** library. Start from the library when one fits: `insert_component` with its `name` adds and places it; then `update_block` its fields with the owner's real words and photos. To adapt one, `create_component` with `from` and a new `name`, then `update_component`.
+2. For something new, `create_component` with a full definition (format, template syntax and CSS/JS rules in `references/custom-components.md`):
+   - **Every word, image and link is a field** — never hard-code copy in the template; `defaults` holds realistic sample content.
+   - **Always on theme tokens**: `var(--os-color-…)`, `var(--os-font-…)`, `var(--os-type-…)`, `var(--os-space-…)`, `var(--os-radius-…)` — so Site Styles and section themes keep working.
+   - Breakpoints `(max-width: 767px)`, `(min-width: 768px)`, `(min-width: 1200px)`; reduced motion honoured (`@media (prefers-reduced-motion: reduce)`, `ctx.reducedMotion` in JS). JS only enhances markup that already works; no network.
+3. `insert_component`, then `preview_component` (desktop and mobile screenshots of the component alone, plus findings). Fix every **error** before showing the owner; then look at the whole page.
+4. Changing fields of a component in use: keep changes compatible, or raise `version` and pass `migrate` so existing sections upgrade together.
+5. Tell the owner simply: "This section has its own design; you can change its words and pictures like any other section."
+
 ## Grid sections
 
 Grid sections are Fluid-Engine-style: 24 columns on desktop/tablet, 8 on mobile, 1-based rects `{x, y, w, h, z?}`; rows grow to fit text. Use `place_in_grid` with `d` (and `m` when needed). Overlap images freely with `z`, but text must never overlap text. After any grid change, `auto_mobile_layout` then a mobile screenshot.
@@ -104,4 +118,5 @@ Grid sections are Fluid-Engine-style: 24 columns on desktop/tablet, 8 on mobile,
 - **`references/tool-reference.md`** — every MCP tool with its arguments, grouped by job, plus prompts and resources.
 - **`references/craft-heuristics.md`** — detailed design heuristics: hero formulas, section guidance, theme rhythms, mood → Site Styles mappings, image direction, mobile review.
 - **`references/page-recipes.md`** — preset sequences for common pages and site types, with themes.
+- **`references/custom-components.md`** — the custom component format, template language, CSS/JS rules and quality gates.
 - The server's `iterate-design` prompt runs the same loop for one page; `design-a-page`, `restyle-site` and `write-blog-post` are also available.

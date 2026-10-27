@@ -106,3 +106,29 @@ describe("SiteDocument <-> files", () => {
     ]);
   });
 });
+
+describe("custom components", () => {
+  it("round-trips content/components/<name>.json and deletes removed ones", () => {
+    const doc: SiteDocument = {
+      ...siteFixture(),
+      components: {
+        "pull-quote": {
+          name: "pull-quote",
+          label: "Pull quote",
+          version: 1,
+          fields: { quote: { kind: "text" } },
+          defaults: { quote: "Breathe." },
+          template: "<blockquote>{{quote}}</blockquote>",
+        },
+      },
+    };
+    const files = siteDocumentToFiles(doc);
+    expect(Object.keys(files)).toContain("content/components/pull-quote.json");
+    expect(isDocumentPath("content/components/pull-quote.json")).toBe(true);
+    expect(isDocumentPath("content/components/x/readme.json")).toBe(false);
+    expect(loadSiteDocument(files)).toEqual(doc);
+    const { components: _c, ...without } = doc;
+    const changes = diffSiteFiles(files, without);
+    expect(changes).toContainEqual({ path: "content/components/pull-quote.json", content: null });
+  });
+});

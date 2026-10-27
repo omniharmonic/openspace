@@ -60,6 +60,19 @@ Preset categories: header, hero, about, services, features, gallery, testimonial
 | `render_page`         | `page`, `section?`, `fragment?`, `maxChars?`                                                    | Real renderer HTML.                                                                                                    |
 | `screenshot` | `page`, `section?`, `device?` (`"desktop"` \| `"tablet"` \| `"mobile"` \| `"all"`), `fullPage?` | 1440 / 834 / 390 px images of the draft; tall pages come back as several images, top to bottom. Local: needs the `playwright` package installed in the site **and** a browser — `npx playwright install chromium`, or an installed Google Chrome. Hub (claude.ai, Claude Desktop): rendered by the Hub in the cloud, nothing to install. |
 
+## Custom components
+
+Designer sections with their own template, scoped CSS and optional JS; owners edit them through fields. Presets first — components for bespoke moments (see `custom-components.md`).
+
+| Tool                | Arguments                                                                 | Notes                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list_components`   | —                                                                         | The site's components (fields, uses, problems) and the Designer components library.                                                        |
+| `get_component`     | `name`                                                                    | Full definition (site or library), where it is used, Design check findings.                                                                 |
+| `create_component`  | `component` _or_ `from` (library name) + `name?`                          | Validated line by line (template, CSS, JS, fields, sample content). Owners/designers only.                                                  |
+| `update_component`  | `name`, `changes`, `migrate?` (`{rename?, set?, remove?}`)                | Must keep every section valid: compatible changes, or a higher `version` with `migrate`.                                                    |
+| `preview_component` | `name`, `fields?`, `theme?`, `device?` (`desktop`/`tablet`/`mobile`/`both`/`all`) | Screenshots of the component alone (desktop + mobile by default) and its findings; HTML when screenshots are unavailable.          |
+| `insert_component`  | `page`, `name`, `fields?`, `theme?`, `at?`                                | A new section using a site or library component (library ones are added to the site in the same step). Edit fields later with `update_block`. |
+
 ## Publishing and history
 
 | Tool              | Arguments             | Notes                                                                                                        |

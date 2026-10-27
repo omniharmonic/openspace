@@ -11,6 +11,8 @@ import {
   CollectionConfigSchema,
   type CollectionItem,
   CollectionItemSchema,
+  type ComponentDefinition,
+  ComponentDefinitionSchema,
   type MediaMeta,
   type Page,
   PageSchema,
@@ -25,6 +27,7 @@ import type { z } from "zod";
 import {
   COLLECTION_CONFIG_FILE,
   COLLECTIONS_DIR,
+  COMPONENTS_DIR,
   CONFIG_FILE,
   collectionKind,
   formatJson,
@@ -216,9 +219,36 @@ export async function loadSite(rootDir: string, opts: LoadOptions = {}): Promise
     collections[name] = items;
   }
 
+  // Custom components (content/components/<name>.json); the file name is the component name.
+  const components: Record<string, ComponentDefinition> = {};
+  let componentFiles: string[] = [];
+  try {
+    componentFiles = (await readdir(join(rootDir, COMPONENTS_DIR)))
+      .filter((f) => f.endsWith(".json"))
+      .sort();
+  } catch {
+    componentFiles = [];
+  }
+  for (const file of componentFiles) {
+    const rel = `${COMPONENTS_DIR}/${file}`;
+    const def = check(ComponentDefinitionSchema, await readJson(rel, true), rel);
+    if (!def) continue;
+    const name = file.slice(0, -".json".length);
+    if (def.name !== name) {
+      issues.push({
+        file: rel,
+        path: ["name"],
+        message: `The component is called "${def.name}" but its file is ${file}; rename one to match`,
+      });
+      continue;
+    }
+    components[name] = def;
+  }
+
   if (issues.length || !config || !site || !styles) throw new SiteContentError(issues);
   const doc: SiteDocument = { config, site, styles, pages, collections, media };
   if (Object.keys(collectionConfigs).length) doc.collectionConfigs = collectionConfigs;
+  if (Object.keys(components).length) doc.components = components;
 
   if (opts.validate !== false) {
     const r = SiteDocumentSchema.safeParse(doc);
@@ -243,6 +273,7 @@ function fileDepth(path: (string | number)[]): number {
     case "collections":
       return 3;
     case "collectionConfigs":
+    case "components":
       return 2;
     default:
       return 1;
@@ -268,6 +299,8 @@ function fileForDocPath(path: (string | number)[], pageFiles: Record<string, str
         : `${COLLECTIONS_DIR}/${a}/${b}${ITEM_EXT}`;
     case "collectionConfigs":
       return `${COLLECTIONS_DIR}/${a}/${COLLECTION_CONFIG_FILE}`;
+    case "components":
+      return `${COMPONENTS_DIR}/${a}.json`;
     default:
       return "content";
   }
@@ -414,6 +447,18 @@ export async function writeSiteDocument(
     }
   } catch {
     // No collections folder.
+  }
+
+  // Custom components: one file each; files of removed components are deleted.
+  const components = doc.components ?? {};
+  for (const [name, def] of Object.entries(components))
+    await put(`${COMPONENTS_DIR}/${name}.json`, formatJson(def));
+  try {
+    for (const f of await readdir(join(rootDir, COMPONENTS_DIR)))
+      if (f.endsWith(".json") && !Object.hasOwn(components, f.slice(0, -".json".length)))
+        await remove(`${COMPONENTS_DIR}/${f}`);
+  } catch {
+    // No components folder.
   }
   return result;
 }

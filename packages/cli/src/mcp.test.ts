@@ -96,6 +96,27 @@ afterAll(async () => {
 });
 
 describe("FileSiteStore (local MCP)", () => {
+  it("creates a library component in content/components and serves its preview page", async () => {
+    const dir = await gitSite();
+    const store = await FileSiteStore.open(dir);
+    const server = createMcpServer(store, { sites: "*", publish: true, role: "owner" });
+    const { ok } = driver(server);
+    await ok("create_component", { from: "bento-grid" });
+    const saved = JSON.parse(
+      await readFile(join(dir, "content/components/bento-grid.json"), "utf8"),
+    );
+    expect(saved.name).toBe("bento-grid");
+    await ok("insert_component", { page: "/", name: "bento-grid" });
+    const home = await readFile(join(dir, "content/pages/home.json"), "utf8");
+    expect(home).toContain('"component/bento-grid"');
+    const base = (await store.previewUrl((await store.listSites())[0]?.id as string)) as string;
+    const page = await rawGet(base, "/_os/component/bento-grid/");
+    expect(page.status).toBe(200);
+    expect(page.body).toContain('data-os-component="bento-grid"');
+    expect((await rawGet(base, "/_os/component/nope/")).status).toBe(404);
+    await store.close();
+  });
+
   it("edits files through ops, snapshots the session start and publishes as a git commit", async () => {
     const dir = await gitSite();
     const configBytes = await readFile(join(dir, "openspace.json"), "utf8");
