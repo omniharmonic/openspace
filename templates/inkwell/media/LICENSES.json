@@ -1,0 +1,119 @@
+{
+  "$comment": "Licenses for the demo media in the Inkwell template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173",
+      "title": "A person writing notes in a notebook beside a mug",
+      "author": "Unseen Studio",
+      "authorUrl": "https://unsplash.com/@uns__nstudio",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/person-writing-on-brown-wooden-table-near-white-ceramic-mug-s9CC2SKySJM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1494809610410-160faaed4de0",
+      "title": "A woman reaching for a book in library stacks",
+      "author": "Clay Banks",
+      "authorUrl": "https://unsplash.com/@claybanks",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-standing-between-library-book-shelves-GX8KBbVmC6c",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1505682634904-d7c8d95cdc50",
+      "title": "An old typewriter on a dark wooden desk",
+      "author": "Patrick Fore",
+      "authorUrl": "https://unsplash.com/@patrickian4",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/black-corona-typewriter-on-brown-wood-planks-0gkw_9fy0eQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1558009250-d3d2229fdf28",
+      "title": "A pale blue typewriter with a sheet of paper on a white table",
+      "author": "Luca Onniboni",
+      "authorUrl": "https://unsplash.com/@lucaonniboni",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/teal-and-black-typewriter-machine-4v9Kk01mEbY",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956",
+      "title": "Portrait of a woman with dark hair pinned up, smiling",
+      "author": "Jake Nackos",
+      "authorUrl": "https://unsplash.com/@jakenackos",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1582079768381-0e81b88db423",
+      "title": "A woman reading a book at a cafe table in low light",
+      "author": "Priscilla Du Preez 🇨🇦",
+      "authorUrl": "https://unsplash.com/@priscilladupreez",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-brown-long-sleeve-shirt-reading-book-JaH62ihQLuE",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1667053508464-eb11b394df83",
+      "title": "A studio portrait of a woman against a soft grey backdrop",
+      "author": "Dmitry Ganin",
+      "authorUrl": "https://unsplash.com/@ganinph",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-woman-with-a-straight-face-JRa8lCQQhSs",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1677462679593-97b817fb118a",
+      "title": "A colourful wall of books on wooden shelves",
+      "author": "Bree Anne",
+      "authorUrl": "https://unsplash.com/@breebuddy",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-book-shelf-filled-with-lots-of-books-NRRv0J0881Y",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1780387477222-730504564368",
+      "title": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+      "author": "Centre for Ageing Better",
+      "authorUrl": "https://unsplash.com/@ageing_better",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-beige-jumpsuit-smiling-sitting-on-a-stool-IxacjtwPdGM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

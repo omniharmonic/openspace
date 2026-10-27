@@ -18,6 +18,7 @@ import { fixwell } from "./fixwell/src/build";
 import { gather } from "./gather/src/build";
 import { harbor } from "./harbor/src/build";
 import { hearth } from "./hearth/src/build";
+import { inkwell } from "./inkwell/src/build";
 import { keystone } from "./keystone/src/build";
 import { kiln } from "./kiln/src/build";
 import { ledger } from "./ledger/src/build";
@@ -67,6 +68,7 @@ export const templateSpecs: readonly TemplateSpec[] = [
   fixwell,
   keystone,
   gather,
+  inkwell,
 ];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);

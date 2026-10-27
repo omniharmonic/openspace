@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site-config.json",
+  "siteId": "st_63saner28z",
+  "schemaVersion": 1,
+  "template": {
+    "id": "inkwell",
+    "version": "1.0.0"
+  },
+  "hub": "https://hub.openspace.dev",
+  "deploy": {
+    "target": "github-pages",
+    "url": "https://example.github.io/inkwell",
+    "customDomain": null
+  },
+  "features": {
+    "forms": true,
+    "newsletter": true,
+    "analytics": true,
+    "search": false
+  }
+}
