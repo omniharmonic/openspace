@@ -1198,6 +1198,14 @@ export function createGrowthMock(ctx: GrowthMockContext): {
       }
       return clone(sub);
     },
+    async confirmSubscriber(siteId, subId) {
+      await call("confirmSubscriber", [siteId, subId]);
+      const sub = of(siteId).subscribers.find((x) => x.id === subId && x.status === "pending");
+      if (!sub) throw notFound("That subscriber");
+      sub.status = "confirmed";
+      sub.confirmedAt = iso(now());
+      return clone(sub);
+    },
     async deleteSubscriber(siteId, subId) {
       await call("deleteSubscriber", [siteId, subId]);
       const s = of(siteId);

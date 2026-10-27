@@ -4,6 +4,7 @@ import {
   type Subscriber,
   type SubscriberImportResult,
   type SubscriberStatus,
+  useEmailUnavailable,
   useHub,
   useSubscriberActions,
   useSubscribers,
@@ -61,6 +62,8 @@ export function SubscribersView({ site }: AreaProps) {
   const [tagging, setTagging] = useState<null | { ids: string[]; mode: "add" | "remove" }>(null);
   const [editing, setEditing] = useState<Subscriber | null>(null);
   const [deleting, setDeleting] = useState<Subscriber | null>(null);
+  const [confirming, setConfirming] = useState<Subscriber | null>(null);
+  const noEmail = useEmailUnavailable();
   const subs = list.data?.subscribers ?? [];
   const counts = list.data?.counts;
   const allTags = useMemo(() => [...new Set(subs.flatMap((s) => s.tags))].sort(), [subs]);
@@ -81,7 +84,11 @@ export function SubscribersView({ site }: AreaProps) {
     <div className="st-ws-stack">
       <WsHeader
         title="Subscribers"
-        description="People who signed up for your newsletter. They confirm by email before they're added, and can leave with one click."
+        description={
+          noEmail
+            ? "People who signed up for your newsletter. They can leave with one click."
+            : "People who signed up for your newsletter. They confirm by email before they're added, and can leave with one click."
+        }
         actions={
           <>
             <Button icon={<Download />} onClick={exportCsv} disabled={empty}>
@@ -95,6 +102,16 @@ export function SubscribersView({ site }: AreaProps) {
           </>
         }
       />
+      {noEmail && (
+        <div className="st-callout" role="note">
+          <div>
+            <strong>Confirmation emails can’t be sent yet.</strong> This OpenSpace Hub has no email
+            provider, so new sign-ups wait here as “Waiting to confirm” and visitors are only told
+            their sign-up was received. If you know someone asked to join, choose{" "}
+            <em>Mark as confirmed</em> from their row.
+          </div>
+        </div>
+      )}
       {counts && !empty && (
         <div className="st-stats">
           <Stat label="Subscribed" value={number(counts.confirmed)} />
@@ -246,6 +263,9 @@ export function SubscribersView({ site }: AreaProps) {
                           }
                           items={[
                             { label: "Edit tags", onSelect: () => setEditing(s) },
+                            ...(s.status === "pending" && designer
+                              ? [{ label: "Mark as confirmed", onSelect: () => setConfirming(s) }]
+                              : []),
                             ...(s.status !== "unsubscribed"
                               ? [
                                   {
@@ -319,6 +339,26 @@ export function SubscribersView({ site }: AreaProps) {
         onConfirm={() => {
           if (deleting) actions.remove.mutate(deleting.id);
           setDeleting(null);
+        }}
+      />
+      <ConfirmDialog
+        open={confirming !== null}
+        onOpenChange={(o) => !o && setConfirming(null)}
+        title={`Confirm ${confirming?.email ?? ""}?`}
+        description="Only do this if this person asked to get your emails. They're added to your list as subscribed."
+        confirmLabel="They agreed — confirm"
+        tone="primary"
+        onConfirm={() => {
+          if (confirming)
+            actions.confirm.mutate(confirming.id, {
+              onError: (err) =>
+                toast({
+                  tone: "danger",
+                  title: "Couldn't confirm",
+                  description: errorMessage(err),
+                }),
+            });
+          setConfirming(null);
         }}
       />
     </div>

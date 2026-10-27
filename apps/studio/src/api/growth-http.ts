@@ -137,6 +137,14 @@ export function createGrowthHttp({
       );
       return r.subscriber;
     },
+    async confirmSubscriber(siteId, subId) {
+      const r = await request<{ subscriber: Subscriber }>(
+        "POST",
+        `${site(siteId)}/subscribers/${enc(subId)}/confirm`,
+        { consent: true },
+      );
+      return r.subscriber;
+    },
     async deleteSubscriber(siteId, subId) {
       await request("DELETE", `${site(siteId)}/subscribers/${enc(subId)}`);
     },
