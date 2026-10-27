@@ -62,6 +62,7 @@ import {
 import { type CssNode, type Decl, declText, parseStylesheet } from "./css";
 import { parseSelectorList } from "./select";
 
+export { confirmGoogleFonts } from "../fidelity/fonts";
 export * from "./bundle";
 export { parseStylesheet } from "./css";
 
