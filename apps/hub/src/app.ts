@@ -5,6 +5,7 @@ import { studioCors, studioOrigins } from "./lib/cors";
 import { errorBody } from "./lib/errors";
 import { handleError } from "./lib/handle-error";
 import { createLogger, redactSecrets } from "./lib/log";
+import { securityHeaders } from "./lib/security-headers";
 import { authRoutes } from "./routes/auth";
 import { ciRoutes } from "./routes/ci";
 import { collaboratorRoutes, invitationRoutes } from "./routes/collaborators";
@@ -62,6 +63,8 @@ export function createApp(options: CreateAppOptions = {}) {
       ms: Date.now() - started,
     });
   });
+
+  app.use("*", securityHeaders());
 
   // Studio APIs: credentialed CORS + a same-origin check on state-changing requests.
   for (const prefix of ["/api/*", "/auth/*"]) {
