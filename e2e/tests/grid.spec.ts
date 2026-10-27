@@ -52,6 +52,8 @@ test("grid: switch to grid, drag and resize a block; phone layout stays independ
 
   // Select the hero section and switch it to a grid.
   await heroHeading(frame).click();
+  // The click starts editing the words: Escape leaves them, Escape again selects the section.
+  await page.keyboard.press("Escape");
   await page.keyboard.press("Escape");
   await page.getByRole("radio", { name: "Grid layout" }).click();
   await expect.poll(async () => Object.keys(await heroItems()).length).toBeGreaterThan(1);

@@ -57,6 +57,9 @@ export function MoveSite() {
   const [step, setStep] = useState<"details" | "signin">("details");
   const [error, setError] = useState<string | null>(null);
   const [advanced, setAdvanced] = useState(draft.render);
+  // GitHub sites can also be converted in place; that's a developer's choice, so it waits behind
+  // "More options" (the default — a new site, the old one untouched — needs no decision).
+  const [ghOptions, setGhOptions] = useState(draft.inPlace);
   const create = useCreateImport();
   const convert = useConvertRepo();
   const inFlight = useRef(false);
@@ -163,7 +166,19 @@ export function MoveSite() {
             <p className="st-move__hint">
               Works with Squarespace, WordPress, Wix, Webflow, GitHub Pages and most other sites.
             </p>
-            {gh && (
+            {gh && !ghOptions && (
+              <div className="st-move__advanced">
+                <button
+                  type="button"
+                  className="st-move__more"
+                  aria-expanded={false}
+                  onClick={() => setGhOptions(true)}
+                >
+                  <ChevronDown aria-hidden="true" /> More options for GitHub sites
+                </button>
+              </div>
+            )}
+            {gh && ghOptions && (
               <fieldset className="st-move__choice">
                 <legend>This site lives on GitHub. What would you like?</legend>
                 <label className={cx("st-move__option", !draft.inPlace && "st-move__option--on")}>

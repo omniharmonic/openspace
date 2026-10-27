@@ -58,7 +58,11 @@ describe("inspector in the editor", () => {
 
   it("opens the block menu with / on the canvas and inserts next to the selection", async () => {
     const { q, user, store } = await openStudio();
+    // One click on words starts editing them; leaving the words (Escape) keeps the block selected.
     fireEvent.click(q(I.introText));
+    await waitFor(() => expect(store().editing).not.toBeNull());
+    act(() => store().setEditing(null));
+    expect(store().selection[0]?.id).toBe(I.introText);
     act(() => {
       fireEvent.keyDown(q(I.introText).ownerDocument.body, { key: "/" });
     });

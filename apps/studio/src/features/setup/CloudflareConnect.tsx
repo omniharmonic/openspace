@@ -223,7 +223,7 @@ export function CloudflareConnect({ site, onDone }: { site: Site; onDone?: () =>
           <h4>Paste it here</h4>
           <Field
             label="Your Cloudflare key"
-            hint="We check it once and lock it away for your site's publishing. OpenSpace never keeps it."
+            hint="We check it once, then it's sealed into your site's own GitHub settings so it can publish. OpenSpace doesn't keep a copy."
             error={
               token && !tokenOk ? "That doesn't look like a whole Cloudflare key yet." : undefined
             }

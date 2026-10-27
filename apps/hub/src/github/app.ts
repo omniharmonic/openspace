@@ -17,6 +17,7 @@ import {
   normalizeRef,
   type PagesInfo,
   type PullRequestInput,
+  type ReadFilesOptions,
   type RepoInfo,
   type RepoRef,
   type TreeEntry,
@@ -44,6 +45,16 @@ export interface GitHubAppAccessOptions {
   now?: () => number;
   /** Polls for a freshly created repo's first commit. */
   pollDelayMs?: number;
+  /**
+   * Installation tokens shared by every access object of one request (or one Durable Object),
+   * so each new `GitHubAppAccess` doesn't mint a token again (one subrequest each).
+   */
+  tokenCache?: Map<number, InstallationTokenEntry>;
+}
+
+export interface InstallationTokenEntry {
+  token: string;
+  expiresAt: number;
 }
 
 interface RestRepo {
@@ -99,6 +110,33 @@ function withCoAuthor(message: string, author?: CommitAuthor): string {
   return message.includes(trailer) ? message : `${message.trimEnd()}\n\n${trailer}`;
 }
 
+/** Files that are never text (skipped by `readFiles({ textOnly: true })` without asking GitHub). */
+const BINARY_EXTENSION =
+  /\.(?:png|jpe?g|gif|webp|avif|ico|bmp|tiff?|heic|pdf|zip|gz|tgz|woff2?|ttf|otf|eot|mp[34]|m4a|mov|webm|wav|ogg)$/i;
+/** Blobs per GraphQL query, and the bytes one query may ask for (GitHub's response limits). */
+const BLOBS_PER_QUERY = 100;
+const BYTES_PER_QUERY = 4 * 1024 * 1024;
+
+/** Group tree entries into GraphQL-sized batches (by count and by total size). */
+export function blobBatches(entries: readonly TreeEntry[]): TreeEntry[][] {
+  const batches: TreeEntry[][] = [];
+  let current: TreeEntry[] = [];
+  let bytes = 0;
+  for (const e of entries) {
+    if (!SHA_RE.test(e.sha)) continue;
+    const size = e.size ?? 64 * 1024;
+    if (current.length && (current.length >= BLOBS_PER_QUERY || bytes + size > BYTES_PER_QUERY)) {
+      batches.push(current);
+      current = [];
+      bytes = 0;
+    }
+    current.push(e);
+    bytes += size;
+  }
+  if (current.length) batches.push(current);
+  return batches;
+}
+
 /** How much of a failed job's log (its end, where errors are) is read for build errors. */
 const MAX_LOG_CHARS = 256 * 1024;
 export class GitHubAppAccess implements GitHubAccess {
@@ -106,12 +144,13 @@ export class GitHubAppAccess implements GitHubAccess {
   private readonly fetchFn: FetchLike;
   private readonly base: string;
   private readonly now: () => number;
-  private installationToken: { token: string; expiresAt: number } | null = null;
+  private readonly tokens: Map<number, InstallationTokenEntry>;
 
   constructor(private readonly options: GitHubAppAccessOptions) {
     this.fetchFn = options.fetch ?? ((input, init) => fetch(input, init));
     this.base = options.apiBase ?? GITHUB_API;
     this.now = options.now ?? Date.now;
+    this.tokens = options.tokenCache ?? new Map();
   }
 
   // --- tokens ---------------------------------------------------------------------------------
@@ -120,8 +159,8 @@ export class GitHubAppAccess implements GitHubAccess {
   async getInstallationToken(): Promise<string | null> {
     const id = this.options.installationId;
     if (!id) return null;
-    if (this.installationToken && this.installationToken.expiresAt - 60_000 > this.now())
-      return this.installationToken.token;
+    const cached = this.tokens.get(id);
+    if (cached && cached.expiresAt - 60_000 > this.now()) return cached.token;
     const jwt = await createAppJwt(this.options.app.appId, this.options.app.privateKey, this.now());
     const data = await githubRequest<{ token: string; expires_at: string }>(
       this.fetchFn,
@@ -130,7 +169,7 @@ export class GitHubAppAccess implements GitHubAccess {
       { method: "POST", token: jwt },
     );
     if (!data) throw new GitHubApiError("No installation token returned", 502);
-    this.installationToken = { token: data.token, expiresAt: Date.parse(data.expires_at) };
+    this.tokens.set(id, { token: data.token, expiresAt: Date.parse(data.expires_at) });
     return data.token;
   }
 
@@ -521,17 +560,51 @@ export class GitHubAppAccess implements GitHubAccess {
   async readFiles(
     repo: RepoRef,
     ref: string,
-    options: { prefix?: string; textOnly?: boolean } = {},
+    options: ReadFilesOptions = {},
   ): Promise<Record<string, string>> {
     const entries = (await this.readTree(repo, ref)).filter(
-      (e) => !options.prefix || e.path.startsWith(options.prefix),
+      (e) =>
+        (!options.prefix || e.path.startsWith(options.prefix)) &&
+        (!options.filter || options.filter(e.path)) &&
+        !(options.textOnly && BINARY_EXTENSION.test(e.path)),
     );
     const out: Record<string, string> = {};
+    // Text comes back in a few GraphQL queries (one per batch of blobs), not one REST call per
+    // file: a Worker invocation may only make so many subrequests (50 on Workers Free), and a
+    // moved shop or blog easily has hundreds of content files. Binary or oversized blobs (rare
+    // for documents) fall back to one REST call each.
+    const fallback: TreeEntry[] = [];
+    for (const batch of blobBatches(entries)) {
+      const fields = batch
+        .map(
+          (e, i) => `f${i}: object(oid: "${e.sha}") { ... on Blob { text isBinary isTruncated } }`,
+        )
+        .join("\n");
+      const data = await this.graphql<{
+        repository: Record<
+          string,
+          { text: string | null; isBinary: boolean | null; isTruncated: boolean | null } | null
+        > | null;
+      }>(
+        `query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) { ${fields} } }`,
+        { owner: repo.owner, name: repo.name },
+      );
+      batch.forEach((entry, i) => {
+        const blob = data.repository?.[`f${i}`];
+        if (!blob) return;
+        if (blob.isBinary) {
+          if (!options.textOnly) fallback.push(entry);
+          return;
+        }
+        if (blob.isTruncated || typeof blob.text !== "string") fallback.push(entry);
+        else out[entry.path] = blob.text;
+      });
+    }
     const decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: false });
     let next = 0;
     const worker = async () => {
-      while (next < entries.length) {
-        const entry = entries[next++] as TreeEntry;
+      while (next < fallback.length) {
+        const entry = fallback[next++] as TreeEntry;
         const blob = await this.rest<{ content: string; encoding: string }>(
           `${this.repoPath(repo)}/git/blobs/${entry.sha}`,
         );
@@ -544,7 +617,7 @@ export class GitHubAppAccess implements GitHubAccess {
         }
       }
     };
-    await Promise.all(Array.from({ length: Math.min(8, entries.length) }, worker));
+    await Promise.all(Array.from({ length: Math.min(8, fallback.length) }, worker));
     return out;
   }
 

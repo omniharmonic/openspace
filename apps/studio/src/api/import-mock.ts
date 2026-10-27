@@ -168,7 +168,7 @@ export function createImportMock(ctx: ImportMockContext): {
       id,
       label: labels[id],
       ...(id === "pages" && counts
-        ? { detail: `${counts.pages} pages, ${counts.items} posts, ${counts.media} images` }
+        ? { detail: `${counts.pages} pages, ${counts.items} items, ${counts.media} images` }
         : {}),
       state:
         state === "failed" && i === activeIdx

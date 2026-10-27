@@ -1,6 +1,7 @@
 import type { Redirect } from "@omniharmonic/openspace-schema";
 import {
   ArrowUpRight,
+  Bot,
   Check,
   Clock,
   ExternalLink,
@@ -9,6 +10,7 @@ import {
   Inbox,
   Lock,
   Mail,
+  PenLine,
   Sparkles,
   Store,
   TrendingUp,
@@ -17,7 +19,13 @@ import {
 } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { useCapabilities, useCommerceSettings, useEmailUnavailable, useSetupInfo } from "../../api";
+import {
+  useCapabilities,
+  useCommerceSettings,
+  useEmailUnavailable,
+  useMcpGrants,
+  useSetupInfo,
+} from "../../api";
 import type { Site } from "../../api/types";
 import { Button, cx, Dialog, Field, Input, Spinner, toast } from "../../ui";
 import { useDocStore } from "../editor/model/context";
@@ -27,6 +35,7 @@ import {
   buildChecklist,
   progress,
   readAcknowledged,
+  SETUP_EVENT,
   type SetupItem,
   type WizardId,
   writeAcknowledged,
@@ -45,6 +54,8 @@ const ICONS: Record<WizardId, ReactNode> = {
   forms: <Inbox />,
   newsletter: <Mail />,
   analytics: <TrendingUp />,
+  personalize: <PenLine />,
+  ai: <Bot />,
   info: <Wrench />,
 };
 
@@ -66,7 +77,18 @@ export function useSetupChecklist(site: Site) {
   const setup = useSetupInfo(site.id);
   const caps = useCapabilities();
   const commerce = useCommerceSettings(site.id, caps.payments.configured);
+  const grants = useMcpGrants();
   const [acknowledged, setAck] = useState(() => readAcknowledged(site.id));
+  // Steps ticked elsewhere (the editor's first edit, another copy of the list) show at once.
+  useEffect(() => {
+    const onTick = (e: Event) => {
+      if ((e as CustomEvent<{ siteId: string }>).detail?.siteId === site.id)
+        setAck(readAcknowledged(site.id));
+    };
+    window.addEventListener(SETUP_EVENT, onTick);
+    return () => window.removeEventListener(SETUP_EVENT, onTick);
+  }, [site.id]);
+  const aiConnected = (grants.data ?? []).some((g) => g.sites.some((s) => s.id === site.id));
   const items = useMemo(
     () =>
       buildChecklist({
@@ -75,8 +97,9 @@ export function useSetupChecklist(site: Site) {
         setup: setup.data,
         paymentsReady: commerce.data?.payments.ready === true,
         acknowledged,
+        aiConnected,
       }),
-    [doc, site, setup.data, commerce.data, acknowledged],
+    [doc, site, setup.data, commerce.data, acknowledged, aiConnected],
   );
   const acknowledge = (id: string) => {
     const next = [...acknowledged, id];
@@ -302,6 +325,8 @@ const WIZARD_TITLE: Record<WizardId, string> = {
   forms: "Your form messages",
   newsletter: "Newsletter sign-ups",
   analytics: "Your visitor stats",
+  personalize: "Make it yours",
+  ai: "Connect your AI",
   info: "From your old site",
 };
 
@@ -321,6 +346,9 @@ const WIZARD_LEDE: Record<WizardId, string> = {
     "People who sign up are kept in Subscribers. You can write and send updates to them from Studio.",
   analytics:
     "OpenSpace counts visits privately, without cookies — so there's no cookie banner to add and nothing to set up.",
+  personalize:
+    "Your site starts with sample words and pictures. Swap in your own — it ticks itself off as soon as you change something.",
+  ai: "Claude can write, edit and check your site for you. Connecting it takes a few minutes, with nothing to install.",
   info: "",
 };
 
@@ -417,6 +445,35 @@ export function SetupWizard({
             onClick={() => go(`/sites/${site.id}/settings/domains`)}
           >
             Open the domain helper
+          </Button>
+        </>
+      );
+      break;
+    case "personalize":
+      body = (
+        <ul className="st-setup-bullets">
+          <li>Click the headline (or any words) on your page and type.</li>
+          <li>Click the main photo, then choose Replace to use one of yours.</li>
+          <li>Press Publish when you're happy — your changes go online in about a minute.</li>
+        </ul>
+      );
+      footer = (
+        <>
+          <Button variant="ghost" onClick={() => go(`/sites/${site.id}`)}>
+            Open the editor
+          </Button>
+          {gotIt}
+        </>
+      );
+      break;
+    case "ai":
+      footer = (
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Later
+          </Button>
+          <Button variant="primary" icon={<Bot />} onClick={() => go("/connect")}>
+            Connect your AI
           </Button>
         </>
       );

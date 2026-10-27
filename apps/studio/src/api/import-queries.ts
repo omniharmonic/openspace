@@ -30,8 +30,18 @@ export function useImport(id: string | undefined, options: { pollMs?: number } =
         s.id === v.siteId ? { ...s, import: { id: v.id, state: v.state, kind: v.kind } } : s;
       qc.setQueryData<Site>(queryKeys.site(v.siteId), (prev) => (prev ? patch(prev) : prev));
       qc.setQueryData<Site[]>(queryKeys.sites, (prev) => prev?.map(patch));
-      if (!importInProgress(v.state))
-        void qc.invalidateQueries({ queryKey: queryKeys.site(v.siteId), exact: true });
+      if (!importInProgress(v.state)) {
+        // The site was "being set up" while it moved: read its real status now, so the editor
+        // opens on the live site instead of a stale "setting up" copy.
+        await qc
+          .fetchQuery({
+            queryKey: queryKeys.site(v.siteId),
+            queryFn: () => hub.getSite(v.siteId),
+            staleTime: 0,
+          })
+          .catch(() => undefined);
+        void qc.invalidateQueries({ queryKey: queryKeys.sites, exact: true });
+      }
       return v;
     },
     enabled: Boolean(id),

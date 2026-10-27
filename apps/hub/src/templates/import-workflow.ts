@@ -10,7 +10,7 @@
  */
 
 /** The CLI release the workflow runs. Bump with each CLI release that changes the importer. */
-export const IMPORT_CLI_VERSION = "0.1.8";
+export const IMPORT_CLI_VERSION = "0.1.9";
 /** Image processing (resizing, SVG icons) for the importer, installed next to the CLI. */
 export const IMPORT_SHARP_VERSION = "0.34.5";
 /** Browser for `--render` (script-built pages); only installed when asked for. */
@@ -205,8 +205,11 @@ if (step === "run") {
       : req.platform === "github"
         ? ["import", "github", req.source, ...common]
         : ["import", req.source, ...common, ...(req.platform && req.platform !== "auto" ? ["--platform", req.platform] : [])];
-  if (req.owner && req.mode !== "convert") args.push("--owner");
-  if (req.render && req.mode !== "convert") args.push("--render");
+  // --owner (Squarespace's ?format=json) and --render (a browser) only mean something for a
+  // website address; a GitHub repository is read from its source.
+  const fromGitHub = req.mode === "convert" || req.platform === "github";
+  if (req.owner && !fromGitHub) args.push("--owner");
+  if (req.render && !fromGitHub) args.push("--render");
   const r = spawnSync("npx", ["-y", ...pkgs, "openspace", ...args], { stdio: "inherit" });
   const summary = existsSync(SUMMARY) ? JSON.parse(readFileSync(SUMMARY, "utf8")) : undefined;
   await progress("imported", summary ? { counts: summary } : {});

@@ -3,7 +3,15 @@
   margin: 0 auto;
   padding: 32px 16px 64px;
   display: grid;
+  /* One column that never grows past the screen (a long address would widen it on phones). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
+}
+.st-connect code {
+  overflow-wrap: anywhere;
+}
+.st-connect .st-copyline {
+  min-width: 0;
 }
 .st-connect__title {
   font-size: var(--st-fs-xl);
@@ -20,4 +28,15 @@
   height: 16px;
   vertical-align: -2px;
   margin-right: 4px;
+}
+/* Nested grids size to their content by default; on a phone a long address would widen every
+   card. Keep each one to the width it's given. */
+.st-connect .st-card,
+.st-connect .st-settings__stack,
+.st-connect .st-steps {
+  grid-template-columns: minmax(0, 1fr);
+}
+.st-connect .st-steps > li,
+.st-connect .st-card__head > * {
+  min-width: 0;
 }

@@ -48,7 +48,7 @@ test("template journey: live first, a tour that ends on 'it's yours', then Finis
   // "Need a hand?" knows what's next.
   await page.getByRole("button", { name: "Close settings" }).click();
   await page.getByRole("button", { name: "Need a hand?" }).click();
-  await expect(page.getByRole("heading", { name: "Next: Get your form messages" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Next: Make it yours" })).toBeVisible();
   await page.getByRole("button", { name: "Show me how" }).click();
   await expect(page).toHaveURL(/\/settings\/setup$/);
 });
@@ -99,7 +99,7 @@ test("store on GitHub Pages publishes fine, then Finish setting up opens the sho
   // A key Cloudflare doesn't know is explained, not accepted.
   const key = helper.getByLabel("Your Cloudflare key");
   await key.fill(`bad_${"Q".repeat(40)}`);
-  await expect(helper.getByText(/didn't recognise that token/)).toBeVisible();
+  await expect(helper.getByText(/didn't recognise that key/)).toBeVisible();
   await key.fill(`dev_${"K".repeat(40)}`);
   await expect(helper.getByText(/Found/)).toContainText("Your Cloudflare account");
   await helper.getByRole("button", { name: "Move my site to Cloudflare" }).click();

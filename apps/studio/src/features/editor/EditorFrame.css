@@ -14,7 +14,9 @@
 .st-ed-top {
   grid-area: top;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  /* The right side never shrinks under its content ("Finish setting up · 2 left", status,
+     Publish): the left side gives way instead, so nothing slides under the zoom control. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr);
   align-items: center;
   gap: 12px;
   padding: 0 8px 0 0;

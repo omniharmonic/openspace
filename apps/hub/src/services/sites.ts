@@ -43,7 +43,11 @@ import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
 import type { ImportRequest } from "../templates/import-workflow";
-import { gatedContext as gatedContextFor, loadOpenedDocument, sealFiles } from "./gated-content";
+import {
+  gatedContext as gatedContextFor,
+  readOpenedDocumentFiles,
+  sealFiles,
+} from "./gated-content";
 import {
   asAccessNeed,
   checkInstallation,
@@ -149,6 +153,19 @@ export function toSiteView(
 ): SiteView {
   const tpl = templates.find((t) => t.id === row.template_id);
   const need = asAccessNeed(row.github_access);
+  // A site made by a move isn't "live" until the move finishes: until then only a "being set up"
+  // page is online, and a move that failed needs attention (Try again retries the move).
+  const moving = row.import_id && row.import_state && row.import_kind !== "convert";
+  const status: SiteView["status"] =
+    moving && row.import_state === "failed"
+      ? "failed"
+      : moving && row.import_state !== "ready" && row.status !== "failed"
+        ? "building"
+        : row.status;
+  const statusDetail =
+    moving && row.import_state === "failed"
+      ? "The move didn't finish. Open it to try again — your current site is untouched."
+      : row.status_detail;
   return {
     id: row.id,
     name: row.name,
@@ -156,8 +173,8 @@ export function toSiteView(
     repo: row.repo,
     owner: row.owner_login,
     ownerName: row.owner_name,
-    status: row.status,
-    statusDetail: row.status_detail,
+    status,
+    statusDetail,
     url: row.url,
     template: row.template_id,
     templateVersion: row.template_version,
@@ -1140,8 +1157,8 @@ export async function readSiteDocument(
     head = await gh.getRef(repo, branch);
   }
   if (!head) throw notFound("This site has no content yet.");
-  const files = await gh.readFiles(repo, head, { textOnly: true });
-  return { doc: await loadOpenedDocument(gatedContextFor(services, site.id), files), head, branch };
+  const files = await readOpenedDocumentFiles(gatedContextFor(services, site.id), gh, repo, head);
+  return { doc: loadSiteDocument(files), head, branch };
 }
 
 /** Find the page for a URL path below the site root ("" = home). */

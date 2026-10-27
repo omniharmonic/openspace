@@ -33,12 +33,13 @@ const MAX_LOGO_BYTES = 1_000_000;
 type Step = "details" | "signin";
 
 function StepIndicator({ current, signedIn }: { current: Step; signedIn: boolean }) {
+  // Someone already signed in never sees a "Sign in" step.
   const items = [
     { id: "details", label: "Your details" },
-    { id: "signin", label: "Sign in" },
+    ...(signedIn ? [] : [{ id: "signin", label: "Sign in" }]),
     { id: "live", label: "Go live" },
   ];
-  const index = current === "details" ? 0 : 1;
+  const index = current === "details" || signedIn ? 0 : 1;
   return (
     <ol className="st-new__steps" aria-label="Steps">
       {items.map((it, i) => {

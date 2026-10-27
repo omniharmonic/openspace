@@ -21,6 +21,8 @@ export type WizardId =
   | "forms"
   | "newsletter"
   | "analytics"
+  | "personalize"
+  | "ai"
   | "info";
 
 export type SetupStatus =
@@ -58,6 +60,8 @@ export interface ChecklistInput {
   paymentsReady: boolean;
   /** Ids the owner marked as done (kept in this browser). */
   acknowledged: readonly string[];
+  /** An AI app (Claude) is connected to this site. */
+  aiConnected?: boolean;
 }
 
 const COPY: Record<
@@ -193,6 +197,18 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
     });
   };
 
+  // One list for everything (wave 3: the editor's separate "Get your site ready" card is gone).
+  // A site made from a template starts with sample words and pictures: making it yours comes
+  // first. It ticks itself the first time something on the site is edited (see markSetupDone).
+  if (!setup?.imported)
+    items.push(
+      always("personalize", "Make it yours", {
+        why: "Change the headline, the main photo and the logo, so the site is clearly yours.",
+        minutes: 5,
+        done: acknowledged.includes("personalize"),
+      }),
+    );
+
   known("store", needs.store > 0, cloudflare && paymentsReady, {
     needsLive: true,
     count: needs.store || undefined,
@@ -205,6 +221,13 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
   known("newsletter", needs.newsletter > 0, false);
   // A domain is worth it for every site.
   known("domain", true, Boolean(site.domain));
+  items.push(
+    always("ai", "Connect your AI", {
+      why: "Ask Claude to write, edit and check your site for you, in plain words.",
+      minutes: 3,
+      done: input.aiConnected === true || acknowledged.includes("ai"),
+    }),
+  );
   known("analytics", false, false);
 
   for (const imp of imported) {
@@ -225,6 +248,26 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
     });
   }
   return items;
+}
+
+function always(
+  id: "personalize" | "ai",
+  title: string,
+  o: { why: string; minutes: number; done: boolean },
+): SetupItem {
+  return {
+    id,
+    kind: "other",
+    title,
+    why: o.why,
+    minutes: o.minutes,
+    status: o.done ? "done" : "todo",
+    wizard: id,
+    detail: null,
+    where: [],
+    count: null,
+    source: "always",
+  };
 }
 
 /** "3 of 5 done" numbers. */
@@ -253,4 +296,15 @@ export function writeAcknowledged(siteId: string, ids: readonly string[]): void 
   } catch {
     // Private windows: the list still works for this visit.
   }
+  if (typeof window !== "undefined")
+    window.dispatchEvent(new CustomEvent(SETUP_EVENT, { detail: { siteId } }));
+}
+
+/** Fired when a step is ticked, so every open copy of the list updates at once. */
+export const SETUP_EVENT = "openspace:setup";
+
+/** Tick a step that the editor saw happen (e.g. the first edit → "Make it yours"). */
+export function markSetupDone(siteId: string, id: string): void {
+  const ack = readAcknowledged(siteId);
+  if (!ack.includes(id)) writeAcknowledged(siteId, [...ack, id]);
 }

@@ -11,6 +11,7 @@
  * - `refreshImport`: the state machine, driven by Studio's polling, the `workflow_run` webhook,
  *   progress reports from the run itself (`/ci/sites/:id/import`) and the minute cron.
  */
+
 import { newId, type SiteId } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
@@ -60,6 +61,7 @@ import {
   placeholderDocument,
   shellFiles,
 } from "./import-site";
+import { plainWords } from "./import-words";
 import type { Services } from "./index";
 import {
   getSiteView,
@@ -195,6 +197,12 @@ export function attentionFromReport(report: string | null): AttentionGroup[] {
       .replace(/\*\*([^*]+)\*\*/g, "$1")
       .replace(/`([^`]+)`/g, "$1")
       .trim();
+  const friendly = (s: string) => {
+    // Keep where it happened ("(/shop)") after the translated sentence.
+    const m = /^(.*?)( \([^()]*\))?$/.exec(s);
+    const where = m?.[2] && !/\(s\)$/.test(m[2]) ? m[2] : "";
+    return `${plainWords(where ? (m?.[1] ?? s) : s)}${where}`;
+  };
   for (const line of section.split("\n")) {
     const h = /^### (.+)$/.exec(line);
     if (h) {
@@ -203,7 +211,8 @@ export function attentionFromReport(report: string | null): AttentionGroup[] {
       continue;
     }
     const b = /^- (.+)$/.exec(line);
-    if (b && current && current.items.length < 20) current.items.push(clean(b[1] as string));
+    if (b && current && current.items.length < 20)
+      current.items.push(friendly(clean(b[1] as string)));
   }
   return groups.filter((g) => g.items.length);
 }
@@ -258,7 +267,8 @@ function stepsFor(row: ImportRow, counts: ImportCounts | null): ImportStep[] {
     label: labels[id],
     ...(id === "pages" && counts
       ? {
-          detail: `${counts.pages} page${counts.pages === 1 ? "" : "s"}${counts.items ? `, ${counts.items} post${counts.items === 1 ? "" : "s"}` : ""}, ${counts.media} image${counts.media === 1 ? "" : "s"}`,
+          // "items": blog posts, products, events… (a shop's products aren't posts).
+          detail: `${counts.pages} page${counts.pages === 1 ? "" : "s"}${counts.items ? `, ${counts.items} item${counts.items === 1 ? "" : "s"}` : ""}, ${counts.media} image${counts.media === 1 ? "" : "s"}`,
         }
       : {}),
     state:
@@ -327,8 +337,8 @@ export function toImportView(
     parseJson<{ items?: ImportView["checklist"] }>(row.checklist_json)?.items?.map((i) => ({
       id: i.id,
       kind: i.kind,
-      title: i.title,
-      detail: i.detail,
+      title: plainWords(i.title),
+      detail: plainWords(i.detail),
     })) ?? [];
   return {
     id: row.id,
@@ -683,11 +693,16 @@ export async function convertRepo(
   };
   Object.assign(files, importFiles(request));
   const removedWorkflows: string[] = [];
-  for (const p of paths.filter((x) => /^\.github\/workflows\/[^/]+\.ya?ml$/.test(x))) {
-    if (p === ".github/workflows/publish.yml" || p.endsWith(`/${IMPORT_WORKFLOW}`)) continue;
-    const text = await gh.readFile(ref, p, base);
-    if (text && OTHER_PAGES_DEPLOY.test(text)) removedWorkflows.push(p);
-  }
+  // Every other workflow in one batched read (not one request per file).
+  const workflows = await gh.readFiles(ref, base, {
+    textOnly: true,
+    filter: (p) =>
+      /^\.github\/workflows\/[^/]+\.ya?ml$/.test(p) &&
+      p !== ".github/workflows/publish.yml" &&
+      !p.endsWith(`/${IMPORT_WORKFLOW}`),
+  });
+  for (const [p, text] of Object.entries(workflows))
+    if (OTHER_PAGES_DEPLOY.test(text)) removedWorkflows.push(p);
   if (await gh.getRef(ref, CONVERT_BRANCH)) await gh.resetBranch(ref, CONVERT_BRANCH, base);
   else await gh.createBranch(ref, CONVERT_BRANCH, base);
   const commit = await gh.commitFiles(ref, {
@@ -786,7 +801,11 @@ export async function recordProgress(
   const row = await getImport(services.db, importId);
   if (!row || row.state === "ready" || row.state === "failed") return row;
   const phase = PHASES.includes(report.phase as ImportPhase) ? (report.phase as ImportPhase) : null;
-  if (!phase) return row;
+  // "failed" is the run's last word, not a step: keep the step it stopped at (so the failure
+  // screen marks the right one), and the run's own result decides the state. A late report
+  // never moves the progress backwards either.
+  if (!phase || phase === "failed") return row;
+  if (row.phase && PHASES.indexOf(phase) < PHASES.indexOf(row.phase)) return row;
   const counts = report.counts
     ? {
         pages: Number(report.counts.pages) || 0,
@@ -810,16 +829,35 @@ export async function recordProgress(
 
 // --- the state machine ---------------------------------------------------------------------------
 
-/** Plain words for a failed run, from the step that failed and its log. */
-function failureMessage(row: ImportRow, steps: string[], log: string): string {
+/**
+ * Plain words for a failed run, from the step that failed and its log. Never blames the person's
+ * site for a problem on our side (a CLI option or package problem is ours to fix).
+ */
+export function failureMessage(row: ImportRow, steps: string[], log: string): string {
   const step = steps.join(" ").toLowerCase();
+  const what = row.kind === "convert" ? "your repository" : "your site";
+  if (
+    /unknown (?:option|command|argument)|too many arguments|ETARGET|No matching version|npm (?:ERR|error)|ERR_MODULE_NOT_FOUND|Cannot find (?:module|package)|SyntaxError/i.test(
+      log,
+    )
+  )
+    return "Something went wrong on our side while moving your site — it isn't a problem with your site. Choose Try again in a little while; if it happens again, we'll need to fix it.";
   const said = /(?:^|\n)(?:Error:\s*|.*?CliError:\s*)([^\n]{10,300})/.exec(log)?.[1]?.trim();
+  const unreachable =
+    /\b(?:401|403|404|ENOTFOUND|EAI_AGAIN|ECONNREFUSED|certificate|robots\.txt|password[- ]protected|not found)\b/i.test(
+      `${said ?? ""}\n${log}`,
+    );
   if (/reading/.test(step))
-    return `We couldn't start reading ${row.kind === "convert" ? "your repository" : "your site"}. Choose Try again; if it happens again, check the address.`;
-  if (/bringing pages/.test(step) || /import/.test(step))
-    return said
-      ? `The move stopped while bringing pages across: ${said}`
-      : "The move stopped while bringing pages across. Check that the site is public, then choose Try again.";
+    return `We couldn't start reading ${what}. Choose Try again; if it happens again, check that the address opens in a browser.`;
+  if (/bringing pages/.test(step) || /import/.test(step)) {
+    if (unreachable)
+      return row.kind === "convert"
+        ? "We couldn't read your repository. Check that OpenSpace still has access to it on GitHub, then choose Try again."
+        : "We couldn't open your site's pages. Check that the address opens in a private browser window (not behind a password or “coming soon” page), then choose Try again.";
+    return said && !/[{}<>`$]|\bat \S+:\d+/.test(said)
+      ? `The move stopped while bringing pages across: ${said} Choose Try again.`
+      : "The move stopped while bringing pages across. This is usually temporary — choose Try again.";
+  }
   if (/checking/.test(step))
     return "The pages came across, but the new site didn't pass its final checks, so nothing was published. Choose Try again, or ask Claude to look at IMPORT-REPORT.md.";
   if (/saving/.test(step)) return "The pages came across but couldn't be saved. Choose Try again.";

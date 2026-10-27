@@ -1,10 +1,18 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
+import { readConfig } from "../src/env";
 import { DevGitHubAccess } from "../src/github/dev";
 import { DRAFT_BRANCH } from "../src/github/types";
+import { createServices } from "../src/services";
 import { guessSiteName, parseImportSource, placeholderDocument } from "../src/services/import-site";
-import { attentionFromReport, type ImportView } from "../src/services/imports";
+import { plainWords } from "../src/services/import-words";
+import {
+  attentionFromReport,
+  failureMessage,
+  type ImportView,
+  recordProgress,
+} from "../src/services/imports";
 import { loadSiteDocument, siteDocumentToFiles } from "../src/services/site-files";
 import {
   IMPORT_CLI_VERSION,
@@ -98,7 +106,10 @@ describe("what the person pastes", () => {
     });
     const again = loadSiteDocument(siteDocumentToFiles(doc));
     expect(again.site.title).toBe("Maya Yoga");
-    expect(JSON.stringify(again)).toContain("We're moving this site here from maya-yoga.com");
+    // Public while the move runs: it says "being set up", never promises a time.
+    expect(JSON.stringify(again)).toContain("This site is being set up");
+    expect(JSON.stringify(again)).not.toContain("few minutes");
+    expect(Object.values(again.pages)[0]?.seo?.noindex).toBe(true);
   });
 });
 
@@ -124,6 +135,67 @@ describe("the import workflow", () => {
     expect(IMPORT_HELPER_MJS).toContain('"--into-existing"');
     expect(IMPORT_HELPER_MJS).toContain("/ci/sites/");
     expect(IMPORT_HELPER_MJS).toContain('"workflow", "run", "publish.yml"');
+    // --owner/--render are only passed for website addresses: CLI 0.1.8's `import github`
+    // rejected --owner, so every GitHub Pages move failed (wave 3 P0).
+    expect(IMPORT_HELPER_MJS).toContain('if (req.owner && !fromGitHub) args.push("--owner")');
+    expect(IMPORT_HELPER_MJS).toContain('req.mode === "convert" || req.platform === "github"');
+    expect(IMPORT_CLI_VERSION).toBe("0.1.9");
+  });
+
+  it("explains failed runs without blaming the person's site for our problems", () => {
+    const row = { kind: "url" } as Parameters<typeof failureMessage>[0];
+    const ours = failureMessage(
+      row,
+      ["Bringing pages across"],
+      "npm warn exec\nerror: unknown option '--owner'\n",
+    );
+    expect(ours).toContain("on our side");
+    expect(ours).not.toMatch(/public/);
+    const gone = failureMessage(
+      row,
+      ["Bringing pages across"],
+      "Error: GET https://x.example/ failed with 404 Not Found",
+    );
+    expect(gone).toContain("opens in a private browser window");
+    expect(failureMessage(row, ["Bringing pages across"], "")).toBe(
+      "The move stopped while bringing pages across. This is usually temporary — choose Try again.",
+    );
+  });
+
+  it("What needs your attention speaks the owner's language, not the importer's", () => {
+    const report = [
+      "# Import report",
+      "",
+      "## Needs attention",
+      "",
+      "### Commerce",
+      "",
+      "- 15 product(s) imported as catalog content. Selling needs the Cloudflare target and Stripe connected in the Hub; orders, customers, inventory, discounts, shipping and tax settings stay in Squarespace. _(/shop)_",
+      "",
+      "### Forms and newsletter",
+      "",
+      "- Newsletter signup recreated. Squarespace Email Campaigns / Mailchimp subscribers are not moved: export your list from Squarespace and import it in the Hub. _(/)_",
+      "",
+      "### Other",
+      "",
+      "- The page had no Heading 1; its first heading was made the Heading 1 (search engines and screen readers use it). _(/about)_",
+      "- The home page was a collection on Squarespace; it is now a page listing that collection (the collection has its own address, with a redirect). _(site)_",
+      "- Member area: its content isn't public, so it was not imported. Recreate it as a members-only page (Cloudflare target). _(/members)_",
+      "",
+    ].join("\n");
+    const all = attentionFromReport(report).flatMap((g) => g.items);
+    expect(all).toHaveLength(5);
+    const text = all.join("\n");
+    for (const jargon of [/Cloudflare/, /\bHub\b/, /Heading 1/, /target/, /\(s\)/, /collection on/])
+      expect(text).not.toMatch(jargon);
+    expect(all[0]).toContain("Your 15 products came across");
+    expect(all[0]).toContain("(/shop)");
+    expect(all[1]).toContain("Inbox → Subscribers → Import");
+    expect(all[2]).toContain("main title");
+    expect(plainWords("1 form(s) came across.")).toBe("1 form came across.");
+    expect(
+      plainWords("Selling needs the Cloudflare target and Stripe connected in the Hub."),
+    ).not.toMatch(/Cloudflare|Hub/);
   });
 
   it("turns IMPORT-REPORT.md into What needs your attention", () => {
@@ -229,6 +301,52 @@ describe("Move my site (hosted import, dev emulation)", () => {
       .bind(created.import.id)
       .first<{ attempt: number }>();
     expect(row?.attempt).toBe(2);
+  });
+
+  it("a failed move is never shown as live, and progress never goes backwards", async () => {
+    const app = createApp();
+    const cookie = await devLogin(app, "Fail Fred");
+    const created = (await (
+      await move(app, cookie, { url: "https://fail.example.com" })
+    ).json()) as Created;
+    const site = (await (await call(app, `/api/sites/${created.site.id}`, { cookie })).json()) as {
+      status: string;
+      statusDetail: string | null;
+    };
+    expect(site.status).toBe("failed");
+    expect(site.statusDetail).toContain("The move didn't finish");
+
+    // A running move: "failed" (the run's last report) and late reports keep the step reached.
+    const services = createServices(env, readConfig(env));
+    await env.HUB_DB.prepare(
+      "UPDATE site_imports SET state = 'running', phase = 'importing', error = NULL WHERE id = ?",
+    )
+      .bind(created.import.id)
+      .run();
+    const moving = (await (
+      await call(app, `/api/sites/${created.site.id}`, { cookie })
+    ).json()) as {
+      status: string;
+    };
+    expect(moving.status).toBe("building");
+    await recordProgress(services, created.import.id, { phase: "failed" });
+    await recordProgress(services, created.import.id, { phase: "reading" });
+    const row = await env.HUB_DB.prepare("SELECT phase FROM site_imports WHERE id = ?")
+      .bind(created.import.id)
+      .first<{ phase: string }>();
+    expect(row?.phase).toBe("importing");
+
+    // A failed move can still be deleted (clean-up of test or abandoned sites).
+    await env.HUB_DB.prepare("UPDATE site_imports SET state = 'failed' WHERE id = ?")
+      .bind(created.import.id)
+      .run();
+    const gone = await call(app, `/api/sites/${created.site.id}`, {
+      method: "DELETE",
+      cookie,
+      json: { confirmName: created.site.name },
+    });
+    expect(gone.status).toBe(200);
+    expect((await call(app, `/api/sites/${created.site.id}`, { cookie })).status).toBe(404);
   });
 
   it("waits for the GitHub App install step, then moves the site", async () => {

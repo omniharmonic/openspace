@@ -118,6 +118,17 @@
   .st-header__nav {
     margin-left: 4px;
   }
+
+  /* "Connect your AI" is too long beside the search and account buttons on a phone. */
+  .st-header__long {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .st-header__short {
+    display: none;
+  }
 }
 
 /* Small phones: the mark alone carries the brand so the navigation stays on one line. */

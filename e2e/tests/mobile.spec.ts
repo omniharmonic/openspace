@@ -97,3 +97,17 @@ test("phone: page list → section list → edit in the bottom sheet, reorder, p
   expect(first).toBeGreaterThan(-1);
   expect(first).toBeLessThan(html.indexOf(`data-os-id="${order[0]}"`));
 });
+
+test("phone: Connect your AI fits the screen (no sideways scrolling)", async ({
+  page,
+  context,
+}) => {
+  await signIn(context, owner.user.name);
+  await page.goto("/connect");
+  await expect(page.getByRole("heading", { name: "Connect your AI" })).toBeVisible();
+  const { scroll, width } = await page.evaluate(() => ({
+    scroll: document.documentElement.scrollWidth,
+    width: window.innerWidth,
+  }));
+  expect(scroll, "the page is no wider than the phone").toBeLessThanOrEqual(width + 1);
+});

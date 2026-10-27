@@ -198,7 +198,7 @@ export async function checkCloudflareToken(
           {
             code: "token_invalid",
             message:
-              "Cloudflare didn't recognise that token. Copy it again from the page Cloudflare showed after “Create token”.",
+              "Cloudflare didn't recognise that key. Copy it again from the page Cloudflare showed after “Create token”.",
           },
         ],
       };
@@ -243,13 +243,13 @@ export async function checkCloudflareToken(
     return fail({
       code: "token_invalid",
       message:
-        "Cloudflare didn't recognise that token. Copy it again from the page Cloudflare showed after “Create token”.",
+        "Cloudflare didn't recognise that key. Copy it again from the page Cloudflare showed after “Create token”.",
     });
   if (verify.body.result?.status !== "active")
     return fail({
       code: "token_inactive",
       message:
-        "That token is switched off or expired in Cloudflare. Create a new one and paste it here.",
+        "That key is switched off or expired in Cloudflare. Create a new one and paste it here.",
     });
   const accountsRes = await get<Array<{ id: string; name: string }>>("/accounts?per_page=50");
   const accounts = (accountsRes.body?.success ? accountsRes.body.result : []).map((a) => ({
@@ -365,7 +365,7 @@ export async function assertCanMove(
     throw new HttpError(
       409,
       "missing_secrets",
-      "Cloudflare isn't connected yet, so publishing there would fail. Paste your Cloudflare token in Finish setting up → Open your shop first.",
+      "Cloudflare isn't connected yet, so publishing there would fail. Paste your Cloudflare key in Finish setting up → Open your shop first.",
       { missing },
     );
 }
@@ -386,7 +386,7 @@ async function answers(services: Services, url: string): Promise<boolean> {
 }
 
 const ROLLBACK_PUBLISH =
-  "Cloudflare couldn't publish your site, so it stayed on GitHub Pages — nothing changed for your visitors. Check your Cloudflare token in Finish setting up and try again.";
+  "Cloudflare couldn't publish your site, so it stayed on GitHub Pages — nothing changed for your visitors. Check your Cloudflare key in Finish setting up and try again.";
 const ROLLBACK_ANSWER =
   "Your site published to Cloudflare but didn't answer there yet, so it stayed on GitHub Pages — nothing changed for your visitors. Try again in a few minutes.";
 

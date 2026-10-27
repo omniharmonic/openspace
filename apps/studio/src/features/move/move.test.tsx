@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { renderStudio, SAM } from "../../test/render";
+import { publishStory } from "./MoveProgress";
 
 const FAST_IMPORT = { importStepMs: 15 };
 
@@ -43,7 +44,7 @@ describe("Move my site (hosted import)", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /github\.io\/maya-yoga/ })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Progress" })).toHaveTextContent(
-      "6 pages, 4 posts, 23 images",
+      "6 pages, 4 items, 23 images",
     );
     const attention = screen
       .getByRole("heading", { name: "What needs your attention" })
@@ -54,6 +55,12 @@ describe("Move my site (hosted import)", () => {
 
     await user.click(screen.getByRole("button", { name: "Open it in Studio" }));
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/sites\/st_/));
+    // The editor opens on the live site with the first-run tour (the site was "being set up"
+    // while it moved; a stale copy of that status used to leave the editor loading forever).
+    expect(
+      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 5000 }),
+    ).toBeInTheDocument();
+    expect(router.state.location.pathname).toMatch(/^\/sites\/st_/);
   });
 
   it("explains a move that didn't finish and tries again", async () => {
@@ -78,6 +85,9 @@ describe("Move my site (hosted import)", () => {
       await screen.findByLabelText("Your site’s address"),
       "https://life-culture.github.io/powerwith/",
     );
+    // The default (a new site) needs no decision; converting in place waits behind More options.
+    expect(screen.queryByText("This site lives on GitHub. What would you like?")).toBeNull();
+    await user.click(screen.getByRole("button", { name: /More options for GitHub sites/ }));
     expect(screen.getByText("This site lives on GitHub. What would you like?")).toBeInTheDocument();
     await user.click(screen.getByRole("radio", { name: /Make this site editable where it is/ }));
     await user.click(screen.getByLabelText("This is my site, or I’m moving it for its owner."));
@@ -113,5 +123,14 @@ describe("Move my site (hosted import)", () => {
       "href",
       expect.stringMatching(/^\/move\/imp_/),
     );
+  });
+});
+
+describe("publishing a moved site", () => {
+  it("tells what's happening during the slow publish, with an honest time", () => {
+    expect(publishStory(0)).toContain("Saving your pages");
+    expect(publishStory(45)).toContain("Building your site");
+    expect(publishStory(120)).toContain("Putting it online");
+    expect(publishStory(400)).toContain("within 5 minutes");
   });
 });

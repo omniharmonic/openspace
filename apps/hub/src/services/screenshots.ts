@@ -365,7 +365,16 @@ export interface CloudflareBrowserOptions {
   allowedOrigins?: string[];
   /** Load puppeteer (tests inject a fake). */
   loadPuppeteer?: () => Promise<Any>;
+  /** Waits between tries while the browser is busy (tests pass a fast one). */
+  sleep?: (ms: number) => Promise<void>;
 }
+
+/**
+ * When every browser the plan allows is in use (Claude naturally asks for two screenshots at
+ * once), wait for one to come free instead of failing: try again this many times, this far apart.
+ */
+const BUSY_TRIES = 6;
+const BUSY_WAIT_MS = 3000;
 
 async function withTimeout<T>(p: Promise<T>, ms: number, message: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -381,6 +390,8 @@ async function withTimeout<T>(p: Promise<T>, ms: number, message: string): Promi
   }
 }
 
+const BUSY = /busy \(plan limit reached\)/;
+
 const toBytes = (b: Any): Uint8Array =>
   b instanceof Uint8Array ? b : new Uint8Array(b as ArrayBuffer);
 
@@ -393,8 +404,21 @@ export function cloudflareBrowser(
     (async () => (await import("@cloudflare/puppeteer")).default as unknown as Any);
   const allowed = options.allowedOrigins ?? [];
 
-  /** Reuse an idle session (no one connected) before launching a new browser. */
+  const sleep = options.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+
+  /** Reuse an idle session; launch one; and if the plan's browsers are all busy, wait for one. */
   async function acquire(puppeteer: Any): Promise<Any> {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return await acquireOnce(puppeteer);
+      } catch (e) {
+        if (!(e instanceof ToolError) || !BUSY.test(e.message) || attempt >= BUSY_TRIES) throw e;
+        await sleep(BUSY_WAIT_MS * attempt);
+      }
+    }
+  }
+
+  async function acquireOnce(puppeteer: Any): Promise<Any> {
     try {
       const sessions: Array<{ sessionId: string; connectionId?: string }> =
         await puppeteer.sessions(binding);

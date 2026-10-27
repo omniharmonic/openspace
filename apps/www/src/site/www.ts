@@ -53,6 +53,9 @@ export const SIGN_IN = `${STUDIO}/sites`;
 export const IMPORT_CMD = "/openspace:migrate https://www.example.com";
 export const IMPORT_CLI = "npx @omniharmonic/openspace-cli import <url>";
 export const MIGRATE_GUIDE = `${DOCS}/guides/migrate-to-openspace/`;
+/** Studio's "Move my site": paste an address, nothing to install (the non-technical path). */
+export const STUDIO_MOVE = `${STUDIO}/move`;
+const MOVE = url(STUDIO_MOVE);
 
 /**
  * Donation links: Stripe Payment Links, one per amount (US dollars). This is the ONE place they
@@ -218,12 +221,12 @@ function hero() {
   });
   const lead = text([
     rt.p(
-      "OpenSpace gives everyone what developers have always had: a website made of plain files in your own account, hosted free on GitHub Pages or Cloudflare. Start from a designer template, or let Claude bring your current site home.",
+      "A website that's yours to keep, hosted free, with no monthly bill. Start from a designer template, or move the site you already have: paste its address and we bring it across.",
     ),
   ]);
   const cta = button("Start free", START, {
     size: "large",
-    second: ["Move my site", page(P.home, "move")],
+    second: ["Move my site", MOVE],
     note: "Free forever and open source. In pre-release; you need a free GitHub account.",
   });
   const looks = demo("looks", "Demo: the Studio editor switching a site between three looks", 560);
@@ -280,21 +283,38 @@ function move() {
   return section(
     [
       heading("Bring your site home", {
-        sub: "Claude moves your site from wherever it lives today to a free one you own forever. It keeps your words and pictures, and checks its work against the original, page by page.",
+        sub: "Paste your site's address and we move it to a free site you own forever: your words, pictures and pages, at the same addresses. Nothing to install, and your current site stays online throughout.",
         col: 0,
       }),
       text(
         [
           rt.p([
             rt.bold("Squarespace, WordPress, Wix, Webflow or anywhere else. "),
-            "Claude recognises where your site lives and brings it across, and for platforms without a dedicated importer it rebuilds each page from what visitors see.",
+            "We recognise where your site lives and bring it across; for platforms without a dedicated importer, each page is rebuilt from what visitors see.",
           ]),
-          rt.p([rt.bold("In Claude Code, install the plugin:")]),
-          rt.p([code(PLUGIN)]),
-          rt.p([code("/plugin install openspace@openspace")]),
-          rt.p([rt.bold("Then point it at your site:")]),
-          rt.p([code(IMPORT_CMD)]),
-          rt.p(["Prefer a terminal? ", code(IMPORT_CLI), " does the import on its own."], "small"),
+        ],
+        { col: 0 },
+      ),
+      button("Move my site", MOVE, { col: 0, size: "large" }),
+      text(
+        [
+          rt.p(
+            [rt.bold("For developers: "), "the same move from Claude Code or a terminal."],
+            "small",
+          ),
+          rt.p(
+            [
+              "In Claude Code: ",
+              code(PLUGIN),
+              ", ",
+              code("/plugin install openspace@openspace"),
+              ", then ",
+              code(IMPORT_CMD),
+              ".",
+            ],
+            "small",
+          ),
+          rt.p(["In a terminal: ", code(IMPORT_CLI), "."], "small"),
         ],
         { col: 0 },
       ),
@@ -304,20 +324,20 @@ function move() {
         {
           items: [
             step(
-              "Point Claude at your address",
-              "Give it the address of the site you have today. It asks first that the site is yours, and the old one stays up throughout.",
+              "Paste your address",
+              "Sign in, paste the address of the site you have today and confirm it's yours. The old one stays up throughout.",
             ),
             step(
               "It brings everything across",
               "Pages, blog posts, images with their alt text, SEO titles and descriptions, and a redirect for every address that changes.",
             ),
             step(
-              "It compares until they match",
-              "Claude screenshots the original and the new site side by side, at desktop and phone widths, and refines each page. Then it tells you plainly what still differs.",
+              "It goes live, free",
+              "In a few minutes your new site is online at a free address, and open in the editor. We tell you plainly anything that didn't come across exactly.",
             ),
             step(
-              "You publish, free, on GitHub Pages",
-              "Your new site goes online at no cost, as files in your own GitHub account.",
+              "Polish it, with Claude if you like",
+              "Edit anything you see. Connect Claude and it compares the old and new pages side by side, at desktop and phone widths, and refines them for you.",
             ),
             step(
               "Move your domain",
@@ -985,7 +1005,7 @@ function faq() {
             ),
             qa(
               "Can I move my existing site?",
-              "Yes. Squarespace sites import automatically: pages, blog posts, images, SEO details and redirects. Claude then compares the old and new pages side by side until they match. Importers for more platforms are coming; meanwhile Claude can rebuild a site from WordPress, Wix, Webflow or anywhere else from its public pages.",
+              "Yes. Choose Move my site and paste its address: pages, blog posts, images, SEO details and redirects come across from Squarespace, WordPress, Wix, Webflow, GitHub Pages or anywhere else, with nothing to install. Your old site stays online until you decide. Claude can then compare the old and new pages side by side and polish them.",
             ),
             qa(
               "Who pays for it?",
@@ -1017,7 +1037,7 @@ function finalCta() {
       }),
       button("Start free", START, {
         size: "large",
-        second: ["Move my site", page(P.home, "move")],
+        second: ["Move my site", MOVE],
       }),
     ],
     { width: "wide" },
@@ -1550,7 +1570,7 @@ function supportPage() {
             label: "Start free",
             link: START,
             secondaryLabel: "Move my site",
-            secondaryLink: page(P.home, "move"),
+            secondaryLink: MOVE,
           },
         },
       }),

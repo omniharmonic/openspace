@@ -301,4 +301,47 @@ describe("screenshot helpers", () => {
     expect(calls.filter((c) => c.startsWith("shot jpeg"))).toHaveLength(2);
     expect(calls.slice(-2)).toEqual(["close", "disconnect"]);
   });
+
+  it("waits for a busy browser instead of failing when two screenshots are asked at once", async () => {
+    let launches = 0;
+    const browser = {
+      newPage: async () => ({
+        setViewport: async () => undefined,
+        setRequestInterception: async () => undefined,
+        on: () => undefined,
+        goto: async () => undefined,
+        waitForNetworkIdle: async () => undefined,
+        evaluate: async () => undefined,
+        viewport: () => ({ width: 390, height: 844 }),
+        screenshot: async () => new Uint8Array([1]),
+        close: async () => undefined,
+      }),
+      disconnect: async () => undefined,
+    };
+    const puppeteer = {
+      sessions: async () => [],
+      connect: async () => browser,
+      launch: async () => {
+        launches++;
+        if (launches < 3) throw new Error("Unable to create new browser: code: 429: rate limit");
+        return browser;
+      },
+    };
+    const waits: number[] = [];
+    const backend = cloudflareBrowser(
+      { fetch: (async () => new Response()) as unknown as typeof fetch },
+      {
+        loadPuppeteer: async () => puppeteer,
+        sleep: async (ms) => {
+          waits.push(ms);
+        },
+      },
+    );
+    const [r] = await backend.capture([
+      { url: "https://old.example.com/", width: 390, fullPage: false },
+    ]);
+    expect(r?.images).toHaveLength(1);
+    expect(launches).toBe(3);
+    expect(waits).toHaveLength(2);
+  });
 });

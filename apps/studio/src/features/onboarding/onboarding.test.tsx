@@ -91,7 +91,9 @@ describe("onboarding: template → details → sign in → building → editor",
     expect(screen.getByText("sam-rivera.github.io/juniper-bodywork")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy link" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Start editing" }));
-    expect(screen.getByRole("region", { name: "Get your site ready" })).toBeInTheDocument();
+    // One to-do list: "Finish setting up" in the top bar (no second floating card).
+    expect(await screen.findByRole("button", { name: /Finish setting up/ })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Get your site ready" })).not.toBeInTheDocument();
     expect(router.state.location.search).not.toContain("welcome");
 
     const created = hub.calls.find((c) => c.method === "createSite");
@@ -122,6 +124,10 @@ describe("onboarding: template → details → sign in → building → editor",
   it("skips sign-in when already signed in", async () => {
     const { user } = renderStudio("/new/signal?look=volt", { user: SAM });
     await user.type(await screen.findByLabelText("Site name"), "Tidewater");
+    // Already signed in: the steps don't show a "Sign in" step.
+    const steps = screen.getByRole("list", { name: "Steps" });
+    expect(within(steps).queryByText("Sign in")).not.toBeInTheDocument();
+    expect(within(steps).getByText("Go live")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Create my site" }));
     expect(
       await screen.findByRole("heading", { name: "Setting up your site…" }),

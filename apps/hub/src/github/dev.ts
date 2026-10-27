@@ -16,6 +16,7 @@ import {
   normalizeRef,
   type PagesInfo,
   type PullRequestInput,
+  type ReadFilesOptions,
   type RepoInfo,
   type RepoRef,
   repoFullName,
@@ -538,11 +539,12 @@ export class DevGitHubAccess implements GitHubAccess {
   async readFiles(
     repo: RepoRef,
     ref: string,
-    options: { prefix?: string; textOnly?: boolean } = {},
+    options: ReadFilesOptions = {},
   ): Promise<Record<string, string>> {
     const tree = await this.treeAt(repo, ref);
     const wanted = Object.entries(tree).filter(
-      ([p]) => !options.prefix || p.startsWith(options.prefix),
+      ([p]) =>
+        (!options.prefix || p.startsWith(options.prefix)) && (!options.filter || options.filter(p)),
     );
     const out: Record<string, string> = {};
     // D1 caps bound parameters per statement; fetch blobs in chunks.

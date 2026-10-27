@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { type Platform, parsePlatform } from "@omniharmonic/openspace-import";
-import { Command, CommanderError } from "commander";
+import { Command, CommanderError, Option } from "commander";
 import { renderAgentsMd, writeAgentsMd } from "./agents";
 import { type Budgets, formatReport, githubAnnotations, runCheck } from "./check";
 import { astroNodeProblem, runDev, type Spawner } from "./dev";
@@ -183,6 +183,10 @@ export function createProgram(
         "--owner",
         "I own this site: also read Squarespace's ?format=json data (richer collections and SEO); robots.txt asks crawlers not to read it",
       );
+    // Accepted (and ignored) everywhere else, so one set of flags works for every subcommand:
+    // the hosted import and scripts pass --owner whatever the platform.
+    else
+      c.addOption(new Option("--owner", "I own this site (no effect for this source)").hideHelp());
     if (kind === "github")
       c.option(
         "--source-dir <dir>",
@@ -200,6 +204,7 @@ export function createProgram(
         "--render",
         "render pages in a browser first (Playwright) for sites built by JavaScript, e.g. some Wix and Framer sites",
       );
+    else c.addOption(new Option("--render", "no effect for this source").hideHelp());
     if (kind === "auto")
       c.option(
         "--platform <name>",
@@ -232,6 +237,10 @@ export function createProgram(
     platform: Platform | "auto",
   ) => {
     assertGitHubPagesStart(opts.target);
+    // Flags a subcommand accepts only for compatibility have no effect there.
+    opts = { ...opts };
+    if (platform !== "auto" && platform !== "squarespace") delete opts.owner;
+    if (platform !== "auto" && platform !== "generic") delete opts.render;
     let chosen = platform;
     if (opts.platform) {
       const p = parsePlatform(opts.platform);

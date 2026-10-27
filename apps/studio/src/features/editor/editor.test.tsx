@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { demoSites } from "../../api/fixtures";
 import type { Site } from "../../api/types";
 import { renderStudio, SAM } from "../../test/render";
+import { markSetupDone } from "../setup/checklist";
 import { DEVICE_WIDTHS, effectiveZoom, useEditorUi } from "./editor-store";
 
 const sites = demoSites(SAM.login, Date.UTC(2026, 9, 1));
@@ -90,24 +91,15 @@ describe("editor frame", () => {
     expect(screen.getByRole("button", { name: "Zoom 100%" })).toBeInTheDocument();
   });
 
-  it("keeps the checklist's progress and dismissal per site", async () => {
-    const { user, unmount } = renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
-    const list = await screen.findByRole("region", { name: "Get your site ready" });
-    await user.click(within(list).getByRole("checkbox", { name: "Edit the headline" }));
-    expect(within(list).getByText("1 of 5")).toBeInTheDocument();
-    await user.click(within(list).getByRole("button", { name: "Hide checklist" }));
-    expect(screen.queryByRole("region", { name: "Get your site ready" })).not.toBeInTheDocument();
-    unmount();
-
-    renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
+  it("has one to-do list, and the first edit ticks off Make it yours", async () => {
+    const { user, router } = renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
     await screen.findByRole("navigation", { name: "Panels" });
     expect(screen.queryByRole("region", { name: "Get your site ready" })).not.toBeInTheDocument();
-    expect(
-      JSON.parse(localStorage.getItem(`openspace.checklist.${willow.id}`) ?? "{}"),
-    ).toMatchObject({
-      done: ["headline"],
-      dismissed: true,
-    });
+    markSetupDone(willow.id, "personalize");
+    await user.click(await screen.findByRole("button", { name: /Finish setting up/ }));
+    expect(router.state.location.pathname).toBe(`/sites/${willow.id}/settings/setup`);
+    const item = await screen.findByTestId("setup-personalize");
+    expect(within(item).getByText("Done")).toBeInTheDocument();
   });
 
   it("registers editor commands in the palette", async () => {
