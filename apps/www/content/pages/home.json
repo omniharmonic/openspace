@@ -4,8 +4,8 @@
   "title": "Home",
   "slug": "",
   "seo": {
-    "description": "OpenSpace is an open-source website builder: designer templates, a visual editor and Claude, on a site you own and host free on GitHub Pages.",
-    "title": "A professional website you own, free to host"
+    "description": "Stop renting your own website. OpenSpace is a free, open-source website builder: designer templates, a visual editor and Claude, on a site you own and host free on GitHub Pages.",
+    "title": "Stop renting your own website, host it free"
   },
   "sections": [
     {
@@ -118,7 +118,7 @@
           "fields": {
             "level": "h1",
             "size": "display",
-            "text": "A professional website that's yours to keep"
+            "text": "Stop renting your own website"
           },
           "variant": "plain"
         },
@@ -135,7 +135,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Start from a designer template, shape it in a visual editor or with Claude, and publish it free on GitHub Pages. Every page is a plain file in your own GitHub repository."
+                      "text": "OpenSpace gives everyone what developers have always had: a website made of plain files in your own account, hosted free on GitHub Pages or Cloudflare. Start from a designer template, or let Claude bring your current site home."
                     }
                   ]
                 }
@@ -155,12 +155,13 @@
               "type": "url",
               "url": "https://studio.openspace.host/templates"
             },
-            "secondaryLabel": "See it on GitHub",
+            "secondaryLabel": "Move my site",
             "secondaryLink": {
-              "type": "url",
-              "url": "https://github.com/omniharmonic/openspace"
+              "type": "page",
+              "page": "pg_p5dpv5xxt4",
+              "anchor": "move"
             },
-            "note": "Open source and in pre-release. You need a free GitHub account."
+            "note": "Free forever and open source. In pre-release; you need a free GitHub account."
           },
           "variant": "large"
         },
@@ -214,9 +215,9 @@
                 "detail": "Or on your own Cloudflare account. A domain is optional."
               },
               {
-                "value": "12 × 3",
+                "value": "20 × 3",
                 "label": "templates and looks",
-                "detail": "Plus a library of designed sections, and growing."
+                "detail": "Plus 277 designed sections that take on your style."
               },
               {
                 "value": "99–100",
@@ -235,114 +236,45 @@
       ]
     },
     {
-      "id": "sec_ym83ky5t6h",
-      "label": "How it works",
-      "anchor": "how",
+      "id": "sec_eq75v0svkx",
+      "label": "Move your site",
+      "anchor": "move",
       "layout": {
         "mode": "stack",
         "columns": {
           "d": [
+            5,
+            7
+          ],
+          "t": [
+            12
+          ],
+          "m": [
             12
           ]
         },
-        "width": "wide"
+        "width": "wide",
+        "gap": "2xl"
       },
       "style": {
-        "colorTheme": "light-accent"
+        "colorTheme": "dark"
       },
       "blocks": [
         {
-          "id": "blk_cx2c5czwr6",
+          "id": "blk_sk22zdzj2p",
           "type": "heading",
           "v": 1,
           "fields": {
             "level": "h2",
             "size": "auto",
-            "text": "Three steps, then it's yours",
-            "subheading": "No servers to rent and nothing to install. Studio runs in your browser, on a computer or a phone."
+            "text": "Bring your site home",
+            "subheading": "Claude moves your site from wherever it lives today to a free one you own forever. It keeps your words and pictures, and checks its work against the original, page by page."
           },
-          "variant": "plain"
+          "variant": "plain",
+          "column": 0
         },
         {
-          "id": "blk_xjt1vfxdns",
-          "type": "columns",
-          "v": 1,
-          "fields": {
-            "columns": "3",
-            "aspect": "original",
-            "items": [
-              {
-                "heading": "Pick a template",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "Twelve designs for practices, restaurants, nonprofits, artists, shops and more, each in three looks. Your name and tagline go in as you start."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              {
-                "heading": "Edit visually, or ask Claude",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "Click any words to change them. Drag blocks on a 24-column grid, restyle every page from Site Styles, or describe the change to Claude."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              {
-                "heading": "Publish to your GitHub Pages",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "Publishing builds your site and puts it online at your own address. Roll back to any earlier version in one click."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          "variant": "steps"
-        },
-        {
-          "id": "blk_45ba521t35",
-          "type": "embed",
-          "v": 1,
-          "fields": {
-            "aspect": "auto",
-            "height": 500,
-            "embed": {
-              "type": "code",
-              "code": "<style>\n*,*::before,*::after{box-sizing:border-box}\nhtml,body{height:100%}\nbody{font:14px/1.45 system-ui,-apple-system,\"Segoe UI\",sans-serif;color:#1b1e2e;background:#fff}\nbutton{font:inherit;color:inherit;cursor:pointer}\n.wrap{display:grid;grid-template-rows:auto 1fr;height:100%}\n.tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid #e3e6ef;background:#f7f8fc}\n.tools>legend{color:#5d6378;margin-right:4px}\n.act{border:1px solid #cfd3e3;background:#fff;border-radius:999px;padding:5px 12px;font-weight:500}\n.act:hover{border-color:#2c40e6}\n.act[disabled]{opacity:.45;cursor:default;border-color:#cfd3e3}\n.act:focus-visible{outline:2px solid #2c40e6;outline-offset:2px}\n.undo{margin-left:auto}\n.panes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);min-height:0}\n.code{display:grid;grid-template-rows:auto 1fr auto;min-height:0;background:#0f1230;color:#d9dcf5;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}\n.tabs{display:flex;gap:2px;padding:8px 10px 0;overflow:hidden}\n.tabs span{padding:5px 10px;border-radius:6px 6px 0 0;color:#8f95c4;white-space:nowrap}\n.tabs span.on{background:#181c45;color:#fff}\npre{margin:0;padding:10px 0;overflow:auto;background:#181c45;min-height:0}\npre div{padding:0 14px;white-space:pre;transition:background-color .9s}\npre div.hot{background:#ffcb5233;box-shadow:inset 3px 0 #ffcb52}\n.k{color:#9fb0ff}.s{color:#ffd88a}.n{color:#8ce0c4}.p{color:#6f76a8}\n.log{padding:8px 14px;border-top:1px solid #262b63;color:#aab0dc;min-height:3.2em}\n.log b{color:#8ce0c4;font-weight:500}\n.page{position:relative;display:flex;flex-direction:column;min-height:0;background:#eef0f6;padding:12px}\n.cap{font-size:12px;color:#5d6378;margin:0 0 8px;display:flex;justify-content:space-between;gap:8px}\n.sec{--bg:#fbf8f1;--ink:#231d14;--soft:#5d5345;--btn:#3f6b4a;flex:1;position:relative;display:grid;grid-template-columns:repeat(24,1fr);column-gap:4px;align-content:center;padding:18px;border-radius:8px;background:var(--bg);color:var(--ink);box-shadow:0 1px 3px #0002,0 8px 30px #1b1e2e14;transition:background-color .5s,color .5s;overflow:hidden}\n.sec[data-theme=dark]{--bg:#1d2a22;--ink:#f3efe6;--soft:#c9c2b3;--btn:#e7c66b}\n.guides{position:absolute;inset:0 18px;display:grid;grid-template-columns:repeat(24,1fr);column-gap:4px;pointer-events:none}\n.guides i{background:#2c40e60d;border-inline:1px solid #2c40e61a}\n.txt,.img{position:relative;grid-row:1}\n.txt{view-transition-name:txt}.img{view-transition-name:img}\n.txt .h{margin:0 0 8px;font:400 clamp(19px,2.4vw,30px)/1.1 \"Iowan Old Style\",Palatino,Georgia,serif;letter-spacing:-.01em;text-wrap:balance}\n.txt p{margin:0 0 12px;color:var(--soft);font-size:13px}\n.txt .b{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--btn);color:var(--bg);font-size:12px;font-weight:600}\n.img{align-self:stretch;min-height:150px;border-radius:10px;background:radial-gradient(60% 50% at 50% 60%,#e6b878,#b9773e 55%,#6b3e1f 100%)}\n.img::after{content:\"\";position:absolute;left:18%;right:18%;top:38%;bottom:30%;border-radius:50% 50% 40% 40%;background:linear-gradient(#d9a15f,#a8642e);box-shadow:inset 0 -6px 0 #0002}\n.sel{outline:2px solid #2c40e6;outline-offset:3px}\n@media (max-width:640px){\n.panes{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}\n.page{order:-1;padding:10px}\n.sec{padding:14px}\n.img{min-height:110px}\n.tools>legend{width:100%}\n.undo{margin-left:0}\n}\nfieldset{border:0;margin:0;min-width:0}\nlegend{float:left;padding:0;margin-right:4px;color:#5d6378}\n@media (prefers-reduced-motion:reduce){pre div,.sec,.act{transition:none}}\n</style>\n<div class=\"wrap\">\n<fieldset class=\"tools\"><legend>Try an edit:</legend>\n<button class=\"act\" type=\"button\" data-do=\"text\">Rewrite the headline</button>\n<button class=\"act\" type=\"button\" data-do=\"move\">Move the photo</button>\n<button class=\"act\" type=\"button\" data-do=\"theme\">Switch to dark</button>\n<button class=\"act undo\" type=\"button\" data-do=\"undo\" disabled>Undo</button></fieldset>\n<div class=\"panes\">\n<div class=\"code\">\n<div class=\"tabs\" aria-hidden=\"true\"><span>openspace.json</span><span>styles.json</span><span class=\"on\">pages/home.json</span></div>\n<!-- biome-ignore lint/a11y/noNoninteractiveTabindex: the scrollable file must be reachable by keyboard -->\n<pre tabindex=\"0\" title=\"content/pages/home.json, the first section\"></pre>\n<div class=\"log\" role=\"status\" aria-live=\"polite\">Pick an edit. Each one is a small, validated operation on this file.</div>\n</div>\n<div class=\"page\">\n<p class=\"cap\"><span>The same section, rendered</span><span id=\"n\"></span></p>\n<div class=\"sec\">\n<div class=\"guides\" aria-hidden=\"true\"></div>\n<div class=\"txt\"><p class=\"h\">Fresh bread, every morning at seven</p><p>Naturally leavened loaves and morning buns from a small oven on Calder Street.</p><span class=\"b\">See what's baking</span></div>\n<div class=\"img\" role=\"img\" aria-label=\"A sourdough loaf\"></div>\n</div>\n</div>\n</div>\n</div>\n<script>\n(()=>{\nconst g=document.querySelector(\".guides\");for(let i=0;i<24;i++)g.append(document.createElement(\"i\"));\nconst A=[\"Fresh bread, every morning at seven\",\"Still warm at seven, six days a week\"];\nlet doc={id:\"sec_hero\",layout:{mode:\"grid\",items:{blk_title:{d:{x:1,y:1,w:13,h:6}},blk_photo:{d:{x:15,y:1,w:10,h:6}}}},style:{colorTheme:\"light\"},blocks:[{id:\"blk_title\",type:\"heading\",fields:{text:A[0],level:\"h1\"}},{id:\"blk_photo\",type:\"image\",fields:{alt:\"A sourdough loaf\"}}]};\nconst hist=[];let prevLines=[];\nconst pre=document.querySelector(\"pre\"),log=document.querySelector(\".log\"),n=document.getElementById(\"n\"),undo=document.querySelector(\".undo\");\nconst esc=s=>s.replace(/&/g,\"&amp;\").replace(/</g,\"&lt;\");\nconst paint=l=>esc(l).replace(/(\"[^\"]*\")(\\s*:)?|(-?\\d+)|([{}[\\],])/g,(_m,str,colon,num,p)=>str?(colon?`<span class=\"k\">${str}</span><span class=\"p\">:</span>`:`<span class=\"s\">${str}</span>`):num?`<span class=\"n\">${num}</span>`:`<span class=\"p\">${p}</span>`);\nfunction render(changed){\nconst lines=JSON.stringify(doc,null,2).split(\"\\n\");\npre.innerHTML=lines.map((l,i)=>`<div${changed&&l!==prevLines[i]?' class=\"hot\"':''}>${paint(l)}</div>`).join(\"\");\nprevLines=lines;\nconst it=doc.layout.items,sec=document.querySelector(\".sec\"),t=document.querySelector(\".txt\"),im=document.querySelector(\".img\");\nconst place=(el,r)=>{el.style.gridColumn=`${r.d.x} / span ${r.d.w}`};\nplace(t,it.blk_title);place(im,it.blk_photo);\nt.querySelector(\".h\").textContent=doc.blocks[0].fields.text;\nsec.dataset.theme=doc.style.colorTheme;\nn.textContent=hist.length?`${hist.length+(hist.length===1?\" change\":\" changes\")} in the draft`:\"\";\nundo.disabled=!hist.length;\nconst hot=pre.querySelector(\".hot\");if(hot)hot.scrollIntoView({block:\"nearest\"});\n}\nconst ops={\ntext:()=>{const v=doc.blocks[0].fields.text===A[0]?A[1]:A[0];doc.blocks[0].fields.text=v;return{op:\"block.update\",block:\"blk_title\",set:{text:v}}},\nmove:()=>{const it=doc.layout.items,l=it.blk_photo.d.x>1;it.blk_photo.d.x=l?1:15;it.blk_title.d.x=l?12:1;return{op:\"grid.place\",block:\"blk_photo\",rect:it.blk_photo.d}},\ntheme:()=>{const v=doc.style.colorTheme===\"light\"?\"dark\":\"light\";doc.style.colorTheme=v;return{op:\"section.update\",set:{\"style.colorTheme\":v}}}\n};\nconst reduce=matchMedia(\"(prefers-reduced-motion: reduce)\").matches;\nconst vt=f=>{if(document.startViewTransition&&!reduce){const v=document.startViewTransition(f);v.ready.catch(()=>{});v.finished.catch(()=>{})}else f()};\nfor(const b of document.querySelectorAll(\".act\"))b.addEventListener(\"click\",()=>{\nconst k=b.dataset.do;\nif(k===\"undo\"){const h=hist.pop();if(!h)return;doc=h.before;vt(()=>render(true));log.innerHTML=`<b>Undone.</b> The file is back to how it was before <b>${h.op.op}</b>.`;return}\nconst before=structuredClone(doc);const op=ops[k]();hist.push({before,op});\nvt(()=>render(true));log.innerHTML=`<b>✓ valid</b> ${esc(JSON.stringify(op))}`;\n});\nrender(false);\n})();\n</script>"
-            },
-            "title": "Demo: editing a section and watching its JSON file change"
-          },
-          "variant": "plain"
-        },
-        {
-          "id": "blk_8s4shqhy2w",
+          "id": "blk_wyg1e2r4fr",
           "type": "text",
           "v": 1,
           "fields": {
@@ -354,11 +286,102 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Your site is a normal repository: "
+                      "text": "Squarespace moves automatically today. ",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
                     },
                     {
                       "type": "text",
-                      "text": "openspace.json",
+                      "text": "More platforms are coming, and Claude can already rebuild a site from WordPress, Wix, Webflow or anywhere else from its public pages."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "In Claude Code, install the plugin:",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "/plugin marketplace add omniharmonic/openspace",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "/plugin install openspace",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Then point it at your site:",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "/openspace:import-squarespace https://www.example.com",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Prefer a terminal? "
+                    },
+                    {
+                      "type": "text",
+                      "text": "npx @omniharmonic/openspace-cli import squarespace <url>",
                       "marks": [
                         {
                           "type": "code"
@@ -367,53 +390,230 @@
                     },
                     {
                       "type": "text",
-                      "text": ", a "
-                    },
-                    {
-                      "type": "text",
-                      "text": "content/",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "text": " folder of JSON and a "
-                    },
-                    {
-                      "type": "text",
-                      "text": "media/",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "text": " folder. Astro builds it and GitHub Pages serves it. Prefer a terminal? "
-                    },
-                    {
-                      "type": "text",
-                      "text": "npx @omniharmonic/openspace-cli new meadow my-site",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "text",
-                      "text": " starts the same site locally."
+                      "text": " does the import on its own."
                     }
                   ]
                 }
               ]
             }
           },
-          "variant": "default"
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_w43737wdf2",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "secondary",
+            "label": "Read the moving guide",
+            "link": {
+              "type": "url",
+              "url": "https://docs.openspace.host/guides/migrate-from-squarespace/"
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_mw1ab6pe4a",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "columns": "2",
+            "aspect": "original",
+            "items": [
+              {
+                "heading": "Point Claude at your address",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Give it the address of the site you have today. It asks first that the site is yours, and the old one stays up throughout."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "It brings everything across",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Pages, blog posts, images with their alt text, SEO titles and descriptions, and a redirect for every address that changes."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "It compares until they match",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Claude screenshots the original and the new site side by side, at desktop and phone widths, and refines each page. Then it tells you plainly what still differs."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "You publish, free, on GitHub Pages",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Your new site goes online at no cost, as files in your own GitHub account."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Move your domain",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "The domain wizard shows the exact records to change and checks them until HTTPS is on. Only then do you cancel the old plan."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "steps",
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_9echaah2f1",
+      "label": "Why",
+      "anchor": "why",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "t": [
+            12
+          ],
+          "m": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_575cpz1btz",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Website builders rent you your own website",
+            "subheading": "You pay every month, forever. The price goes up when they decide. Leave, and your design, your posts and your audience stay behind. Stop paying, and the site goes dark. You do the work; they hold the deed."
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_7wg6nn02px",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Developers have never lived this way. For years they have put sites on GitHub Pages and Cloudflare for free, as plain files they own and can move anywhere. What was missing was a way in for everyone else."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "OpenSpace is that way in: a designer's tools and Claude, on top of free hosting you control. It isn't a startup's free tier waiting to become a paid one. It is open-source infrastructure, made to give a piece of the web back to the commons and keep it there."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "column": 1
+        },
+        {
+          "id": "blk_jnfy2315y0",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "columns": "1",
+            "items": [
+              {
+                "icon": "heart-handshake",
+                "title": "Free forever, by design",
+                "text": "Your site runs on free accounts you own, so there is no plan to upgrade to and nothing to renew."
+              },
+              {
+                "icon": "home",
+                "title": "Yours to take anywhere",
+                "text": "Plain files in your own GitHub account. Any standard tool can build them, with or without us."
+              },
+              {
+                "icon": "users",
+                "title": "Built for the commons",
+                "text": "Not a funnel: no paid tier behind the free one, no ads and no data to sell. Supported by the people who use it."
+              }
+            ]
+          },
+          "variant": "list",
+          "column": 1
         }
       ]
     },
@@ -766,6 +966,189 @@
                     {
                       "type": "text",
                       "text": "."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_ym83ky5t6h",
+      "label": "How it works",
+      "anchor": "how",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_cx2c5czwr6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Three steps, then it's yours",
+            "subheading": "No servers to rent and nothing to install. Studio runs in your browser, on a computer or a phone."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xjt1vfxdns",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "columns": "3",
+            "aspect": "original",
+            "items": [
+              {
+                "heading": "Pick a template",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Twenty designs for practices, restaurants, nonprofits, artists, shops and more, each in three looks. Your name and tagline go in as you start."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Edit visually, or ask Claude",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Click any words to change them. Drag blocks on a 24-column grid, restyle every page from Site Styles, or describe the change to Claude."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Publish to your GitHub Pages",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Publishing builds your site and puts it online at your own address. Roll back to any earlier version in one click."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "steps"
+        },
+        {
+          "id": "blk_45ba521t35",
+          "type": "embed",
+          "v": 1,
+          "fields": {
+            "aspect": "auto",
+            "height": 500,
+            "embed": {
+              "type": "code",
+              "code": "<style>\n*,*::before,*::after{box-sizing:border-box}\nhtml,body{height:100%}\nbody{font:14px/1.45 system-ui,-apple-system,\"Segoe UI\",sans-serif;color:#1b1e2e;background:#fff}\nbutton{font:inherit;color:inherit;cursor:pointer}\n.wrap{display:grid;grid-template-rows:auto 1fr;height:100%}\n.tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid #e3e6ef;background:#f7f8fc}\n.tools>legend{color:#5d6378;margin-right:4px}\n.act{border:1px solid #cfd3e3;background:#fff;border-radius:999px;padding:5px 12px;font-weight:500}\n.act:hover{border-color:#2c40e6}\n.act[disabled]{opacity:.45;cursor:default;border-color:#cfd3e3}\n.act:focus-visible{outline:2px solid #2c40e6;outline-offset:2px}\n.undo{margin-left:auto}\n.panes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);min-height:0}\n.code{display:grid;grid-template-rows:auto 1fr auto;min-height:0;background:#0f1230;color:#d9dcf5;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}\n.tabs{display:flex;gap:2px;padding:8px 10px 0;overflow:hidden}\n.tabs span{padding:5px 10px;border-radius:6px 6px 0 0;color:#8f95c4;white-space:nowrap}\n.tabs span.on{background:#181c45;color:#fff}\npre{margin:0;padding:10px 0;overflow:auto;background:#181c45;min-height:0}\npre div{padding:0 14px;white-space:pre;transition:background-color .9s}\npre div.hot{background:#ffcb5233;box-shadow:inset 3px 0 #ffcb52}\n.k{color:#9fb0ff}.s{color:#ffd88a}.n{color:#8ce0c4}.p{color:#6f76a8}\n.log{padding:8px 14px;border-top:1px solid #262b63;color:#aab0dc;min-height:3.2em}\n.log b{color:#8ce0c4;font-weight:500}\n.page{position:relative;display:flex;flex-direction:column;min-height:0;background:#eef0f6;padding:12px}\n.cap{font-size:12px;color:#5d6378;margin:0 0 8px;display:flex;justify-content:space-between;gap:8px}\n.sec{--bg:#fbf8f1;--ink:#231d14;--soft:#5d5345;--btn:#3f6b4a;flex:1;position:relative;display:grid;grid-template-columns:repeat(24,1fr);column-gap:4px;align-content:center;padding:18px;border-radius:8px;background:var(--bg);color:var(--ink);box-shadow:0 1px 3px #0002,0 8px 30px #1b1e2e14;transition:background-color .5s,color .5s;overflow:hidden}\n.sec[data-theme=dark]{--bg:#1d2a22;--ink:#f3efe6;--soft:#c9c2b3;--btn:#e7c66b}\n.guides{position:absolute;inset:0 18px;display:grid;grid-template-columns:repeat(24,1fr);column-gap:4px;pointer-events:none}\n.guides i{background:#2c40e60d;border-inline:1px solid #2c40e61a}\n.txt,.img{position:relative;grid-row:1}\n.txt{view-transition-name:txt}.img{view-transition-name:img}\n.txt .h{margin:0 0 8px;font:400 clamp(19px,2.4vw,30px)/1.1 \"Iowan Old Style\",Palatino,Georgia,serif;letter-spacing:-.01em;text-wrap:balance}\n.txt p{margin:0 0 12px;color:var(--soft);font-size:13px}\n.txt .b{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--btn);color:var(--bg);font-size:12px;font-weight:600}\n.img{align-self:stretch;min-height:150px;border-radius:10px;background:radial-gradient(60% 50% at 50% 60%,#e6b878,#b9773e 55%,#6b3e1f 100%)}\n.img::after{content:\"\";position:absolute;left:18%;right:18%;top:38%;bottom:30%;border-radius:50% 50% 40% 40%;background:linear-gradient(#d9a15f,#a8642e);box-shadow:inset 0 -6px 0 #0002}\n.sel{outline:2px solid #2c40e6;outline-offset:3px}\n@media (max-width:640px){\n.panes{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}\n.page{order:-1;padding:10px}\n.sec{padding:14px}\n.img{min-height:110px}\n.tools>legend{width:100%}\n.undo{margin-left:0}\n}\nfieldset{border:0;margin:0;min-width:0}\nlegend{float:left;padding:0;margin-right:4px;color:#5d6378}\n@media (prefers-reduced-motion:reduce){pre div,.sec,.act{transition:none}}\n</style>\n<div class=\"wrap\">\n<fieldset class=\"tools\"><legend>Try an edit:</legend>\n<button class=\"act\" type=\"button\" data-do=\"text\">Rewrite the headline</button>\n<button class=\"act\" type=\"button\" data-do=\"move\">Move the photo</button>\n<button class=\"act\" type=\"button\" data-do=\"theme\">Switch to dark</button>\n<button class=\"act undo\" type=\"button\" data-do=\"undo\" disabled>Undo</button></fieldset>\n<div class=\"panes\">\n<div class=\"code\">\n<div class=\"tabs\" aria-hidden=\"true\"><span>openspace.json</span><span>styles.json</span><span class=\"on\">pages/home.json</span></div>\n<!-- biome-ignore lint/a11y/noNoninteractiveTabindex: the scrollable file must be reachable by keyboard -->\n<pre tabindex=\"0\" title=\"content/pages/home.json, the first section\"></pre>\n<div class=\"log\" role=\"status\" aria-live=\"polite\">Pick an edit. Each one is a small, validated operation on this file.</div>\n</div>\n<div class=\"page\">\n<p class=\"cap\"><span>The same section, rendered</span><span id=\"n\"></span></p>\n<div class=\"sec\">\n<div class=\"guides\" aria-hidden=\"true\"></div>\n<div class=\"txt\"><p class=\"h\">Fresh bread, every morning at seven</p><p>Naturally leavened loaves and morning buns from a small oven on Calder Street.</p><span class=\"b\">See what's baking</span></div>\n<div class=\"img\" role=\"img\" aria-label=\"A sourdough loaf\"></div>\n</div>\n</div>\n</div>\n</div>\n<script>\n(()=>{\nconst g=document.querySelector(\".guides\");for(let i=0;i<24;i++)g.append(document.createElement(\"i\"));\nconst A=[\"Fresh bread, every morning at seven\",\"Still warm at seven, six days a week\"];\nlet doc={id:\"sec_hero\",layout:{mode:\"grid\",items:{blk_title:{d:{x:1,y:1,w:13,h:6}},blk_photo:{d:{x:15,y:1,w:10,h:6}}}},style:{colorTheme:\"light\"},blocks:[{id:\"blk_title\",type:\"heading\",fields:{text:A[0],level:\"h1\"}},{id:\"blk_photo\",type:\"image\",fields:{alt:\"A sourdough loaf\"}}]};\nconst hist=[];let prevLines=[];\nconst pre=document.querySelector(\"pre\"),log=document.querySelector(\".log\"),n=document.getElementById(\"n\"),undo=document.querySelector(\".undo\");\nconst esc=s=>s.replace(/&/g,\"&amp;\").replace(/</g,\"&lt;\");\nconst paint=l=>esc(l).replace(/(\"[^\"]*\")(\\s*:)?|(-?\\d+)|([{}[\\],])/g,(_m,str,colon,num,p)=>str?(colon?`<span class=\"k\">${str}</span><span class=\"p\">:</span>`:`<span class=\"s\">${str}</span>`):num?`<span class=\"n\">${num}</span>`:`<span class=\"p\">${p}</span>`);\nfunction render(changed){\nconst lines=JSON.stringify(doc,null,2).split(\"\\n\");\npre.innerHTML=lines.map((l,i)=>`<div${changed&&l!==prevLines[i]?' class=\"hot\"':''}>${paint(l)}</div>`).join(\"\");\nprevLines=lines;\nconst it=doc.layout.items,sec=document.querySelector(\".sec\"),t=document.querySelector(\".txt\"),im=document.querySelector(\".img\");\nconst place=(el,r)=>{el.style.gridColumn=`${r.d.x} / span ${r.d.w}`};\nplace(t,it.blk_title);place(im,it.blk_photo);\nt.querySelector(\".h\").textContent=doc.blocks[0].fields.text;\nsec.dataset.theme=doc.style.colorTheme;\nn.textContent=hist.length?`${hist.length+(hist.length===1?\" change\":\" changes\")} in the draft`:\"\";\nundo.disabled=!hist.length;\nconst hot=pre.querySelector(\".hot\");if(hot)hot.scrollIntoView({block:\"nearest\"});\n}\nconst ops={\ntext:()=>{const v=doc.blocks[0].fields.text===A[0]?A[1]:A[0];doc.blocks[0].fields.text=v;return{op:\"block.update\",block:\"blk_title\",set:{text:v}}},\nmove:()=>{const it=doc.layout.items,l=it.blk_photo.d.x>1;it.blk_photo.d.x=l?1:15;it.blk_title.d.x=l?12:1;return{op:\"grid.place\",block:\"blk_photo\",rect:it.blk_photo.d}},\ntheme:()=>{const v=doc.style.colorTheme===\"light\"?\"dark\":\"light\";doc.style.colorTheme=v;return{op:\"section.update\",set:{\"style.colorTheme\":v}}}\n};\nconst reduce=matchMedia(\"(prefers-reduced-motion: reduce)\").matches;\nconst vt=f=>{if(document.startViewTransition&&!reduce){const v=document.startViewTransition(f);v.ready.catch(()=>{});v.finished.catch(()=>{})}else f()};\nfor(const b of document.querySelectorAll(\".act\"))b.addEventListener(\"click\",()=>{\nconst k=b.dataset.do;\nif(k===\"undo\"){const h=hist.pop();if(!h)return;doc=h.before;vt(()=>render(true));log.innerHTML=`<b>Undone.</b> The file is back to how it was before <b>${h.op.op}</b>.`;return}\nconst before=structuredClone(doc);const op=ops[k]();hist.push({before,op});\nvt(()=>render(true));log.innerHTML=`<b>✓ valid</b> ${esc(JSON.stringify(op))}`;\n});\nrender(false);\n})();\n</script>"
+            },
+            "title": "Demo: editing a section and watching its JSON file change"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_8s4shqhy2w",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Your site is a normal repository: "
+                    },
+                    {
+                      "type": "text",
+                      "text": "openspace.json",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", a "
+                    },
+                    {
+                      "type": "text",
+                      "text": "content/",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " folder of JSON and a "
+                    },
+                    {
+                      "type": "text",
+                      "text": "media/",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " folder. Astro builds it and GitHub Pages serves it. Prefer a terminal? "
+                    },
+                    {
+                      "type": "text",
+                      "text": "npx @omniharmonic/openspace-cli new meadow my-site",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " starts the same site locally."
                     }
                   ]
                 }
@@ -1265,7 +1648,7 @@
           "v": 1,
           "fields": {
             "role": "secondary",
-            "label": "Browse all twelve",
+            "label": "Browse all twenty",
             "link": {
               "type": "page",
               "page": "pg_8gvvjp3ezj"
@@ -1365,6 +1748,280 @@
             }
           },
           "variant": "default",
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_1786p39g1x",
+      "label": "Support",
+      "anchor": "support",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "t": [
+            12
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "width": "wide",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_2dw4a6pgcs",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Free forever, kept going by the people who use it",
+            "subheading": "OpenSpace will never charge for your site. If leaving a builder saves you money, consider giving a little of it back: it keeps the shared Hub running and pays for the work that makes OpenSpace better."
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_vv4322zfex",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Give once: ",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "$10",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_10"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "$25",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_25"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "$50",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_50"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "$100",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_100"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "$250",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_250"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", or "
+                    },
+                    {
+                      "type": "text",
+                      "text": "an amount you choose",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_custom"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Give every month: ",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "$3",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_3_monthly"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "$5",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_5_monthly"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "$10",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_10_monthly"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " or "
+                    },
+                    {
+                      "type": "text",
+                      "text": "$20",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://donate.stripe.com/REPLACE_ME_20_monthly"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " a month."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_zt2yfhj6xp",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "secondary",
+            "label": "Support the commons",
+            "link": {
+              "type": "page",
+              "page": "pg_9yks0tf9m0"
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_9tb1vzq70w",
+          "type": "embed",
+          "v": 1,
+          "fields": {
+            "aspect": "auto",
+            "height": 460,
+            "embed": {
+              "type": "code",
+              "code": "<style>\n*,*::before,*::after{box-sizing:border-box}\nhtml,body{margin:0;height:100%}\nbody{font:15px/1.5 system-ui,-apple-system,\"Segoe UI\",sans-serif;color:#0e1233;background:#fff}\na{color:inherit}\n.wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);height:100%}\nform{padding:22px 24px;display:flex;flex-direction:column;gap:16px;min-width:0}\nfieldset{border:0;margin:0;padding:0;min-width:0}\nlegend,label{display:block;font-weight:600;margin:0 0 8px;padding:0}\n.chips{display:flex;flex-wrap:wrap;gap:6px}\n.chips label{margin:0;font-weight:500}\n.chips input{position:absolute;opacity:0;width:1px;height:1px}\n.chips span{display:inline-block;padding:7px 14px;border:1px solid #c9cee3;border-radius:999px;cursor:pointer;background:#fff}\n.chips input:checked+span{background:#0e1233;border-color:#0e1233;color:#fff}\n.chips input:focus-visible+span,select:focus-visible,input[type=number]:focus-visible,.give a:focus-visible{outline:3px solid #2c40e6;outline-offset:2px}\nselect,input[type=number]{width:100%;font:inherit;color:inherit;padding:9px 12px;border:1px solid #c9cee3;border-radius:10px;background:#fff}\n.fine{margin:auto 0 0;font-size:13px;color:#4d5370}\n.out{display:flex;flex-direction:column;gap:10px;padding:22px 24px;background:#0e1233;color:#e9ebff}\n.out p{margin:0}\n.lab{color:#b7bce3}\n.big{font-weight:650;font-size:clamp(44px,9vw,76px);line-height:1;letter-spacing:-.045em;color:#ffcb52;font-variant-numeric:tabular-nums}\n.big small{font-size:.32em;letter-spacing:0;font-weight:500;color:#e9ebff;margin-left:.3em}\n.more{color:#c9cdf0}\n.rule{height:1px;background:#2b3170;margin:6px 0}\n.give{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}\n.give a{display:inline-block;padding:10px 16px;border-radius:999px;font-weight:600;text-decoration:none}\n.once{background:#ffcb52;color:#0e1233}\n.monthly{border:1px solid #6f77c4;color:#fff}\n.give a:hover{filter:brightness(1.08)}\n.other{font-size:14px}\n.js-only{display:none}\n.has-js .js-only{display:block}\n.has-js .no-js{display:none}\n@media (max-width:640px){\nhtml,body{background:#0e1233}\nform{background:#fff}\n.wrap{grid-template-columns:1fr;height:auto}\nform,.out{padding:18px}\n}\n</style>\n<div class=\"wrap\">\n<form id=\"f\" aria-describedby=\"fine\">\n<fieldset>\n<legend>Where does your site live today?</legend>\n<div class=\"chips\">\n<label><input type=\"radio\" name=\"p\" value=\"Squarespace\" checked><span>Squarespace</span></label>\n<label><input type=\"radio\" name=\"p\" value=\"Wix\"><span>Wix</span></label>\n<label><input type=\"radio\" name=\"p\" value=\"Webflow\"><span>Webflow</span></label>\n<label><input type=\"radio\" name=\"p\" value=\"other\"><span>Somewhere else</span></label>\n</div>\n</fieldset>\n<div id=\"planBox\">\n<label for=\"plan\">Your plan</label>\n<select id=\"plan\"><option value=\"0\">Basic, $19 a month</option><option value=\"1\">Core, $29 a month</option></select>\n</div>\n<div id=\"otherBox\" hidden>\n<label for=\"amt\">What you pay each month, in US dollars</label>\n<input id=\"amt\" type=\"number\" min=\"0\" max=\"2000\" step=\"1\" value=\"25\" inputmode=\"decimal\">\n</div>\n<p class=\"fine\" id=\"fine\">Published prices billed annually, read on 27 October 2026. Monthly billing costs more, so you may save more. A domain costs the same wherever you buy it, so it isn't counted.</p>\n</form>\n<div class=\"out\">\n<p class=\"lab\">Moving to OpenSpace keeps</p>\n<p class=\"big\" aria-live=\"polite\" aria-atomic=\"true\"><span id=\"year\">$228</span><small>a year</small></p>\n<p class=\"more\" id=\"three\">That's $684 over three years. Hosting on OpenSpace costs $0.</p>\n<div class=\"rule\" role=\"presentation\"></div>\n<p>OpenSpace stays free whatever you decide. If you'd like to give back a tenth of what you keep, it keeps the commons running:</p>\n<div class=\"give\">\n<a class=\"once\" id=\"once\" href=\"https://donate.stripe.com/REPLACE_ME_25\" target=\"_blank\" rel=\"noopener\">Give <span id=\"onceAmt\">$25</span> once</a>\n<a class=\"monthly\" id=\"monthly\" href=\"https://donate.stripe.com/REPLACE_ME_3_monthly\" target=\"_blank\" rel=\"noopener\">Give <span id=\"monthAmt\">$3</span> a month</a>\n</div>\n<p class=\"other\"><a href=\"https://donate.stripe.com/REPLACE_ME_custom\" target=\"_blank\" rel=\"noopener\">Choose your own amount</a><span class=\"no-js\">. Turn on JavaScript to try other plans; every way to give is listed beside this calculator.</span></p>\n<p class=\"fine\" style=\"color:#b7bce3\">Gifts go through Stripe's checkout and open in a new tab. They aren't tax-deductible.</p>\n</div>\n</div>\n<script>\n(()=> {\nvar D={\"plans\":[{\"provider\":\"Squarespace\",\"plan\":\"Basic\",\"monthly\":19},{\"provider\":\"Squarespace\",\"plan\":\"Core\",\"monthly\":29},{\"provider\":\"Wix\",\"plan\":\"Light\",\"monthly\":17},{\"provider\":\"Wix\",\"plan\":\"Core\",\"monthly\":29},{\"provider\":\"Webflow\",\"plan\":\"Basic\",\"monthly\":15},{\"provider\":\"Webflow\",\"plan\":\"Ecommerce Plus\",\"monthly\":74}],\"once\":{\"10\":\"https://donate.stripe.com/REPLACE_ME_10\",\"25\":\"https://donate.stripe.com/REPLACE_ME_25\",\"50\":\"https://donate.stripe.com/REPLACE_ME_50\",\"100\":\"https://donate.stripe.com/REPLACE_ME_100\",\"250\":\"https://donate.stripe.com/REPLACE_ME_250\",\"custom\":\"https://donate.stripe.com/REPLACE_ME_custom\"},\"monthly\":{\"3\":\"https://donate.stripe.com/REPLACE_ME_3_monthly\",\"5\":\"https://donate.stripe.com/REPLACE_ME_5_monthly\",\"10\":\"https://donate.stripe.com/REPLACE_ME_10_monthly\",\"20\":\"https://donate.stripe.com/REPLACE_ME_20_monthly\"}};\ndocument.documentElement.className=\"has-js\";\nvar f=document.getElementById(\"f\"),plan=document.getElementById(\"plan\"),amt=document.getElementById(\"amt\");\nvar planBox=document.getElementById(\"planBox\"),otherBox=document.getElementById(\"otherBox\");\nvar yearEl=document.getElementById(\"year\"),three=document.getElementById(\"three\");\nvar once=document.getElementById(\"once\"),onceAmt=document.getElementById(\"onceAmt\");\nvar monthly=document.getElementById(\"monthly\"),monthAmt=document.getElementById(\"monthAmt\");\nvar still=window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches;\nvar usd=(n)=> \"$\"+Math.round(n).toLocaleString(\"en-US\");\nvar tiers=(o)=> Object.keys(o).filter((k)=> k!==\"custom\").map(Number).sort((a,b)=> a-b);\nvar nearest=(ts,v)=> ts.reduce((a,b)=> Math.abs(b-v)<Math.abs(a-v)?b:a);\nvar shown=0,raf=0;\nfunction count(to){\ncancelAnimationFrame(raf);\nif(still){shown=to;yearEl.textContent=usd(to);return}\nvar from=shown,t0=performance.now();\n(function step(t){var k=Math.min(1,(t-t0)/450);k=1-(1-k) ** 3;shown=from+(to-from)*k;yearEl.textContent=usd(shown);if(k<1)raf=requestAnimationFrame(step)})(t0);\n}\nfunction provider(){var c=f.querySelector(\"input[name=p]:checked\");return c?c.value:\"Squarespace\"}\nfunction fill(){\nvar p=provider(),other=p===\"other\";\nplanBox.hidden=other;otherBox.hidden=!other;\nif(other)return;\nplan.innerHTML=\"\";\nD.plans.forEach((x,i)=> {if(x.provider!==p)return;var o=document.createElement(\"option\");o.value=i;o.textContent=x.plan+\", $\"+x.monthly+\" a month\";plan.appendChild(o)});\n}\nfunction update(){\nvar p=provider();\nvar m=p===\"other\"?Math.max(0,Math.min(2000,parseFloat(amt.value)||0)):D.plans[+plan.value].monthly;\nvar year=m*12;\ncount(year);\nthree.textContent=\"That's \"+usd(year*3)+\" over three years. Hosting on OpenSpace costs $0.\";\nvar o=nearest(tiers(D.once),Math.max(year*0.1,1)),mo=nearest(tiers(D.monthly),Math.max(m*0.1,1));\nonce.href=D.once[o];onceAmt.textContent=\"$\"+o;\nmonthly.href=D.monthly[mo];monthAmt.textContent=\"$\"+mo;\n}\nf.addEventListener(\"change\",(e)=> {if(e.target.name===\"p\")fill();update()});\namt.addEventListener(\"input\",update);\nf.addEventListener(\"submit\",(e)=> {e.preventDefault()});\nshown=D.plans[+plan.value].monthly*12;\nfill();update();\n})();\n</script>"
+            },
+            "title": "Savings calculator: what you keep by leaving a website builder, and a suggested gift"
+          },
+          "variant": "plain",
           "column": 1
         }
       ]
@@ -1553,6 +2210,40 @@
                 }
               },
               {
+                "question": "Can I move my existing site?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Squarespace sites import automatically: pages, blog posts, images, SEO details and redirects. Claude then compares the old and new pages side by side until they match. Importers for more platforms are coming; meanwhile Claude can rebuild a site from WordPress, Wix, Webflow or anywhere else from its public pages."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Who pays for it?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Hosting costs nothing because it runs on your own free accounts. The shared Hub and ongoing development are supported by voluntary gifts and grants. OpenSpace stays free whether or not you give."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
                 "question": "Can I leave?",
                 "answer": {
                   "type": "doc",
@@ -1605,7 +2296,7 @@
             "level": "h2",
             "size": "display",
             "text": "Make a website you'll never have to rent",
-            "subheading": "Pick a template and publish today. It's free, and it's yours."
+            "subheading": "Pick a template, or bring the site you have. It's free, and it's yours."
           },
           "variant": "plain"
         },
@@ -1620,10 +2311,11 @@
               "type": "url",
               "url": "https://studio.openspace.host/templates"
             },
-            "secondaryLabel": "See it on GitHub",
+            "secondaryLabel": "Move my site",
             "secondaryLink": {
-              "type": "url",
-              "url": "https://github.com/omniharmonic/openspace"
+              "type": "page",
+              "page": "pg_p5dpv5xxt4",
+              "anchor": "move"
             }
           },
           "variant": "large"

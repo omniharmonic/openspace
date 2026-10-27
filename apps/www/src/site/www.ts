@@ -48,6 +48,33 @@ export const PLUGIN = "/plugin marketplace add omniharmonic/openspace";
 export const MCP_ADD = `claude mcp add --transport http openspace ${HUB}/mcp`;
 
 const START = url(`${STUDIO}/templates`);
+/** Where people who already have a site sign in. */
+export const SIGN_IN = `${STUDIO}/sites`;
+export const IMPORT_CMD = "/openspace:import-squarespace https://www.example.com";
+export const IMPORT_CLI = "npx @omniharmonic/openspace-cli import squarespace <url>";
+export const MIGRATE_GUIDE = `${DOCS}/guides/migrate-from-squarespace/`;
+
+/**
+ * Donation links: Stripe Payment Links, one per amount (US dollars). This is the ONE place they
+ * live; the home page, the Support page and the savings calculator all read from here.
+ * The REPLACE_ME links are placeholders until the real Payment Links exist.
+ */
+export const DONATE = {
+  oneTime: {
+    10: "https://donate.stripe.com/REPLACE_ME_10",
+    25: "https://donate.stripe.com/REPLACE_ME_25",
+    50: "https://donate.stripe.com/REPLACE_ME_50",
+    100: "https://donate.stripe.com/REPLACE_ME_100",
+    250: "https://donate.stripe.com/REPLACE_ME_250",
+    custom: "https://donate.stripe.com/REPLACE_ME_custom",
+  },
+  monthly: {
+    3: "https://donate.stripe.com/REPLACE_ME_3_monthly",
+    5: "https://donate.stripe.com/REPLACE_ME_5_monthly",
+    10: "https://donate.stripe.com/REPLACE_ME_10_monthly",
+    20: "https://donate.stripe.com/REPLACE_ME_20_monthly",
+  },
+} as const;
 const REPO = url(GITHUB);
 const startWith = (id: string) => url(`${STUDIO}/new/${id}`);
 
@@ -56,6 +83,7 @@ const PAGES = definePages("www", {
   templates: "templates",
   pricing: "pricing",
   about: "about",
+  support: "support",
 });
 const P = PAGES.id;
 const href = PAGES.href;
@@ -182,19 +210,19 @@ function gridSection(
 }
 
 function hero() {
-  const h1 = heading("A professional website that's yours to keep", {
+  const h1 = heading("Stop renting your own website", {
     level: 1,
     size: "display",
   });
   const lead = text([
     rt.p(
-      "Start from a designer template, shape it in a visual editor or with Claude, and publish it free on GitHub Pages. Every page is a plain file in your own GitHub repository.",
+      "OpenSpace gives everyone what developers have always had: a website made of plain files in your own account, hosted free on GitHub Pages or Cloudflare. Start from a designer template, or let Claude bring your current site home.",
     ),
   ]);
   const cta = button("Start free", START, {
     size: "large",
-    second: ["See it on GitHub", REPO],
-    note: "Open source and in pre-release. You need a free GitHub account.",
+    second: ["Move my site", page(P.home, "move")],
+    note: "Free forever and open source. In pre-release; you need a free GitHub account.",
   });
   const looks = demo("looks", "Demo: the Studio editor switching a site between three looks", 560);
   return gridSection(
@@ -221,9 +249,9 @@ function numbers() {
               detail: "Or on your own Cloudflare account. A domain is optional.",
             },
             {
-              value: "12 × 3",
+              value: "20 × 3",
               label: "templates and looks",
-              detail: "Plus a library of designed sections, and growing.",
+              detail: "Plus 277 designed sections that take on your style.",
             },
             {
               value: "99–100",
@@ -245,6 +273,115 @@ function numbers() {
   );
 }
 
+function move() {
+  const step = (h: string, t: string) => ({ heading: h, body: body(t) });
+  return section(
+    [
+      heading("Bring your site home", {
+        sub: "Claude moves your site from wherever it lives today to a free one you own forever. It keeps your words and pictures, and checks its work against the original, page by page.",
+        col: 0,
+      }),
+      text(
+        [
+          rt.p([
+            rt.bold("Squarespace moves automatically today. "),
+            "More platforms are coming, and Claude can already rebuild a site from WordPress, Wix, Webflow or anywhere else from its public pages.",
+          ]),
+          rt.p([rt.bold("In Claude Code, install the plugin:")]),
+          rt.p([code(PLUGIN)]),
+          rt.p([code("/plugin install openspace")]),
+          rt.p([rt.bold("Then point it at your site:")]),
+          rt.p([code(IMPORT_CMD)]),
+          rt.p(["Prefer a terminal? ", code(IMPORT_CLI), " does the import on its own."], "small"),
+        ],
+        { col: 0 },
+      ),
+      button("Read the moving guide", url(MIGRATE_GUIDE), { col: 0, role: "secondary" }),
+      block(
+        "columns",
+        {
+          items: [
+            step(
+              "Point Claude at your address",
+              "Give it the address of the site you have today. It asks first that the site is yours, and the old one stays up throughout.",
+            ),
+            step(
+              "It brings everything across",
+              "Pages, blog posts, images with their alt text, SEO titles and descriptions, and a redirect for every address that changes.",
+            ),
+            step(
+              "It compares until they match",
+              "Claude screenshots the original and the new site side by side, at desktop and phone widths, and refines each page. Then it tells you plainly what still differs.",
+            ),
+            step(
+              "You publish, free, on GitHub Pages",
+              "Your new site goes online at no cost, as files in your own GitHub account.",
+            ),
+            step(
+              "Move your domain",
+              "The domain wizard shows the exact records to change and checks them until HTTPS is on. Only then do you cancel the old plan.",
+            ),
+          ],
+          columns: "2",
+          aspect: "original",
+        },
+        { variant: "steps", col: 1 },
+      ),
+    ],
+    { cols: [5, 7], t: [12], gap: "2xl", width: "wide" },
+    { theme: "dark", anchor: "move", label: "Move your site" },
+  );
+}
+
+function why() {
+  return section(
+    [
+      heading("Website builders rent you your own website", {
+        sub: "You pay every month, forever. The price goes up when they decide. Leave, and your design, your posts and your audience stay behind. Stop paying, and the site goes dark. You do the work; they hold the deed.",
+        col: 0,
+      }),
+      text(
+        [
+          rt.p(
+            "Developers have never lived this way. For years they have put sites on GitHub Pages and Cloudflare for free, as plain files they own and can move anywhere. What was missing was a way in for everyone else.",
+            "lead",
+          ),
+          rt.p(
+            "OpenSpace is that way in: a designer's tools and Claude, on top of free hosting you control. It isn't a startup's free tier waiting to become a paid one. It is open-source infrastructure, made to give a piece of the web back to the commons and keep it there.",
+          ),
+        ],
+        { col: 1 },
+      ),
+      block(
+        "icon-list",
+        {
+          items: [
+            {
+              icon: "heart-handshake",
+              title: "Free forever, by design",
+              text: "Your site runs on free accounts you own, so there is no plan to upgrade to and nothing to renew.",
+            },
+            {
+              icon: "home",
+              title: "Yours to take anywhere",
+              text: "Plain files in your own GitHub account. Any standard tool can build them, with or without us.",
+            },
+            {
+              icon: "users",
+              title: "Built for the commons",
+              text: "Not a funnel: no paid tier behind the free one, no ads and no data to sell. Supported by the people who use it.",
+            },
+          ],
+          columns: "1",
+        },
+        { variant: "list", col: 1 },
+      ),
+    ],
+    { cols: [6, 6], t: [12], gap: "2xl", width: "wide" },
+    { theme: "light", anchor: "why", label: "Why" },
+  );
+}
+
 function how() {
   return section(
     [
@@ -258,7 +395,7 @@ function how() {
             {
               heading: "Pick a template",
               body: body(
-                "Twelve designs for practices, restaurants, nonprofits, artists, shops and more, each in three looks. Your name and tagline go in as you start.",
+                "Twenty designs for practices, restaurants, nonprofits, artists, shops and more, each in three looks. Your name and tagline go in as you start.",
               ),
             },
             {
@@ -633,13 +770,130 @@ function showcase() {
         },
         { variant: "carousel" },
       ),
-      button("Browse all twelve", page(P.templates), {
+      button("Browse all twenty", page(P.templates), {
         role: "secondary",
         second: ["Start free", START],
       }),
     ],
     { width: "wide" },
     { theme: "light", anchor: "templates", label: "Templates" },
+  );
+}
+
+// --- giving ------------------------------------------------------------------------------------
+
+/** The builders' plans the savings calculator offers, from the dated PRICES. */
+export const PLANS = [
+  { provider: "Squarespace", plan: "Basic", monthly: PRICES.squarespaceBasic },
+  { provider: "Squarespace", plan: "Core", monthly: PRICES.squarespaceCore },
+  { provider: "Wix", plan: "Light", monthly: PRICES.wixLight },
+  { provider: "Wix", plan: "Core", monthly: PRICES.wixCore },
+  { provider: "Webflow", plan: "Basic", monthly: PRICES.webflowBasic },
+  { provider: "Webflow", plan: "Ecommerce Plus", monthly: PRICES.webflowEcomPlus },
+] as const;
+export const PRICES_READ = "27 October 2026";
+
+const amounts = (o: Record<string, string>) =>
+  Object.keys(o)
+    .filter((k) => k !== "custom")
+    .map(Number)
+    .sort((a, b) => a - b);
+/** The donation tier closest to a tenth of what someone saves (ties go to the smaller gift). */
+export function suggestGift(monthlyCost: number) {
+  const nearest = (tiers: number[], v: number) =>
+    tiers.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a));
+  return {
+    once: nearest(amounts(DONATE.oneTime), Math.max(monthlyCost * 12 * 0.1, 1)),
+    monthly: nearest(amounts(DONATE.monthly), Math.max(monthlyCost * 0.1, 1)),
+  };
+}
+const usd = (n: number) => `$${n.toLocaleString("en-US")}`;
+const oneTimeUrl = (n: number) => (DONATE.oneTime as Record<number, string>)[n] ?? "";
+const monthlyUrl = (n: number) => (DONATE.monthly as Record<number, string>)[n] ?? "";
+
+/** The savings calculator: a sandboxed Code block, rendered complete for the first plan so it reads without JS. */
+function savings(col?: number): Block {
+  const first = PLANS[0];
+  const gift = suggestGift(first.monthly);
+  const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  const options = PLANS.map((x, i) =>
+    x.provider === first.provider
+      ? `<option value="${i}">${esc(`${x.plan}, $${x.monthly} a month`)}</option>`
+      : "",
+  ).join("");
+  const data = JSON.stringify({ plans: PLANS, once: DONATE.oneTime, monthly: DONATE.monthly });
+  const fill: Record<string, string> = {
+    __PLAN_OPTIONS__: options,
+    __DATE__: PRICES_READ,
+    __SAVE_YEAR__: usd(first.monthly * 12),
+    __SAVE_3Y__: usd(first.monthly * 36),
+    __ONCE_URL__: esc(oneTimeUrl(gift.once)),
+    __ONCE_AMT__: `$${gift.once}`,
+    __MONTH_URL__: esc(monthlyUrl(gift.monthly)),
+    __MONTH_AMT__: `$${gift.monthly}`,
+    __CUSTOM_URL__: esc(DONATE.oneTime.custom),
+    __DATA__: data.replace(/</g, "\\u003c"),
+  };
+  const html = demoFile("savings").replace(/__[A-Z0-9_]+__/g, (k) => {
+    const v = fill[k];
+    if (v === undefined) throw new Error(`savings.html: no value for ${k}`);
+    return v;
+  });
+  return block(
+    "embed",
+    {
+      embed: { type: "code", code: html },
+      title: "Savings calculator: what you keep by leaving a website builder, and a suggested gift",
+      aspect: "auto",
+      height: 460,
+    },
+    { variant: "plain", ...(col !== undefined ? { col } : {}) },
+  );
+}
+
+/** Every way to give, as plain links: the calculator's no-JavaScript fallback, and a list for everyone. */
+function giveLinks(o: { col?: number; title?: boolean } = {}) {
+  const join = (links: ReturnType<typeof rt.link>[], last: string) => {
+    const out: (string | ReturnType<typeof rt.link>)[] = [];
+    links.forEach((l, i) => {
+      if (i > 0) out.push(i === links.length - 1 ? last : ", ");
+      out.push(l);
+    });
+    return out;
+  };
+  const once = amounts(DONATE.oneTime).map((n) => rt.link(`$${n}`, oneTimeUrl(n)));
+  const monthly = amounts(DONATE.monthly).map((n) => rt.link(`$${n}`, monthlyUrl(n)));
+  return text(
+    [
+      rt.p([
+        rt.bold("Give once: "),
+        ...join(once, ", "),
+        ", or ",
+        rt.link("an amount you choose", DONATE.oneTime.custom),
+        ".",
+      ]),
+      rt.p([rt.bold("Give every month: "), ...join(monthly, " or "), " a month."]),
+    ],
+    o.col !== undefined ? { col: o.col } : {},
+  );
+}
+
+function support() {
+  return section(
+    [
+      heading("Free forever, kept going by the people who use it", {
+        sub: "OpenSpace will never charge for your site. If leaving a builder saves you money, consider giving a little of it back: it keeps the shared Hub running and pays for the work that makes OpenSpace better.",
+        col: 0,
+      }),
+      giveLinks({ col: 0 }),
+      button("Support the commons", page(P.support), {
+        col: 0,
+        role: "secondary",
+      }),
+      savings(1),
+    ],
+    { cols: [5, 7], t: [12], align: "center", gap: "2xl", width: "wide" },
+    { theme: "light-accent", anchor: "support", label: "Support" },
   );
 }
 
@@ -728,6 +982,14 @@ function faq() {
               "Yes. Buy one from any registrar, and the domain wizard shows the exact records to add and checks them until HTTPS is on.",
             ),
             qa(
+              "Can I move my existing site?",
+              "Yes. Squarespace sites import automatically: pages, blog posts, images, SEO details and redirects. Claude then compares the old and new pages side by side until they match. Importers for more platforms are coming; meanwhile Claude can rebuild a site from WordPress, Wix, Webflow or anywhere else from its public pages.",
+            ),
+            qa(
+              "Who pays for it?",
+              "Hosting costs nothing because it runs on your own free accounts. The shared Hub and ongoing development are supported by voluntary gifts and grants. OpenSpace stays free whether or not you give.",
+            ),
+            qa(
               "Can I leave?",
               "Any time, and you take it all. Your site is already a repository in your account that standard tools build, and your form entries, subscribers and orders export as CSV.",
             ),
@@ -749,9 +1011,12 @@ function finalCta() {
     [
       heading("Make a website you'll never have to rent", {
         size: "display",
-        sub: "Pick a template and publish today. It's free, and it's yours.",
+        sub: "Pick a template, or bring the site you have. It's free, and it's yours.",
       }),
-      button("Start free", START, { size: "large", second: ["See it on GitHub", REPO] }),
+      button("Start free", START, {
+        size: "large",
+        second: ["Move my site", page(P.home, "move")],
+      }),
     ],
     { width: "wide" },
     { theme: "brand", anchor: "start", label: "Start", padding: { d: "2xl", m: "xl" } },
@@ -763,21 +1028,24 @@ function home() {
     P.home,
     "Home",
     "",
-    "OpenSpace is an open-source website builder: designer templates, a visual editor and Claude, on a site you own and host free on GitHub Pages.",
+    "Stop renting your own website. OpenSpace is a free, open-source website builder: designer templates, a visual editor and Claude, on a site you own and host free on GitHub Pages.",
     [
       hero(),
       numbers(),
-      how(),
+      move(),
+      why(),
       cost(),
       lockin(),
+      how(),
       claude(),
       features(),
       showcase(),
       ownership(),
+      support(),
       faq(),
       finalCta(),
     ],
-    { seoTitle: "A professional website you own, free to host" },
+    { seoTitle: "Stop renting your own website, host it free" },
   );
 }
 
@@ -953,7 +1221,7 @@ function pricing() {
               {
                 question: "Who pays for the shared Hub?",
                 answer: body(
-                  "A small stewarding group, funded by voluntary contributions and grants. Anyone can also run their own Hub.",
+                  "A small stewarding group, funded by voluntary gifts and grants. Anyone can also run their own Hub, and anyone can chip in on the Support page.",
                 ),
               },
               {
@@ -1134,6 +1402,150 @@ function about() {
   );
 }
 
+function supportPage() {
+  const sum = (n: number) => usd(n * 12);
+  return makePage(
+    P.support,
+    "Support the commons",
+    "support",
+    "OpenSpace is free forever. Work out what you save by leaving a website builder, and give a little back to keep the shared Hub and development going.",
+    [
+      fromPreset("hero/centered@1", {
+        theme: "brand",
+        edit: {
+          heading: {
+            eyebrow: "Support the commons",
+            text: "Keep a piece of the web free",
+            subheading:
+              "OpenSpace costs nothing and always will, whether or not you give. Gifts keep the shared Hub running for every site and pay for the work that makes OpenSpace better.",
+          },
+          button: {
+            label: "Give once",
+            link: url(DONATE.oneTime.custom),
+            secondaryLabel: "Work out what you save",
+            secondaryLink: page(P.support, "calculator"),
+          },
+        },
+      }),
+      section(
+        [
+          heading("What leaving saves you", {
+            sub: `Pick where your site lives today. Squarespace Basic alone is ${sum(PRICES.squarespaceBasic)} a year; on OpenSpace, hosting is $0. If OpenSpace is worth a tenth of the difference to you, the calculator suggests a gift to match.`,
+            col: 0,
+          }),
+          giveLinks({ col: 0 }),
+          text(
+            [
+              rt.p(
+                [
+                  "Prices are each builder's published annual price, read on ",
+                  PRICES_READ,
+                  ". ",
+                  rt.link("Sources and the full comparison", href("home", "lockin")),
+                  ".",
+                ],
+                "small",
+              ),
+            ],
+            { col: 0 },
+          ),
+          savings(1),
+        ],
+        { cols: [5, 7], t: [12], align: "center", gap: "2xl", width: "wide" },
+        { theme: "light", anchor: "calculator", label: "Calculator" },
+      ),
+      fromPreset("features/icon-row@1", {
+        theme: "light-accent",
+        edit: {
+          heading: {
+            eyebrow: "Where gifts go",
+            text: "Into the commons, not a funnel",
+            subheading:
+              "There's no paid tier to grow into, so every gift goes to keeping OpenSpace free and good for everyone.",
+          },
+          "icon-list": {
+            items: [
+              {
+                icon: "globe",
+                title: "The shared Hub",
+                text: "Forms, newsletters, private analytics and sign-in for every site that uses it.",
+              },
+              {
+                icon: "wrench",
+                title: "Development",
+                text: "Studio, the templates, importers for more platforms, and fixes.",
+              },
+              {
+                icon: "accessibility",
+                title: "Quality",
+                text: "Accessibility and performance testing on every template and look.",
+              },
+              {
+                icon: "book-open",
+                title: "Help",
+                text: "Documentation and guides for people moving their sites home.",
+              },
+            ],
+          },
+        },
+      }),
+      fromPreset("faq/centered@1", {
+        theme: "light",
+        edit: {
+          heading: { eyebrow: "Before you give", text: "Plain answers about gifts" },
+          accordion: {
+            items: [
+              {
+                question: "Do I have to give to use OpenSpace?",
+                answer: body(
+                  "No. Every feature is free for everyone, forever, and giving changes nothing about your site or what you can do with it.",
+                ),
+              },
+              {
+                question: "Who receives the money?",
+                answer: body(
+                  "The small stewarding group that runs the shared Hub and develops OpenSpace. Gifts pay for the Hub's running costs and for development.",
+                ),
+              },
+              {
+                question: "Is my gift tax-deductible?",
+                answer: body("No. Gifts aren't tax-deductible unless this page says otherwise."),
+              },
+              {
+                question: "How are payments handled?",
+                answer: body(
+                  "By Stripe, on Stripe's own checkout page. OpenSpace never sees your card details.",
+                ),
+              },
+              {
+                question: "Can I help without money?",
+                answer: body(
+                  "Yes: design a template, improve the docs, report a bug, or move a friend's site home. Contributions of every kind are welcome on GitHub.",
+                ),
+              },
+            ],
+          },
+        },
+      }),
+      fromPreset("cta/banner@1", {
+        theme: "dark",
+        edit: {
+          heading: {
+            text: "The best support is a site you own",
+            subheading: "Start from a template, or bring the site you have.",
+          },
+          button: {
+            label: "Start free",
+            link: START,
+            secondaryLabel: "Move my site",
+            secondaryLink: page(P.home, "move"),
+          },
+        },
+      }),
+    ],
+  );
+}
+
 // --- the site -----------------------------------------------------------------------------------
 
 const CUSTOM_CSS = readFileSync(new URL("./custom.css", import.meta.url), "utf8").trim();
@@ -1160,7 +1572,7 @@ export const wwwSpec: TemplateSpec = {
   persona: "Open-source project",
   mood: "Open, exact, confident",
   tags: ["marketing", "open-source"],
-  sample: { name: "OpenSpace", tagline: "A professional website that's yours to keep." },
+  sample: { name: "OpenSpace", tagline: "Stop renting your own website." },
   thumbnail: P.home,
   looks: [
     {
@@ -1213,14 +1625,16 @@ export const wwwSpec: TemplateSpec = {
       features: { forms: false, newsletter: false, analytics: false },
       site: {
         title: "OpenSpace",
-        tagline: "A professional website that's yours to keep.",
+        tagline: "Stop renting your own website.",
         favicon: FAVICON,
         nav: [
           { type: "page", page: P.templates, label: "Templates" },
           { type: "page", page: P.pricing, label: "Pricing" },
           { type: "page", page: P.about, label: "About" },
+          { type: "page", page: P.support, label: "Support" },
           { type: "link", label: "Docs", href: DOCS },
           { type: "link", label: "GitHub", href: GITHUB },
+          { type: "button", label: "Sign in", link: url(SIGN_IN), style: "tertiary" },
           { type: "button", label: "Start free", link: START, style: "primary" },
         ],
         header: headerFrom("header/classic@1", { sticky: true }),
@@ -1231,7 +1645,7 @@ export const wwwSpec: TemplateSpec = {
               content: rt.doc(
                 rt.p("OpenSpace", "lead"),
                 rt.p(
-                  "A professional website you own, free to host. Built in the open, and in pre-release.",
+                  "A website you own, free to host forever. Built in the open for the commons, and in pre-release.",
                 ),
               ),
             },
@@ -1241,7 +1655,9 @@ export const wwwSpec: TemplateSpec = {
                 ...linkColumn("Product", [
                   ["Templates", href("templates")],
                   ["Pricing", href("pricing")],
-                  ["Studio", `${STUDIO}/`],
+                  ["Sign in to Studio", SIGN_IN],
+                  ["Move your site", href("home", "move")],
+                  ["Support the commons", href("support")],
                   ["Claude Code plugin", `${GITHUB}/tree/main/plugin`],
                 ]),
               ),
@@ -1282,7 +1698,7 @@ export const wwwSpec: TemplateSpec = {
         integrations: { analytics: true, bookingUrl: null, stripeConnected: false },
         customCss: CUSTOM_CSS,
       },
-      pages: [home(), templates(), pricing(), about()],
+      pages: [home(), templates(), pricing(), about(), supportPage()],
     };
   },
 };

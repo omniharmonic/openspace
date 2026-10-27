@@ -56,7 +56,7 @@ describe("openspace.host build", () => {
 
   it("renders the home page promise with the Studio call to action and share metadata", async () => {
     const home = await html("index.html");
-    expect(home).toContain("A professional website that&#x27;s yours to keep");
+    expect(home).toContain("Stop renting your own website");
     expect(home).toContain("Start free");
     expect(home).toContain('href="https://studio.openspace.host/templates"');
     expect(home).toContain('href="https://github.com/omniharmonic/openspace"');
@@ -71,11 +71,11 @@ describe("openspace.host build", () => {
   it("runs the demos inside sandboxed iframes without same-origin access", async () => {
     const home = await html("index.html");
     const frames = home.match(/<iframe [^>]*>/g) ?? [];
-    expect(frames).toHaveLength(3);
+    expect(frames).toHaveLength(4);
     for (const f of frames) {
       expect(f).toMatch(/sandbox="allow-scripts[^"]*"/);
       expect(f).not.toContain("allow-same-origin");
-      expect(f).toMatch(/title="Demo: /);
+      expect(f).toMatch(/title="(Demo|Savings calculator): /);
     }
   });
 

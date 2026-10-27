@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.openspace.host/v1/site.json",
   "title": "OpenSpace",
-  "tagline": "A professional website that's yours to keep.",
+  "tagline": "Stop renting your own website.",
   "favicon": "media/brand/favicon.svg",
   "nav": [
     {
@@ -20,6 +20,11 @@
       "label": "About"
     },
     {
+      "type": "page",
+      "page": "pg_9yks0tf9m0",
+      "label": "Support"
+    },
+    {
       "type": "link",
       "label": "Docs",
       "href": "https://docs.openspace.host"
@@ -28,6 +33,15 @@
       "type": "link",
       "label": "GitHub",
       "href": "https://github.com/omniharmonic/openspace"
+    },
+    {
+      "type": "button",
+      "label": "Sign in",
+      "link": {
+        "type": "url",
+        "url": "https://studio.openspace.host/sites"
+      },
+      "style": "tertiary"
     },
     {
       "type": "button",
@@ -99,7 +113,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "A professional website you own, free to host. Built in the open, and in pre-release."
+                    "text": "A website you own, free to host forever. Built in the open for the commons, and in pre-release."
                   }
                 ]
               }
@@ -179,12 +193,46 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Studio",
+                    "text": "Sign in to Studio",
                     "marks": [
                       {
                         "type": "link",
                         "attrs": {
-                          "href": "https://studio.openspace.host/"
+                          "href": "https://studio.openspace.host/sites"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Move your site",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/#move"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Support the commons",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/support/"
                         }
                       }
                     ]
@@ -437,5 +485,5 @@
     "bookingUrl": null,
     "stripeConnected": false
   },
-  "customCss": "/* openspace.host art direction: Site Styles do the heavy lifting (Unbounded & Figtree, a cobalt\n   brand palette); this file adds what styles can't say. Sections are targeted by their anchors. */\n:root {\n  --ink: #0e1233;\n  --cobalt: #2c40e6;\n  --marigold: #ffcb52;\n  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n}\n.os-type-display,\n.os-type-h1,\n.os-type-h2 {\n  font-weight: 500;\n  letter-spacing: -0.045em;\n  text-wrap: balance;\n}\n.os-type-h3 {\n  letter-spacing: -0.03em;\n}\n.os-heading__sub {\n  text-wrap: pretty;\n  max-width: 60ch;\n}\ncode {\n  font-family: var(--mono);\n  font-size: 0.88em;\n  padding: 0.1em 0.35em;\n  border-radius: 5px;\n  background: color-mix(in srgb, currentColor 9%, transparent);\n  overflow-wrap: anywhere;\n}\n.os-header__title {\n  font-family: var(--os-font-heading);\n  font-weight: 600;\n  letter-spacing: -0.04em;\n}\n\n/* hero: the cobalt field with Studio's 24-column grid drawn on it, and the editor docked at the bottom */\n#hero {\n  padding-bottom: 0;\n  overflow: hidden;\n}\n#hero::before {\n  content: \"\";\n  position: absolute;\n  inset: 0 max(var(--os-section-gutter), calc((100% - var(--os-width-wide)) / 2));\n  z-index: -1;\n  pointer-events: none;\n  background:\n    linear-gradient(90deg, rgb(255 255 255 / 0.09) 1px, transparent 1px) 0 0 / calc(100% / 8) 100%,\n    linear-gradient(90deg, transparent calc(100% - 1px), rgb(255 255 255 / 0.09) 0);\n}\n@media (min-width: 768px) {\n  #hero::before {\n    background-size:\n      calc(100% / 24) 100%,\n      100% 100%;\n  }\n}\n#hero h1 {\n  font-size: clamp(2.45rem, 1.1rem + 5.7vw, 6.5rem);\n  line-height: 0.98;\n  letter-spacing: -0.055em;\n  padding-block-end: 0.18em;\n}\n#hero .os-block--heading {\n  margin-block-end: 0.75rem;\n}\n#hero .os-block--text p {\n  font-size: clamp(1.08rem, 1rem + 0.35vw, 1.3rem);\n  line-height: 1.5;\n  max-width: 40ch;\n}\n#hero .os-buttons__note {\n  opacity: 0.85;\n}\n#hero .os-block--embed {\n  margin-top: clamp(1rem, 3vw, 2.5rem);\n}\n#hero .os-embed {\n  aspect-ratio: 3 / 4;\n  border-radius: 14px 14px 0 0;\n  overflow: hidden;\n  box-shadow:\n    0 -1px 0 rgb(255 255 255 / 0.25),\n    0 30px 80px rgb(8 12 60 / 0.45);\n}\n@media (min-width: 640px) {\n  #hero .os-embed {\n    aspect-ratio: 16 / 11;\n  }\n}\n@media (min-width: 1200px) {\n  #hero .os-embed {\n    aspect-ratio: 16 / 8.4;\n  }\n}\n\n/* the numbers strip */\n#numbers .os-stats__value {\n  font-family: var(--os-font-heading);\n  font-weight: 500;\n  letter-spacing: -0.05em;\n}\n\n/* how it works: the three steps are a real sequence, so they're numbered */\n#how .os-embed,\n#claude .os-embed {\n  border-radius: 14px;\n  overflow: hidden;\n  box-shadow:\n    0 1px 2px rgb(14 18 51 / 0.12),\n    0 24px 60px rgb(14 18 51 / 0.16);\n}\n#how .os-embed > iframe {\n  height: 680px;\n}\n@media (min-width: 640px) {\n  #how .os-embed > iframe {\n    height: 500px;\n  }\n}\n#how .os-block--text p {\n  max-width: 62ch;\n}\n\n/* the cost comparison: one shared scale; OpenSpace's row is the point, so it gets the weight */\n#cost .os-chart {\n  padding: clamp(1rem, 2.4vw, 1.75rem);\n  border-radius: 14px;\n  background: var(--os-color-surface);\n}\n#cost .os-chart__title {\n  font-family: var(--os-font-body);\n  font-weight: 600;\n  letter-spacing: 0;\n}\n#cost .os-chart__row:last-child :is(.os-chart__label, .os-chart__value) {\n  font-weight: 700;\n  color: var(--os-color-heading);\n}\n#cost .os-chart__row:last-child .os-chart__track {\n  position: relative;\n}\n@media (max-width: 640px) {\n  #cost .os-chart__row {\n    grid-template-columns: minmax(0, 1fr) auto;\n    row-gap: 2px;\n  }\n  #cost .os-chart__label {\n    grid-column: 1 / -1;\n  }\n  #cost .os-chart__bars {\n    gap: var(--os-space-xs);\n  }\n}\n#cost .os-chart__row:last-child .os-chart__track::before {\n  content: \"\";\n  position: absolute;\n  inset-block: 15%;\n  left: 0;\n  width: 6px;\n  border-radius: 3px;\n  background: var(--marigold);\n}\n#cost .os-block--text .os-type-small,\n#cost .os-block--text p.os-type-small {\n  max-width: none;\n  opacity: 0.9;\n}\n#lockin .os-columns__item,\n#lockin .os-card {\n  border-top: 2px solid currentColor;\n  padding-top: 1rem;\n}\n\n/* Claude */\n#claude .os-embed {\n  box-shadow:\n    0 0 0 1px rgb(255 255 255 / 0.12),\n    0 30px 80px rgb(0 0 0 / 0.4);\n}\n#claude .os-embed > iframe {\n  height: 620px;\n}\n@media (min-width: 640px) {\n  #claude .os-embed > iframe {\n    height: 540px;\n  }\n}\n#claude code {\n  background: rgb(255 255 255 / 0.1);\n}\n\n/* features: an index, not a wall of cards */\n#features .os-iconlist--tiles {\n  row-gap: clamp(1.5rem, 3vw, 2.5rem);\n}\n#features .os-iconlist--tiles .os-iconlist__item {\n  background: none;\n  border-radius: 0;\n  padding: 1rem 0 0;\n  border-top: 1px solid color-mix(in srgb, var(--os-color-text) 22%, transparent);\n}\n#features .os-iconlist__icon {\n  background: none;\n  width: auto;\n  height: auto;\n  justify-content: flex-start;\n}\n\n/* questions read better in the body face */\n.os-accordion__summary {\n  font-family: var(--os-font-body);\n  font-weight: 600;\n  letter-spacing: -0.01em;\n}\n.os-type-eyebrow {\n  text-transform: none;\n  letter-spacing: 0;\n  font-weight: 600;\n}\n\n/* dark sections and the footer sit on ink blue rather than neutral black */\n.os-theme-dark {\n  --os-color-background: #0e1233;\n  --os-color-surface: #161b47;\n  --os-color-surface-raised: #1d2356;\n}\n\n/* templates wall */\n#templates .os-gallery img {\n  border-radius: 10px;\n  box-shadow:\n    0 1px 2px rgb(14 18 51 / 0.1),\n    0 12px 32px rgb(14 18 51 / 0.12);\n}\n\n/* the final call to action gets the hero's grid too */\n#start {\n  overflow: hidden;\n}\n#start::before {\n  content: \"\";\n  position: absolute;\n  inset: 0;\n  z-index: -1;\n  pointer-events: none;\n  background:\n    linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px) 50% 0 / calc(100% / 12)\n    100%;\n}\n#start .os-type-display,\n#start h2 {\n  font-size: clamp(2.2rem, 1rem + 5vw, 5.4rem);\n  line-height: 1;\n}\n\n@media (min-width: 768px) {\n  #how .os-columns--steps {\n    grid-template-columns: repeat(3, minmax(0, 1fr));\n  }\n}\n#numbers .os-stats__value {\n  font-size: clamp(2.1rem, 1.2rem + 3.2vw, 4rem);\n  white-space: nowrap;\n}"
+  "customCss": "/* openspace.host art direction: Site Styles do the heavy lifting (Unbounded & Figtree, a cobalt\n   brand palette); this file adds what styles can't say. Sections are targeted by their anchors. */\n:root {\n  --ink: #0e1233;\n  --cobalt: #2c40e6;\n  --marigold: #ffcb52;\n  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n}\n.os-type-display,\n.os-type-h1,\n.os-type-h2 {\n  font-weight: 500;\n  letter-spacing: -0.045em;\n  text-wrap: balance;\n}\n.os-type-h3 {\n  letter-spacing: -0.03em;\n}\n.os-heading__sub {\n  text-wrap: pretty;\n  max-width: 60ch;\n}\ncode {\n  font-family: var(--mono);\n  font-size: 0.88em;\n  padding: 0.1em 0.35em;\n  border-radius: 5px;\n  background: color-mix(in srgb, currentColor 9%, transparent);\n  overflow-wrap: anywhere;\n}\n.os-header__title {\n  font-family: var(--os-font-heading);\n  font-weight: 600;\n  letter-spacing: -0.04em;\n}\n\n/* hero: the cobalt field with Studio's 24-column grid drawn on it, and the editor docked at the bottom */\n#hero {\n  padding-bottom: 0;\n  overflow: hidden;\n}\n#hero::before {\n  content: \"\";\n  position: absolute;\n  inset: 0 max(var(--os-section-gutter), calc((100% - var(--os-width-wide)) / 2));\n  z-index: -1;\n  pointer-events: none;\n  background:\n    linear-gradient(90deg, rgb(255 255 255 / 0.09) 1px, transparent 1px) 0 0 / calc(100% / 8) 100%,\n    linear-gradient(90deg, transparent calc(100% - 1px), rgb(255 255 255 / 0.09) 0);\n}\n@media (min-width: 768px) {\n  #hero::before {\n    background-size:\n      calc(100% / 24) 100%,\n      100% 100%;\n  }\n}\n#hero h1 {\n  font-size: clamp(2.45rem, 1.1rem + 5.7vw, 6.5rem);\n  line-height: 0.98;\n  letter-spacing: -0.055em;\n  padding-block-end: 0.18em;\n}\n#hero .os-block--heading {\n  margin-block-end: 0.75rem;\n}\n#hero .os-block--text p {\n  font-size: clamp(1.08rem, 1rem + 0.35vw, 1.3rem);\n  line-height: 1.5;\n  max-width: 40ch;\n}\n#hero .os-buttons__note {\n  opacity: 0.85;\n}\n#hero .os-block--embed {\n  margin-top: clamp(1rem, 3vw, 2.5rem);\n}\n#hero .os-embed {\n  aspect-ratio: 3 / 4;\n  border-radius: 14px 14px 0 0;\n  overflow: hidden;\n  box-shadow:\n    0 -1px 0 rgb(255 255 255 / 0.25),\n    0 30px 80px rgb(8 12 60 / 0.45);\n}\n@media (min-width: 640px) {\n  #hero .os-embed {\n    aspect-ratio: 16 / 11;\n  }\n}\n@media (min-width: 1200px) {\n  #hero .os-embed {\n    aspect-ratio: 16 / 8.4;\n  }\n}\n\n/* the numbers strip */\n#numbers .os-stats__value {\n  font-family: var(--os-font-heading);\n  font-weight: 500;\n  letter-spacing: -0.05em;\n}\n\n/* how it works: the three steps are a real sequence, so they're numbered */\n#how .os-embed,\n#claude .os-embed {\n  border-radius: 14px;\n  overflow: hidden;\n  box-shadow:\n    0 1px 2px rgb(14 18 51 / 0.12),\n    0 24px 60px rgb(14 18 51 / 0.16);\n}\n#how .os-embed > iframe {\n  height: 680px;\n}\n@media (min-width: 640px) {\n  #how .os-embed > iframe {\n    height: 500px;\n  }\n}\n#how .os-block--text p {\n  max-width: 62ch;\n}\n\n/* the cost comparison: one shared scale; OpenSpace's row is the point, so it gets the weight */\n#cost .os-chart {\n  padding: clamp(1rem, 2.4vw, 1.75rem);\n  border-radius: 14px;\n  background: var(--os-color-surface);\n}\n#cost .os-chart__title {\n  font-family: var(--os-font-body);\n  font-weight: 600;\n  letter-spacing: 0;\n}\n#cost .os-chart__row:last-child :is(.os-chart__label, .os-chart__value) {\n  font-weight: 700;\n  color: var(--os-color-heading);\n}\n#cost .os-chart__row:last-child .os-chart__track {\n  position: relative;\n}\n@media (max-width: 640px) {\n  #cost .os-chart__row {\n    grid-template-columns: minmax(0, 1fr) auto;\n    row-gap: 2px;\n  }\n  #cost .os-chart__label {\n    grid-column: 1 / -1;\n  }\n  #cost .os-chart__bars {\n    gap: var(--os-space-xs);\n  }\n}\n#cost .os-chart__row:last-child .os-chart__track::before {\n  content: \"\";\n  position: absolute;\n  inset-block: 15%;\n  left: 0;\n  width: 6px;\n  border-radius: 3px;\n  background: var(--marigold);\n}\n#cost .os-block--text .os-type-small,\n#cost .os-block--text p.os-type-small {\n  max-width: none;\n  opacity: 0.9;\n}\n#lockin .os-columns__item,\n#lockin .os-card {\n  border-top: 2px solid currentColor;\n  padding-top: 1rem;\n}\n\n/* Claude */\n#claude .os-embed {\n  box-shadow:\n    0 0 0 1px rgb(255 255 255 / 0.12),\n    0 30px 80px rgb(0 0 0 / 0.4);\n}\n#claude .os-embed > iframe {\n  height: 620px;\n}\n@media (min-width: 640px) {\n  #claude .os-embed > iframe {\n    height: 540px;\n  }\n}\n#claude code {\n  background: rgb(255 255 255 / 0.1);\n}\n\n/* features: an index, not a wall of cards */\n#features .os-iconlist--tiles {\n  row-gap: clamp(1.5rem, 3vw, 2.5rem);\n}\n#features .os-iconlist--tiles .os-iconlist__item {\n  background: none;\n  border-radius: 0;\n  padding: 1rem 0 0;\n  border-top: 1px solid color-mix(in srgb, var(--os-color-text) 22%, transparent);\n}\n#features .os-iconlist__icon {\n  background: none;\n  width: auto;\n  height: auto;\n  justify-content: flex-start;\n}\n\n/* questions read better in the body face */\n.os-accordion__summary {\n  font-family: var(--os-font-body);\n  font-weight: 600;\n  letter-spacing: -0.01em;\n}\n.os-type-eyebrow {\n  text-transform: none;\n  letter-spacing: 0;\n  font-weight: 600;\n}\n\n/* dark sections and the footer sit on ink blue rather than neutral black */\n.os-theme-dark {\n  --os-color-background: #0e1233;\n  --os-color-surface: #161b47;\n  --os-color-surface-raised: #1d2356;\n}\n\n/* templates wall */\n#templates .os-gallery img {\n  border-radius: 10px;\n  box-shadow:\n    0 1px 2px rgb(14 18 51 / 0.1),\n    0 12px 32px rgb(14 18 51 / 0.12);\n}\n\n/* the final call to action gets the hero's grid too */\n#start {\n  overflow: hidden;\n}\n#start::before {\n  content: \"\";\n  position: absolute;\n  inset: 0;\n  z-index: -1;\n  pointer-events: none;\n  background:\n    linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px) 50% 0 / calc(100% / 12)\n    100%;\n}\n#start .os-type-display,\n#start h2 {\n  font-size: clamp(2.2rem, 1rem + 5vw, 5.4rem);\n  line-height: 1;\n}\n\n@media (min-width: 768px) {\n  #how .os-columns--steps {\n    grid-template-columns: repeat(3, minmax(0, 1fr));\n  }\n}\n#numbers .os-stats__value {\n  font-size: clamp(2.1rem, 1.2rem + 3.2vw, 4rem);\n  white-space: nowrap;\n}\n\n/* moving a site home: one sequence running down the right, numbered in marigold */\n#move .os-columns {\n  grid-template-columns: minmax(0, 1fr);\n  gap: 0;\n}\n#move .os-columns__item {\n  grid-template-columns: 5.5rem minmax(0, 1fr);\n  column-gap: 1rem;\n  padding-block: 1.1rem 1.3rem;\n  border-top-color: rgb(255 255 255 / 0.22);\n}\n#move .os-columns__num {\n  grid-row: span 2;\n  white-space: nowrap;\n  color: var(--marigold);\n  font-size: clamp(2rem, 1.4rem + 1.6vw, 2.75rem);\n}\n#move .os-columns__title {\n  font-size: clamp(1.15rem, 1rem + 0.5vw, 1.4rem);\n}\n#move .os-block--text p:has(> code:only-child) {\n  margin-block: 0.35rem;\n}\n#move .os-block--text p > code:only-child {\n  display: inline-block;\n  padding: 0.5em 0.8em;\n  background: rgb(255 255 255 / 0.08);\n  border: 1px solid rgb(255 255 255 / 0.14);\n  border-radius: 8px;\n}\n#move code {\n  background: rgb(255 255 255 / 0.1);\n}\n\n/* the case against renting */\n#why h2 {\n  font-size: clamp(2.2rem, 1.2rem + 3.6vw, 4.2rem);\n  line-height: 1;\n}\n#why .os-heading__sub {\n  font-size: clamp(1.08rem, 1rem + 0.35vw, 1.3rem);\n  line-height: 1.5;\n}\n\n/* the savings calculator: a sandboxed Code block, framed like the other demos */\n#support .os-embed,\n#calculator .os-embed {\n  border-radius: 14px;\n  overflow: hidden;\n  box-shadow:\n    0 1px 2px rgb(14 18 51 / 0.12),\n    0 24px 60px rgb(14 18 51 / 0.16);\n}\n#support .os-embed > iframe,\n#calculator .os-embed > iframe {\n  height: 740px;\n}\n@media (min-width: 640px) {\n  #support .os-embed > iframe,\n  #calculator .os-embed > iframe {\n    height: 460px;\n  }\n}"
 }
