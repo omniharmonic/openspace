@@ -969,12 +969,9 @@ export function designSystemStyles(
       const f = fonts[role];
       if (!f) continue;
       if (isGoogle(f.family)) {
+        const known = f.category ?? familyCategory(f.family);
         const cat =
-          f.category === "monospace"
-            ? "monospace"
-            : f.category === "serif"
-              ? "serif"
-              : "sans-serif";
+          known === "monospace" ? "monospace" : known === "serif" ? "serif" : "sans-serif";
         const web: WebFont = {
           family: f.family.replace(/[^A-Za-z0-9 ]/g, "").slice(0, 60),
           category: cat,
