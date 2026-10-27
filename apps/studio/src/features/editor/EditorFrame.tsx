@@ -395,7 +395,11 @@ function EditorChrome({ site }: { site: Site }) {
   // Tablets and small laptops: one side panel at a time (enforced by the UI store's actions).
   const compact = useIsNarrow("(min-width: 768px) and (max-width: 1099px)");
   useEffect(() => {
-    useEditorUi.getState().setOnePanel(compact);
+    const ui = useEditorUi.getState();
+    ui.setOnePanel(compact);
+    // A 1440px desktop page beside the inspector shrinks to ~30% here: preview (and edit)
+    // the tablet layout instead, which fits at a readable size. The device switcher still works.
+    if (compact && ui.breakpoint === "desktop") ui.setBreakpoint("tablet");
   }, [compact]);
 
   // The first-run checklist ticks itself when the home page's opening words or photo change.
