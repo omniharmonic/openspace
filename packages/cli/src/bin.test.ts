@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import { build } from "tsup";
 import { beforeAll, describe, expect, it } from "vitest";
 import config from "../tsup.config";
+import { astroNodeProblem } from "./dev";
 import { CLI_DIR, MEADOW, meadowCopy, TMP_ROOT } from "./test-helpers";
 
 const exec = promisify(execFile);
@@ -38,7 +39,9 @@ describe("built openspace binary (real process)", () => {
 
   it("checks the Meadow fixture", async () => {
     const r = await bin(["check", MEADOW]);
-    expect(r.err).toBe("");
+    // On a Node too old for Astro, check also says so (content can be fine while builds can't run).
+    const tooOld = astroNodeProblem(process.versions.node);
+    expect(r.err).toBe(tooOld ? `Note: ${tooOld}\nThe site won't build until you do.\n` : "");
     expect(r.out).toMatch(/^OK:/m);
     expect(r.code).toBe(0);
   }, 60_000);
