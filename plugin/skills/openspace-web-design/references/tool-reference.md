@@ -58,7 +58,7 @@ Preset categories: header, hero, about, services, features, gallery, testimonial
 | `apply_fix`           | `issues` (ids or `"all"`), `page?`                                                              | Recomputes before each fix.                                                                                            |
 | `preview`             | `page?`                                                                                         | Draft preview URL to share.                                                                                            |
 | `render_page`         | `page`, `section?`, `fragment?`, `maxChars?`                                                    | Real renderer HTML.                                                                                                    |
-| `screenshot` | `page`, `section?`, `device?` (`"desktop"` \| `"tablet"` \| `"mobile"` \| `"all"`), `fullPage?` | 1440 / 834 / 390 px PNGs. Local: needs the `playwright` package installed in the site **and** a browser — `npx playwright install chromium`, or an installed Google Chrome. Hub: not available yet — use `render_page` and `preview`. |
+| `screenshot` | `page`, `section?`, `device?` (`"desktop"` \| `"tablet"` \| `"mobile"` \| `"all"`), `fullPage?` | 1440 / 834 / 390 px images of the draft; tall pages come back as several images, top to bottom. Local: needs the `playwright` package installed in the site **and** a browser — `npx playwright install chromium`, or an installed Google Chrome. Hub (claude.ai, Claude Desktop): rendered by the Hub in the cloud, nothing to install. |
 
 ## Publishing and history
 
@@ -71,15 +71,15 @@ Preset categories: header, hero, about, services, features, gallery, testimonial
 | `rollback`        | `version`, `confirm`  | Restore a published version.                                                                                 |
 | `create_snapshot` | `name`                | Named restore point before risky work.                                                                       |
 
-## Local server only
+## Tools that reach the web
 
-The local stdio server (`openspace mcp`) adds two tools that reach the web. The Hub doesn't serve them.
+Both servers add tools that fetch other websites. The local stdio server (`openspace mcp`) runs them on your computer; the Hub runs them in the cloud.
 
 | Tool                 | Arguments                                                                                   | Use                                                                                                                                                                                                                 |
 | -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `import_site`        | `url`, `platform?`, `folder?`, `owner?`, `exportFile?`, `render?`, `target?`, `confirm` | Import a site from any platform (detected unless `platform` is given: Squarespace, WordPress, Wix, Webflow…) into a **new** folder next to the served site (never into it) and run `openspace check`. Needs `confirm: true` after the owner agrees; `owner: true` (Squarespace `?format=json`) only when they confirm they own the site; `render: true` reads script-built pages in a browser. Returns the summary and `IMPORT-REPORT.md`. |
-| `import_squarespace` | same as `import_site`                                                                  | Older name of `import_site` for Squarespace sites. |
-| `screenshot_url`     | `url`, `device?` (`"desktop"` \| `"tablet"` \| `"mobile"` \| `"all"`), `fullPage?`          | PNG of any public page (the original site during a migration) at the same widths as `screenshot`, for side-by-side comparison. Needs Playwright, like `screenshot`.                                                  |
+| `import_site`        | Local: `url`, `platform?`, `folder?`, `owner?`, `exportFile?`, `render?`, `target?`, `confirm` | Import a site from any platform (detected unless `platform` is given: Squarespace, WordPress, Wix, Webflow…). Locally into a **new** folder next to the served site (never into it), then `openspace check`; on the Hub into a new site (follow what the tool returns). Needs `confirm: true` after the owner agrees; `owner: true` (Squarespace `?format=json`) only when they confirm they own the site; `render: true` reads script-built pages in a browser. Returns the summary and `IMPORT-REPORT.md`. |
+| `import_squarespace` | same as `import_site`                                                                  | Local only: older name of `import_site` for Squarespace sites. |
+| `screenshot_url`     | `url`, `device?` (`"desktop"` \| `"tablet"` \| `"mobile"` \| `"all"`), `fullPage?`; Hub also `site`, `page` | Image of any public page (the original site during a migration) at the same widths as `screenshot`, for side-by-side comparison. On the Hub, `site` (+ `page`) without `url` captures the site's live, published page. Locally it needs Playwright, like `screenshot`. |
 
 ## Prompts
 

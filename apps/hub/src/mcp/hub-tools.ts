@@ -10,6 +10,7 @@ import type { HubBindings } from "../env";
 import type { Logger } from "../lib/log";
 import type { Services } from "../services";
 import type { ConnectionRow, GrantSite } from "./db";
+import { screenshotUrlTool } from "./screenshots";
 import { accountTools } from "./tools/account";
 
 export interface HubToolContext {
@@ -25,7 +26,11 @@ export interface HubToolContext {
 export type HubToolFactory = (ctx: HubToolContext) => ToolDefinition[];
 
 /** Every Hub tool module. Order matters only for duplicate names (the later one wins). */
-export const HUB_TOOL_FACTORIES: HubToolFactory[] = [accountTools];
+export const HUB_TOOL_FACTORIES: HubToolFactory[] = [
+  accountTools,
+  // screenshot_url fetches the public web through Browser Rendering.
+  (ctx) => [screenshotUrlTool(ctx.services.screenshots, ctx.services, ctx.sites, ctx.user.id)],
+];
 
 export function hubTools(ctx: HubToolContext): ToolDefinition[] {
   return HUB_TOOL_FACTORIES.flatMap((factory) => factory(ctx));

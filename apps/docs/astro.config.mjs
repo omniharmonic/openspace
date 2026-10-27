@@ -42,6 +42,7 @@ export default defineConfig({
           label: "Connect your AI",
           items: [
             { label: "Overview", slug: "connect-your-ai" },
+            { label: "No installs: the Claude app", slug: "connect-your-ai/claude-app" },
             { label: "Claude & Claude Desktop", slug: "connect-your-ai/claude" },
             { label: "Claude Code", slug: "connect-your-ai/claude-code" },
             { label: "Tools reference", slug: "connect-your-ai/tools" },

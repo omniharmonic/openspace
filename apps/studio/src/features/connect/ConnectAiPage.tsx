@@ -3,7 +3,7 @@ import { useSession } from "../../api";
 import { AppHeader } from "../../app/AppHeader";
 import "../settings/settings.css";
 import "../site-mgmt/manage.css";
-import { AppsWithAccess, ClaudeAppSteps, ClaudeCodeSteps } from "./ConnectSteps";
+import { AppsWithAccess, ClaudeAppSkills, ClaudeAppSteps, ClaudeCodeSteps } from "./ConnectSteps";
 import "./ConnectAiPage.css";
 
 /**
@@ -39,6 +39,7 @@ export function ConnectAiPage() {
             </div>
           </div>
           <ClaudeAppSteps />
+          <ClaudeAppSkills />
         </section>
 
         <section className="st-card" aria-labelledby="connect-code">

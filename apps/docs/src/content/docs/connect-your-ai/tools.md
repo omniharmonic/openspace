@@ -37,7 +37,7 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 | `list_templates` / `apply_template_look` | Template looks, applied without touching content. |
 | `design_check` / `apply_fix` | Studio's Design check and SEO check, with one-step fixes. |
 | `render_page` | The page as HTML from the real renderer. |
-| `screenshot` | PNG at desktop, tablet or phone width (local server only, for now). |
+| `screenshot` | An image of a draft page or one section at desktop, tablet or phone width. On the Hub it is taken in the cloud (nothing to install); tall pages come back as several images. |
 | `preview` | A preview link to share with you. |
 
 ## Publishing and history
@@ -50,15 +50,17 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 | `list_versions` / `rollback` | Published versions, and restoring one — rollback needs `confirm: true`. |
 | `create_snapshot` | A named save point before a risky change. |
 
-## Local server only
+## Tools that reach the web
 
-The local server (`openspace mcp`, used by the Claude Code plugin) adds two tools that reach the web:
+These fetch other websites. The Hub runs them in the cloud; the local server (`openspace mcp`, used by the Claude Code plugin) runs them on your computer.
 
 | Tool | What it does |
 |---|---|
-| `screenshot_url` | PNG of any public page — for example the site you're moving from — at desktop, tablet or phone width, to compare with `screenshot`. |
-| `import_site` | Imports a site from any platform — Squarespace, WordPress, Wix, Webflow or any HTML site, detected automatically — into a new folder next to the site being served (asks for confirmation first). See [Move your site to OpenSpace](/guides/migrate-to-openspace/). |
-| `import_squarespace` | The older name of `import_site`, for Squarespace sites. |
+| `screenshot_url` | An image of any public page — for example the site you're moving from — at desktop, tablet or phone width, to compare with `screenshot`. On the Hub, give it `site` (and `page`) instead of an address to capture your live, published page. Private and internal addresses are refused. |
+| `import_site` | Imports a site from any platform — Squarespace, WordPress, Wix, Webflow, GitHub Pages or any HTML site, detected automatically — after asking for confirmation. On the Hub it runs in the cloud and creates a new site; locally it writes a new folder next to the site being served. See [Move your site to OpenSpace](/guides/migrate-to-openspace/). |
+| `import_squarespace` | Local server: the older name of `import_site`, for Squarespace sites. |
+
+Screenshots on the Hub are limited to about forty every ten minutes per person, so Claude prefers one section at one width while it iterates.
 
 ## Prompts
 

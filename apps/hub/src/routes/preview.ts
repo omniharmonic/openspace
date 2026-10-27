@@ -23,6 +23,7 @@ import {
   signPreviewValue,
 } from "../services/members";
 import { escapeHtml, type RenderMode } from "../services/renderer";
+import { verifyShotToken } from "../services/screenshots";
 import { loadSiteDocument } from "../services/site-files";
 import { readSiteDocument } from "../services/sites";
 import type { AppEnv } from "../types";
@@ -499,15 +500,28 @@ previewRoutes.get("/s/:siteId/*", published);
 const draft = async (c: Context<AppEnv>) => {
   const siteId = c.req.param("siteId") as string;
   const user = c.var.user;
-  if (!user)
+  // The MCP screenshot browser carries a short-lived token bound to this site (never a session).
+  const shot = c.req.query("os_shot");
+  const viaShot =
+    !user &&
+    !!shot &&
+    (await verifyShotToken(
+      requireHmacKey(c.var.services.pub.config),
+      siteId,
+      shot,
+      c.var.services.now(),
+    ));
+  if (!user && !viaShot)
     return htmlPage(
       c,
       401,
       "Sign in to preview",
       "Draft previews are only for people working on this site.",
     );
-  const site = await getSiteForUser(c.var.services.db, siteId, user.id);
-  if (!site)
+  const site = user
+    ? await getSiteForUser(c.var.services.db, siteId, user.id)
+    : await getSite(c.var.services.db, siteId);
+  if (!site || site.archived_at !== null)
     return htmlPage(c, 404, "Site not found", "This site doesn't exist or you don't have access.");
   // The live draft (the room's document, including edits not yet saved to the draft branch).
   const { doc } = await unwrapRoom(roomStub(c.env, siteId).getDocument(siteId));

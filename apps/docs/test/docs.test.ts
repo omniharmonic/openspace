@@ -41,6 +41,7 @@ const REQUIRED = [
   "guides/migrate-from-squarespace",
   "connect-your-ai",
   "connect-your-ai/claude",
+  "connect-your-ai/claude-app",
   "connect-your-ai/claude-code",
   "connect-your-ai/tools",
   "grow/forms-and-newsletter",
@@ -75,7 +76,8 @@ describe("docs content", () => {
   });
 
   it("names only real MCP tools and prompts", async () => {
-    // The local stdio server adds tools that reach the web (never served by the Hub).
+    // Tools that reach the web: the local stdio server adds them, and the Hub serves its own
+    // `screenshot_url` (and `import_site`) — they aren't part of the shared tool set.
     const local = ["import_site", "import_squarespace", "screenshot_url"];
     const cliMcp = ["import-tool.ts", "reference-tool.ts"]
       .map((f) => join(REPO, "packages", "cli", "src", "mcp", f))
@@ -187,6 +189,14 @@ describe("docs build", () => {
 
   it("renders every page to static HTML", () => {
     expect(files).toContain("index.html");
+    // Claude app skills, generated at build time and linked from the docs and Studio.
+    for (const name of [
+      "openspace-migrate",
+      "openspace-web-design",
+      "openspace-content",
+      "openspace-site-setup",
+    ])
+      expect(files, name).toContain(`skills/${name}.zip`);
     expect(files).toContain("404.html");
     for (const slug of REQUIRED) expect(files, slug).toContain(`${slug}/index.html`);
   });

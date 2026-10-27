@@ -18,7 +18,7 @@ Then in Claude Code type `/mcp`, pick **openspace** and choose **Authenticate**.
 
 Or use your **personal link** from Studio → Settings → Connect your AI: `claude mcp add --transport http openspace "<your link>"`. It needs no sign-in and covers one site. A link is draft-only unless the site owner turns on **Allow this link to publish** for it.
 
-Edits land in the same draft Studio shows, live. The Hub can't take screenshots yet; Claude uses rendered HTML and a preview link. If your site runs on a [self-hosted Hub](/self-hosting/), use that Hub's `/mcp` address.
+Edits land in the same draft Studio shows, live. Screenshots (`screenshot`, `screenshot_url`) are taken by the Hub in the cloud. If your site runs on a [self-hosted Hub](/self-hosting/), use that Hub's `/mcp` address.
 
 The plugin below adds skills and commands that work with the Hub connection too. Its own MCP server is only for local site folders: started outside one, it stops with "Can't serve …: openspace.json", which is harmless.
 

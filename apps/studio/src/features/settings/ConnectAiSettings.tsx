@@ -6,6 +6,7 @@ import { Badge, Button, Input, Spinner, Tabs, Toggle, toast } from "../../ui";
 
 import {
   AppsWithAccess,
+  ClaudeAppSkills,
   ClaudeAppSteps,
   ClaudeCodeSteps,
   CopyLine,
@@ -13,7 +14,12 @@ import {
   when,
 } from "../connect/ConnectSteps";
 
-export { CopyLine, PLUGIN_COMMANDS } from "../connect/ConnectSteps";
+export {
+  CLAUDE_APP_SKILLS,
+  CopyLine,
+  DOCS_URL,
+  PLUGIN_COMMANDS,
+} from "../connect/ConnectSteps";
 
 function TokenRow({
   token,
@@ -233,7 +239,12 @@ export function ConnectAiSettings({ site }: { site: Site }) {
             {
               value: "claude",
               label: "Claude app (easiest)",
-              content: <ClaudeAppSteps siteName={site.name} />,
+              content: (
+                <div className="st-settings__stack">
+                  <ClaudeAppSteps siteName={site.name} />
+                  <ClaudeAppSkills />
+                </div>
+              ),
             },
             {
               value: "code",

@@ -10,6 +10,7 @@ import { basicTemplate } from "../templates/basic";
 import { createGrowthServices, type GrowthOverrides, type GrowthServices } from "./growth";
 import { createPublicServices, type PublicOverrides, type PublicServices } from "./public";
 import { type PageRenderer, SiteKitRenderer } from "./renderer";
+import { type BrowserBackend, selectBrowserBackend } from "./screenshots";
 import { RegistryTemplateSource, type TemplateSource } from "./templates";
 
 /** Per-request service container (no module-level request state). */
@@ -32,6 +33,8 @@ export interface Services {
   growth: GrowthServices;
   /** Operator settings: abuse address, budget alerts, campaign warm-up. */
   operator: OperatorConfig;
+  /** Browser for MCP screenshots: Browser Rendering, the dev placeholder, or none. */
+  screenshots: BrowserBackend | null;
 }
 
 export interface ServiceOverrides {
@@ -44,6 +47,8 @@ export interface ServiceOverrides {
   public?: PublicOverrides;
   growth?: GrowthOverrides;
   operator?: Partial<OperatorConfig>;
+  /** Screenshot browser (tests inject a fake); `null` turns screenshots off. */
+  screenshots?: BrowserBackend | null;
 }
 
 /**
@@ -84,6 +89,10 @@ export function createServices(
       overrides.growth,
     ),
     operator: { ...readOperatorConfig(env), ...overrides.operator },
+    screenshots:
+      overrides.screenshots !== undefined
+        ? overrides.screenshots
+        : selectBrowserBackend(env, config),
     github: (ctx = {}) =>
       overrides.github
         ? overrides.github(ctx, services)
