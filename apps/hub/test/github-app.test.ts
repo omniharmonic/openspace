@@ -290,6 +290,18 @@ describe("GitHubAppAccess", () => {
         () => ({ encoding: "base64", content: bytesToBase64(new Uint8Array([0xff, 0xfe, 0x00])) }),
       ],
       [
+        "POST",
+        /^\/graphql$/,
+        () => ({
+          data: {
+            repository: {
+              f0: { text: '{"title":"Maya"}', isBinary: false, isTruncated: false },
+              f1: { text: null, isBinary: true, isTruncated: false },
+            },
+          },
+        }),
+      ],
+      [
         "GET",
         /\/contents\/content\/site\.json\?ref=os%2Fdraft$/,
         () => new Response('{"title":"Draft"}'),

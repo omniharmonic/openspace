@@ -43,7 +43,11 @@ import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
 import type { ImportRequest } from "../templates/import-workflow";
-import { gatedContext as gatedContextFor, loadOpenedDocument, sealFiles } from "./gated-content";
+import {
+  gatedContext as gatedContextFor,
+  readOpenedDocumentFiles,
+  sealFiles,
+} from "./gated-content";
 import {
   asAccessNeed,
   checkInstallation,
@@ -1140,8 +1144,8 @@ export async function readSiteDocument(
     head = await gh.getRef(repo, branch);
   }
   if (!head) throw notFound("This site has no content yet.");
-  const files = await gh.readFiles(repo, head, { textOnly: true });
-  return { doc: await loadOpenedDocument(gatedContextFor(services, site.id), files), head, branch };
+  const files = await readOpenedDocumentFiles(gatedContextFor(services, site.id), gh, repo, head);
+  return { doc: loadSiteDocument(files), head, branch };
 }
 
 /** Find the page for a URL path below the site root ("" = home). */

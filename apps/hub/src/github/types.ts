@@ -39,6 +39,15 @@ export interface FileChange {
   encoding?: FileEncoding;
 }
 
+export interface ReadFilesOptions {
+  /** Only paths starting with this. */
+  prefix?: string;
+  /** Only paths this accepts (e.g. the document files): nothing else is fetched. */
+  filter?: (path: string) => boolean;
+  /** Skip binary files (otherwise they come back base64). */
+  textOnly?: boolean;
+}
+
 export interface CommitAuthor {
   name: string;
   email?: string;
@@ -148,7 +157,7 @@ export interface GitHubAccess {
   readFiles(
     repo: RepoRef,
     ref: string,
-    options?: { prefix?: string; textOnly?: boolean },
+    options?: ReadFilesOptions,
   ): Promise<Record<string, string>>;
 
   commitFiles(repo: RepoRef, input: CommitFilesInput): Promise<CommitInfo>;

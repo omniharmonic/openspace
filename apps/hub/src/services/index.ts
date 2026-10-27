@@ -2,6 +2,7 @@ import { mintUserAccessToken } from "../auth/github-tokens";
 import type { User } from "../db/users";
 import type { HubBindings, HubConfig } from "../env";
 import { type GitHubContext, selectGitHubAccess } from "../github";
+import type { InstallationTokenEntry } from "../github/app";
 import type { FetchLike } from "../github/http";
 import { type InstallationDirectory, selectInstallationDirectory } from "../github/installations";
 import type { GitHubAccess } from "../github/types";
@@ -49,6 +50,8 @@ export interface ServiceOverrides {
   operator?: Partial<OperatorConfig>;
   /** Screenshot browser (tests inject a fake); `null` turns screenshots off. */
   screenshots?: BrowserBackend | null;
+  /** GitHub installation tokens to reuse (a Durable Object keeps one map across calls). */
+  installationTokens?: Map<number, InstallationTokenEntry>;
 }
 
 /**
@@ -67,6 +70,7 @@ export function createServices(
   const userToken = async (userId: string) =>
     (await mintUserAccessToken({ db: env.HUB_DB, config, fetch: fetchFn, now }, userId))?.token ??
     null;
+  const installationTokens = overrides.installationTokens ?? new Map();
   const services: Services = {
     db: env.HUB_DB,
     uploads: env.UPLOADS,
@@ -103,6 +107,7 @@ export function createServices(
               fetch: fetchFn,
               now,
               userToken,
+              installationTokens,
             },
             ctx,
           ),

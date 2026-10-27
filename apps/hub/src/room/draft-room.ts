@@ -6,6 +6,7 @@ import { insertPublish, latestPublish, type PublishRow, updatePublish } from "..
 import { getSite, type SiteRow, type SiteStatus, updateSite } from "../db/sites";
 import { getUserRow, toUser, type User } from "../db/users";
 import { type HubBindings, readConfig } from "../env";
+import type { InstallationTokenEntry } from "../github/app";
 import {
   DRAFT_BRANCH,
   type GitHubAccess,
@@ -21,6 +22,7 @@ import { bytesToBase64, canonicalJson, randomId, sha1Hex, sha256Hex } from "../l
 import { HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
+import { readDocumentFiles } from "../services/document-files";
 import {
   gatedContext,
   openFiles,
@@ -36,7 +38,6 @@ import {
   CONFIG_PATH,
   diffSiteFiles,
   isContentPath,
-  isDocumentPath,
   isPublishedPath,
   loadSiteDocument,
   SiteFilesError,
@@ -174,8 +175,13 @@ export class DraftRoom extends DurableObject<HubBindings> {
     }
   }
 
+  /** GitHub installation tokens, reused across this room's calls (1 hour lifetime). */
+  private readonly installationTokens = new Map<number, InstallationTokenEntry>();
+
   private services(): Services {
-    return createServices(this.env, readConfig(this.env));
+    return createServices(this.env, readConfig(this.env), {
+      installationTokens: this.installationTokens,
+    });
   }
 
   private siteId(given?: string): string {
@@ -231,10 +237,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
       head = (await gh.getRef(repo, DRAFT_BRANCH)) ?? main;
     }
     // Gated pages are stubs in the repository; the room works on their full content.
-    const all = await gh.readFiles(repo, head, { textOnly: true });
-    const raw: Record<string, string> = {};
-    for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) raw[p] = c;
-    const files = await openFiles(gatedContext(this.services(), this.siteId()), raw);
+    // One tree read + a GraphQL query per ~100 files, or nothing at all when this commit's
+    // files are cached (a moved shop or blog has hundreds of files; see readDocumentFiles).
+    const ctx = gatedContext(this.services(), this.siteId());
+    const raw = await readDocumentFiles(gh, repo, head, { siteId: ctx.siteId, cache: ctx.cache });
+    const files = await openFiles(ctx, raw);
     return { head, files, doc: loadSiteDocument(files), unsealed: unsealedGatedPaths(raw) };
   }
 

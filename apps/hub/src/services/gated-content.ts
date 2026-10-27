@@ -17,7 +17,8 @@ import { type Page, PageSchema } from "@omniharmonic/openspace-schema";
 import type { FileChange, FileContent, GitHubAccess, RepoRef } from "../github/types";
 import { randomToken } from "../lib/crypto";
 import { hmacHex } from "../lib/seal";
-import { isDocumentPath, loadSiteDocument, PAGES_DIR } from "./site-files";
+import { type DocumentFilesCache, readDocumentFiles } from "./document-files";
+import { loadSiteDocument, PAGES_DIR } from "./site-files";
 
 /** Where gated content versions live in the Hub's R2 bucket. */
 export const gatedKey = (siteId: string, ref: string) => `gated/${siteId}/${ref}.json`;
@@ -29,6 +30,8 @@ export interface GatedStoreContext {
   siteId: string;
   /** HMAC key for content-addressed refs; null → random refs (still never in the repo). */
   hmacKey: string | null;
+  /** KV cache of document files by commit (`readDocumentFiles`). */
+  cache?: DocumentFilesCache | null | undefined;
 }
 
 type PageLike = { slug?: unknown; access?: { members?: unknown; password?: unknown } | null };
@@ -151,14 +154,12 @@ export async function openFiles(
 
 /** A ref's document files (text, document paths only), with gated pages opened. */
 export async function readOpenedDocumentFiles(
-  ctx: Pick<GatedStoreContext, "store" | "siteId">,
+  ctx: Pick<GatedStoreContext, "store" | "siteId" | "cache">,
   gh: GitHubAccess,
   repo: RepoRef,
   ref: string,
 ): Promise<Record<string, string>> {
-  const all = await gh.readFiles(repo, ref, { textOnly: true });
-  const files: Record<string, string> = {};
-  for (const [p, c] of Object.entries(all)) if (isDocumentPath(p)) files[p] = c;
+  const files = await readDocumentFiles(gh, repo, ref, { siteId: ctx.siteId, cache: ctx.cache });
   return openFiles(ctx, files);
 }
 
@@ -218,10 +219,18 @@ export async function purgeGatedContent(store: R2Bucket, siteId: string): Promis
 
 /** The gated-content context for a site from the Hub's services. */
 export function gatedContext(
-  services: { uploads: R2Bucket; pub: { config: { hmacKey: string | null } } },
+  services: {
+    uploads: R2Bucket;
+    pub: { config: { hmacKey: string | null }; cache?: KVNamespace | undefined };
+  },
   siteId: string,
 ): GatedStoreContext {
-  return { store: services.uploads, siteId, hmacKey: services.pub.config.hmacKey };
+  return {
+    store: services.uploads,
+    siteId,
+    hmacKey: services.pub.config.hmacKey,
+    cache: (services.pub.cache as DocumentFilesCache | undefined) ?? null,
+  };
 }
 
 /** Gated page files whose content is still in the repository (committed before sealing). */

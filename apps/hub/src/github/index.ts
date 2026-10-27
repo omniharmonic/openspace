@@ -3,7 +3,7 @@ import type { User } from "../db/users";
 import type { HubConfig } from "../env";
 import { devImportRunner } from "../services/import-dev";
 import { IMPORT_WORKFLOW } from "../templates/import-workflow";
-import { GitHubAppAccess } from "./app";
+import { GitHubAppAccess, type InstallationTokenEntry } from "./app";
 import { DevGitHubAccess } from "./dev";
 import type { FetchLike } from "./http";
 import type { GitHubAccess, RepoRef } from "./types";
@@ -25,6 +25,8 @@ export interface GitHubDeps {
   fetch: FetchLike;
   now: () => number;
   userToken: (userId: string) => Promise<string | null>;
+  /** Installation tokens shared across the access objects of one request. */
+  installationTokens?: Map<number, InstallationTokenEntry>;
 }
 
 /** Dev "Pages" URL: the Hub's own preview of the site that owns the repo. */
@@ -67,5 +69,6 @@ export function selectGitHubAccess(deps: GitHubDeps, ctx: GitHubContext = {}): G
       : {}),
     fetch: deps.fetch,
     now: deps.now,
+    ...(deps.installationTokens ? { tokenCache: deps.installationTokens } : {}),
   });
 }

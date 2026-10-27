@@ -683,11 +683,16 @@ export async function convertRepo(
   };
   Object.assign(files, importFiles(request));
   const removedWorkflows: string[] = [];
-  for (const p of paths.filter((x) => /^\.github\/workflows\/[^/]+\.ya?ml$/.test(x))) {
-    if (p === ".github/workflows/publish.yml" || p.endsWith(`/${IMPORT_WORKFLOW}`)) continue;
-    const text = await gh.readFile(ref, p, base);
-    if (text && OTHER_PAGES_DEPLOY.test(text)) removedWorkflows.push(p);
-  }
+  // Every other workflow in one batched read (not one request per file).
+  const workflows = await gh.readFiles(ref, base, {
+    textOnly: true,
+    filter: (p) =>
+      /^\.github\/workflows\/[^/]+\.ya?ml$/.test(p) &&
+      p !== ".github/workflows/publish.yml" &&
+      !p.endsWith(`/${IMPORT_WORKFLOW}`),
+  });
+  for (const [p, text] of Object.entries(workflows))
+    if (OTHER_PAGES_DEPLOY.test(text)) removedWorkflows.push(p);
   if (await gh.getRef(ref, CONVERT_BRANCH)) await gh.resetBranch(ref, CONVERT_BRANCH, base);
   else await gh.createBranch(ref, CONVERT_BRANCH, base);
   const commit = await gh.commitFiles(ref, {
