@@ -449,7 +449,9 @@ function tokensFromPage(
     };
   };
   const type: NonNullable<DesignTokens["type"]> = { ...(tokens.type ?? {}) };
-  const nav = step(/class:(?:nav-link|nav__link|menu-link|nav-item)\b/i);
+  const nav =
+    step(/class:(?:nav-link|nav__link|menu-link|nav-item)\b/i) ??
+    step(/tag:nav:.*tag:a:|class:(?:nav|menu|navigation)\b.*tag:a:/i);
   if (nav) type.nav = nav;
   const mark = step(/class:(?:wordmark|logo|brand|site-title)\b/i);
   if (mark) type.wordmark = mark;
@@ -705,7 +707,8 @@ export async function importHtmlBundle(
   const siteTitle = (
     opts.title ??
     homePage.siteName ??
-    (docTitle.split(/\s+[|·—–-]\s+/)[0] || wordmark || "My site")
+    (wordmark && wordmark.length <= 60 ? titleCase(wordmark) : undefined) ??
+    (docTitle.split(/\s+[|·—–-]\s+/)[0] || "My site")
   ).slice(0, 120);
   const logoImg = brand ? find(brand, (e) => e.tagName === "img") : undefined;
   const logoRef = logoImg ? resolveRef(bundle, attr(logoImg, "src") ?? "", home.path) : undefined;
@@ -1301,3 +1304,11 @@ function socialNetworkOf(url: string): string {
 }
 
 export type { Decl };
+
+/** "POWER WITH" (a wordmark set in capitals) → "Power With"; other spellings stay. */
+function titleCase(s: string): string {
+  if (s !== s.toUpperCase()) return s;
+  return s
+    .toLowerCase()
+    .replace(/(^|\s|[-&])(\p{L})/gu, (_m, a: string, b: string) => a + b.toUpperCase());
+}
