@@ -120,6 +120,8 @@ describe("dashboard", () => {
   it("retries publishing from a failed site's card", async () => {
     const { user, hub } = renderStudio("/sites", { user: SAM, sites, buildMs: 60_000 });
     const pan = await screen.findByRole("article", { name: "Pan & Crumb" });
+    // The card says what actually happened, not "the first version" for every failure.
+    expect(within(pan).queryByText(/first version/)).not.toBeInTheDocument();
     await user.click(within(pan).getByRole("button", { name: "Try again" }));
     expect(await within(pan).findByText("Setting up")).toBeInTheDocument();
     expect(hub.calls.find((c) => c.method === "retryPublish")?.args).toEqual([

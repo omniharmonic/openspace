@@ -321,7 +321,9 @@ function SiteCard({
         </div>
         {site.status === "failed" && (
           <div className="st-sitecard__problem">
-            <p className="st-sitecard__note">The first version didn’t finish publishing.</p>
+            <p className="st-sitecard__note">
+              {site.statusDetail || "The latest version didn’t finish publishing."}
+            </p>
             <Button size="sm" icon={<RotateCcw />} onClick={onRetry} loading={retrying}>
               Try again
             </Button>
