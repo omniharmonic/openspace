@@ -11,7 +11,6 @@ import { basename, dirname, extname, join, relative, resolve } from "node:path";
 import { CHECKLIST_FILE, REPORT_FILE } from "@omniharmonic/openspace-import";
 import {
   bundleFromFiles,
-  bundleFromHtml,
   bundleFromUrl,
   bundleFromZip,
   type HtmlBundle,
@@ -80,7 +79,9 @@ async function bundleFromHtmlFile(path: string): Promise<HtmlBundle> {
         if (rel.startsWith("..") || files[rel] !== undefined) continue;
         try {
           const s = await stat(join(root, rel));
-          if (!s.isFile() || (total += s.size) > 60 * 1024 * 1024) continue;
+          if (!s.isFile()) continue;
+          total += s.size;
+          if (total > 60 * 1024 * 1024) continue;
           const bytes = new Uint8Array(await readFile(join(root, rel)));
           files[rel] = bytes;
           if (/\.(?:css|html?)$/i.test(rel))
@@ -104,7 +105,8 @@ async function readFolder(dir: string): Promise<Record<string, Uint8Array>> {
       if (e.isDirectory()) await walk(p);
       else {
         const s = await stat(p);
-        if ((total += s.size) > 60 * 1024 * 1024)
+        total += s.size;
+        if (total > 60 * 1024 * 1024)
           throw new CliError("That folder holds more than 60 MB. Point at the site's own folder.");
         out[relative(dir, p)] = new Uint8Array(await readFile(p));
       }
