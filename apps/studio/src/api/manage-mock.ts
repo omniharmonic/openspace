@@ -428,6 +428,12 @@ export function createManageMock(ctx: ManageMockContext): {
       const hostname = normalizeDomainInput(input);
       if (!HOSTNAME_RE.test(hostname))
         throw new HubError(400, "invalid_domain", "Enter a domain like mayayoga.com.");
+      if (/(^|\.)(github\.io|workers\.dev|pages\.dev|openspace\.host)$/.test(hostname))
+        throw new HubError(
+          400,
+          "bad_request",
+          "That's a GitHub Pages address, which your site already has. Enter a domain you bought, e.g. mayayoga.com.",
+        );
       const apex = apexOf(hostname);
       const reg = registrarFor(apex);
       return {

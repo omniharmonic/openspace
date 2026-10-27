@@ -193,6 +193,22 @@ describe("domains wizard", () => {
     expect(hub.calls.filter((c) => c.method === "checkDomain").length).toBeGreaterThanOrEqual(3);
   });
 
+  it("refuses platform addresses and shows a globe, not a letter, for an unknown provider", async () => {
+    const { user } = await openSettings("domains");
+    const field = await screen.findByLabelText("Domain");
+    await user.type(field, "omniharmonic.github.io");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText(/GitHub Pages address/)).toBeInTheDocument();
+    await user.clear(field);
+    await user.type(field, "somewhere-unknown.invalid");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    expect(
+      await screen.findByText(/Add these records where you bought your domain/),
+    ).toBeInTheDocument();
+    expect(document.querySelector(".st-guide__logo")?.textContent).toBe("");
+    expect(document.querySelector(".st-guide__logo svg")).not.toBeNull();
+  });
+
   it("stops checking DNS once the domain has failed", async () => {
     const { user, hub } = await openSettings("general");
     await hub.connectDomain(willow.id, "broken.test");
