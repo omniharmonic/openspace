@@ -200,7 +200,7 @@ const BUTTON_CHAR_PX = 8.8;
 
 export function navFit(input: {
   title: string;
-  logo?: { width?: number | undefined; height?: number | undefined } | undefined;
+  logo?: { width?: number | undefined; height?: number | undefined } | null | undefined;
   nav: readonly { label: string; kind: "leaf" | "folder" }[];
   buttons: readonly { label: string }[];
   social: number;
