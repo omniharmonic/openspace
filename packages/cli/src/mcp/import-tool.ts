@@ -14,6 +14,8 @@ export interface ImportToolOptions {
   /** The served site's folder; new sites are created next to it. */
   siteRoot: string;
   fetch?: typeof fetch;
+  /** Pause between requests (tests use 0). */
+  delayMs?: number;
 }
 
 export function importSquarespaceTool(opts: ImportToolOptions) {
@@ -80,6 +82,7 @@ export function importSquarespaceTool(opts: ImportToolOptions) {
           ...(input.exportFile ? { export: resolve(parent, input.exportFile) } : {}),
           ...(input.target ? { target: input.target } : {}),
           ...(opts.fetch ? { fetch: opts.fetch } : {}),
+          ...(opts.delayMs !== undefined ? { delay: opts.delayMs } : {}),
         });
       } catch (e) {
         throw new ToolError((e as Error).message, "import_failed");
