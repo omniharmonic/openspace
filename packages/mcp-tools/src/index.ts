@@ -38,6 +38,7 @@ export {
   SERVER_VERSION,
 } from "./server";
 export type * from "./store";
+export { type SvgResult, sanitizeSvg, svgSize } from "./svg";
 export { loadTemplates, normaliseTemplate, templatesFromModule } from "./templates";
 export { defineTool, type ToolAnnotations, type ToolDefinition, type ToolOutput } from "./tool";
 export { ALL_TOOLS, applyStyles } from "./tools";
