@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import accordion from "./behaviors/accordion";
 import announcement from "./behaviors/announcement";
-import beacon from "./behaviors/beacon";
+import beacon, { sitePath } from "./behaviors/beacon";
 import cart from "./behaviors/cart";
 import form from "./behaviors/form";
 import menu from "./behaviors/menu";
@@ -301,6 +301,28 @@ describe("beacon", () => {
     const [url, payload] = send.mock.calls[0] as unknown as [string, string];
     expect(url).toBe("https://hub.test/a/st_01jb3q8w2n");
     expect(JSON.parse(payload)).toMatchObject({ p: "/about/", u: { source: "newsletter" } });
+  });
+
+  it("sends the page path without the GitHub Pages base path", () => {
+    const send = vi.fn(() => true);
+    Object.defineProperty(navigator, "sendBeacon", { value: send, configurable: true });
+    Object.defineProperty(navigator, "webdriver", { value: false, configurable: true });
+    document.body.dataset.osBase = "/os-e2e-services-1";
+    try {
+      history.replaceState(null, "", "/os-e2e-services-1/join/");
+      beacon(document.body);
+      history.replaceState(null, "", "/os-e2e-services-1");
+      beacon(document.body);
+    } finally {
+      delete document.body.dataset.osBase;
+    }
+    const paths = send.mock.calls.map((c) => JSON.parse((c as unknown as [string, string])[1]).p);
+    expect(paths).toEqual(["/join/", "/"]);
+    expect(sitePath("/os-e2e-services-1-other/", "/os-e2e-services-1")).toBe(
+      "/os-e2e-services-1-other/",
+    );
+    expect(sitePath("/join/", "")).toBe("/join/");
+    expect(sitePath(sitePath("/r/a/", "/r"), "/r")).toBe("/a/");
   });
 });
 

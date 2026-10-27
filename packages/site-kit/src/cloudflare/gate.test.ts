@@ -304,7 +304,7 @@ describe("Worker handlers", () => {
       env,
       {
         ...ctx,
-        assets: { base: "/_os/os.1.css", tokens: "/_os/tokens.1.css", blocks: "/_os/blocks.1.css" },
+        assets: { site: "/_os/site.1.css" },
       },
     );
     const html = await res.text();
@@ -314,7 +314,8 @@ describe("Worker handlers", () => {
     expect(html).toMatch(/width="1600" height="1067"/);
     expect(html).toContain('<link rel="modulepreload" href="/_os/behaviors/accordion.js">');
     expect(html).toContain('<script type="module" src="/_os/behaviors/os-behaviors.js">');
-    expect(html).toContain('<link rel="stylesheet" href="/_os/blocks.1.css">');
+    expect(html).toContain('<link rel="stylesheet" href="/_os/site.1.css">');
+    expect(html).not.toContain('data-os="blocks"');
   });
 
   it("answers 503 when the Worker isn't configured", async () => {

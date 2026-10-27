@@ -1,6 +1,17 @@
+/**
+ * The page path as the site knows it: without the deploy base path (a GitHub Pages project
+ * site lives under `/<repo>/`), so analytics show `/join/`, not `/<repo>/join/`. Paths outside
+ * the base are sent unchanged, so stripping again on the Hub is harmless.
+ */
+export function sitePath(pathname: string, base = ""): string {
+  const b = base.replace(/\/+$/, "");
+  if (!b || (pathname !== b && !pathname.startsWith(`${b}/`))) return pathname;
+  return pathname.slice(b.length) || "/";
+}
+
 /** Cookieless analytics beacon (~1 KB): path, referrer, screen class and UTM tags to the Hub. */
 export default function beacon(body: HTMLElement): void {
-  const { osHub: hub, osSite: site } = body.dataset;
+  const { osHub: hub, osSite: site, osBase: base } = body.dataset;
   if (!hub || !site || navigator.webdriver) return;
   const q = new URLSearchParams(location.search);
   const utm: Record<string, string> = {};
@@ -10,7 +21,7 @@ export default function beacon(body: HTMLElement): void {
   }
   const w = innerWidth;
   const payload = JSON.stringify({
-    p: location.pathname,
+    p: sitePath(location.pathname, base),
     r:
       document.referrer && new URL(document.referrer).host !== location.host
         ? document.referrer

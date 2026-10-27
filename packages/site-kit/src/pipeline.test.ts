@@ -10,7 +10,14 @@ import { loadSiteDocument } from "./content/index";
 import { deployLocation } from "./deploy";
 import { atomFeed, buildFeeds, icalFeed, podcastFeed, rssFeed } from "./feeds";
 import { catalogManifest, formsManifest } from "./manifests";
-import { addTurnstileLoader, ogSpec, renderRoute, routePage, siteStylesheets } from "./render";
+import {
+  addTurnstileLoader,
+  ogSpec,
+  renderRoute,
+  routePage,
+  siteStylesheets,
+  unlinkMembersArea,
+} from "./render";
 import { planSite, type SitePlan } from "./routes";
 import {
   cloudflareRedirects,
@@ -223,15 +230,83 @@ describe("rendering", () => {
     expect(ogSpec(plan.doc, { ...page, seo: { title: "Different" } }).hash).not.toBe(og?.hash);
   });
 
-  it("names stylesheets by content hash", () => {
+  it("uses the site's default sharing image before a generated card", () => {
+    const home = plan.routes.find((r) => r.path === "/");
+    if (!home) throw new Error("no route");
+    const withDefault: SitePlan = {
+      ...plan,
+      doc: {
+        ...plan.doc,
+        site: { ...plan.doc.site, seo: { ...plan.doc.site.seo, image: "media/social.jpg" } },
+      },
+    };
+    expect(routePage(withDefault, home).og).toBeUndefined();
+    const html = renderRoute({
+      plan: withDefault,
+      route: home,
+      location: deployLocation({
+        deploy: { target: "github-pages", url: "https://maya.github.io/maya-yoga/" },
+      } as SiteDocument["config"]),
+    });
+    expect(html).toContain('og:image" content="https://maya.github.io/maya-yoga/media/social.jpg"');
+    expect(html).not.toContain("/_os/og/");
+  });
+
+  it("turns links into the members area into text off Cloudflare (they would 404)", () => {
+    const html =
+      '<head><a href="/r/members/">x</a></head><body><p><a href="/r/members/">Members</a> · <a class="b" href="/r/members/faq/"><strong>FAQ</strong></a> · <a href="/r/membership/">Join</a> · <a href="/r/about/">About</a></p></body>';
+    expect(unlinkMembersArea(html, "/r")).toBe(
+      '<head><a href="/r/members/">x</a></head><body><p>Members · <strong>FAQ</strong> · <a href="/r/membership/">Join</a> · <a href="/r/about/">About</a></p></body>',
+    );
+    expect(unlinkMembersArea('<body><a href="/members">M</a></body>', "")).toBe("<body>M</body>");
+  });
+
+  it("publishes one stylesheet named by content hash (tokens, base, blocks)", () => {
     const a = siteStylesheets(doc, "/repo");
-    expect(a.hrefs.base).toMatch(/^\/repo\/_os\/os\.[a-f0-9]{10}\.css$/);
+    expect(a.hrefs.site).toMatch(/^\/repo\/_os\/site\.[a-f0-9]{10}\.css$/);
+    expect(Object.keys(a.files)).toEqual([a.hrefs.site.slice("/repo/".length)]);
+    const css = Object.values(a.files)[0] as string;
+    // Cascade order as before: tokens, then the base layers, then the block layer.
+    expect(css.indexOf("--os-")).toBeLessThan(css.indexOf("@layer os.reset, os.base"));
+    expect(css.indexOf("@layer os.reset, os.base")).toBeLessThan(css.indexOf("@layer os.blocks {"));
     const b = siteStylesheets(
       { ...doc, styles: { ...doc.styles, choices: { ...doc.styles.choices, density: "compact" } } },
       "/repo",
     );
-    expect(b.hrefs.tokens).not.toBe(a.hrefs.tokens);
-    expect(b.hrefs.base).toBe(a.hrefs.base);
+    expect(b.hrefs.site).not.toBe(a.hrefs.site);
+  });
+
+  it("has one render-blocking stylesheet: fonts inline, font files preloaded early", () => {
+    const route = plan.routes.find((r) => r.path === "/");
+    if (!route) throw new Error("no route");
+    const location = deployLocation({
+      deploy: { target: "github-pages", url: "https://maya.github.io/maya-yoga/" },
+    } as SiteDocument["config"]);
+    const assets = siteStylesheets(plan.doc, location.basePath).hrefs;
+    const html = renderRoute({
+      plan,
+      route,
+      location,
+      assets,
+      fontStylesheets: ["/maya-yoga/_os/fonts/fonts.abc.css"],
+      fontCss: "@font-face{font-family:X;src:url(/maya-yoga/_os/fonts/x.woff2)}",
+      fontPreloads: ["/maya-yoga/_os/fonts/x.woff2"],
+    });
+    const head = html.slice(0, html.indexOf("</head>"));
+    expect(head.match(/<link rel="stylesheet"[^>]*>/g)).toEqual([
+      `<link rel="stylesheet" href="${assets.site}">`,
+    ]);
+    expect(head).toContain(
+      '<style data-os="fonts">@font-face{font-family:X;src:url(/maya-yoga/_os/fonts/x.woff2)}</style>',
+    );
+    expect(head).not.toContain('data-os="blocks"');
+    expect(head).not.toContain('data-os="tokens"');
+    const preload = head.indexOf(
+      '<link rel="preload" href="/maya-yoga/_os/fonts/x.woff2" as="font"',
+    );
+    expect(preload).toBeGreaterThan(-1);
+    expect(preload).toBeLessThan(head.indexOf('<link rel="stylesheet"'));
+    expect(head.split('_os/fonts/x.woff2" as="font"').length).toBe(2);
   });
 });
 

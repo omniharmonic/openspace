@@ -132,8 +132,12 @@ export function openspace(options: OpenSpaceOptions = {}): AstroIntegration {
         runtime = {
           now: now.toISOString(),
           location,
+          // One linked stylesheet (tokens + base + blocks) and the font faces inline: a single
+          // render-blocking request. Measured against inlining everything, which made the HTML
+          // outgrow the first round trip (docs/qa/lighthouse.md).
           assets: siteStylesheets(doc, location.basePath).hrefs,
           fontStylesheets: fonts.plan ? [`${location.basePath}/${fonts.plan.cssFile}`] : undefined,
+          fontCss: fonts.plan?.css,
           fontPreloads: fonts.plan
             ? fontPreloads(fonts.plan.css, [
                 { family: pairing.heading.family, weight: pairing.headingWeight },

@@ -11,7 +11,6 @@ import {
   CollectionsContext,
   type CollectionsValue,
   compiledStylesFor,
-  escapeHtml,
   type ImageMap,
   PageView,
   type PageViewProps,
@@ -37,10 +36,12 @@ export function ensureBlocks(): void {
 }
 
 export interface SiteAssets {
-  /** Hrefs (with base path) of the linked stylesheets. */
-  base: string;
-  tokens: string;
-  blocks: string;
+  /**
+   * Href (with base path) of the site's one stylesheet: design tokens, the renderer's base CSS
+   * and the block library, in that cascade order. One render-blocking request instead of three
+   * (LCP); the font faces are inlined in each page.
+   */
+  site: string;
 }
 
 export interface AssetFiles {
@@ -49,21 +50,16 @@ export interface AssetFiles {
   hrefs: SiteAssets;
 }
 
-/** Content-hashed stylesheet files (base, tokens, blocks) and their hrefs. */
+/** The site's content-hashed stylesheet (tokens + base + blocks) and its href. */
 export function siteStylesheets(doc: SiteDocument, basePath: string): AssetFiles {
-  const tokens = compiledStylesFor(doc.styles).css;
-  const name = (stem: string, css: string) => `_os/${stem}.${contentHash(css, 10)}.css`;
-  const baseFile = name("os", BASE_CSS);
-  const tokensFile = name("tokens", tokens);
-  const blocksFile = name("blocks", BLOCKS_CSS);
-  return {
-    files: { [baseFile]: BASE_CSS, [tokensFile]: tokens, [blocksFile]: BLOCKS_CSS },
-    hrefs: {
-      base: `${basePath}/${baseFile}`,
-      tokens: `${basePath}/${tokensFile}`,
-      blocks: `${basePath}/${blocksFile}`,
-    },
-  };
+  const css = siteCss(doc);
+  const file = `_os/site.${contentHash(css, 10)}.css`;
+  return { files: { [file]: css }, hrefs: { site: `${basePath}/${file}` } };
+}
+
+/** Tokens, base and block CSS in the order pages used to link them (cascade layers decide). */
+export function siteCss(doc: SiteDocument): string {
+  return `${compiledStylesFor(doc.styles).css}\n${BASE_CSS}\n${BLOCKS_CSS}`;
 }
 
 // --- share images -------------------------------------------------------------------------------
@@ -118,6 +114,8 @@ export interface RenderRouteOptions {
   assets?: SiteAssets;
   /** Self-hosted font CSS hrefs; the pairing's Google Fonts URL when omitted. */
   fontStylesheets?: string[];
+  /** Self-hosted `@font-face` CSS, inlined in each page instead of linking `fontStylesheets`. */
+  fontCss?: string;
   /** Self-hosted font files to preload (`<link rel="preload" as="font">`). */
   fontPreloads?: string[];
   hubUrl?: string;
@@ -130,7 +128,11 @@ export interface RenderRouteOptions {
   mode?: "production" | "preview";
 }
 
-/** The page a route renders, with its generated share image applied (if any). */
+/**
+ * The page a route renders, with its generated share image applied (if any). Share image order:
+ * the page's own image, then the site's default sharing image (`site.seo.image`, which the
+ * renderer falls back to), then a generated card.
+ */
 export function routePage(
   plan: SitePlan,
   route: SiteRoute,
@@ -138,7 +140,8 @@ export function routePage(
 ): { page: Page; og?: OgSpec } {
   const page = plan.doc.pages[route.pageId as Page["id"]];
   if (!page) throw new Error(`Route ${route.path} has no page ${route.pageId}`);
-  if (!ogImages || page.seo?.image || route.kind === "notFound") return { page };
+  if (!ogImages || page.seo?.image || plan.doc.site.seo?.image || route.kind === "notFound")
+    return { page };
   const og = ogSpec(plan.doc, page);
   return { page: { ...page, seo: { ...page.seo, image: `${OG_MEDIA_PREFIX}${og.hash}.png` } }, og };
 }
@@ -246,6 +249,7 @@ export interface RenderDocumentOptions {
   imageMap?: ImageMap;
   assets?: SiteAssets;
   fontStylesheets?: string[];
+  fontCss?: string;
   fontPreloads?: string[];
   hubUrl?: string;
   turnstileSiteKey?: string;
@@ -267,14 +271,9 @@ export function renderDocument(opts: RenderDocumentOptions): string {
   const basePath = location.basePath;
   const mode = opts.mode ?? "production";
   const imageMap = opts.imageMap ?? {};
+  // With the site stylesheet the block CSS is already in it; previews and tests inline it.
   const head = [
-    ...(opts.fontPreloads ?? []).map(
-      (href) =>
-        `<link rel="preload" href="${escapeHtml(href)}" as="font" type="font/woff2" crossorigin>`,
-    ),
-    opts.assets
-      ? `<link rel="stylesheet" href="${opts.assets.blocks}">`
-      : `<style data-os="blocks">${BLOCKS_CSS}</style>`,
+    opts.assets ? "" : `<style data-os="blocks">${BLOCKS_CSS}</style>`,
     opts.extraHead ?? "",
   ];
   const html = renderPageHtml({
@@ -287,7 +286,9 @@ export function renderDocument(opts: RenderDocumentOptions): string {
     jsonLd: opts.jsonLd ?? [],
     ...(opts.hubUrl ? { hubUrl: opts.hubUrl } : {}),
     ...(opts.fontStylesheets ? { fontStylesheets: opts.fontStylesheets } : {}),
-    ...(opts.assets ? { stylesheets: { base: opts.assets.base, tokens: opts.assets.tokens } } : {}),
+    ...(opts.fontCss ? { fontCss: opts.fontCss } : {}),
+    ...(opts.fontPreloads ? { fontPreloads: opts.fontPreloads } : {}),
+    ...(opts.assets ? { stylesheets: { site: opts.assets.site } } : {}),
     extraHead: head.filter(Boolean).join("\n"),
   });
   const wrapped = withContexts(
@@ -306,9 +307,26 @@ export function renderDocument(opts: RenderDocumentOptions): string {
     },
     `${basePath}/_os/behaviors`,
   );
-  return opts.turnstileSiteKey
+  const out = opts.turnstileSiteKey
     ? addTurnstileLoader(wrapped, `${basePath}/_os/turnstile.js`)
     : wrapped;
+  return doc.config.deploy.target === "cloudflare" ? out : unlinkMembersArea(out, basePath);
+}
+
+/**
+ * The members area (`/members/…`) only exists on the Cloudflare hosting option; elsewhere
+ * (GitHub Pages) links into it would 404, so they become plain text (a footer "Members" link in
+ * a template, a rich-text link). Navigation already drops pages that aren't published.
+ */
+export function unlinkMembersArea(html: string, basePath: string): string {
+  const at = html.indexOf("<body");
+  if (at < 0) return html;
+  const base = basePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(
+    `<a\\b[^>]*\\shref="${base}/members(?:/[^"]*)?"[^>]*>([\\s\\S]*?)</a>`,
+    "g",
+  );
+  return html.slice(0, at) + html.slice(at).replace(re, "$1");
 }
 
 /** Render a planned route to a complete HTML document. */
@@ -331,6 +349,7 @@ export function renderRoute(opts: RenderRouteOptions): string {
     imageMap,
     ...(opts.assets ? { assets: opts.assets } : {}),
     ...(opts.fontStylesheets ? { fontStylesheets: opts.fontStylesheets } : {}),
+    ...(opts.fontCss ? { fontCss: opts.fontCss } : {}),
     ...(opts.fontPreloads ? { fontPreloads: opts.fontPreloads } : {}),
     ...(opts.hubUrl ? { hubUrl: opts.hubUrl } : {}),
     ...(opts.turnstileSiteKey ? { turnstileSiteKey: opts.turnstileSiteKey } : {}),

@@ -1,8 +1,10 @@
 // Build template demo sites exactly as owners publish them: each template's openspace.json,
 // content/ and media/ in the starter shell, through `astro build` with the site-kit integration.
-//   node scripts/build-templates.mjs [outRoot] [--only=meadow,harbor]
+//   node scripts/build-templates.mjs [outRoot] [--only=meadow,harbor] [--project]
 // Writes <outRoot>/<id>/dist (default outRoot: tools/visual-tests/.build). The demo is built for
-// a custom domain at the root (base "/") so it can be served from any static server.
+// a custom domain at the root (base "/") so it can be served from any static server; with
+// --project, as a GitHub Pages project site under /<id>/ (no custom domain), the way new sites
+// publish (serve with `serve(dir, 0, { base: "/<id>" })`, `lighthouse.mjs --project`).
 // Dependencies: `astro` runs the build; `cookie@2` is here because Astro's prerender chunk
 // imports it by name from the project (without it Node resolves an older hoisted copy).
 // Template photos are remote, so no image codec (sharp) is needed.
@@ -44,7 +46,7 @@ export async function templateIds() {
 }
 
 /** Copy a template into a buildable site folder. `edit` may rewrite the site document files. */
-export async function assemble(id, root, edit) {
+export async function assemble(id, root, edit, opts = {}) {
   await rm(root, { recursive: true, force: true });
   await mkdir(root, { recursive: true });
   for (const entry of ["openspace.json", "content", "media"])
@@ -56,11 +58,9 @@ export async function assemble(id, root, edit) {
     await cp(join(STARTER, "public"), join(root, "public"), { recursive: true });
   const cfgPath = join(root, "openspace.json");
   const cfg = JSON.parse(await readFile(cfgPath, "utf8"));
-  cfg.deploy = {
-    ...cfg.deploy,
-    url: `https://${id}.example.com`,
-    customDomain: `${id}.example.com`,
-  };
+  cfg.deploy = opts.project
+    ? { ...cfg.deploy, url: `https://owner.github.io/${id}`, customDomain: null }
+    : { ...cfg.deploy, url: `https://${id}.example.com`, customDomain: `${id}.example.com` };
   await writeFile(cfgPath, `${JSON.stringify(cfg, null, 2)}\n`);
   if (edit) await edit(root);
   return root;
@@ -87,7 +87,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const only = flags.only?.split(",");
   for (const id of (await templateIds()).filter((t) => !only || only.includes(t))) {
     const started = Date.now();
-    const root = await assemble(id, join(OUT, id));
+    const root = await assemble(id, join(OUT, id), undefined, { project: Boolean(flags.project) });
     try {
       await astroBuild(root);
       console.log(`${id}: built in ${((Date.now() - started) / 1000).toFixed(1)}s`);

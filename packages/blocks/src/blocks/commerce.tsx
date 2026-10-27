@@ -16,8 +16,10 @@ import {
   headingLevelField,
   sub,
   typo,
+  UnavailableNotice,
   useHub,
   useLocale,
+  useSiteServer,
 } from "../shared";
 import { itemImage, PriceText, productPrice } from "./collections";
 import { Honeypot, useSourcePath } from "./form";
@@ -75,6 +77,7 @@ export const productBlock = defineBlock({
     const imageMap = useImageMap();
     const locale = useLocale();
     const [item] = useCollectionQuery({ ...fields.product, limit: 1 });
+    const canSell = useSiteServer();
     if (item?.kind !== "products")
       return (
         <EditorNotice>
@@ -115,7 +118,6 @@ export const productBlock = defineBlock({
       src ? resolveImage(src, { imageMap, doc, basePath }).src : undefined;
     const pickId = sub(id, "option");
     const qtyId = sub(id, "qty");
-    const notCloudflare = doc && doc.config.deploy.target !== "cloudflare";
 
     return (
       <article className={cx("os-product", `os-product--${variant}`)}>
@@ -150,7 +152,11 @@ export const productBlock = defineBlock({
           {fields.showDescription && fm.excerpt ? (
             <p className="os-product__desc">{fm.excerpt}</p>
           ) : null}
-          {firstAvailable ? (
+          {firstAvailable && !canSell ? (
+            <UnavailableNotice hint="Checkout needs the Cloudflare hosting option and a connected Stripe account (Settings → Hosting). Until then visitors see this message instead of “Add to cart”.">
+              Online ordering isn't open yet.
+            </UnavailableNotice>
+          ) : firstAvailable ? (
             <div className="os-product__buy">
               {options.length > 1 ? (
                 <div className="os-field os-product__option">
@@ -222,11 +228,6 @@ export const productBlock = defineBlock({
             {fields.detailsLabel}
             <span className="os-visually-hidden">: {fm.title}</span>
           </a>
-          {notCloudflare ? (
-            <EditorNotice>
-              Checkout needs the Cloudflare hosting option and a connected Stripe account.
-            </EditorNotice>
-          ) : null}
         </div>
       </article>
     );
@@ -324,6 +325,7 @@ export const donationBlock = defineBlock({
     const { hub, siteId } = useHub();
     const source = useSourcePath();
     const locale = useLocale();
+    const canCheckout = useSiteServer();
     const exp = currencyExponent(fields.currency);
     const intro =
       fields.heading || fields.description ? (
@@ -350,6 +352,17 @@ export const donationBlock = defineBlock({
             <EditorNotice>Add the link to your donation page.</EditorNotice>
           )}
           {note}
+        </div>
+      );
+    }
+
+    if (!canCheckout) {
+      return (
+        <div className={cx("os-donation", `os-donation--${variant}`)}>
+          {intro}
+          <UnavailableNotice hint="Donations through Stripe need the Cloudflare hosting option (Settings → Hosting). Until then visitors see this message — or choose “Link to another donation page” to take gifts now.">
+            Online giving isn't open yet.
+          </UnavailableNotice>
         </div>
       );
     }

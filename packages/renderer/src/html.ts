@@ -48,8 +48,19 @@ export interface RenderPageHtmlOptions {
    * pass self-hosted Fontsource CSS; `[]` disables web fonts.
    */
   fontStylesheets?: string[];
-  /** Link the stylesheets instead of inlining them (site-kit serves them as cacheable files). */
-  stylesheets?: { base?: string; tokens?: string };
+  /**
+   * Self-hosted `@font-face` rules to inline instead of linking `fontStylesheets` (they are a
+   * few hundred bytes gzipped; a linked file would be one more render-blocking request).
+   */
+  fontCss?: string;
+  /** Font files to preload (`<link rel="preload" as="font">`), right after the LCP image. */
+  fontPreloads?: string[];
+  /**
+   * Link the stylesheets instead of inlining them (site-kit serves them as cacheable files).
+   * `site` is one stylesheet that already holds the token and base CSS (and whatever else the
+   * caller merged into it): the page then has a single render-blocking stylesheet.
+   */
+  stylesheets?: { base?: string; tokens?: string; site?: string };
   /** Extra trusted markup appended to `<head>` (site-kit feed links etc.). */
   extraHead?: string;
 }
@@ -162,11 +173,16 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
   // body family, the pairing's web fonts aren't loaded at all.
   const customHeading = chosenCustomFont(doc.styles, doc.styles.choices.headingFont);
   const customBody = chosenCustomFont(doc.styles, doc.styles.choices.bodyFont);
+  const noWebFonts = Boolean(customHeading && customBody);
+  const inlineFonts = !noWebFonts && opts.fontCss ? opts.fontCss : "";
   const fonts =
-    customHeading && customBody
+    noWebFonts || inlineFonts
       ? []
       : (opts.fontStylesheets ?? [googleFontsUrl(styles.tokens.pairing)]);
-  const fontFaces = customFontFaces(doc.styles, (src) => mediaUrl(src, basePath));
+  const fontFaces = [inlineFonts, customFontFaces(doc.styles, (src) => mediaUrl(src, basePath))]
+    .filter(Boolean)
+    .join("\n");
+  const preloadFonts = noWebFonts ? [] : (opts.fontPreloads ?? []);
   const fontPreloads = customFontPreloads(doc.styles, {
     heading: styles.tokens.pairing.headingWeight,
     body: styles.tokens.pairing.bodyWeight,
@@ -181,6 +197,10 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     `<title>${escapeHtml(title)}</title>`,
     // The LCP image first: discovered before the stylesheets and fonts below.
     lcpImagePreload(body),
+    ...preloadFonts.map(
+      (href) =>
+        `<link rel="preload" href="${escapeHtml(href)}" as="font" type="font/woff2" crossorigin>`,
+    ),
     meta("description", description),
     noindex ? '<meta name="robots" content="noindex">' : "",
     `<link rel="canonical" href="${escapeHtml(canonical)}">`,
@@ -204,12 +224,16 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     ),
     ...fonts.map((href) => `<link rel="stylesheet" href="${escapeHtml(href)}">`),
     fontFaces ? `<style data-os="fonts">${safeCss(fontFaces)}</style>` : "",
-    opts.stylesheets?.tokens
-      ? `<link rel="stylesheet" href="${escapeHtml(opts.stylesheets.tokens)}">`
-      : `<style data-os="tokens">${styles.css}</style>`,
-    opts.stylesheets?.base
-      ? `<link rel="stylesheet" href="${escapeHtml(opts.stylesheets.base)}">`
-      : `<style data-os="base">${BASE_CSS}</style>`,
+    ...(opts.stylesheets?.site
+      ? [`<link rel="stylesheet" href="${escapeHtml(opts.stylesheets.site)}">`]
+      : [
+          opts.stylesheets?.tokens
+            ? `<link rel="stylesheet" href="${escapeHtml(opts.stylesheets.tokens)}">`
+            : `<style data-os="tokens">${styles.css}</style>`,
+          opts.stylesheets?.base
+            ? `<link rel="stylesheet" href="${escapeHtml(opts.stylesheets.base)}">`
+            : `<style data-os="base">${BASE_CSS}</style>`,
+        ]),
     site.customCss ? `<style data-os="custom">${safeCss(site.customCss)}</style>` : "",
     ...[opts.jsonLd ?? []]
       .flat()

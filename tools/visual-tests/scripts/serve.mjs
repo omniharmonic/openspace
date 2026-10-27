@@ -66,9 +66,21 @@ function localhostCert() {
  * same-origin files share one connection as they do in production.
  */
 export async function serve(dir, port = 0, opts = {}) {
+  // A project site (`opts.base` "/repo") lives under /repo/ like on GitHub Pages; other paths 404.
+  const base = (opts.base ?? "").replace(/\/+$/, "");
   const handler = async (req, res) => {
     const url = new URL(req.url ?? "/", "http://x");
-    let rel = normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, "");
+    let pathname = decodeURIComponent(url.pathname);
+    if (base) {
+      if (pathname === base) {
+        res.writeHead(301, { location: `${base}/` }).end();
+        return;
+      }
+      pathname = pathname.startsWith(`${base}/`)
+        ? pathname.slice(base.length)
+        : "/__outside-base__";
+    }
+    let rel = normalize(pathname).replace(/^(\.\.[/\\])+/, "");
     if (rel.endsWith("/")) rel += "index.html";
     let file = join(dir, rel);
     let status = 200;

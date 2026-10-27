@@ -145,9 +145,7 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
   it("renders page HTML identical to renderPageHtml (modulo image URLs)", async () => {
     const location = deployLocation(plan.doc.config);
     const runtimeAssets = (html: string) => ({
-      base: /href="([^"]*\/_os\/os\.[a-f0-9]+\.css)"/.exec(html)?.[1] ?? "",
-      tokens: /href="([^"]*\/_os\/tokens\.[a-f0-9]+\.css)"/.exec(html)?.[1] ?? "",
-      blocks: /href="([^"]*\/_os\/blocks\.[a-f0-9]+\.css)"/.exec(html)?.[1] ?? "",
+      site: /href="([^"]*\/_os\/site\.[a-f0-9]+\.css)"/.exec(html)?.[1] ?? "",
     });
     for (const route of plan.routes) {
       const page = plan.doc.pages[route.pageId as keyof typeof plan.doc.pages];
@@ -203,12 +201,13 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
     // Behaviors nobody uses are not published.
     for (const b of ["carousel", "popup", "tabs", "marquee", "beacon"])
       expect(shipped).not.toContain(b);
-    // The cart ships for product pages (the product block's add-to-cart) and nowhere else.
-    expect(shipped).toContain("cart");
+    // GitHub Pages can't run checkout: product pages say so instead of offering add-to-cart,
+    // and the cart behavior isn't published (the Cloudflare build below ships it).
+    expect(shipped).not.toContain("cart");
     const product = await read(out, "shop/linen-bolster/index.html");
-    expect(product).toContain('<link rel="modulepreload" href="/_os/behaviors/cart.js">');
-    expect(product).toMatch(/data-os-add[^>]*data-os-sku="MDW-BOL-01/);
-    for (const f of all.filter((x) => x.endsWith(".html") && !x.startsWith("shop/")))
+    expect(product).not.toContain("data-os-add");
+    expect(product).toMatch(/Online ordering isn(&#x27;|')t open yet\./);
+    for (const f of all.filter((x) => x.endsWith(".html")))
       expect(await read(out, f), f).not.toContain("/_os/behaviors/cart.js");
     expect(
       shipped.every((b) => b === "os-behaviors" || (BEHAVIORS as readonly string[]).includes(b)),
@@ -239,16 +238,17 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
     }
   });
 
-  it("links content-hashed stylesheets including the block library CSS", async () => {
+  it("links one content-hashed stylesheet holding tokens, base and block library CSS", async () => {
     const home = await read(out, "index.html");
-    for (const stem of ["os", "tokens", "blocks"]) {
-      const m = new RegExp(`href="/_os/${stem}\\.([a-f0-9]{10})\\.css"`).exec(home);
-      expect(m, stem).not.toBeNull();
-      expect(all).toContain(`_os/${stem}.${m?.[1]}.css`);
-    }
-    expect(await read(out, all.find((f) => f.startsWith("_os/blocks.")) ?? "")).toContain(
-      "@layer os.blocks",
-    );
+    const head = home.slice(0, home.indexOf("</head>"));
+    // One of the site's own (this offline build links Google Fonts; publish builds inline them).
+    expect(head.match(/<link rel="stylesheet" href="\/_os\//g)).toHaveLength(1);
+    const m = /href="\/_os\/site\.([a-f0-9]{10})\.css"/.exec(home);
+    expect(m).not.toBeNull();
+    expect(all).toContain(`_os/site.${m?.[1]}.css`);
+    const css = await read(out, `_os/site.${m?.[1]}.css`);
+    expect(css).toContain("@layer os.blocks");
+    expect(css).toContain("@layer os.reset");
   });
 
   it("writes feeds: RSS, Atom, iCal and podcast RSS", async () => {
@@ -405,7 +405,7 @@ describe("astro build on a GitHub project site (base /meadow-yoga)", () => {
     const home = await read(out, "index.html");
     expect(home).toContain('<link rel="canonical" href="https://meadow.github.io/meadow-yoga/">');
     expect(home).toContain('href="/meadow-yoga/classes/"');
-    expect(home).toContain('href="/meadow-yoga/_os/os.');
+    expect(home).toContain('href="/meadow-yoga/_os/site.');
     expect(home).toMatch(/srcSet="\/meadow-yoga\/_astro\/morning-light\./);
     expect(home).toContain('src="/meadow-yoga/_os/behaviors/os-behaviors.js"');
     expect(home).toContain('data-os-base="/meadow-yoga"');
@@ -475,7 +475,7 @@ describe("astro build on the Cloudflare target", () => {
     }
     const shipped = (await files(join(client, "_os", "behaviors"))).map((f) => f.slice(0, -3));
     for (const b of BEHAVIORS.filter((x) => x !== "beacon")) expect(shipped).toContain(b);
-    expect(await read(client, "index.html")).toContain("/_os/blocks.");
+    expect(await read(client, "index.html")).toContain("/_os/site.");
   });
 
   it("builds a Worker for members, sign-in and password routes with the gated-content bucket", async () => {

@@ -3,7 +3,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
-import { jpegSize, looksLikeImage, remoteImages, selfHostRemoteImages } from "./remote-images";
+import {
+  jpegSize,
+  looksLikeImage,
+  remoteImages,
+  remoteWidths,
+  selfHostRemoteImages,
+} from "./remote-images";
 
 /** A minimal JPEG header with an SOF0 marker for 800×600. */
 const jpeg = () =>
@@ -48,7 +54,12 @@ describe("self-hosted demo photos", () => {
     const hit = plan.map[PHOTO];
     expect(hit?.width).toBe(960);
     expect(hit?.sources?.[0]?.type).toBe("image/avif");
-    expect(hit?.sources?.[0]?.srcset).toMatch(/^\/site\/_os\/img\/[0-9a-f]{12}-480\.avif 480w, /);
+    expect(hit?.sources?.[0]?.srcset).toMatch(
+      /^\/site\/_os\/img\/[0-9a-f]{12}-480-q50\.avif 480w, /,
+    );
+    // AVIF at its own quality (the content's q=80 is a JPEG quality).
+    expect(urls.filter((u) => u.includes("fm=avif")).every((u) => u.includes("q=50"))).toBe(true);
+    expect(urls.filter((u) => u.includes("fm=jpg")).every((u) => u.includes("q=80"))).toBe(true);
     expect(hit?.srcset).toMatch(/-960\.jpg 960w$/);
     // 480, 640, 768, 960 × AVIF + JPEG; nothing for the site's own media.
     expect(urls).toHaveLength(8);
@@ -78,5 +89,53 @@ describe("self-hosted demo photos", () => {
     expect(looksLikeImage(avif(), "a.avif")).toBe(true);
     expect(looksLikeImage(jpeg(), "a.jpg")).toBe(true);
     expect(looksLikeImage(new TextEncoder().encode("<html>"), "a.jpg")).toBe(false);
+  });
+
+  it("self-hosts small portraits and avatars and every image field, at 1x and 2x", async () => {
+    const PORTRAIT = "https://images.unsplash.com/photo-2?w=320&q=80";
+    const AVATAR = "https://images.unsplash.com/photo-3?w=96&q=80";
+    const OG = "https://images.unsplash.com/photo-4?w=1200";
+    const people = {
+      site: { logo: null, seo: { image: OG } },
+      pages: {
+        pg_a: {
+          sections: [
+            {
+              blocks: [
+                {
+                  fields: {
+                    members: [
+                      {
+                        name: "Ingrid",
+                        photo: { src: PORTRAIT, alt: "", width: 320, height: 479 },
+                      },
+                    ],
+                    quotes: [{ avatar: AVATAR, credit: { href: "https://unsplash.com/@x" } }],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      },
+      collections: {},
+    } as unknown as SiteDocument;
+    expect([...remoteImages(people).keys()].sort()).toEqual([AVATAR, OG, PORTRAIT].sort());
+    expect(remoteWidths(320)).toEqual([320, 640]);
+    expect(remoteWidths(96)).toEqual([96, 192]);
+    expect(remoteWidths(1080)).toEqual([480, 640, 768, 960, 1080]);
+    const fakeFetch = (async (url: string) =>
+      new Response(url.includes("fm=jpg") ? jpeg() : avif(), {
+        headers: { "content-type": url.includes("fm=jpg") ? "image/jpeg" : "image/avif" },
+      })) as unknown as typeof fetch;
+    const cacheDir = await mkdtemp(join(tmpdir(), "os-remote-"));
+    const plan = await selfHostRemoteImages(people, { cacheDir, basePath: "/r", fetch: fakeFetch });
+    expect(plan.map[PORTRAIT]?.srcset).toMatch(
+      /-320\.jpg 320w, \/r\/_os\/img\/[0-9a-f]{12}-640\.jpg 640w$/,
+    );
+    expect(plan.map[PORTRAIT]?.sources?.[0]?.srcset).toMatch(/-640-q50\.avif 640w$/);
+    expect(plan.map[PORTRAIT]?.width).toBe(320);
+    expect(plan.map[AVATAR]?.src).toMatch(/^\/r\/_os\/img\/[0-9a-f]{12}-192\.jpg$/);
+    expect(plan.map[OG]?.src).toMatch(/-1080\.jpg$/);
   });
 });
