@@ -17,7 +17,7 @@ Ask things like:
 | You use | Connect with | Guide |
 |---|---|---|
 | **Claude** on the web or **Claude Desktop** | A custom connector pointed at the Hub | [Claude & Claude Desktop](/connect-your-ai/claude/) |
-| **Claude Code** | The OpenSpace plugin (local files) or the Hub's remote server | [Claude Code plugin](/connect-your-ai/claude-code/) |
+| **Claude Code** | Studio sites: `claude mcp add --transport http openspace https://hub.openspace.host/mcp`, then `/mcp` → Authenticate. Site folders on your computer: the OpenSpace plugin | [Claude Code](/connect-your-ai/claude-code/) |
 | **Other MCP apps** | The Hub URL or a personal link | Below |
 
 ## Sign-in or personal link?
@@ -26,9 +26,11 @@ Studio → **Settings → Connect your AI** gives you two kinds of address.
 
 **Sign in (OAuth)** — `https://hub.openspace.host/mcp`. Your AI app opens an OpenSpace sign-in (with GitHub), then a consent screen: *Allow Claude to edit ☑ Fernwood Yoga ☐ Riverbend Collective · ☐ Allow publishing*. You choose the sites and whether publishing is allowed — it's **off by default**. Best for apps that support sign-in, like Claude.
 
-**Personal link** — `https://hub.openspace.host/mcp/t/…`. A private address for **one site** that works without signing in. Give it a name ("Claude on my laptop"), choose whether it may publish, and copy it — the full link is shown only once. Treat it like a password: anyone with it can edit that site's draft. Each link shows when it was last used and can be turned off at any time.
+**Personal link** — `https://hub.openspace.host/mcp/t/…`. A private address for **one site** that works without signing in. Give it a name ("Claude on my laptop") and copy it — the full link is shown only once. Treat it like a password: anyone with it can edit that site's draft. Each link shows when it was last used and can be turned off at any time.
 
-Both appear under **Apps with access**, where you can switch **Can publish** on or off or **Disconnect** an app. Changes apply immediately.
+A personal link is **draft-only**: it can't publish. If you're the site owner you can turn on **Allow this link to publish** on that link (Studio asks you to confirm, because anyone holding the link could then publish), and turn it off again at any time. To let Claude publish without that risk, use the sign-in address instead and allow publishing on the consent screen.
+
+Sign-in connections appear under **Apps with access**, where you can switch **Can publish** on or off or **Disconnect** an app. Personal links are listed under **Your connection link**. Changes apply immediately.
 
 ## What your AI can and can't do
 

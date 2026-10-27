@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { Command, CommanderError } from "commander";
 import { renderAgentsMd, writeAgentsMd } from "./agents";
 import { type Budgets, formatReport, githubAnnotations, runCheck } from "./check";
-import { runDev, type Spawner } from "./dev";
+import { astroNodeProblem, runDev, type Spawner } from "./dev";
 import { EJECT_WARNING, runEject } from "./eject";
 import { type GatedSyncDeps, runGatedSync } from "./gated-sync";
 import { importSummary, runImportSquarespace } from "./import";
@@ -63,6 +63,9 @@ export function createProgram(
           io.out(formatReport(report, (code, s) => paint(color, code, s)));
         }
         if (!report.ok) setExit(1);
+        // Content can be fine while the build can't run at all; say so here rather than at build.
+        const tooOld = astroNodeProblem(io.nodeVersion);
+        if (tooOld && !opts.json) io.err(`Note: ${tooOld}\nThe site won't build until you do.`);
       },
     );
 
@@ -135,6 +138,8 @@ export function createProgram(
         io.out("  npm install");
         io.out("  npx openspace check");
         io.out("  npx openspace dev");
+        const tooOld = astroNodeProblem(io.nodeVersion);
+        if (tooOld) io.err(`Warning: ${tooOld}\nThe site won't preview or build until you do.`);
         if (opts.url === undefined && opts.repo === undefined && !opts.domain)
           io.out("Set deploy.url in openspace.json to where the site will be published.");
       },

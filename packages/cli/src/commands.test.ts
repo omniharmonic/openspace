@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 import { siteMigrationRegistry } from "@omniharmonic/openspace-schema";
 import { loadSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { afterAll, describe, expect, it } from "vitest";
-import { ASTRO_MIN_NODE, runDev } from "./dev";
+import { ASTRO_MIN_NODE, astroNodeProblem, runDev } from "./dev";
 import { captureIo } from "./io";
 import { runMigrate } from "./migrate";
 import { run } from "./program";
@@ -247,8 +247,14 @@ describe("openspace dev", () => {
   it("explains when Node is too old for Astro", async () => {
     const { io } = captureIo(process.cwd());
     await expect(runDev({ ...io, nodeVersion: "22.22.3" }, [])).rejects.toThrow(
-      `Astro needs Node ${ASTRO_MIN_NODE} or newer, but this is Node 22.22.3`,
+      `Astro needs Node ${ASTRO_MIN_NODE} or newer (Node 24 recommended), but this is Node 22.22.3`,
     );
+  });
+
+  it("warns on new/check (not just at build) when Node is too old", () => {
+    expect(astroNodeProblem("22.22.3")).toContain("nvm install 24");
+    expect(astroNodeProblem(ASTRO_MIN_NODE)).toBeNull();
+    expect(astroNodeProblem("24.1.0")).toBeNull();
   });
 
   it("runs astro dev with extra args through the command line", async () => {

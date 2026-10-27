@@ -8,7 +8,7 @@ OpenSpace is an open-source, Squarespace-class website builder with a Figma-grad
 pnpm i && pnpm dev
 ```
 
-Requires Node 22 and pnpm 10. Everything runs locally with no external accounts: GitHub, Cloudflare, Stripe, email and Turnstile all sit behind interfaces with dev implementations.
+Requires Node 22.23.4+ (Node 24 recommended) and pnpm 10. Everything runs locally with no external accounts: GitHub, Cloudflare, Stripe, email and Turnstile all sit behind interfaces with dev implementations.
 
 Other commands: `pnpm build`, `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm format`, `pnpm e2e`.
 

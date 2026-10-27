@@ -4,7 +4,7 @@ Thanks for helping build OpenSpace.
 
 ## Setup
 
-Requirements: Node 22 and pnpm 10.
+Requirements: Node 22.23.4+ (Node 24 recommended) and pnpm 10.
 
 ```sh
 pnpm install
