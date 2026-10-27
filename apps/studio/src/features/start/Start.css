@@ -153,6 +153,8 @@
 .st-start__fine a,
 .st-start__note a {
   color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .st-start__starting {
