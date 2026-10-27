@@ -68,6 +68,55 @@
       ]
     },
     {
+      "id": "sec_908ft3amfj",
+      "preset": "stats/inline-strip@1",
+      "label": "Compact number strip",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "md",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_fb73cda4k3",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "14,000",
+                "label": "Readers"
+              },
+              {
+                "value": "Sundays",
+                "label": "Every other week"
+              },
+              {
+                "value": "180+",
+                "label": "Letters since 2019"
+              },
+              {
+                "value": "Free",
+                "label": "And always will be"
+              }
+            ]
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
       "id": "sec_570vz57hw3",
       "preset": "blog/intro-list@1",
       "label": "Journal with introduction",
@@ -159,6 +208,51 @@
           },
           "column": 1,
           "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_kcge3me6x3",
+      "preset": "blog/magazine-wall@1",
+      "label": "Magazine wall",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_pgqregftea",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "heading": "From the archive",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "essays",
+              "sort": "date-desc",
+              "limit": 5
+            },
+            "columns": "3",
+            "showImage": true,
+            "showDate": true,
+            "showExcerpt": true,
+            "showMeta": true,
+            "linkLabel": "Every essay",
+            "link": {
+              "type": "url",
+              "url": "/essays/"
+            },
+            "emptyMessage": "The archive fills up one Sunday at a time."
+          },
+          "variant": "wall"
         }
       ]
     },

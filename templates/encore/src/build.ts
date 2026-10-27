@@ -141,6 +141,20 @@ function home() {
           },
         },
       }),
+      fromPreset("gallery/strip-dark@1", {
+        edit: {
+          heading: { eyebrow: "On the road", text: "Last winter, night by night" },
+          gallery: {
+            images: [
+              { image: photo("concert", 320, "1:1", "A crowd under coloured stage lights") },
+              { image: photo("stageLights", 320, "1:1", "Stage lights cutting through haze") },
+              { image: photo("microphone", 320, "1:1", "A microphone on a stand before soundcheck") },
+              { image: photo("streetNight", 320, "1:1", "A city street at night after the show") },
+              { image: photo("festivalCrowd", 320, "1:1", "Hands in the air at an outdoor show") },
+            ],
+          },
+        },
+      }),
       fromPreset("testimonials/large-single@1", {
         theme: "brand",
         edit: {

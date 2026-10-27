@@ -227,6 +227,92 @@
       ]
     },
     {
+      "id": "sec_gc7na8dfdq",
+      "preset": "gallery/strip-dark@1",
+      "label": "Photo strip on dark",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_36jjscc4pq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Last winter, night by night",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "On the road"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_vvv6r4q70r",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "images": [
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=960&q=80",
+                  "alt": "A crowd under coloured stage lights",
+                  "width": 960,
+                  "height": 640
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1669459868647-4c2f1c564052?w=960&q=80",
+                  "alt": "Stage lights cutting through haze",
+                  "width": 960,
+                  "height": 640
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=960&q=80",
+                  "alt": "A microphone on a stand before soundcheck",
+                  "width": 960,
+                  "height": 640
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1703088066010-af61bb552da4?w=640&q=80",
+                  "alt": "A city street at night after the show",
+                  "width": 640,
+                  "height": 960
+                }
+              },
+              {
+                "image": {
+                  "src": "https://images.unsplash.com/photo-1605286232233-e448650f5914?w=960&q=80",
+                  "alt": "Hands in the air at an outdoor show",
+                  "width": 960,
+                  "height": 640
+                }
+              }
+            ],
+            "aspect": "1:1",
+            "columns": "5",
+            "lightbox": true,
+            "showCaptions": false
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
       "id": "sec_a0dk61e0fp",
       "preset": "testimonials/large-single@1",
       "label": "One big testimonial",

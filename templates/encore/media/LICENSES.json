@@ -62,12 +62,34 @@
     },
     {
       "kind": "image",
+      "src": "https://images.unsplash.com/photo-1605286232233-e448650f5914",
+      "title": "A crowd cheering at an outdoor music festival",
+      "author": "Tim Toomey",
+      "authorUrl": "https://unsplash.com/@covertnine",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/group-of-people-raising-their-hands-during-daytime-pdcyXrcsL2k",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
       "src": "https://images.unsplash.com/photo-1669459868647-4c2f1c564052",
       "title": "A crowd facing a lit stage at a small music venue",
       "author": "Leon Rockel",
       "authorUrl": "https://unsplash.com/@lonski",
       "source": "Unsplash",
       "sourceUrl": "https://unsplash.com/photos/a-crowd-of-people-in-a-room-with-a-stage-and-a-stage-T3L72nHQ6aQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1703088066010-af61bb552da4",
+      "title": "A city street at night strung with red lanterns",
+      "author": "Marc Kleen",
+      "authorUrl": "https://unsplash.com/@marckleen",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-person-walking-down-a-street-with-red-decorations-e1f9yY-DzoY",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },

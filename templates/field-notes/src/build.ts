@@ -66,6 +66,19 @@ function home() {
           },
         },
       }),
+      fromPreset("stats/inline-strip@1", {
+        theme: "light",
+        edit: {
+          stats: {
+            items: [
+              { value: "14,000", label: "Readers" },
+              { value: "Sundays", label: "Every other week" },
+              { value: "180+", label: "Letters since 2019" },
+              { value: "Free", label: "And always will be" },
+            ],
+          },
+        },
+      }),
       fromPreset("blog/intro-list@1", {
         theme: "light",
         collection: "essays",
@@ -83,6 +96,18 @@ function home() {
             source: { collection: "essays", sort: "date-desc", limit: 4 },
             showImage: false,
             emptyMessage: "The next essay is being written. Subscribe to get it first.",
+          },
+        },
+      }),
+      fromPreset("blog/magazine-wall@1", {
+        theme: "light-accent",
+        collection: "essays",
+        edit: {
+          summary: {
+            heading: "From the archive",
+            linkLabel: "Every essay",
+            link: url(collectionPath("essays")),
+            emptyMessage: "The archive fills up one Sunday at a time.",
           },
         },
       }),
