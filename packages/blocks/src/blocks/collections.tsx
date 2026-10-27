@@ -22,6 +22,7 @@ import {
 import type { ReactNode } from "react";
 import { Icon } from "../icons";
 import {
+  balancedColumns,
   CarouselControls,
   childLevel,
   dateParts,
@@ -295,7 +296,10 @@ export const summaryBlock = defineBlock({
       );
     }
     return (
-      <div className={cx("os-summary", `os-summary--${variant}`)} style={{ "--s-cols": columns }}>
+      <div
+        className={cx("os-summary", `os-summary--${variant}`)}
+        style={{ "--s-cols": balancedColumns(items.length, columns) }}
+      >
         {heading}
         <ul className="os-summary__items" aria-labelledby={heading ? sub(id, "h") : undefined}>
           {cards}

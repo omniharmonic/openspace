@@ -1,6 +1,6 @@
 import { cx, Img, Link } from "@omniharmonic/openspace-renderer";
 import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
-import { DEMO, typo } from "../shared";
+import { balancedColumns, DEMO, typo } from "../shared";
 
 export const teamBlock = defineBlock({
   type: "team",
@@ -56,7 +56,10 @@ export const teamBlock = defineBlock({
   render: ({ fields, variant, style }) => (
     <ul
       className={cx("os-team", `os-team--${variant}`)}
-      style={{ "--t-cols": fields.columns, "--t-tcols": Math.min(Number(fields.columns), 2) }}
+      style={{
+        "--t-cols": balancedColumns(fields.people.length, Number(fields.columns)),
+        "--t-tcols": Math.min(Number(fields.columns), 2),
+      }}
     >
       {fields.people.map((person, i) => {
         const name = person.link ? (

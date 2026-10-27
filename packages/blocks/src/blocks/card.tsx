@@ -7,7 +7,7 @@ import {
   type RichTextDoc,
 } from "@omniharmonic/openspace-schema";
 import { ICON_OPTIONS, Icon, type IconName } from "../icons";
-import { aspectField, DEMO, rt, typo } from "../shared";
+import { aspectField, balancedColumns, DEMO, rt, typo } from "../shared";
 
 const BODY = { marks: ["bold", "italic", "link"], blocks: ["paragraph", "bulletList"] } as const;
 
@@ -175,7 +175,10 @@ export const iconListBlock = defineBlock({
   render: ({ fields, variant }) => (
     <ul
       className={cx("os-iconlist", `os-iconlist--${variant}`)}
-      style={{ "--il-cols": fields.columns, "--il-tcols": Math.min(Number(fields.columns), 2) }}
+      style={{
+        "--il-cols": balancedColumns(fields.items.length, Number(fields.columns)),
+        "--il-tcols": Math.min(Number(fields.columns), 2),
+      }}
     >
       {fields.items.map((item, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
@@ -274,7 +277,10 @@ export const columnsBlock = defineBlock({
   render: ({ fields, variant, style }) => (
     <ol
       className={cx("os-columns", `os-columns--${variant}`)}
-      style={{ "--c-cols": fields.columns, "--c-tcols": Math.min(Number(fields.columns), 2) }}
+      style={{
+        "--c-cols": balancedColumns(fields.items.length, Number(fields.columns)),
+        "--c-tcols": Math.min(Number(fields.columns), 2),
+      }}
     >
       {fields.items.map((item, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids

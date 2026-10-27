@@ -6,7 +6,14 @@ import {
   type ImageValue,
   type Link as LinkValue,
 } from "@omniharmonic/openspace-schema";
-import { ASPECT_OPTIONS, CarouselControls, DEMO, sub, useImageUrl } from "../shared";
+import {
+  ASPECT_OPTIONS,
+  balancedColumns,
+  CarouselControls,
+  DEMO,
+  sub,
+  useImageUrl,
+} from "../shared";
 
 const COLUMN_OPTIONS = [
   { value: "2", label: "2" },
@@ -170,7 +177,10 @@ function Gallery({ id, fields, variant }: { id: string; fields: GalleryFields; v
   return (
     <div
       className={cx("os-gallery", `os-gallery--${variant}`)}
-      style={{ "--g-cols": fields.columns, "--g-tcols": Math.min(Number(fields.columns), 3) }}
+      style={{
+        "--g-cols": balancedColumns(fields.images.length, Number(fields.columns)),
+        "--g-tcols": Math.min(Number(fields.columns), 3),
+      }}
       data-os-behavior={behaviors || undefined}
     >
       <ul className="os-gallery__items" aria-label={label}>
