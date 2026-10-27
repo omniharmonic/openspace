@@ -10,7 +10,8 @@ import { createRequire } from "node:module";
 import type { AddressInfo } from "node:net";
 import { dirname, extname, join, normalize, sep } from "node:path";
 import { renderPreviewHtml } from "@omniharmonic/openspace-mcp-tools";
-import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { componentPreview, parseComponentPreviewPath } from "@omniharmonic/openspace-renderer";
+import { COLOR_THEMES, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { planSite } from "@omniharmonic/openspace-site-kit/render";
 
 const TYPES: Record<string, string> = {
@@ -106,6 +107,26 @@ export async function startPreviewServer(
         if (await serveFile(behaviors, path.slice("/_os/behaviors/".length))) return;
       } else {
         const doc = await load();
+        // A custom component on its own (MCP preview_component).
+        const component = parseComponentPreviewPath(path, url.searchParams);
+        if (component && doc.components?.[component.name]) {
+          const theme = (COLOR_THEMES as readonly string[]).includes(component.colorTheme ?? "")
+            ? (component.colorTheme as (typeof COLOR_THEMES)[number])
+            : undefined;
+          const preview = componentPreview(doc, component.name, {
+            ...(component.fields ? { fields: component.fields } : {}),
+            ...(theme ? { colorTheme: theme } : {}),
+          });
+          const html = renderPreviewHtml(preview.doc, preview.page.id, {
+            behaviorsUrl: "/_os/behaviors",
+          });
+          res.writeHead(200, {
+            "content-type": "text/html; charset=utf-8",
+            "cache-control": "no-store",
+          });
+          res.end(html);
+          return;
+        }
         const slug = path.replace(/^\/+|\/+$/g, "").replace(/\/index\.html$/, "");
         let view = doc;
         let page = Object.values(doc.pages).find((p) => p.slug === slug);

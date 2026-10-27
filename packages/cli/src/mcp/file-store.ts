@@ -423,9 +423,13 @@ export class FileSiteStore implements SiteStore {
     this.check(siteId);
     if (!this.options.screenshotter)
       throw new ToolError("Screenshots are not available.", "unsupported");
-    const doc = await loadSiteDocument(this.root);
-    const page = doc.pages[request.pageId as never] as { slug: string } | undefined;
-    const url = await this.previewUrl(siteId, page?.slug ? `/${page.slug}/` : "/");
+    let path = request.path;
+    if (!path) {
+      const doc = await loadSiteDocument(this.root);
+      const page = doc.pages[request.pageId as never] as { slug: string } | undefined;
+      path = page?.slug ? `/${page.slug}/` : "/";
+    }
+    const url = await this.previewUrl(siteId, path);
     return this.options.screenshotter.capture(url as string, request);
   }
 
