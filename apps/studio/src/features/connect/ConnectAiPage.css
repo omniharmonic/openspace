@@ -29,3 +29,14 @@
   vertical-align: -2px;
   margin-right: 4px;
 }
+/* Nested grids size to their content by default; on a phone a long address would widen every
+   card. Keep each one to the width it's given. */
+.st-connect .st-card,
+.st-connect .st-settings__stack,
+.st-connect .st-steps {
+  grid-template-columns: minmax(0, 1fr);
+}
+.st-connect .st-steps > li,
+.st-connect .st-card__head > * {
+  min-width: 0;
+}

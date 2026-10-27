@@ -19,6 +19,8 @@ test("invite an editor; editors can't change styles or the grid (UI + Hub)", asy
   await openEditor(page, site.id);
   await closeChecklist(page);
   await canvas(page).locator("h1").first().click();
+  // The click starts editing the words: Escape leaves them, Escape again selects the section.
+  await page.keyboard.press("Escape");
   await page.keyboard.press("Escape");
   await page.getByRole("radio", { name: "Grid layout" }).click();
   await expect

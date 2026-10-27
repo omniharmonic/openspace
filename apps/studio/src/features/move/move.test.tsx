@@ -55,6 +55,12 @@ describe("Move my site (hosted import)", () => {
 
     await user.click(screen.getByRole("button", { name: "Open it in Studio" }));
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/sites\/st_/));
+    // The editor opens on the live site with the first-run tour (the site was "being set up"
+    // while it moved; a stale copy of that status used to leave the editor loading forever).
+    expect(
+      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 5000 }),
+    ).toBeInTheDocument();
+    expect(router.state.location.pathname).toMatch(/^\/sites\/st_/);
   });
 
   it("explains a move that didn't finish and tries again", async () => {
