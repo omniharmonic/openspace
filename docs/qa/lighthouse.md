@@ -84,6 +84,42 @@ pipeline was tried too; with the harness's HTTP/1.1 static server the extra same
 requests made LCP worse (3.0 s), so a fair test needed an HTTP/2 server (now the default). Owners' own photos
 already go through Astro's image pipeline (same origin, AVIF/WebP) and don't pay this cost.
 
+### Production-testing pass (project sites under `/<repo>/`)
+
+Live GitHub Pages sites measured LCP 2.0–2.4 s; Lighthouse listed four render-blocking
+stylesheets (fonts, tokens, base, blocks) and a team portrait still hot-linked from Unsplash.
+
+| Fix | Where | Effect |
+|---|---|---|
+| One stylesheet per site, `_os/site.<hash>.css` (tokens + base + blocks, same cascade order); the self-hosted `@font-face` rules (~0.5 KB gzipped) inline; font files preloaded once, after the LCP image | site-kit `render.ts` (`siteStylesheets`), renderer `html.ts` (`fontCss`, `fontPreloads`, `stylesheets.site`) | One render-blocking request instead of four |
+| Self-hosted demo photos encode AVIF at q=50 (the content's q=80 is a JPEG quality) | site-kit `node/remote-images.ts` | 640 px hero 84 → 50 KB with no visible difference |
+| Photos smaller than the smallest renderer width (portraits/avatars at `w=320`) are self-hosted at 1× and 2× instead of skipped | same | No third-party image requests left on the demo sites |
+| Harness: `build-templates.mjs --project` and `lighthouse.mjs --project` build and serve each demo as a GitHub Pages project site under `/<id>/` (HTTP/2) | `tools/visual-tests/scripts` | Measures the base-path setup new sites publish with |
+
+Inlining *all* CSS (about 25 KB gzipped) was measured too and was no better: the HTML then
+outgrows the first round trip (TCP slow start), which cancels the saved request.
+
+Project sites, Lighthouse mobile, median of 3:
+
+| Template | LCP | FCP | Perf |
+|---|---|---|---|
+| atelier | 1.65 s | 1.05 s | 100 |
+| commons | 1.65 s | 1.20 s | 100 |
+| encore | 1.58 s | 1.05 s | 100 |
+| field-notes | 1.35 s | 1.05 s | 100 |
+| harbor | 1.65 s | 1.05 s | 100 |
+| hearth | 1.80 s | 1.05 s | 100 |
+| kiln | 1.43 s | 1.05 s | 100 |
+| ledger | 1.65 s | 1.20 s | 100 |
+| link | 1.20 s | 1.05 s | 100 |
+| meadow | 1.50 s | 1.05 s | 100 |
+| signal | 1.35 s | 1.05 s | 100 |
+| vow | 1.65 s | 1.05 s | 100 |
+
+The live test site os-e2e-quality-1 (Atelier), built from its repository the same way: LCP
+1.80 s before, 1.65 s after. Real GitHub Pages adds its own latency, and serves every file with
+`max-age=600` (no long-lived caching on that host).
+
 ### Lighthouse in CI
 
 `.github/workflows/lighthouse.yml` builds the twelve demos (with self-hosted fonts) and runs
@@ -93,10 +129,6 @@ summaries.
 
 ### What's left
 
-- **Stylesheets.** Each page links four small stylesheets (fonts, tokens, base, blocks:
-  about 26 KB gzipped together). Lighthouse lists them as render-blocking, with an estimated
-  saving of 300–750 ms that the scores already absorb. Splitting `blocks.css` per page, or
-  inlining the critical part, would trim this further.
 - **Demo photos.** `uses-responsive-images` and `image-delivery-insight` point at the Unsplash
   demo photos (the remote host decides their encoding). Owners' own photos go through Astro's
   image pipeline (AVIF/WebP, exact widths) and don't have this.
