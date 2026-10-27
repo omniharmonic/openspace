@@ -72,14 +72,15 @@ describe("openspace import squarespace", () => {
     expect(r.err).toContain("robots.txt is honoured");
   });
 
-  it("supports owner mode, a WordPress export, the Cloudflare target and a structure-only run", async () => {
+  it("supports owner mode, a WordPress export and a structure-only run — always on GitHub Pages", async () => {
+    const refused = await importCli(["jc2", "--target", "cloudflare", "--delay", "0"]);
+    expect(refused.code).toBe(1);
+    expect(refused.err).toContain("always start on free GitHub Pages");
     const r = await importCli([
       "jc",
       "--owner",
       "--export",
       JUNIPER_EXPORT,
-      "--target",
-      "cloudflare",
       "--no-media",
       "--delay",
       "0",
@@ -89,9 +90,9 @@ describe("openspace import squarespace", () => {
     expect(r.code, r.err).toBe(0);
     const dir = join(r.parent, "jc");
     expect(JSON.parse(await readFile(join(dir, "openspace.json"), "utf8")).deploy.target).toBe(
-      "cloudflare",
+      "github-pages",
     );
-    expect(existsSync(join(dir, "wrangler.jsonc"))).toBe(true);
+    expect(existsSync(join(dir, "wrangler.jsonc"))).toBe(false);
     expect(JSON.parse(await readFile(join(dir, "content/site.json"), "utf8")).title).toBe(
       "Juniper Studio",
     );

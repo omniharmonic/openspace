@@ -142,7 +142,7 @@ export async function runGatedSync(
   }
   if (config.deploy?.target !== "cloudflare")
     throw new CliError(
-      "Members-only and password pages need Cloudflare hosting (Studio → Settings → Hosting).",
+      "Members-only and password pages are switched on in Studio → Finish setting up (it moves the site to Cloudflare for you).",
     );
   const bucket = opts.bucket ?? gatedBucketName(root);
   if (!bucket)

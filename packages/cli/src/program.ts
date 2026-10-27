@@ -11,6 +11,7 @@ import { CliError, colorEnabled, type Io, paint } from "./io";
 import { runMcp } from "./mcp";
 import { runMigrate } from "./migrate";
 import { runNew } from "./new";
+import { assertGitHubPagesStart } from "./wow-first";
 
 export const VERSION = "0.1.0";
 
@@ -103,7 +104,11 @@ export function createProgram(
     .description("Create a new site from a template.")
     .argument("<template>", "template id (for example: meadow)")
     .argument("<dir>", "folder to create")
-    .option("--target <target>", "github-pages or cloudflare", "github-pages")
+    .option(
+      "--target <target>",
+      "always github-pages (Cloudflare is switched on later in Studio)",
+      "github-pages",
+    )
     .option("--repo <owner/name>", "GitHub repository, used for the Pages address")
     .option("--url <url>", "address the site is served from before a custom domain")
     .option("--domain <hostname>", "custom domain")
@@ -124,9 +129,8 @@ export function createProgram(
           templatesDir?: string;
         },
       ) => {
-        if (opts.target !== "github-pages" && opts.target !== "cloudflare")
-          throw new CliError(`--target must be github-pages or cloudflare, not "${opts.target}".`);
-        const r = await runNew(io, template, dir, { ...opts, target: opts.target });
+        assertGitHubPagesStart(opts.target);
+        const r = await runNew(io, template, dir, { ...opts, target: "github-pages" });
         if (r.usedFallback)
           io.out(
             `Note: template "${template}" has no content of its own yet, so the Meadow sample site (${r.contentFrom}) was used instead.`,
@@ -192,7 +196,7 @@ export function createProgram(
     return c
       .option(
         "--target <target>",
-        "github-pages or cloudflare (use cloudflare to sell products)",
+        "always github-pages: shops and member areas are switched on later in Studio",
         "github-pages",
       )
       .option("--repo <owner/name>", "GitHub repository, used for the Pages address")
@@ -210,8 +214,7 @@ export function createProgram(
     opts: ImportFlags,
     platform: Platform | "auto",
   ) => {
-    if (opts.target !== "github-pages" && opts.target !== "cloudflare")
-      throw new CliError(`--target must be github-pages or cloudflare, not "${opts.target}".`);
+    assertGitHubPagesStart(opts.target);
     let chosen = platform;
     if (opts.platform) {
       const p = parsePlatform(opts.platform);
@@ -227,7 +230,7 @@ export function createProgram(
     const { platform: _p, ...rest } = opts;
     const r = await runImportSite(io, url, dir, {
       ...rest,
-      target: opts.target,
+      target: "github-pages",
       platform: chosen,
       ...(deps.fetch ? { fetch: deps.fetch } : {}),
     });

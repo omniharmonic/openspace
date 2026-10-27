@@ -82,12 +82,12 @@ describe("openspace new", () => {
     expect(check.code).toBe(0);
   });
 
-  it("supports the cloudflare target", async () => {
+  it("starts every site on GitHub Pages (wow first): --target cloudflare is refused kindly", async () => {
     const site = await newSite(["--target", "cloudflare"]);
-    expect(site.code, site.err).toBe(0);
-    expect(existsSync(join(site.dir, "wrangler.jsonc"))).toBe(true);
-    expect((await loadSiteDocument(site.dir)).config.deploy.target).toBe("cloudflare");
-    expect((await cli(site.dir, ["check"])).code).toBe(0);
+    expect(site.code).toBe(1);
+    expect(site.err).toContain("always start on free GitHub Pages");
+    expect(site.err).toContain("Finish setting up");
+    expect(existsSync(join(site.dir, "wrangler.jsonc"))).toBe(false);
   });
 
   it("refuses a non-empty folder and unknown templates", async () => {

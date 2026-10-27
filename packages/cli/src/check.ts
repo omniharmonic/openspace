@@ -304,7 +304,7 @@ export async function runCheck(root: string, options: CheckOptions = {}): Promis
         rule: "gating",
         file,
         path: "access",
-        message: `Page "${page.title}" is ${kinds}: it is only published with Cloudflare hosting.`,
+        message: `Page "${page.title}" is ${kinds}: until you switch on members and password pages (Studio → Finish setting up), visitors don't see it and the rest of the site publishes as usual.`,
       });
   }
 
