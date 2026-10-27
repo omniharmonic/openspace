@@ -17,18 +17,20 @@ import {
   COLOR_THEMES,
   type ComponentDefinition,
   checkComponent,
+  compileComponentFields,
   componentBlockDefinition,
   componentInstances,
   componentSection,
   createBlockRegistry,
   describeComponentIssues,
+  fieldsMeta,
   resolveInternalLinks,
   type SiteDocument,
 } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { pagePathOf, resolvePage } from "../context";
 import { ToolError } from "../errors";
-import { fieldsFromAgent } from "../markdown";
+import { fieldsFromAgent, valuesFromAgent } from "../markdown";
 import { renderPreviewHtml } from "../render";
 import type { Device, Screenshot } from "../store";
 import { defineTool, positionArg, siteArg, type ToolOutput } from "../tool";
@@ -60,6 +62,17 @@ function invalid(def: unknown, what: string): ToolError {
     [],
     "Fix each listed line (template tags/attributes, CSS rules, JavaScript) and call again. Field values in defaults must match the field kinds.",
   );
+}
+
+/** Sample content given with Markdown for rich-text fields, converted (best effort). */
+function withAgentDefaults(def: ComponentDefinition): ComponentDefinition {
+  if (!def || typeof def !== "object" || !def.fields || !def.defaults) return def;
+  try {
+    const metas = fieldsMeta(compileComponentFields(def.fields));
+    return { ...def, defaults: valuesFromAgent(metas, def.defaults) };
+  } catch {
+    return def;
+  }
 }
 
 function siteComponent(doc: SiteDocument, name: string): ComponentDefinition {
@@ -172,7 +185,7 @@ export const createComponent = defineTool({
           "not_found",
         );
       def = { ...lib, ...(input.name ? { name: input.name } : {}) };
-    } else def = input.component as unknown as ComponentDefinition;
+    } else def = withAgentDefaults(input.component as unknown as ComponentDefinition);
     if (doc.components?.[def.name])
       throw new ToolError(
         `The site already has a component "${def.name}".`,
@@ -222,7 +235,7 @@ export const updateComponent = defineTool({
         "A component can't be renamed; create a new one instead.",
         "invalid_arguments",
       );
-    const def: ComponentDefinition = { ...old, ...changes, name: old.name };
+    const def: ComponentDefinition = withAgentDefaults({ ...old, ...changes, name: old.name });
     if (input.migrate) {
       if (!(def.version > old.version))
         throw new ToolError(

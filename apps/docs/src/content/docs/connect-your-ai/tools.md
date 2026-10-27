@@ -40,6 +40,19 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 | `screenshot` | An image of a draft page or one section at desktop, tablet or phone width. On the Hub it is taken in the cloud (nothing to install); tall pages come back as several images. |
 | `preview` | A preview link to share with you. |
 
+## Custom components
+
+Designer sections with their own design that you still edit through their fields (words, pictures, links). Claude reaches for them only when no ready-made section fits; only owners and designers can change their code.
+
+| Tool | What it does |
+|---|---|
+| `list_components` | The site's designer sections and the Designer components library. |
+| `get_component` | One designer section's full definition, where it is used and any problems. |
+| `create_component` | Adds a designer section to the site, from the library or a new design. |
+| `update_component` | Changes a designer section's design; sections using it stay working. |
+| `preview_component` | Pictures of a designer section on its own (desktop and phone), with any problems found. |
+| `insert_component` | Places a designer section on a page. |
+
 ## Publishing and history
 
 | Tool | What it does |
