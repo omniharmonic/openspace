@@ -4,9 +4,9 @@ import { Icon } from "../icons";
 import {
   EditorNotice,
   headingLevelField,
+  OpeningSoon,
   sub,
   typo,
-  UnavailableNotice,
   useHub,
   useSiteServer,
 } from "../shared";
@@ -73,9 +73,11 @@ export const memberLoginBlock = defineBlock({
     const source = useSourcePath();
     const canSignIn = useSiteServer();
     const unavailable = (
-      <UnavailableNotice hint="Member sign-in needs the Cloudflare hosting option (Settings → Hosting). Until then visitors see this message instead of a sign-in form.">
-        Member sign-in isn't open yet.
-      </UnavailableNotice>
+      <OpeningSoon
+        kind="members"
+        compact={variant !== "form"}
+        hint="Visitors see this friendly “opening soon” note instead of a sign-in form until you turn on member sign-in in Finish setting up."
+      />
     );
     const heading = fields.heading ? (
       <HTag
