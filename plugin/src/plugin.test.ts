@@ -31,7 +31,7 @@ import {
  * Tools only the local stdio server (`openspace mcp`) adds on top of the shared set: they fetch
  * the web, so the Hub never serves them. Each must really be defined in the CLI.
  */
-const LOCAL_TOOLS = ["import_squarespace", "screenshot_url"];
+const LOCAL_TOOLS = ["import_site", "import_squarespace", "screenshot_url"];
 const CLI_MCP = join(REPO_ROOT, "packages", "cli", "src", "mcp");
 const TOOL_NAMES = new Set([...ALL_TOOLS.map((t) => t.name), ...LOCAL_TOOLS]);
 const read = (rel: string) => readFileSync(join(PLUGIN_ROOT, rel), "utf8");
@@ -70,6 +70,7 @@ describe("plugin structure (plugin-validator checklist)", () => {
       "design-check.md",
       "import-squarespace.md",
       "iterate.md",
+      "migrate.md",
       "new-site.md",
       "publish.md",
       "restyle.md",
@@ -236,6 +237,7 @@ describe("the Squarespace migration skill and command", () => {
       .join("\n");
     for (const t of LOCAL_TOOLS) expect(sources).toContain(`name: "${t}"`);
     const index = readFileSync(join(CLI_MCP, "index.ts"), "utf8");
+    expect(index).toMatch(/importSiteTool\(/);
     expect(index).toMatch(/importSquarespaceTool\(/);
     expect(index).toMatch(/screenshotUrlTool\(/);
     for (const t of LOCAL_TOOLS)
@@ -248,13 +250,30 @@ describe("the Squarespace migration skill and command", () => {
   it("the CLI has the import command the skill runs", () => {
     const program = readFileSync(join(REPO_ROOT, "packages", "cli", "src", "program.ts"), "utf8");
     expect(program).toMatch(/\.command\("import"\)/);
-    expect(program).toMatch(/\.command\("squarespace"\)/);
-    for (const flag of ["--owner", "--export", "--target", "--max-pages", "--delay", "--no-media"])
-      expect(program).toContain(flag);
+    for (const sub of ["squarespace", "wordpress", "url"])
+      expect(program).toMatch(new RegExp(`\\.command\\("${sub}"\\)`));
+    // `openspace import <url>`: the default subcommand detects the platform.
+    expect(program).toMatch(/\.command\("site", \{ isDefault: true/);
+    const flags = [
+      "--owner",
+      "--export",
+      "--render",
+      "--platform",
+      "--target",
+      "--max-pages",
+      "--delay",
+      "--no-media",
+    ];
+    for (const flag of flags) expect(program).toContain(flag);
     const skill = read("skills/openspace-migrate/SKILL.md");
-    for (const flag of ["--owner", "--export", "--target", "--max-pages", "--delay", "--no-media"])
-      expect(skill).toContain(flag);
-    expect(skill).toContain("npx -y @omniharmonic/openspace-cli import squarespace");
+    for (const flag of flags) expect(skill).toContain(flag);
+    for (const cmd of [
+      "npx -y @omniharmonic/openspace-cli import https://",
+      "npx -y @omniharmonic/openspace-cli import squarespace",
+      "npx -y @omniharmonic/openspace-cli import wordpress",
+      "npx -y @omniharmonic/openspace-cli import url",
+    ])
+      expect(skill).toContain(cmd);
   });
 
   it("the skill runs the screenshot comparison loop through design tools, never copied code", () => {
@@ -271,9 +290,15 @@ describe("the Squarespace migration skill and command", () => {
       "auto_mobile_layout",
       "set_styles",
       "get_draft_diff",
+      "import_site",
       "import_squarespace",
     ])
       expect(skill, t).toContain(`\`${t}\``);
+    for (const platform of ["Squarespace", "WordPress", "Wix", "Webflow", "Carrd", "Framer"])
+      expect(skill).toContain(platform);
+    expect(read("skills/openspace-migrate/references/platform-mapping.md")).toMatch(
+      /## WordPress[\s\S]*## Wix[\s\S]*## Webflow[\s\S]*## Any other site/,
+    );
     expect(skill).toMatch(/never copy it/i);
     expect(skill).toMatch(/desktop/);
     expect(skill).toMatch(/mobile/);
@@ -283,6 +308,13 @@ describe("the Squarespace migration skill and command", () => {
     const cmd = readMarkdown(join(PLUGIN_ROOT, "commands", "import-squarespace.md"));
     expect(cmd.body).toContain("openspace-migrate");
     expect(cmd.body).toContain("`screenshot_url`");
+    const migrate = readMarkdown(join(PLUGIN_ROOT, "commands", "migrate.md"));
+    expect(migrate.body).toContain("openspace-migrate");
+    expect(migrate.body).toContain("`screenshot_url`");
+    expect(migrate.body).toContain("`import_site`");
+    expect(migrate.body).toContain("npx -y @omniharmonic/openspace-cli import <url>");
+    expect(migrate.body).toMatch(/desktop and mobile/);
+    expect(migrate.body).toMatch(/honest summary/);
   });
 });
 

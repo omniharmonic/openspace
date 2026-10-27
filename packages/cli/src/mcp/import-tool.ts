@@ -31,15 +31,25 @@ const PLATFORMS = [
   "url",
 ] as const;
 
+const DESCRIPTION =
+  "Move a site the owner controls — Squarespace, WordPress, Wix, Webflow, Carrd, Framer or any HTML site — into a NEW OpenSpace site folder (pages, blog posts, media, navigation, SEO, redirects, an approximate Site Styles look with the closest section presets) and run openspace check. Detects the platform unless `platform` is given. Fetches the site politely (robots.txt honoured) and writes files, so it requires confirm: true after the owner agrees; `owner: true` (Squarespace ?format=json) only when they confirm they own the site; `render: true` reads JavaScript-built pages in a browser (Playwright). Does not change the site this server is serving. Returns the summary and the IMPORT-REPORT.md text.";
+
 /** `import_site`; `alias: true` registers the same tool as `import_squarespace` (Squarespace). */
 export function importSiteTool(opts: ImportToolOptions & { alias?: boolean }) {
   const legacy = opts.alias === true;
   return defineTool({
-    name: legacy ? "import_squarespace" : "import_site",
-    title: legacy ? "Import a Squarespace site" : "Import a website (any platform)",
-    description: legacy
-      ? "Older name of import_site for Squarespace sites (same behaviour with platform: squarespace). Prefer import_site."
-      : "Move a site the owner controls — Squarespace, WordPress, Wix, Webflow, Carrd, Framer or any HTML site — into a NEW OpenSpace site folder (pages, blog posts, media, navigation, SEO, redirects, an approximate Site Styles look with the closest section presets) and run openspace check. Detects the platform unless `platform` is given. Fetches the site politely (robots.txt honoured) and writes files, so it requires confirm: true after the owner agrees; `owner: true` (Squarespace ?format=json) only when they confirm they own the site; `render: true` reads JavaScript-built pages in a browser (Playwright). Does not change the site this server is serving. Returns the summary and the IMPORT-REPORT.md text.",
+    ...(legacy
+      ? {
+          name: "import_squarespace",
+          title: "Import a Squarespace site",
+          description:
+            "Older name of import_site for Squarespace sites (same behaviour with platform: squarespace). Prefer import_site.",
+        }
+      : {
+          name: "import_site",
+          title: "Import a website (any platform)",
+          description: DESCRIPTION,
+        }),
     input: z.object({
       url: z.string().min(4).describe("The site's address, e.g. https://www.example.com"),
       platform: z
