@@ -163,7 +163,7 @@ publicMemberRoutes.post("/m/:siteId/login", async (c) => {
   if (!emailDeliverable(services)) {
     if (json)
       return c.json(
-        failureBody({ status: 503, code: "email_unavailable", message: NO_EMAIL }),
+        { ok: false, message: NO_EMAIL, error: { code: "email_unavailable", message: NO_EMAIL } },
         503,
       );
     return c.html(
