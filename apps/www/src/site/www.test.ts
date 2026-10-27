@@ -112,9 +112,9 @@ describe("openspace.host site document", () => {
       "Bring your site home",
       "/plugin marketplace add omniharmonic/openspace",
       "/plugin install openspace",
-      "/openspace:import-squarespace",
-      "Squarespace moves automatically today",
-      "https://docs.openspace.host/guides/migrate-from-squarespace/",
+      "/openspace:migrate",
+      "Squarespace, WordPress, Wix, Webflow or anywhere else",
+      "https://docs.openspace.host/guides/migrate-to-openspace/",
     ])
       expect(move).toContain(phrase);
   });

@@ -50,9 +50,9 @@ export const MCP_ADD = `claude mcp add --transport http openspace ${HUB}/mcp`;
 const START = url(`${STUDIO}/templates`);
 /** Where people who already have a site sign in. */
 export const SIGN_IN = `${STUDIO}/sites`;
-export const IMPORT_CMD = "/openspace:import-squarespace https://www.example.com";
-export const IMPORT_CLI = "npx @omniharmonic/openspace-cli import squarespace <url>";
-export const MIGRATE_GUIDE = `${DOCS}/guides/migrate-from-squarespace/`;
+export const IMPORT_CMD = "/openspace:migrate https://www.example.com";
+export const IMPORT_CLI = "npx @omniharmonic/openspace-cli import <url>";
+export const MIGRATE_GUIDE = `${DOCS}/guides/migrate-to-openspace/`;
 
 /**
  * Donation links: Stripe Payment Links, one per amount (US dollars). This is the ONE place they
@@ -286,8 +286,8 @@ function move() {
       text(
         [
           rt.p([
-            rt.bold("Squarespace moves automatically today. "),
-            "More platforms are coming, and Claude can already rebuild a site from WordPress, Wix, Webflow or anywhere else from its public pages.",
+            rt.bold("Squarespace, WordPress, Wix, Webflow or anywhere else. "),
+            "Claude recognises where your site lives and brings it across, and for platforms without a dedicated importer it rebuilds each page from what visitors see.",
           ]),
           rt.p([rt.bold("In Claude Code, install the plugin:")]),
           rt.p([code(PLUGIN)]),
@@ -1680,7 +1680,7 @@ export const wwwSpec: TemplateSpec = {
                   ["Documentation", DOCS],
                   ["Getting started", `${DOCS}/getting-started/`],
                   ["Connect your AI", `${DOCS}/connect-your-ai/`],
-                  ["Move from Squarespace", `${DOCS}/guides/migrate-from-squarespace/`],
+                  ["Move your site", `${DOCS}/guides/migrate-to-openspace/`],
                   ["Templates", `${DOCS}/templates/`],
                   ["Self-hosting", `${DOCS}/self-hosting/`],
                   ["What works today", `${GITHUB}/blob/main/docs/PARITY.md`],

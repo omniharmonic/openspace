@@ -338,12 +338,12 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Move from Squarespace",
+                    "text": "Move your site",
                     "marks": [
                       {
                         "type": "link",
                         "attrs": {
-                          "href": "https://docs.openspace.host/guides/migrate-from-squarespace/"
+                          "href": "https://docs.openspace.host/guides/migrate-to-openspace/"
                         }
                       }
                     ]

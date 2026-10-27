@@ -286,7 +286,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Squarespace moves automatically today. ",
+                      "text": "Squarespace, WordPress, Wix, Webflow or anywhere else. ",
                       "marks": [
                         {
                           "type": "bold"
@@ -295,7 +295,7 @@
                     },
                     {
                       "type": "text",
-                      "text": "More platforms are coming, and Claude can already rebuild a site from WordPress, Wix, Webflow or anywhere else from its public pages."
+                      "text": "Claude recognises where your site lives and brings it across, and for platforms without a dedicated importer it rebuilds each page from what visitors see."
                     }
                   ]
                 },
@@ -360,7 +360,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "/openspace:import-squarespace https://www.example.com",
+                      "text": "/openspace:migrate https://www.example.com",
                       "marks": [
                         {
                           "type": "code"
@@ -381,7 +381,7 @@
                     },
                     {
                       "type": "text",
-                      "text": "npx @omniharmonic/openspace-cli import squarespace <url>",
+                      "text": "npx @omniharmonic/openspace-cli import <url>",
                       "marks": [
                         {
                           "type": "code"
@@ -409,7 +409,7 @@
             "label": "Read the moving guide",
             "link": {
               "type": "url",
-              "url": "https://docs.openspace.host/guides/migrate-from-squarespace/"
+              "url": "https://docs.openspace.host/guides/migrate-to-openspace/"
             }
           },
           "variant": "default",
