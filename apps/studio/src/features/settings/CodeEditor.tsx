@@ -38,7 +38,8 @@ export function CodeEditor({
 }: {
   value: string;
   onChange: (v: string) => void;
-  language: "css" | "html";
+  /** `plain` (no highlighting) for JavaScript and JSON. */
+  language: "css" | "html" | "plain";
   label: string;
   placeholder?: string;
   minHeight?: number;
@@ -58,7 +59,7 @@ export function CodeEditor({
         doc: value,
         extensions: [
           basicSetup,
-          language === "css" ? css() : html(),
+          ...(language === "css" ? [css()] : language === "html" ? [html()] : []),
           chrome,
           EditorView.lineWrapping,
           EditorState.readOnly.of(Boolean(readOnly)),

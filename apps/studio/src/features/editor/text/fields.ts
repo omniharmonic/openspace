@@ -1,5 +1,5 @@
-import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import type { Block, FieldMeta, RichTextDoc } from "@omniharmonic/openspace-schema";
+import { studioRegistry } from "../model/registry";
 
 /**
  * The words in a block that can be edited on the canvas: every rich-text and plain text field,
@@ -83,7 +83,7 @@ function walk(
 }
 
 export function textFieldsOf(block: Block): TextFieldRef[] {
-  const def = blocksRegistry().get(block.type);
+  const def = studioRegistry().get(block.type);
   if (!def) return [];
   const out: TextFieldRef[] = [];
   walk(def.meta.fields, block.fields, "", out);
@@ -157,7 +157,7 @@ export function fieldAtPoint(
 
 /** The field definition at a path (`items.2.body` → the list's `body` field). */
 export function fieldMetaAt(block: Block, path: string): FieldMeta | undefined {
-  const def = blocksRegistry().get(block.type);
+  const def = studioRegistry().get(block.type);
   let fields: Record<string, FieldMeta> | undefined = def?.meta.fields;
   let meta: FieldMeta | undefined;
   for (const key of path.split(".")) {

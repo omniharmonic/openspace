@@ -1,4 +1,3 @@
-import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
 import {
   ANIMATIONS,
@@ -17,6 +16,7 @@ import { SPACE_SCALES } from "@omniharmonic/openspace-theme";
 import { useMemo } from "react";
 import { Toggle } from "../../../ui";
 import { useDocStore, useDocStoreApi } from "../../editor/model/context";
+import { studioRegistry } from "../../editor/model/registry";
 import { useEditBp } from "../env";
 import { blockStyleOp, withStyle } from "../model/edits";
 import type { Capabilities } from "../model/permissions";
@@ -115,7 +115,7 @@ export function BlockDesign({
   const api = useDocStoreApi();
   const styles = useDocStore((s) => s.doc.styles);
   const bp = useEditBp();
-  const def = blocksRegistry().get(block.type);
+  const def = studioRegistry().get(block.type);
   const themes = useMemo(() => compiledStylesFor(styles).tokens.themes, [styles]);
   if (!def) return null;
   const slots = new Set<string>(def.styleSlots);

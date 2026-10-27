@@ -6,10 +6,16 @@ import {
   type PresetCategory,
 } from "@omniharmonic/openspace-blocks";
 import { Footer, Header, SectionView } from "@omniharmonic/openspace-renderer";
-import type { Page, Section, SiteDocument } from "@omniharmonic/openspace-schema";
+import type {
+  ComponentDefinition,
+  Page,
+  Section,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { Search } from "lucide-react";
 import { memo, useMemo, useState } from "react";
 import { cx, Input, Select } from "../../ui";
+import { DesignerGroup, designerChoices, matchesDesigner } from "./DesignerGallery";
 import { isHeaderPreset } from "./insert";
 import { PreviewFrame } from "./PreviewFrame";
 import "./add-section.css";
@@ -140,18 +146,24 @@ export function PresetGallery({
   pageId,
   layout,
   onPick,
+  onPickComponent,
+  canAddComponents = false,
   disabledTargets = [],
 }: {
   doc: SiteDocument;
   pageId: string;
   layout: "panel" | "dialog";
   onPick: (preset: Preset) => void;
+  /** Designer sections (custom components); the group is hidden without a handler. */
+  onPickComponent?: (def: ComponentDefinition) => void;
+  /** Library designs can be added to the site (owners and designers). */
+  canAddComponents?: boolean;
   /** Targets the person's role can't change (header/footer for editors). */
   disabledTargets?: Preset["target"][];
 }) {
   const [query, setQuery] = useState("");
   const [trait, setTrait] = useState<PresetTrait | null>(null);
-  const [category, setCategory] = useState<PresetCategory | "all">(
+  const [category, setCategory] = useState<PresetCategory | "all" | "designer">(
     layout === "dialog" ? "hero" : "all",
   );
   // Thumbnails depend on Site Styles, site chrome, the page list (header navigation) and the
@@ -165,7 +177,16 @@ export function PresetGallery({
   const thumbDoc = useMemo(() => doc, [doc.styles, doc.site, doc.config, navKey, mediaKey]);
   const page = thumbDoc.pages[pageId as keyof SiteDocument["pages"]];
   const effective = query.trim() ? "all" : category;
-  const presets = useMemo(() => filterPresets(query, effective, trait), [query, effective, trait]);
+  const presets = useMemo(
+    () => (effective === "designer" ? [] : filterPresets(query, effective, trait)),
+    [query, effective, trait],
+  );
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed on the site's components
+  const designer = useMemo(() => designerChoices(doc), [doc.components]);
+  const designerShown =
+    onPickComponent && !trait && (effective === "all" || effective === "designer")
+      ? designer.filter((c) => matchesDesigner(c, query))
+      : [];
   // Category counts follow the search and quick filter, so empty categories drop out.
   const counts = useMemo(() => {
     const c = new Map<string, number>();
@@ -221,9 +242,12 @@ export function PresetGallery({
           aria-label="Section category"
           size="sm"
           value={category}
-          onValueChange={(v) => setCategory(v as PresetCategory | "all")}
+          onValueChange={(v) => setCategory(v as PresetCategory | "all" | "designer")}
           options={[
             { value: "all", label: "All sections" },
+            ...(onPickComponent
+              ? [{ value: "designer", label: `Designer components (${designer.length})` }]
+              : []),
             ...cats.map((c) => ({
               value: c,
               label: `${PRESET_CATEGORY_LABELS[c]} (${counts.get(c) ?? 0})`,
@@ -244,13 +268,28 @@ export function PresetGallery({
             </button>
           ))}
           <span className="st-gal__count" aria-live="polite">
-            {presets.length} {presets.length === 1 ? "design" : "designs"}
+            {presets.length + designerShown.length}{" "}
+            {presets.length + designerShown.length === 1 ? "design" : "designs"}
           </span>
         </fieldset>
       </div>
       <div className="st-gal__main">
         {layout === "dialog" && (
           <nav className="st-gal__cats" aria-label="Section categories">
+            {onPickComponent && (
+              <button
+                type="button"
+                className="st-gal__cat"
+                aria-current={effective === "designer" ? "true" : undefined}
+                onClick={() => {
+                  setCategory("designer");
+                  setQuery("");
+                }}
+              >
+                Designer components
+                <span>{designer.length}</span>
+              </button>
+            )}
             {cats.map((c) => (
               <button
                 key={c}
@@ -270,6 +309,17 @@ export function PresetGallery({
           </nav>
         )}
         <div className="st-gal__list">
+          {onPickComponent && (
+            <DesignerGroup
+              choices={designerShown}
+              doc={thumbDoc}
+              page={page}
+              width={width}
+              canAddNew={canAddComponents}
+              showTitle={effective === "all" || layout === "panel"}
+              onPick={onPickComponent}
+            />
+          )}
           {groups.map(([c, list]) => (
             <section key={c} className="st-gal__group" aria-label={PRESET_CATEGORY_LABELS[c]}>
               {(effective === "all" || layout === "panel") && (
@@ -297,7 +347,7 @@ export function PresetGallery({
               </div>
             </section>
           ))}
-          {!groups.length && (
+          {!groups.length && !designerShown.length && (
             <p className="st-gal__empty">
               {query.trim() ? `No sections match “${query}”.` : "No sections match this filter."}
             </p>

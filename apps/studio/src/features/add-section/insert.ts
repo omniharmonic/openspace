@@ -1,13 +1,10 @@
-import {
-  blocksRegistry,
-  type HeaderPreset,
-  type Preset,
-  type SectionPreset,
-} from "@omniharmonic/openspace-blocks";
+import type { HeaderPreset, Preset, SectionPreset } from "@omniharmonic/openspace-blocks";
 import { CLOUDFLARE_BLOCKS, onGitHubPages } from "@omniharmonic/openspace-lint";
 import type { OpBody, Position } from "@omniharmonic/openspace-ops";
 import {
   type BlockCategory,
+  type ComponentDefinition,
+  componentSection,
   type GridItem,
   type GridLayout,
   resolve,
@@ -17,6 +14,7 @@ import {
 } from "@omniharmonic/openspace-schema";
 import { toast } from "../../ui";
 import { type Command, cloneBlock } from "../editor/model/actions";
+import { studioRegistry } from "../editor/model/registry";
 import { locate, type SelItem } from "../editor/model/selection";
 import type { BlockTarget } from "./blockMenuStore";
 
@@ -71,7 +69,7 @@ export function insertBlockCommand(
   type: string,
   target: BlockTarget,
 ): Command | null {
-  const def = blocksRegistry().get(type);
+  const def = studioRegistry().get(type);
   const loc = locate(doc, pageId, { kind: "section", id: target.section });
   if (!def || !loc) return null;
   // A new block's demo links (/schedule…) point at pages this site has.
@@ -179,4 +177,30 @@ export function insertedBlockTypes(cmd: Command | null): string[] {
       for (const blk of body.section.blocks) out.push(blk.type);
   }
   return out;
+}
+
+/**
+ * Add a designer section (custom component): an instance of a component the site has, or one
+ * from the Designer components library — then the definition is added to the site in the same
+ * step (owners and designers). Sample links point at pages the site has.
+ */
+export function componentCommand(
+  doc: SiteDocument,
+  pageId: string,
+  def: ComponentDefinition,
+  at: Position,
+): Command {
+  const inSite = Boolean(doc.components?.[def.name]);
+  const view = inSite
+    ? doc
+    : { ...doc, components: { ...(doc.components ?? {}), [def.name]: def } };
+  const section: Section = resolveInternalLinks(componentSection(def), view).value;
+  return {
+    bodies: [
+      ...(inSite ? [] : [{ op: "component.upsert", component: def } as OpBody]),
+      { op: "section.insert", page: pageId, at, section } as OpBody,
+    ],
+    select: [{ kind: "section", id: section.id }],
+    label: `Add ${def.label.toLowerCase()}`,
+  };
 }

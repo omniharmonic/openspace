@@ -1,4 +1,3 @@
-import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import {
   Accessibility,
   AtSign,
@@ -47,6 +46,7 @@ import {
   Shapes,
   Share2,
   ShoppingBag,
+  Sparkles,
   Sprout,
   SquareChartGantt,
   SquareSplitHorizontal,
@@ -56,6 +56,7 @@ import {
   Users,
   Utensils,
 } from "lucide-react";
+import { studioRegistry } from "./model/registry";
 
 /** Lucide icons named by block definitions (only the ones the library uses, to keep the bundle small). */
 const ICONS: Record<string, LucideIcon> = {
@@ -108,6 +109,7 @@ const ICONS: Record<string, LucideIcon> = {
   play: Play,
   quote: Quote,
   shapes: Shapes,
+  sparkles: Sparkles,
   "share-2": Share2,
   "square-chart-gantt": SquareChartGantt,
   table: Table,
@@ -115,7 +117,7 @@ const ICONS: Record<string, LucideIcon> = {
 };
 
 export function BlockIcon({ type, className }: { type: string; className?: string }) {
-  const name = blocksRegistry().get(type)?.icon;
+  const name = studioRegistry().get(type)?.icon;
   const Icon = (name && ICONS[name]) || Box;
   return <Icon className={className} aria-hidden="true" />;
 }
