@@ -6,8 +6,10 @@ import {
   copy,
   defineHeaderPreset,
   definePreset,
+  grid,
   heading,
   make,
+  r,
   rt,
   stack,
   text,
@@ -255,16 +257,21 @@ export const footerMorePresets = [
       whenToUse: "Studios, portfolios and brands with a short name.",
       avoid: `${FOOTER_AVOID} Names longer than ten letters — they won't fit.`,
     },
-    make: () => ({
-      layout: stack({ cols: [4, 4, 4], m: [6, 6], gap: "lg" }),
-      padding: { d: "xl", m: "lg" },
-      blocks: [
-        text([small("Brand and web design for independent shops. Portland, Oregon.")], { col: 0 }),
-        text([...links(["Work", "/work"], ["Studio", "/about"])], { col: 1 }),
-        text([...links(["Journal", "/journal/"], ["Contact", "/contact"])], { col: 2 }),
-        heading("Fernhill", { size: "display" }),
-      ],
-    }),
+    make: () => {
+      const about = text([small("Brand and web design for independent shops. Portland, Oregon.")]);
+      const a = text([...links(["Work", "/work"], ["Studio", "/about"])]);
+      const b = text([...links(["Journal", "/journal/"], ["Contact", "/contact"])]);
+      const mark = heading("Fernhill", { size: "display" });
+      return {
+        padding: { d: "xl", m: "lg" },
+        ...grid([
+          [about, r(1, 1, 8, 4), r(1, 1, 8, 4)],
+          [a, r(13, 1, 6, 4), r(1, 6, 4, 4)],
+          [b, r(19, 1, 6, 4), r(5, 6, 4, 4)],
+          [mark, r(1, 7, 24, 8), r(1, 11, 8, 5)],
+        ]),
+      };
+    },
   }),
 
   definePreset({

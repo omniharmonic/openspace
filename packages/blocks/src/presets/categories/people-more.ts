@@ -406,7 +406,7 @@ export const teamMorePresets = [
       avoid: `${TEAM_AVOID} Advertising roles that are already filled.`,
     },
     make: (c) => {
-      const h = heading("A small crew, growing slowly", { eyebrow: "Team" });
+      const h = heading("A small crew, growing slowly", { eyebrow: "Team", col: 0 });
       const people = team(
         [
           ["Jo Kowalski", "Owner and site lead", "portraitClara"],
@@ -414,11 +414,13 @@ export const teamMorePresets = [
           ["Sam Ortiz", "Electrician", "portraitSam"],
         ],
         "3",
+        { col: 0 },
       );
       const hiring = card(
         "We're hiring a second carpenter",
         "Full time, four-day week, own tools not required. We'd love to hear from you.",
         {
+          col: 1,
           icon: "hammer",
           eyebrow: "Open role",
           link: "/careers",
@@ -426,14 +428,10 @@ export const teamMorePresets = [
           style: panel("dark-accent"),
         },
       );
-      const cta = button("Join the crew", c.primary, { role: "tertiary" });
+      const cta = button("Join the crew", c.primary, { col: 1, role: "tertiary" });
       return {
-        ...grid([
-          [h, r(1, 1, 16, 4), r(1, 1, 8, 4)],
-          [people, r(1, 6, 18, 16), r(1, 6, 8, 40)],
-          [hiring, r(19, 6, 6, 14), r(1, 47, 8, 12)],
-          [cta, r(19, 21, 6, 2), r(1, 60, 8, 2)],
-        ]),
+        layout: stack({ cols: [9, 3], gap: "xl" }),
+        blocks: [h, people, hiring, cta],
       };
     },
   }),
@@ -698,37 +696,36 @@ export const logosMorePresets = [
       whenToUse: "Nonprofits, coalitions and programmes delivered with partners.",
       avoid: LOGO_AVOID,
     },
-    make: () => ({
-      layout: stack({ cols: [4, 4, 4], gap: "lg" }),
-      blocks: [
-        card(
-          "Eastside Schools Trust",
-          "Hosts our gardens at twelve schools and builds harvest lunches into the timetable.",
-          {
-            col: 0,
-            icon: "graduation-cap",
-            eyebrow: "Education partner",
-            style: panel("light"),
-          },
-        ),
-        card(
-          "City Parks Department",
-          "Supplies trees at cost and maps the hottest streets with us each spring.",
-          {
-            col: 1,
-            icon: "leaf",
-            eyebrow: "Public partner",
-            style: panel("light"),
-          },
-        ),
-        card("Riverside Community Fund", "Funds our tree keeper training and watering kits.", {
-          col: 2,
+    make: () => {
+      const h = heading("Our partners", { eyebrow: "Working together" });
+      const a = card(
+        "Eastside Schools Trust",
+        "Hosts our gardens at twelve schools and builds harvest lunches into the timetable.",
+        { icon: "graduation-cap", eyebrow: "Education partner", style: panel("light") },
+      );
+      const b = card(
+        "City Parks Department",
+        "Supplies trees at cost and maps the hottest streets with us each spring.",
+        { icon: "leaf", eyebrow: "Public partner", style: panel("light") },
+      );
+      const d = card(
+        "Riverside Community Fund",
+        "Funds our tree keeper training and watering kits.",
+        {
           icon: "heart-handshake",
           eyebrow: "Funder",
           style: panel("light"),
-        }),
-      ],
-    }),
+        },
+      );
+      return {
+        ...grid([
+          [h, r(1, 1, 16, 4), r(1, 1, 8, 4)],
+          [a, r(1, 6, 8, 10), r(1, 6, 8, 9)],
+          [b, r(9, 6, 8, 10), r(1, 16, 8, 9)],
+          [d, r(17, 6, 8, 10), r(1, 26, 8, 9)],
+        ]),
+      };
+    },
   }),
 
   definePreset({
