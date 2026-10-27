@@ -9,7 +9,7 @@ import { colorVar } from "@omniharmonic/openspace-theme";
 import { Fragment, type ReactNode, useContext } from "react";
 import { BlockFieldsContext, fieldPathOf, useEditor, useRenderContext } from "./context";
 import { cx } from "./cx";
-import { withBase } from "./link";
+import { internalHref } from "./link";
 
 /** Class for a typography preset: `os-type-h2`. */
 export const typeClass = (preset: TypePreset | "button" | "nav") => `os-type-${preset}`;
@@ -54,7 +54,7 @@ function wrapMark(mark: Mark, child: ReactNode, key: number, basePath: string): 
       return (
         <a
           key={key}
-          href={withBase(href, basePath)}
+          href={internalHref(href, basePath)}
           title={title}
           target={newTab ? "_blank" : undefined}
           rel={newTab ? "noopener" : undefined}

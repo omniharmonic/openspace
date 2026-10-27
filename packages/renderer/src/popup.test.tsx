@@ -33,7 +33,7 @@ describe("site pop-up", () => {
     expect(html).toContain('data-os-frequency="14"');
     expect(html).toContain("Ten percent off your first class");
     expect(html).toContain("Bring a friend to the Saturday flow.");
-    expect(html).toContain('href="/schedule"');
+    expect(html).toContain('href="/schedule/"');
   });
 
   it("is left out when disabled, absent, or in the editor canvas", () => {

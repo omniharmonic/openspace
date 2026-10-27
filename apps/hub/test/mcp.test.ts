@@ -455,6 +455,60 @@ describe("personal access tokens", () => {
     expect(res.status).toBe(401);
   });
 
+  it("a link is draft-only until the owner explicitly allows it to publish (and can take it back)", async () => {
+    const { app, owner, site } = await setupMcp();
+    const made = await call(app, `/api/sites/${site.id}/mcp/tokens`, {
+      method: "POST",
+      cookie: owner,
+      headers: { Origin: STUDIO_ORIGIN },
+      json: { label: "Laptop" },
+    });
+    const { token } = (await made.json()) as {
+      token: { id: string; url: string; publish: boolean };
+    };
+    expect(token.publish).toBe(false);
+    const mcp = new McpTestClient(app, new URL(token.url).pathname, null);
+    await mcp.initialize();
+    await mcp.tool("update_block", { page: T.home, block: T.heroTitle, set: { content: "# Hi" } });
+    const refused = await mcp.tool("publish", { confirm: true });
+    expect(toolText(refused)).toContain("isn't allowed to publish");
+    expect(toolText(await mcp.tool("get_site", {}))).toContain('"canPublish": false');
+
+    // An editor can't flip it — only the owner.
+    const ana = await devLogin(app, "Ana Ruiz");
+    await addMember(site.id, await userId(app, ana), "editor");
+    const anaLink = await call(app, `/api/sites/${site.id}/mcp/tokens`, {
+      method: "POST",
+      cookie: ana,
+      headers: { Origin: STUDIO_ORIGIN },
+      json: { label: "Ana", publish: true },
+    });
+    expect(anaLink.status).toBe(403);
+
+    const allow = await call(app, `/api/sites/${site.id}/mcp/tokens/${token.id}`, {
+      method: "PATCH",
+      cookie: owner,
+      headers: { Origin: STUDIO_ORIGIN },
+      json: { publish: true },
+    });
+    expect(allow.status).toBe(200);
+    expect(((await allow.json()) as { token: { publish: boolean } }).token.publish).toBe(true);
+    const published = await mcp.tool("publish", { confirm: true });
+    expect(published.result?.isError, toolText(published)).toBeFalsy();
+
+    const revoke = await call(app, `/api/sites/${site.id}/mcp/tokens/${token.id}`, {
+      method: "PATCH",
+      cookie: owner,
+      headers: { Origin: STUDIO_ORIGIN },
+      json: { publish: false },
+    });
+    expect(revoke.status).toBe(200);
+    await mcp.tool("update_block", { page: T.home, block: T.heroTitle, set: { content: "# Yo" } });
+    expect(toolText(await mcp.tool("publish", { confirm: true }))).toContain(
+      "isn't allowed to publish",
+    );
+  });
+
   it("contributors can't make one", async () => {
     const { app, site } = await setupMcp();
     const ana = await devLogin(app, "Ana Ruiz");

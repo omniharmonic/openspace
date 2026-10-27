@@ -263,7 +263,13 @@ describe("links", () => {
       href: "/maya-yoga/journal/opening-day/",
       broken: true,
     });
-    expect(resolveLink({ type: "url", url: "/schedule" }, opts).href).toBe("/maya-yoga/schedule");
+    // Pages are folders: GitHub Pages 301s /schedule → /schedule/, so links carry the slash.
+    expect(resolveLink({ type: "url", url: "/schedule" }, opts).href).toBe("/maya-yoga/schedule/");
+    expect(resolveLink({ type: "url", url: "/contact?x=1#form" }, opts).href).toBe(
+      "/maya-yoga/contact/?x=1#form",
+    );
+    expect(resolveLink({ type: "url", url: "/rss.xml" }, opts).href).toBe("/maya-yoga/rss.xml");
+    expect(resolveLink({ type: "url", url: "/#about" }, opts).href).toBe("/maya-yoga/#about");
     expect(
       resolveLink({ type: "url", url: "https://cal.com/maya", newTab: true }, opts),
     ).toMatchObject({
@@ -341,7 +347,7 @@ describe("RichText", () => {
       "/b",
     );
     expect(out).toBe(
-      '<div class="os-rich"><h2 class="os-type-display">Hi</h2><p><a href="/b/x" target="_blank" rel="noopener"><strong>bold link</strong></a><br/><mark class="os-highlight" style="--hl:var(--os-color-accent-200)">hl</mark></p><ul><li><p>one</p></li></ul><blockquote><p class="os-type-lead">q</p></blockquote></div>',
+      '<div class="os-rich"><h2 class="os-type-display">Hi</h2><p><a href="/b/x/" target="_blank" rel="noopener"><strong>bold link</strong></a><br/><mark class="os-highlight" style="--hl:var(--os-color-accent-200)">hl</mark></p><ul><li><p>one</p></li></ul><blockquote><p class="os-type-lead">q</p></blockquote></div>',
     );
   });
 });

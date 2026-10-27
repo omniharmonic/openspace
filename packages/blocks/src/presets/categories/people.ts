@@ -245,19 +245,19 @@ export const teamPresets = [
     make: () => ({
       layout: stack({ gap: "xl" }),
       blocks: [
-        heading("The people in the kitchen", {
+        heading("The people behind the work", {
           eyebrow: "Our team",
-          sub: "A small crew who've cooked together for years — and still argue about the best tomato.",
+          sub: "A small team who've worked together for years — and still care about every detail.",
         }),
         make(
           teamBlock,
           {
             columns: "4",
             people: [
-              person("Elena Ruiz", "Chef & owner", "portraitMaya"),
-              person("Sam Okoro", "Head of pastry", "portraitSam"),
-              person("Clara Jensen", "Front of house", "portraitClara"),
-              person("Theo Marsh", "Sommelier", "portraitTheo"),
+              person("Elena Ruiz", "Founder", "portraitMaya"),
+              person("Sam Okoro", "Lead", "portraitSam"),
+              person("Clara Jensen", "Client care", "portraitClara"),
+              person("Theo Marsh", "Operations", "portraitTheo"),
             ],
           },
           { variant: "grid" },

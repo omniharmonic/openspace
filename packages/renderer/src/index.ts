@@ -91,6 +91,7 @@ export {
 } from "./image-map";
 export * from "./layout-vars";
 export {
+  internalHref,
   itemPath,
   Link,
   type LinkProps,
@@ -102,6 +103,7 @@ export {
   resolveLink,
   sectionFragment,
   withBase,
+  withTrailingSlash,
 } from "./link";
 export { PageView, type PageViewProps, resolvePage } from "./page";
 export {

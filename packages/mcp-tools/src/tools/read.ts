@@ -116,6 +116,8 @@ export const getSite = defineTool({
         media: Object.keys(doc.media).length,
         capabilities: {
           ...ctx.store.capabilities,
+          // Same answer as list_sites: publishing needs both the store and this connection.
+          canPublish: ctx.grant.publish && ctx.store.capabilities.canPublish,
           grantPublish: ctx.grant.publish,
         },
       },

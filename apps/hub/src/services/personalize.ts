@@ -1,4 +1,10 @@
-import { type Op, type OpBody, validateAll, validateDocument } from "@omniharmonic/openspace-ops";
+import {
+  FOOTER,
+  type Op,
+  type OpBody,
+  validateAll,
+  validateDocument,
+} from "@omniharmonic/openspace-ops";
 import type { MediaId, SiteConfig, SiteDocument, SiteId } from "@omniharmonic/openspace-schema";
 import type { TemplateLook, TemplateMeta } from "./templates";
 
@@ -72,6 +78,43 @@ export function replaceInRichText(content: unknown, phrase: string, text: string
   return walk(content);
 }
 
+/** Fields that hold links, ids or settings — never the brand name shown to visitors. */
+const NOT_TEXT = /^(?:src|url|href|link|id|type|variant|icon|target|kind|style)$/;
+
+/**
+ * Replace the template's sample brand (its demo site title) with the new name in one block's
+ * fields, so the footer matches the header. Returns the changed fields, or null when unchanged.
+ */
+export function rebrandFields(
+  fields: Record<string, unknown>,
+  from: string,
+  to: string,
+): Record<string, unknown> | null {
+  if (!from || from === to) return null;
+  let changed = false;
+  const walk = (v: unknown, key?: string): unknown => {
+    if (typeof v === "string") {
+      if (key && NOT_TEXT.test(key)) return v;
+      if (!v.includes(from)) return v;
+      changed = true;
+      return v.split(from).join(to);
+    }
+    if (Array.isArray(v)) return v.map((x) => walk(x));
+    if (v && typeof v === "object") {
+      const o = v as Record<string, unknown>;
+      if (typeof o.src === "string" && key !== undefined) return v; // an image
+      return Object.fromEntries(Object.entries(o).map(([k, x]) => [k, walk(x, k)]));
+    }
+    return v;
+  };
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(fields)) {
+    const next = walk(v, k);
+    if (next !== v) out[k] = next;
+  }
+  return changed ? out : null;
+}
+
 function blockFields(
   doc: SiteDocument,
   pageId: string,
@@ -129,6 +172,14 @@ export function personalizeDocument(base: SiteDocument, input: PersonalizeInput)
       set: { [field]: value },
     });
   }
+  // The header shows the site title; the footer's wordmark and copyright line still carry the
+  // template's sample brand ("Relay", "Mara Quill"). Rename it there too.
+  const sampleBrand = base.site.title.trim();
+  if (sampleBrand && sampleBrand !== name)
+    for (const b of doc.site.footer.blocks) {
+      const set = rebrandFields(b.fields as Record<string, unknown>, sampleBrand, name);
+      if (set) bodies.push({ op: "block.update", page: FOOTER, block: b.id, set });
+    }
   if (tagline) {
     const home = Object.values(doc.pages).find((p) => p.slug === "");
     if (home)

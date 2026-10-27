@@ -1,5 +1,7 @@
 # OpenSpace plugin for Claude Code
 
+> **Site made in Studio?** You don't need the plugin to connect it. Run `claude mcp add --transport http openspace https://hub.openspace.host/mcp`, then `/mcp` → **Authenticate** (or use your personal link from Studio → Settings → Connect your AI). The plugin adds skills and commands on top; its own MCP server only serves site folders on your computer. See [below](#use-it-with-a-site-on-the-openspace-hub).
+
 Turns Claude into a careful web designer for [OpenSpace](https://github.com/omniharmonic/openspace) sites — the open-source website builder where every site is yours. Claude edits your site through typed, validated operations (never raw HTML), composes pages from designed section presets, restyles through Site Styles, and checks its own work with Design check and real screenshots at desktop, tablet and mobile widths.
 
 What's inside:
@@ -35,7 +37,7 @@ Or in one step on recent Claude Code versions:
 /plugin install openspace --marketplace omniharmonic/openspace
 ```
 
-Requirements: Node.js 22 or newer. For screenshots, install the `playwright` package in your site (`npm i -D playwright`) plus a browser: `npx playwright install chromium`, or an installed Google Chrome. For resizing large uploads, `npm i -D sharp`.
+Requirements: Node.js 22.23.4 or newer (Node 24 recommended). For screenshots, install the `playwright` package in your site (`npm i -D playwright`) plus a browser: `npx playwright install chromium`, or an installed Google Chrome. For resizing large uploads, `npm i -D sharp`.
 
 ## Use it with a local site
 
@@ -69,7 +71,9 @@ Sites created in Studio live on the Hub; connect Claude Code to the Hub's remote
 claude mcp add --transport http openspace https://hub.openspace.host/mcp
 ```
 
-On first use Claude Code opens the Hub's sign-in (GitHub) and a consent screen where you tick the sites Claude may edit and whether it may publish (off by default). Alternatively, paste the **personal link** from Studio → Settings → Connect your AI (`https://hub.openspace.host/mcp/t/…`) as the URL — it needs no sign-in, covers one site, and should be kept private like a password. Revoke links and connections in the same Settings tab.
+Then type `/mcp`, pick `openspace` and choose **Authenticate**: the Hub's sign-in (GitHub) opens, then a consent screen where you tick the sites Claude may edit and whether it may publish (off by default). Alternatively, use the **personal link** from Studio → Settings → Connect your AI (`claude mcp add --transport http openspace "<link>"`) — it needs no sign-in, covers one site, and should be kept private like a password. A link is draft-only unless the site owner turns on **Allow this link to publish** for it. Revoke links and connections in the same Settings tab.
+
+If the plugin is installed too, its local server simply stops outside a site folder ("Can't serve …: openspace.json"); the skills and commands work with the Hub connection.
 
 A ready-made entry is in [`examples/remote-hub.mcp.json`](examples/remote-hub.mcp.json); a self-hosted Hub uses its own `https://<your-hub>/mcp`. The Hub doesn't take screenshots yet, so Claude falls back to rendered HTML and a preview link there.
 

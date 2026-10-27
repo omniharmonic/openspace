@@ -43,7 +43,7 @@ export default defineConfig({
           items: [
             { label: "Overview", slug: "connect-your-ai" },
             { label: "Claude & Claude Desktop", slug: "connect-your-ai/claude" },
-            { label: "Claude Code plugin", slug: "connect-your-ai/claude-code" },
+            { label: "Claude Code", slug: "connect-your-ai/claude-code" },
             { label: "Tools reference", slug: "connect-your-ai/tools" },
           ],
         },

@@ -8,6 +8,15 @@ import { compareVersions } from "./semver";
 /** Astro 7 refuses to start below this Node version. */
 export const ASTRO_MIN_NODE = "22.23.4";
 
+/**
+ * Why this Node can't preview or build a site (Astro 7 refuses below {@link ASTRO_MIN_NODE}), or
+ * null when it's fine. npm only warns about `engines`, so the CLI says it plainly instead.
+ */
+export function astroNodeProblem(nodeVersion: string): string | null {
+  if (compareVersions(nodeVersion, ASTRO_MIN_NODE) >= 0) return null;
+  return `Astro needs Node ${ASTRO_MIN_NODE} or newer (Node 24 recommended), but this is Node ${nodeVersion}.\nInstall Node 24 (for example with nvm: "nvm install 24 && nvm use 24").`;
+}
+
 export type Spawner = (cmd: string, args: string[], opts: { cwd: string }) => ChildProcess;
 
 /** Find the astro CLI entry for the site in `cwd`. */
@@ -34,10 +43,8 @@ export async function runDev(
   spawner: Spawner = (c, a, o) => spawn(c, a, { ...o, stdio: "inherit" }),
   findBin: (cwd: string) => string | undefined = findAstroBin,
 ): Promise<number> {
-  if (compareVersions(io.nodeVersion, ASTRO_MIN_NODE) < 0)
-    throw new CliError(
-      `Astro needs Node ${ASTRO_MIN_NODE} or newer, but this is Node ${io.nodeVersion}.\nInstall a newer Node 22 (for example with nvm: "nvm install 22 && nvm use 22") and run "openspace dev" again.`,
-    );
+  const tooOld = astroNodeProblem(io.nodeVersion);
+  if (tooOld) throw new CliError(`${tooOld}\nThen run "openspace dev" again.`);
   if (!existsSync(join(io.cwd, "openspace.json")))
     throw new CliError('No openspace.json here. Run "openspace dev" from the root of your site.');
   const bin = findBin(io.cwd);

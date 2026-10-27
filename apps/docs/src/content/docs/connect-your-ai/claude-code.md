@@ -1,11 +1,32 @@
 ---
-title: Claude Code plugin
-description: Install the OpenSpace plugin for Claude Code for rapid web design — local MCP server, design skills, screenshot iteration and publishing commands.
+title: Claude Code
+description: Connect Claude Code to a Studio site through the Hub, or to a site folder on your computer with the OpenSpace plugin — design skills, screenshot iteration and publishing commands.
 ---
+
+Which setup you need depends on where your site lives:
+
+- **A site you made in Studio** lives on the Hub. Connect Claude Code to the Hub (below). The plugin is optional, for its skills and slash commands.
+- **A site folder on your computer** (one with `openspace.json`). Install the plugin; its built-in MCP server serves that folder.
+
+## A site you made in Studio (the Hub)
+
+```sh
+claude mcp add --transport http openspace https://hub.openspace.host/mcp
+```
+
+Then in Claude Code type `/mcp`, pick **openspace** and choose **Authenticate**. A GitHub sign-in opens: tick the sites Claude may edit and decide whether it may publish (off by default).
+
+Or use your **personal link** from Studio → Settings → Connect your AI: `claude mcp add --transport http openspace "<your link>"`. It needs no sign-in and covers one site. A link is draft-only unless the site owner turns on **Allow this link to publish** for it.
+
+Edits land in the same draft Studio shows, live. The Hub can't take screenshots yet; Claude uses rendered HTML and a preview link. If your site runs on a [self-hosted Hub](/self-hosting/), use that Hub's `/mcp` address.
+
+The plugin below adds skills and commands that work with the Hub connection too. Its own MCP server is only for local site folders: started outside one, it stops with "Can't serve …: openspace.json", which is harmless.
+
+## The OpenSpace plugin
 
 The **OpenSpace plugin** turns Claude Code into a careful web designer for OpenSpace sites. It's built for fast loops: inspect the page, run the Design check, make one change, look at real screenshots at desktop and phone widths, repeat.
 
-## Install
+### Install
 
 In Claude Code:
 
@@ -14,9 +35,9 @@ In Claude Code:
 /plugin install openspace
 ```
 
-You need Node.js 22 or newer. Screenshots need the `playwright` package in your site (`npm i -D playwright`) **and** a browser — `npx playwright install chromium`, or an installed Google Chrome; without them Claude falls back to the rendered HTML. To resize large uploads, also `npm i -D sharp`.
+You need Node.js 22.23.4 or newer (Node 24 recommended). Screenshots need the `playwright` package in your site (`npm i -D playwright`) **and** a browser — `npx playwright install chromium`, or an installed Google Chrome; without them Claude falls back to the rendered HTML. To resize large uploads, also `npm i -D sharp`.
 
-## What's included
+### What's included
 
 | Part | What it does |
 |---|---|
@@ -34,7 +55,7 @@ You need Node.js 22 or newer. Screenshots need the `playwright` package in your 
 | `/openspace:import-squarespace` | Move a Squarespace site into OpenSpace and match its look page by page ([guide](/guides/migrate-to-openspace/#squarespace)). |
 | **Agent: openspace-designer** | An independent design reviewer that returns a prioritized fix list. |
 
-## Work on a local site
+## Work on a local site folder
 
 The plugin's MCP server serves **the folder Claude Code was started in**, so start Claude Code inside your site (a folder with `openspace.json`):
 
@@ -72,16 +93,6 @@ claude mcp add openspace -- npx -y @omniharmonic/openspace-cli mcp . --no-publis
 ```
 
 Other options: `--no-screenshots`, and `--preview-port <n>` for a fixed preview port.
-
-## Work on a site hosted by the Hub
-
-Sites you created in Studio live on the Hub; connect Claude Code to its remote server:
-
-```sh
-claude mcp add --transport http openspace https://hub.openspace.host/mcp
-```
-
-Claude Code opens the sign-in and consent screen on first use (`/mcp` → authenticate). Or use your **personal link** from Studio → Settings → Connect your AI as the URL — it needs no sign-in and covers one site. Edits then land in the same draft Studio shows, live. The Hub can't take screenshots yet; Claude uses rendered HTML and a preview link.
 
 ## The iteration loop
 

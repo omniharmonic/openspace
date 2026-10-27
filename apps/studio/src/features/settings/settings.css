@@ -496,6 +496,21 @@
   font-weight: 600;
 }
 
+.st-token__publish {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.st-token__confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
 .st-token__label svg {
   width: 14px;
   height: 14px;
@@ -509,8 +524,7 @@
   gap: 12px;
 }
 
-.st-steps--sketch > li:first-child,
-.st-steps--sketch > li:last-child {
+.st-steps--sketch > li:not(:has(> .st-sketch)) {
   grid-template-columns: minmax(0, 1fr);
 }
 

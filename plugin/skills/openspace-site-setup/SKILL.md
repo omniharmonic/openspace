@@ -64,7 +64,7 @@ The folder must not exist yet (or be empty). The result has a fresh site id, the
 Useful commands inside the site:
 
 - `npx openspace check` — validates schemas, links, images, size budgets and scans for secrets. Run it before every publish.
-- `npm run dev` — local preview with live reload (Astro needs Node 22.23.4 or newer).
+- `npm run dev` — local preview with live reload (Astro needs Node 22.23.4 or newer; Node 24 recommended).
 - `npm run build` — the same static build the publish workflow runs.
 - `npx openspace agents-md` — refresh `AGENTS.md` after upgrading packages.
 
@@ -76,13 +76,13 @@ With this plugin installed, Claude Code starts `npx -y @omniharmonic/openspace-c
 - Large uploads (> 2400 px) are resized when `sharp` is installed; otherwise they're refused with a hint.
 - For unattended runs, run the server with `--no-publish` so the connection can edit but never commit (the plugin README shows the setup).
 
-For a Hub-hosted site (created in Studio), connect the remote server instead — the owner copies a personal link from Studio → Settings → Connect your AI:
+For a Hub-hosted site (created in Studio), connect the Hub's remote server instead — the plugin's own server only serves local folders:
 
 ```sh
-claude mcp add --transport http openspace <personal link or https://hub.openspace.host/mcp>
+claude mcp add --transport http openspace https://hub.openspace.host/mcp
 ```
 
-The plain `/mcp` URL signs in with OAuth (GitHub sign-in, then a consent screen choosing sites and whether publishing is allowed). A personal link (`…/mcp/t/…`) works without sign-in and covers one site — treat it like a password.
+Then `/mcp` → `openspace` → **Authenticate**: GitHub sign-in, then a consent screen choosing sites and whether publishing is allowed (off by default). Or the owner copies a personal link from Studio → Settings → Connect your AI and runs `claude mcp add --transport http openspace "<link>"` — no sign-in, one site, treat it like a password. A link is draft-only unless the owner turns on **Allow this link to publish** for it. In claude.ai or Claude Desktop: Settings → Connectors → Add custom connector, with the same `/mcp` URL (or the link).
 
 ## 4. Publish
 
@@ -94,7 +94,7 @@ The plain `/mcp` URL signs in with OAuth (GitHub sign-in, then a consent screen 
 
 Through MCP, `publish` (with `confirm: true`, only after the owner asks) commits `content/` and `media/` on the current branch with a change summary; pushing that commit publishes. `rollback` restores a version from `list_versions` as a new commit.
 
-**Studio sites:** the owner presses Publish in Studio, or Claude calls `publish` with `confirm: true` if the connection was granted publishing.
+**Studio sites:** the owner presses Publish in Studio, or Claude calls `publish` with `confirm: true` if the connection was granted publishing (a sign-in connection with **Can publish** on, or a personal link the owner explicitly allowed to publish).
 
 ## 5. Connect a custom domain
 
@@ -111,8 +111,8 @@ Editing `openspace.json` is a person's job — Claude's MCP tools can't change i
 
 ## Troubleshooting
 
-- _MCP server failed to start:_ Claude Code isn't running in a site folder (no `openspace.json`), or Node is older than 22. Run `npx -y @omniharmonic/openspace-cli mcp` by hand to see the message.
-- _`npm run dev` says Node is too old:_ install Node 22.23.4 or newer (Astro's requirement).
+- _MCP server failed to start:_ Claude Code isn't running in a site folder (no `openspace.json`), or Node is older than 22.23.4. Run `npx -y @omniharmonic/openspace-cli mcp` by hand to see the message.
+- _`npm run dev` says Node is too old:_ install Node 22.23.4 or newer — Node 24 recommended (Astro's requirement; `openspace check` and `openspace new` warn too).
 - _Publish workflow fails at `openspace check`:_ run `npx openspace check` locally; it names the file and field.
 - _Pages shows a 404 at the new domain:_ DNS hasn't propagated or the Pages custom domain isn't set yet; recheck in a few minutes.
 

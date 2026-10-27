@@ -19,7 +19,9 @@
  * - `PATCH  /api/mcp/grants/:id {publish}`   allow / stop publishing
  * - `DELETE /api/mcp/grants/:id`             disconnect (tokens revoked, sessions ended)
  * - `GET    /api/sites/:id/mcp/tokens`       personal connector links for a site
- * - `POST   /api/sites/:id/mcp/tokens {label, publish?}`  new link (the URL is shown once)
+ * - `POST   /api/sites/:id/mcp/tokens {label, publish?}`  new link (the URL is shown once;
+ *                                                 `publish: true` is owner-only)
+ * - `PATCH  /api/sites/:id/mcp/tokens/:tokenId {publish}`  owner-only opt-in: let this link publish
  * - `DELETE /api/sites/:id/mcp/tokens/:tokenId`
  */
 
@@ -490,6 +492,8 @@ mcpTokenRoutes.post("/:id/mcp/tokens", async (c) => {
   const input = await readJson(c, CreateTokenSchema);
   const site = await siteForUser(c.var.services, c.req.param("id"), user);
   requireRole(site, "editor");
+  // A link is a bearer secret anyone holding it can use, so letting one publish is the owner's call.
+  if (input.publish === true) requireRole(site, "owner");
   const token = `${TOKEN_PREFIX}${randomToken(32)}`;
   const now = c.var.services.now();
   const id = await createConnection(c.var.services.db, {
@@ -510,6 +514,29 @@ mcpTokenRoutes.post("/:id/mcp/tokens", async (c) => {
   });
   const row = (await getConnection(c.var.services.db, id)) as ConnectionRow;
   return c.json({ token: tokenView(c, row, token) }, 201);
+});
+
+const TokenPublishSchema = z.strictObject({ publish: z.boolean() });
+
+/** Owner-only, revocable opt-in: allow (or stop) one personal link publishing the live site. */
+mcpTokenRoutes.patch("/:id/mcp/tokens/:tokenId", async (c) => {
+  const user = requireUser(c);
+  const { publish } = await readJson(c, TokenPublishSchema);
+  const site = await siteForUser(c.var.services, c.req.param("id"), user);
+  requireRole(site, "owner");
+  const conn = (await listSiteTokens(c.var.services.db, user.id, site.id)).find(
+    (r) => r.id === c.req.param("tokenId"),
+  );
+  if (!conn) throw notFound("That link was already turned off.");
+  await setConnectionPublish(c.var.services.db, conn.id, publish);
+  await audit(c.var.services.db, {
+    siteId: site.id,
+    actor: user.id,
+    action: "mcp.publish",
+    meta: { connectionId: conn.id, publish },
+  });
+  const row = (await getConnection(c.var.services.db, conn.id)) as ConnectionRow;
+  return c.json({ token: tokenView(c, row) });
 });
 
 mcpTokenRoutes.delete("/:id/mcp/tokens/:tokenId", async (c) => {

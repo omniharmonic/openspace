@@ -167,6 +167,9 @@ describe("guards", () => {
     await noPublish.rpc.call("update_site", { set: { tagline: "Slow yoga by the creek" } });
     const e = await noPublish.rpc.callError("publish", { confirm: true });
     expect(e.code).toBe("forbidden");
+    // get_site agrees with the refusal (it used to say canPublish: true).
+    const caps = (await noPublish.rpc.call("get_site")).data.capabilities;
+    expect(caps).toMatchObject({ canPublish: false, grantPublish: false });
     expect(
       (await noPublish.rpc.callError("rollback", { version: "v0001", confirm: true })).code,
     ).toBe("forbidden");

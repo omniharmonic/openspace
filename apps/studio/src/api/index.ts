@@ -3,13 +3,19 @@ export * from "./catalog-types";
 export { HubProvider, useHub } from "./context";
 export * from "./growth-queries";
 export * from "./growth-types";
-export { createHttpHub, DEFAULT_HUB_URL, githubStartUrl } from "./http";
+export {
+  configuredHubUrl,
+  createHttpHub,
+  DEFAULT_HUB_URL,
+  githubStartUrl,
+  hubMcpUrl,
+} from "./http";
 export * from "./manage-queries";
 export * from "./manage-types";
 export * from "./queries";
 export * from "./types";
 
-import { createHttpHub, DEFAULT_HUB_URL } from "./http";
+import { configuredHubUrl, createHttpHub } from "./http";
 import type { HubApi } from "./types";
 
 /**
@@ -35,5 +41,5 @@ export async function hubFromEnv(env: ImportMetaEnv = import.meta.env): Promise<
       agentPresenceMs: 5000,
     });
   }
-  return createHttpHub({ baseUrl: env.VITE_HUB_URL || DEFAULT_HUB_URL });
+  return createHttpHub({ baseUrl: configuredHubUrl(env) });
 }

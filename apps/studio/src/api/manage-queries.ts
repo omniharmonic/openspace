@@ -150,6 +150,11 @@ export function useMcpActions(siteId: string) {
       mutationFn: (id: string) => hub.revokeMcpToken(siteId, id),
       onSuccess: tokens,
     }),
+    setTokenPublish: useMutation({
+      mutationFn: ({ id, publish }: { id: string; publish: boolean }) =>
+        hub.setMcpTokenPublish(siteId, id, publish),
+      onSuccess: tokens,
+    }),
     revokeGrant: useMutation({
       mutationFn: (id: string) => hub.revokeMcpGrant(id),
       onSuccess: grants,

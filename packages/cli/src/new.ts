@@ -246,7 +246,12 @@ async function scaffold(
       search: true,
     },
   };
-  if (opts.title) doc.site = { ...doc.site, title: opts.title };
+  if (opts.title) {
+    // The header shows the title; rename the template's sample brand in the footer too.
+    const from = doc.site.title.trim();
+    const footer = from && from !== opts.title ? rebrand(doc.site.footer, from, opts.title) : null;
+    doc.site = { ...doc.site, title: opts.title, ...(footer ? { footer } : {}) };
+  }
   await writeSiteDocument(dir, doc);
 
   // 4. AGENTS.md for this site.
@@ -260,4 +265,25 @@ async function scaffold(
     usedFallback: tpl.usedFallback,
     files: Object.keys(files).length,
   };
+}
+
+/** Fields that hold links, ids or settings — never the brand name visitors read. */
+const NOT_TEXT = /^(?:src|url|href|link|id|type|variant|icon|target|kind|style|preset)$/;
+
+/** A copy of `value` with `from` replaced by `to` in reading text (not links), or null if none. */
+export function rebrand<T>(value: T, from: string, to: string): T | null {
+  let changed = false;
+  const walk = (v: unknown, key?: string): unknown => {
+    if (typeof v === "string") {
+      if ((key && NOT_TEXT.test(key)) || !v.includes(from)) return v;
+      changed = true;
+      return v.split(from).join(to);
+    }
+    if (Array.isArray(v)) return v.map((x) => walk(x));
+    if (v && typeof v === "object")
+      return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x, k)]));
+    return v;
+  };
+  const out = walk(value) as T;
+  return changed ? out : null;
 }

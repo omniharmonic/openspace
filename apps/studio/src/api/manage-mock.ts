@@ -533,6 +533,7 @@ export function createManageMock(ctx: ManageMockContext): {
         url: `${base}osmcp_…${secret.slice(-4)}`,
         createdAt: iso(now()),
         lastUsedAt: null,
+        publish: false,
       };
       bucket(state.tokens, siteId, () => []).push(token);
       return { ...clone(token), url: `${base}${secret}` };
@@ -541,6 +542,16 @@ export function createManageMock(ctx: ManageMockContext): {
       await call("revokeMcpToken", [siteId, tokenId]);
       findSite(siteId);
       state.tokens[siteId] = (state.tokens[siteId] ?? []).filter((t) => t.id !== tokenId);
+    },
+    async setMcpTokenPublish(siteId, tokenId, publish) {
+      await call("setMcpTokenPublish", [siteId, tokenId, publish]);
+      const site = findSite(siteId);
+      if (site.role !== "owner")
+        throw new HubError(403, "forbidden", "Only the site owner can do that.");
+      const t = (state.tokens[siteId] ?? []).find((x) => x.id === tokenId);
+      if (!t) throw new HubError(404, "not_found", "That link was already turned off.");
+      t.publish = publish;
+      return clone(t);
     },
     async listMcpGrants() {
       await call("listMcpGrants", []);

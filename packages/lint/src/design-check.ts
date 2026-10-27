@@ -1,4 +1,10 @@
-import { copyViolations, getPreset } from "@omniharmonic/openspace-blocks";
+import {
+  copyViolations,
+  getPreset,
+  PLACEHOLDER_RE,
+  presetSampleStrings,
+  sampleMatches,
+} from "@omniharmonic/openspace-blocks";
 import { FOOTER, type Op, type SiteDocument } from "@omniharmonic/openspace-ops";
 import {
   type Block,
@@ -43,7 +49,9 @@ import { photoContrast } from "./photo-contrast";
  * pages without a clear call to action, more than one primary action per section, section color
  * rhythm (more than three in a row; flipping every section), copy outside a preset's
  * recommended range, photo backgrounds without a scrim, mixed image shapes in a section and
- * internal links that lead nowhere (the same rule `openspace check` fails a publish on).
+ * internal links that lead nowhere (the same rule `openspace check` fails a publish on), and
+ * preset sample content (another business's people, quotes and prices) or placeholder text
+ * left in before publishing.
  *
  * With `pageId`, page-level checks run for that page only (site-wide checks — styles, the
  * footer — always run). Issues come back sorted errors → warnings → info.
@@ -237,6 +245,48 @@ class Ctx {
       this.primaryActions(page, section);
       this.copyLength(page, section);
       this.background(page, section);
+      this.sampleContent(page, section);
+      this.placeholders(page, section);
+    }
+  }
+
+  /** Unedited preset sample content: made-up people, quotes, prices and contact details. */
+  sampleContent(page: string, section: Section) {
+    if (!section.preset) return;
+    const matches = sampleMatches(section, presetSampleStrings(section.preset));
+    const first = matches[0];
+    if (!first) return;
+    const examples = matches
+      .flatMap((m) => m.found)
+      .slice(0, 2)
+      .map((s) => `“${s.length > 48 ? `${s.slice(0, 47)}…` : s}”`)
+      .join(", ");
+    this.add({
+      rule: "sample-content",
+      severity: "warning",
+      page,
+      section: section.id,
+      block: first.blockId,
+      message: `This section still has sample content from its design (${examples}): people, quotes, prices or details that aren't about your site.`,
+      fix: "Edit it with your own words, people and numbers — or delete the section. Never publish made-up reviews or names.",
+    });
+  }
+
+  /** Placeholder text left in: "[PLACEHOLDER]", "[Your name]", "Lorem ipsum". */
+  placeholders(page: string, section: Section) {
+    for (const b of section.blocks) {
+      if (b.hidden) continue;
+      const m = PLACEHOLDER_RE.exec(blockText(b));
+      if (!m) continue;
+      this.add({
+        rule: "placeholder-text",
+        severity: "warning",
+        page,
+        section: section.id,
+        block: b.id,
+        message: `This block still has placeholder text (“${m[0]}”).`,
+        fix: "Edit it to say what you mean, or remove it before publishing.",
+      });
     }
   }
 

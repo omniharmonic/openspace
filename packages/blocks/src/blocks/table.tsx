@@ -121,66 +121,74 @@ export const tableBlock = defineBlock({
     const width = cols.length + 1;
     return (
       <div className={cx("os-table", `os-table--${variant}`)}>
-        <div
-          className="os-table__scroll"
-          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable so keyboard users can scroll it
-          tabIndex={0}
-        >
-          <table className="os-table__table" style={{ "--cols": cols.length }}>
-            {fields.caption ? (
-              <caption className="os-table__caption">{fields.caption}</caption>
-            ) : null}
-            <thead>
-              <tr>
-                {fields.corner ? (
-                  <th scope="col" className="os-table__corner">
-                    {fields.corner}
-                  </th>
-                ) : (
-                  <td className="os-table__corner" />
-                )}
-                {cols.map((c, i) => (
-                  <th
+        <p className="os-table__hint" aria-hidden="true">
+          Swipe sideways to see every column →
+        </p>
+        <div className="os-table__frame">
+          {/* biome-ignore lint/a11y/useSemanticElements: a named scroll group, not a form fieldset or a landmark */}
+          <div
+            className="os-table__scroll"
+            role="group"
+            aria-label={`${fields.caption || "Comparison table"} (scrolls sideways on small screens)`}
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable so keyboard users can scroll it
+            tabIndex={0}
+          >
+            <table className="os-table__table" style={{ "--cols": cols.length }}>
+              {fields.caption ? (
+                <caption className="os-table__caption">{fields.caption}</caption>
+              ) : null}
+              <thead>
+                <tr>
+                  {fields.corner ? (
+                    <th scope="col" className="os-table__corner">
+                      {fields.corner}
+                    </th>
+                  ) : (
+                    <td className="os-table__corner" />
+                  )}
+                  {cols.map((c, i) => (
+                    <th
+                      // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
+                      key={i}
+                      scope="col"
+                      className={cx("os-table__colhead", c.highlight && "is-highlight")}
+                    >
+                      <span className="os-table__label">{c.label}</span>
+                      {c.detail ? <span className="os-table__detail">{c.detail}</span> : null}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {fields.rows.map((row, i) =>
+                  row.group ? (
                     // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
-                    key={i}
-                    scope="col"
-                    className={cx("os-table__colhead", c.highlight && "is-highlight")}
-                  >
-                    <span className="os-table__label">{c.label}</span>
-                    {c.detail ? <span className="os-table__detail">{c.detail}</span> : null}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {fields.rows.map((row, i) =>
-                row.group ? (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
-                  <tr key={i} className="os-table__group">
-                    <th scope="colgroup" colSpan={width}>
-                      {row.label}
-                    </th>
-                  </tr>
-                ) : (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
-                  <tr key={i}>
-                    <th scope="row" className="os-table__rowhead">
-                      {row.label}
-                    </th>
-                    {cols.map((c, j) => (
-                      <td
-                        // biome-ignore lint/suspicious/noArrayIndexKey: cells have no ids
-                        key={j}
-                        className={cx(c.highlight && "is-highlight")}
-                      >
-                        <Cell value={row.cells[j]?.value ?? ""} />
-                      </td>
-                    ))}
-                  </tr>
-                ),
-              )}
-            </tbody>
-          </table>
+                    <tr key={i} className="os-table__group">
+                      <th scope="colgroup" colSpan={width}>
+                        {row.label}
+                      </th>
+                    </tr>
+                  ) : (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
+                    <tr key={i}>
+                      <th scope="row" className="os-table__rowhead">
+                        {row.label}
+                      </th>
+                      {cols.map((c, j) => (
+                        <td
+                          // biome-ignore lint/suspicious/noArrayIndexKey: cells have no ids
+                          key={j}
+                          className={cx(c.highlight && "is-highlight")}
+                        >
+                          <Cell value={row.cells[j]?.value ?? ""} />
+                        </td>
+                      ))}
+                    </tr>
+                  ),
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
         {fields.note ? <p className="os-table__note">{fields.note}</p> : null}
       </div>
@@ -192,6 +200,13 @@ export const tableCss = `
 .os-table{display:grid;gap:var(--os-space-xs);min-width:0}
 .os-table__scroll{overflow-x:auto;min-width:0;border-radius:var(--os-radius-card);overscroll-behavior-x:contain}
 .os-table__scroll:focus-visible{outline:2px solid var(--os-color-focus);outline-offset:2px}
+.os-table__frame{position:relative;min-width:0;timeline-scope:--os-table-x}
+.os-table__frame>.os-table__scroll{scroll-timeline:--os-table-x inline}
+.os-table__frame::after{content:"";position:absolute;inset-block:0;inset-inline-end:0;width:1.75rem;pointer-events:none;border-radius:0 var(--os-radius-card) var(--os-radius-card) 0;background:linear-gradient(to left,color-mix(in srgb,var(--os-color-heading) 18%,transparent),transparent);opacity:0}
+@supports (animation-timeline:scroll()){.os-table__frame::after{animation:os-table-cue linear both;animation-timeline:--os-table-x}}
+@keyframes os-table-cue{0%,90%{opacity:1}100%{opacity:0}}
+.os-table__hint{display:none;margin:0;font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}
+@media (max-width:40em){.os-table__hint{display:block}}
 .os-table__table{width:100%;min-width:calc(10rem + var(--cols,3) * 7.5rem);border-collapse:collapse;font-variant-numeric:tabular-nums}
 .os-table__caption{caption-side:top;text-align:start;padding:0 0 var(--os-space-xs);color:var(--os-color-text-muted);font-size:var(--os-type-small-font-size)}
 .os-table th,.os-table td{padding:0.85em 1em;text-align:center;vertical-align:middle;border-bottom:1px solid var(--os-color-border)}

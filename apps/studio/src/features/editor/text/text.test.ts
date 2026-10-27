@@ -102,6 +102,8 @@ describe("rich text ⇄ Tiptap", () => {
     const normalise = (html: string) =>
       html
         .replace(/ rel="noopener"/g, "")
+        // Published links to pages get a trailing slash; the editor keeps the stored href.
+        .replace(/href="(\/[^"?#.]*[^/"?#.])"/g, 'href="$1/"')
         .replace(/<br class="ProseMirror-trailingBreak"\/?>/g, "<br/>")
         .replace(/<br>/g, "<br/>")
         .replace(/style="--hl: ?([^";]+);?"/g, 'style="--hl:$1"')

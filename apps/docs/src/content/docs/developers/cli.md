@@ -64,7 +64,7 @@ npx openspace check --json
 
 ## `openspace dev`
 
-Runs the site locally with live reload (`astro dev`; Astro needs Node 22.23.4 or newer). Extra arguments go to Astro, e.g. `npx openspace dev --port 4000`. `npm run dev` does the same.
+Runs the site locally with live reload (`astro dev`; Astro needs Node 22.23.4 or newer, Node 24 recommended — `dev` stops with a clear message on older Node, and `new` and `check` warn). Extra arguments go to Astro, e.g. `npx openspace dev --port 4000`. `npm run dev` does the same.
 
 ## `openspace mcp [dir]`
 

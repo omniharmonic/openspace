@@ -48,7 +48,7 @@ exports[`SectionView > renders a stack section (SSR snapshot) 1`] = `
 <div class="os-block os-block--text" data-os-id="blk_a1a1a1a1a1" data-os-block="text">
 <div class="os-rich">
 <h1 class="os-type-display">Slow, grounded yoga</h1>
-<p class="os-type-lead">Small classes on <strong>Pearl Street</strong>. <a href="/schedule">See the schedule</a>
+<p class="os-type-lead">Small classes on <strong>Pearl Street</strong>. <a href="/schedule/">See the schedule</a>
 </p>
 </div>
 </div>

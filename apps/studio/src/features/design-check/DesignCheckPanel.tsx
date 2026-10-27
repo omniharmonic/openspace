@@ -5,6 +5,7 @@ import {
   CircleCheck,
   Crosshair,
   Info,
+  Pencil,
   SearchCheck,
   TriangleAlert,
   WandSparkles,
@@ -130,6 +131,9 @@ export function applyAllSafe(
   return fixed.length;
 }
 
+/** Rules fixed by rewriting content yourself: the action selects the block to edit. */
+const EDIT_RULES: ReadonlySet<string> = new Set(["sample-content", "placeholder-text"]);
+
 function IssueRow({
   issue,
   canApply,
@@ -151,8 +155,13 @@ function IssueRow({
         <p className="st-dc__fix">{issue.fix}</p>
         <div className="st-dc__actions">
           {target && (
-            <Button size="sm" variant="ghost" icon={<Crosshair />} onClick={() => onJump(issue)}>
-              Show
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={EDIT_RULES.has(issue.rule) ? <Pencil /> : <Crosshair />}
+              onClick={() => onJump(issue)}
+            >
+              {EDIT_RULES.has(issue.rule) ? "Edit" : "Show"}
             </Button>
           )}
           {issue.autofix && canApply && (
