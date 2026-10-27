@@ -6,6 +6,7 @@ import { DevGitHubAccess } from "../src/github/dev";
 import { DRAFT_BRANCH } from "../src/github/types";
 import { createServices } from "../src/services";
 import { guessSiteName, parseImportSource, placeholderDocument } from "../src/services/import-site";
+import { plainWords } from "../src/services/import-words";
 import {
   attentionFromReport,
   failureMessage,
@@ -108,7 +109,7 @@ describe("what the person pastes", () => {
     // Public while the move runs: it says "being set up", never promises a time.
     expect(JSON.stringify(again)).toContain("This site is being set up");
     expect(JSON.stringify(again)).not.toContain("few minutes");
-    expect(again.pages[Object.keys(again.pages)[0] as string]?.seo?.noindex).toBe(true);
+    expect(Object.values(again.pages)[0]?.seo?.noindex).toBe(true);
   });
 });
 
@@ -159,6 +160,42 @@ describe("the import workflow", () => {
     expect(failureMessage(row, ["Bringing pages across"], "")).toBe(
       "The move stopped while bringing pages across. This is usually temporary — choose Try again.",
     );
+  });
+
+  it("What needs your attention speaks the owner's language, not the importer's", () => {
+    const report = [
+      "# Import report",
+      "",
+      "## Needs attention",
+      "",
+      "### Commerce",
+      "",
+      "- 15 product(s) imported as catalog content. Selling needs the Cloudflare target and Stripe connected in the Hub; orders, customers, inventory, discounts, shipping and tax settings stay in Squarespace. _(/shop)_",
+      "",
+      "### Forms and newsletter",
+      "",
+      "- Newsletter signup recreated. Squarespace Email Campaigns / Mailchimp subscribers are not moved: export your list from Squarespace and import it in the Hub. _(/)_",
+      "",
+      "### Other",
+      "",
+      "- The page had no Heading 1; its first heading was made the Heading 1 (search engines and screen readers use it). _(/about)_",
+      "- The home page was a collection on Squarespace; it is now a page listing that collection (the collection has its own address, with a redirect). _(site)_",
+      "- Member area: its content isn't public, so it was not imported. Recreate it as a members-only page (Cloudflare target). _(/members)_",
+      "",
+    ].join("\n");
+    const all = attentionFromReport(report).flatMap((g) => g.items);
+    expect(all).toHaveLength(5);
+    const text = all.join("\n");
+    for (const jargon of [/Cloudflare/, /\bHub\b/, /Heading 1/, /target/, /\(s\)/, /collection on/])
+      expect(text).not.toMatch(jargon);
+    expect(all[0]).toContain("Your 15 products came across");
+    expect(all[0]).toContain("(/shop)");
+    expect(all[1]).toContain("Inbox → Subscribers → Import");
+    expect(all[2]).toContain("main title");
+    expect(plainWords("1 form(s) came across.")).toBe("1 form came across.");
+    expect(
+      plainWords("Selling needs the Cloudflare target and Stripe connected in the Hub."),
+    ).not.toMatch(/Cloudflare|Hub/);
   });
 
   it("turns IMPORT-REPORT.md into What needs your attention", () => {

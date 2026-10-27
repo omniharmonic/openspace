@@ -11,6 +11,7 @@
  * - `refreshImport`: the state machine, driven by Studio's polling, the `workflow_run` webhook,
  *   progress reports from the run itself (`/ci/sites/:id/import`) and the minute cron.
  */
+
 import { newId, type SiteId } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { audit } from "../db/audit";
@@ -60,6 +61,7 @@ import {
   placeholderDocument,
   shellFiles,
 } from "./import-site";
+import { plainWords } from "./import-words";
 import type { Services } from "./index";
 import {
   getSiteView,
@@ -195,6 +197,12 @@ export function attentionFromReport(report: string | null): AttentionGroup[] {
       .replace(/\*\*([^*]+)\*\*/g, "$1")
       .replace(/`([^`]+)`/g, "$1")
       .trim();
+  const friendly = (s: string) => {
+    // Keep where it happened ("(/shop)") after the translated sentence.
+    const m = /^(.*?)( \([^()]*\))?$/.exec(s);
+    const where = m?.[2] && !/\(s\)$/.test(m[2]) ? m[2] : "";
+    return `${plainWords(where ? (m?.[1] ?? s) : s)}${where}`;
+  };
   for (const line of section.split("\n")) {
     const h = /^### (.+)$/.exec(line);
     if (h) {
@@ -203,7 +211,8 @@ export function attentionFromReport(report: string | null): AttentionGroup[] {
       continue;
     }
     const b = /^- (.+)$/.exec(line);
-    if (b && current && current.items.length < 20) current.items.push(clean(b[1] as string));
+    if (b && current && current.items.length < 20)
+      current.items.push(friendly(clean(b[1] as string)));
   }
   return groups.filter((g) => g.items.length);
 }
@@ -258,7 +267,8 @@ function stepsFor(row: ImportRow, counts: ImportCounts | null): ImportStep[] {
     label: labels[id],
     ...(id === "pages" && counts
       ? {
-          detail: `${counts.pages} page${counts.pages === 1 ? "" : "s"}${counts.items ? `, ${counts.items} post${counts.items === 1 ? "" : "s"}` : ""}, ${counts.media} image${counts.media === 1 ? "" : "s"}`,
+          // "items": blog posts, products, events… (a shop's products aren't posts).
+          detail: `${counts.pages} page${counts.pages === 1 ? "" : "s"}${counts.items ? `, ${counts.items} item${counts.items === 1 ? "" : "s"}` : ""}, ${counts.media} image${counts.media === 1 ? "" : "s"}`,
         }
       : {}),
     state:
@@ -327,8 +337,8 @@ export function toImportView(
     parseJson<{ items?: ImportView["checklist"] }>(row.checklist_json)?.items?.map((i) => ({
       id: i.id,
       kind: i.kind,
-      title: i.title,
-      detail: i.detail,
+      title: plainWords(i.title),
+      detail: plainWords(i.detail),
     })) ?? [];
   return {
     id: row.id,

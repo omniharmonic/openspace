@@ -144,7 +144,7 @@ export function MoveProgress() {
               <h1 className="st-move__title">Your site is live!</h1>
               <p className="st-move__lede">
                 {view.counts
-                  ? `${view.counts.pages} pages${view.counts.items ? `, ${view.counts.items} posts` : ""} and ${view.counts.media} images came across. `
+                  ? `${view.counts.pages} pages${view.counts.items ? `, ${view.counts.items} ${view.counts.items === 1 ? "item" : "items"}` : ""} and ${view.counts.media} images came across. `
                   : ""}
                 It’s on free hosting, and it’s yours to edit.
               </p>

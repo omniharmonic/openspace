@@ -43,7 +43,7 @@ describe("Move my site (hosted import)", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /github\.io\/maya-yoga/ })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Progress" })).toHaveTextContent(
-      "6 pages, 4 posts, 23 images",
+      "6 pages, 4 items, 23 images",
     );
     const attention = screen
       .getByRole("heading", { name: "What needs your attention" })

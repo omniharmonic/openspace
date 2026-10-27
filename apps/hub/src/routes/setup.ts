@@ -12,6 +12,7 @@ import { requireUser } from "../auth/session";
 import { getUserRow, toUser } from "../db/users";
 import { DRAFT_BRANCH, MAIN_BRANCH, parseRepo } from "../github/types";
 import { hasBeenLive } from "../services/hosting-switch";
+import { plainWords } from "../services/import-words";
 import { siteForUser } from "../services/sites";
 import type { AppEnv } from "../types";
 
@@ -82,8 +83,8 @@ export function parseSetupChecklist(text: string | null): ImportedSetup | null {
     items.push({
       id: it.data.id,
       kind,
-      title: it.data.title,
-      detail: it.data.detail ?? null,
+      title: plainWords(it.data.title),
+      detail: it.data.detail ? plainWords(it.data.detail) : null,
       where: it.data.where ?? [],
       count: it.data.count ?? null,
       done: it.data.status === "done",
