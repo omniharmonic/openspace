@@ -34,9 +34,9 @@ describe("openspace.dev site document", () => {
       expect(home).toContain(phrase);
   });
 
-  it("lists all twelve templates with their looks in the gallery", () => {
+  it("lists every template with its looks in the gallery", () => {
     const gallery = text(bySlug("templates"));
-    expect(templateSpecs).toHaveLength(12);
+    expect(templateSpecs).toHaveLength(20);
     for (const s of templateSpecs) {
       expect(gallery).toContain(`media/templates/${s.id}-looks.png`);
       expect(gallery).toContain(`https://studio.openspace.dev/new/${s.id}`);

@@ -49,7 +49,7 @@ describe("templates API", () => {
     const { templates: items } = (await res.json()) as {
       templates: Array<Record<string, unknown>>;
     };
-    expect(items).toHaveLength(12);
+    expect(items).toHaveLength(20);
     expect(items.map((t) => t.id)).not.toContain("basic");
     expect(items[0]).toMatchObject({
       id: "meadow",

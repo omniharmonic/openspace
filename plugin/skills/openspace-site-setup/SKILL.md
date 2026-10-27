@@ -31,6 +31,14 @@ The twelve launch templates (each with three looks):
 | `commons`     | Coalitions, cooperatives, movements | Grounded, collective        |
 | `vow`         | Weddings and celebrations           | Romantic, refined           |
 | `link`        | Link-in-bio, single page            | Mobile-first, punchy        |
+| `darkroom`    | Photographers, creative portfolios  | Editorial, image-first      |
+| `orbit`       | SaaS, apps, product launches        | Crisp, confident, modern    |
+| `beacon`      | Nonprofits, charities, campaigns    | Hopeful, clear, trustworthy |
+| `fixwell`     | Local trades, cleaners, salons      | Dependable, direct, local   |
+| `keystone`    | Consultants and coaches             | Calm, candid, assured       |
+| `gather`      | Events, festivals, conferences      | Energetic, clear, welcoming |
+| `inkwell`     | Writers, authors, newsletters       | Literary, warm, unhurried   |
+| `folio`       | Personal sites, résumés             | Friendly, clear, personal   |
 
 Choose by the person's purpose, not their favourite color — looks change color and type later in one call (`apply_template_look`).
 

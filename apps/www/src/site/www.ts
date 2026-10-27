@@ -196,7 +196,7 @@ function home() {
               {
                 heading: "Pick a template",
                 body: body(
-                  "Twelve designs for practices, restaurants, nonprofits, artists, shops and more, each in three looks.",
+                  "Twenty designs for practices, restaurants, nonprofits, trades, events and more, each in three looks.",
                 ),
               },
               {
@@ -357,9 +357,10 @@ function home() {
   );
 }
 
-/** The six MVP templates first, then the six that followed (doc 04 §7). */
+/** The six MVP templates first, then the six that followed (doc 04 §7), then templates v2. */
 const FIRST = ["meadow", "harbor", "atelier", "ledger", "hearth", "signal"];
 const SECOND = ["field-notes", "encore", "kiln", "commons", "vow", "link"];
+const THIRD = ["darkroom", "orbit", "beacon", "fixwell", "keystone", "gather", "inkwell", "folio"];
 
 function templates() {
   const gallery = (
@@ -381,14 +382,14 @@ function templates() {
     P.templates,
     "Templates",
     "templates",
-    "Twelve OpenSpace templates for practices, nonprofits, artists, restaurants, shops and more, each with three looks. Free to use and change.",
+    "Twenty OpenSpace templates for practices, nonprofits, artists, restaurants, trades, events and more, each with three looks. Free to use.",
     [
       fromPreset("hero/centered@1", {
         theme: "light-accent",
         edit: {
           heading: {
             eyebrow: "Template gallery",
-            text: "Twelve templates, three looks each",
+            text: "Twenty templates, three looks each",
             subheading:
               "Every template arrives finished: real-feeling pages, photography and a type pairing chosen for its purpose. Switch looks any time without touching your content.",
           },
@@ -407,6 +408,13 @@ function templates() {
         "Writers, artists, shops and occasions",
         "And six more",
         "more",
+      ),
+      gallery(
+        THIRD,
+        "light",
+        "Portfolios, products, causes, trades and events",
+        "New this season",
+        "new",
       ),
       fromPreset("cta/split@1", {
         theme: "dark",
@@ -458,7 +466,7 @@ function pricing() {
           },
           "icon-list": {
             items: [
-              { icon: "check", title: "All twelve templates and every section preset" },
+              { icon: "check", title: "All twenty templates and every section preset" },
               { icon: "check", title: "Forms, newsletter signups and analytics" },
               { icon: "check", title: "Blog, events, members and a store" },
               { icon: "check", title: "Custom domains with free HTTPS" },

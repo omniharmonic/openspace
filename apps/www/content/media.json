@@ -206,5 +206,133 @@
     },
     "license": "CC-BY-4.0",
     "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/darkroom-looks.png": {
+    "id": "med_www0000013",
+    "path": "media/templates/darkroom-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 464757,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Darkroom template's home page in its three looks: Gallery, Contact sheet, Golden hour",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/orbit-looks.png": {
+    "id": "med_www0000014",
+    "path": "media/templates/orbit-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 356129,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Orbit template's home page in its three looks: Indigo, Aurora, Blueprint",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/beacon-looks.png": {
+    "id": "med_www0000015",
+    "path": "media/templates/beacon-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 542550,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Beacon template's home page in its three looks: Canopy, Sunrise, Civic",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/fixwell-looks.png": {
+    "id": "med_www0000016",
+    "path": "media/templates/fixwell-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 342554,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Fixwell template's home page in its three looks: Workwear, Fresh, Heritage",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/keystone-looks.png": {
+    "id": "med_www0000017",
+    "path": "media/templates/keystone-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 212261,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Keystone template's home page in its three looks: Slate, Clay, Boardroom",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/gather-looks.png": {
+    "id": "med_www0000018",
+    "path": "media/templates/gather-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 375537,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Gather template's home page in its three looks: Marquee, Programme, Festival",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/inkwell-looks.png": {
+    "id": "med_www0000019",
+    "path": "media/templates/inkwell-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 408063,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Inkwell template's home page in its three looks: Paper, Riverbank, Night edition",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
+  },
+  "media/templates/folio-looks.png": {
+    "id": "med_www0000020",
+    "path": "media/templates/folio-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 461539,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Folio template's home page in its three looks: Studio, Sketchbook, Monospace",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-26T12:00:00Z"
   }
 }

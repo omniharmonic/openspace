@@ -89,9 +89,9 @@ describe("docs content", () => {
     for (const p of prompts) expect(ref, p).toContain(`\`${p}\``);
   });
 
-  it("lists all twelve templates", async () => {
+  it("lists every template", async () => {
     const text = await source("templates");
-    expect(templateSpecs).toHaveLength(12);
+    expect(templateSpecs).toHaveLength(20);
     for (const s of templateSpecs) expect(text).toContain(`**${s.name}**`);
   });
 

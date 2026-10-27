@@ -202,9 +202,9 @@ describe("skills and commands match the real MCP server", () => {
     expect(unknown).toEqual([]);
   });
 
-  it("the setup skill lists all twelve templates", () => {
+  it("the setup skill lists every template", () => {
     const skill = read("skills/openspace-site-setup/SKILL.md");
-    expect(TEMPLATE_IDS).toHaveLength(12);
+    expect(TEMPLATE_IDS).toHaveLength(20);
     for (const id of TEMPLATE_IDS) expect(skill).toContain(`\`${id}\``);
     const cmd = readMarkdown(join(PLUGIN_ROOT, "commands", "new-site.md")).body;
     for (const id of TEMPLATE_IDS) expect(cmd).toContain(`\`${id}\``);

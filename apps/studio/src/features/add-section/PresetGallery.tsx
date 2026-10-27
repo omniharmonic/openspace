@@ -72,19 +72,55 @@ export const PresetThumb = memo(function PresetThumb({
   );
 });
 
-/** Search across a preset's name, description, tags and category. */
+/**
+ * Search across a preset's name, description, tags, category and AI guidance (so "restaurant"
+ * or "nonprofit" finds the presets written for them).
+ */
 export function matchesPreset(p: Preset, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  const hay = [p.label, p.description, p.category, PRESET_CATEGORY_LABELS[p.category], ...p.tags]
+  const hay = [
+    p.label,
+    p.description,
+    p.category,
+    PRESET_CATEGORY_LABELS[p.category],
+    ...p.tags,
+    p.ai.purpose,
+    p.ai.whenToUse,
+  ]
     .join(" ")
     .toLowerCase();
   return q.split(/\s+/).every((w) => hay.includes(w));
 }
 
-export function filterPresets(query: string, category: PresetCategory | "all"): Preset[] {
+/** Quick filters on how a preset looks, derived from its metadata. */
+export const PRESET_TRAITS = [
+  { id: "photo", label: "Photos", test: (p: Preset) => p.images.length > 0 },
+  {
+    id: "text",
+    label: "Text only",
+    test: (p: Preset) => p.images.length === 0 && p.target !== "header",
+  },
+  { id: "layered", label: "Layered", test: (p: Preset) => p.overlap },
+  {
+    id: "dark",
+    label: "Dark",
+    test: (p: Preset) => p.defaultTheme === "dark" || p.defaultTheme === "dark-accent",
+  },
+] as const;
+export type PresetTrait = (typeof PRESET_TRAITS)[number]["id"];
+
+export function filterPresets(
+  query: string,
+  category: PresetCategory | "all",
+  trait: PresetTrait | null = null,
+): Preset[] {
+  const t = trait ? PRESET_TRAITS.find((x) => x.id === trait) : undefined;
   return allPresets.filter(
-    (p) => (category === "all" || p.category === category) && matchesPreset(p, query),
+    (p) =>
+      (category === "all" || p.category === category) &&
+      matchesPreset(p, query) &&
+      (!t || t.test(p)),
   );
 }
 
@@ -112,6 +148,7 @@ export function PresetGallery({
   disabledTargets?: Preset["target"][];
 }) {
   const [query, setQuery] = useState("");
+  const [trait, setTrait] = useState<PresetTrait | null>(null);
   const [category, setCategory] = useState<PresetCategory | "all">(
     layout === "dialog" ? "hero" : "all",
   );
@@ -126,13 +163,20 @@ export function PresetGallery({
   const thumbDoc = useMemo(() => doc, [doc.styles, doc.site, doc.config, navKey, mediaKey]);
   const page = thumbDoc.pages[pageId as keyof SiteDocument["pages"]];
   const effective = query.trim() ? "all" : category;
-  const presets = useMemo(() => filterPresets(query, effective), [query, effective]);
+  const presets = useMemo(() => filterPresets(query, effective, trait), [query, effective, trait]);
+  // Category counts follow the search and quick filter, so empty categories drop out.
   const counts = useMemo(() => {
+    const c = new Map<string, number>();
+    for (const p of filterPresets(query, "all", trait))
+      c.set(p.category, (c.get(p.category) ?? 0) + 1);
+    return c;
+  }, [query, trait]);
+  const allCounts = useMemo(() => {
     const c = new Map<string, number>();
     for (const p of allPresets) c.set(p.category, (c.get(p.category) ?? 0) + 1);
     return c;
   }, []);
-  const cats = PRESET_CATEGORIES.filter((c) => counts.get(c));
+  const cats = PRESET_CATEGORIES.filter((c) => allCounts.get(c));
   const width = layout === "dialog" ? 236 : 222;
 
   const groups = useMemo(() => {
@@ -160,21 +204,37 @@ export function PresetGallery({
     <div className={cx("st-gal", `st-gal--${layout}`)}>
       <div className="st-gal__bar">
         {search}
-        {layout === "panel" && (
-          <Select<string>
-            aria-label="Section category"
-            size="sm"
-            value={category}
-            onValueChange={(v) => setCategory(v as PresetCategory | "all")}
-            options={[
-              { value: "all", label: "All sections" },
-              ...cats.map((c) => ({
-                value: c,
-                label: `${PRESET_CATEGORY_LABELS[c]} (${counts.get(c)})`,
-              })),
-            ]}
-          />
-        )}
+        <Select<string>
+          className="st-gal__select"
+          aria-label="Section category"
+          size="sm"
+          value={category}
+          onValueChange={(v) => setCategory(v as PresetCategory | "all")}
+          options={[
+            { value: "all", label: "All sections" },
+            ...cats.map((c) => ({
+              value: c,
+              label: `${PRESET_CATEGORY_LABELS[c]} (${counts.get(c) ?? 0})`,
+            })),
+          ]}
+        />
+        <fieldset className="st-gal__traits">
+          <legend className="st-visually-hidden">Quick filters</legend>
+          {PRESET_TRAITS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className="st-gal__trait"
+              aria-pressed={trait === t.id}
+              onClick={() => setTrait(trait === t.id ? null : t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+          <span className="st-gal__count" aria-live="polite">
+            {presets.length} {presets.length === 1 ? "design" : "designs"}
+          </span>
+        </fieldset>
       </div>
       <div className="st-gal__main">
         {layout === "dialog" && (
@@ -185,13 +245,14 @@ export function PresetGallery({
                 type="button"
                 className="st-gal__cat"
                 aria-current={effective === c ? "true" : undefined}
+                disabled={!counts.get(c)}
                 onClick={() => {
                   setCategory(c);
                   setQuery("");
                 }}
               >
                 {PRESET_CATEGORY_LABELS[c]}
-                <span>{counts.get(c)}</span>
+                <span>{counts.get(c) ?? 0}</span>
               </button>
             ))}
           </nav>
@@ -224,7 +285,11 @@ export function PresetGallery({
               </div>
             </section>
           ))}
-          {!groups.length && <p className="st-gal__empty">No sections match “{query}”.</p>}
+          {!groups.length && (
+            <p className="st-gal__empty">
+              {query.trim() ? `No sections match “${query}”.` : "No sections match this filter."}
+            </p>
+          )}
         </div>
       </div>
     </div>

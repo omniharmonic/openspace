@@ -1,6 +1,6 @@
 ---
 title: Templates
-description: The twelve OpenSpace templates, their three looks each, and how switching looks works.
+description: The twenty OpenSpace templates, their three looks each, and how switching looks works.
 ---
 
 Templates are the product: every one arrives looking finished, with real-feeling copy and photography written for a plausible owner — never lorem ipsum. Each template ships with three **looks** (palette, type pairing and shape combinations), so one template covers several moods.
@@ -19,6 +19,14 @@ Templates are the product: every one arrives looking finished, with real-feeling
 | **Commons** | Coalitions, cooperatives, movements | Grounded, collective | Spectral / Epilogue |
 | **Vow** | Weddings and celebrations | Romantic, refined | Cormorant Garamond / Jost |
 | **Link** | Link-in-bio, single page | Mobile-first, punchy | Outfit |
+| **Darkroom** | Photographers, creative portfolios | Editorial, quiet, image-first | EB Garamond / Inter |
+| **Orbit** | SaaS, apps and product launches | Crisp, confident, modern | Plus Jakarta Sans |
+| **Beacon** | Nonprofits, charities and campaigns | Hopeful, clear, trustworthy | Libre Caslon / Nunito Sans |
+| **Fixwell** | Local trades, cleaners, salons | Dependable, direct, local | Archivo |
+| **Keystone** | Consultants and coaches | Calm, candid, assured | Lora / Inter |
+| **Gather** | Events, festivals and conferences | Energetic, clear, welcoming | Unbounded / Figtree |
+| **Inkwell** | Writers, authors and newsletters | Literary, warm, unhurried | EB Garamond / Inter |
+| **Folio** | Personal sites and résumés | Friendly, clear, personal | Space Grotesk / Inter |
 
 Browse them with previews at [openspace.dev/templates](https://openspace.dev/templates/) or in Studio's gallery.
 

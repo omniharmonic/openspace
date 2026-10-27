@@ -202,6 +202,63 @@
   border-top: 1px solid var(--st-line);
 }
 
+.st-gal__traits {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.st-gal__trait {
+  height: 24px;
+  padding: 0 9px;
+  border: 1px solid var(--st-line);
+  border-radius: 999px;
+  background: none;
+  color: var(--st-text-2);
+  font: inherit;
+  font-size: var(--st-fs-xs);
+  cursor: default;
+}
+
+.st-gal__trait:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-gal__trait[aria-pressed="true"] {
+  border-color: transparent;
+  background: var(--st-accent-soft);
+  color: var(--st-accent-text);
+  font-weight: 600;
+}
+
+.st-gal__trait:focus-visible {
+  outline: none;
+  box-shadow: var(--st-focus);
+}
+
+.st-gal__count {
+  margin-left: auto;
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-gal__cat:disabled {
+  opacity: 0.45;
+}
+
+@media (min-width: 768px) {
+  .st-gal--dialog .st-gal__select {
+    display: none;
+  }
+}
+
 /* ---------- Block menu ---------- */
 .st-blockmenu__where {
   margin: 0;
