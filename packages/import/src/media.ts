@@ -1,10 +1,20 @@
 /**
  * Downloads images and files into `media/` through the same pipeline as uploads (format sniffing,
  * metadata stripped, ≤2400px long edge, `media/YYYY/MM/name-id.ext` paths, `MediaMeta` with
- * size and alt text). Squarespace CDN images are requested at a web size (`?format=1500w`) and
- * stepped down when a portrait would exceed the long-edge limit without a resizer.
+ * size and alt text). The highest-quality rendition is asked for first: Squarespace CDN images
+ * as uploaded (`?format=original`, then the largest web sizes), the original upload elsewhere
+ * (see `html/image.ts`); the site-kit pipeline makes the responsive AVIF/WebP/JPEG sizes from it
+ * at publish. SVG logos and marks stay SVG (through the same strict re-serializer as uploads);
+ * identical files reached by different addresses are stored once.
  */
-import { type ImageResizer, MAX_IMAGE_EDGE, prepareImage } from "@omniharmonic/openspace-mcp-tools";
+import { createHash } from "node:crypto";
+import {
+  type ImageResizer,
+  MAX_IMAGE_EDGE,
+  prepareImage,
+  sanitizeSvg,
+  svgSize,
+} from "@omniharmonic/openspace-mcp-tools";
 import { type ImageValue, type MediaMeta, newId } from "@omniharmonic/openspace-schema";
 import type { SqImage, SqNotice } from "./types";
 
@@ -34,6 +44,7 @@ const FILE_TYPES: Record<string, { mime: string; kind: MediaMeta["kind"] }> = {
   wav: { mime: "audio/wav", kind: "audio" },
   ogg: { mime: "audio/ogg", kind: "audio" },
   mp4: { mime: "video/mp4", kind: "video" },
+  webm: { mime: "video/webm", kind: "video" },
 };
 
 export interface MediaImporterOptions {
@@ -113,20 +124,16 @@ export class MediaImporter {
     }
     if (u.protocol !== "https:") u.protocol = "https:";
     if (!SQS_CDN.test(u.host)) return [u.toString()];
-
-    // Pick a width whose long edge stays within the limit (portraits step down).
-    const ratio = width && height ? height / width : 1;
-    const widths = [1500, 1000, 750, 500].filter((w) => w * Math.max(1, ratio) <= MAX_IMAGE_EDGE);
-    const list = (widths.length ? widths : [500]).map((w) => {
-      const c = new URL(u);
-      c.searchParams.set("format", `${w}w`);
-      return c.toString();
-    });
-    return list;
+    return squarespaceRenditions(u, width, height, Boolean(this.opts.resize));
   }
 
   private async download(img: SqImage, where: string): Promise<ImageValue | undefined> {
     if (this.opts.offline) return undefined;
+    // SVG logos and marks stay vector (icons painted for a card strip are rasterized below).
+    if (/\.svg(?:[?#]|$)/i.test(img.url) && !/#(?:.*&)?icon\b/.test(img.url)) {
+      const kept = await this.keepSvg(img).catch(() => undefined);
+      if (kept) return kept;
+    }
     let base = (new URL(img.url).pathname.split("/").pop() || "image").replace(/\.svg$/i, ".png");
     try {
       base = decodeURIComponent(base).replace(/\+/g, " ");
@@ -138,7 +145,8 @@ export class MediaImporter {
       ...this.candidates(img.url, img.width, img.height),
       ...(img.alternates ?? []).filter((a) => /^https?:\/\//.test(a)),
     ];
-    for (const url of [...new Set(tries)]) {
+    const unique = [...new Set(tries)];
+    for (const url of unique) {
       try {
         const prepared = await prepareImage(
           { url, alt: img.alt ?? "", filename: base },
@@ -148,11 +156,14 @@ export class MediaImporter {
             now: this.now,
           },
         );
+        const same = this.stored(prepared.bytes);
+        if (same) return this.valueOf(same, img);
         const meta: MediaMeta = { ...prepared.meta };
         if (img.focal) meta.focal = img.focal;
-        meta.credit = { source: `Imported from ${this.opts.source ?? "Squarespace"}` };
+        this.credit(meta, img);
         this.files.set(prepared.path, prepared.bytes);
         this.media[prepared.path] = meta;
+        this.remember(prepared.bytes, prepared.path);
         return {
           src: prepared.path as ImageValue["src"],
           alt: img.alt ?? "",
@@ -163,10 +174,9 @@ export class MediaImporter {
         };
       } catch (e) {
         lastError = (e as Error).message;
-        if (
-          !/larger than|too_large|px on the long edge/i.test(lastError) &&
-          !img.alternates?.length
-        )
+        // Other renditions are worth a try (an original too big to store, a 404 on one size);
+        // a single address that failed for another reason is final.
+        if (!/larger than|too_large|px on the long edge/i.test(lastError) && unique.length < 2)
           break;
       }
     }
@@ -176,6 +186,111 @@ export class MediaImporter {
       message: `Couldn't import image ${img.url}: ${lastError}`,
     });
     return undefined;
+  }
+
+  /** Content hash → stored path: one file however many addresses lead to it. */
+  private readonly byHash = new Map<string, string>();
+
+  private hash(bytes: Uint8Array): string {
+    return createHash("sha256").update(bytes).digest("hex");
+  }
+
+  private stored(bytes: Uint8Array): string | undefined {
+    return this.byHash.get(this.hash(bytes));
+  }
+
+  private remember(bytes: Uint8Array, path: string): void {
+    this.byHash.set(this.hash(bytes), path);
+  }
+
+  private valueOf(path: string, img: SqImage): ImageValue {
+    const meta = this.media[path] as MediaMeta;
+    if (img.focal && !meta.focal) meta.focal = img.focal;
+    return {
+      src: path as ImageValue["src"],
+      alt: img.alt ?? "",
+      width: meta.width as number,
+      height: meta.height as number,
+      mediaId: meta.id,
+      ...(img.focal ? { focal: img.focal } : {}),
+    };
+  }
+
+  /** Where the file came from, and the original's own credit/licence when the site said. */
+  private credit(meta: MediaMeta, img: SqImage): void {
+    meta.credit = {
+      source: `Imported from ${this.opts.source ?? "Squarespace"}`.slice(0, 100),
+      ...(img.credit ? { author: img.credit.slice(0, 200) } : {}),
+    };
+    if (img.license) meta.license = img.license.slice(0, 200);
+  }
+
+  /** An SVG kept as SVG: strictly re-serialized (as uploads are); undefined to rasterize it. */
+  private async keepSvg(img: SqImage): Promise<ImageValue | undefined> {
+    let url = img.url;
+    const color = /#color=([0-9a-f]{6})\b/i.exec(url)?.[1];
+    url = url.replace(/#.*$/, "");
+    if (!/^https:\/\//.test(url)) url = url.replace(/^http:/, "https:");
+    const res = await this.opts.fetch(url);
+    if (!res.ok) return undefined;
+    const declared = Number(res.headers.get("content-length") ?? "");
+    if (declared > 2 * 1024 * 1024) return undefined;
+    let text = await res.text();
+    if (text.length > 2 * 1024 * 1024 || !/<svg[\s>]/i.test(text)) return undefined;
+    if (color) text = text.replace(/currentColor/g, `#${color}`);
+    const clean = sanitizeSvg(text);
+    if (!clean.ok) {
+      this.notices.push({
+        kind: "media",
+        where: "media",
+        message: `The SVG ${url} couldn't be kept as a vector (${clean.problem}); it was turned into a picture instead.`,
+      });
+      return undefined;
+    }
+    const bytes = new TextEncoder().encode(clean.svg);
+    const same = this.stored(bytes);
+    if (same) return this.valueOf(same, img);
+    const size = svgSize(clean.svg) ??
+      (img.width && img.height ? { width: img.width, height: img.height } : undefined) ?? {
+        width: 512,
+        height: 512,
+      };
+    const id = newId("med");
+    const yyyy = String(this.now.getUTCFullYear());
+    const mm = String(this.now.getUTCMonth() + 1).padStart(2, "0");
+    let name = new URL(url).pathname.split("/").pop() || "image";
+    try {
+      name = decodeURIComponent(name);
+    } catch {
+      // keep the raw name
+    }
+    const stem =
+      name
+        .replace(/\.svg$/i, "")
+        .toLowerCase()
+        .normalize("NFKD")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 40) || "image";
+    const path = `media/${yyyy}/${mm}/${stem}-${id.slice(4, 8)}.svg`;
+    const meta: MediaMeta = {
+      id: id as MediaMeta["id"],
+      path: path as MediaMeta["path"],
+      kind: "image",
+      mime: "image/svg+xml",
+      bytes: bytes.length,
+      width: size.width,
+      height: size.height,
+      alt: (img.alt ?? "").slice(0, 500),
+      originalName: name.slice(0, 255),
+      createdAt: this.now.toISOString(),
+    };
+    if (img.focal) meta.focal = img.focal;
+    this.credit(meta, img);
+    this.files.set(path, bytes);
+    this.media[path] = meta;
+    this.remember(bytes, path);
+    return this.valueOf(path, img);
   }
 
   /** Download a linked document or audio file (`/s/…`, `/wp-content/uploads/…`) into `media/files/`. */
@@ -238,4 +353,31 @@ export class MediaImporter {
       return undefined;
     }
   }
+}
+
+/**
+ * Squarespace CDN renditions, best first: the file as uploaded (`?format=original`), then web
+ * sizes from the largest down. Without a resizer, sizes whose long edge would pass the storage
+ * limit are skipped (portraits step down).
+ */
+export function squarespaceRenditions(
+  u: URL,
+  width?: number,
+  height?: number,
+  canResize = true,
+): string[] {
+  const at = (format: string) => {
+    const c = new URL(u);
+    c.searchParams.set("format", format);
+    return c.toString();
+  };
+  const ratio = width && height ? height / width : 1;
+  const fits = (w: number) => canResize || w * Math.max(1, ratio) <= MAX_IMAGE_EDGE;
+  const known = width && height ? Math.max(width, height) : undefined;
+  const sizes = [2500, 1500, 1000, 750, 500].filter(fits);
+  const originalFits = canResize || (known !== undefined && known <= MAX_IMAGE_EDGE);
+  return [
+    ...(originalFits ? [at("original")] : []),
+    ...(sizes.length ? sizes : [500]).map((w) => at(`${w}w`)),
+  ];
 }

@@ -15,6 +15,7 @@ import {
   TYPE_PAIRINGS,
   type TypePairing,
 } from "@omniharmonic/openspace-theme";
+import { isSystemFont, nearestOpenFont, serviceName } from "../fidelity/font-match";
 import { platformLabel } from "../platform";
 import type { SqSite, SqTheme } from "../types";
 
@@ -104,15 +105,47 @@ function siteTypography(
   const ok = new Set(t.googleFonts ?? []);
   const out: NonNullable<Styles["choices"]["typography"]> = {};
   const used: string[] = [];
-  const missing: string[] = [];
+  const subs: NonNullable<SqTheme["fontSubstitutes"]> = [];
   for (const role of ["heading", "body", "label"] as const) {
     const f = src[role];
     if (!f) continue;
     if (ok.has(f.family.toLowerCase())) {
       out[role] = f;
       if (!used.includes(f.family)) used.push(f.family);
-    } else if (!missing.includes(f.family)) missing.push(f.family);
+      continue;
+    }
+    // Not free to copy (a licensed foundry font, a system font, a self-hosted font of unknown
+    // licence): the nearest open-licence family, matched on the shapes the browser measured.
+    const match = nearestOpenFont(f.family, t.fontMetrics?.[f.family]);
+    out[role] = {
+      ...f,
+      family: match.family,
+      category: match.category,
+    };
+    if (!subs.some((x) => x.original === f.family)) {
+      const host = t.fontHosts?.[0];
+      const source = isSystemFont(f.family)
+        ? ("system" as const)
+        : host || t.fontHosts === undefined
+          ? ("licensed" as const)
+          : ("self-hosted" as const);
+      subs.push({
+        original: f.family,
+        substitute: match.family,
+        source,
+        via:
+          match.via === "metrics"
+            ? "the closest measured shape (x-height, width)"
+            : match.via === "system twin"
+              ? "its metric-compatible open twin"
+              : match.via === "known equivalent"
+                ? "its usual open equivalent"
+                : "a neutral family of the same kind",
+        ...(host ? { service: serviceName(host) } : {}),
+      });
+    }
   }
+  if (subs.length) t.fontSubstitutes = subs;
   if (src.scale && Object.keys(src.scale).length) {
     // A role whose font couldn't be carried over falls back to the pairing's (label → body).
     const scale = { ...src.scale };
@@ -126,9 +159,11 @@ function siteTypography(
     notes.push(
       `Fonts ${on} kept as they are (${used.join(", ")}): free on Google Fonts, self-hosted with the site.`,
     );
-  if (missing.length)
+  for (const x of subs)
     notes.push(
-      `${missing.join(" and ")} ${missing.length > 1 ? "aren't" : "isn't"} on Google Fonts, so the closest curated pairing stands in; a licensed copy can be uploaded in Site Styles → Your fonts.`,
+      x.source === "system"
+        ? `${x.original} is a system font (not every device has it), so ${x.substitute}, ${x.via}, is used.`
+        : `${x.original}${x.service ? ` (licensed from ${x.service})` : x.source === "licensed" ? " (a licensed font)" : " (a font the site hosted itself; its licence is unknown)"} can't be copied, so ${x.substitute} — ${x.via} among free fonts — stands in. With a web licence, upload the real font in Site Styles → Your fonts.`,
     );
   const s = out.scale;
   if (s)

@@ -5,7 +5,25 @@
  * background, heading and text styles, column count, eyebrow rule, italic lines and image
  * placement. Each failed check names the Site Styles setting (`set_styles`) that would close it.
  */
+import { metricDistance } from "./font-match";
 import type { LookProbe, ProbeSection, ProbeText } from "./probe";
+
+/**
+ * How alike two fonts are as drawn: 1 for the same family; for different families of the same
+ * kind (serif, sans, mono; small caps or not), partial credit by how close their measured
+ * x-height, cap height and width are — so an open stand-in for a licensed font counts as nearly
+ * the same, and an unrelated font doesn't.
+ */
+export function fontCredit(a: string, b: string, o?: LookProbe, i?: LookProbe): number {
+  if (norm(a) === norm(b)) return 1;
+  const ma = o?.fonts?.[a];
+  const mb = i?.fonts?.[b];
+  if (!ma || !mb) return 0;
+  if ((ma.category ?? "sans-serif") !== (mb.category ?? "sans-serif")) return 0;
+  if (Boolean(ma.smallCaps) !== Boolean(mb.smallCaps)) return 0;
+  const d = metricDistance(ma, mb);
+  return d <= 0.04 ? 0.85 : d <= 0.07 ? 0.7 : d <= 0.11 ? 0.5 : d <= 0.16 ? 0.25 : 0;
+}
 
 export interface FidelityCheck {
   area: "fonts" | "type" | "layout" | "buttons" | "section";
@@ -13,6 +31,11 @@ export interface FidelityCheck {
   original: string;
   imported: string;
   ok: boolean;
+  /**
+   * Partial credit (0–1) for a check that isn't the same but close: a licensed font replaced by
+   * an open one whose measured shape is near it. Scored as `weight × credit`.
+   */
+  credit?: number;
   /** What to change (plain words, with the Site Styles path when there is one). */
   fix?: string;
   weight: number;
@@ -33,7 +56,14 @@ export interface PageComparison {
   original: string;
   imported: string;
   viewport: number;
+  /** 0–100: the checks (75%) and how alike the two pages look as pictures (25%), when measured. */
   score: number;
+  /** 0–100 from the checks alone. */
+  structure?: number;
+  /** 0–1 perceptual similarity of the two full-page screenshots (see `visualSimilarity`). */
+  visual?: number;
+  /** The score before rounding (auto-tuning compares these). */
+  exact?: number;
   checks: FidelityCheck[];
   sections: SectionComparison[];
 }
@@ -41,6 +71,8 @@ export interface PageComparison {
 export interface FidelityReport {
   /** 0–100, weighted over every page and viewport. */
   score: number;
+  /** The same before rounding. */
+  exact?: number;
   pages: PageComparison[];
 }
 
@@ -146,13 +178,15 @@ function typeChecks(o: LookProbe, i: LookProbe, tol: number): FidelityCheck[] {
     const role = ROLE_OF[k] as string;
     if (!seenFont.has(role) && !(k === "h3" && a.case === "uppercase")) {
       seenFont.add(role);
-      const same = norm(a.family) === norm(b.family);
+      const credit = fontCredit(a.family, b.family, o, i);
+      const same = credit === 1;
       out.push({
         area: "fonts",
         what: `${role === "heading" ? "Heading" : role === "body" ? "Body" : "Label"} font`,
         original: a.family,
-        imported: b.family,
+        imported: credit > 0 && !same ? `${b.family} (close stand-in)` : b.family,
         ok: same,
+        ...(same ? {} : { credit }),
         ...(same
           ? {}
           : {
@@ -285,6 +319,25 @@ export function matchSections(o: ProbeSection[], i: ProbeSection[]): (number | u
       taken.add(best);
     }
   });
+  // An original section whose words all sit inside one imported section (an article the original
+  // split around its pictures, kept as one text section): matched to it, even if it's taken.
+  o.forEach((s, k) => {
+    if (out[k] !== undefined) return;
+    const A = words(`${s.heading?.text ?? ""} ${s.words ?? s.text}`);
+    if (A.size < 4) return;
+    let best = -1;
+    let score = 0.6;
+    i.forEach((t, n) => {
+      const B = words(`${t.heading?.text ?? ""} ${t.words ?? t.text}`);
+      let hit = 0;
+      for (const w of A) if (B.has(w)) hit++;
+      if (hit / A.size > score) {
+        score = hit / A.size;
+        best = n;
+      }
+    });
+    if (best >= 0) out[k] = best;
+  });
   // Between two matched neighbours, a single unmatched section on each side is the same one
   // (a product grid, a sign-up band): matched by position.
   o.forEach((_, k) => {
@@ -306,7 +359,13 @@ export function matchSections(o: ProbeSection[], i: ProbeSection[]): (number | u
   return out;
 }
 
-function sectionChecks(a: ProbeSection, b: ProbeSection, tol: number): FidelityCheck[] {
+function sectionChecks(
+  a: ProbeSection,
+  b: ProbeSection,
+  tol: number,
+  o?: LookProbe,
+  i?: LookProbe,
+): FidelityCheck[] {
   const out: FidelityCheck[] = [];
   const add = (c: Omit<FidelityCheck, "area">) => out.push({ area: "section", ...c });
   if (a.background && b.background && !a.backgroundImage) {
@@ -325,20 +384,38 @@ function sectionChecks(a: ProbeSection, b: ProbeSection, tol: number): FidelityC
     });
   }
   if (a.heading && b.heading) {
-    const ok =
-      norm(a.heading.family) === norm(b.heading.family) &&
-      within(a.heading.size, b.heading.size, tol);
+    const size = within(a.heading.size, b.heading.size, tol);
+    const credit = size ? fontCredit(a.heading.family, b.heading.family, o, i) : 0;
     add({
       what: "Heading",
       original: textStyle(a.heading),
       imported: textStyle(b.heading),
-      ok,
+      ok: credit === 1,
+      ...(credit < 1 ? { credit } : {}),
       weight: 2,
     });
   }
   if (a.body && b.body) {
-    const ok = norm(a.body.family) === norm(b.body.family) && within(a.body.size, b.body.size, tol);
-    add({ what: "Text", original: textStyle(a.body), imported: textStyle(b.body), ok, weight: 2 });
+    const size = within(a.body.size, b.body.size, tol);
+    const credit = size ? fontCredit(a.body.family, b.body.family, o, i) : 0;
+    add({
+      what: "Text",
+      original: textStyle(a.body),
+      imported: textStyle(b.body),
+      ok: credit === 1,
+      ...(credit < 1 ? { credit } : {}),
+      weight: 2,
+    });
+  }
+  if (a.textColor && b.textColor) {
+    const d = colorDistance(a.textColor, b.textColor);
+    add({
+      what: "Text color",
+      original: a.textColor,
+      imported: b.textColor,
+      ok: d < 28,
+      weight: 1,
+    });
   }
   if (a.columns !== b.columns) {
     add({
@@ -403,6 +480,20 @@ function sectionChecks(a: ProbeSection, b: ProbeSection, tol: number): FidelityC
       ...(ok ? {} : { fix: "Adjust the stack column spans (image column) or the image's side." }),
       weight: 1,
     });
+    if (a.image.aspect && b.image?.aspect) {
+      const r = b.image.aspect / a.image.aspect;
+      const same = r > 0.85 && r < 1.18;
+      add({
+        what: "Image crop",
+        original: `${a.image.aspect}:1`,
+        imported: `${b.image.aspect}:1`,
+        ok: same,
+        ...(same
+          ? {}
+          : { fix: "Use the original's image proportions (the block's aspect ratio)." }),
+        weight: 1,
+      });
+    }
   }
   const hr = b.height / Math.max(1, a.height);
   add({
@@ -415,11 +506,31 @@ function sectionChecks(a: ProbeSection, b: ProbeSection, tol: number): FidelityC
   return out;
 }
 
-const scoreOf = (checks: FidelityCheck[]) => {
+const exactScore = (checks: FidelityCheck[]) => {
   const total = checks.reduce((n, c) => n + c.weight, 0);
   if (!total) return 100;
-  return Math.round((100 * checks.filter((c) => c.ok).reduce((n, c) => n + c.weight, 0)) / total);
+  const got = checks.reduce((n, c) => n + c.weight * (c.ok ? 1 : Math.min(1, c.credit ?? 0)), 0);
+  return (100 * got) / total;
 };
+const scoreOf = (checks: FidelityCheck[]) => Math.round(exactScore(checks));
+
+/** Share of a page's score that comes from how alike the screenshots look. */
+export const VISUAL_WEIGHT = 0.25;
+
+/** Fold a perceptual similarity (0–1) into a page comparison's score. */
+export function withVisual(p: PageComparison, visual: number): PageComparison {
+  const structure = p.structure ?? p.score;
+  const base = p.exact ?? structure;
+  const v = Math.max(0, Math.min(1, visual));
+  const exact = (1 - VISUAL_WEIGHT) * base + VISUAL_WEIGHT * 100 * v;
+  return {
+    ...p,
+    structure,
+    visual: Math.round(v * 1000) / 1000,
+    exact,
+    score: Math.round(exact),
+  };
+}
 
 /** Compare one page's original and imported probes (same viewport). */
 export function compareLooks(
@@ -435,7 +546,7 @@ export function compareLooks(
     const j = match[k];
     const other = j === undefined ? undefined : imported.sections[j];
     const c = other
-      ? sectionChecks(s, other, tol)
+      ? sectionChecks(s, other, tol, original, imported)
       : [
           {
             area: "section" as const,
@@ -462,16 +573,18 @@ export function compareLooks(
     imported: imported.url,
     viewport: original.viewport,
     score: scoreOf(all),
+    structure: scoreOf(all),
+    exact: exactScore(all),
     checks,
     sections,
   };
 }
 
 export function fidelityReport(pages: PageComparison[]): FidelityReport {
-  const score = pages.length
-    ? Math.round(pages.reduce((n, p) => n + p.score, 0) / pages.length)
+  const exact = pages.length
+    ? pages.reduce((n, p) => n + (p.exact ?? p.score), 0) / pages.length
     : 100;
-  return { score, pages };
+  return { score: Math.round(exact), exact: Math.round(exact * 100) / 100, pages };
 }
 
 const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
@@ -479,16 +592,29 @@ const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
 /** The report as Markdown (FIDELITY-REPORT.md). */
 export function fidelityMarkdown(
   report: FidelityReport,
-  opts: { images?: Record<string, string[]> } = {},
+  opts: { images?: Record<string, string[]>; tuning?: { before: number; changes: string[] } } = {},
 ): string {
   const lines = [
     "# Visual fidelity",
     "",
-    `Overall match: **${report.score}/100** (fonts, type sizes, spacing and each section, measured in a browser on both sites).`,
+    `Overall match: **${report.score}/100** — fonts, type sizes, spacing and each section measured in a browser on both sites (75%), and how alike the pages look as pictures (25%). How it's scored: docs/qa/import-fidelity.md.`,
     "",
   ];
+  if (opts.tuning) {
+    lines.push(
+      `Auto-tuning raised it from ${opts.tuning.before}/100${opts.tuning.changes.length ? ":" : " (nothing it tried helped, so nothing was changed)."}`,
+      "",
+      ...opts.tuning.changes.slice(0, 30).map((c) => `- ${c}`),
+      "",
+    );
+  }
   for (const p of report.pages) {
     lines.push(`## ${p.path} at ${p.viewport}px — ${p.score}/100`, "");
+    if (p.visual !== undefined)
+      lines.push(
+        `Checks ${p.structure ?? p.score}/100 · looks alike ${Math.round(p.visual * 100)}/100 (screenshots compared).`,
+        "",
+      );
     lines.push(`Original: ${p.original}  `, `Imported: ${p.imported}`, "");
     const imgs = opts.images?.[`${p.path}@${p.viewport}`];
     if (imgs?.length) {
@@ -498,7 +624,7 @@ export function fidelityMarkdown(
     lines.push("| Check | Original | Imported | |", "|---|---|---|---|");
     for (const c of p.checks)
       lines.push(
-        `| ${cell(c.what)} | ${cell(c.original)} | ${cell(c.imported)} | ${c.ok ? "same" : "**differs**"} |`,
+        `| ${cell(c.what)} | ${cell(c.original)} | ${cell(c.imported)} | ${c.ok ? "same" : c.credit ? `close (${Math.round(c.credit * 100)}%)` : "**differs**"} |`,
       );
     lines.push("", "| # | Section | Match | Differences |", "|---|---|---|---|");
     for (const s of p.sections) {

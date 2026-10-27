@@ -12,12 +12,15 @@ import type {
 } from "@omniharmonic/openspace-schema";
 import { fontCategory } from "../map/theme";
 import type { SqTheme } from "../types";
+import { servedByLicensedHost } from "./font-match";
 import type { LookProbe, ProbeText } from "./probe";
 import type { TokenLook } from "./tokens";
 
 const norm = (s: string | undefined) => (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+// Generic stacks only: system fonts with a name (Georgia, Helvetica, Arial, Times) are carried
+// over through their metric-compatible open twins (font-match.ts).
 const GENERIC =
-  /^(?:serif|sans-serif|monospace|system-ui|ui-\w+|-apple-system|blinkmacsystemfont|georgia|helvetica(?: neue)?|arial|times(?: new roman)?|segoe ui|roboto)$/i;
+  /^(?:serif|sans-serif|monospace|system-ui|ui-\w+|-apple-system|blinkmacsystemfont)$/i;
 
 const round = (n: number, d = 1) => Math.round(n * 10 ** d) / 10 ** d;
 
@@ -157,7 +160,48 @@ export function lookFromProbe(d: LookProbe, m?: LookProbe): TokenLook | undefine
     layout.gutter = Math.max(layout.gutterMobile, 32);
   }
   if (!Object.keys(typography).length && !Object.keys(layout).length) return undefined;
-  return { typography, layout, fonts, ...(d.eyebrowRule ? { eyebrowRule: true } : {}) };
+  // Every weight and the italics a role's text uses (variable fonts load the same axes).
+  const allText = [
+    P.h1,
+    P.h2,
+    P.h3,
+    P.lead,
+    P.body,
+    P.small,
+    P.eyebrow,
+    P.button,
+    P.nav,
+    P.wordmark,
+  ];
+  for (const role of ["heading", "body", "label"] as const) {
+    const f = typography[role];
+    if (!f) continue;
+    const ts = allText.filter((t): t is ProbeText => !!t && norm(t.family) === norm(f.family));
+    const ws = [
+      ...new Set([...(f.weights ?? []), ...ts.map((t) => Math.round(t.weight / 100) * 100)]),
+    ]
+      .filter((w) => w >= 100 && w <= 900)
+      .sort((a, b) => a - b);
+    if (ws.length) f.weights = ws.slice(0, 6);
+    if (ts.some((t) => t.italic) || d.fonts?.[f.family]?.italic) f.italic = true;
+  }
+  const hosts = servedByLicensedHost(d.fontRequests ?? []);
+  return {
+    typography,
+    layout,
+    fonts,
+    ...(d.eyebrowRule ? { eyebrowRule: true } : {}),
+    ...(d.fonts && Object.keys(d.fonts).length ? { metrics: { ...m?.fonts, ...d.fonts } } : {}),
+    ...(hosts.length ? { fontHosts: hosts } : {}),
+    ...(d.sidebar
+      ? {
+          sidebar: {
+            side: d.sidebar.side,
+            ...(d.sidebar.background ? { background: d.sidebar.background } : {}),
+          },
+        }
+      : {}),
+  };
 }
 
 /**
@@ -188,6 +232,13 @@ export function applyLook(
   if (look.fonts.label && !keep(theme.labelFont)) theme.labelFont = { family: look.fonts.label };
   if (look.eyebrowRule !== undefined && !keep(theme.eyebrowRule !== undefined))
     theme.eyebrowRule = look.eyebrowRule;
+  if (look.sidebar?.side === "left" && !keep(theme.headerLayout)) {
+    theme.headerLayout = "sidebar";
+    if (look.sidebar.background) theme.headerBackground = look.sidebar.background;
+  }
+  if (look.metrics) theme.fontMetrics = { ...look.metrics, ...(theme.fontMetrics ?? {}) };
+  if (look.fontHosts)
+    theme.fontHosts = [...new Set([...(theme.fontHosts ?? []), ...look.fontHosts])];
   const s = theme.typography?.scale;
   if (s?.h1?.size) theme.sizes.h1 = s.h1.size / 16;
   if (s?.body?.size) theme.sizes.normal = s.body.size / 16;

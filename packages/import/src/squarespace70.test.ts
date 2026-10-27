@@ -60,8 +60,14 @@ describe("Squarespace 7.0 pages", () => {
     const card = rows.find((r) => r.columns.length === 2);
     expect(card?.columns.map((c) => c.span)).toEqual([6, 6]);
     expect(card?.columns[0]?.blocks[0]?.kind).toBe("image");
+    // The card's title is an eyebrow; its sentence reads at text size, as the card shows it.
     expect(card?.columns[1]?.blocks).toEqual([
-      { kind: "heading", text: "Find out about our organization.", level: 2, eyebrow: "About" },
+      {
+        kind: "text",
+        html: expect.stringMatching(
+          /^<p class="os-eyebrow">About<\/p>.*Find out about our organization\./,
+        ),
+      },
       { kind: "button", label: "Learn More", href: "/about", style: "primary" },
     ]);
   });

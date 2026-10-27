@@ -4,7 +4,7 @@
  * kept at or under the 2400 px long edge where the URL says how big it is, with smaller
  * renditions as fallbacks for the media importer.
  */
-import { attr, type Element, find } from "../dom";
+import { attr, children, type Element, find, isElement } from "../dom";
 import type { SqImage } from "../types";
 
 const MAX = 2400;
@@ -108,18 +108,53 @@ export function bestRendition(
     const orig = wpOriginal(plain);
     return orig ? { url: orig, alternates: [plain] } : { url: plain, alternates: [] };
   }
+  // The best rendition to store: the smallest one at least as large as the stored size (as sharp
+  // as the original once resized), else the largest there is; the WordPress original upload
+  // when the renditions stop short of it; smaller ones as fallbacks.
   const sized = all.filter((e) => e.w).sort((a, b) => (b.w ?? 0) - (a.w ?? 0));
-  const ok = sized.filter((e) => (e.w ?? 0) <= MAX);
+  const big = sized.filter((e) => (e.w ?? 0) >= MAX);
+  const rest = sized.filter((e) => (e.w ?? 0) < MAX);
   const byDensity = all.filter((e) => e.x).sort((a, b) => (b.x ?? 0) - (a.x ?? 0));
+  const wpOrig =
+    [...sized, ...byDensity].map((e) => wpOriginal(e.url)).find(Boolean) ??
+    (plain ? wpOriginal(plain) : undefined);
   const ordered = [
-    ...ok.map((e) => e.url),
+    ...(big.length ? [(big[big.length - 1] as SrcsetEntry).url] : []),
+    ...(!big.length && wpOrig ? [wpOrig] : []),
+    ...rest.map((e) => e.url),
     ...byDensity.map((e) => e.url),
     ...(plain ? [plain] : []),
-    ...sized.filter((e) => (e.w ?? 0) > MAX).map((e) => e.url),
+    ...big
+      .slice(0, -1)
+      .reverse()
+      .map((e) => e.url),
   ];
   const unique = [...new Set(ordered)];
   if (!unique.length) return undefined;
-  return { url: unique[0] as string, alternates: unique.slice(1, 4) };
+  return { url: unique[0] as string, alternates: unique.slice(1, 5) };
+}
+
+/** `object-position: 30% 20%` (or keywords) → a focal point, when it isn't the centre. */
+export function focalFromObjectPosition(style: string | undefined): [number, number] | undefined {
+  const m = /object-position\s*:\s*([^;]+)/i.exec(style ?? "");
+  if (!m) return undefined;
+  const KEY: Record<string, number> = { left: 0, top: 0, center: 0.5, right: 1, bottom: 1 };
+  const parts = (m[1] as string).trim().split(/\s+/).slice(0, 2);
+  const val = (p: string | undefined) => {
+    if (p === undefined) return 0.5;
+    if (p in KEY) return KEY[p] as number;
+    const pc = /^(-?[\d.]+)%$/.exec(p);
+    return pc ? Math.min(1, Math.max(0, Number(pc[1]) / 100)) : undefined;
+  };
+  let [a, b] = parts;
+  // `top left` → x from the horizontal keyword.
+  if ((a === "top" || a === "bottom") && (b === "left" || b === "right" || b === "center"))
+    [a, b] = [b, a];
+  const x = val(a);
+  const y = val(b);
+  if (x === undefined || y === undefined) return undefined;
+  if (Math.abs(x - 0.5) < 0.01 && Math.abs(y - 0.5) < 0.01) return undefined;
+  return [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000];
 }
 
 const LAZY_SRC = [
@@ -170,21 +205,37 @@ export function imageFromImg(el: Element, base: string): SqImage | undefined {
     }
   }
   // <picture><source srcset> renditions.
-  const picture = el.tagName === "picture" ? el : undefined;
-  if (picture && !srcset.length) {
-    const source = find(picture, (e) => e.tagName === "source");
-    srcset = parseSrcset(attr(source, "srcset") ?? attr(source, "data-srcset"));
+  const up = img.parentNode as Element | null;
+  const picture =
+    el.tagName === "picture"
+      ? el
+      : up && isElement(up) && up.tagName === "picture"
+        ? up
+        : undefined;
+  if (picture) {
+    // Every <source> (art-directed or per format): the largest candidates win.
+    const sources = children(picture).filter((e) => e.tagName === "source");
+    for (const source of sources) {
+      if (/svg/i.test(attr(source, "type") ?? "")) continue;
+      srcset.push(
+        ...parseSrcset(attr(source, "srcset") ?? attr(source, "data-srcset")).filter(
+          (e) => !isPlaceholder(e.url),
+        ),
+      );
+    }
   }
   if (!src && !srcset.length) return undefined;
   const best = bestRendition(src, srcset, base);
   if (!best) return undefined;
   const w = Number(attr(img, "width"));
   const h = Number(attr(img, "height"));
+  const focal = focalFromObjectPosition(attr(img, "style"));
   return {
     url: best.url,
     alt: (attr(img, "alt") ?? "").replace(/\s+/g, " ").trim(),
     ...(w > 0 && h > 0 ? { width: w, height: h } : {}),
     ...(best.alternates.length ? { alternates: best.alternates } : {}),
+    ...(focal ? { focal } : {}),
   };
 }
 
@@ -192,14 +243,24 @@ export function imageFromImg(el: Element, base: string): SqImage | undefined {
 export function backgroundImageOf(el: Element, base: string): SqImage | undefined {
   const style = attr(el, "style") ?? "";
   const m = /background(?:-image)?\s*:[^;]*url\(\s*['"]?([^'")]+)['"]?\s*\)/i.exec(style);
-  const raw = m?.[1] ?? attr(el, "data-bg") ?? attr(el, "data-background-image");
+  const bgset = parseSrcset(attr(el, "data-bgset")).sort((a, b) => (b.w ?? 0) - (a.w ?? 0))[0]?.url;
+  const raw =
+    m?.[1] ??
+    attr(el, "data-bg") ??
+    attr(el, "data-background-image") ??
+    attr(el, "data-bg-src") ??
+    attr(el, "data-background") ??
+    bgset;
   if (!raw || isPlaceholder(raw)) return undefined;
   const best = bestRendition(raw, [], base);
+  const pos = /background-position\s*:\s*([^;]+)/i.exec(style)?.[1];
+  const focal = pos ? focalFromObjectPosition(`object-position:${pos}`) : undefined;
   return best
     ? {
         url: best.url,
         alt: "",
         ...(best.alternates.length ? { alternates: best.alternates } : {}),
+        ...(focal ? { focal } : {}),
       }
     : undefined;
 }

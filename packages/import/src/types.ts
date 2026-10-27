@@ -1,5 +1,5 @@
 import type { LayoutChoices, TypographyChoices } from "@omniharmonic/openspace-schema";
-import type { ProbeSection } from "./fidelity/probe";
+import type { FontMetrics, ProbeSection } from "./fidelity/probe";
 /**
  * What an importer reads from the site being moved, before any OpenSpace mapping: a plain,
  * source-agnostic model. The Squarespace importer fills it from page HTML, `?format=json` and a
@@ -41,6 +41,10 @@ export interface SqImage {
   focal?: [number, number];
   /** Smaller renditions to fall back to when `url` is too large to import (largest first). */
   alternates?: string[];
+  /** The photographer or source the site credited, kept with the file. */
+  credit?: string;
+  /** A licence note the site gave (`CC BY 4.0`). */
+  license?: string;
 }
 
 export type SqBlock =
@@ -319,8 +323,10 @@ export interface SqTheme {
   /** Heading sizes in rem (`h1`…`h4`) and paragraph sizes. */
   sizes: Partial<Record<"h1" | "h2" | "h3" | "h4" | "large" | "normal" | "small", number>>;
   buttons: { shape?: "square" | "rounded" | "pill"; style?: "solid" | "outline" | "raised" };
-  /** Header layout (`navRight`, `navCenter`, `navLeft`, `brandingCenter`). */
+  /** Header layout (`navRight`, `navCenter`, `navLeft`, `brandingCenter`, or `sidebar`). */
   headerLayout?: string;
+  /** The header's (or sidebar's) own background color, when measured. */
+  headerBackground?: string;
   headerFixed?: boolean;
   headerTransparent?: boolean;
   /** Section theme name used by the header. */
@@ -340,6 +346,21 @@ export interface SqTheme {
   eyebrowRule?: boolean;
   /** Where the measured look came from, for the report ("the live site in a browser"). */
   lookSource?: string;
+  /** Fonts as a browser measured them on the live site (x-height, width…), by family. */
+  fontMetrics?: Record<string, FontMetrics>;
+  /** Licensed web-font services the live site loads fonts from (`use.typekit.net`). */
+  fontHosts?: string[];
+  /**
+   * Fonts that couldn't be copied and what stands in for them (filled while mapping the theme;
+   * the report and the "Use your own font licence" checklist item list them).
+   */
+  fontSubstitutes?: {
+    original: string;
+    substitute: string;
+    source: "licensed" | "system" | "self-hosted";
+    via: string;
+    service?: string;
+  }[];
 }
 
 export interface SqNotice {

@@ -287,12 +287,18 @@ describe("structured content (headless CMS sections)", () => {
       sectionPadding: 104,
       sectionPaddingMobile: 56,
     });
-    // Offline, Google Fonts can't confirm the fonts: Playfair/Lora are curated-pairing families,
-    // Freight Sans Pro is licensed, so labels fall back to the body font (and the report says so).
+    // Offline, Google Fonts can't confirm the fonts: Playfair/Lora are curated-pairing families;
+    // Freight Sans Pro is licensed, so its usual open equivalent stands in for the labels (and
+    // the report and the checklist say so).
     expect(c.typography?.heading?.family).toBe("Playfair Display");
-    expect(c.typography?.label).toBeUndefined();
-    expect(c.typography?.scale?.eyebrow?.font).toBe("body");
-    expect(r.build.themeNotes.join(" ")).toMatch(/Freight Sans Pro isn.t on Google Fonts/);
+    expect(c.typography?.label?.family).toBe("Proza Libre");
+    expect(c.typography?.scale?.eyebrow?.font).toBe("label");
+    expect(r.build.themeNotes.join(" ")).toMatch(
+      /Freight Sans Pro \(a licensed font\) can.t be copied, so Proza Libre/,
+    );
+    expect(r.checklist.items.find((i) => i.id === "font-licence")?.detail).toMatch(
+      /Freight Sans Pro/,
+    );
   });
 
   it("lays the section out as it was: grounds, eyebrow rules, columns, italic closing lines", () => {

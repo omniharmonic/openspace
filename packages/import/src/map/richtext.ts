@@ -161,7 +161,9 @@ function blocks(nodes: readonly Node[], ctx: Ctx): BlockNode[] {
           ? "lead"
           : cls.includes("sqsrte-small") || cls.includes("os-small")
             ? "small"
-            : undefined;
+            : cls.includes("os-eyebrow")
+              ? "eyebrow"
+              : undefined;
       out.push({ type: "paragraph", ...(preset ? { attrs: { preset } } : {}), content });
     } else if (/^h[1-6]$/.test(tag)) {
       const content = tidy(inline(n.childNodes, [], ctx));

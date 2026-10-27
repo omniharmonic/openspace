@@ -25,6 +25,7 @@ import {
   scriptText,
   text,
 } from "../dom";
+import { bestIcon } from "../html/icons";
 import { cleanImageUrl, imageFrom, parseBlock, stripTags, videoUrl } from "./blocks";
 import type {
   SqBlock,
@@ -157,8 +158,16 @@ export function expandImageCards(rows: SqRow[]): SqRow[] {
 function cardBlocks(card: NonNullable<Extract<SqBlock, { kind: "image" }>["card"]>): SqBlock[] {
   const out: SqBlock[] = [];
   const sub = card.html ? stripTags(card.html) : "";
-  // A short title above a sentence (Squarespace's usual card): an eyebrow over a heading.
-  if (card.title && card.title.length <= 40 && sub && sub.length <= 160)
+  // A short title above a sentence (Squarespace's usual card): the title is an eyebrow; a
+  // subtitle written as a sentence reads at text size (as the card shows it), a short phrase
+  // is a heading.
+  const sentence = /[.!?…]["”’)]?$/.test(sub) || sub.split(/\s+/).length > 12;
+  if (card.title && card.title.length <= 40 && sub && sub.length <= 160 && sentence)
+    out.push({
+      kind: "text",
+      html: `<p class="os-eyebrow">${escapeText(card.title)}</p>${card.html ?? ""}`,
+    });
+  else if (card.title && card.title.length <= 40 && sub && sub.length <= 160)
     out.push({ kind: "heading", text: sub, level: 2, eyebrow: card.title });
   else if (card.title || card.html)
     out.push({
@@ -735,7 +744,10 @@ export function parsePage(html: string): ParsedPage {
   const membersGate = find(body, (e) =>
     classes(e).some((c) => /member-area|members-only|sqs-member/.test(c)),
   );
-  const favEl = find(head, (e) => e.tagName === "link" && /icon/.test(attr(e, "rel") ?? ""));
+  const favicon = bestIcon(
+    head,
+    attr(canonicalEl, "href") ?? meta(head, "og:url") ?? "https://images.squarespace-cdn.com/",
+  );
   const lang = attr(root, "lang");
   const ogTitle = meta(head, "og:title");
 
@@ -769,7 +781,7 @@ export function parsePage(html: string): ParsedPage {
     inlineCss,
     ...(customHeadCode ? { customHeadCode } : {}),
     ...(item ? { item } : {}),
-    ...(favEl && attr(favEl, "href") ? { favicon: attr(favEl, "href") } : {}),
+    ...(favicon ? { favicon } : {}),
     ...(passwordForm
       ? { locked: "password" as const }
       : membersGate
