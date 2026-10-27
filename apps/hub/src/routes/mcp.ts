@@ -35,7 +35,7 @@ import { requireUser, setSessionCookie } from "../auth/session";
 import { audit } from "../db/audit";
 import { createSession } from "../db/sessions";
 import { listSitesForUser } from "../db/sites";
-import { getUserRow, toUser, type User, upsertDevUser } from "../db/users";
+import { getUserRow, toUser, type User } from "../db/users";
 import { randomToken, sha256Hex } from "../lib/crypto";
 import { HttpError, notFound } from "../lib/errors";
 import { readJson } from "../lib/validate";
@@ -65,7 +65,7 @@ import { endConnectionSessions } from "../mcp/sessions";
 import { handleMcp, type McpAuth } from "../mcp/transport";
 import { requireRole, siteForUser } from "../services/sites";
 import type { AppEnv } from "../types";
-import { devLoginFor } from "./auth";
+import { devLoginUser } from "./auth";
 
 export const mcpRoutes = new Hono<AppEnv>();
 export const mcpGrantRoutes = new Hono<AppEnv>();
@@ -234,14 +234,8 @@ mcpRoutes.get("/authorize", async (c) => {
       }),
     );
   }
+  // No sites yet is fine: the consent offers "Create new sites" (first run from Claude).
   const sites = await connectableSites(c, user);
-  if (!sites.length)
-    return html(
-      errorPage(
-        "No sites to connect",
-        "You don't have a site you can edit yet. Create one in OpenSpace Studio, then connect again.",
-      ),
-    );
   const handle = randomToken(24);
   const now = c.var.services.now();
   await c.var.services.db.batch([
@@ -308,9 +302,13 @@ mcpRoutes.post("/authorize", async (c) => {
     ),
   );
   const sites = (await connectableSites(c, user)).filter((s) => picked.has(s.id));
-  if (!sites.length)
+  const canCreate = form.create === "1";
+  if (!sites.length && !canCreate)
     return html(
-      errorPage("Choose a site", "Pick at least one site. Go back to the app and connect again."),
+      errorPage(
+        "Choose what it can do",
+        "Pick at least one site, or allow it to create new sites. Go back to the app and connect again.",
+      ),
       400,
     );
   const canPublish = form.publish === "1";
@@ -327,6 +325,7 @@ mcpRoutes.post("/authorize", async (c) => {
     clientId: authReq.clientId,
     clientName: row.client_name,
     canPublish,
+    canCreate,
     sites,
     now,
   });
@@ -344,6 +343,12 @@ mcpRoutes.post("/authorize", async (c) => {
       actor: user.id,
       action: "mcp.connect",
       meta: { connectionId, client: row.client_name, publish: canPublish },
+    });
+  if (!sites.length)
+    await audit(db, {
+      actor: user.id,
+      action: "mcp.connect",
+      meta: { connectionId, client: row.client_name, create: canCreate },
     });
   return c.redirect(redirectTo, 302);
 });
@@ -363,11 +368,7 @@ mcpRoutes.post("/authorize/dev-login", async (c) => {
     return html(errorPage("Can't sign in", "Go back to the app and connect again."), 400);
   let user: User;
   try {
-    user = await upsertDevUser(
-      c.var.services.db,
-      { login: devLoginFor(parsed.data.name), name: parsed.data.name },
-      c.var.services.now(),
-    );
+    user = await devLoginUser(c.var.services.db, { name: parsed.data.name }, c.var.services.now());
   } catch {
     return html(errorPage("That name is taken", "Go back and try another name."), 400);
   }
@@ -393,6 +394,7 @@ async function grantViews(c: Context<AppEnv>, rows: ConnectionRow[]) {
     clientName: r.client_name,
     sites: names.get(r.id) ?? [],
     publish: r.can_publish === 1,
+    create: r.can_create === 1,
     createdAt: new Date(r.created_at).toISOString(),
     lastUsedAt: iso(r.last_used_at),
   }));

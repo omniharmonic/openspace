@@ -14,6 +14,8 @@ export interface ConnectionRow {
   client_id: string | null;
   client_name: string;
   can_publish: number;
+  /** May create new sites (remote MCP first run; migration 0490). */
+  can_create?: number;
   token_hash: string | null;
   token_hint: string | null;
   created_at: number;
@@ -40,6 +42,8 @@ export async function createConnection(
     clientId?: string | null;
     clientName: string;
     canPublish: boolean;
+    /** Allowed to create new sites (granted to this connection as they are made). */
+    canCreate?: boolean;
     tokenHash?: string | null;
     tokenHint?: string | null;
     sites: Array<{ id: string; role: Role }>;
@@ -50,8 +54,8 @@ export async function createConnection(
   const stmts = [
     db
       .prepare(
-        `INSERT INTO mcp_connections (id, user_id, kind, client_id, client_name, can_publish, token_hash, token_hint, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO mcp_connections (id, user_id, kind, client_id, client_name, can_publish, token_hash, token_hint, created_at, can_create)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         id,
@@ -63,6 +67,7 @@ export async function createConnection(
         input.tokenHash ?? null,
         input.tokenHint ?? null,
         input.now,
+        input.canCreate ? 1 : 0,
       ),
     ...input.sites.map((s) =>
       db
@@ -86,6 +91,36 @@ export async function createConnection(
   ];
   await db.batch(stmts);
   return id;
+}
+
+/** Add a site to a connection's grant (a site the connection just created). */
+export async function grantSiteToConnection(
+  db: D1Database,
+  conn: Pick<
+    ConnectionRow,
+    "id" | "user_id" | "client_id" | "kind" | "client_name" | "can_publish"
+  >,
+  site: { id: string; role: Role },
+  now: number,
+): Promise<void> {
+  await db
+    .prepare(
+      `INSERT INTO mcp_grants (id, user_id, site_id, client_id, client_name, scopes, can_publish, created_at, connection_id, role)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(
+      randomId("mcpg", 20),
+      conn.user_id,
+      site.id,
+      conn.client_id ?? conn.kind,
+      conn.client_name.slice(0, 100),
+      JSON.stringify(["mcp"]),
+      conn.can_publish,
+      now,
+      conn.id,
+      site.role,
+    )
+    .run();
 }
 
 export async function getConnection(db: D1Database, id: string): Promise<ConnectionRow | null> {

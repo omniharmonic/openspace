@@ -1,6 +1,7 @@
 import {
   ArrowRightLeft,
   ArrowUpRight,
+  Bot,
   Copy,
   Ellipsis,
   Inbox,
@@ -23,7 +24,7 @@ import {
   useTemplates,
   useTransferSite,
 } from "../../api";
-import type { Site, TemplateSummary } from "../../api/types";
+import { needsGitHub, type Site, type TemplateSummary } from "../../api/types";
 import { AppHeader } from "../../app/AppHeader";
 import { LoadError } from "../../app/Connection";
 import { useConfig } from "../../app/config";
@@ -78,7 +79,19 @@ function SetupLink({ site }: { site: Site }) {
 
 type View = "cards" | "gardener";
 
-export function StatusBadge({ status }: { status: Site["status"] }) {
+export function StatusBadge({
+  status,
+  github,
+}: {
+  status: Site["status"];
+  github?: Site["github"];
+}) {
+  if (github && github.access !== "ok")
+    return (
+      <Badge tone="pending" dot>
+        {status === "live" ? "Reconnect GitHub" : "One more step"}
+      </Badge>
+    );
   if (status === "live")
     return (
       <Badge tone="live" dot>
@@ -336,7 +349,7 @@ function SiteCard({
           {displayUrl(site.url)}
         </a>
         <div className="st-sitecard__meta">
-          <StatusBadge status={site.status} />
+          <StatusBadge status={site.status} github={site.github} />
           {site.inboxCount > 0 && (
             <Badge tone="accent">
               <Inbox size={11} aria-hidden="true" />
@@ -350,14 +363,34 @@ function SiteCard({
             </Badge>
           )}
         </div>
-        <SetupLink site={site} />
-        {site.status === "failed" && (
+        {!needsGitHub(site) && <SetupLink site={site} />}
+        {needsGitHub(site) ? (
           <div className="st-sitecard__problem">
             <p className="st-sitecard__note">{failedNote(site)}</p>
-            <Button size="sm" icon={<RotateCcw />} onClick={onRetry} loading={retrying}>
-              Try again
-            </Button>
+            {site.github?.access !== "requested" &&
+            site.github?.connectUrl &&
+            (site.role ?? "owner") === "owner" ? (
+              <a
+                className="st-button st-button--secondary st-button--sm"
+                href={site.github.connectUrl}
+              >
+                {site.status === "live" ? "Reconnect GitHub" : "Connect GitHub"}
+              </a>
+            ) : (
+              <Button size="sm" icon={<RotateCcw />} onClick={onRetry} loading={retrying}>
+                Try again
+              </Button>
+            )}
           </div>
+        ) : (
+          site.status === "failed" && (
+            <div className="st-sitecard__problem">
+              <p className="st-sitecard__note">{failedNote(site)}</p>
+              <Button size="sm" icon={<RotateCcw />} onClick={onRetry} loading={retrying}>
+                Try again
+              </Button>
+            </div>
+          )
         )}
       </div>
     </article>
@@ -409,7 +442,7 @@ function GardenerTable({
                 <span className="st-table__url">{displayUrl(s.url)}</span>
               </td>
               <td>
-                <StatusBadge status={s.status} />
+                <StatusBadge status={s.status} github={s.github} />
               </td>
               <td className="st-table__num">
                 {s.inboxCount > 0 ? (
@@ -629,11 +662,16 @@ export function Dashboard() {
           <EmptyState
             icon={<LayoutGrid />}
             title="Make your first site"
-            description="Pick a template, add your name, and it’s online in a few minutes."
+            description="Pick a template, add your name, and it’s online in a few minutes. Or connect Claude and ask it to make one — or to move the site you already have."
             action={
-              <Button variant="primary" onClick={() => navigate("/templates")}>
-                Browse templates
-              </Button>
+              <div className="st-dash__empty-actions">
+                <Button variant="primary" onClick={() => navigate("/templates")}>
+                  Browse templates
+                </Button>
+                <Button variant="secondary" icon={<Bot />} onClick={() => navigate("/connect")}>
+                  Connect your AI
+                </Button>
+              </div>
             }
           />
         ) : view === "cards" ? (

@@ -1,4 +1,4 @@
-import { LayoutGrid, LogOut, Search } from "lucide-react";
+import { Bot, LayoutGrid, LogOut, Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { useLogout, useSession } from "../api";
@@ -28,6 +28,7 @@ export function UserMenu() {
       items={[
         { type: "label", label: `Signed in as ${user.login}` },
         { label: "Your sites", icon: <LayoutGrid />, onSelect: () => navigate("/sites") },
+        { label: "Connect your AI", icon: <Bot />, onSelect: () => navigate("/connect") },
         { type: "separator" },
         {
           label: "Sign out",
@@ -57,6 +58,11 @@ export function AppHeader({ children }: { children?: ReactNode }) {
           <NavLink to="/templates" className="st-header__link">
             Templates
           </NavLink>
+          {user && (
+            <NavLink to="/connect" className="st-header__link">
+              Connect your AI
+            </NavLink>
+          )}
         </nav>
       </div>
       {children}

@@ -30,7 +30,8 @@ import {
   touchConnection,
   touchMcpSession,
 } from "./db";
-import { draftScreenshots, screenshotUrlTool } from "./screenshots";
+import { hubTools } from "./hub-tools";
+import { draftScreenshots } from "./screenshots";
 import { endSession, MCP_IDLE_MS } from "./sessions";
 import { HubSiteStore, imagesResizer } from "./store";
 
@@ -311,9 +312,16 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
     },
     {
       label,
+      // Hub-only tools (create_site, list_templates, screenshot_url…; see hub-tools.ts).
+      tools: hubTools({
+        env: c.env,
+        services,
+        user: auth.user,
+        connection: auth.connection,
+        sites,
+        log,
+      }),
       assumeInitialized: !init,
-      // Hub-only tools (they fetch the public web through Browser Rendering).
-      tools: [screenshotUrlTool(services.screenshots, services, sites, auth.user.id)],
       onError: (err, where) => log.error("mcp tool failed", { where, err }),
     },
   );

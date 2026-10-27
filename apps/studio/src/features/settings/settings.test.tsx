@@ -269,11 +269,15 @@ describe("connect your AI", () => {
     expect(
       screen.getByText("claude mcp add --transport http openspace http://localhost:8787/mcp"),
     ).toBeInTheDocument();
-    expect(screen.getByText(/for site folders on your computer/)).toBeInTheDocument();
+    // The plugin isn't in Claude's built-in list: marketplace first, then plugin@marketplace.
+    expect(screen.getByText(/not/, { selector: "strong" })).toBeInTheDocument();
     for (const cmd of PLUGIN_COMMANDS) expect(screen.getByText(cmd)).toBeInTheDocument();
+    expect(PLUGIN_COMMANDS).toContain("/plugin install openspace@openspace");
+    expect(screen.getByText("claude plugin install openspace@openspace")).toBeInTheDocument();
+    expect(screen.getByText(/quit and reopen Claude Code/)).toBeInTheDocument();
 
     // claude.ai / Claude Desktop: custom connector with the /mcp URL, not the link.
-    await user.click(screen.getByRole("tab", { name: "Claude app" }));
+    await user.click(screen.getByRole("tab", { name: /Claude app/ }));
     expect(screen.getByText("Settings → Connectors")).toBeInTheDocument();
     expect(screen.getByText("http://localhost:8787/mcp")).toBeInTheDocument();
     // …and the Claude app skills to upload (Customize → Skills), served by the docs site.

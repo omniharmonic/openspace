@@ -42,6 +42,15 @@ import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { PublishResult } from "../room/draft-room";
 import { gatedContext as gatedContextFor, loadOpenedDocument, sealFiles } from "./gated-content";
+import {
+  asAccessNeed,
+  checkInstallation,
+  connectGitHubUrl,
+  GITHUB_ACCESS_DETAIL,
+  GITHUB_RECONNECT_DETAIL,
+  type GitHubAccessNeed,
+  type GitHubAccessState,
+} from "./github-install";
 import type { Services } from "./index";
 import { personalizeDocument } from "./personalize";
 import { draftReady } from "./publishing";
@@ -75,6 +84,11 @@ export interface SiteView {
   updateAvailable: boolean;
   /** An ownership transfer waiting for the recipient to accept it on GitHub. */
   transfer: { to: string; requestedAt: string; status: "pending" } | null;
+  /**
+   * GitHub App access: "ok", or what the owner has to do on GitHub first — `connectUrl` (a Hub
+   * page that sends them to GitHub's install page and back) is set when something is needed.
+   */
+  github: { access: GitHubAccessState; connectUrl: string | null };
 }
 
 export const CreateSiteSchema = z.strictObject({
@@ -85,6 +99,15 @@ export const CreateSiteSchema = z.strictObject({
   brandColor: CssColorSchema.optional().nullable(),
   /** Optional logo as a `data:image/…;base64,` URL (PNG, JPEG, WebP or GIF; ≤ 1 MB). */
   logo: z.string().max(1_500_000).optional().nullable(),
+  /**
+   * GitHub account (the person's own login, or an organization they belong to) that will own
+   * the site's repository. Default: the person's own account.
+   */
+  owner: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/, "That isn't a GitHub account name")
+    .optional(),
 });
 export type CreateSiteInput = z.infer<typeof CreateSiteSchema>;
 
@@ -114,8 +137,13 @@ function compareVersions(a: string, b: string): number {
   return 0;
 }
 
-export function toSiteView(row: SiteWithRole, templates: readonly TemplateMeta[] = []): SiteView {
+export function toSiteView(
+  row: SiteWithRole,
+  templates: readonly TemplateMeta[] = [],
+  hubUrl = "",
+): SiteView {
   const tpl = templates.find((t) => t.id === row.template_id);
+  const need = asAccessNeed(row.github_access);
   return {
     id: row.id,
     name: row.name,
@@ -143,6 +171,10 @@ export function toSiteView(row: SiteWithRole, templates: readonly TemplateMeta[]
           status: "pending",
         }
       : null,
+    github: {
+      access: need ?? "ok",
+      connectUrl: need ? connectGitHubUrl(hubUrl, row.id) : null,
+    },
   };
 }
 
@@ -210,7 +242,7 @@ export async function listSites(services: Services, user: User): Promise<SiteVie
     listSitesForUser(services.db, user.id),
     services.templates.list(),
   ]);
-  return rows.map((r) => toSiteView(r, templates));
+  return rows.map((r) => toSiteView(r, templates, services.config.hubUrl));
 }
 
 /** Refresh a building site's status from its publish workflow. */
@@ -242,7 +274,7 @@ export async function getSiteView(services: Services, id: string, user: User, lo
   if (site.transfer_to && (await refreshTransfer(services, site, log)))
     site = await siteForUser(services, id, user);
   site = await refreshStatus(services, site, log);
-  return toSiteView(site, await services.templates.list());
+  return toSiteView(site, await services.templates.list(), services.config.hubUrl);
 }
 
 /**
@@ -542,8 +574,18 @@ export async function createSite(
   const now = services.now();
   const siteId = newId("st") as SiteId;
   const name = input.name.trim();
-  const gh = services.github({ user, installationId: opts.installationId ?? null });
-  const owner = user.login;
+  const owner = input.owner ?? user.login;
+  // The install step: GitHub only lets OpenSpace create the repository once its App is
+  // installed on the owning account (with access to all repositories). Without it the site is
+  // recorded as waiting for GitHub, and setup resumes when the App's Setup URL is called.
+  let installationId = opts.installationId ?? null;
+  let need: GitHubAccessNeed | null = null;
+  if (!installationId) {
+    const check = await checkInstallation(services, user, owner, opts.log);
+    if (check.ok) installationId = check.installation.id;
+    else need = check.need;
+  }
+  const gh = services.github({ user, installationId });
 
   let logo: DecodedImage | undefined;
   let logoMeta: SiteSetup["logo"] = null;
@@ -593,14 +635,16 @@ export async function createSite(
       name,
       tagline: setup.tagline,
       repo: `${owner}/${repoName}`,
-      installation_id: opts.installationId ?? null,
+      installation_id: installationId,
       deploy_target: "github-pages",
       domain: null,
       url: setup.deployUrl,
       template_id: template.meta.id,
       template_version: template.meta.version,
       look: look.id,
-      status: "building" as const,
+      status: need ? ("failed" as const) : ("building" as const),
+      status_detail: need ? GITHUB_ACCESS_DETAIL[need] : null,
+      github_access: need,
       setup_json: JSON.stringify(setup),
       created_at: now,
       updated_at: now,
@@ -619,6 +663,15 @@ export async function createSite(
       httpMetadata: { contentType: logo.mime },
     });
 
+  if (need) {
+    await audit(services.db, {
+      siteId,
+      actor: user.id,
+      action: "site.create",
+      meta: { template: template.meta.id, look: look.id, repo: row.repo, githubAccess: need },
+    });
+    return getSiteView(services, siteId, user, opts.log);
+  }
   const result = await runSetup(services, row, user, {
     log: opts.log,
     ...(files ? { files } : {}),
@@ -664,31 +717,150 @@ export async function publishSite(
   user: User,
   log?: Logger,
 ): Promise<SiteView & { publish: PublishResult | null }> {
-  const site = await siteForUser(services, id, user);
-  requireRole(site, "editor");
-  const owner = await ownerOf(services, site);
+  let site: SiteRow = await siteForUser(services, id, user);
+  requireRole(site as SiteWithRole, "editor");
+  const owner = (await ownerOf(services, site)) ?? user;
   const published = await latestPublish(services.db, id);
-  const needsSetup =
-    (site.status === "failed" && (!published || published.kind === "setup")) ||
-    !(await draftReady(services, site, owner));
-  if (needsSetup) {
-    const result = await runSetup(services, site, owner ?? user, log ? { log } : {});
-    await updateSite(
-      services.db,
-      id,
-      { status: result.status, status_detail: result.detail, url: result.url },
-      services.now(),
-    );
-    await audit(services.db, {
-      siteId: id,
-      actor: user.id,
-      action: "site.setup.retry",
-      meta: { status: result.status },
-    });
+  const setupUnfinished = site.status === "failed" && (!published || published.kind === "setup");
+  // Waiting for GitHub (or never told which installation to use): ask GitHub again first —
+  // never retry with a stale "no installation".
+  if (site.github_access || (setupUnfinished && site.installation_id === null)) {
+    const access = await refreshGitHubAccess(services, site, owner, log);
+    if (!access.ok) {
+      if (!setupUnfinished && site.status !== "failed")
+        throw new HttpError(409, "github_access_needed", GITHUB_RECONNECT_DETAIL);
+      await updateSite(
+        services.db,
+        id,
+        {
+          status: site.status === "live" ? "live" : "failed",
+          status_detail: githubAccessDetail(site, access.need),
+        },
+        services.now(),
+      );
+      return { ...(await getSiteView(services, id, user, log)), publish: null };
+    }
+    site = access.site;
+  }
+  if (setupUnfinished || !(await draftReady(services, site, owner))) {
+    await finishSetup(services, site, owner, user, log);
     return { ...(await getSiteView(services, id, user, log)), publish: null };
   }
   const result = await unwrapRoom(roomStub(env, id).publish(id, { userId: user.id }));
   return { ...(await getSiteView(services, id, user, log)), publish: result };
+}
+
+/** Plain words for a site waiting on GitHub (a site that was already working "reconnects"). */
+function githubAccessDetail(site: Pick<SiteRow, "status">, need: GitHubAccessNeed): string {
+  return site.status === "live" && need !== "requested"
+    ? GITHUB_RECONNECT_DETAIL
+    : GITHUB_ACCESS_DETAIL[need];
+}
+
+/**
+ * Re-read a site's GitHub App access from its owner's installations (never trusting a stored
+ * "none") and record the answer: the installation id when it's fine, or what's needed.
+ */
+export async function refreshGitHubAccess(
+  services: Services,
+  site: SiteRow,
+  owner: User,
+  log?: Logger,
+): Promise<{ ok: true; site: SiteRow } | { ok: false; site: SiteRow; need: GitHubAccessNeed }> {
+  const check = await checkInstallation(services, owner, parseRepo(site.repo).owner, log);
+  if (check.ok) {
+    const fixed = {
+      ...site,
+      installation_id: check.installation.id,
+      github_access: null,
+      status_detail: asAccessNeed(site.github_access) ? null : site.status_detail,
+    };
+    if (site.installation_id !== fixed.installation_id || site.github_access !== null)
+      await updateSite(
+        services.db,
+        site.id,
+        {
+          installation_id: fixed.installation_id,
+          github_access: null,
+          status_detail: fixed.status_detail,
+        },
+        services.now(),
+      );
+    return { ok: true, site: fixed };
+  }
+  // An organization install waiting for approval doesn't show up yet: still "requested".
+  const need: GitHubAccessNeed =
+    site.github_access === "requested" && check.need === "install" ? "requested" : check.need;
+  if (site.github_access !== need)
+    await updateSite(services.db, site.id, { github_access: need }, services.now());
+  return { ok: false, site: { ...site, github_access: need }, need };
+}
+
+/** Mark a site as waiting for an organization's owners to approve the App. */
+export async function markGitHubRequested(services: Services, site: SiteRow): Promise<void> {
+  await updateSite(
+    services.db,
+    site.id,
+    {
+      github_access: "requested",
+      status_detail: GITHUB_ACCESS_DETAIL.requested,
+      ...(site.status === "live" ? {} : { status: "failed" as const }),
+    },
+    services.now(),
+  );
+}
+
+/** Run (or resume) a site's setup and record the outcome. */
+async function finishSetup(
+  services: Services,
+  site: SiteRow,
+  owner: User,
+  actor: User,
+  log?: Logger,
+): Promise<void> {
+  const result = await runSetup(services, site, owner, log ? { log } : {});
+  await updateSite(
+    services.db,
+    site.id,
+    { status: result.status, status_detail: result.detail, url: result.url },
+    services.now(),
+  );
+  await audit(services.db, {
+    siteId: site.id,
+    actor: actor.id,
+    action: "site.setup.retry",
+    meta: { status: result.status },
+  });
+}
+
+/**
+ * After the App was installed (or its access changed) on GitHub: re-read access and, when it's
+ * fine and the site was never set up, finish setting it up. Returns whether access is fine now.
+ */
+export async function resumeAfterInstall(
+  services: Services,
+  site: SiteRow,
+  actor: User,
+  log?: Logger,
+): Promise<boolean> {
+  const owner = (await ownerOf(services, site)) ?? actor;
+  const access = await refreshGitHubAccess(services, site, owner, log);
+  if (!access.ok) {
+    await updateSite(
+      services.db,
+      site.id,
+      { status_detail: githubAccessDetail(site, access.need) },
+      services.now(),
+    );
+    return false;
+  }
+  const published = await latestPublish(services.db, site.id);
+  const setupUnfinished =
+    site.status !== "live" &&
+    (!published || published.kind === "setup") &&
+    site.status !== "building";
+  if (setupUnfinished) await finishSetup(services, access.site, owner, actor, log);
+  return true;
 }
 
 /** The site owner's account (server-side GitHub work falls back to their token). */

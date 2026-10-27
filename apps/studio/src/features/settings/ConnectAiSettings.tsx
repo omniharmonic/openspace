@@ -1,124 +1,25 @@
-import { Check, Copy, Link2, Plus, Terminal, Trash2, Unplug } from "lucide-react";
+import { Link2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { hubMcpUrl, type McpToken, useMcpActions, useMcpGrants, useMcpTokens } from "../../api";
+import { type McpToken, useMcpActions, useMcpTokens } from "../../api";
 import type { Site } from "../../api/types";
+import { Badge, Button, Input, Spinner, Tabs, Toggle, toast } from "../../ui";
+
 import {
-  Badge,
-  Button,
-  EmptyState,
-  IconButton,
-  Input,
-  Spinner,
-  Tabs,
-  Toggle,
-  toast,
-} from "../../ui";
+  AppsWithAccess,
+  ClaudeAppSkills,
+  ClaudeAppSteps,
+  ClaudeCodeSteps,
+  CopyLine,
+  copy,
+  when,
+} from "../connect/ConnectSteps";
 
-/**
- * The OpenSpace plugin for Claude Code: skills and slash commands (design check, new page, …).
- * Its own MCP server works on site folders on your computer; Studio sites connect to the Hub.
- */
-export const PLUGIN_COMMANDS = [
-  "/plugin marketplace add omniharmonic/openspace",
-  "/plugin install openspace",
-] as const;
-
-/**
- * Skills for claude.ai and Claude Desktop (Customize → Skills → upload the .zip), built by the
- * docs site (apps/docs/scripts/skills.mjs). No installs: they use this connector only.
- */
-export const DOCS_URL = "https://docs.openspace.host";
-export const CLAUDE_APP_SKILLS = [
-  { name: "openspace-migrate", what: "move a site from Squarespace, GitHub Pages or anywhere" },
-  { name: "openspace-web-design", what: "design pages, checking screenshots as it goes" },
-  { name: "openspace-content", what: "blog posts, events and products" },
-  { name: "openspace-site-setup", what: "publishing and your domain" },
-] as const;
-
-async function copy(text: string, what: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast({ tone: "success", title: `${what} copied` });
-  } catch {
-    toast({ tone: "danger", title: "Couldn’t copy", description: text });
-  }
-}
-
-function when(iso: string | null): string {
-  if (!iso) return "never";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-export function CopyLine({
-  value,
-  label,
-  mono = true,
-}: {
-  value: string;
-  label: string;
-  mono?: boolean;
-}) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <div className="st-copyline">
-      <code className={mono ? "st-code" : undefined}>{value}</code>
-      <Button
-        size="sm"
-        icon={copied ? <Check /> : <Copy />}
-        aria-label={`Copy ${label}`}
-        onClick={() => {
-          void copy(value, label);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1600);
-        }}
-      >
-        {copied ? "Copied" : "Copy"}
-      </Button>
-    </div>
-  );
-}
-
-/** A drawn (unbranded) sketch of the step, standing in for a screenshot. */
-function StepSketch({ kind }: { kind: "settings" | "add" | "allow" }) {
-  return (
-    <span className={`st-sketch st-sketch--${kind}`} aria-hidden="true">
-      <span className="st-sketch__bar" />
-      {kind === "settings" && (
-        <>
-          <span className="st-sketch__side">
-            <i />
-            <i className="is-on" />
-            <i />
-          </span>
-          <span className="st-sketch__main">
-            <b>Connectors</b>
-            <em>Add custom connector</em>
-          </span>
-        </>
-      )}
-      {kind === "add" && (
-        <span className="st-sketch__modal">
-          <b>Add custom connector</b>
-          <i>OpenSpace</i>
-          <i className="is-url">https://…/mcp</i>
-          <em>Add</em>
-        </span>
-      )}
-      {kind === "allow" && (
-        <span className="st-sketch__modal">
-          <b>Allow Claude to edit</b>
-          <i className="is-check">☑ Your site</i>
-          <i className="is-check">☐ Allow publishing</i>
-          <em>Allow</em>
-        </span>
-      )}
-    </span>
-  );
-}
+export {
+  CLAUDE_APP_SKILLS,
+  CopyLine,
+  DOCS_URL,
+  PLUGIN_COMMANDS,
+} from "../connect/ConnectSteps";
 
 function TokenRow({
   token,
@@ -231,15 +132,12 @@ function TokenRow({
  */
 export function ConnectAiSettings({ site }: { site: Site }) {
   const tokens = useMcpTokens(site.id);
-  const grants = useMcpGrants();
   const actions = useMcpActions(site.id);
   const [label, setLabel] = useState("Claude");
   // The just-made link in full (the Hub only returns it once; lists show it masked).
   const [fresh, setFresh] = useState<{ id: string; url: string } | null>(null);
   const first = tokens.data?.[0];
   const isOwner = (site.role ?? "owner") === "owner";
-  const mcpUrl = hubMcpUrl();
-  const claudeCodeCommand = `claude mcp add --transport http openspace ${mcpUrl}`;
   const freshUrl = fresh && tokens.data?.some((t) => t.id === fresh.id) ? fresh.url : null;
 
   const create = () =>
@@ -339,108 +237,25 @@ export function ConnectAiSettings({ site }: { site: Site }) {
           aria-label="AI app"
           items={[
             {
-              value: "code",
-              label: "Claude Code",
+              value: "claude",
+              label: "Claude app (easiest)",
               content: (
                 <div className="st-settings__stack">
-                  <ol className="st-steps">
-                    <li>
-                      <div>
-                        <Terminal aria-hidden="true" /> In a terminal, add OpenSpace to Claude Code:
-                      </div>
-                      <CopyLine value={claudeCodeCommand} label="command" />
-                    </li>
-                    <li>
-                      In Claude Code, type <code className="st-code">/mcp</code>, pick{" "}
-                      <strong>openspace</strong> and choose <strong>Authenticate</strong>.
-                    </li>
-                    <li>
-                      Sign in with GitHub, tick <strong>{site.name}</strong>, and decide whether
-                      Claude may publish (off unless you choose it). You can change this below.
-                    </li>
-                    <li>
-                      Ask Claude something like{" "}
-                      <em>“Add an FAQ section to my home page about class sizes.”</em>
-                    </li>
-                  </ol>
-                  <p className="st-muted-note">
-                    Rather not sign in? Use your personal link instead (see{" "}
-                    <strong>Personal link</strong>).
-                  </p>
-                  <p className="st-muted-note">
-                    <strong>Optional:</strong> the OpenSpace plugin adds skills and slash commands,
-                    such as a design check. Its own built-in server is for site folders on your
-                    computer, so for {site.name} keep the connection above.
-                  </p>
-                  {PLUGIN_COMMANDS.map((c) => (
-                    <CopyLine key={c} value={c} label="command" />
-                  ))}
+                  <ClaudeAppSteps siteName={site.name} />
+                  <ClaudeAppSkills />
                 </div>
               ),
             },
             {
-              value: "claude",
-              label: "Claude app",
+              value: "code",
+              label: "Claude Code",
               content: (
                 <div className="st-settings__stack">
-                  <ol className="st-steps st-steps--sketch">
-                    <li>
-                      <div>
-                        In claude.ai or Claude Desktop, open <strong>Settings → Connectors</strong>{" "}
-                        and choose <strong>Add custom connector</strong>.
-                      </div>
-                      <StepSketch kind="settings" />
-                    </li>
-                    <li>
-                      <div>
-                        Name it <strong>OpenSpace</strong>, use this URL, and click{" "}
-                        <strong>Add</strong>:
-                        <CopyLine value={mcpUrl} label="connector URL" />
-                      </div>
-                      <StepSketch kind="add" />
-                    </li>
-                    <li>
-                      <div>
-                        Sign in with GitHub when asked, tick <strong>{site.name}</strong>, and
-                        decide whether Claude may publish. You can change this below at any time.
-                      </div>
-                      <StepSketch kind="allow" />
-                    </li>
-                    <li>
-                      Ask Claude something like{" "}
-                      <em>“Add an FAQ section to my home page about class sizes.”</em>
-                    </li>
-                  </ol>
-                  <section className="st-settings__stack" aria-labelledby="ai-skills">
-                    <h4 id="ai-skills" className="st-card__title">
-                      Add the OpenSpace skills
-                    </h4>
-                    <p className="st-muted-note">
-                      Skills teach Claude how to do these jobs well. Nothing to install: download a
-                      file below (don’t unzip it), then in Claude open{" "}
-                      <strong>Customize → Skills</strong>, choose <strong>Upload a skill</strong>,
-                      pick the file and turn the skill on.
-                    </p>
-                    <ul className="st-steps">
-                      {CLAUDE_APP_SKILLS.map((s) => (
-                        <li key={s.name}>
-                          <a href={`${DOCS_URL}/skills/${s.name}.zip`} download>
-                            {s.name}.zip
-                          </a>{" "}
-                          — {s.what}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="st-muted-note">
-                      <a
-                        href={`${DOCS_URL}/connect-your-ai/claude-app/`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Step-by-step guide and example requests
-                      </a>
-                    </p>
-                  </section>
+                  <ClaudeCodeSteps siteName={site.name} />
+                  <p className="st-muted-note">
+                    Rather not sign in? Use your personal link instead (see{" "}
+                    <strong>Personal link</strong>).
+                  </p>
                 </div>
               ),
             },
@@ -494,50 +309,7 @@ export function ConnectAiSettings({ site }: { site: Site }) {
         <h3 id="ai-grants" className="st-card__title">
           Apps with access
         </h3>
-        {grants.isPending ? (
-          <Spinner size={14} label="Loading" />
-        ) : !grants.data?.length ? (
-          <EmptyState
-            size="sm"
-            icon={<Unplug />}
-            title="No apps connected yet"
-            description="Once you connect Claude, it shows up here."
-          />
-        ) : (
-          <ul className="st-grants">
-            {grants.data.map((g) => (
-              <li key={g.id} className="st-grant">
-                <div className="st-grant__main">
-                  <strong>{g.clientName}</strong>
-                  <span className="st-muted-note">
-                    {g.sites.length ? g.sites.map((s) => s.name).join(", ") : "Sites you choose"} ·
-                    last used {when(g.lastUsedAt)}
-                  </span>
-                </div>
-                <div className="st-grant__publish">
-                  <span id={`grant-${g.id}`}>Can publish</span>
-                  <Toggle
-                    size="sm"
-                    checked={g.publish}
-                    aria-label={`${g.clientName} can publish`}
-                    onCheckedChange={(publish) => actions.setPublish.mutate({ id: g.id, publish })}
-                  />
-                </div>
-                {g.publish && <Badge tone="pending">Asks you before each publish</Badge>}
-                <IconButton
-                  label={`Disconnect ${g.clientName}`}
-                  icon={<Unplug />}
-                  size="sm"
-                  onClick={() =>
-                    actions.revokeGrant.mutate(g.id, {
-                      onSuccess: () => toast({ title: `${g.clientName} disconnected` }),
-                    })
-                  }
-                />
-              </li>
-            ))}
-          </ul>
-        )}
+        <AppsWithAccess />
       </section>
     </div>
   );

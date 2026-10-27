@@ -19,6 +19,8 @@ export interface SiteRow {
   status_detail: string | null;
   plan_flags: string;
   setup_json: string | null;
+  /** What the owner must do on GitHub before setup can run (migration 0490); null = nothing. */
+  github_access: string | null;
   transfer_to: string | null;
   transfer_requested_at: number | null;
   archived_at: number | null;
@@ -51,9 +53,12 @@ export async function insertSite(
     | "setup_json"
     | "transfer_to"
     | "transfer_requested_at"
+    | "github_access"
   > & {
     plan_flags?: string;
     setup_json?: string | null;
+    github_access?: string | null;
+    status_detail?: string | null;
   },
 ): Promise<void> {
   await db.batch([
@@ -61,8 +66,8 @@ export async function insertSite(
       .prepare(
         `INSERT INTO sites (id, owner_id, name, tagline, repo, installation_id, deploy_target, domain,
           url, template_id, template_version, look, status, plan_flags, setup_json, created_at,
-          updated_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          updated_at, github_access, status_detail)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         site.id,
@@ -82,6 +87,8 @@ export async function insertSite(
         site.setup_json ?? null,
         site.created_at,
         site.updated_at,
+        site.github_access ?? null,
+        site.status_detail ?? null,
       ),
     db
       .prepare(
@@ -143,6 +150,7 @@ type Patch = Partial<
     | "transfer_to"
     | "transfer_requested_at"
     | "deploy_target"
+    | "github_access"
   >
 >;
 
