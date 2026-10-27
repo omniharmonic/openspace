@@ -1,5 +1,6 @@
 import type {
   Approval,
+  CloudflareCheck,
   Collaborator,
   CollaboratorList,
   CollaboratorRole,
@@ -8,7 +9,6 @@ import type {
   DownloadedFile,
   ExportKind,
   HostingInfo,
-  Invitation,
   InvitationPreview,
   InviteResult,
   ManageApi,
@@ -17,6 +17,7 @@ import type {
   MediaUploadResult,
   PagePasswordEntry,
   RegistrarGuide,
+  SetupInfo,
 } from "./manage-types";
 import { unreachableMessage } from "./resilience";
 import { HubError } from "./types";
@@ -208,11 +209,24 @@ export function createManageHttp({
     async putHostingSecrets(siteId, secrets) {
       await request("PUT", `${site(siteId)}/hosting/secrets`, { secrets });
     },
-    async switchHosting(siteId, target) {
+    async switchHosting(siteId, target, url) {
       return unwrap<HostingInfo>(
-        await request("POST", `${site(siteId)}/hosting`, { target }),
+        await request("POST", `${site(siteId)}/hosting`, url ? { target, url } : { target }),
         "hosting",
       );
+    },
+    async checkCloudflare(siteId, token, accountId) {
+      return unwrap<CloudflareCheck>(
+        await request(
+          "POST",
+          `${site(siteId)}/hosting/cloudflare/check`,
+          accountId ? { token, accountId } : { token },
+        ),
+        "check",
+      );
+    },
+    async getSetup(siteId) {
+      return unwrap<SetupInfo>(await request("GET", `${site(siteId)}/setup`), "setup");
     },
 
     async downloadExport(siteId, kind): Promise<DownloadedFile> {

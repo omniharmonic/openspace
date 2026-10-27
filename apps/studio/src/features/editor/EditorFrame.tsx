@@ -105,6 +105,8 @@ const SiteChromePanel = lazy(() =>
   import("../site-chrome/SiteChromePanel").then((m) => ({ default: m.SiteChromePanel })),
 );
 
+import { SetupChip } from "../setup/SetupChip";
+import { can } from "../site-mgmt/manage-ui";
 import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
 import { UpdateBanner } from "../updates/UpdateBanner";
 import { WorkspaceHost, WorkspaceRail } from "../workspace/WorkspaceHost";
@@ -718,6 +720,7 @@ function EditorChrome({ site }: { site: Site }) {
         </div>
 
         <div className="st-ed-top__right">
+          {can(site, "designer") && <SetupChip site={site} />}
           <AgentActivity />
           {user && (
             <PresenceAvatars self={{ id: user.id, name: user.name, avatarUrl: user.avatarUrl }} />

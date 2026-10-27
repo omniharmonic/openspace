@@ -6,11 +6,13 @@ import type {
   DomainView,
   ExportKind,
   HostingInfo,
+  HostingSwitch,
   Invitation,
   ManageApi,
   McpGrant,
   McpToken,
   RegistrarGuide,
+  SetupInfo,
 } from "./manage-types";
 import { type HubApi, HubError, type Site, type User } from "./types";
 
@@ -36,6 +38,10 @@ export interface ManageMockState {
   actionsKey: { keyId: string; key: string };
   /** Make the next upload fail (tests the retry queue). */
   failUploads: number;
+  /** The latest hosting move per site. */
+  switches: Record<string, HostingSwitch>;
+  /** What an import left to finish, per site (`content/setup-checklist.json`). */
+  importedSetup: Record<string, SetupInfo["imported"]>;
 }
 
 export interface ManageMockContext {
@@ -300,6 +306,8 @@ export function createManageMock(ctx: ManageMockContext): {
       key: "0lQuclhy5ouoJjqtaVnApZTG5UQTPR2uVwXIrBjrebA=",
     },
     failUploads: 0,
+    switches: {},
+    importedSetup: {},
   };
 
   const call = async (method: keyof HubApi, args: unknown[]) => {
@@ -359,7 +367,8 @@ export function createManageMock(ctx: ManageMockContext): {
     url: site.url,
     actionsPublicKey: clone(state.actionsKey),
     secrets: Object.keys(state.secrets[site.id] ?? {}),
-    switching: null,
+    switching: clone(state.switches[site.id] ?? null),
+    everLive: site.status === "live",
   });
 
   const api: ManageApi = {
@@ -695,23 +704,77 @@ export function createManageMock(ctx: ManageMockContext): {
         };
       }
     },
-    async switchHosting(siteId, target) {
+    async switchHosting(siteId, target, url) {
       const user = await call("switchHosting", [siteId, target]);
       const site = findSite(siteId);
       if (!isOwner(site, user)) throw forbid("Only the owner can change hosting.");
       if (target === "cloudflare") {
+        if (site.status !== "live")
+          throw new HubError(
+            409,
+            "not_live_yet",
+            "Your site needs to be live on its free hosting first. Once the first version is online, you can move it to Cloudflare from Finish setting up.",
+          );
         const have = state.secrets[siteId] ?? {};
         if (!have.CLOUDFLARE_API_TOKEN || !have.CLOUDFLARE_ACCOUNT_ID)
           throw new HubError(
             409,
             "missing_secrets",
-            "Add your Cloudflare token and account ID first.",
+            "Cloudflare isn't connected yet, so publishing there would fail. Paste your Cloudflare token in Finish setting up → Open your shop first.",
           );
+        // The mock "publishes" at once and the Worker answers: the move is confirmed.
+        state.switches[siteId] = {
+          to: "cloudflare",
+          status: "done",
+          url: url ?? null,
+          error: null,
+          startedAt: iso(now()),
+        };
+        if (url && !site.domain) site.url = url;
         if (state.domains[siteId])
           state.domains[siteId].message = "Move your domain to Cloudflare to finish the switch.";
       }
       site.deployTarget = target;
       return hostingOf(site);
+    },
+
+    async checkCloudflare(siteId, token) {
+      const user = await call("checkCloudflare", [siteId]);
+      const site = findSite(siteId);
+      if (!isOwner(site, user)) throw forbid("Only the owner can change hosting.");
+      if (token.includes("bad"))
+        return {
+          ok: false,
+          accounts: [],
+          account: null,
+          subdomain: null,
+          workersUrl: null,
+          problems: [
+            {
+              code: "token_invalid",
+              message:
+                "Cloudflare didn't recognise that token. Copy it again from the page Cloudflare showed after “Create token”.",
+            },
+          ],
+        };
+      const account = { id: "0123456789abcdef0123456789abcdef", name: "Maya's account" };
+      const worker = (site.repo.split("/")[1] ?? "site").toLowerCase().replace(/[^a-z0-9-]+/g, "-");
+      return {
+        ok: true,
+        accounts: [account],
+        account,
+        subdomain: "maya",
+        workersUrl: `https://${worker}.maya.workers.dev/`,
+        problems: [],
+      };
+    },
+    async getSetup(siteId) {
+      await call("getSetup", [siteId]);
+      const site = findSite(siteId);
+      return clone({
+        everLive: site.status === "live",
+        imported: state.importedSetup[siteId] ?? null,
+      });
     },
 
     async downloadExport(siteId, kind: ExportKind) {
