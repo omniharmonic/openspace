@@ -1,0 +1,225 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_k1ec9wgctm",
+  "title": "Speakers",
+  "slug": "speakers",
+  "seo": {
+    "description": "Meet the Open Field 2027 speakers: practitioners designing public services in cities, libraries, hospitals and national government."
+  },
+  "sections": [
+    {
+      "id": "sec_zf1g1b3djm",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_3k3qsh7ef5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "People who've done the work",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Speakers",
+            "subheading": "No keynotes from vendors. Every speaker works on a public service and will tell you what went wrong."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_vjm60crmqg",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get tickets",
+            "link": {
+              "type": "page",
+              "page": "pg_wrwn9f0tjc"
+            },
+            "role": "primary",
+            "secondaryLabel": "Propose a talk",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_w0dp3gv618"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_160m7cb060",
+      "preset": "team/list-bios@1",
+      "label": "Team list with bios",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_r4k4565nzv",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "This year's line-up",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Main stage"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_ne0jjtg0ye",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Lena Brandt",
+                "role": "Forms people can finish",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1614436201459-156d322d38c6?w=720&q=80",
+                  "alt": "A smiling woman with a shoulder-length bob by the water",
+                  "width": 720,
+                  "height": 1080
+                },
+                "bio": "Leads design for a national benefits service and has rewritten more forms than anyone should."
+              },
+              {
+                "name": "Jonah Ellis",
+                "role": "Small teams, public money",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=1320&q=80",
+                  "alt": "A smiling man in a grey t-shirt outdoors",
+                  "width": 1320,
+                  "height": 880
+                },
+                "bio": "Runs a twelve-person digital team inside a city government, shipping weekly."
+              },
+              {
+                "name": "Ines Varga",
+                "role": "Libraries as infrastructure",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=1320&q=80",
+                  "alt": "A woman seated in a modern office, smiling at the camera",
+                  "width": 1320,
+                  "height": 880
+                },
+                "bio": "Architect and researcher studying how public buildings earn trust."
+              },
+              {
+                "name": "Rafael Costa",
+                "role": "Accessibility is the default",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1639747280804-dd2d6b3d88ac?w=720&q=80",
+                  "alt": "A smiling man in a green shirt standing outdoors",
+                  "width": 720,
+                  "height": 1080
+                },
+                "bio": "Accessibility lead and screen-reader user who audits services for a living."
+              }
+            ],
+            "columns": "2"
+          },
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_42e9q20chm",
+      "preset": "cta/split@1",
+      "label": "Headline with action on the right",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            8,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_a47tm0c4d0",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Got a story worth telling? Propose a talk.",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Call for proposals"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_n57dxyapkz",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Send a proposal",
+            "link": {
+              "type": "page",
+              "page": "pg_w0dp3gv618"
+            },
+            "role": "primary",
+            "note": "Closes 15 February. First-time speakers welcome."
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

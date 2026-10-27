@@ -1,0 +1,495 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_wrwn9f0tjc",
+  "title": "Tickets",
+  "slug": "tickets",
+  "seo": {
+    "description": "Open Field 2027 tickets: early bird, standard and public-sector rates, workshop passes and group discounts. Compare what's included."
+  },
+  "sections": [
+    {
+      "id": "sec_sw0ehjnk2b",
+      "preset": "hero/with-stats@1",
+      "label": "Headline with proof points",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            8,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_2nqkmtns1y",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Pick your pass",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Tickets",
+            "subheading": "Every ticket includes lunch, coffee and the recordings. Public-sector and nonprofit rates are half price."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_ta5x298y02",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Buy tickets",
+            "link": {
+              "type": "url",
+              "url": "https://tickets.openfield.example"
+            },
+            "role": "primary",
+            "secondaryLabel": "Group bookings",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_w0dp3gv618"
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_hjqqdgggzx",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "2 days",
+                "label": "Of talks and workshops"
+              },
+              {
+                "value": "50%",
+                "label": "Public-sector discount"
+              },
+              {
+                "value": "1,200",
+                "label": "Seats in total"
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "large"
+        }
+      ]
+    },
+    {
+      "id": "sec_7hw039teyz",
+      "preset": "events/tickets@1",
+      "label": "Tickets",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_ketgqhrk5z",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Conference passes",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Passes",
+            "subheading": "Prices include tax and fees. Refunds or transfers up to 30 days before."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_gz5re68gsg",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Day pass",
+                "price": "$240",
+                "description": "Thursday or Friday.",
+                "features": [
+                  {
+                    "text": "All talks that day"
+                  },
+                  {
+                    "text": "Lunch and coffee"
+                  }
+                ],
+                "buttonLabel": "Buy a day pass",
+                "link": {
+                  "type": "url",
+                  "url": "https://tickets.openfield.example"
+                },
+                "featured": false
+              },
+              {
+                "name": "Full conference",
+                "price": "$420",
+                "description": "Both days.",
+                "features": [
+                  {
+                    "text": "All talks"
+                  },
+                  {
+                    "text": "One workshop"
+                  },
+                  {
+                    "text": "Closing drinks"
+                  }
+                ],
+                "buttonLabel": "Buy full passes",
+                "link": {
+                  "type": "url",
+                  "url": "https://tickets.openfield.example"
+                },
+                "featured": true,
+                "badge": "Most popular"
+              },
+              {
+                "name": "Public sector",
+                "price": "$210",
+                "description": "Both days, for public and nonprofit staff.",
+                "features": [
+                  {
+                    "text": "Everything in Full"
+                  },
+                  {
+                    "text": "Work email required"
+                  }
+                ],
+                "buttonLabel": "Buy at half price",
+                "link": {
+                  "type": "url",
+                  "url": "https://tickets.openfield.example"
+                },
+                "featured": false
+              }
+            ],
+            "note": "Need help paying? Twenty free places are reserved for students and people between jobs."
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_dp18x9xgqk",
+      "preset": "features/comparison-table@1",
+      "label": "Comparison table",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_1cy9nnqrrv",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What each pass includes",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Compare",
+            "subheading": "Workshop places are limited and allocated in booking order."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_d8mjk9nd3k",
+          "type": "table",
+          "v": 1,
+          "fields": {
+            "caption": "Open Field passes compared",
+            "columns": [
+              {
+                "label": "Day pass",
+                "highlight": false
+              },
+              {
+                "label": "Full conference",
+                "highlight": true
+              }
+            ],
+            "rows": [
+              {
+                "label": "Main-stage talks",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "One day"
+                  },
+                  {
+                    "value": "Both days"
+                  }
+                ]
+              },
+              {
+                "label": "Workshop place",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Lunch and coffee",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Closing drinks",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Recordings",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              }
+            ]
+          },
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_b5n01d6m43",
+      "preset": "faq/two-column@1",
+      "label": "Questions in two columns",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 18,
+          "m": 32
+        },
+        "items": {
+          "blk_vbztxj80wq": {
+            "d": {
+              "x": 4,
+              "y": 1,
+              "w": 18,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_2dgnbqvkfz": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 12,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 8,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_ck0t6y48kf": {
+            "d": {
+              "x": 13,
+              "y": 7,
+              "w": 12,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 12
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_vbztxj80wq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Ticket questions",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "FAQ"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_2dgnbqvkfz",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Can I transfer my ticket?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes, to anyone, up to the day before. Just email us their name."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do you offer invoices?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes — choose 'pay by invoice' at checkout for orders of three or more."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "lines"
+        },
+        {
+          "id": "blk_ck0t6y48kf",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Is the venue accessible?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Fully step-free, with captioning, a quiet room and reserved seating."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Is there a code of conduct?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes, and a named team to contact throughout both days."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "lines"
+        }
+      ]
+    }
+  ]
+}

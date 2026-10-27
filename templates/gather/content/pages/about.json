@@ -1,0 +1,435 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_9hjnx0n2tv",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Open Field is a not-for-profit conference run by public servants since 2019. Our mission, organisers, numbers and partners."
+  },
+  "sections": [
+    {
+      "id": "sec_1hm140nep8",
+      "preset": "about/statement@1",
+      "label": "Mission statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_kbyr0znap5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Public services should be as good as the best things on the internet.",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About Open Field"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_0cfjt50kxh",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We bring the people who make them together once a year to learn how."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_rty9dax74x",
+      "preset": "stats/over-photo@1",
+      "label": "Numbers over photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1751139846116-8c4bc6b64eea?w=3840&q=80",
+          "focal": [
+            0.5,
+            0.5
+          ],
+          "overlay": {
+            "color": "background",
+            "opacity": 0.8
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_x8bm699fzs",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Seven years of Open Field",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Since 2019"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_d46mhkhe2x",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "6,400",
+                "label": "People have attended"
+              },
+              {
+                "value": "180",
+                "label": "Talks, all recorded"
+              },
+              {
+                "value": "40%",
+                "label": "Tickets at public-sector rates"
+              }
+            ]
+          },
+          "variant": "row",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_59pzqgazg2",
+      "preset": "team/four-up@1",
+      "label": "Team of four",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_f54s8012ts",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Run by volunteers",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Organisers",
+            "subheading": "Four public servants who give their evenings to it."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_b2snbejg6n",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Maya Chen",
+                "role": "Programme",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=720&q=80",
+                  "alt": "Portrait of a woman with dark hair pinned up, smiling",
+                  "width": 720,
+                  "height": 906
+                }
+              },
+              {
+                "name": "Owen Price",
+                "role": "Venue and access",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1780387477222-730504564368?w=720&q=80",
+                  "alt": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+                  "width": 720,
+                  "height": 1080
+                }
+              },
+              {
+                "name": "Clara Moss",
+                "role": "Sponsorship",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=720&q=80",
+                  "alt": "Portrait of a woman with long brown hair in a striped shirt",
+                  "width": 720,
+                  "height": 1079
+                }
+              },
+              {
+                "name": "Marcus Hale",
+                "role": "Volunteers",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=720&q=80",
+                  "alt": "Portrait of a man in a dark suit and glasses",
+                  "width": 720,
+                  "height": 1080
+                }
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_jc5z5sshy7",
+      "preset": "logos/partners-cards@1",
+      "label": "Partners with descriptions",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 15,
+          "m": 34
+        },
+        "items": {
+          "blk_skffbetda2": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 4
+            }
+          },
+          "blk_b216ttchha": {
+            "d": {
+              "x": 1,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 6,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_09w8bvfacs": {
+            "d": {
+              "x": 9,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 16,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_wpsrx5ew8z": {
+            "d": {
+              "x": 17,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 26,
+              "w": 8,
+              "h": 9
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_skffbetda2",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Made possible by",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Partners"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_b216ttchha",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Access partner",
+            "heading": "Civic Design Lab",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Covers the free student and job-seeker places."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "graduation-cap"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_09w8bvfacs",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Fringe partner",
+            "heading": "Northland Libraries",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Hosts the fringe programme in six branch libraries."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "leaf"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_wpsrx5ew8z",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Media partner",
+            "heading": "Public Code Co-op",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Captions, recordings and the conference app."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "heart-handshake"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    }
+  ]
+}

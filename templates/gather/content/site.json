@@ -1,0 +1,222 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Open Field 2027",
+  "tagline": "Design for public services · 10–11 June 2027, Minneapolis.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_7h5fkz85td",
+      "label": "Programme"
+    },
+    {
+      "type": "page",
+      "page": "pg_k1ec9wgctm",
+      "label": "Speakers"
+    },
+    {
+      "type": "page",
+      "page": "pg_fc0xa2rkda",
+      "label": "Venue"
+    },
+    {
+      "type": "page",
+      "page": "pg_9hjnx0n2tv",
+      "label": "About"
+    },
+    {
+      "type": "button",
+      "label": "Get tickets",
+      "link": {
+        "type": "page",
+        "page": "pg_wrwn9f0tjc"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-left",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "fullscreen",
+    "colorTheme": "dark"
+  },
+  "footer": {
+    "id": "sec_z38ngvmk6r",
+    "preset": "footer/signup-dark@1",
+    "label": "Footer with signup band",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          6,
+          6
+        ],
+        "m": [
+          12
+        ]
+      },
+      "gap": "xl"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_qxcd4zw3sp",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Open Field 2027"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "10–11 June 2027 at Mill City Hall, Minneapolis."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_rk17m7gry6",
+        "type": "newsletter",
+        "v": 1,
+        "fields": {
+          "askName": false,
+          "placeholder": "you@example.com",
+          "buttonLabel": "Get updates",
+          "successMessage": "Thanks — speaker news is on its way."
+        },
+        "column": 1,
+        "variant": "inline"
+      },
+      {
+        "id": "blk_3p4mvds7t5",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Open Field · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Tickets",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/tickets/"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Contact",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/contact/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_ak7ae36z1p",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": [
+            {
+              "network": "instagram",
+              "url": "https://instagram.com/juniperyoga"
+            },
+            {
+              "network": "youtube",
+              "url": "https://youtube.com/@juniperyoga"
+            },
+            {
+              "network": "email",
+              "url": "mailto:hello@juniperyoga.com"
+            }
+          ]
+        },
+        "column": 1,
+        "variant": "icons",
+        "style": {
+          "align": {
+            "d": "end"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "linkedin",
+      "url": "https://linkedin.com/company/openfield-example"
+    },
+    {
+      "network": "mastodon",
+      "url": "https://mastodon.social/@openfield_example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Open Field 2027",
+    "description": "A two-day conference on design for public services, Minneapolis.",
+    "image": "https://images.unsplash.com/photo-1773828755374-0ee802d9f44b?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

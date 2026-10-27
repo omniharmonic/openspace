@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.55 0.22 350)",
+      "neutral": "cool",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "unbounded-figtree",
+    "density": "comfortable",
+    "shape": "round",
+    "buttons": "pill-solid",
+    "motion": "expressive",
+    "imageTreatment": "rounded"
+  }
+}

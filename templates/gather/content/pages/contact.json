@@ -1,0 +1,196 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_w0dp3gv618",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Contact the Open Field team about tickets, group bookings, speaking, sponsorship, press or access needs. Replies within two days."
+  },
+  "sections": [
+    {
+      "id": "sec_wr9y2zxn4v",
+      "preset": "contact/quote-request@1",
+      "label": "Quote request",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_f45kv7mhzm",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Ask the organisers",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_m1tfkb31v0",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "mail",
+                "title": "Replies within two days",
+                "text": "From a real organiser."
+              },
+              {
+                "icon": "accessibility",
+                "title": "Access needs welcome",
+                "text": "Tell us anything that helps."
+              },
+              {
+                "icon": "users",
+                "title": "Group bookings",
+                "text": "Five or more save 15%."
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_jz07ckc0tc",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_spa68kfa12",
+              "name": "Organiser enquiry",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "topic",
+                  "label": "Topic",
+                  "required": true,
+                  "width": "full",
+                  "options": [
+                    "Tickets and groups",
+                    "Speaking",
+                    "Sponsorship",
+                    "Press",
+                    "Access"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Your message",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send",
+              "success": {
+                "type": "message",
+                "message": "Thanks — an organiser will reply within two days."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_wgtry6sss9",
+      "preset": "contact/cards-row@1",
+      "label": "Contact options",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            4,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_5zgahe2n9k",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Tickets",
+            "headingLevel": "h2",
+            "directions": false,
+            "note": "Orders, invoices, transfers",
+            "email": "tickets@openfield.example"
+          },
+          "column": 0,
+          "variant": "card"
+        },
+        {
+          "id": "blk_tjcgr7vspv",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Partners",
+            "headingLevel": "h2",
+            "email": "partners@openfield.example",
+            "directions": false,
+            "note": "Sponsorship and fringe"
+          },
+          "column": 1,
+          "variant": "card"
+        },
+        {
+          "id": "blk_tpxxs9p9vp",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Press",
+            "headingLevel": "h2",
+            "directions": true,
+            "note": "Passes and interviews",
+            "email": "press@openfield.example"
+          },
+          "column": 2,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}
