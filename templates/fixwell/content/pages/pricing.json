@@ -1,0 +1,467 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_k52zrsks9g",
+  "title": "Prices",
+  "slug": "pricing",
+  "seo": {
+    "description": "Fixwell's published rates: call-out, hourly rates, fixed-price jobs and maintenance plans. Plumbing and electrical prices in north Denver."
+  },
+  "sections": [
+    {
+      "id": "sec_sna42fzzgx",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_m895df2yjm",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Honest prices, published",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Prices",
+            "subheading": "Our standard rates are below. For bigger jobs we'll visit and give you a fixed price in writing."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_vc3n51zf1r",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get a written quote",
+            "link": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            },
+            "role": "primary",
+            "secondaryLabel": "Call (303) 555‑0148",
+            "secondaryLink": {
+              "type": "phone",
+              "phone": "+13035550148"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_srrw3szqzr",
+      "preset": "pricing/rate-card@1",
+      "label": "Rate card",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_qnry6ma6rh",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Standard rates",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Rates"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_bvswr3e311",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We always confirm the price before starting. Parts are charged at cost, with the receipt attached to your invoice."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_x5mnjqk4te",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Ask for a quote",
+            "link": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_zhejwygr46",
+          "type": "table",
+          "v": 1,
+          "fields": {
+            "columns": [
+              {
+                "label": "Price",
+                "highlight": false
+              }
+            ],
+            "rows": [
+              {
+                "label": "Call-out and first hour",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "$95"
+                  }
+                ]
+              },
+              {
+                "label": "Each extra half hour",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "$45"
+                  }
+                ]
+              },
+              {
+                "label": "Evenings and weekends",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "+50%"
+                  }
+                ]
+              },
+              {
+                "label": "Tap or toilet repair",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "From $85"
+                  }
+                ]
+              },
+              {
+                "label": "Water heater replacement",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "From $1,450"
+                  }
+                ]
+              },
+              {
+                "label": "EV charger installation",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "From $890"
+                  }
+                ]
+              }
+            ],
+            "corner": "Job",
+            "note": "All prices include tax."
+          },
+          "column": 1,
+          "variant": "striped"
+        }
+      ]
+    },
+    {
+      "id": "sec_gk2zgpa82f",
+      "preset": "services/service-table@1",
+      "label": "Service comparison",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_53271f8anr",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Keep small problems small",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Maintenance plans",
+            "subheading": "Yearly check-ups for your plumbing and electrics, with priority booking all year."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_wsbtnm45c1",
+          "type": "table",
+          "v": 1,
+          "fields": {
+            "caption": "Maintenance plans compared",
+            "columns": [
+              {
+                "label": "Essential",
+                "detail": "$12 / month",
+                "highlight": false
+              },
+              {
+                "label": "Complete",
+                "detail": "$22 / month",
+                "highlight": true
+              }
+            ],
+            "rows": [
+              {
+                "label": "Annual plumbing check",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Annual electrical check",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Water heater flush",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Priority booking",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "yes"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Discount on repairs",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "10%"
+                  },
+                  {
+                    "value": "15%"
+                  }
+                ]
+              }
+            ]
+          },
+          "variant": "boxed"
+        }
+      ]
+    },
+    {
+      "id": "sec_vwzqqhr3ds",
+      "preset": "faq/dark-minimal@1",
+      "label": "Questions on dark",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_5wk40exmyr",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Money questions",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Pricing FAQ"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_dm7n8wzwac",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Still unsure? Call and we'll talk it through."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_ndh319gx3c",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Why publish prices?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Because you should know roughly what a job costs before you pick up the phone."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What if the job takes longer?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Fixed-price jobs stay fixed. Hourly jobs never go over without your OK."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do you offer finance?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For renovations over $5,000, yes — twelve months interest-free."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "minimal"
+        }
+      ]
+    }
+  ]
+}

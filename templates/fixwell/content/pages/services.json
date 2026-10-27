@@ -1,0 +1,648 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_q2sbvhb6fq",
+  "title": "Services",
+  "slug": "services",
+  "seo": {
+    "description": "Plumbing repairs, water heaters, electrical work, EV chargers and bathroom renovations by Fixwell in north Denver, with fixed prices."
+  },
+  "sections": [
+    {
+      "id": "sec_ersxf3rxpp",
+      "preset": "hero/split-form@1",
+      "label": "Split with enquiry form",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_n6k3nfx7w9",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Tell us what's wrong, we'll do the rest",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Services",
+            "subheading": "Licensed plumbers and electricians for repairs, upgrades and full renovations."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_k488mkfnkf",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "check",
+                "title": "Call-back within two hours"
+              },
+              {
+                "icon": "check",
+                "title": "Fixed price before we start"
+              },
+              {
+                "icon": "check",
+                "title": "Two-year labour guarantee"
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "checklist"
+        },
+        {
+          "id": "blk_k7y0t0thjk",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_251kdg6ana",
+              "name": "Quote request",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "phone",
+                  "name": "phone",
+                  "label": "Phone",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": false,
+                  "width": "full"
+                },
+                {
+                  "type": "select",
+                  "name": "job",
+                  "label": "What do you need?",
+                  "required": true,
+                  "width": "full",
+                  "options": [
+                    "A leak or blockage",
+                    "Electrical fault",
+                    "Water heater",
+                    "Bathroom or kitchen project",
+                    "Something else"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Tell us a little more",
+                  "required": false,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Get my quote",
+              "success": {
+                "type": "message",
+                "message": "Thanks! We'll call you back within two working hours."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_17s0sg86fp",
+      "preset": "services/accordion-image@1",
+      "label": "Services with photo and detail",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_cqd58dk95j",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1671040690726-b78261eff126?w=1800&q=80",
+              "alt": "Tools hanging neatly on the van's pegboard",
+              "width": 1800,
+              "height": 1200
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_mbw9b10y2b",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Repairs and upgrades",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Repairs"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7zzgn6dhj6",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Leaks and burst pipes",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Found with thermal cameras, not crowbars. Most fixed within the first hour."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Blocked drains",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Cleared with jetting and checked with a drain camera so it stays clear."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Water heaters",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Same-day repairs; tank and tankless replacements usually within two days."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Electrical faults",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Tripping breakers, dead sockets and flickering lights, traced and fixed safely."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "EV chargers",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Load check, permit and installation for any charger, usually in one visit."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ],
+      "anchor": "repairs"
+    },
+    {
+      "id": "sec_8b5n214e4p",
+      "preset": "services/detail-split@1",
+      "label": "Service in detail",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_mq96vsc1qx",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=1760&q=80",
+              "alt": "A bathroom Fixwell renovated, with a glass shower",
+              "width": 1760,
+              "height": 1173
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_ytmx17fkpc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Bathroom renovations",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "From $13,900"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_5ewjkh8drg",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Plumbing, electrics, tiling and fitting by one team with one project lead, finished in about three weeks."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_2avf2b8zp6",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "check",
+                "title": "Design visit and layout"
+              },
+              {
+                "icon": "check",
+                "title": "All trades, one lead"
+              },
+              {
+                "icon": "check",
+                "title": "Waste removal and clean"
+              },
+              {
+                "icon": "check",
+                "title": "Five-year workmanship guarantee"
+              }
+            ],
+            "columns": "2"
+          },
+          "column": 1,
+          "variant": "checklist"
+        },
+        {
+          "id": "blk_mwv6zw3mvh",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a design visit",
+            "link": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            },
+            "role": "primary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ],
+      "anchor": "bathrooms"
+    },
+    {
+      "id": "sec_cwn51e9mnc",
+      "preset": "faq/two-column@1",
+      "label": "Questions in two columns",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 18,
+          "m": 32
+        },
+        "items": {
+          "blk_fjyfnprv2t": {
+            "d": {
+              "x": 4,
+              "y": 1,
+              "w": 18,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_fgf2h9xtgp": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 12,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 8,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_4p1q57z3ds": {
+            "d": {
+              "x": 13,
+              "y": 7,
+              "w": 12,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 12
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_fjyfnprv2t",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Before you book",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "FAQ"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_fgf2h9xtgp",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Is there a call-out fee?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "$95, which covers the first hour of work. Nothing extra for travel within our area."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Are you licensed?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Every plumber and electrician holds a Colorado licence. We're insured for $2 million."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "lines"
+        },
+        {
+          "id": "blk_4p1q57z3ds",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Do you work on weekends?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Evenings and weekends are charged at time and a half."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "How do I pay?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Card, bank transfer or check when the job is done. No deposits for repairs."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_tbfr0gtpzw",
+      "preset": "cta/phone-band@1",
+      "label": "Call us band",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_f6nvypmwnc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Need someone today?",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Same-day visits"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_5xx91yntve",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Call (303) 555‑0148",
+            "link": {
+              "type": "phone",
+              "phone": "+13035550148"
+            },
+            "role": "primary"
+          },
+          "column": 1,
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

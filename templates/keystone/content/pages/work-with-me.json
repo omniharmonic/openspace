@@ -1,0 +1,477 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_jharvnhbcs",
+  "title": "Work with me",
+  "slug": "work-with-me",
+  "seo": {
+    "description": "One-to-one coaching, founder cohorts and leadership team days with Nadia Brooks. What's included in each, how it works and prices."
+  },
+  "sections": [
+    {
+      "id": "sec_c9y32syjed",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_c1n3nhac0e",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Coaching that fits a founder's week",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Work with me",
+            "subheading": "Every engagement starts with a free call to see whether we're a good fit. If we aren't, I'll suggest someone who is."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_yy30rydcgk",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a call",
+            "link": {
+              "type": "page",
+              "page": "pg_we99b7t8j0"
+            },
+            "role": "primary",
+            "secondaryLabel": "See results",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_qdg648vcs6"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_0yc3t45gpv",
+      "preset": "pricing/dark-columns@1",
+      "label": "Plans in columns on dark",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_0rfq1xa6vg",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Three ways to work together",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Options and prices",
+            "subheading": "Prices are per founder. Sliding-scale places are available for nonprofits."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7sf0p5negz",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "One-to-one",
+                "price": "$1,600",
+                "period": "per quarter",
+                "description": "Six ninety-minute sessions over three months.",
+                "features": [
+                  {
+                    "text": "Messaging between sessions"
+                  },
+                  {
+                    "text": "A written plan after session one"
+                  }
+                ],
+                "buttonLabel": "Apply",
+                "link": {
+                  "type": "page",
+                  "page": "pg_we99b7t8j0"
+                },
+                "featured": true
+              },
+              {
+                "name": "Founder cohort",
+                "price": "$1,200",
+                "description": "Six evenings with seven other founders.",
+                "features": [
+                  {
+                    "text": "Peer coaching circles"
+                  },
+                  {
+                    "text": "Workbook and recordings"
+                  }
+                ],
+                "buttonLabel": "Join the waitlist",
+                "link": {
+                  "type": "page",
+                  "page": "pg_we99b7t8j0"
+                },
+                "featured": false
+              },
+              {
+                "name": "Team day",
+                "price": "$4,500",
+                "description": "A facilitated day for up to eight leaders.",
+                "features": [
+                  {
+                    "text": "Interviews beforehand"
+                  },
+                  {
+                    "text": "Follow-up session at six weeks"
+                  }
+                ],
+                "buttonLabel": "Enquire",
+                "link": {
+                  "type": "page",
+                  "page": "pg_we99b7t8j0"
+                },
+                "featured": false
+              }
+            ],
+            "note": "Prices exclude travel for in-person team days outside Chicago."
+          },
+          "variant": "columns"
+        }
+      ]
+    },
+    {
+      "id": "sec_c6x7zfgeaz",
+      "preset": "process/phases-horizontal@1",
+      "label": "Project phases",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_1jpgj7q0nr",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "How the first quarter goes",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "One-to-one coaching",
+            "subheading": "Most founders work with me for two quarters. Here's the shape of the first."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_63kn2sbnrt",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "Week 1",
+                "title": "Discovery",
+                "text": "Your goals, your team, what keeps you up at night."
+              },
+              {
+                "date": "Weeks 2–6",
+                "title": "Focus",
+                "text": "One leadership habit at a time, practised for real."
+              },
+              {
+                "date": "Weeks 7–11",
+                "title": "Team",
+                "text": "Delegation, hiring and hard conversations."
+              },
+              {
+                "date": "Week 12",
+                "title": "Review",
+                "text": "What changed, and whether to continue."
+              }
+            ]
+          },
+          "variant": "horizontal"
+        }
+      ]
+    },
+    {
+      "id": "sec_yd3echx7vw",
+      "preset": "features/included-checklist@1",
+      "label": "Everything included",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_9508bfpp0c",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What every client gets",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Included",
+            "subheading": "Beyond the sessions, the small things that make coaching stick."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_c7bjtqp6d2",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "check",
+                "title": "A written plan"
+              },
+              {
+                "icon": "check",
+                "title": "Session notes"
+              },
+              {
+                "icon": "check",
+                "title": "Messaging access"
+              },
+              {
+                "icon": "check",
+                "title": "Hiring scorecards"
+              },
+              {
+                "icon": "check",
+                "title": "Meeting templates"
+              },
+              {
+                "icon": "check",
+                "title": "Reading list"
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "checklist",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_z7g1frqhxq",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a discovery call",
+            "link": {
+              "type": "page",
+              "page": "pg_we99b7t8j0"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_gamc4fbc5d",
+      "preset": "faq/split@1",
+      "label": "Questions beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_t4zksr8bhx",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Questions founders ask",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "FAQ"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_c625t4z0zx",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Something else on your mind? Email me directly."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_9cw7t1bsqw",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Email Nadia",
+            "link": {
+              "type": "email",
+              "email": "hello@nadiabrooks.example"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_mjfrrq9xgh",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Do you work with co-founders together?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes — joint sessions every few weeks alongside individual ones."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Is it confidential?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Completely. Even when a company pays, what we discuss stays between us."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do you meet in person?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Online by default; in person in Chicago, or for team days anywhere."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "column": 1,
+          "variant": "lines"
+        }
+      ]
+    }
+  ]
+}

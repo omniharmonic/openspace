@@ -1,0 +1,371 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_ef4c6yegp8",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Nadia Brooks founded and sold a forty-person company before training as a coach. Her story, beliefs about leadership and clients."
+  },
+  "sections": [
+    {
+      "id": "sec_2gzy8e122d",
+      "preset": "hero/personal-intro@1",
+      "label": "Personal introduction",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            0,
+            1
+          ],
+          "t": [
+            0,
+            1
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_mj5et159cz",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1581065178047-8ee15951ede6?w=840&q=80",
+              "alt": "Nadia Brooks, leadership coach",
+              "width": 840,
+              "height": 1176
+            },
+            "aspect": "1:1",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default",
+          "style": {
+            "imageTreatment": "circle"
+          }
+        },
+        {
+          "id": "blk_1chz993yxp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "I'm Nadia. I've sat in your chair.",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About",
+            "subheading": "I built and sold a forty-person company, made most of the classic mistakes, then trained as a coach so fewer founders have to."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_0g70t52mkn",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Ways to work together",
+            "link": {
+              "type": "page",
+              "page": "pg_jharvnhbcs"
+            },
+            "role": "primary",
+            "secondaryLabel": "Get in touch",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_we99b7t8j0"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_n73z9y66qf",
+      "preset": "about/founder-letter@1",
+      "label": "Letter from the founder",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_rf1p37tazr",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The job nobody trains you for",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Why I coach"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_m9rxaavyzr",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "At twenty-nine I went from writing code to managing twelve people in about six weeks. Nobody told me how; I learned by getting it wrong, loudly."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "After selling the company I trained with the Co-Active institute and spent two years coaching founders for free while I learned the craft."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Now I work with around fifteen founders at a time. It's the best job I've had."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "— Nadia"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "drop-cap"
+        }
+      ]
+    },
+    {
+      "id": "sec_kjm9ff8s3k",
+      "preset": "about/beliefs@1",
+      "label": "What we believe",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_yvkeecc5gw",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What I believe about leading",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "My approach"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_362xpc27fr",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "Clarity is kindness",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Most team stress comes from unclear decisions, not hard ones."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Habits beat heroics",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Small weekly rhythms outlast any offsite."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "You set the weather",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "A calm founder makes a calm company; the reverse is also true."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Rest is strategy",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Tired founders make expensive decisions."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "2",
+            "aspect": "3:2"
+          },
+          "column": 1,
+          "variant": "steps"
+        }
+      ]
+    },
+    {
+      "id": "sec_6e21fq2mg7",
+      "preset": "logos/split-heading@1",
+      "label": "Logos beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_34jz4jgwer",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Founders I've worked with lead",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Clients"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_vdrjhw9pdh",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "logos": [
+              {
+                "name": "Brightledger"
+              },
+              {
+                "name": "Parcelly"
+              },
+              {
+                "name": "Saltmarsh Climate"
+              },
+              {
+                "name": "Field Office"
+              },
+              {
+                "name": "Kinfold"
+              },
+              {
+                "name": "Orchard Pay"
+              }
+            ],
+            "monochrome": true
+          },
+          "column": 1,
+          "variant": "grid"
+        }
+      ]
+    }
+  ]
+}

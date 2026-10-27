@@ -1,0 +1,207 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_we99b7t8j0",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Book a free, thirty-minute discovery call with leadership coach Nadia Brooks, or email her directly. Replies within two working days."
+  },
+  "sections": [
+    {
+      "id": "sec_5hqpxxctba",
+      "preset": "contact/appointment@1",
+      "label": "Appointment request",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_asq4qv2jt9",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Book a discovery call",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_ctkks1adhb",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Thirty minutes to talk about where you are and where you're stuck. Free, and no hard sell — promise."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_jg8dcnf1z5",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_g7e7tbx5tn",
+              "name": "Discovery call",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "text",
+                  "name": "company",
+                  "label": "Company and team size",
+                  "required": false,
+                  "width": "full"
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Where are you stuck right now?",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Request a call",
+              "success": {
+                "type": "message",
+                "message": "Thank you — I'll email within two working days with times."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_44cs8g7qpx",
+      "preset": "contact/simple-centered@1",
+      "label": "Email and phone, centred",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "md"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_6z5mzzevq8",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Prefer to write?",
+            "level": "h2",
+            "size": "h1",
+            "eyebrow": "Email"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_cymdz2qwxw",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "hello@nadiabrooks.example",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "mailto:hello@nadiabrooks.example"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Based in Chicago, coaching founders in any time zone."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

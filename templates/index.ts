@@ -14,8 +14,10 @@ import { commons } from "./commons/src/build";
 import { darkroom } from "./darkroom/src/build";
 import { encore } from "./encore/src/build";
 import { fieldNotes } from "./field-notes/src/build";
+import { fixwell } from "./fixwell/src/build";
 import { harbor } from "./harbor/src/build";
 import { hearth } from "./hearth/src/build";
+import { keystone } from "./keystone/src/build";
 import { kiln } from "./kiln/src/build";
 import { ledger } from "./ledger/src/build";
 import {
@@ -61,6 +63,8 @@ export const templateSpecs: readonly TemplateSpec[] = [
   darkroom,
   orbit,
   beacon,
+  fixwell,
+  keystone,
 ];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);

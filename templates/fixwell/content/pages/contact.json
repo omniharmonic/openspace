@@ -1,0 +1,321 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_g5v67q4hd6",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Call Fixwell on (303) 555-0148 or ask for a written quote online. Same-day plumbing and electrical visits across north Denver."
+  },
+  "sections": [
+    {
+      "id": "sec_ypw616c91w",
+      "preset": "contact/quote-request@1",
+      "label": "Quote request",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_zx207360wy",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Get a written quote, free",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_1rcy966559",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "phone",
+                "title": "Call-back within two hours",
+                "text": "Monday to Saturday, 7am to 7pm."
+              },
+              {
+                "icon": "home",
+                "title": "A free visit for big jobs",
+                "text": "Usually within two days."
+              },
+              {
+                "icon": "shield-check",
+                "title": "The price, in writing",
+                "text": "What we quote is what you pay."
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_3vhgckqrnr",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_w8gnjm4bfq",
+              "name": "Quote request",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "phone",
+                  "name": "phone",
+                  "label": "Phone",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": false,
+                  "width": "full"
+                },
+                {
+                  "type": "select",
+                  "name": "job",
+                  "label": "What do you need?",
+                  "required": true,
+                  "width": "full",
+                  "options": [
+                    "A leak or blockage",
+                    "Electrical fault",
+                    "Water heater",
+                    "Bathroom or kitchen project",
+                    "Something else"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Tell us a little more",
+                  "required": false,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Get my quote",
+              "success": {
+                "type": "message",
+                "message": "Thanks! We'll call you back within two working hours."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_sak059r22s",
+      "preset": "contact/map-wide@1",
+      "label": "Wide map with details",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 23,
+          "m": 37
+        },
+        "items": {
+          "blk_wbm65abw14": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 4
+            }
+          },
+          "blk_kra8y3vf2w": {
+            "d": {
+              "x": 1,
+              "y": 6,
+              "w": 16,
+              "h": 18
+            },
+            "m": {
+              "x": 1,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_y7z7a2tyh5": {
+            "d": {
+              "x": 17,
+              "y": 6,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 17,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_k2zj1rp7sx": {
+            "d": {
+              "x": 17,
+              "y": 15,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 27,
+              "w": 8,
+              "h": 11
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_wbm65abw14",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Our yard and office",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Visit"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_kra8y3vf2w",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Fixwell Plumbing & Electric",
+            "address": "2150 West 32nd Avenue, Denver, CO 80211",
+            "latitude": 39.7617,
+            "longitude": -105.0136,
+            "zoom": 15,
+            "linkLabel": "Get directions",
+            "aspect": "16:9"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_y7z7a2tyh5",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "address": "2150 W 32nd Ave\nDenver, CO 80211",
+            "phone": "+1 (303) 555-0148",
+            "email": "jobs@fixwell.example",
+            "directions": true
+          },
+          "variant": "list",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_k2zj1rp7sx",
+          "type": "hours",
+          "v": 1,
+          "fields": {
+            "heading": "Office hours",
+            "headingLevel": "h3",
+            "rows": [
+              {
+                "day": "mon",
+                "opens": "07:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "tue",
+                "opens": "07:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "wed",
+                "opens": "07:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "thu",
+                "opens": "07:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "fri",
+                "opens": "07:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "sat",
+                "opens": "08:00",
+                "closes": "16:00",
+                "closed": false
+              },
+              {
+                "day": "sun",
+                "closed": true
+              }
+            ],
+            "note": "Emergency call-outs answered around the clock."
+          },
+          "variant": "compact",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    }
+  ]
+}

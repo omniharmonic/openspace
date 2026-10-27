@@ -1,0 +1,888 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_363jnd89a1",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Licensed plumbers and electricians in north Denver. Same-day repairs, fixed prices before we start and a two-year labour guarantee."
+  },
+  "sections": [
+    {
+      "id": "sec_7yq9btyyzm",
+      "preset": "hero/local-service@1",
+      "label": "Local service with phone",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_y9bxhx6hqv",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Fixed today, at the price we quoted",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Plumbing & electrical · North Denver",
+            "subheading": "A family firm of licensed plumbers and electricians, on the road seven days a week across north Denver and Wheat Ridge."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_5nnjvg1nej",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Call (303) 555‑0148",
+            "link": {
+              "type": "phone",
+              "phone": "+13035550148"
+            },
+            "role": "primary",
+            "secondaryLabel": "Ask for a quote",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            }
+          },
+          "column": 0,
+          "variant": "large"
+        },
+        {
+          "id": "blk_26x2zk9b1c",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "shield-check",
+                "title": "Licensed and fully insured"
+              },
+              {
+                "icon": "clock",
+                "title": "Same-day visits, seven days"
+              },
+              {
+                "icon": "check",
+                "title": "A fixed price before work starts"
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_a7fbpppam8",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1920&q=80",
+              "alt": "A Fixwell electrician working on a wall panel",
+              "width": 1920,
+              "height": 1282
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_ry3a0a0c5x",
+      "preset": "stats/inline-strip@1",
+      "label": "Compact number strip",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "md",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_pr8qja0y5n",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "4.9★",
+                "label": "From 640 local reviews"
+              },
+              {
+                "value": "1998",
+                "label": "Family-run since"
+              },
+              {
+                "value": "2 yrs",
+                "label": "Labour guarantee"
+              },
+              {
+                "value": "7 days",
+                "label": "Emergency call-outs"
+              }
+            ]
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_vy7kh6as0g",
+      "preset": "services/dark-icon-cards@1",
+      "label": "Service cards on dark",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 21,
+          "m": 52
+        },
+        "items": {
+          "blk_39av9mabw6": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 14,
+              "h": 7
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_brp2pkdmy3": {
+            "d": {
+              "x": 1,
+              "y": 9,
+              "w": 6,
+              "h": 13
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_s7gw4gt36a": {
+            "d": {
+              "x": 7,
+              "y": 9,
+              "w": 6,
+              "h": 13
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_aca5mbjzr6": {
+            "d": {
+              "x": 13,
+              "y": 9,
+              "w": 6,
+              "h": 13
+            },
+            "m": {
+              "x": 1,
+              "y": 32,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_sjdt22806j": {
+            "d": {
+              "x": 19,
+              "y": 9,
+              "w": 6,
+              "h": 13
+            },
+            "m": {
+              "x": 1,
+              "y": 43,
+              "w": 8,
+              "h": 10
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_39av9mabw6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Pipes, wires and everything in between",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Services",
+            "subheading": "One call for the jobs that usually need two tradespeople."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_brp2pkdmy3",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Leaks and blockages",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Burst pipes, dripping taps and slow drains found and fixed the same day."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_q2sbvhb6fq",
+              "anchor": "repairs"
+            },
+            "linkLabel": "Repairs",
+            "icon": "droplet"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_s7gw4gt36a",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Water heaters",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Repairs, replacements and tankless upgrades with permits handled."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_q2sbvhb6fq",
+              "anchor": "repairs"
+            },
+            "linkLabel": "Water heaters",
+            "icon": "flame"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_aca5mbjzr6",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Electrical work",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Faults, rewires, new circuits and EV chargers by licensed electricians."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_q2sbvhb6fq",
+              "anchor": "repairs"
+            },
+            "linkLabel": "Electrical",
+            "icon": "zap"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_sjdt22806j",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Bathrooms",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Complete bathroom renovations from one team, in about three weeks."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_q2sbvhb6fq",
+              "anchor": "bathrooms"
+            },
+            "linkLabel": "Renovations",
+            "icon": "home"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_z8942fcj30",
+      "preset": "process/step-cards@1",
+      "label": "Step cards",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 21,
+          "m": 41
+        },
+        "items": {
+          "blk_bf3xxqwj04": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 14,
+              "h": 6
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 7
+            }
+          },
+          "blk_qwdpp46gm6": {
+            "d": {
+              "x": 1,
+              "y": 8,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 9,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_ckvxsdfz59": {
+            "d": {
+              "x": 9,
+              "y": 8,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_mqaqazp9dv": {
+            "d": {
+              "x": 17,
+              "y": 8,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 29,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_2pjkytqx33": {
+            "d": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 39,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_bf3xxqwj04",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Booked, fixed, guaranteed",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "How it works",
+            "subheading": "Most repairs are done within a day of your first call."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_qwdpp46gm6",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Step one",
+            "heading": "Call or ask for a quote",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Tell us what's wrong and we'll give you a time slot, often the same day."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "phone"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_ckvxsdfz59",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Step two",
+            "heading": "A fixed price first",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We look, explain the fix and agree the price before any work starts."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "shield-check"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_mqaqazp9dv",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Step three",
+            "heading": "Done and tidied",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We fix it, test it, clean up and guarantee the labour for two years."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "check"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_2pjkytqx33",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Request a quote",
+            "link": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            },
+            "role": "primary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_tyckas545g",
+      "preset": "testimonials/rating-bar@1",
+      "label": "Rating bar",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            4,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_6fsekg0566",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "4.9 / 5",
+                "label": "From 640 reviews"
+              }
+            ]
+          },
+          "column": 0,
+          "variant": "row"
+        },
+        {
+          "id": "blk_ckmd4sfjmh",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Arrived within the hour and the bill was exactly the quote."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Dana R.",
+            "role": "Burst pipe, Highland",
+            "rating": 5
+          },
+          "column": 1,
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_ngbsj63gvm",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Rewired our 1920s bungalow and left it spotless."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Kofi B.",
+            "role": "Rewire, Berkeley",
+            "rating": 5
+          },
+          "column": 2,
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_manfc3r8a4",
+      "preset": "services/areas-served@1",
+      "label": "Areas we serve",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_c5ynm6z8bw",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Fixwell Plumbing & Electric",
+            "address": "2150 West 32nd Avenue, Denver, CO 80211",
+            "latitude": 39.7617,
+            "longitude": -105.0136,
+            "zoom": 11,
+            "linkLabel": "Open in Maps",
+            "aspect": "4:3"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_2wae4bwpjm",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Where we work",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Service area"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_qkcpa06yc2",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Same-day visits across Highland, Berkeley, Sunnyside, Sloan's Lake, Wheat Ridge and Edgewater. Further afield? Call — if we can get there in half an hour, we'll come."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_snq0zxmpms",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Ask about your street",
+            "link": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            },
+            "role": "secondary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_saxyr4tn4z",
+      "preset": "cta/phone-band@1",
+      "label": "Call us band",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_wkh7y2x7yt",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Water where it shouldn't be?",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Emergency call-outs, seven days"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_5adv031x88",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Call (303) 555‑0148",
+            "link": {
+              "type": "phone",
+              "phone": "+13035550148"
+            },
+            "role": "primary"
+          },
+          "column": 1,
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
