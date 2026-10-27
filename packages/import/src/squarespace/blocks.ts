@@ -288,6 +288,8 @@ export function formFrom(el: Element): SqForm | undefined {
 export const stripTags = (html: string) =>
   html
     .replace(/<br\s*\/?>/gi, " ")
+    // Block boundaries are word boundaries ("DESCRIPTION</p><p>Lorem" → "DESCRIPTION Lorem").
+    .replace(/<\/(?:p|pre|h[1-6]|li|div|blockquote|dd|dt|tr|td|th)>/gi, " ")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")

@@ -15,6 +15,9 @@ import type { SiteConfig, SiteDocument } from "@omniharmonic/openspace-schema";
 import { writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { CHECKLIST_FILE, type SetupChecklist, setupChecklist } from "./checklist";
 import { type FetchFn, SiteFetcher } from "./fetch";
+import { confirmThemeFonts } from "./fidelity/fonts";
+import { applyLook, lookFromProbe } from "./fidelity/look";
+import { type LookProbe, parseProbe } from "./fidelity/probe";
 import { crawlGeneric, type PageRenderer } from "./generic/crawl";
 import { crawlGitHub, type GitHubCrawl } from "./github/import";
 import { parseGitHubTarget } from "./github/target";
@@ -36,6 +39,28 @@ export {
   setupChecklist,
 } from "./checklist";
 export { parseRobots, RobotsDisallowed, robotsAllows, SiteFetcher, USER_AGENT } from "./fetch";
+export {
+  type CompareOptions,
+  colorDistance,
+  compareLooks,
+  type FidelityCheck,
+  type FidelityReport,
+  fidelityMarkdown,
+  fidelityReport,
+  matchSections,
+  type PageComparison,
+  type SectionComparison,
+} from "./fidelity/compare";
+export { confirmGoogleFonts } from "./fidelity/fonts";
+export { applyLook, lookFromProbe } from "./fidelity/look";
+export {
+  type LookProbe,
+  PROBE_SCRIPT,
+  type ProbeSection,
+  type ProbeText,
+  parseProbe,
+} from "./fidelity/probe";
+export { lookFromTokens, type TokenLook } from "./fidelity/tokens";
 export { crawlGeneric, type PageRenderer } from "./generic/crawl";
 export { detectRepo, type RepoDetection, type RepoKind } from "./github/detect";
 export { crawlGitHub, type GitHubCrawl, type GitHubCrawlOptions } from "./github/import";
@@ -115,6 +140,12 @@ export interface ImportOptions {
   token?: string;
   /** GitHub imports: the published address, when it isn't the default Pages one. */
   siteUrl?: string;
+  /**
+   * Measure the live site's look in a real browser (fonts per role, type scale, rhythm), desktop
+   * and phone — the CLI passes a Playwright prober when Playwright is installed. Optional: without
+   * it the look comes from the site's CSS (and design tokens).
+   */
+  lookProbe?: (url: string) => Promise<{ desktop?: unknown; mobile?: unknown } | undefined>;
   /** SVG → PNG (icons); sharp in the CLI. */
   rasterizeSvg?: (svg: Uint8Array, opts?: { icon?: boolean }) => Promise<Uint8Array>;
   onProgress?: (message: string) => void;
@@ -134,6 +165,8 @@ export interface ImportResult {
   /** "Finish setting up" items for after the site is live (`content/setup-checklist.json`). */
   checklist: SetupChecklist;
   requests: number;
+  /** The original site's published address (what to compare the import with). */
+  liveUrl: string;
 }
 
 function fetcherFor(opts: ImportOptions, owner = false): SiteFetcher {
@@ -148,14 +181,57 @@ function fetcherFor(opts: ImportOptions, owner = false): SiteFetcher {
   });
 }
 
+/**
+ * The live look: measured in a browser when a prober is given (desktop + phone), folded into the
+ * theme; then the fonts it names are checked against Google Fonts so they can be used as they are.
+ */
+async function measureLook(site: SqSite, opts: ImportOptions, liveUrl?: string): Promise<void> {
+  if (opts.lookProbe && !opts.offline) {
+    const url = liveUrl ?? site.baseUrl;
+    opts.onProgress?.("Measuring the live site's fonts and spacing in a browser…");
+    try {
+      const r = await opts.lookProbe(url);
+      const desktop: LookProbe | undefined = parseProbe(r?.desktop);
+      const look = desktop ? lookFromProbe(desktop, parseProbe(r?.mobile)) : undefined;
+      // A design-token file read from the source stays authoritative; the browser fills gaps.
+      if (look)
+        applyLook(
+          site.theme,
+          look,
+          "the live site, measured in a browser",
+          site.theme.typography ? "fill" : "override",
+        );
+      if (desktop)
+        site.homeProbe = {
+          viewport: desktop.viewport,
+          ...(desktop.layout.contentWidth ? { contentWidth: desktop.layout.contentWidth } : {}),
+          sections: desktop.sections,
+        };
+    } catch (e) {
+      site.notices.push({
+        kind: "theme",
+        where: "site",
+        message: `Couldn't measure the live site in a browser (${e instanceof Error ? e.message.split("\n")[0] : String(e)}); the look comes from its stylesheets.`,
+      });
+    }
+  }
+  await confirmThemeFonts(
+    site.theme,
+    opts.offline
+      ? () => Promise.reject(new Error("offline"))
+      : ((opts.fetch ?? fetch) as typeof fetch),
+  );
+}
+
 /** Map a crawled site, collect media and write the report (shared by every importer). */
 async function finish(
   site: SqSite,
   fetcher: SiteFetcher,
   opts: ImportOptions,
-  extra: { owner?: boolean; detection?: Detection } = {},
+  extra: { owner?: boolean; detection?: Detection; liveUrl?: string } = {},
 ): Promise<ImportResult> {
   const now = opts.now ?? new Date();
+  await measureLook(site, opts, extra.liveUrl);
   const media = new MediaImporter({
     fetch: fetcher.fetchForMedia,
     ...(opts.resize ? { resize: opts.resize } : {}),
@@ -192,6 +268,7 @@ async function finish(
     report,
     checklist: setupChecklist(site, build),
     requests: fetcher.requested.length,
+    liveUrl: extra.liveUrl ?? site.baseUrl,
   };
 }
 
@@ -265,7 +342,9 @@ export async function importGitHub(opts: ImportOptions): Promise<ImportResult> {
     ...(opts.offline ? { offline: true } : {}),
     ...(opts.onProgress ? { onProgress: opts.onProgress } : {}),
   });
-  const result = await finish(crawl.site, crawl.fetcher, opts);
+  const result = await finish(crawl.site, crawl.fetcher, opts, {
+    ...(crawl.liveUrl ? { liveUrl: crawl.liveUrl } : {}),
+  });
   return {
     ...result,
     github: {

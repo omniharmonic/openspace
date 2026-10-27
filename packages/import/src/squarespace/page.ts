@@ -47,6 +47,11 @@ export interface ParsedPage {
   lang?: string;
   bodyClasses: string[];
   sections: SqSection[];
+  /**
+   * A collection page (shop, blog): how many of `sections` come before the collection's own
+   * list, so sections placed below it stay below it.
+   */
+  collectionAt?: number;
   footer: SqSection[];
   header: {
     siteTitle?: string;
@@ -574,9 +579,23 @@ export function parsePage(html: string): ParsedPage {
   );
   let sections: SqSection[] = [];
   let version: ParsedPage["version"];
+  let collectionAt: number | undefined;
   if (pageSections.length) {
     version = "7.1";
-    sections = pageSections.map(parseSection).filter((s): s is SqSection => !!s);
+    for (const el of pageSections) {
+      // The collection's own list (a store grid, a blog list) sits in a section of its own.
+      if (
+        collectionAt === undefined &&
+        find(el, (e) =>
+          /(?:^|\s)(?:product-list|ProductList|blog-list|blog-basic-grid|blog-side-by-side|blog-alternating|blog-single-column|blog-masonry|events-list|eventlist|collection-content-wrapper)(?:\s|$|-)/.test(
+            attr(e, "class") ?? "",
+          ),
+        )
+      )
+        collectionAt = sections.length;
+      const sec = parseSection(el);
+      if (sec) sections.push(sec);
+    }
   } else if (indexSections.length) {
     version = "7.0";
     sections = indexSections.map(parseSection).filter((s): s is SqSection => !!s);
@@ -728,6 +747,7 @@ export function parsePage(html: string): ParsedPage {
     ...(lang ? { lang } : {}),
     bodyClasses,
     sections,
+    ...(collectionAt !== undefined ? { collectionAt } : {}),
     footer,
     header: {
       ...(siteTitle ? { siteTitle } : {}),

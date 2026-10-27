@@ -22,6 +22,7 @@ import {
 import type { ReactNode } from "react";
 import { Icon } from "../icons";
 import {
+  ASPECT_OPTIONS,
   balancedColumns,
   CarouselControls,
   childLevel,
@@ -81,28 +82,23 @@ export function productPrice(
 }
 
 /**
- * A price with an optional compare-at price: visually "~~$80~~ · From $68", read as
- * "Was $80, now From $68" (the dot is hidden from screen readers).
+ * A price with an optional compare-at price, as shops show a sale: "From $68 ~~$80~~", read as
+ * "Sale price: From $68, was $80".
  */
 export function PriceText({ price }: { price: { text: string; was?: string } }) {
   return (
     <>
+      {price.was ? <span className="os-visually-hidden">Sale price: </span> : null}
+      <span>{price.text}</span>
       {price.was ? (
         <>
-          <s>
-            <span className="os-visually-hidden">Was </span>
+          {" "}
+          <s className="os-price__was">
+            <span className="os-visually-hidden">, was </span>
             {price.was}
           </s>
-          <span className="os-price__sep" aria-hidden="true">
-            {" · "}
-          </span>
-          {/* "now From $40" reads badly: prices that start with a word get a label instead. */}
-          <span className="os-visually-hidden">
-            {/^\p{L}/u.test(price.text) ? ", sale price: " : "now "}
-          </span>
         </>
       ) : null}
-      <span>{price.text}</span>
     </>
   );
 }
@@ -181,6 +177,13 @@ export const summaryBlock = defineBlock({
     }),
     columns: f.select({ options: ["2", "3", "4"], default: "3", display: "segmented" }),
     showImage: f.boolean({ default: true }),
+    imageAspect: f.select({
+      optional: true,
+      options: ASPECT_OPTIONS.filter((o) => o.value !== "original"),
+      default: "3:2",
+      label: "Photo shape",
+      help: "Crop of the photos in the grid and card layouts (portrait suits clothing and books)",
+    }),
     showDate: f.boolean({ default: true }),
     showExcerpt: f.boolean({ default: true }),
     showMeta: f.boolean({ default: false, help: "Author, client, location or episode" }),
@@ -247,7 +250,13 @@ export const summaryBlock = defineBlock({
               <Img
                 src={image}
                 alt=""
-                aspect={variant === "wall" ? "original" : variant === "list" ? "4:3" : "3:2"}
+                aspect={
+                  variant === "wall"
+                    ? "original"
+                    : variant === "list"
+                      ? "4:3"
+                      : (fields.imageAspect ?? "3:2")
+                }
                 sizes={sizesFor(variant, columns)}
                 className="os-summary__image"
               />
@@ -619,7 +628,7 @@ export const collectionsCss = `
 .os-summary__excerpt{margin:0.2em 0 0;color:var(--os-color-text)}
 .os-price__sep{color:var(--os-color-text-muted);font-weight:400}
 .os-summary__price{margin:0;font-weight:var(--os-font-weight-strong);color:var(--os-color-heading)}
-.os-summary__price s{font-weight:400;color:var(--os-color-text-muted)}
+.os-summary__price s{font-weight:400;color:var(--os-color-text-muted);text-decoration-line:line-through}
 .os-summary__image{transition:transform var(--os-motion-duration-slow) var(--os-motion-ease)}
 .os-summary__empty,.os-events__empty{margin:0;color:var(--os-color-text-muted)}
 .os-summary__foot{margin-top:var(--os-space-2xs)}

@@ -69,8 +69,9 @@ function resolveLeaf(
       return {
         kind: "leaf",
         label: item.label ?? page?.title ?? "Page",
-        href: page ? pagePath(page, basePath) : `${normalizeBasePath(basePath)}/`,
-        current: item.page === currentId,
+        href: `${page ? pagePath(page, basePath) : `${normalizeBasePath(basePath)}/`}${item.anchor ? `#${item.anchor}` : ""}`,
+        // An entry for a section of a page isn't "this page".
+        current: item.page === currentId && !item.anchor,
         newTab: false,
       };
     }

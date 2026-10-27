@@ -21,6 +21,7 @@ import {
   type Section,
   type SectionStyle,
 } from "@omniharmonic/openspace-schema";
+import { relativeLuminance } from "@omniharmonic/openspace-theme";
 import type { SectionRole, SqBlock, SqSection } from "../types";
 import { type MapContext, mapBlock } from "./blocks";
 
@@ -103,11 +104,22 @@ function styleFor(sq: SqSection, ctx: SectionContext, bgSrc?: string): SectionSt
   } else if (sq.height === "custom" && sq.customHeight && sq.customHeight >= 40) {
     style.minHeight = { d: `${Math.min(100, sq.customHeight)}vh` };
   }
+  // An exact background color (a design system's grounds): kept as the section's own color, on
+  // the color theme whose text reads on it.
+  const hex = !bgSrc ? sq.background?.color : undefined;
+  if (hex && /^#[0-9a-f]{6}$/i.test(hex)) {
+    style.background = { type: "color", color: hex };
+    const dark = relativeLuminance(hex) < 0.18;
+    const isDark = style.colorTheme === "dark" || style.colorTheme === "dark-accent";
+    if (dark !== isDark && style.colorTheme !== "brand") style.colorTheme = dark ? "dark" : "light";
+  }
   return style;
 }
 
 export interface SectionContext extends MapContext {
   siteDark: boolean;
+  /** Section anchors already used on this page. */
+  anchors?: Set<string>;
 }
 
 /** Drop empty columns and rescale spans to add up to 12. */
@@ -163,6 +175,21 @@ const MOBILE_COLS = 8;
 
 /** Map a Squarespace section (one or more OpenSpace sections). */
 export async function mapSection(ctx: SectionContext, sq: SqSection): Promise<Section[]> {
+  const out = await mapSectionParts(ctx, sq);
+  // The section's id stays its anchor, so in-page links (`/#framework`) keep working.
+  const anchor = sq.id
+    ?.toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const first = out[0];
+  if (first && anchor && /^[a-z]/.test(anchor) && !first.anchor && !ctx.anchors?.has(anchor)) {
+    first.anchor = anchor;
+    ctx.anchors?.add(anchor);
+  }
+  return out;
+}
+
+async function mapSectionParts(ctx: SectionContext, sq: SqSection): Promise<Section[]> {
   const bg = sq.background?.image
     ? await ctx.media.image({ ...sq.background.image, alt: "" }, ctx.where)
     : undefined;
@@ -256,7 +283,14 @@ export async function mapSection(ctx: SectionContext, sq: SqSection): Promise<Se
       stackSection(
         run.blocks,
         run.spans,
-        out.length ? { ...style, background: undefined, minHeight: undefined } : style,
+        out.length
+          ? {
+              ...style,
+              // A photo stays with the first part; a plain color continues behind every part.
+              background: style.background?.type === "color" ? style.background : undefined,
+              minHeight: undefined,
+            }
+          : style,
         width,
         align,
       ),

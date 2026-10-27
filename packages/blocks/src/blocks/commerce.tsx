@@ -51,6 +51,12 @@ export const productBlock = defineBlock({
       help: "Pick one product from a products collection",
     }),
     showDescription: f.boolean({ default: true }),
+    showTitle: f.boolean({
+      optional: true,
+      default: true,
+      label: "Show the name",
+      help: "Off on the product's own page, where the page title already names it",
+    }),
     quantity: f.boolean({ default: true, label: "Quantity picker" }),
     buttonLabel: f.text({ maxLength: 30, default: "Add to cart" }),
     detailsLabel: f.text({ maxLength: 30, default: "View details" }),
@@ -134,16 +140,18 @@ export const productBlock = defineBlock({
           />
         ) : null}
         <div className="os-product__body">
-          <h3
-            className={cx(
-              "os-product__title",
-              typo(style, "title", variant === "split" ? "h2" : "h3"),
-            )}
-          >
-            <a className="os-product__link" href={href}>
-              {fm.title}
-            </a>
-          </h3>
+          {fields.showTitle !== false ? (
+            <h3
+              className={cx(
+                "os-product__title",
+                typo(style, "title", variant === "split" ? "h2" : "h3"),
+              )}
+            >
+              <a className="os-product__link" href={href}>
+                {fm.title}
+              </a>
+            </h3>
+          ) : null}
           {price ? (
             <p className="os-product__price">
               <PriceText price={price} />
@@ -225,10 +233,13 @@ export const productBlock = defineBlock({
           ) : (
             <EditorNotice>Give this product a SKU so it can be added to the cart.</EditorNotice>
           )}
-          <a className="os-product__details" href={href}>
-            {fields.detailsLabel}
-            <span className="os-visually-hidden">: {fm.title}</span>
-          </a>
+          {/* No "View details" link on the product's own page (an empty label). */}
+          {fields.detailsLabel ? (
+            <a className="os-product__details" href={href}>
+              {fields.detailsLabel}
+              <span className="os-visually-hidden">: {fm.title}</span>
+            </a>
+          ) : null}
         </div>
       </article>
     );
@@ -453,7 +464,7 @@ export const commerceCss = `
 .os-product__link{color:inherit;text-decoration:none}
 .os-product__link:hover{text-decoration:underline;text-underline-offset:0.2em}
 .os-product__price{display:flex;flex-wrap:wrap;gap:0 0.3em;align-items:baseline;margin:0;font-size:var(--os-type-lead-font-size);font-weight:var(--os-font-weight-strong);color:var(--os-color-heading);font-variant-numeric:lining-nums}
-.os-product__price s{font-weight:400;color:var(--os-color-text-muted)}
+.os-product__price s{font-weight:400;color:var(--os-color-text-muted);text-decoration-line:line-through}
 .os-product__desc{margin:0;color:var(--os-color-text);max-inline-size:var(--os-measure)}
 .os-product__buy{display:grid;gap:var(--os-space-xs);margin-top:var(--os-space-2xs)}
 .os-product__row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--os-space-xs)}

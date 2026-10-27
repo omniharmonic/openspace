@@ -29,6 +29,7 @@ import {
 import { dtcgToCss, flattenDtcg, SOLE_ALIAS_RE } from "./overrides";
 import {
   DEFAULT_PAIRING_ID,
+  type FontFamilySpec,
   fontsourceCss,
   getPairing,
   googleFontsUrl,
@@ -43,7 +44,7 @@ import {
   solveThemes,
   themeRoles,
 } from "./themes";
-import { fontTokens, TYPE_PRESET_NAMES, typeScale } from "./type-scale";
+import { fluidClamp, fontTokens, TYPE_PRESET_NAMES, tunedPreset, typeScale } from "./type-scale";
 import { type ColorRole, type ColorScale, STATE_ROLES, type ThemeRole } from "./types";
 import { imageTreatmentClass, THEME_CLASSES, themeClass, varName } from "./vars";
 
@@ -180,6 +181,9 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
     pairing = getPairing(DEFAULT_PAIRING_ID) as TypePairing;
   }
 
+  // A site's own fonts (Google Fonts) per role replace the pairing's (imports set them).
+  pairing = withWebFonts(pairing, choices.typography);
+
   // --- token maps (insertion order = output order) ---
   const accentHex = scaleHex(palette.accent);
   const neutralHex = scaleHex(palette.neutral);
@@ -204,16 +208,29 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   }
   for (const [k, v] of Object.entries(fonts)) root.set(varName("font", k), v);
   const type = typeScale(pairing);
+  const tuned = choices.typography?.scale ?? {};
   for (const preset of TYPE_PRESET_NAMES) {
-    for (const [prop, v] of Object.entries(type[preset]))
-      root.set(varName("type", preset, prop), v);
+    const step = tuned[preset];
+    const values = step ? { ...type[preset], ...tunedPreset(step) } : type[preset];
+    for (const [prop, v] of Object.entries(values)) root.set(varName("type", preset, prop), v);
   }
   root.set(varName("measure"), "70ch");
   for (const [k, v] of Object.entries(spaceTokens(choices.density)))
     root.set(varName("space", k), v);
-  for (const [k, v] of Object.entries(sectionTokens(choices.density)))
-    root.set(varName("section", k), v);
-  for (const [k, v] of Object.entries(WIDTH_TOKENS)) root.set(varName("width", k), v);
+  const rhythm = sectionTokens(choices.density);
+  const lay = choices.layout;
+  if (lay?.sectionPadding !== undefined)
+    rhythm["pad-y"] = fluidClamp(
+      lay.sectionPaddingMobile ?? Math.round(lay.sectionPadding * 0.55),
+      lay.sectionPadding,
+    );
+  if (lay?.gutter !== undefined)
+    rhythm.gutter = fluidClamp(lay.gutterMobile ?? Math.min(lay.gutter, 20), lay.gutter);
+  for (const [k, v] of Object.entries(rhythm)) root.set(varName("section", k), v);
+  const widths: Record<string, string> = { ...WIDTH_TOKENS };
+  if (lay?.contentWidth !== undefined) widths.content = `${lay.contentWidth}px`;
+  if (lay?.narrowWidth !== undefined) widths.narrow = `${lay.narrowWidth}px`;
+  for (const [k, v] of Object.entries(widths)) root.set(varName("width", k), v);
   for (const [k, v] of Object.entries(radiusTokens(choices.shape)))
     root.set(varName("radius", k), v);
   for (const [k, v] of Object.entries(SHADOW_VALUES)) root.set(varName("shadow", k), v);
@@ -228,6 +245,12 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   }
   for (const [k, v] of Object.entries(IMAGE_TREATMENT_VALUES[choices.imageTreatment]))
     themed.set(varName("image", k), v);
+  themed.set(
+    varName("eyebrow", "color"),
+    choices.typography?.eyebrowColor === "muted"
+      ? `var(${varName("color", "text-muted")})`
+      : `var(${varName("color", "link")})`,
+  );
 
   // --- overrides ---
   const roles = themeRoles(palette);
@@ -400,6 +423,48 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
     contrast: { mode, adjustments, failures },
     warnings,
   };
+}
+
+/** The pairing with the site's own Google Fonts (`choices.typography`) in place of its families. */
+export function withWebFonts(
+  pairing: TypePairing,
+  typography: StyleChoices["typography"],
+): TypePairing {
+  if (!typography?.heading && !typography?.body && !typography?.label) return pairing;
+  const spec = (font: NonNullable<typeof typography.heading>, wanted: number[]) => {
+    const weights = [...new Set(font.weights ?? wanted)].sort((a, b) => a - b);
+    return {
+      family: font.family,
+      category: font.category,
+      weights,
+      ...(font.italic ? { italic: true } : {}),
+    } satisfies FontFamilySpec;
+  };
+  const near = (weights: number[], wanted: number) =>
+    weights.reduce((best, w) => (Math.abs(w - wanted) < Math.abs(best - wanted) ? w : best));
+  const scale = typography.scale ?? {};
+  const out: TypePairing = { ...pairing };
+  if (typography.heading) {
+    const wanted = scale.h1?.weight ?? scale.h2?.weight ?? scale.display?.weight;
+    out.heading = spec(typography.heading, [wanted ?? pairing.headingWeight]);
+    out.headingWeight = wanted ?? near(out.heading.weights, pairing.headingWeight);
+  }
+  if (typography.body) {
+    const wanted = scale.body?.weight;
+    out.body = spec(typography.body, [wanted ?? 400, 600]);
+    out.bodyWeight = wanted ?? near(out.body.weights, 400);
+    out.strongWeight = near(
+      out.body.weights.filter((w) => w > out.bodyWeight).concat(out.bodyWeight),
+      600,
+    );
+  }
+  if (typography.label) {
+    const wanted = [scale.eyebrow, scale.button, scale.nav]
+      .map((s) => s?.weight)
+      .filter((w): w is number => w !== undefined);
+    out.label = spec(typography.label, wanted.length ? wanted : [400, 500]);
+  }
+  return out;
 }
 
 function block(selectors: string[], decls: Record<string, string>, indent = ""): string {

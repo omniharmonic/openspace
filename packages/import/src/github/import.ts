@@ -50,6 +50,8 @@ export interface GitHubCrawl {
   repo?: { owner: string; repo: string; ref: string; path: string; private: boolean };
   /** The custom domain the site used (its CNAME), if any. */
   domain?: string;
+  /** The published address (for measuring the live look in a browser). */
+  liveUrl?: string;
 }
 
 const SITE_MARKERS =
@@ -217,6 +219,7 @@ export async function crawlGitHub(opts: GitHubCrawlOptions): Promise<GitHubCrawl
       detection,
       ...(repo ? { repo } : {}),
       ...(domain ? { domain } : {}),
+      ...(pagesUrl ? { liveUrl: pagesUrl } : {}),
     };
   }
 
@@ -302,7 +305,14 @@ export async function crawlGitHub(opts: GitHubCrawlOptions): Promise<GitHubCrawl
       (a, i, all) => a.from !== a.to && all.findIndex((b) => b.from === a.from) === i,
     );
     site.sources = [`the HTML files in ${root.label}`];
-    return { site, fetcher, detection, ...(repo ? { repo } : {}), ...(domain ? { domain } : {}) };
+    return {
+      site,
+      fetcher,
+      detection,
+      ...(repo ? { repo } : {}),
+      ...(domain ? { domain } : {}),
+      ...(pagesUrl ? { liveUrl: pagesUrl } : {}),
+    };
   }
 
   // Structured content (a headless CMS's page files with typed sections): read the fields.
@@ -339,6 +349,7 @@ export async function crawlGitHub(opts: GitHubCrawlOptions): Promise<GitHubCrawl
       detection,
       ...(repo ? { repo } : {}),
       ...(domain ? { domain } : {}),
+      ...(pagesUrl ? { liveUrl: pagesUrl } : {}),
     };
   }
 
@@ -394,5 +405,12 @@ export async function crawlGitHub(opts: GitHubCrawlOptions): Promise<GitHubCrawl
     `${label} Markdown sources in ${root.label}${enriched ? ` (${enriched} post(s) matched)` : ""}`,
   ];
   site.generator = label;
-  return { site, fetcher, detection, ...(repo ? { repo } : {}), ...(domain ? { domain } : {}) };
+  return {
+    site,
+    fetcher,
+    detection,
+    ...(repo ? { repo } : {}),
+    ...(domain ? { domain } : {}),
+    ...(pagesUrl ? { liveUrl: pagesUrl } : {}),
+  };
 }

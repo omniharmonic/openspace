@@ -38,6 +38,8 @@ export interface MapContext {
   timeZone?: string;
   /** The source platform's name, for report messages ("Squarespace", "WordPress"). */
   platform?: string;
+  /** The site draws a short accent rule between eyebrows and headings. */
+  eyebrowRule?: boolean;
 }
 
 const registry = blocksRegistry();
@@ -322,7 +324,14 @@ export async function mapBlock(
       const style: BlockStyle = { ...alignStyle(r.align) };
       // A text block on its own panel keeps reading on a light surface over photos.
       if (sq.panel) style.colorTheme = "light";
-      return one(makeBlock(ctx, "text", { content: r.doc }, { style }));
+      return one(
+        makeBlock(
+          ctx,
+          "text",
+          { content: r.doc },
+          { style, ...(sq.columns ? { variant: "columns" } : {}) },
+        ),
+      );
     }
     case "image": {
       const image = await img(ctx, sq.image);
@@ -610,17 +619,28 @@ export async function mapBlock(
         });
       }
       if (!items.length) return [];
-      // The columns block holds up to 8 cards: longer grids continue in blocks of equal size
-      // (10 → 5 + 5), so every card keeps the same width.
+      // The columns block holds up to 12 cards: longer grids continue in blocks of equal size
+      // (14 → 7 + 7), so every card keeps the same width.
       const out: Block[] = [];
-      const per = Math.ceil(items.length / Math.ceil(items.length / 8));
+      const per = Math.ceil(items.length / Math.ceil(items.length / 12));
+      const cols = Math.max(2, Math.min(sq.columns ?? 4, 6, items.length));
+      const labelTitles = sq.items.every(
+        (c) =>
+          c.title.length <= 48 && /[A-Z]{2}/.test(c.title) && c.title === c.title.toUpperCase(),
+      );
       for (let i = 0; i < items.length; i += per) {
         const chunk = items.slice(i, i + per);
-        const b = makeBlock(ctx, "columns", {
-          items: chunk,
-          columns: String(Math.max(2, Math.min(4, items.length))) as "2" | "3" | "4",
-          aspect: sq.aspect ?? "4:5",
-        });
+        const b = makeBlock(
+          ctx,
+          "columns",
+          {
+            items: chunk,
+            columns: String(cols),
+            aspect: sq.aspect ?? "4:5",
+          },
+          // Card titles typed as short capitals are labels (set like eyebrows), as they were.
+          labelTitles ? { style: { typography: { heading: "eyebrow" } } } : {},
+        );
         if (b) out.push(b);
       }
       return out;
@@ -653,11 +673,14 @@ export async function mapBlock(
           {
             text,
             level: `h${sq.level}`,
-            size: "auto",
+            size: sq.display ? "display" : "auto",
             ...(sq.eyebrow ? { eyebrow: clip(sq.eyebrow, 60) } : {}),
             ...(sq.subheading ? { subheading: clip(sq.subheading, 280) } : {}),
           },
-          { variant: "plain", ...(sq.align ? { style: { align: { d: "center" } } } : {}) },
+          {
+            variant: sq.eyebrow && ctx.eyebrowRule ? "eyebrow-rule" : "plain",
+            ...(sq.align ? { style: { align: { d: "center" } } } : {}),
+          },
         ),
       );
     }

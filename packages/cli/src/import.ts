@@ -21,6 +21,7 @@ import {
 import { CURRENT_SCHEMA_VERSION, newId, type SiteConfig } from "@omniharmonic/openspace-schema";
 import { writeAgentsMd } from "./agents";
 import { type CheckReport, runCheck } from "./check";
+import { lookProber } from "./fidelity";
 import { CliError, type Io } from "./io";
 import { loadResizer } from "./mcp";
 import { loadPlaywright } from "./mcp/screenshot";
@@ -57,6 +58,11 @@ export interface ImportSiteOptions {
   sourceDir?: string;
   /** Write a JSON summary here (the hosted import reports it back). */
   summary?: string;
+  /**
+   * Measure the live site's fonts and spacing in a browser (Playwright, when installed) so the
+   * import keeps them. Default on; off when the network is faked (tests).
+   */
+  measure?: boolean;
   /** Injected for tests. */
   fetch?: typeof fetch;
   now?: Date;
@@ -194,6 +200,13 @@ export async function loadRasterizer(): Promise<
   }
 }
 
+/** The browser look prober, unless turned off, faked network (tests) or no Playwright. */
+async function measuring(opts: ImportSiteOptions) {
+  if (opts.measure === false || opts.fetch || opts.media === false) return {};
+  const lookProbe = await lookProber();
+  return lookProbe ? { lookProbe } : {};
+}
+
 async function existingConfig(dir: string): Promise<SiteConfig> {
   try {
     return JSON.parse(await readFile(join(dir, "openspace.json"), "utf8")) as SiteConfig;
@@ -245,6 +258,7 @@ export async function runImportSite(
     config,
     platform: opts.platform ?? "auto",
     ...(opts.render ? { render: await loadRenderer() } : {}),
+    ...(await measuring(opts)),
     ...(opts.owner ? { owner: true } : {}),
     ...(wxr ? { wxr } : {}),
     ...(opts.fetch ? { fetch: opts.fetch } : {}),

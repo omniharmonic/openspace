@@ -182,6 +182,7 @@
             },
             "columns": "2",
             "showImage": true,
+            "imageAspect": "3:2",
             "showDate": true,
             "showExcerpt": true,
             "showMeta": false,

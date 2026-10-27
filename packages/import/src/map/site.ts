@@ -28,13 +28,14 @@ import {
 } from "@omniharmonic/openspace-schema";
 import { markdocToBlocks } from "@omniharmonic/openspace-site-kit/markdoc";
 import { compileStyles } from "@omniharmonic/openspace-theme";
+import { applyLayoutHints } from "../fidelity/hints";
 import type { MediaImporter } from "../media";
 import { platformLabel } from "../platform";
 import { stripTags } from "../squarespace/blocks";
 import { normalizeIso } from "../squarespace/crawl";
 import { sectionsFromLayoutHtml } from "../squarespace/page";
 import type { SqCollection, SqItem, SqNavItem, SqNotice, SqPage, SqSite } from "../types";
-import { linkFor, type MapContext, makeBlock } from "./blocks";
+import { linkFor, type MapContext, makeBlock, richText } from "./blocks";
 import { mapFooter, mapSection, type SectionContext } from "./sections";
 import { mapTheme } from "./theme";
 import { slugify, UrlMap } from "./urls";
@@ -196,8 +197,27 @@ async function mapItem(
   now: Date,
 ): Promise<CollectionItem | undefined> {
   const image = item.image ? await ctx.media.image(item.image, ctx.where) : undefined;
-  const { body, blocks } = await itemBody(ctx, item);
-  const excerptText = item.excerptHtml ? stripTags(item.excerptHtml) : "";
+  let { body, blocks } = await itemBody(ctx, item);
+  let excerptText = item.excerptHtml ? stripTags(item.excerptHtml) : "";
+  // A product's description is its "excerpt" on Squarespace (headings, lists and all): when the
+  // item has no other body, it becomes the body, and the excerpt is its first real sentence.
+  if (
+    coll.kind === "products" &&
+    !body.trim() &&
+    item.excerptHtml &&
+    /<\/(?:p|h\d|li)>[\s\S]*</i.test(item.excerptHtml)
+  ) {
+    const r = await richText(ctx, item.excerptHtml);
+    const block = r ? makeBlock(ctx, "text", { content: r.doc }) : undefined;
+    if (block) {
+      blocks = [block];
+      body = blocksToMarkdoc(blocks);
+      const paras = [...item.excerptHtml.matchAll(/<p(?:\s[^>]*)?>([\s\S]*?)<\/p>/gi)]
+        .map((m) => stripTags(m[1] ?? ""))
+        .filter((t) => t && !(t === t.toUpperCase() && t.length < 40));
+      if (paras[0]) excerptText = paras[0];
+    }
+  }
   const tags = [...new Set(item.tags.map((t) => clip(t.trim(), 40)).filter(Boolean))].slice(0, 40);
   const categories = [...new Set(item.categories.map((c) => slugify(c, "category")))].slice(0, 20);
   const seo = {
@@ -347,8 +367,15 @@ async function mapNav(
   ): Promise<NavLeaf | undefined> => {
     const r = ctx.urls.resolve(href, newTab);
     const l = clip(label, 60);
-    if (r.kind === "page")
-      return { type: "page", page: (r.link as { page: Page["id"] }).page, label: l };
+    if (r.kind === "page") {
+      const link = r.link as { page: Page["id"]; anchor?: string };
+      return {
+        type: "page",
+        page: link.page,
+        label: l,
+        ...(link.anchor ? { anchor: link.anchor } : {}),
+      };
+    }
     // Navigation can't point at a single item: its collection is the nearest entry.
     if (r.kind === "item" && r.link.type === "item")
       return { type: "collection", collection: r.link.collection, label: l };
@@ -499,9 +526,11 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
     collections: collectionKinds,
     usesNewsletter,
     siteDark: theme.siteDark,
+    anchors: new Set<string>(),
     siteTitle: sq.title,
     platform: platformLabel(sq.platform),
     ...(sq.timeZone ? { timeZone: sq.timeZone } : {}),
+    ...(sq.theme.eyebrowRule ? { eyebrowRule: true } : {}),
   });
 
   // Pages.
@@ -513,7 +542,16 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
     progress(`Page ${p.path}`);
     const ctx = ctxFor(p.path);
     const sections: Section[] = [];
-    for (const s of p.sections) sections.push(...(await mapSection(ctx, s)));
+    /** Mapped sections that came from source sections before the collection's list. */
+    let listAt: number | undefined;
+    for (const [i, s] of p.sections.entries()) {
+      if (i === p.homeAt) listAt = sections.length;
+      sections.push(...(await mapSection(ctx, s)));
+    }
+    // The home page as a browser measured it: card columns and image widths as they were.
+    if (p.path === "/" && sq.homeProbe)
+      for (const change of applyLayoutHints(sections, sq.homeProbe))
+        notices.push({ kind: "theme", where: "/", message: `Layout: ${change}.` });
     if (p.homeOf) {
       const name = urls.collections.get(p.homeOf);
       const kind = name ? collectionKinds.get(name) : undefined;
@@ -526,17 +564,20 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
               ctx,
               "summary",
               {
-                source: { collection: name, limit: 12 },
-                columns: "3",
+                source: { collection: name, limit: kind === "products" ? 24 : 12 },
+                // A shop grid shows photo, name and price (as stores do), four across.
+                columns: kind === "products" ? "4" : "3",
                 showImage: true,
+                ...(kind === "products" ? { imageAspect: "4:5" } : {}),
                 showDate: kind === "blog",
-                showExcerpt: true,
+                showExcerpt: kind !== "products",
               },
               { variant: "grid" },
             )
         : undefined;
       if (block)
-        sections.push({
+        // The list sits where it was: below the sections above it, above the ones below it.
+        sections.splice(listAt ?? sections.length, 0, {
           id: newId("sec") as Section["id"],
           layout: { mode: "stack", columns: { d: [12] } },
           style: { colorTheme: "light" },

@@ -704,6 +704,7 @@
             },
             "columns": "3",
             "showImage": false,
+            "imageAspect": "3:2",
             "showDate": true,
             "showExcerpt": true,
             "showMeta": false,

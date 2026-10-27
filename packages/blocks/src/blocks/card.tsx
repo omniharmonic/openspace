@@ -210,7 +210,7 @@ export const columnsBlock = defineBlock({
   fields: {
     items: f.list({
       min: 1,
-      max: 8,
+      max: 12,
       itemLabel: "heading",
       fields: {
         image: f.image({ optional: true }),
@@ -251,6 +251,8 @@ export const columnsBlock = defineBlock({
         { value: "2", label: "2" },
         { value: "3", label: "3" },
         { value: "4", label: "4" },
+        { value: "5", label: "5" },
+        { value: "6", label: "6" },
       ],
       default: "3",
       display: "segmented",

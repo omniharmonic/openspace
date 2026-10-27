@@ -168,8 +168,8 @@ ${typeClasses}
 }
 /* Large type never overflows a narrow column */
 @container block (max-width:34rem){
-.os-type-display{font-size:min(${v(T.type.display["font-size"])},13cqi)}
-.os-type-h1{font-size:min(${v(T.type.h1["font-size"])},10cqi)}
+.os-type-display{font-size:min(${v(T.type.display["font-size"])},16cqi)}
+.os-type-h1{font-size:min(${v(T.type.h1["font-size"])},12cqi)}
 }
 /* Layout helpers for block authors */
 .os-cluster{display:flex;flex-wrap:wrap;gap:${v(T.space.xs)};align-items:center}
@@ -259,7 +259,7 @@ ${button("tertiary")}
 .os-header__brand{display:inline-flex;align-items:center;flex:0 1 auto;min-width:0;color:${v(c.heading)};text-decoration:none;margin-inline-end:auto}
 .os-header__logo{height:var(--mlogo-h,2rem);width:auto;border-radius:0;background:none}
 .os-header__logo .os-img__img{height:100%;width:auto;object-fit:contain}
-.os-header__title{font-family:${v(T.font.heading)};font-weight:${v(T.font.weightHeading)};font-size:${v(T.type.h4["font-size"])};letter-spacing:${v(T.type.h4["letter-spacing"])};line-height:1.1;text-wrap:balance;overflow-wrap:break-word;max-inline-size:30ch}
+.os-header__title{${typePreset("wordmark")};text-wrap:balance;overflow-wrap:break-word;max-inline-size:30ch}
 .os-header__brand--split,.os-nav{display:none}
 .os-header__actions{display:none;align-items:center;gap:${v(T.space.xs)}}
 .os-header__actions .os-button{min-height:2.5rem;padding-block:0.5rem}

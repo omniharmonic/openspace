@@ -24,6 +24,11 @@ export interface TypePairing {
   name: string;
   heading: FontFamilySpec;
   body: FontFamilySpec;
+  /**
+   * Eyebrows, buttons and navigation, when they use a third family (a site's own typography;
+   * curated pairings leave it out and labels use the body font).
+   */
+  label?: FontFamilySpec;
   /** Weight for display/h1–h4. */
   headingWeight: number;
   /** Weight for running text. */
@@ -432,7 +437,7 @@ export function fontStack(spec: FontFamilySpec): string {
 /** Families of a pairing with merged weights (heading and body may share a family). */
 export function pairingFamilies(p: TypePairing): FontFamilySpec[] {
   const merged = new Map<string, FontFamilySpec>();
-  for (const spec of [p.heading, p.body]) {
+  for (const spec of [p.heading, p.body, ...(p.label ? [p.label] : [])]) {
     const prev = merged.get(spec.family);
     if (!prev) {
       merged.set(spec.family, { ...spec, weights: [...spec.weights] });

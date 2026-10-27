@@ -26,6 +26,7 @@
   --os-color-neutral-950: #14130d;
   --os-font-heading: "Fraunces", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --os-font-body: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --os-font-label: var(--os-font-body);
   --os-font-weight-heading: 400;
   --os-font-weight-body: 400;
   --os-font-weight-strong: 600;
@@ -77,24 +78,30 @@
   --os-type-small-letter-spacing: 0em;
   --os-type-small-font-weight: var(--os-font-weight-body);
   --os-type-small-text-transform: none;
-  --os-type-eyebrow-font-family: var(--os-font-body);
+  --os-type-eyebrow-font-family: var(--os-font-label);
   --os-type-eyebrow-font-size: 0.875rem;
   --os-type-eyebrow-line-height: 1.3;
   --os-type-eyebrow-letter-spacing: 0.12em;
   --os-type-eyebrow-font-weight: var(--os-font-weight-strong);
   --os-type-eyebrow-text-transform: uppercase;
-  --os-type-button-font-family: var(--os-font-body);
+  --os-type-button-font-family: var(--os-font-label);
   --os-type-button-font-size: clamp(0.9129rem, 0.8924rem + 0.0912vw, 0.9744rem);
   --os-type-button-line-height: 1.2;
   --os-type-button-letter-spacing: 0.01em;
   --os-type-button-font-weight: var(--os-font-weight-strong);
   --os-type-button-text-transform: none;
-  --os-type-nav-font-family: var(--os-font-body);
+  --os-type-nav-font-family: var(--os-font-label);
   --os-type-nav-font-size: clamp(0.9129rem, 0.8924rem + 0.0912vw, 0.9744rem);
   --os-type-nav-line-height: 1.3;
   --os-type-nav-letter-spacing: 0.01em;
   --os-type-nav-font-weight: var(--os-font-weight-strong);
   --os-type-nav-text-transform: none;
+  --os-type-wordmark-font-family: var(--os-font-heading);
+  --os-type-wordmark-font-size: clamp(1.2rem, 1.1001rem + 0.4439vw, 1.4996rem);
+  --os-type-wordmark-line-height: 1.1;
+  --os-type-wordmark-letter-spacing: -0.01em;
+  --os-type-wordmark-font-weight: var(--os-font-weight-heading);
+  --os-type-wordmark-text-transform: none;
   --os-measure: 70ch;
   --os-space-none: 0;
   --os-space-3xs: 0.25rem;
@@ -302,6 +309,7 @@
   --os-image-frame-padding: 0;
   --os-image-frame-color: transparent;
   --os-image-frame-border: 0 solid transparent;
+  --os-eyebrow-color: var(--os-color-link);
 }
 
 .os-image-none {

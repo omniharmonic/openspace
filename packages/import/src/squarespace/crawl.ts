@@ -560,7 +560,14 @@ export async function crawlSquarespace(opts: CrawlOptions): Promise<SqSite> {
       collections.push(c);
       // A collection as the home page: keep a home page (its sections, if any) that lists it.
       if (path === "/")
-        pages.push({ path: "/", title: "Home", seo, sections: got.page.sections, homeOf: c.path });
+        pages.push({
+          path: "/",
+          title: "Home",
+          seo,
+          sections: got.page.sections,
+          homeOf: c.path,
+          ...(got.page.collectionAt !== undefined ? { homeAt: got.page.collectionAt } : {}),
+        });
       if (kind === "products")
         notices.push({
           kind: "commerce",

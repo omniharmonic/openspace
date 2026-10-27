@@ -60,7 +60,13 @@ export class UrlMap {
       this.collections.set(c.path, name);
       const itemSlugs = new Set<string>();
       for (const item of c.items) {
-        const last = item.path.split("/").filter(Boolean).pop() ?? item.title;
+        // Squarespace product variants live at `/shop/p/lounge-tunic-/-blue`: the whole tail
+        // after `/p/` names the item (`lounge-tunic-blue`), not just its last segment.
+        const tail = /\/p\/(.+)$/.exec(item.path)?.[1]?.replace(/\/+$/, "");
+        const last =
+          (tail && /[a-z0-9]/i.test(tail) ? tail.replace(/\//g, "-") : undefined) ??
+          item.path.split("/").filter(Boolean).pop() ??
+          item.title;
         let slug = slugify(last, "item");
         for (let i = 2; itemSlugs.has(slug); i++) slug = `${slugify(last, "item")}-${i}`;
         itemSlugs.add(slug);
@@ -164,8 +170,15 @@ export class UrlMap {
     )
       return { kind: "file", url: new URL(old, this.site.baseUrl).toString() };
     const page = this.pages.get(old);
-    if (page)
-      return { kind: "page", link: { type: "page", page: page.id }, path: this.pagePath(page) };
+    if (page) {
+      // Keep an in-page anchor (`/#framework`): sections keep their ids as anchors.
+      const hash = /#([A-Za-z][A-Za-z0-9_-]*)$/.exec(h)?.[1];
+      return {
+        kind: "page",
+        link: { type: "page", page: page.id, ...(hash ? { anchor: hash } : {}) },
+        path: this.pagePath(page),
+      };
+    }
     const item = this.items.get(old);
     if (item)
       return {

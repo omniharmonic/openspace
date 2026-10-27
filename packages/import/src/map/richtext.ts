@@ -156,11 +156,12 @@ function blocks(nodes: readonly Node[], ctx: Ctx): BlockNode[] {
       const content = tidy(inline(n.childNodes, marks, ctx));
       if (!content.some((c) => c.type === "text" && c.text.trim())) continue;
       const cls = classes(n);
-      const preset = cls.includes("sqsrte-large")
-        ? "lead"
-        : cls.includes("sqsrte-small")
-          ? "small"
-          : undefined;
+      const preset =
+        cls.includes("sqsrte-large") || cls.includes("os-lead")
+          ? "lead"
+          : cls.includes("sqsrte-small") || cls.includes("os-small")
+            ? "small"
+            : undefined;
       out.push({ type: "paragraph", ...(preset ? { attrs: { preset } } : {}), content });
     } else if (/^h[1-6]$/.test(tag)) {
       const content = tidy(inline(n.childNodes, [], ctx));
