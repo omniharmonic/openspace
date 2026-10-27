@@ -41,6 +41,16 @@ export {
   useCollections,
 } from "./collections";
 export {
+  COMPONENT_PREVIEW_PATH,
+  ComponentView,
+  componentDefinitionFor,
+  componentPreview,
+  componentScripts,
+  componentStyles,
+  componentsInHtml,
+  renderComponent,
+} from "./component";
+export {
   BlockFieldsContext,
   BlockRegistryContext,
   EditorContext,

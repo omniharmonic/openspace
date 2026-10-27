@@ -8,6 +8,7 @@ import {
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BEHAVIOR_LOADER, type BehaviorName, behaviorsInHtml } from "./behaviors-manifest";
+import { componentScripts, componentStyles, componentsInHtml } from "./component";
 import {
   absolute,
   compiledStylesFor,
@@ -162,6 +163,9 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     site.integrations?.analytics !== false;
   const behaviors = behaviorsInHtml(body);
   if (analytics) behaviors.push("beacon");
+  // Custom components on this page: their scoped CSS in <head>, their behaviour JS (if any)
+  // after the content. (The Studio canvas never runs component JS.)
+  const components = componentsInHtml(doc, body);
 
   const title = pageTitle(doc, page);
   const description = pageDescription(doc, page);
@@ -234,6 +238,7 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
             ? `<link rel="stylesheet" href="${escapeHtml(opts.stylesheets.base)}">`
             : `<style data-os="base">${BASE_CSS}</style>`,
         ]),
+    componentStyles(components),
     site.customCss ? `<style data-os="custom">${safeCss(site.customCss)}</style>` : "",
     ...[opts.jsonLd ?? []]
       .flat()
@@ -268,7 +273,7 @@ ${head.filter(Boolean).join("\n")}
 </head>
 <body ${bodyAttrs}>
 ${body}
-${scripts}${site.footerInjection ?? ""}${page.footerInjection ?? ""}
+${scripts}${componentScripts(components)}${site.footerInjection ?? ""}${page.footerInjection ?? ""}
 </body>
 </html>
 `;
