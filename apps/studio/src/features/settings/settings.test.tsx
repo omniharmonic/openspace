@@ -220,6 +220,19 @@ describe("domains wizard", () => {
 });
 
 describe("connect your AI", () => {
+  it("a saved link is shown masked, with no Copy button that would copy a link that doesn't work", async () => {
+    const { user, hub, queryClient } = await openSettings("ai");
+    await screen.findByRole("button", { name: "Make my link" });
+    await hub.createMcpToken(willow.id, "Laptop");
+    await queryClient.invalidateQueries();
+    const row = (await screen.findByText("Laptop")).closest("li") as HTMLElement;
+    expect(within(row).getByText(/osmcp_…/)).toBeInTheDocument();
+    expect(within(row).queryByRole("button", { name: /Copy/ })).toBeNull();
+    expect(within(row).getByText(/Make a new link below/)).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Claude Code" }));
+    expect(screen.queryByText(/openspace http:.*osmcp_…/)).toBeNull();
+  });
+
   it("makes a personal link, shows Claude and Claude Code steps, and manages app access", async () => {
     const { user, hub } = await openSettings("ai");
     const writeText = vi.fn().mockResolvedValue(undefined);
@@ -227,10 +240,11 @@ describe("connect your AI", () => {
     await user.click(await screen.findByRole("button", { name: "Make my link" }));
     const url = await waitFor(() => {
       const code = document.querySelector(".st-token code");
-      expect(code?.textContent).toMatch(/^http:\/\/localhost:8787\/mcp\/u\//);
+      expect(code?.textContent).toMatch(/^http:\/\/localhost:8787\/mcp\/t\/osmcp_[^…]+$/);
       return code?.textContent as string;
     });
     expect(writeText).toHaveBeenCalledWith(url);
+    expect(screen.getByText(/the full link is only shown once/)).toBeInTheDocument();
     expect(screen.getByText("Settings → Connectors")).toBeInTheDocument();
 
     await user.click(screen.getByRole("tab", { name: "Claude Code" }));

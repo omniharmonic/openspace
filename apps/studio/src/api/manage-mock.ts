@@ -518,15 +518,18 @@ export function createManageMock(ctx: ManageMockContext): {
     async createMcpToken(siteId, label) {
       await call("createMcpToken", [siteId, label]);
       findSite(siteId);
+      const secret = `osmcp_${randomToken(32)}`;
+      const base = "http://localhost:8787/mcp/t/";
       const token: McpToken = {
         id: `mcpt_${randomToken(10)}`,
         label: label.trim() || "Claude",
-        url: `http://localhost:8787/mcp/u/${randomToken(32)}`,
+        // Like the Hub: lists only ever show the link masked; the full one comes back once.
+        url: `${base}osmcp_…${secret.slice(-4)}`,
         createdAt: iso(now()),
         lastUsedAt: null,
       };
       bucket(state.tokens, siteId, () => []).push(token);
-      return clone(token);
+      return { ...clone(token), url: `${base}${secret}` };
     },
     async revokeMcpToken(siteId, tokenId) {
       await call("revokeMcpToken", [siteId, tokenId]);
