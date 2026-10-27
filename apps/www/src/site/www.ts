@@ -1212,7 +1212,7 @@ export const wwwSpec: TemplateSpec = {
   ],
   build() {
     return {
-      features: { forms: false, newsletter: false, analytics: true },
+      features: { forms: false, newsletter: false, analytics: false },
       site: {
         title: "OpenSpace",
         tagline: "A professional website that's yours to keep.",
