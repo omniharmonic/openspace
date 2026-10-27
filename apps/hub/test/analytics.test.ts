@@ -1,6 +1,11 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
-import { AnalyticsEngineStore, cleanPath, referrerHost } from "../src/services/analytics";
+import {
+  AnalyticsEngineStore,
+  cleanPath,
+  referrerHost,
+  stripBasePath,
+} from "../src/services/analytics";
 import { call } from "./helpers";
 import { mockFetch } from "./mock-fetch";
 import {
@@ -223,6 +228,42 @@ describe("analytics query API", () => {
     expect(String(mock.calls[0]?.body)).toContain("index1 = 'st_abcdefghjk'");
     expect(mock.calls[0]?.headers.get("authorization")).toBe("Bearer tok");
     await expect(store.query("st_x' OR 1=1 --", from, from + DAY)).rejects.toThrow();
+  });
+
+  it("strips a GitHub Pages project base path from page paths", () => {
+    const url = "https://maya.github.io/maya-yoga/";
+    expect(stripBasePath("/maya-yoga/join/", url)).toBe("/join/");
+    expect(stripBasePath("/maya-yoga", url)).toBe("/");
+    expect(stripBasePath("/maya-yoga/", url)).toBe("/");
+    expect(stripBasePath("/maya-yogaextra/", url)).toBe("/maya-yogaextra/");
+    expect(stripBasePath("/join/", "https://mayayoga.com/")).toBe("/join/");
+  });
+
+  it("never reports a form conversion over 100% and reports paths without the base path", async () => {
+    const c = clock(Date.parse("2026-10-20T10:00:00Z"));
+    const app = makePublicApp({ now: c.now });
+    const f = await siteWithForm(app);
+    await env.HUB_DB.prepare("UPDATE sites SET url = ? WHERE id = ?")
+      .bind("https://maya.github.io/maya-yoga/", f.siteId)
+      .run();
+    await beacon(app, f.siteId, { p: "/maya-yoga/join/", s: "d" }, "192.0.2.1");
+    // An older hit stored with the base path still reports as the same page.
+    await env.HUB_DB.prepare(
+      "INSERT INTO analytics_events (site_id, kind, path, referrer, country, device, name, props, at, visitor, weight) SELECT site_id, kind, '/maya-yoga/join/', referrer, country, device, name, props, at, 'v2', weight FROM analytics_events WHERE site_id = ? LIMIT 1",
+    )
+      .bind(f.siteId)
+      .run()
+      .catch(() => undefined);
+    await postForm(f, VALID, { json: true });
+    await postForm(f, { ...VALID, email: "second@example.com" }, { json: true });
+    const week = (await (
+      await call(app, `/api/sites/${f.siteId}/analytics?range=week`, { cookie: f.cookie })
+    ).json()) as {
+      topPages: Array<{ key: string }>;
+      forms: Array<{ conversionRate: number }>;
+    };
+    expect(week.topPages.map((p) => p.key)).toEqual(["/join/"]);
+    expect(week.forms[0]?.conversionRate).toBeLessThanOrEqual(1);
   });
 
   it("cleans paths and referrers", () => {

@@ -161,7 +161,10 @@ export function AnalyticsView({ site }: AreaProps) {
               label="Form sign-ups"
               value={number(submissions)}
               detail={
-                r.totals.visits ? `${percent(submissions / r.totals.visits)} of visits` : undefined
+                r.totals.visits
+                  ? // Entries aren't tied to visits, so cap at 100% rather than show "200% of visits".
+                    `${percent(Math.min(1, submissions / r.totals.visits))} of visits`
+                  : undefined
               }
             />
           </div>

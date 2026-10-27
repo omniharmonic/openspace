@@ -3,7 +3,13 @@ import { renderEmail } from "@omniharmonic/openspace-email-render";
 import type { Block } from "@omniharmonic/openspace-schema";
 import type { SiteRow } from "../db/sites";
 import type { Logger } from "../lib/log";
-import { type AnalyticsData, type Range, rangeBounds } from "./analytics";
+import {
+  type AnalyticsData,
+  type Breakdown,
+  type Range,
+  rangeBounds,
+  stripBasePath,
+} from "./analytics";
 import { emailSite, sendTransactional, siteBaseUrl } from "./email";
 import { SPAM_THRESHOLD } from "./forms";
 import type { Services } from "./index";
@@ -47,10 +53,25 @@ export async function analyticsReport(
       .all<{ formId: string; name: string | null; submissions: number }>()
   ).results.map((f) => ({
     ...f,
+    // Entries aren't tied to visits (a direct link, a resubmission), so more entries than
+    // visits is possible: a rate is never more than 100%.
     conversionRate: data.totals.visits
-      ? Math.round((f.submissions / data.totals.visits) * 10_000) / 10_000
+      ? Math.round(Math.min(1, f.submissions / data.totals.visits) * 10_000) / 10_000
       : null,
   }));
+  // Visits recorded before paths were stored without the GitHub Pages base path.
+  const pages = new Map<string, Breakdown>();
+  for (const p of data.topPages) {
+    const key = stripBasePath(p.key, site.url);
+    const prev = pages.get(key);
+    pages.set(
+      key,
+      prev
+        ? { key, pageviews: prev.pageviews + p.pageviews, visitors: prev.visitors + p.visitors }
+        : { ...p, key },
+    );
+  }
+  data.topPages = [...pages.values()].sort((a, b) => b.pageviews - a.pageviews);
   const limits = await siteQuotaLimits(services.db, site.id, services.pub.quotaOverrides);
   const sampled =
     (await quotaUsed(services.db, site.id, "analyticsPageviews", now)) > limits.analyticsPageviews;

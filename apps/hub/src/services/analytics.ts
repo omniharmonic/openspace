@@ -345,6 +345,22 @@ export function cleanPath(p: unknown): string {
   return path.replace(/[\u0000-\u001f\u007f]/g, "").slice(0, 300) || "/";
 }
 
+/**
+ * A page path as the owner knows it: a GitHub Pages project site lives under `/<repo>/`, so
+ * `/my-site/join/` is the page `/join/`. Paths outside the base are left alone.
+ */
+export function stripBasePath(path: string, siteUrl: string | null | undefined): string {
+  let base = "";
+  try {
+    base = siteUrl ? new URL(siteUrl).pathname.replace(/\/+$/, "") : "";
+  } catch {
+    return path;
+  }
+  if (!base) return path;
+  if (path === base) return "/";
+  return path.startsWith(`${base}/`) ? path.slice(base.length) : path;
+}
+
 /** Referrer reduced to its host; self-referrals (the site's own hosts) become null. */
 export function referrerHost(r: unknown, ownHosts: string[]): string | null {
   if (typeof r !== "string" || !r) return null;
