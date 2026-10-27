@@ -57,6 +57,10 @@ export const PLUGIN_COMMANDS = [
  */
 export const DOCS_URL = "https://docs.openspace.host";
 export const CLAUDE_APP_SKILLS = [
+  {
+    name: "openspace-design-from-scratch",
+    what: "design a new site with you, from your idea and brand",
+  },
   { name: "openspace-migrate", what: "move a site from Squarespace, GitHub Pages or anywhere" },
   { name: "openspace-web-design", what: "design pages, checking screenshots as it goes" },
   { name: "openspace-content", what: "blog posts, events and products" },

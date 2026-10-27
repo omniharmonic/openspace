@@ -86,7 +86,42 @@ export interface ImportStarted {
   import: ImportView;
 }
 
+/** "Start with Claude": a brief and brand material (or a page Claude made) → a live site. */
+export interface StartInput {
+  name: string;
+  about?: string;
+  audience?: string;
+  feeling?: string[];
+  notes?: string;
+  /** A design-token file's JSON text. */
+  tokens?: string;
+  tokensName?: string;
+  colors?: string[];
+  fonts?: { heading?: string; body?: string };
+  /** `data:image/…;base64,` */
+  logo?: string;
+  photos?: Array<{ name: string; data: string }>;
+  brandDoc?: { name: string; text?: string; data?: string };
+  /** A page (HTML file or zip) as a data URL. */
+  html?: { name: string; data: string };
+}
+
+export interface StartStarted {
+  site: Site;
+  startedFrom: { kind: "template" | "html"; template?: string; look?: string; why?: string };
+}
+
+export interface UploadPageInput {
+  name?: string;
+  html: { name: string; data: string };
+  confirmOwnership: true;
+}
+
 export interface ImportApi {
+  /** Start with Claude (POST /api/start). */
+  startSite(input: StartInput): Promise<StartStarted>;
+  /** "Move my site" → upload a page (POST /api/imports/html). */
+  uploadPage(input: UploadPageInput): Promise<StartStarted>;
   createImport(input: ImportInput): Promise<ImportStarted>;
   convertRepo(input: ConvertInput): Promise<ImportStarted>;
   getImport(id: string): Promise<ImportView>;

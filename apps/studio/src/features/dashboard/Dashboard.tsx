@@ -11,6 +11,7 @@ import {
   RefreshCw,
   RotateCcw,
   Rows3,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
@@ -731,6 +732,9 @@ export function Dashboard() {
             <Button variant="secondary" icon={<ArrowRightLeft />} onClick={() => navigate("/move")}>
               Move a site
             </Button>
+            <Button variant="secondary" icon={<Sparkles />} onClick={() => navigate("/start")}>
+              Start with Claude
+            </Button>
             <Button variant="primary" icon={<Plus />} onClick={() => navigate("/templates")}>
               New site
             </Button>
@@ -759,11 +763,14 @@ export function Dashboard() {
           <EmptyState
             icon={<LayoutGrid />}
             title="Make your first site"
-            description="Pick a template, add your name, and it’s online in a few minutes. Or connect Claude and ask it to make one — or to move the site you already have."
+            description="Pick a template, add your name, and it’s online in a few minutes. Or tell Claude about your idea and bring your brand — or a page Claude made you — and it designs the site with you. Already have a site? Move it here."
             action={
               <div className="st-dash__empty-actions">
                 <Button variant="primary" onClick={() => navigate("/templates")}>
                   Browse templates
+                </Button>
+                <Button variant="secondary" icon={<Sparkles />} onClick={() => navigate("/start")}>
+                  Start with Claude
                 </Button>
                 <Button
                   variant="secondary"

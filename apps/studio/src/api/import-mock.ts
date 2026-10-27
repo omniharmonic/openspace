@@ -101,7 +101,8 @@ function nameFrom(source: string): string {
 }
 
 export function createImportMock(ctx: ImportMockContext): {
-  api: ImportApi;
+  /** Start with Claude lives with site creation (mock.ts). */
+  api: Omit<ImportApi, "startSite" | "uploadPage">;
   state: ImportMockState;
   merge(id: string): void;
 } {

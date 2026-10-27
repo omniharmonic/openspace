@@ -1,7 +1,20 @@
-import { ArrowLeft, ArrowRightLeft, ChevronDown, GitBranch, Sparkles } from "lucide-react";
-import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ArrowLeft,
+  ArrowRightLeft,
+  ChevronDown,
+  FileCode2,
+  GitBranch,
+  Sparkles,
+} from "lucide-react";
+import { type ChangeEvent, type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { githubAddress, useConvertRepo, useCreateImport, useSession } from "../../api";
+import {
+  githubAddress,
+  useConvertRepo,
+  useCreateImport,
+  useSession,
+  useUploadPage,
+} from "../../api";
 import { Wordmark } from "../../app/Wordmark";
 import { Button, cx, Field, Input, Spinner, toast } from "../../ui";
 import { SignInPanel } from "../auth/SignInPanel";
@@ -62,6 +75,7 @@ export function MoveSite() {
   const [ghOptions, setGhOptions] = useState(draft.inPlace);
   const create = useCreateImport();
   const convert = useConvertRepo();
+  const upload = useUploadPage();
   const inFlight = useRef(false);
   const gh = githubAddress(draft.url);
   const update = (patch: Partial<MoveDraft>) => setDraft((d) => ({ ...d, ...patch }));
@@ -112,7 +126,44 @@ export function MoveSite() {
     }
   }, [resume, user, start, setParams]);
 
-  const busy = create.isPending || convert.isPending || (resume && Boolean(user));
+  const busy =
+    create.isPending || convert.isPending || upload.isPending || (resume && Boolean(user));
+
+  /** "Upload a page": an HTML file or zip (a page Claude made) → an editable site, live at once. */
+  const onPage = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!/\.(?:html?|zip)$/i.test(file.name))
+      return setError("Choose an .html file, or a .zip of your page and its pictures.");
+    if (file.size > 30 * 1024 * 1024) return setError("That file is over 30 MB.");
+    if (!draft.mine) return setError("Tick the box to confirm this is your site.");
+    if (!user) return setStep("signin");
+    setError(null);
+    const reader = new FileReader();
+    reader.onload = () =>
+      upload.mutate(
+        {
+          confirmOwnership: true,
+          html: { name: file.name, data: String(reader.result) },
+          ...(draft.name.trim() ? { name: draft.name.trim() } : {}),
+        },
+        {
+          onSuccess: (r) =>
+            navigate(`/start/${r.site.id}`, {
+              replace: true,
+              state: { startedFrom: r.startedFrom },
+            }),
+          onError: (err) =>
+            toast({
+              tone: "danger",
+              title: "Your page wasn’t brought in",
+              description: err.message,
+            }),
+        },
+      );
+    reader.readAsDataURL(file);
+  };
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -264,6 +315,21 @@ export function MoveSite() {
             <Button type="submit" variant="primary" size="lg" block icon={<Sparkles />}>
               {user ? "Move my site" : "Continue"}
             </Button>
+            <div className="st-move__upload">
+              <span>
+                <strong>Have a page Claude made, or an HTML file?</strong> Upload it instead — it
+                becomes your site, every word and picture editable.
+              </span>
+              <label className="st-move__upload-button">
+                <input
+                  type="file"
+                  accept=".html,.htm,.zip,text/html,application/zip"
+                  className="st-visually-hidden"
+                  onChange={onPage}
+                />
+                <FileCode2 aria-hidden="true" className="st-move__upload-icon" /> Upload a page
+              </label>
+            </div>
             <p className="st-move__fine">
               Nothing to install. Shops, members and other extras are set up afterwards, step by
               step.

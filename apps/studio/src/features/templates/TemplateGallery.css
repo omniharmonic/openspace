@@ -262,3 +262,7 @@
   margin-left: auto;
   color: var(--st-text-2);
 }
+
+.st-gallery__move + .st-gallery__move {
+  margin-top: -12px;
+}
