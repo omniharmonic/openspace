@@ -584,3 +584,30 @@ describe("installation webhooks", () => {
     });
   });
 });
+
+describe("install redirects that land on the OAuth callback", () => {
+  it("are handed to the Setup URL handler", async () => {
+    const { pkcs8 } = await generateAppKey();
+    const githubEnv = {
+      ...env,
+      DEV_MODE: "false",
+      HUB_URL: "https://hub.openspace.test",
+      STUDIO_ORIGIN: "https://studio.openspace.test",
+      GITHUB_APP_ID: "4242",
+      GITHUB_APP_PRIVATE_KEY: pem("PRIVATE KEY", pkcs8),
+      GITHUB_CLIENT_ID: "Iv1.client",
+      GITHUB_CLIENT_SECRET: "client-secret",
+      TOKEN_ENC_KEY: bytesToBase64(crypto.getRandomValues(new Uint8Array(32))),
+    };
+    const app = createApp();
+    const res = await call(
+      app,
+      "/auth/github/callback?code=c&installation_id=5&setup_action=install&state=inst_abc",
+      {},
+      githubEnv,
+    );
+    expect(res.headers.get("location")).toBe(
+      "https://hub.openspace.test/auth/github/installed?setup_action=install&installation_id=5&state=inst_abc",
+    );
+  });
+});

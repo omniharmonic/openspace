@@ -332,7 +332,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "/plugin install openspace",
+                      "text": "/plugin install openspace@openspace",
                       "marks": [
                         {
                           "type": "code"
@@ -1265,7 +1265,7 @@
                     },
                     {
                       "type": "text",
-                      "text": "/plugin install openspace",
+                      "text": "/plugin install openspace@openspace",
                       "marks": [
                         {
                           "type": "code"

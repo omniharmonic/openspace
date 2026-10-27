@@ -9,7 +9,8 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 
 | Tool | What it does |
 |---|---|
-| `list_sites` | Sites this connection can edit. |
+| `list_sites` | Sites this connection can edit. With none yet, Claude offers to create one or move your existing site. |
+| `create_site` | Hub only: create a new site from a template and look (needs **Create new sites** on the consent screen). The first time, it gives you a Studio link to approve OpenSpace on GitHub. |
 | `get_site` | Settings, navigation, header and footer, Site Styles summary, pages and collections. |
 | `get_page` | A page's sections and blocks with their ids — `outline` or `full` detail. |
 | `list_blocks` / `get_block_schema` | The block catalog, with each block's fields and AI guidance. |

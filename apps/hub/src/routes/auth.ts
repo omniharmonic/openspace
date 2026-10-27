@@ -192,7 +192,15 @@ authRoutes.get("/github/callback", async (c) => {
     log.error("TOKEN_ENC_KEY is not set; refusing to store GitHub tokens");
     return fail("not_configured");
   }
-  const { code, state, installation_id } = c.req.query();
+  const { code, state, installation_id, setup_action } = c.req.query();
+  // An App install that came back here instead of the Setup URL (the App has "Request user
+  // authorization during installation" on): hand it to the install step's handler.
+  if (setup_action && (!state || state.startsWith("inst_") || !getCookie(c, OAUTH_COOKIE))) {
+    const q = new URLSearchParams({ setup_action });
+    if (installation_id) q.set("installation_id", installation_id);
+    if (state) q.set("state", state);
+    return c.redirect(`${config.hubUrl}/auth/github/installed?${q}`, 302);
+  }
   if (!code || !state) return fail("missing_code");
   const browserState = getCookie(c, OAUTH_COOKIE);
   deleteCookie(c, OAUTH_COOKIE, { path: "/auth/github", secure: config.secureCookies });

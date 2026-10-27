@@ -12,11 +12,15 @@ Ask things like:
 - "Add a page for the autumn retreat, using the photos at these links."
 - "Check the site on mobile and fix anything cramped."
 
+**You don't need a site first.** Connect Claude, and it can make your site from a template or move the site you already have. Studio's **Connect your AI** page (in the top bar, or [studio.openspace.host/connect](https://studio.openspace.host/connect)) walks you through it.
+
 ## Three ways to connect
+
+**Recommended, nothing to install:** the Claude app — on claude.ai or Claude Desktop, open **Settings → Connectors → Add custom connector** and paste `https://hub.openspace.host/mcp`. Claude Code is for people who already use a terminal.
 
 | You use | Connect with | Guide |
 |---|---|---|
-| **Claude** on the web or **Claude Desktop** | A custom connector pointed at the Hub | [Claude & Claude Desktop](/connect-your-ai/claude/) |
+| **Claude** on the web or **Claude Desktop** (easiest) | A custom connector pointed at `https://hub.openspace.host/mcp` | [Claude & Claude Desktop](/connect-your-ai/claude/) |
 | **Claude Code** | Studio sites: `claude mcp add --transport http openspace https://hub.openspace.host/mcp`, then `/mcp` → Authenticate. Site folders on your computer: the OpenSpace plugin | [Claude Code](/connect-your-ai/claude-code/) |
 | **Other MCP apps** | The Hub URL or a personal link | Below |
 
@@ -24,7 +28,7 @@ Ask things like:
 
 Studio → **Settings → Connect your AI** gives you two kinds of address.
 
-**Sign in (OAuth)** — `https://hub.openspace.host/mcp`. Your AI app opens an OpenSpace sign-in (with GitHub), then a consent screen: *Allow Claude to edit ☑ Fernwood Yoga ☐ Riverbend Collective · ☐ Allow publishing*. You choose the sites and whether publishing is allowed — it's **off by default**. Best for apps that support sign-in, like Claude.
+**Sign in (OAuth)** — `https://hub.openspace.host/mcp`. Your AI app opens an OpenSpace sign-in (with GitHub), then a consent screen: *Allow Claude to edit ☑ Fernwood Yoga ☐ Riverbend Collective · ☐ Create new sites · ☐ Allow publishing*. You choose the sites, whether Claude may create new sites for you (ticked when you have none yet), and whether publishing is allowed — it's **off by default**. Best for apps that support sign-in, like Claude.
 
 **Personal link** — `https://hub.openspace.host/mcp/t/…`. A private address for **one site** that works without signing in. Give it a name ("Claude on my laptop") and copy it — the full link is shown only once. Treat it like a password: anyone with it can edit that site's draft. Each link shows when it was last used and can be turned off at any time.
 
