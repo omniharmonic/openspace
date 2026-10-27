@@ -15,11 +15,11 @@ Optionally type your site's name and one line about what you do. They're written
 
 GitHub is a free, safe place where your site's files live. **You own them**, under your own name. If you don't have an account yet, Studio walks you through making one and brings you straight back.
 
-You'll see one authorization screen for the OpenSpace app. It lets OpenSpace create your site and save your edits; it only works with the sites it creates.
+You'll see one screen asking to install the OpenSpace app on your GitHub account. It lets OpenSpace create your site and save your edits; it only works with the sites it creates. If you skip it, Studio shows a button to finish it later — nothing is lost.
 
 ## 3. You're live
 
-Studio shows "Setting up your site…" while it creates your site from the template, writes in your name and tagline, and puts it online. When it's done, you land in the editor with a link to your live site — something like `yourname.github.io/your-site` — ready to share.
+Studio shows "Setting up your site…" while it creates your site from the template, writes in your name and tagline, and puts it online — on free hosting, with nothing else to sign up for. When it's done, a short tour shows you around the editor and ends on your live link — something like `yourname.github.io/your-site` — ready to share.
 
 ## 4. Make it yours
 
@@ -33,12 +33,23 @@ A short checklist helps with the first edits:
 
 Every edit is saved as you go. Your live site only changes when you press **Publish** — see [Publishing, history & rollback](/guides/publishing/).
 
+## 5. Finish setting up, whenever you like
+
+Some things need one more account or a few minutes of your time, so they never hold up your first live version. **Finish setting up** (at the top of the editor, and on your site's card) lists only what your site needs, with why it matters and how long it takes:
+
+- **Use your own domain** — a guided helper shows exactly what to copy where you bought it. About 15 minutes, mostly waiting.
+- **Open your shop / take donations** — your products already show on the site, with a friendly "opening soon" note where the Buy button goes. Turning checkout on takes about 10 minutes: a free Cloudflare account (Studio opens Cloudflare with everything filled in — you paste one key) and Stripe for payments. Your site stays online the whole time; if anything goes wrong, it stays exactly where it was. Not ready? Point the note at your current shop meanwhile.
+- **Member sign-in and password pages** — the same free Cloudflare step.
+- **Form messages, newsletter sign-ups, visitor stats** — where to find them.
+
+Stuck? **Need a hand?** (the life-ring at the bottom of the editor's left edge) says what to do next, replays the tour, and connects Claude.
+
 ## Where everything lives
 
 Settings → *Your site's home* explains it in plain words:
 
 - Your site's **files** are stored in your GitHub account.
-- Your site is **published** by GitHub Pages (or by your own Cloudflare account, for stores and members-only pages).
+- Your site is **published** by GitHub Pages for free (or, once you turn on a shop or members-only pages, by your own free Cloudflare account).
 - Your **form entries, subscribers and orders** are kept by the OpenSpace Hub, and you can export them any time.
 - You can leave and keep everything.
 
