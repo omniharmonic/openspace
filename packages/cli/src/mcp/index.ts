@@ -8,6 +8,7 @@ import { createMcpServer, type ImageResizer } from "@omniharmonic/openspace-mcp-
 import { CliError, type Io } from "../io";
 import { FileSiteStore } from "./file-store";
 import { importSquarespaceTool } from "./import-tool";
+import { createUrlScreenshotter, screenshotUrlTool } from "./reference-tool";
 import { createScreenshotter, loadPlaywright } from "./screenshot";
 
 export { FileSiteStore } from "./file-store";
@@ -56,12 +57,16 @@ export async function runMcp(io: Io, dir: string, opts: McpOptions = {}): Promis
   } catch (e) {
     throw new CliError(`Can't serve ${dir}: ${e instanceof Error ? e.message : String(e)}`);
   }
+  const urlShooter = "chromium" in pw ? createUrlScreenshotter(pw.chromium) : undefined;
   const server = createMcpServer(
     store,
     { sites: "*", publish: opts.publish !== false, role: "owner" },
     {
-      // Local only: fetches the web and writes a new site folder next to this one.
-      tools: [importSquarespaceTool({ siteRoot: dir })],
+      // Local only: these fetch the web (import writes a new site folder next to this one).
+      tools: [
+        importSquarespaceTool({ siteRoot: dir }),
+        screenshotUrlTool(urlShooter, "error" in pw ? pw.error : undefined),
+      ],
       onError: (e, where) =>
         io.err(`openspace mcp: ${where}: ${e instanceof Error ? e.stack : String(e)}`),
     },
@@ -80,5 +85,6 @@ export async function runMcp(io: Io, dir: string, opts: McpOptions = {}): Promis
   );
   await closed;
   await server.close();
+  await urlShooter?.close();
   await store.close();
 }

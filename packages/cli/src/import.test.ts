@@ -9,6 +9,7 @@ import { defaultFolder } from "./import";
 import { captureIo } from "./io";
 import { FileSiteStore } from "./mcp/file-store";
 import { importSquarespaceTool } from "./mcp/import-tool";
+import { screenshotUrlTool } from "./mcp/reference-tool";
 import { run } from "./program";
 import { cleanup, meadowCopy, tmpDir } from "./test-helpers";
 
@@ -191,5 +192,58 @@ describe("import_squarespace (local MCP tool)", () => {
     expect(done.content[0]?.text).toContain("# Import report: Juniper Ceramics");
     expect(existsSync(join(site, "..", "juniper", "IMPORT-REPORT.md"))).toBe(true);
     await store.close();
+  });
+});
+
+describe("screenshot_url (local MCP tool)", () => {
+  const callTool = async (
+    shooter: Parameters<typeof screenshotUrlTool>[0],
+    args: Record<string, unknown>,
+  ) => {
+    const site = await meadowCopy();
+    const store = await FileSiteStore.open(site);
+    const server = createMcpServer(
+      store,
+      { sites: "*", publish: false, role: "owner" },
+      {
+        tools: [screenshotUrlTool(shooter, "Playwright is not installed")],
+        assumeInitialized: true,
+      },
+    );
+    const r = (await server.handle({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/call",
+      params: { name: "screenshot_url", arguments: args },
+    })) as unknown as {
+      result: { isError?: boolean; content: { type: string; text?: string; data?: string }[] };
+    };
+    await store.close();
+    return r.result;
+  };
+
+  it("captures the original page at each device width", async () => {
+    const widths: number[] = [];
+    const r = await callTool(
+      {
+        capture: async (_url, width) => {
+          widths.push(width);
+          return { base64: "iVBORw0KGgo=", width, height: 2000 };
+        },
+        close: async () => undefined,
+      },
+      { url: `${JUNIPER_URL}/about-us`, device: "all" },
+    );
+    expect(r.isError).toBeFalsy();
+    expect(widths).toEqual([1440, 834, 390]);
+    expect(r.content.filter((c) => c.type === "image")).toHaveLength(3);
+  });
+
+  it("explains how to enable it and refuses non-web addresses", async () => {
+    const none = await callTool(undefined, { url: JUNIPER_URL });
+    expect(none.isError).toBe(true);
+    expect(none.content[0]?.text).toContain("Playwright");
+    const file = await callTool(undefined, { url: "file:///etc/passwd" });
+    expect(file.content[0]?.text).toContain("Only http(s)");
   });
 });
