@@ -1,6 +1,6 @@
 {
   "name": "@omniharmonic/openspace-theme",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "OpenSpace design tokens: OKLCH palettes, contrast solver, type pairings and the Site Styles compiler.",
   "license": "MIT",
   "author": "The OpenSpace contributors",

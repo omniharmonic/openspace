@@ -1,6 +1,6 @@
 {
   "name": "@omniharmonic/openspace-renderer",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "OpenSpace renderer: React page/section/block renderer, base stylesheet, HTML documents and vanilla behaviors.",
   "license": "MIT",
   "author": "The OpenSpace contributors",
