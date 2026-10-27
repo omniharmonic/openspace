@@ -1,6 +1,7 @@
 import { renderPageHtml, unregisterBlocks } from "@omniharmonic/openspace-renderer";
 import {
   COLOR_THEMES,
+  HEADER_VARIANTS,
   HeaderSchema,
   isId,
   PresetRefSchema,
@@ -224,14 +225,14 @@ describe("building", () => {
     expect(JSON.stringify(s)).toContain("/book-now");
   });
 
-  it("header presets produce valid site headers covering all eight layouts", () => {
+  it("header presets produce valid site headers covering every layout", () => {
     const variants = new Set<string>();
     for (const p of headerPresets) {
       const h = p.build();
       expect(HeaderSchema.safeParse(h).success, p.id).toBe(true);
       variants.add(h.variant);
     }
-    expect(variants.size).toBe(8);
+    expect(variants.size).toBe(HEADER_VARIANTS.length);
   });
 
   it("footer presets work as the site footer", () => {

@@ -228,7 +228,16 @@ export function navFit(input: {
   return "collapse";
 }
 
-function Brand({ site, className }: { site: Site; className?: string }) {
+function Brand({
+  site,
+  className,
+  withTitle,
+}: {
+  site: Site;
+  className?: string;
+  /** Show the title next to (below) the logo too (the sidebar layout). */
+  withTitle?: boolean;
+}) {
   const { basePath } = useRenderContext();
   const logo = site.logo;
   return (
@@ -236,7 +245,7 @@ function Brand({ site, className }: { site: Site; className?: string }) {
       {logo ? (
         <Img
           src={logo.src}
-          alt={logo.alt || site.title}
+          alt={withTitle ? "" : logo.alt || site.title}
           {...(logo.width ? { width: logo.width } : {})}
           {...(logo.height ? { height: logo.height } : {})}
           sizes="240px"
@@ -244,9 +253,8 @@ function Brand({ site, className }: { site: Site; className?: string }) {
           priority
           className="os-header__logo"
         />
-      ) : (
-        <span className="os-header__title">{site.title}</span>
-      )}
+      ) : null}
+      {!logo || withTitle ? <span className="os-header__title">{site.title}</span> : null}
     </a>
   );
 }
@@ -319,16 +327,18 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
   );
   const social = h.showSocial ? (site.social ?? []) : [];
   const theme: ColorTheme = h.overlay && heroTheme ? heroTheme : (h.colorTheme ?? "light");
-  const fit = DRAWER_VARIANTS.includes(h.variant)
-    ? "fits"
-    : navFit({
-        title: site.title,
-        logo: site.logo,
-        nav: nav.map((i) => ({ label: i.label, kind: i.kind })),
-        buttons,
-        social: social.length,
-        cart: Boolean(cart),
-      });
+  const sidebar = h.variant === "sidebar-left";
+  const fit =
+    DRAWER_VARIANTS.includes(h.variant) || sidebar
+      ? "fits"
+      : navFit({
+          title: site.title,
+          logo: site.logo,
+          nav: nav.map((i) => ({ label: i.label, kind: i.kind })),
+          buttons,
+          social: social.length,
+          cart: Boolean(cart),
+        });
   // A menu too long for any screen goes behind the menu button, as the drawer layouts do.
   const drawer = DRAWER_VARIANTS.includes(h.variant) || fit === "collapse";
   const split = h.variant === "split-nav";
@@ -378,7 +388,12 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
       data-os-behavior="menu"
     >
       <div className="os-header__bar">
-        <Brand site={site} className={split ? "os-header__brand--main" : undefined} />
+        <Brand
+          site={site}
+          {...(split ? { className: "os-header__brand--main" } : {})}
+          {...(sidebar ? { withTitle: true } : {})}
+        />
+        {sidebar && site.tagline ? <p className="os-header__tagline">{site.tagline}</p> : null}
         {desktopNav}
         {actions}
         {cart && <CartButton />}

@@ -13,8 +13,11 @@ import { responsive } from "./responsive";
 import { SectionSchema } from "./section";
 import { ColorThemeSchema } from "./tokens";
 
-/** The eight header layouts (PRD: "Header layouts (8 presets)"). */
-/** The eight header layouts (renderer contract; PRD "Header layouts (8 presets)"). */
+/**
+ * The header layouts (renderer contract; PRD "Header layouts (8 presets)", plus
+ * `nav-left-logo-center` and `sidebar-left`, which imported sites need — Squarespace's "branding
+ * center" and WordPress sidebar themes).
+ */
 export const HEADER_VARIANTS = [
   /** Logo left, navigation right. */
   "classic-left",
@@ -32,6 +35,14 @@ export const HEADER_VARIANTS = [
   "sidebar-drawer",
   /** Header overlays the first section (transparent until scrolled). */
   "transparent-overlay",
+  /** Navigation on the left, logo centered, buttons and cart on the right. */
+  "nav-left-logo-center",
+  /**
+   * A column down the left on wide screens (logo, title, tagline, the navigation as a list),
+   * the page to its right; a top bar with a menu button on phones. Sidebar themes (WordPress
+   * Twenty Fifteen and the like).
+   */
+  "sidebar-left",
 ] as const;
 export const HeaderVariantSchema = z.enum(HEADER_VARIANTS);
 export type HeaderVariant = z.infer<typeof HeaderVariantSchema>;
