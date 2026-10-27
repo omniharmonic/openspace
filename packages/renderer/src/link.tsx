@@ -34,6 +34,26 @@ export function withBase(href: string, basePath = ""): string {
   return `${base}${href}`;
 }
 
+/**
+ * Site pages are folders (`/contact/`), and static hosts such as GitHub Pages answer `/contact`
+ * with a 301 to `/contact/`. Add the slash to a site-relative path whose last segment isn't a
+ * file (`/rss.xml`), keeping any `?query` or `#fragment`; leave everything else alone.
+ */
+export function withTrailingSlash(href: string): string {
+  if (!href.startsWith("/") || href.startsWith("//")) return href;
+  const m = /^([^?#]*)(.*)$/.exec(href);
+  const path = m?.[1] ?? href;
+  const rest = m?.[2] ?? "";
+  if (path.endsWith("/") || /\.[a-z0-9]+$/i.test(path.slice(path.lastIndexOf("/") + 1)))
+    return href;
+  return `${path}/${rest}`;
+}
+
+/** A site-relative href as published: trailing slash for pages, then the base path. */
+export function internalHref(href: string, basePath = ""): string {
+  return withBase(withTrailingSlash(href), basePath);
+}
+
 export interface ResolvedLink {
   href: string;
   /** Open in a new tab (adds `target="_blank" rel="noopener"`). */
@@ -84,7 +104,7 @@ export function resolveLink(link: LinkValue, opts: LinkResolveOptions = {}): Res
     }
     case "url": {
       const external = /^https?:\/\//.test(link.url);
-      return ok(external ? link.url : withBase(link.url, base), link.newTab ?? false, external);
+      return ok(external ? link.url : internalHref(link.url, base), link.newTab ?? false, external);
     }
     case "email": {
       const subject = link.subject ? `?subject=${encodeURIComponent(link.subject)}` : "";

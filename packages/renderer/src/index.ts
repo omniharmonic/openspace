@@ -101,7 +101,9 @@ export {
   type ResolvedLink,
   resolveLink,
   sectionFragment,
+  internalHref,
   withBase,
+  withTrailingSlash,
 } from "./link";
 export { PageView, type PageViewProps, resolvePage } from "./page";
 export {
