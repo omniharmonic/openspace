@@ -29,6 +29,35 @@ describe("styles are contrast-checked", () => {
     ).toEqual([]);
   });
 
+  it("sets the site's own typography and rhythm, merging scale presets, and resets a role", async () => {
+    const { rpc, store, siteId } = await setup();
+    await rpc.call("set_styles", {
+      choices: {
+        typography: {
+          heading: { family: "Cormorant Garamond", category: "serif", weights: [500] },
+          scale: { h2: { size: 60, sizeMobile: 40 }, eyebrow: { case: "uppercase" } },
+        },
+        layout: { contentWidth: 1200, sectionPadding: 112 },
+      },
+    });
+    await rpc.call("set_styles", {
+      choices: { typography: { scale: { h2: { lineHeight: 1.08 } } } },
+    });
+    let doc = await store.getDocument(siteId);
+    expect(doc.styles.choices.typography?.scale?.h2).toEqual({
+      size: 60,
+      sizeMobile: 40,
+      lineHeight: 1.08,
+    });
+    expect(doc.styles.choices.layout).toEqual({ contentWidth: 1200, sectionPadding: 112 });
+    expect(compileStyles(doc.styles).tokens.vars.root["--os-font-heading"]).toMatch(
+      /^"Cormorant Garamond"/,
+    );
+    await rpc.call("set_styles", { choices: { typography: { heading: null } } });
+    doc = await store.getDocument(siteId);
+    expect(doc.styles.choices.typography?.heading).toBeUndefined();
+  });
+
   it("refuses the same override in reject mode, leaving styles unchanged", async () => {
     const { rpc, store, siteId } = await setup();
     const before = structuredClone((await store.getDocument(siteId)).styles);

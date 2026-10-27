@@ -201,6 +201,22 @@ async function measureLook(site: SqSite, opts: ImportOptions, liveUrl?: string):
           "the live site, measured in a browser",
           site.theme.typography ? "fill" : "override",
         );
+      // A home page without running text (a shop grid, a gallery) doesn't show the body font:
+      // measure one more page for what it lacks.
+      let lacking = !look?.fonts.body || !look.typography.scale?.body;
+      for (const other of site.pages
+        .filter((p) => p.path !== "/" && !p.locked && !p.hidden)
+        .slice(0, 3)) {
+        if (!lacking) break;
+        const base = url.endsWith("/") ? url : `${url}/`;
+        const r2 = await opts.lookProbe(new URL(other.path.replace(/^\//, ""), base).toString());
+        const d2 = parseProbe(r2?.desktop);
+        const look2 = d2 ? lookFromProbe(d2, parseProbe(r2?.mobile)) : undefined;
+        if (look2?.fonts.body) {
+          applyLook(site.theme, look2, `the ${other.path} page, measured in a browser`, "fill");
+          lacking = false;
+        }
+      }
       if (desktop)
         site.homeProbe = {
           viewport: desktop.viewport,

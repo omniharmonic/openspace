@@ -14,8 +14,10 @@ import {
 import { createMcpServer } from "@omniharmonic/openspace-mcp-tools";
 import { afterAll, describe, expect, it } from "vitest";
 import { runCheck } from "./check";
+import { originalUrl } from "./fidelity";
 import { defaultFolder } from "./import";
 import { captureIo } from "./io";
+import { compareFidelityTool } from "./mcp/fidelity-tool";
 import { FileSiteStore } from "./mcp/file-store";
 import { importSiteTool, importSquarespaceTool } from "./mcp/import-tool";
 import { screenshotUrlTool } from "./mcp/reference-tool";
@@ -393,6 +395,74 @@ describe("screenshot_url (local MCP tool)", () => {
     expect(none.content[0]?.text).toContain("Playwright");
     const file = await callTool(undefined, { url: "file:///etc/passwd" });
     expect(file.content[0]?.text).toContain("Only http(s)");
+  });
+});
+
+describe("compare_fidelity (local MCP tool)", () => {
+  const callTool = async (
+    opts: Partial<Parameters<typeof compareFidelityTool>[0]>,
+    args: Record<string, unknown>,
+  ) => {
+    const site = await meadowCopy();
+    const store = await FileSiteStore.open(site);
+    const server = createMcpServer(
+      store,
+      { sites: "*", publish: false, role: "owner" },
+      { tools: [compareFidelityTool({ siteRoot: site, ...opts })], assumeInitialized: true },
+    );
+    const r = (await server.handle({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/call",
+      params: { name: "compare_fidelity", arguments: args },
+    })) as unknown as {
+      result: {
+        isError?: boolean;
+        structuredContent?: { score?: number };
+        content: { type: string; text?: string }[];
+      };
+    };
+    await store.close();
+    return { r: r.result, site };
+  };
+
+  it("compares the served site with the original and returns the report", async () => {
+    const seen: { original: string; dir: string; widths?: number[] }[] = [];
+    const { r } = await callTool(
+      {
+        compare: async (original, dir, o = {}) => {
+          seen.push({ original, dir, ...(o.widths ? { widths: o.widths } : {}) });
+          return {
+            report: { score: 91, pages: [] },
+            markdown: "# Visual fidelity\n\nOverall match: **91/100**",
+            out: join(dir, ".fidelity"),
+            images: [],
+          };
+        },
+      },
+      { original: "life-culture.github.io/powerwith/", device: "desktop" },
+    );
+    expect(r.isError).toBeFalsy();
+    expect(seen[0]?.original).toBe("https://life-culture.github.io/powerwith/");
+    expect(seen[0]?.widths).toEqual([1440]);
+    expect(r.content[0]?.text).toContain("91/100");
+  });
+
+  it("explains how to enable it without a browser", async () => {
+    const { r } = await callTool(
+      { unavailable: "Playwright is not installed" },
+      { original: "https://example.com" },
+    );
+    expect(r.isError).toBe(true);
+    expect(r.content[0]?.text).toContain("Playwright");
+  });
+
+  it("maps site paths to the original's addresses", () => {
+    expect(originalUrl("https://life-culture.github.io/powerwith/", "/introduction")).toBe(
+      "https://life-culture.github.io/powerwith/introduction/",
+    );
+    expect(originalUrl("https://www.example.com", "/")).toBe("https://www.example.com/");
+    expect(originalUrl("example.com/", "/a/b")).toBe("https://example.com/a/b/");
   });
 });
 

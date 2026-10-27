@@ -5,6 +5,8 @@
  * the measurement is unambiguous; everything else keeps the mapper's choice.
  */
 import type { Block, Section } from "@omniharmonic/openspace-schema";
+import { relativeLuminance } from "@omniharmonic/openspace-theme";
+import { colorDistance } from "./compare";
 import type { ProbeSection } from "./probe";
 
 const norm = (s: string | undefined) => (s ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -26,7 +28,13 @@ function headingOf(section: Section): string | undefined {
 /** Apply the measured layout to a page's sections; returns what changed (for the report). */
 export function applyLayoutHints(
   sections: Section[],
-  probe: { viewport: number; contentWidth?: number; sections: ProbeSection[] },
+  probe: {
+    viewport: number;
+    contentWidth?: number;
+    sections: ProbeSection[];
+    /** The background a color theme gets from Site Styles (to tell when it differs). */
+    themeBackground?: (theme: string) => string | undefined;
+  },
 ): string[] {
   const changed: string[] = [];
   const byHeading = new Map<string, ProbeSection>();
@@ -47,6 +55,24 @@ export function applyLayoutHints(
       if (cols >= 2 && String(cols) !== b.fields.columns) {
         b.fields.columns = String(cols);
         changed.push(`"${label}": ${cols} cards per row, as on the original`);
+      }
+    }
+    // The section's own background color, when the original had a plain one the theme misses.
+    if (
+      p.background &&
+      !p.backgroundImage &&
+      !section.style.background &&
+      /^#[0-9a-f]{6}$/i.test(p.background)
+    ) {
+      const themeBg = probe.themeBackground?.(section.style.colorTheme ?? "light");
+      if (themeBg && colorDistance(themeBg, p.background) >= 16) {
+        section.style.background = { type: "color", color: p.background };
+        const dark = relativeLuminance(p.background) < 0.18;
+        const isDark =
+          section.style.colorTheme === "dark" || section.style.colorTheme === "dark-accent";
+        if (dark !== isDark && section.style.colorTheme !== "brand")
+          section.style.colorTheme = dark ? "dark" : "light";
+        changed.push(`"${label}": its background ${p.background}, as on the original`);
       }
     }
     // An image beside the words: the original's share of the width (twelfths of the content).

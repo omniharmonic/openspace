@@ -315,10 +315,12 @@ function sectionChecks(a: ProbeSection, b: ProbeSection, tol: number): FidelityC
       what: "Background",
       original: a.background,
       imported: b.background,
-      ok: d < 28,
-      ...(d < 28
+      ok: d < 16,
+      ...(d < 16
         ? {}
-        : { fix: "Pick the section's color theme or a color.<theme>.background override." }),
+        : {
+            fix: `Give the section its own background color (style.background = { type: "color", color: "${a.background}" }).`,
+          }),
       weight: 2,
     });
   }

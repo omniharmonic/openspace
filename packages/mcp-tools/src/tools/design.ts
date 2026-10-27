@@ -5,10 +5,14 @@ import {
   BUTTON_STYLES,
   DENSITIES,
   IMAGE_TREATMENTS,
+  LayoutChoicesSchema,
   MOTION_LEVELS,
   type Page,
   SHAPES,
   type SiteDocument,
+  TYPE_SCALE_PRESETS,
+  TypeStepSchema,
+  WebFontSchema,
 } from "@omniharmonic/openspace-schema";
 import {
   compileStyles,
@@ -98,6 +102,28 @@ const ChoicesPatch = z
     buttons: z.enum(BUTTON_STYLES).optional(),
     motion: z.enum(MOTION_LEVELS).optional(),
     imageTreatment: z.enum(IMAGE_TREATMENTS).optional(),
+    typography: z
+      .object({
+        heading: WebFontSchema.nullable().optional(),
+        body: WebFontSchema.nullable().optional(),
+        label: WebFontSchema.nullable().optional(),
+        scale: z
+          .partialRecord(z.enum(TYPE_SCALE_PRESETS), TypeStepSchema.partial().nullable())
+          .optional()
+          .describe(
+            'Per preset (display, h1–h4, lead, body, small, eyebrow, button, nav, wordmark): { size, sizeMobile (px), lineHeight, letterSpacing (em), case, weight, font: "heading"|"body"|"label" }; merged into what is set; null resets a preset.',
+          ),
+        eyebrowColor: z.enum(["accent", "muted"]).nullable().optional(),
+      })
+      .optional()
+      .describe(
+        "The site's own typography: any Google Fonts family per role ({ family, category, weights?, italic? }; null = back to the pairing), a tuned type scale and the eyebrow color.",
+      ),
+    layout: LayoutChoicesSchema.partial()
+      .optional()
+      .describe(
+        "Page rhythm in px: contentWidth, narrowWidth, sectionPadding(Mobile), gutter(Mobile).",
+      ),
   })
   .describe("Partial Site Styles choices.");
 
@@ -188,7 +214,7 @@ export const setStyles = defineTool({
   name: "set_styles",
   title: "Set Site Styles",
   description:
-    'Restyle the whole site: patch Site Styles choices (palette brand/neutral/contrast, pairing, density, shape, buttons, motion, imageTreatment), pick a curated palette by id, and set/unset exact DTCG token overrides (e.g. {"color.accent": "#2f6b4f"}). Every change is contrast-checked: unreadable overrides are moved to the nearest accessible shade (onContrast "adjust", default) or refused ("reject"), with an explanation.',
+    'Restyle the whole site: patch Site Styles choices (palette brand/neutral/contrast, pairing, density, shape, buttons, motion, imageTreatment; typography: the site\'s own Google Fonts per role and a tuned type scale; layout: content width and section padding), pick a curated palette by id, and set/unset exact DTCG token overrides (e.g. {"color.accent": "#2f6b4f"}). Every change is contrast-checked: unreadable overrides are moved to the nearest accessible shade (onContrast "adjust", default) or refused ("reject"), with an explanation.',
   input: z.object({
     site: siteArg,
     choices: ChoicesPatch.optional(),
@@ -225,6 +251,20 @@ export const setStyles = defineTool({
       if (v !== undefined) set[`choices.palette.${k}`] = v;
     for (const k of ["pairing", "density", "shape", "buttons", "motion", "imageTreatment"] as const)
       if (c[k] !== undefined) set[`choices.${k}`] = c[k];
+    const ty = c.typography;
+    for (const role of ["heading", "body", "label", "eyebrowColor"] as const) {
+      const v = ty?.[role];
+      if (v === null) unset.push(`choices.typography.${role}`);
+      else if (v !== undefined) set[`choices.typography.${role}`] = v;
+    }
+    for (const [preset, step] of Object.entries(ty?.scale ?? {})) {
+      if (step === null) unset.push(`choices.typography.scale.${preset}`);
+      else
+        for (const [k, v] of Object.entries(step ?? {}))
+          if (v !== undefined) set[`choices.typography.scale.${preset}.${k}`] = v;
+    }
+    for (const [k, v] of Object.entries(c.layout ?? {}))
+      if (v !== undefined) set[`choices.layout.${k}`] = v;
     for (const [path, v] of Object.entries(input.overrides?.set ?? {})) {
       const token = isRecord(v) && "$value" in v ? v : { $value: v };
       if (path.startsWith("color.") && isRecord(token) && token.$type === undefined)

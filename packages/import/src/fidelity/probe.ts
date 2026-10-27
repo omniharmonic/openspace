@@ -163,7 +163,12 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       const kids = [...box.children].filter((e) => visible(e) && !chrome(e) && !/^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(e.tagName));
       const big = kids.filter((e) => e.getBoundingClientRect().height >= 60);
       if (big.length === 1 && big[0].getBoundingClientRect().height > box.getBoundingClientRect().height * 0.6) box = big[0];
-      else { sections = big; break; }
+      else {
+        // Paragraphs of one article aren't sections: many short children make one section.
+        const hs = big.map((e) => e.getBoundingClientRect().height).sort((a, b) => a - b);
+        sections = big.length > 3 && hs[Math.floor(hs.length / 2)] < 220 ? [box] : big;
+        break;
+      }
     }
   }
   sections = sections.filter((e) => !e.closest("footer, .os-footer, [role=contentinfo], #footer-sections"));

@@ -104,7 +104,12 @@ export function lookFromTokens(t: Obj): TokenLook | undefined {
     const family = fonts[role];
     if (!family) return undefined;
     const w = weightOf(role);
-    const extra = role === "label" ? Object.values(weights).map(px) : [];
+    const extra =
+      role === "label"
+        ? Object.entries(weights)
+            .filter(([k]) => /^(?:label|ui|caps|button|nav)/i.test(k))
+            .map(([, v]) => px(v))
+        : [];
     const ws = [
       ...new Set(
         [w ?? (role === "heading" ? undefined : 400), ...extra]

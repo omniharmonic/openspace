@@ -1,11 +1,32 @@
 {
   "color": { "ink": "#141210", "paper": "#f4efe6", "rust": "#a4502e", "moss": "#3d4a33" },
   "grounds": {
-    "ink": { "background": "ink", "text": "paper" },
-    "paper": { "background": "paper", "text": "ink" },
-    "rust": { "background": "rust", "text": "paper" },
-    "moss": { "background": "moss", "text": "paper" }
+    "ink": { "background": "ink", "text": "paper", "label": "rust", "rule": "rust" },
+    "paper": { "background": "paper", "text": "ink", "label": "moss", "rule": "rust" },
+    "rust": { "background": "rust", "text": "paper", "label": "paper", "rule": "paper" },
+    "moss": { "background": "moss", "text": "paper", "label": "rust", "rule": "paper" }
   },
-  "font": { "display": "'Playfair Display', Georgia, serif", "body": "'Lora', Georgia, serif" },
+  "font": {
+    "display": "'Playfair Display', Georgia, serif",
+    "body": "'Lora', Georgia, serif",
+    "label": "'Freight Sans Pro', Arial, sans-serif",
+    "weights": { "display": 500, "body": 400, "label": 500 }
+  },
+  "type": {
+    "display-xl": { "desktop": "88px", "mobile": "52px", "lineHeight": 1.0, "font": "display" },
+    "display-md": { "desktop": "56px", "mobile": "38px", "lineHeight": 1.1, "font": "display" },
+    "quote": { "desktop": "28px", "mobile": "22px", "lineHeight": 1.25, "font": "display" },
+    "body-lg": { "desktop": "20px", "mobile": "18px", "lineHeight": 1.5, "font": "body" },
+    "label": { "desktop": "12px", "mobile": "11px", "letterSpacing": "0.28em", "transform": "uppercase", "font": "label" },
+    "button": { "desktop": "12px", "letterSpacing": "0.2em", "transform": "uppercase", "font": "label" }
+  },
+  "space": {
+    "contentMax": "1100px",
+    "sectionPadDesktop": "104px",
+    "sectionPadMobile": "56px",
+    "gutterDesktop": "32px",
+    "gutterMobile": "20px",
+    "ruleWidthDesktop": "64px"
+  },
   "radius": "0"
 }

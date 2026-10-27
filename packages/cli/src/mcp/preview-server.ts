@@ -11,6 +11,7 @@ import type { AddressInfo } from "node:net";
 import { dirname, extname, join, normalize, sep } from "node:path";
 import { renderPreviewHtml } from "@omniharmonic/openspace-mcp-tools";
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { planSite } from "@omniharmonic/openspace-site-kit/render";
 
 const TYPES: Record<string, string> = {
   ".jpg": "image/jpeg",
@@ -106,9 +107,15 @@ export async function startPreviewServer(
       } else {
         const doc = await load();
         const slug = path.replace(/^\/+|\/+$/g, "").replace(/\/index\.html$/, "");
-        const page = Object.values(doc.pages).find((p) => p.slug === slug);
+        let view = doc;
+        let page = Object.values(doc.pages).find((p) => p.slug === slug);
+        if (!page) {
+          // Collection pages (a shop, a journal, each item) are generated at build: plan them.
+          view = planSite(doc).doc;
+          page = Object.values(view.pages).find((p) => p.slug === slug);
+        }
         if (page) {
-          const html = renderPreviewHtml(doc, page.id, { behaviorsUrl: "/_os/behaviors" });
+          const html = renderPreviewHtml(view, page.id, { behaviorsUrl: "/_os/behaviors" });
           res.writeHead(200, {
             "content-type": "text/html; charset=utf-8",
             "cache-control": "no-store",

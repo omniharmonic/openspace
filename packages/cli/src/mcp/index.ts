@@ -6,6 +6,7 @@ import type { Readable, Writable } from "node:stream";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createMcpServer, type ImageResizer } from "@omniharmonic/openspace-mcp-tools";
 import { CliError, type Io } from "../io";
+import { compareFidelityTool } from "./fidelity-tool";
 import { FileSiteStore } from "./file-store";
 import { importSiteTool, importSquarespaceTool } from "./import-tool";
 import { createUrlScreenshotter, screenshotUrlTool } from "./reference-tool";
@@ -67,6 +68,10 @@ export async function runMcp(io: Io, dir: string, opts: McpOptions = {}): Promis
         importSiteTool({ siteRoot: dir }),
         importSquarespaceTool({ siteRoot: dir }),
         screenshotUrlTool(urlShooter, "error" in pw ? pw.error : undefined),
+        compareFidelityTool({
+          siteRoot: dir,
+          ...("error" in pw ? { unavailable: pw.error } : {}),
+        }),
       ],
       onError: (e, where) =>
         io.err(`openspace mcp: ${where}: ${e instanceof Error ? e.stack : String(e)}`),

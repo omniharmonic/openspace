@@ -271,6 +271,45 @@ describe("structured content (headless CMS sections)", () => {
     expect(text(r.doc.site.footer)).toContain("JUNE PARK");
   });
 
+  it("keeps the design tokens' type scale, label font and page rhythm in Site Styles", () => {
+    const c = r.doc.styles.choices;
+    expect(c.typography?.scale?.display).toMatchObject({ size: 88, sizeMobile: 52, lineHeight: 1 });
+    expect(c.typography?.scale?.h1).toMatchObject({ size: 56, sizeMobile: 38 });
+    expect(c.typography?.scale?.body).toMatchObject({ size: 20, sizeMobile: 18 });
+    expect(c.typography?.scale?.eyebrow).toMatchObject({
+      size: 12,
+      letterSpacing: 0.28,
+      case: "uppercase",
+    });
+    expect(c.typography?.eyebrowColor).toBe("muted");
+    expect(c.layout).toMatchObject({
+      contentWidth: 1100,
+      sectionPadding: 104,
+      sectionPaddingMobile: 56,
+    });
+    // Offline, Google Fonts can't confirm the fonts: Playfair/Lora are curated-pairing families,
+    // Freight Sans Pro is licensed, so labels fall back to the body font (and the report says so).
+    expect(c.typography?.heading?.family).toBe("Playfair Display");
+    expect(c.typography?.label).toBeUndefined();
+    expect(c.typography?.scale?.eyebrow?.font).toBe("body");
+    expect(r.build.themeNotes.join(" ")).toMatch(/Freight Sans Pro isn.t on Google Fonts/);
+  });
+
+  it("lays the section out as it was: grounds, eyebrow rules, columns, italic closing lines", () => {
+    const home = pageBySlug(r, "");
+    const pattern = home.sections.find((sec) => sec.anchor === "pattern");
+    expect(pattern?.style.background).toEqual({ type: "color", color: "#a4502e" });
+    const heading = pattern?.blocks.find((b) => b.type === "heading");
+    expect(heading?.variant).toBe("eyebrow-rule");
+    const cols = pattern?.blocks.find((b) => b.type === "text" && b.variant === "columns");
+    expect(text(cols)).toContain("green blur");
+    expect(text(pattern)).toMatch(/"preset":"lead"[^}]*\}[\s\S]*"type":"italic"/);
+    // The hero title is set at the display size; nav entries keep their in-page anchors.
+    const hero = blocksOf(home).find((b) => b.type === "heading");
+    expect(hero?.fields.size).toBe("display");
+    expect(r.doc.site.nav.find((n) => n.label === "THE IDEA")).toMatchObject({ anchor: "idea" });
+  });
+
   it("lists the sign-up service and the CMS for after launch", () => {
     expect(r.report).toMatch(/server function|api\/subscribe/);
     expect(r.report).toMatch(/Decap|Sveltia|content editor/);

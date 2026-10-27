@@ -208,8 +208,15 @@ export async function runCompare(
   const written: string[] = [];
   const probes: { path: string; width: number; original: LookProbe; imported: LookProbe }[] = [];
   try {
+    // A page whose address changed in the move (`/home` → `/home-2`): compare with its old address.
+    const oldPath = new Map<string, string>();
+    for (const r of doc.site.redirects ?? []) {
+      const to = `/${slugOf(r.to)}`;
+      if (!oldPath.has(to) && r.from.startsWith("/") && !/[?*:]/.test(r.from))
+        oldPath.set(to, r.from);
+    }
     for (const path of pages) {
-      const from = originalUrl(original, path);
+      const from = originalUrl(original, oldPath.get(path) ?? path);
       const to = `${server.url}/${slugOf(path)}`;
       for (const width of widths) {
         log(`Comparing ${path} at ${width}px…`);

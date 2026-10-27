@@ -116,6 +116,8 @@ export class UrlMap {
       !safe.startsWith("/") ||
       safe === toPath ||
       safe === to ||
+      // `/news/category/x` already reaches `/news/category/x/` (a folder): not a redirect.
+      safe.replace(/\/+$/, "") === to.replace(/\/+$/, "") ||
       this.redirects.some((r) => r.from === safe)
     )
       return;

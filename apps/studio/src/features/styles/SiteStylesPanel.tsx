@@ -44,6 +44,7 @@ import {
   type StylesSet,
   THEME_NAME,
 } from "./model";
+import { SiteTypography } from "./SiteTypography";
 import "./styles.css";
 
 type Commit = (set: StylesSet, label: string, mergeKey?: string) => boolean;
@@ -698,6 +699,9 @@ export function SiteStylesPanel() {
             <CustomFonts styles={styles} disabled={disabled} />
           </PropRow>
         )}
+      </PanelSection>
+      <PanelSection title="Type & spacing" defaultOpen={Boolean(c.typography || c.layout)}>
+        <SiteTypography styles={styles} commit={commit} disabled={disabled} />
       </PanelSection>
       <PanelSection title="Spacing & shape">
         <PropRow label="Spacing" stacked>

@@ -546,3 +546,9 @@
   justify-content: flex-end;
   gap: 6px;
 }
+
+/* Type & spacing */
+.st-ss-type {
+  display: grid;
+  gap: var(--st-space-2, 8px);
+}

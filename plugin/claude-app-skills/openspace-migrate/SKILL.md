@@ -66,7 +66,7 @@ Home page first, then the pages in the menu. For each page (at most five passes;
 
 1. **Look at both.** `screenshot_url` of the original page and `screenshot` of the new one, same device — desktop, then mobile. Tall pages arrive as several images, top to bottom. Screenshots are limited (about forty every ten minutes), so once the structure is right compare one section at a time (`screenshot` with `section`).
 2. **Name the three biggest differences** a visitor would notice: section order, the top of the page, columns, photo crops, colors, type size, spacing, buttons.
-3. **Fix with the design tools:** `update_section` (`colorTheme`, `style.background`), a closer preset (`list_section_presets`, `insert_section`, move content across with `update_block`, `delete_section`), `place_in_grid` then `auto_mobile_layout`, and once, early, the global look with `set_styles` (brand color, fonts, spacing, buttons).
+3. **Fix with the design tools:** `update_section` (`colorTheme`, `style.background`), a closer preset (`list_section_presets`, `insert_section`, move content across with `update_block`, `delete_section`), `place_in_grid` then `auto_mobile_layout`, and once, early, the global look with `set_styles` (brand color, fonts, spacing, buttons — `choices.typography` takes the original's own Google Fonts per role and its type sizes, letter spacing and capitals, `choices.layout` its content width and section spacing; the move already carries these over when it could read them, so adjust rather than replace).
 4. **Check:** `design_check`; fix errors (`apply_fix` where offered). Imported pages often have several main headings — fix the levels without changing the words.
 5. **Look again** and judge: same first impression, same order, same main buttons?
 

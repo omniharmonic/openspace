@@ -514,6 +514,7 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
   const notices: SqNotice[] = [...sq.notices];
   const urls = new UrlMap(sq);
   const theme = mapTheme(sq);
+  const themeBackgrounds = compileStyles(theme.styles).tokens.themes;
   const collectionKinds = new Map<string, string>();
   for (const c of sq.collections)
     collectionKinds.set(urls.collections.get(c.path) as string, c.kind);
@@ -550,7 +551,11 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
     }
     // The home page as a browser measured it: card columns and image widths as they were.
     if (p.path === "/" && sq.homeProbe)
-      for (const change of applyLayoutHints(sections, sq.homeProbe))
+      for (const change of applyLayoutHints(sections, {
+        ...sq.homeProbe,
+        themeBackground: (name) =>
+          themeBackgrounds[name as keyof typeof themeBackgrounds]?.background,
+      }))
         notices.push({ kind: "theme", where: "/", message: `Layout: ${change}.` });
     if (p.homeOf) {
       const name = urls.collections.get(p.homeOf);
