@@ -79,6 +79,51 @@ describe("openspace check", () => {
     expect((await cli(root, ["check"])).code).toBe(1);
   });
 
+  it("reports a preset's dangling block links at the block (the first live test)", async () => {
+    const root = await meadowCopy();
+    await editJson(join(root, "content/pages/home.json"), (p) => {
+      const button = p.sections[0].blocks.find((b: { type: string }) => b.type === "button");
+      button.fields.link = { type: "url", url: "/book" };
+      // Text links that lead nowhere are reported without failing the check.
+      p.sections[0].blocks.push({
+        id: newId("blk"),
+        type: "text",
+        v: 1,
+        fields: {
+          content: {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "Timetable",
+                    marks: [{ type: "link", attrs: { href: "/timetable" } }],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      });
+    });
+    const report = await runCheck(root);
+    const link = report.findings.find((f) => f.message.includes("/book"));
+    expect(link).toMatchObject({
+      severity: "error",
+      rule: "link",
+      file: "content/pages/home.json",
+      message: "Link to /book does not lead to any page",
+    });
+    expect(link?.path).toMatch(/^sections\.0\.blocks\.\d+\.fields\.link$/);
+    expect(report.findings.find((f) => f.message.includes("/timetable"))).toMatchObject({
+      severity: "warning",
+      rule: "link",
+    });
+    expect(report.errors).toBe(1);
+  });
+
   it("reports broken links inside Markdoc post bodies", async () => {
     const root = await meadowCopy();
     const file = join(root, "content/collections/journal");
