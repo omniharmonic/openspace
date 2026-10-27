@@ -113,10 +113,13 @@ export function FirstRunTour({ site }: { site: Site }) {
       className={last ? "st-tour st-tour--last" : "st-tour"}
       footer={
         <>
-          <span className="st-tour__dots" aria-label={`Step ${step + 1} of ${STOPS.length + 1}`}>
+          <span className="st-tour__dots">
+            <span className="st-visually-hidden">
+              Step {step + 1} of {STOPS.length + 1}
+            </span>
             {[...STOPS, null].map((_, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed positions
-              <span key={i} className={i === step ? "is-on" : undefined} />
+              <span key={i} aria-hidden="true" className={i === step ? "is-on" : undefined} />
             ))}
           </span>
           {last ? (

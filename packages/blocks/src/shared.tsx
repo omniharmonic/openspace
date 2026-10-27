@@ -1,5 +1,6 @@
 import {
   Button,
+  type ButtonRole,
   cx,
   resolveImage,
   useImageMap,
@@ -376,6 +377,8 @@ export const ELSEWHERE_PATHS = {
   donations: "/give-elsewhere",
 } as const;
 
+const SECONDARY: ButtonRole = "secondary";
+
 export type OpeningSoonKind = "store" | "donations" | "members";
 
 const SOON_COPY: Record<
@@ -451,7 +454,7 @@ export function OpeningSoon({
           {elsewhere ? (
             <Button
               to={{ type: "url", url: elsewhere } as LinkValue}
-              role="secondary"
+              role={SECONDARY}
               className="os-soon__link"
             >
               {copy.button}
