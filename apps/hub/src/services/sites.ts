@@ -182,7 +182,7 @@ export function previewUrl(hubUrl: string, siteId: string): string {
   return `${hubUrl}/s/${siteId}/`;
 }
 
-function githubPagesUrl(owner: string, name: string): string {
+export function githubPagesUrl(owner: string, name: string): string {
   return `https://${owner.toLowerCase()}.github.io/${name}/`;
 }
 

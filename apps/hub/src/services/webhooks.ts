@@ -11,6 +11,7 @@ import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { BuildState } from "../room/protocol";
 import { buildErrorDetail, type SiteNames, translateBuildError } from "./build-errors";
+import { advanceSwitch } from "./hosting-switch";
 import type { Services } from "./index";
 import { completeTransfer, ownerOf } from "./sites";
 
@@ -185,6 +186,14 @@ async function onWorkflowRun(
     });
   } catch (err) {
     log?.warn("room build notice failed", { siteId: site.id, err });
+  }
+  // A move to Cloudflare waits for this run: confirm it, or switch back to GitHub Pages.
+  if (state === "success" || state === "failure") {
+    try {
+      await advanceSwitch(env, services, site.id, log);
+    } catch (err) {
+      log?.warn("hosting switch follow-up failed", { siteId: site.id, err });
+    }
   }
   return state;
 }
