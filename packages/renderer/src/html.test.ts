@@ -55,7 +55,7 @@ describe("renderPageHtml", () => {
       '<script type="module" src="/maya-yoga/_os/behaviors/os-behaviors.js"></script>',
     );
     expect(out).not.toContain("carousel.js");
-    expect(out).toContain('data-os-hub="https://hub.openspace.dev"');
+    expect(out).toContain('data-os-hub="https://hub.openspace.host"');
     expect(out).toContain(`data-os-site="${IDS.site}"`);
   });
 

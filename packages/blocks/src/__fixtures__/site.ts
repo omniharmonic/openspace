@@ -9,7 +9,7 @@ import {
 } from "@omniharmonic/openspace-schema";
 
 export const SITE_ID = "st_01jb3q8w2n";
-export const HUB = "https://hub.openspace.dev";
+export const HUB = "https://hub.openspace.host";
 
 /** A stack section holding the given blocks in one column. */
 export function stackSection(blocks: Block[], colorTheme: ColorTheme = "light"): Section {

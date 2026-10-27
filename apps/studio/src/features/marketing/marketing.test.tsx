@@ -32,7 +32,7 @@ describe("email campaigns", () => {
     expect(within(list).getByText("Winter retreat: early places")).toBeInTheDocument();
     // The warm-up sending limit and the abuse address are explained up front (PRD §9.3).
     expect(await screen.findByText(/emails left to send today/)).toBeInTheDocument();
-    expect(screen.getByText(/abuse@openspace\.dev/)).toBeInTheDocument();
+    expect(screen.getByText(/abuse@openspace\.host/)).toBeInTheDocument();
     expect(visibleCopy().match(FORBIDDEN)).toBeNull();
     await user.click(within(list).getByText("October at Willow Street"));
     expect(await screen.findByText("Clicked a link")).toBeInTheDocument();

@@ -6,7 +6,7 @@ import { loadSiteDocument } from "@omniharmonic/openspace-site-kit/content";
 import { templateSpecs } from "@omniharmonic/openspace-templates";
 import { describe, expect, it } from "vitest";
 import { WWW_ROOT } from "./generate";
-import { DOCS, PRICES } from "./www";
+import { DOCS, DONATE, PLANS, PRICES, SIGN_IN, suggestGift } from "./www";
 
 const NOW = Date.parse("2026-10-26T12:00:00Z");
 const doc = await loadSiteDocument(WWW_ROOT);
@@ -14,14 +14,20 @@ const pages = Object.values(doc.pages);
 const bySlug = (slug: string) => pages.find((p) => p.slug === slug);
 const text = (v: unknown) => JSON.stringify(v);
 
-describe("openspace.dev site document", () => {
+describe("openspace.host site document", () => {
   it("is a valid OpenSpace site", () => {
     expect(SiteDocumentSchema.safeParse(doc).success).toBe(true);
     expect(blocksRegistry().validateDocument(doc)).toEqual([]);
   });
 
-  it("has home, templates, pricing and about pages, with docs linked from the navigation", () => {
-    expect(pages.map((p) => p.slug).sort()).toEqual(["", "about", "pricing", "templates"]);
+  it("has home, templates, pricing, about and support pages, with docs linked from the navigation", () => {
+    expect(pages.map((p) => p.slug).sort()).toEqual([
+      "",
+      "about",
+      "pricing",
+      "support",
+      "templates",
+    ]);
     expect(text(doc.site.nav)).toContain(DOCS);
     expect(doc.config.deploy).toMatchObject({
       url: "https://openspace.host",
@@ -35,21 +41,24 @@ describe("openspace.dev site document", () => {
     expect(home?.sections.map((s) => s.anchor)).toEqual([
       "hero",
       "numbers",
-      "how",
+      "move",
+      "why",
       "cost",
       "lockin",
+      "how",
       "claude",
       "features",
       "templates",
       "own",
+      "support",
       "faq",
       "start",
     ]);
     const t = text(home);
     for (const phrase of [
-      "A professional website that's yours to keep",
+      "Stop renting your own website",
       "Start free",
-      "See it on GitHub",
+      "Move my site",
       "https://studio.openspace.host/templates",
       "https://github.com/omniharmonic/openspace",
       "Is it ready?",
@@ -77,17 +86,58 @@ describe("openspace.dev site document", () => {
     expect(features.match(/Cloudflare only/g)).toHaveLength(2);
   });
 
-  it("runs its three demos as sandboxed Code blocks, not page scripts", () => {
-    const embeds = (bySlug("")?.sections ?? []).flatMap((s) =>
-      s.blocks.filter((b) => b.type === "embed"),
-    );
-    expect(embeds).toHaveLength(3);
+  it("runs its demos and the calculator as sandboxed Code blocks, not page scripts", () => {
+    const embeds = [bySlug(""), bySlug("support")]
+      .flatMap((p) => p?.sections ?? [])
+      .flatMap((s) => s.blocks.filter((b) => b.type === "embed"));
+    expect(embeds).toHaveLength(5);
     for (const b of embeds) {
       expect(b.fields.embed).toMatchObject({ type: "code" });
       expect(String((b.fields.embed as { code: string }).code)).toContain("prefers-reduced-motion");
     }
     expect(doc.site.headInjection ?? "").toBe("");
     expect(doc.site.footerInjection ?? "").toBe("");
+  });
+
+  it("lets existing users sign in from the header, beside Start free", () => {
+    const buttons = doc.site.nav.filter((i) => i.type === "button").map((i) => i.label);
+    expect(buttons).toEqual(["Sign in", "Start free"]);
+    expect(text(doc.site.nav)).toContain(SIGN_IN);
+    expect(SIGN_IN).toBe("https://studio.openspace.host/sites");
+  });
+
+  it("centers moving an existing site, with the plugin commands and honest platform scope", () => {
+    const move = text(bySlug("")?.sections.find((s) => s.anchor === "move"));
+    for (const phrase of [
+      "Bring your site home",
+      "/plugin marketplace add omniharmonic/openspace",
+      "/plugin install openspace",
+      "/openspace:import-squarespace",
+      "Squarespace moves automatically today",
+      "https://docs.openspace.host/guides/migrate-from-squarespace/",
+    ])
+      expect(move).toContain(phrase);
+  });
+
+  it("takes donations only through the DONATE links, each listed without JavaScript", () => {
+    const all = [...Object.values(DONATE.oneTime), ...Object.values(DONATE.monthly)];
+    for (const link of all) expect(link).toMatch(/^https:\/\/(donate|buy)\.stripe\.com\//);
+    for (const slug of ["", "support"]) {
+      const t = text(bySlug(slug));
+      for (const link of all) expect(t, `${slug} lists ${link}`).toContain(link);
+      expect(t).toContain("prefers-reduced-motion");
+    }
+    const support = text(bySlug("support"));
+    expect(support).toContain("tax-deductible");
+    expect(support).toContain("whether or not you give");
+  });
+
+  it("suggests the gift nearest a tenth of what leaving saves", () => {
+    expect(PLANS.map((p) => p.monthly)).toEqual(Object.values(PRICES));
+    expect(suggestGift(PRICES.squarespaceBasic)).toEqual({ once: 25, monthly: 3 });
+    expect(suggestGift(PRICES.webflowEcomPlus)).toEqual({ once: 100, monthly: 5 });
+    expect(suggestGift(0)).toEqual({ once: 10, monthly: 3 });
+    expect(suggestGift(500)).toEqual({ once: 250, monthly: 20 });
   });
 
   it("lists every template with its looks in the gallery", () => {

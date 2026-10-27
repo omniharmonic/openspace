@@ -1,0 +1,120 @@
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0e1233;background:#fff}
+a{color:inherit}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);height:100%}
+form{padding:22px 24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend,label{display:block;font-weight:600;margin:0 0 8px;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips label{margin:0;font-weight:500}
+.chips input{position:absolute;opacity:0;width:1px;height:1px}
+.chips span{display:inline-block;padding:7px 14px;border:1px solid #c9cee3;border-radius:999px;cursor:pointer;background:#fff}
+.chips input:checked+span{background:#0e1233;border-color:#0e1233;color:#fff}
+.chips input:focus-visible+span,select:focus-visible,input[type=number]:focus-visible,.give a:focus-visible{outline:3px solid #2c40e6;outline-offset:2px}
+select,input[type=number]{width:100%;font:inherit;color:inherit;padding:9px 12px;border:1px solid #c9cee3;border-radius:10px;background:#fff}
+.fine{margin:auto 0 0;font-size:13px;color:#4d5370}
+.out{display:flex;flex-direction:column;gap:10px;padding:22px 24px;background:#0e1233;color:#e9ebff}
+.out p{margin:0}
+.lab{color:#b7bce3}
+.big{font-weight:650;font-size:clamp(44px,9vw,76px);line-height:1;letter-spacing:-.045em;color:#ffcb52;font-variant-numeric:tabular-nums}
+.big small{font-size:.32em;letter-spacing:0;font-weight:500;color:#e9ebff;margin-left:.3em}
+.more{color:#c9cdf0}
+.rule{height:1px;background:#2b3170;margin:6px 0}
+.give{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.give a{display:inline-block;padding:10px 16px;border-radius:999px;font-weight:600;text-decoration:none}
+.once{background:#ffcb52;color:#0e1233}
+.monthly{border:1px solid #6f77c4;color:#fff}
+.give a:hover{filter:brightness(1.08)}
+.other{font-size:14px}
+.js-only{display:none}
+.has-js .js-only{display:block}
+.has-js .no-js{display:none}
+@media (max-width:640px){
+ html,body{background:#0e1233}
+ form{background:#fff}
+ .wrap{grid-template-columns:1fr;height:auto}
+ form,.out{padding:18px}
+}
+</style>
+<div class="wrap">
+<form id="f" aria-describedby="fine">
+<fieldset>
+<legend>Where does your site live today?</legend>
+<div class="chips">
+<label><input type="radio" name="p" value="Squarespace" checked><span>Squarespace</span></label>
+<label><input type="radio" name="p" value="Wix"><span>Wix</span></label>
+<label><input type="radio" name="p" value="Webflow"><span>Webflow</span></label>
+<label><input type="radio" name="p" value="other"><span>Somewhere else</span></label>
+</div>
+</fieldset>
+<div id="planBox">
+<label for="plan">Your plan</label>
+<select id="plan">__PLAN_OPTIONS__</select>
+</div>
+<div id="otherBox" hidden>
+<label for="amt">What you pay each month, in US dollars</label>
+<input id="amt" type="number" min="0" max="2000" step="1" value="25" inputmode="decimal">
+</div>
+<p class="fine" id="fine">Published prices billed annually, read on __DATE__. Monthly billing costs more, so you may save more. A domain costs the same wherever you buy it, so it isn't counted.</p>
+</form>
+<div class="out">
+<p class="lab">Moving to OpenSpace keeps</p>
+<p class="big" aria-live="polite" aria-atomic="true"><span id="year">__SAVE_YEAR__</span><small>a year</small></p>
+<p class="more" id="three">That's __SAVE_3Y__ over three years. Hosting on OpenSpace costs $0.</p>
+<div class="rule" role="presentation"></div>
+<p>OpenSpace stays free whatever you decide. If you'd like to give back a tenth of what you keep, it keeps the commons running:</p>
+<div class="give">
+<a class="once" id="once" href="__ONCE_URL__" target="_blank" rel="noopener">Give <span id="onceAmt">__ONCE_AMT__</span> once</a>
+<a class="monthly" id="monthly" href="__MONTH_URL__" target="_blank" rel="noopener">Give <span id="monthAmt">__MONTH_AMT__</span> a month</a>
+</div>
+<p class="other"><a href="__CUSTOM_URL__" target="_blank" rel="noopener">Choose your own amount</a><span class="no-js">. Turn on JavaScript to try other plans; every way to give is listed beside this calculator.</span></p>
+<p class="fine" style="color:#b7bce3">Gifts go through Stripe's checkout and open in a new tab. They aren't tax-deductible.</p>
+</div>
+</div>
+<script>
+(()=> {
+var D=__DATA__;
+document.documentElement.className="has-js";
+var f=document.getElementById("f"),plan=document.getElementById("plan"),amt=document.getElementById("amt");
+var planBox=document.getElementById("planBox"),otherBox=document.getElementById("otherBox");
+var yearEl=document.getElementById("year"),three=document.getElementById("three");
+var once=document.getElementById("once"),onceAmt=document.getElementById("onceAmt");
+var monthly=document.getElementById("monthly"),monthAmt=document.getElementById("monthAmt");
+var still=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var usd=(n)=> "$"+Math.round(n).toLocaleString("en-US");
+var tiers=(o)=> Object.keys(o).filter((k)=> k!=="custom").map(Number).sort((a,b)=> a-b);
+var nearest=(ts,v)=> ts.reduce((a,b)=> Math.abs(b-v)<Math.abs(a-v)?b:a);
+var shown=0,raf=0;
+function count(to){
+ cancelAnimationFrame(raf);
+ if(still){shown=to;yearEl.textContent=usd(to);return}
+ var from=shown,t0=performance.now();
+ (function step(t){var k=Math.min(1,(t-t0)/450);k=1-(1-k) ** 3;shown=from+(to-from)*k;yearEl.textContent=usd(shown);if(k<1)raf=requestAnimationFrame(step)})(t0);
+}
+function provider(){var c=f.querySelector("input[name=p]:checked");return c?c.value:"Squarespace"}
+function fill(){
+ var p=provider(),other=p==="other";
+ planBox.hidden=other;otherBox.hidden=!other;
+ if(other)return;
+ plan.innerHTML="";
+ D.plans.forEach((x,i)=> {if(x.provider!==p)return;var o=document.createElement("option");o.value=i;o.textContent=x.plan+", $"+x.monthly+" a month";plan.appendChild(o)});
+}
+function update(){
+ var p=provider();
+ var m=p==="other"?Math.max(0,Math.min(2000,parseFloat(amt.value)||0)):D.plans[+plan.value].monthly;
+ var year=m*12;
+ count(year);
+ three.textContent="That's "+usd(year*3)+" over three years. Hosting on OpenSpace costs $0.";
+ var o=nearest(tiers(D.once),Math.max(year*0.1,1)),mo=nearest(tiers(D.monthly),Math.max(m*0.1,1));
+ once.href=D.once[o];onceAmt.textContent="$"+o;
+ monthly.href=D.monthly[mo];monthAmt.textContent="$"+mo;
+}
+f.addEventListener("change",(e)=> {if(e.target.name==="p")fill();update()});
+amt.addEventListener("input",update);
+f.addEventListener("submit",(e)=> {e.preventDefault()});
+shown=D.plans[+plan.value].monthly*12;
+fill();update();
+})();
+</script>

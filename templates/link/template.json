@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "link",
   "name": "Link",
   "description": "A punchy, mobile-first link-in-bio page with stacked link buttons, a pinned social feed, a newsletter signup and all your profiles.",

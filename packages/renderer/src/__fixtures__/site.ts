@@ -27,7 +27,7 @@ export function siteFixture(): SiteDocument {
       siteId: IDS.site,
       schemaVersion: 1,
       template: { id: "meadow", version: "1.2.0" },
-      hub: "https://hub.openspace.dev",
+      hub: "https://hub.openspace.host",
       deploy: {
         target: "github-pages",
         url: "https://maya.github.io/maya-yoga",

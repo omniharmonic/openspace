@@ -9,8 +9,8 @@ Claude on the web (claude.ai) and Claude Desktop connect to OpenSpace as a **cus
 
 1. In Claude, open **Settings → Connectors** and choose **Add custom connector**.
 2. Name it **OpenSpace** and paste the address from Studio → Settings → Connect your AI:
-   - `https://hub.openspace.dev/mcp` to **sign in** and choose sites, or
-   - your **personal link** (`https://hub.openspace.dev/mcp/t/…`) for one site without signing in.
+   - `https://hub.openspace.host/mcp` to **sign in** and choose sites, or
+   - your **personal link** (`https://hub.openspace.host/mcp/t/…`) for one site without signing in.
 3. If you used the sign-in address, Claude opens OpenSpace: sign in with GitHub, tick the sites Claude may edit, and decide whether to **Allow publishing** (off by default). Press **Allow**.
 4. In a new chat, make sure the OpenSpace connector is turned on in the tools menu.
 

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "vow",
   "name": "Vow",
   "description": "A romantic, refined site for weddings and celebrations, with a countdown, a timeline of the day, travel and hotel details, registry links and an RSVP form.",

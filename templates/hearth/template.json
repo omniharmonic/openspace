@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "hearth",
   "name": "Hearth",
   "description": "A warm, appetizing site for restaurants, cafés and bakeries, with a real menu, opening hours and map, reservations and a strip of food photography.",

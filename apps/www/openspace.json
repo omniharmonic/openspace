@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/site-config.json",
+  "$schema": "https://schema.openspace.host/v1/site-config.json",
   "siteId": "st_7kj225jvm3",
   "schemaVersion": 1,
   "template": {

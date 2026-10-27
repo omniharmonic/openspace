@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "meadow",
   "name": "Meadow",
   "description": "A calm, airy site for yoga studios, therapists and bodyworkers, with a weekly class schedule, treatments and online booking.",

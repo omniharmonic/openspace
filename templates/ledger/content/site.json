@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "$schema": "https://schema.openspace.host/v1/site.json",
   "title": "Calder Advisory",
   "tagline": "Calm operations for companies that grew fast.",
   "nav": [

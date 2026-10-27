@@ -45,7 +45,7 @@ export function documentFiles(doc: SiteDocument): Record<string, string> {
 /** `template.json`: gallery metadata, with each look's Site Styles choices. */
 export function templateJson(meta: TemplateMeta): string {
   return formatJson({
-    $schema: "https://schema.openspace.dev/v1/template.json",
+    $schema: "https://schema.openspace.host/v1/template.json",
     id: meta.id,
     name: meta.name,
     description: meta.description,

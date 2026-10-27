@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please do not open a public issue for security problems. Email security@openspace.dev with a description, reproduction steps and the affected version. We aim to acknowledge reports within 3 business days and to ship a fix or mitigation within 90 days.
+Please do not open a public issue for security problems. Email security@openspace.host with a description, reproduction steps and the affected version. We aim to acknowledge reports within 3 business days and to ship a fix or mitigation within 90 days.
 
 ## Scope
 

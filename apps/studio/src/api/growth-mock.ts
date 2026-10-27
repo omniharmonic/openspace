@@ -1281,7 +1281,7 @@ export function createGrowthMock(ctx: GrowthMockContext): {
         provider: "stripe",
         hasSovereignKey: true,
         ready: true,
-        webhookUrl: `https://hub.openspace.dev/c/stripe/webhook/${siteId}`,
+        webhookUrl: `https://hub.openspace.host/c/stripe/webhook/${siteId}`,
       });
       return clone(p);
     },
@@ -1629,7 +1629,7 @@ export function createGrowthMock(ctx: GrowthMockContext): {
       const { verifyAttempts: _v, ...out } = sender;
       return {
         ...clone(out),
-        webhookUrl: `https://hub.openspace.dev/e/webhooks/${input.provider}/${sender.id}?token=once-${sender.id}`,
+        webhookUrl: `https://hub.openspace.host/e/webhooks/${input.provider}/${sender.id}?token=once-${sender.id}`,
       };
     },
     async verifySender(siteId, senderId) {
@@ -1714,7 +1714,7 @@ export function createGrowthMock(ctx: GrowthMockContext): {
         cleanDays: 0,
         window: { sent: sentToday, bounced: 0, complained: 0 },
         paused: null,
-        abuseEmail: "abuse@openspace.dev",
+        abuseEmail: "abuse@openspace.host",
       };
     },
     async getCampaign(siteId, campaignId) {

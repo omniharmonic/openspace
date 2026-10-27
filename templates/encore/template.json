@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "encore",
   "name": "Encore",
   "description": "An expressive, nocturnal site for musicians, performers and podcasters, with an audio player, tour dates, a press kit and an episode list.",

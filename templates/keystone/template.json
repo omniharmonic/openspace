@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "keystone",
   "name": "Keystone",
   "description": "A calm, type-led site for consultants and coaches, with ways to work together and prices, client results, short essays and a discovery-call form.",

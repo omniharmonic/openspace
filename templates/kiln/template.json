@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "kiln",
   "name": "Kiln",
   "description": "A tactile, crafted site for makers and small shops: a product grid, the maker's story and weekend workshops, ready for checkout when commerce arrives.",

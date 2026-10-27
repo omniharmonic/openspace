@@ -62,7 +62,7 @@ and every new template page at 1440, 834 and 390. Fixes made after looking:
 
 Screenshots (downscaled full pages: 1440 → 480 px, 834 → 320 px, 390 → 240 px) are in
 [templates/](templates/): `<template>-home-<width>.png`, one inner page per template, and look
-sheets `<template>-looks-1440.png` (also used on openspace.dev). Studio's Add section panel with
+sheets `<template>-looks-1440.png` (also used on openspace.host). Studio's Add section panel with
 the new quick filters: [studio/panel-add-1440-light-templates-v2.png](studio/panel-add-1440-light-templates-v2.png).
 
 ## Studio section gallery

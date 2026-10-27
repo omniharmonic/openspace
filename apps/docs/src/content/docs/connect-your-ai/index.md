@@ -24,9 +24,9 @@ Ask things like:
 
 Studio → **Settings → Connect your AI** gives you two kinds of address.
 
-**Sign in (OAuth)** — `https://hub.openspace.dev/mcp`. Your AI app opens an OpenSpace sign-in (with GitHub), then a consent screen: *Allow Claude to edit ☑ Fernwood Yoga ☐ Riverbend Collective · ☐ Allow publishing*. You choose the sites and whether publishing is allowed — it's **off by default**. Best for apps that support sign-in, like Claude.
+**Sign in (OAuth)** — `https://hub.openspace.host/mcp`. Your AI app opens an OpenSpace sign-in (with GitHub), then a consent screen: *Allow Claude to edit ☑ Fernwood Yoga ☐ Riverbend Collective · ☐ Allow publishing*. You choose the sites and whether publishing is allowed — it's **off by default**. Best for apps that support sign-in, like Claude.
 
-**Personal link** — `https://hub.openspace.dev/mcp/t/…`. A private address for **one site** that works without signing in. Give it a name ("Claude on my laptop"), choose whether it may publish, and copy it — the full link is shown only once. Treat it like a password: anyone with it can edit that site's draft. Each link shows when it was last used and can be turned off at any time.
+**Personal link** — `https://hub.openspace.host/mcp/t/…`. A private address for **one site** that works without signing in. Give it a name ("Claude on my laptop"), choose whether it may publish, and copy it — the full link is shown only once. Treat it like a password: anyone with it can edit that site's draft. Each link shows when it was last used and can be turned off at any time.
 
 Both appear under **Apps with access**, where you can switch **Can publish** on or off or **Disconnect** an app. Changes apply immediately.
 

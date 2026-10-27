@@ -14,7 +14,7 @@ import { SiteSchema } from "./site";
 import { StylesSchema } from "./styles";
 
 /** Base URL that `$schema` references in site files point at. */
-export const SCHEMA_BASE_URL = "https://schema.openspace.dev/v1";
+export const SCHEMA_BASE_URL = "https://schema.openspace.host/v1";
 
 /** Every top-level document the content model defines, by published file name. */
 export const DOCUMENT_SCHEMAS = {
@@ -35,7 +35,7 @@ export const DOCUMENT_SCHEMAS = {
 export type DocumentSchemaName = keyof typeof DOCUMENT_SCHEMAS;
 export type JsonSchema = Record<string, unknown>;
 
-/** URL of a published JSON Schema, e.g. `https://schema.openspace.dev/v1/page.json`. */
+/** URL of a published JSON Schema, e.g. `https://schema.openspace.host/v1/page.json`. */
 export function schemaUrl(name: DocumentSchemaName): string {
   return `${SCHEMA_BASE_URL}/${name}.json`;
 }

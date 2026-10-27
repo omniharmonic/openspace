@@ -78,11 +78,11 @@ export async function runImportSquarespace(
   }
   const slug = slugify(basename(dir));
   const config: SiteConfig = {
-    $schema: "https://schema.openspace.dev/v1/site-config.json",
+    $schema: "https://schema.openspace.host/v1/site-config.json",
     siteId: newId("st"),
     schemaVersion: CURRENT_SCHEMA_VERSION,
     template: { id: "starter", version: "1.0.0" },
-    hub: opts.hub ?? "https://hub.openspace.dev",
+    hub: opts.hub ?? "https://hub.openspace.host",
     deploy: {
       target,
       url: deployUrlFor({ ...opts, target }, slug),

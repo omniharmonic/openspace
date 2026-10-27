@@ -645,11 +645,11 @@ export async function meadowMedia(root = MEADOW_DIR): Promise<Record<string, Med
 export async function meadowSite(root = MEADOW_DIR): Promise<SiteDocument> {
   return {
     config: {
-      $schema: "https://schema.openspace.dev/v1/site-config.json",
+      $schema: "https://schema.openspace.host/v1/site-config.json",
       siteId: SITE_ID,
       schemaVersion: 1,
       template: { id: "meadow", version: "1.0.0" },
-      hub: "https://hub.openspace.dev",
+      hub: "https://hub.openspace.host",
       deploy: {
         target: "github-pages",
         url: "https://meadow.github.io/meadow-yoga",

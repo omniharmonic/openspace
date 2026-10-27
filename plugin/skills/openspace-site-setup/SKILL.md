@@ -79,7 +79,7 @@ With this plugin installed, Claude Code starts `npx -y @omniharmonic/openspace-c
 For a Hub-hosted site (created in Studio), connect the remote server instead — the owner copies a personal link from Studio → Settings → Connect your AI:
 
 ```sh
-claude mcp add --transport http openspace <personal link or https://hub.openspace.dev/mcp>
+claude mcp add --transport http openspace <personal link or https://hub.openspace.host/mcp>
 ```
 
 The plain `/mcp` URL signs in with OAuth (GitHub sign-in, then a consent screen choosing sites and whether publishing is allowed). A personal link (`…/mcp/t/…`) works without sign-in and covers one site — treat it like a password.

@@ -1,12 +1,12 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/site-config.json",
+  "$schema": "https://schema.openspace.host/v1/site-config.json",
   "siteId": "st_p9zmrjbte9",
   "schemaVersion": 1,
   "template": {
     "id": "orbit",
     "version": "1.0.0"
   },
-  "hub": "https://hub.openspace.dev",
+  "hub": "https://hub.openspace.host",
   "deploy": {
     "target": "github-pages",
     "url": "https://example.github.io/orbit",

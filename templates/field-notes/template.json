@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "field-notes",
   "name": "Field Notes",
   "description": "A reading-first site for writers, newsletters and blogs: a newsletter-first home, long essays with footnotes and reading times, and a supporter page.",

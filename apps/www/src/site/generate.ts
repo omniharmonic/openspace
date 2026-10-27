@@ -1,5 +1,5 @@
 /**
- * Writes openspace.dev's site files (`openspace.json`, `content/**`, `media/LICENSES.json`) from
+ * Writes openspace.host's site files (`openspace.json`, `content/**`, `media/LICENSES.json`) from
  * the document in `www.ts`, through site-kit's own writer — the same files any OpenSpace site
  * has, so the build and the editor treat this site like every other.
  */
