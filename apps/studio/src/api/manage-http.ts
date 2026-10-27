@@ -10,6 +10,7 @@ import type {
   HostingInfo,
   Invitation,
   InvitationPreview,
+  InviteResult,
   ManageApi,
   McpGrant,
   McpToken,
@@ -163,10 +164,12 @@ export function createManageHttp({
       );
     },
     async inviteCollaborator(siteId, input) {
-      return request<{ invitation: Invitation; acceptUrl: string }>(
+      return request<InviteResult>("POST", `${site(siteId)}/collaborators`, input);
+    },
+    async resendInvitation(siteId, invitationId) {
+      return request<InviteResult>(
         "POST",
-        `${site(siteId)}/collaborators`,
-        input,
+        `${site(siteId)}/invitations/${enc(invitationId)}/resend`,
       );
     },
     async updateCollaborator(siteId, userId, patch) {

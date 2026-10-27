@@ -210,6 +210,13 @@ export function useCollaboratorActions(siteId: string) {
       mutationFn: (invitationId: string) => hub.revokeInvitation(siteId, invitationId),
       onSuccess: refresh,
     }),
+    resend: useMutation({
+      mutationFn: async (invitationId: string) => {
+        if (!hub.resendInvitation) throw new Error("This Hub can't resend invitations.");
+        return hub.resendInvitation(siteId, invitationId);
+      },
+      onSuccess: refresh,
+    }),
     decide: useMutation({
       mutationFn: ({
         id,

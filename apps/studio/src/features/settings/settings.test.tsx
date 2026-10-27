@@ -28,9 +28,17 @@ function visibleCopy(): string {
 const store = () =>
   (window as unknown as { __osEditorStore: EditorStore }).__osEditorStore.getState();
 
-async function openSettings(tab: string, site: Partial<Site> = {}) {
+async function openSettings(
+  tab: string,
+  site: Partial<Site> = {},
+  hubOptions: Parameters<typeof renderStudio>[1] = {},
+) {
   const list = sites.map((s) => (s.id === willow.id ? { ...s, ...site } : s));
-  const utils = renderStudio(`/sites/${willow.id}/settings/${tab}`, { user: SAM, sites: list });
+  const utils = renderStudio(`/sites/${willow.id}/settings/${tab}`, {
+    user: SAM,
+    sites: list,
+    ...hubOptions,
+  });
   await screen.findByRole("region", { name: "Site settings" });
   return utils;
 }
@@ -294,6 +302,25 @@ describe("people", () => {
       ]),
     );
     expect(await screen.findByText("Nothing to review")).toBeInTheDocument();
+  });
+
+  it("without an email provider: never claims an email was sent; the pending row keeps a copyable link", async () => {
+    const { user, hub } = await openSettings(
+      "collaborators",
+      {},
+      { capabilities: { email: { configured: false, devOutbox: false } } },
+    );
+    await screen.findByText("Jordan Lee");
+    await user.type(screen.getByLabelText("Email or GitHub username"), "alex@example.com");
+    await user.click(screen.getByRole("button", { name: "Invite" }));
+    expect(await screen.findByText(/Email isn’t set up on this Hub/)).toBeInTheDocument();
+    expect(screen.queryByText(/We emailed/)).not.toBeInTheDocument();
+    expect(screen.getByText("Send them this link:")).toBeInTheDocument();
+    const row = (await screen.findByText("alex@example.com")).closest("li") as HTMLElement;
+    expect(within(row).getByRole("button", { name: "Copy link" })).toBeInTheDocument();
+    await user.click(within(row).getByRole("button", { name: "Renew link" }));
+    await waitFor(() => expect(hub.calls.some((c) => c.method === "resendInvitation")).toBe(true));
+    expect(screen.queryByText(/We emailed/)).not.toBeInTheDocument();
   });
 
   it("locks sections for one person", async () => {

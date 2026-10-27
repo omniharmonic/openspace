@@ -581,7 +581,9 @@ export function createManageMock(ctx: ManageMockContext): {
         throw new HubError(400, "invalid_email", "That email address doesn't look right.");
       if (login && collaboratorsOf(site, user).some((c) => c.login === login))
         throw new HubError(409, "already_collaborator", `${login} already works on this site.`);
+      const acceptUrl = `http://localhost:5173/invite/${randomToken(20)}`;
       const invitation: Invitation = {
+        acceptUrl,
         id: `inv_${randomToken(8)}`,
         email,
         login,
@@ -592,10 +594,19 @@ export function createManageMock(ctx: ManageMockContext): {
         expiresAt: iso(now() + 14 * 86_400_000),
       };
       bucket(state.invitations, siteId, () => []).push(invitation);
-      return {
-        invitation: clone(invitation),
-        acceptUrl: `http://localhost:5173/invite/${randomToken(20)}`,
-      };
+      return { invitation: clone(invitation), acceptUrl, emailed: Boolean(email) };
+    },
+    async resendInvitation(siteId, invitationId) {
+      await call("resendInvitation", [siteId, invitationId]);
+      const site = findSite(siteId);
+      if (!canManage(site)) throw forbid("Only owners and designers can resend invitations.");
+      const inv = (state.invitations[siteId] ?? []).find(
+        (i) => i.id === invitationId && i.status === "pending",
+      );
+      if (!inv) throw new HubError(404, "not_found", "That invitation isn't waiting any more.");
+      inv.expiresAt = iso(now() + 14 * 86_400_000);
+      inv.acceptUrl ??= `http://localhost:5173/invite/${randomToken(20)}`;
+      return { invitation: clone(inv), acceptUrl: inv.acceptUrl, emailed: Boolean(inv.email) };
     },
     async updateCollaborator(siteId, userId, patch) {
       const user = await call("updateCollaborator", [siteId, userId, patch]);
