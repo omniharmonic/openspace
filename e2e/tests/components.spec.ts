@@ -124,3 +124,53 @@ test("Claude creates and places a component; an editor edits its fields; publish
   await expect(live.getByRole("heading", { name: "Every class, step by step" })).toBeVisible();
   await expect(live.locator("[data-ss-nav]")).toBeVisible();
 });
+
+test("an owner adds a Designer component from the gallery and edits its code with a sandboxed preview", async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(120_000);
+  await signIn(context, owner.user.name);
+  await openEditor(page, siteId);
+  await closeChecklist(page);
+  // Add section → Designer components → Bento feature grid (the design is added to the site).
+  await page
+    .getByRole("navigation", { name: "Panels" })
+    .getByRole("button", { name: "Add section" })
+    .click();
+  const gallery = page.getByRole("region", { name: "Designer components" }).first();
+  await gallery.getByRole("button", { name: /^Bento feature grid/ }).click();
+  const frame = canvas(page);
+  await expect(frame.locator('[data-os-component="bento-grid"]')).toBeVisible();
+  await expect
+    .poll(async () => {
+      const doc = (await owner.draft(siteId)).document as { components?: Record<string, unknown> };
+      return Object.keys(doc.components ?? {});
+    })
+    .toContain("bento-grid");
+
+  // Select it and open Component code: problems are explained; the preview is sandboxed.
+  await frame.locator('[data-os-component="bento-grid"] h2').first().click();
+  const inspector = page.getByRole("complementary", { name: "Inspector" });
+  await inspector.getByRole("button", { name: /Component code/ }).click();
+  await inspector.getByRole("button", { name: "Edit component code" }).click();
+  const dialog = page.getByRole("dialog");
+  const preview = dialog.getByTestId("component-preview");
+  await expect(preview).toBeVisible();
+  expect(await preview.getAttribute("sandbox")).toBe("allow-scripts");
+  await expect(
+    page
+      .frameLocator('[data-testid="component-preview"]')
+      .locator('[data-os-component="bento-grid"]'),
+  ).toBeVisible();
+  await dialog.getByRole("textbox", { name: "Name in the gallery" }).fill("Amenities grid");
+  await dialog.getByRole("button", { name: "Save design" }).click();
+  await expect
+    .poll(async () => {
+      const doc = (await owner.draft(siteId)).document as {
+        components?: Record<string, { label: string }>;
+      };
+      return doc.components?.["bento-grid"]?.label;
+    })
+    .toBe("Amenities grid");
+});
