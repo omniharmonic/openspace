@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
+import cliPackage from "../../../packages/cli/package.json";
 import { createApp } from "../src/app";
 import { readConfig } from "../src/env";
 import { DevGitHubAccess } from "../src/github/dev";
@@ -139,7 +140,8 @@ describe("the import workflow", () => {
     // rejected --owner, so every GitHub Pages move failed (wave 3 P0).
     expect(IMPORT_HELPER_MJS).toContain('if (req.owner && !fromGitHub) args.push("--owner")');
     expect(IMPORT_HELPER_MJS).toContain('req.mode === "convert" || req.platform === "github"');
-    expect(IMPORT_CLI_VERSION).toBe("0.1.9");
+    // The hosted import must run the CLI release this repo publishes.
+    expect(IMPORT_CLI_VERSION).toBe(cliPackage.version);
   });
 
   it("explains failed runs without blaming the person's site for our problems", () => {
