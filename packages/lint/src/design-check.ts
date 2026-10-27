@@ -25,6 +25,7 @@ import {
   pairingFamilies,
   type ThemeTokens,
 } from "@omniharmonic/openspace-theme";
+import { componentIssues } from "./components";
 import {
   ACTION_BLOCKS,
   blockDisplayWidth,
@@ -70,6 +71,7 @@ export function designCheck(
   for (const page of pages) ctx.page(page);
   ctx.container(FOOTER, [doc.site.footer], { footer: true });
   ctx.issues.push(...linkIssues(doc, pageId, options, ctx.meta));
+  ctx.issues.push(...componentIssues(doc, pageId));
   for (const w of hostingWarnings(doc, pageId))
     ctx.issues.push(
       issue({

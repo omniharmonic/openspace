@@ -19,6 +19,8 @@ export const MEDIA_FILE = "content/media.json";
 export const PAGES_DIR = "content/pages";
 export const COLLECTIONS_DIR = "content/collections";
 export const COLLECTION_CONFIG_FILE = "_collection.json";
+/** Custom component definitions: `content/components/<name>.json` (ADR custom-components). */
+export const COMPONENTS_DIR = "content/components";
 export const ITEM_EXT = ".mdoc";
 
 /** Formatting-stable JSON: two-space indent, trailing newline. */
