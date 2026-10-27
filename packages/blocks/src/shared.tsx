@@ -1,16 +1,24 @@
-import { resolveImage, useImageMap, useRenderContext } from "@omniharmonic/openspace-renderer";
+import {
+  Button,
+  type ButtonRole,
+  cx,
+  resolveImage,
+  useImageMap,
+  useRenderContext,
+} from "@omniharmonic/openspace-renderer";
 import {
   type BlockStyle,
   f,
   type HeadingPreset,
   type ImageValue,
   type InlineNode,
+  type Link as LinkValue,
   type ParagraphPreset,
   type RichTextDoc,
   type TypePreset,
 } from "@omniharmonic/openspace-schema";
 import type { ReactNode } from "react";
-import { Icon } from "./icons";
+import { Icon, type IconName } from "./icons";
 
 /** Helpers shared by the block library. */
 
@@ -360,9 +368,106 @@ export function useSiteServer(): boolean {
 }
 
 /**
- * What visitors see in place of a checkout or sign-in form the site's hosting can't run: one
- * plain sentence (no button, nothing to click), plus a note for the owner in Studio.
+ * Where an owner's current shop or donation page lives until checkout opens here. Schema-free:
+ * a redirect in `site.json` from this path (Studio → Finish setting up → "Point to your current
+ * shop" adds it). Visitors who type the path are sent there too.
  */
+export const ELSEWHERE_PATHS = {
+  store: "/shop-elsewhere",
+  donations: "/give-elsewhere",
+} as const;
+
+const SECONDARY: ButtonRole = "secondary";
+
+export type OpeningSoonKind = "store" | "donations" | "members";
+
+const SOON_COPY: Record<
+  OpeningSoonKind,
+  { title: string; text: string; elsewhere: string; button: string; icon: IconName }
+> = {
+  store: {
+    title: "Online ordering opens here soon.",
+    text: "Have a look around — you'll be able to order right here very soon.",
+    elsewhere: "Until then, you can order from our current shop.",
+    button: "Order from our current shop",
+    icon: "shopping-bag",
+  },
+  donations: {
+    title: "Online giving opens here soon.",
+    text: "Thank you for wanting to help — you'll be able to give right here very soon.",
+    elsewhere: "Until then, you can give on our current donation page.",
+    button: "Give on our current page",
+    icon: "hand-heart",
+  },
+  members: {
+    title: "Member sign-in opens here soon.",
+    text: "Members will be able to sign in right here very soon.",
+    elsewhere: "",
+    button: "",
+    icon: "key-round",
+  },
+};
+
+/** The owner's "current shop" address from the site's redirects, if they added one. */
+export function useElsewhere(kind: OpeningSoonKind): string | null {
+  const { doc } = useRenderContext();
+  if (kind === "members") return null;
+  const from = ELSEWHERE_PATHS[kind];
+  const hit = doc?.site.redirects?.find((r) => r.from.replace(/\/+$/, "") === from);
+  return hit?.to ?? null;
+}
+
+/**
+ * What visitors see in place of a checkout or sign-in form the site's hosting can't run yet: a
+ * calm, designed "opening soon" note in the site's own colours and type (no form, nothing that
+ * looks broken), optionally linking to the owner's current shop or donation page; plus a note
+ * for the owner in Studio.
+ */
+export function OpeningSoon({
+  kind,
+  hint,
+  compact,
+}: {
+  kind: OpeningSoonKind;
+  hint: ReactNode;
+  /** One line, for slim spots (a banner's action row). */
+  compact?: boolean;
+}) {
+  const copy = SOON_COPY[kind];
+  const elsewhere = useElsewhere(kind);
+  if (compact)
+    return (
+      <>
+        <p className={cx("os-unavailable", "os-soon", "os-soon--compact")}>{copy.title}</p>
+        <EditorNotice>{hint}</EditorNotice>
+      </>
+    );
+  return (
+    <>
+      <div className={cx("os-soon", `os-soon--${kind}`)}>
+        <span className="os-soon__mark" aria-hidden="true">
+          <Icon name={copy.icon} size={20} />
+        </span>
+        <div className="os-soon__body">
+          <p className="os-unavailable os-soon__title">{copy.title}</p>
+          <p className="os-soon__text">{elsewhere ? copy.elsewhere : copy.text}</p>
+          {elsewhere ? (
+            <Button
+              to={{ type: "url", url: elsewhere } as LinkValue}
+              role={SECONDARY}
+              className="os-soon__link"
+            >
+              {copy.button}
+            </Button>
+          ) : null}
+        </div>
+      </div>
+      <EditorNotice>{hint}</EditorNotice>
+    </>
+  );
+}
+
+/** @deprecated Use `OpeningSoon`; kept for blocks that only need the one sentence. */
 export function UnavailableNotice({ children, hint }: { children: ReactNode; hint: ReactNode }) {
   return (
     <>

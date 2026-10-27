@@ -13,6 +13,7 @@ import type { BuildState } from "../room/protocol";
 import { IMPORT_WORKFLOW } from "../templates/import-workflow";
 import { buildErrorDetail, type SiteNames, translateBuildError } from "./build-errors";
 import { GITHUB_ACCESS_DETAIL, GITHUB_RECONNECT_DETAIL } from "./github-install";
+import { advanceSwitch } from "./hosting-switch";
 import { openImportForSite, refreshImport } from "./imports";
 import type { Services } from "./index";
 import { completeTransfer, ownerOf } from "./sites";
@@ -197,10 +198,16 @@ async function onWorkflowRun(
   } catch (err) {
     log?.warn("room build notice failed", { siteId: site.id, err });
   }
-  // A moved-in site's first publish finishes its import ("Ready to review").
   if (state === "success" || state === "failure") {
+    // A moved-in site's first publish finishes its import ("Ready to review").
     const open = await openImportForSite(services, site.id);
     if (open?.state === "publishing") await refreshImport(services, env, open.id, log);
+    // A move to Cloudflare waits for this run: confirm it, or switch back to GitHub Pages.
+    try {
+      await advanceSwitch(env, services, site.id, log);
+    } catch (err) {
+      log?.warn("hosting switch follow-up failed", { siteId: site.id, err });
+    }
   }
   return state;
 }

@@ -10,7 +10,7 @@ test("cart on /s → DevStripe checkout → order in Studio → refund", async (
   const site = await owner.createSite({ name: unique("Kiln Shop"), template: "kiln" });
   const buyer = `buyer-${Date.now().toString(36)}@e2e.test`;
   // Checkout needs the Cloudflare hosting option (on GitHub Pages the product block says
-  // "Online ordering isn't open yet." instead of offering add-to-cart): switch to it.
+  // "Online ordering opens here soon." instead of offering add-to-cart): switch to it.
   const { hosting } = await owner.get<{ hosting: { actionsPublicKey: { keyId: string } } }>(
     `/api/sites/${site.id}/hosting`,
   );

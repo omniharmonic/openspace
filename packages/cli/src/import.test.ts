@@ -72,7 +72,10 @@ describe("openspace import squarespace", () => {
     expect(r.err).toContain("robots.txt is honoured");
   });
 
-  it("supports owner mode, a WordPress export and a structure-only run, always on GitHub Pages", async () => {
+  it("supports owner mode, a WordPress export and a structure-only run — always on GitHub Pages", async () => {
+    const refused = await importCli(["jc2", "--target", "cloudflare", "--delay", "0"]);
+    expect(refused.code).toBe(1);
+    expect(refused.err).toContain("always start on free GitHub Pages");
     const r = await importCli([
       "jc",
       "--owner",

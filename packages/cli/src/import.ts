@@ -4,6 +4,7 @@
  * Site Styles approximation from `@omniharmonic/openspace-import`, then `openspace check`.
  * Without a platform the importer detects it from the home page.
  */
+
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import {
@@ -24,6 +25,7 @@ import { CliError, type Io } from "./io";
 import { loadResizer } from "./mcp";
 import { loadPlaywright } from "./mcp/screenshot";
 import { deployUrlFor, isEmptyDir, slugify, writeShell } from "./new";
+import { assertGitHubPagesStart } from "./wow-first";
 
 export interface ImportSiteOptions {
   /** Which importer: a platform, or "auto" (default) to detect it. */
@@ -208,8 +210,9 @@ export async function runImportSite(
   dirArg: string | undefined,
   opts: ImportSiteOptions = {},
 ): Promise<ImportSiteResult> {
-  // Imports always start on free GitHub Pages hosting; other hosting is a later, guided step.
-  const target = opts.target ?? "github-pages";
+  // Wow first: an import always goes live on free GitHub Pages first (see wow-first.ts).
+  assertGitHubPagesStart(opts.target);
+  const target = "github-pages" as const;
   const dir = resolve(io.cwd, dirArg ?? defaultFolder(url));
   const existing = opts.intoExisting ? await existingConfig(dir) : undefined;
   if (!existing && !(await isEmptyDir(dir)))

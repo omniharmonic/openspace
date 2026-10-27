@@ -74,8 +74,8 @@ export function BuildingProgress({ siteId, template, look, draft, onDone }: Buil
   const steps = [
     `Copying the ${template.name} template`,
     `Adding ${draft.name}${draft.tagline ? " and your tagline" : ""}`,
-    "Setting up your web address",
-    "Publishing the first version",
+    "Giving it a free web address",
+    "Putting the first version online",
   ];
   const finished = step >= steps.length;
 
@@ -118,8 +118,9 @@ export function BuildingProgress({ siteId, template, look, draft, onDone }: Buil
           <>
             <h1 className="st-building__title">{draft.name} isn’t online yet</h1>
             <p className="st-building__lede">
-              Publishing the first version didn’t finish. Your details are saved, so trying again
-              takes a minute.
+              {site.data?.statusDetail?.trim() || "Putting the first version online didn’t finish."}{" "}
+              Your details are saved, so trying again takes a minute — and nothing about your
+              current website has changed.
             </p>
             <div className="st-building__actions">
               <Button variant="primary" onClick={onRetry} loading={retry.isPending}>

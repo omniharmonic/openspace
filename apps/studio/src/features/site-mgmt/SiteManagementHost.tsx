@@ -7,6 +7,7 @@ import {
   Globe,
   House,
   ImagePlus,
+  ListChecks,
   PanelTop,
   Settings2,
   Users,
@@ -113,6 +114,17 @@ export function SiteManagementHost({ site }: { site: Site }) {
       icon: <ImagePlus />,
       run: () => openPanel("media"),
     },
+    ...(can(site, "designer")
+      ? [
+          {
+            id: "finish-setup",
+            label: "Finish setting up",
+            group: "Settings",
+            icon: <ListChecks />,
+            run: () => settings("setup"),
+          },
+        ]
+      : []),
     {
       id: "settings",
       label: "Settings",

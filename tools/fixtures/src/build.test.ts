@@ -206,7 +206,7 @@ describe("astro build of the Meadow fixture (custom domain, base /)", () => {
     expect(shipped).not.toContain("cart");
     const product = await read(out, "shop/linen-bolster/index.html");
     expect(product).not.toContain("data-os-add");
-    expect(product).toMatch(/Online ordering isn(&#x27;|')t open yet\./);
+    expect(product).toContain("Online ordering opens here soon.");
     for (const f of all.filter((x) => x.endsWith(".html")))
       expect(await read(out, f), f).not.toContain("/_os/behaviors/cart.js");
     expect(

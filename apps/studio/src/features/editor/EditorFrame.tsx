@@ -107,6 +107,10 @@ const SiteChromePanel = lazy(() =>
   import("../site-chrome/SiteChromePanel").then((m) => ({ default: m.SiteChromePanel })),
 );
 
+import { FirstRunTour, tourSeen } from "../setup/FirstRunTour";
+import { HelpMenu } from "../setup/HelpMenu";
+import { SetupChip } from "../setup/SetupChip";
+import { can } from "../site-mgmt/manage-ui";
 import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
 import { UpdateBanner } from "../updates/UpdateBanner";
 import { WorkspaceHost, WorkspaceRail } from "../workspace/WorkspaceHost";
@@ -246,18 +250,20 @@ function WelcomeToast({ site }: { site: Site }) {
   useEffect(() => {
     if (params.get("welcome") !== "1" || site.status !== "live" || shown.current) return;
     shown.current = true;
-    toast({
-      id: `welcome-${site.id}`,
-      tone: "celebrate",
-      title: "Your site is live",
-      description: (
-        <a href={site.url} target="_blank" rel="noreferrer">
-          {displayUrl(site.url)}
-        </a>
-      ),
-      duration: 12_000,
-      action: { label: "Copy link", keepOpen: true, onClick: () => void copyLink(site.url) },
-    });
+    // The first-run tour celebrates (and links the site) itself; a toast only when it's been seen.
+    if (tourSeen(site.id))
+      toast({
+        id: `welcome-${site.id}`,
+        tone: "celebrate",
+        title: "Your site is live",
+        description: (
+          <a href={site.url} target="_blank" rel="noreferrer">
+            {displayUrl(site.url)}
+          </a>
+        ),
+        duration: 12_000,
+        action: { label: "Copy link", keepOpen: true, onClick: () => void copyLink(site.url) },
+      });
     const next = new URLSearchParams(params);
     next.delete("welcome");
     setParams(next, { replace: true });
@@ -645,6 +651,7 @@ function EditorChrome({ site }: { site: Site }) {
           onFrameDocument={setFrameDoc}
         />
       </Suspense>
+      <FirstRunTour site={site} />
       <InspectorRuntime />
       <WorkspaceHost site={site} />
       <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
@@ -720,6 +727,7 @@ function EditorChrome({ site }: { site: Site }) {
         </div>
 
         <div className="st-ed-top__right">
+          {can(site, "designer") && <SetupChip site={site} />}
           <AgentActivity />
           {user && (
             <PresenceAvatars self={{ id: user.id, name: user.name, avatarUrl: user.avatarUrl }} />
@@ -813,6 +821,7 @@ function EditorChrome({ site }: { site: Site }) {
         ))}
         <WorkspaceRail site={site} />
         <span className="st-ed-rail__spacer" />
+        <HelpMenu site={site} />
         <IconButton
           label="Settings"
           icon={<Settings />}
@@ -878,6 +887,7 @@ function EditorChrome({ site }: { site: Site }) {
       )}
 
       <ShortcutsSheet />
+      <FirstRunTour site={site} />
       <InspectorRuntime />
       <WorkspaceHost site={site} />
       <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />

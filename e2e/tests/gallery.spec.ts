@@ -31,7 +31,8 @@ test("gallery → new site → dev sign-in → setting up → editor → live si
   await expect(page.getByRole("heading", { name: "Setting up your site…" })).toBeVisible();
   await page.waitForURL(/\/sites\/st_[0-9a-z]+/, { timeout: 60_000 });
   await editorReady(page);
-  await expect(page.getByText("Your site is live", { exact: true })).toBeVisible();
+  // The first-run tour greets the new site (its last stop celebrates the live link).
+  await expect(page.getByRole("dialog", { name: "This is your site" })).toBeVisible();
 
   const siteId = siteIdFrom(page);
   const res = await page.request.get(`${HUB_URL}/s/${siteId}/`);

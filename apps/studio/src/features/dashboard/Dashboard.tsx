@@ -19,6 +19,7 @@ import {
   useDeleteSite,
   useRetryPublish,
   useSession,
+  useSetupInfo,
   useSites,
   useTemplates,
   useTransferSite,
@@ -45,8 +46,37 @@ import {
   useRegisterCommands,
 } from "../../ui";
 import { displayUrl } from "../onboarding/BuildingProgress";
+import { readAcknowledged } from "../setup/checklist";
 import { TemplateRender } from "../templates/TemplateRender";
+import "../setup/setup.css";
 import "./Dashboard.css";
+
+/**
+ * "Finish setting up" on a live site's card (owners and designers) while the importer's list or a
+ * domain is still open. The full list (with what the content needs) opens in the editor.
+ */
+function SetupLink({ site }: { site: Site }) {
+  const navigate = useNavigate();
+  const canSetUp = site.role === "owner" || site.role === "designer";
+  const setup = useSetupInfo(site.id, canSetUp && site.status === "live");
+  if (!canSetUp || site.status !== "live" || !setup.data) return null;
+  const ack = readAcknowledged(site.id);
+  const left =
+    (setup.data.imported?.items ?? []).filter(
+      (i) => !i.done && !ack.includes(i.kind) && !ack.includes(`import:${i.id}`),
+    ).length + (site.domain || ack.includes("domain") ? 0 : 1);
+  if (left === 0) return null;
+  return (
+    <button
+      type="button"
+      className="st-setup-chip"
+      onClick={() => navigate(`/sites/${site.id}/settings/setup`)}
+    >
+      <span className="st-setup-chip__ring" aria-hidden="true" />
+      Finish setting up
+    </button>
+  );
+}
 
 type View = "cards" | "gardener";
 
@@ -338,6 +368,7 @@ function SiteCard({
             </Badge>
           )}
         </div>
+        {!needsGitHub(site) && <SetupLink site={site} />}
         {needsGitHub(site) ? (
           <div className="st-sitecard__problem">
             <p className="st-sitecard__note">{failedNote(site)}</p>

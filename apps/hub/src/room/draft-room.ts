@@ -940,7 +940,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
    */
   async switchHosting(
     siteId: string,
-    input: { userId: string; target: DeployTarget },
+    input: { userId: string; target: DeployTarget; url?: string; message?: string },
   ): Promise<RoomResult<{ sha: string | null; changed: boolean }>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
@@ -955,7 +955,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const repo = parseRepo(site.repo);
         const user = await this.userFor(services, input.userId);
         const label = input.target === "cloudflare" ? "Cloudflare" : "GitHub Pages";
-        const message = `Switched hosting to ${label}`;
+        const message = input.message ?? `Switched hosting to ${label}`;
         const author = { name: user?.name ?? user?.login ?? "OpenSpace" };
         // Main first (what's live), then the draft. Each step recomputes its changes from the
         // branch's current files and retries once on a concurrent commit, so a repeated switch
@@ -968,6 +968,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
             (path) => gh.readFile(repo, path, mainHead),
             input.target,
             repo.name,
+            { url: input.url },
           );
           if (!mainChanges.length) break;
           try {
@@ -998,6 +999,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
             (path) => gh.readFile(repo, path, this.state.head),
             input.target,
             repo.name,
+            { url: input.url },
           );
           if (!draftChanges.length) break;
           try {

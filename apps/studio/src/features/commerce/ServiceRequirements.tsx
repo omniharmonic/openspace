@@ -6,9 +6,9 @@ import type { Site } from "../../api/types";
 export type ServiceFeature = "store" | "donations" | "members";
 
 const NAMES: Record<ServiceFeature, string> = {
-  store: "Your shop",
-  donations: "Donations",
-  members: "Member sign-in and members-only pages",
+  store: "Your shop isn't open",
+  donations: "Online giving isn't open",
+  members: "Member sign-in and members-only pages aren't open",
 };
 
 /** The site is published to GitHub Pages (the default), where Hub-run features can't run. */
@@ -28,22 +28,22 @@ export function ServiceRequirements({ site, feature }: { site: Site; feature: Se
   const pages = onGitHubPages(site);
   if (pages)
     needs.push(
-      "Cloudflare hosting. Your site is on GitHub Pages, which only serves plain pages — switch in Settings → Hosting.",
+      "Your own free Cloudflare account — a short guided step in Finish setting up. Until then, visitors see a friendly “opening soon” note.",
     );
   if (feature !== "members" && !caps.payments.configured)
     needs.push(
-      "Stripe payments. This OpenSpace Hub can't take payments yet; connect your own Stripe keys in Store settings.",
+      "Card payments, which the OpenSpace team is still switching on for this server. If you're comfortable copying two keys from your own Stripe account, you can use them in Store settings instead.",
     );
   if (feature === "members" && noEmail)
     needs.push(
-      "Email sending. Members sign in with a link sent by email, and this OpenSpace Hub has no email provider yet.",
+      "Email: members sign in with a link sent by email, and this OpenSpace server can't send email yet.",
     );
   if (needs.length === 0) return null;
   return (
     <div className="st-callout st-callout--pending" role="note" aria-label="What this needs">
       <Server aria-hidden="true" />
       <div>
-        <strong>{NAMES[feature]} won’t work on your live site yet.</strong> It needs:
+        <strong>{NAMES[feature]} on your live site yet.</strong> It needs:
         <ul className="st-callout__list">
           {needs.map((n) => (
             <li key={n}>{n}</li>
@@ -53,9 +53,9 @@ export function ServiceRequirements({ site, feature }: { site: Site; feature: Se
           <button
             type="button"
             className="st-linklike"
-            onClick={() => navigate(`/sites/${site.id}/settings/hosting`)}
+            onClick={() => navigate(`/sites/${site.id}/settings/setup`)}
           >
-            Open hosting settings
+            Open Finish setting up
           </button>
         )}
       </div>

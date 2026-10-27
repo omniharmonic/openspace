@@ -83,6 +83,12 @@ export function importSiteTool(opts: ImportToolOptions & { alias?: boolean }) {
         .describe(
           "Path to a WordPress export (WXR XML): a WordPress site's full export, or Squarespace's blog export.",
         ),
+      target: z
+        .enum(["github-pages"])
+        .optional()
+        .describe(
+          "Always github-pages (the default): every import goes live on free GitHub Pages first. Shops, donations, member areas and password pages are switched on afterwards in Studio → Finish setting up.",
+        ),
       confirm: z
         .boolean()
         .optional()

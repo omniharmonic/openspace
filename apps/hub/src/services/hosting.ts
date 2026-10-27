@@ -36,18 +36,21 @@ export function gatedBucketName(repoName: string): string {
 
 /**
  * The file changes that move one branch's files to `target`. `read` returns a file's current
- * contents (null when missing).
+ * contents (null when missing); `opts.url` is the new host's address for `deploy.url`.
  */
 export async function hostingChanges(
   read: (path: string) => Promise<string | null>,
   target: DeployTarget,
   repoName: string,
+  opts: { url?: string } = {},
 ): Promise<FileChange[]> {
   const changes: FileChange[] = [];
   const configText = await read(CONFIG_PATH);
   if (configText) {
     const config = JSON.parse(configText) as SiteConfig;
-    config.deploy = { ...config.deploy, target };
+    // The address the new host serves the site from (workers.dev root, or the github.io project
+    // path): the base path of every link depends on it.
+    config.deploy = { ...config.deploy, target, ...(opts.url ? { url: opts.url } : {}) };
     const next = json(config);
     if (next !== configText) changes.push({ path: CONFIG_PATH, content: next });
   }

@@ -6,6 +6,7 @@ import {
   Download,
   Globe,
   House,
+  ListChecks,
   Settings2,
   Trash2,
   Users,
@@ -15,6 +16,7 @@ import { lazy, type ReactNode, Suspense, useEffect } from "react";
 import { useNavigate } from "react-router";
 import type { Site } from "../../api/types";
 import { cx, IconButton, Spinner } from "../../ui";
+import { FinishSetup } from "../setup/FinishSetup";
 import { type Capability, can } from "../site-mgmt/manage-ui";
 import { CollaboratorsSettings } from "./CollaboratorsSettings";
 import { ConnectAiSettings } from "./ConnectAiSettings";
@@ -32,6 +34,7 @@ const AdvancedSettings = lazy(() =>
 );
 
 export type SettingsTab =
+  | "setup"
   | "general"
   | "home"
   | "domains"
@@ -52,6 +55,13 @@ interface TabDef {
 }
 
 export const SETTINGS_TABS: TabDef[] = [
+  {
+    id: "setup",
+    label: "Finish setting up",
+    icon: <ListChecks />,
+    need: "designer",
+    render: (s) => <FinishSetup site={s} />,
+  },
   {
     id: "general",
     label: "General",
