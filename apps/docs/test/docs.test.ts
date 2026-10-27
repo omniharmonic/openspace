@@ -182,7 +182,7 @@ describe("docs build", () => {
       await readFile(join(REPO, "plugin", ".claude-plugin", "plugin.json"), "utf8"),
       await readFile(join(REPO, ".claude-plugin", "marketplace.json"), "utf8"),
     ].join("\n");
-    const paths = [...sources.matchAll(/(?:\$\{DOCS\}|docs\.openspace\.dev)(\/[a-z0-9/-]*)/g)].map(
+    const paths = [...sources.matchAll(/(?:\$\{DOCS\}|docs\.openspace\.host)(\/[a-z0-9/-]*)/g)].map(
       (m) => m[1] as string,
     );
     expect(paths.length).toBeGreaterThan(5);

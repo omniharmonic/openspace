@@ -17,7 +17,7 @@
       },
       "source": "./plugin",
       "category": "design",
-      "homepage": "https://docs.openspace.dev/connect-your-ai/claude-code/",
+      "homepage": "https://docs.openspace.host/connect-your-ai/claude-code/",
       "license": "MIT",
       "keywords": ["website", "web-design", "mcp"]
     }

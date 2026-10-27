@@ -22,7 +22,7 @@
     {
       "type": "link",
       "label": "Docs",
-      "href": "https://github.com/omniharmonic/openspace/tree/main/apps/docs/src/content/docs"
+      "href": "https://docs.openspace.host"
     },
     {
       "type": "link",
@@ -244,7 +244,24 @@
                       {
                         "type": "link",
                         "attrs": {
-                          "href": "https://github.com/omniharmonic/openspace/tree/main/apps/docs/src/content/docs"
+                          "href": "https://docs.openspace.host"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Getting started",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://docs.openspace.host/getting-started/"
                         }
                       }
                     ]
@@ -261,7 +278,41 @@
                       {
                         "type": "link",
                         "attrs": {
-                          "href": "https://github.com/omniharmonic/openspace/tree/main/apps/docs/src/content/docs/connect-your-ai"
+                          "href": "https://docs.openspace.host/connect-your-ai/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Move from Squarespace",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://docs.openspace.host/guides/migrate-from-squarespace/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Templates",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "https://docs.openspace.host/templates/"
                         }
                       }
                     ]
@@ -278,7 +329,7 @@
                       {
                         "type": "link",
                         "attrs": {
-                          "href": "https://github.com/omniharmonic/openspace/blob/main/apps/docs/src/content/docs/self-hosting.md"
+                          "href": "https://docs.openspace.host/self-hosting/"
                         }
                       }
                     ]

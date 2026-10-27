@@ -41,8 +41,8 @@ export const STUDIO = "https://studio.openspace.host";
 export const HUB = "https://hub.openspace.host";
 export const GITHUB = "https://github.com/omniharmonic/openspace";
 /** The documentation, read on GitHub until apps/docs has a public address. */
-export const DOCS = `${GITHUB}/tree/main/apps/docs/src/content/docs`;
-const doc = (path: string) => `${GITHUB}/blob/main/apps/docs/src/content/docs/${path}`;
+export const DOCS = "https://docs.openspace.host";
+const doc = (path: string) => `${DOCS}/${path.replace(/\.md$/, "")}/`;
 export const CLI = "npx @omniharmonic/openspace-cli new meadow my-site";
 export const PLUGIN = "/plugin marketplace add omniharmonic/openspace";
 export const MCP_ADD = `claude mcp add --transport http openspace ${HUB}/mcp`;
@@ -1252,8 +1252,11 @@ export const wwwSpec: TemplateSpec = {
               content: rt.doc(
                 ...linkColumn("Learn", [
                   ["Documentation", DOCS],
-                  ["Connect your AI", `${DOCS}/connect-your-ai`],
-                  ["Self-hosting", doc("self-hosting.md")],
+                  ["Getting started", `${DOCS}/getting-started/`],
+                  ["Connect your AI", `${DOCS}/connect-your-ai/`],
+                  ["Move from Squarespace", `${DOCS}/guides/migrate-from-squarespace/`],
+                  ["Templates", `${DOCS}/templates/`],
+                  ["Self-hosting", `${DOCS}/self-hosting/`],
                   ["What works today", `${GITHUB}/blob/main/docs/PARITY.md`],
                 ]),
               ),
