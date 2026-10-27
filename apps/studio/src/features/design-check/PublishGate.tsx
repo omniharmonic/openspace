@@ -7,7 +7,9 @@ import { useDesignCheck } from "./store";
 
 /**
  * The Design check as a soft gate in the publish dialog: what still needs attention, with a
- * way to review it. Publishing stays allowed — the owner decides.
+ * way to review it. Publishing stays allowed — the owner decides — except for links to pages
+ * that don't exist: the Hub refuses those (they would fail the site's publish run), so they are
+ * listed first and called out.
  */
 export function PublishGate({ doc, onReview }: { doc: SiteDocument; onReview: () => void }) {
   const checked = useDesignCheck((s) => s.checked);
@@ -18,7 +20,11 @@ export function PublishGate({ doc, onReview }: { doc: SiteDocument; onReview: ()
     () => (checked === doc ? { issues: latest, failures: latestFailures } : checkSite(doc)),
     [checked, latest, latestFailures, doc],
   );
-  const attention = issues.filter((i) => i.severity !== "info");
+  const blockers = issues.filter((i) => i.rule === "broken-link" && i.severity === "error");
+  const attention = [
+    ...blockers,
+    ...issues.filter((i) => i.severity !== "info" && !blockers.includes(i)),
+  ];
   if (!attention.length && !failures.length) return null;
   const errors = attention.filter((i) => i.severity === "error").length;
   const Icon = errors ? CircleAlert : TriangleAlert;
@@ -34,6 +40,13 @@ export function PublishGate({ doc, onReview }: { doc: SiteDocument; onReview: ()
           ? `Design check found ${n} ${n === 1 ? "thing" : "things"} to look at`
           : "Design check couldn’t check everything"}
       </p>
+      {blockers.length > 0 && (
+        <p className="st-dc-gate__note">
+          {blockers.length === 1 ? "A link leads" : `${blockers.length} links lead`} to a page your
+          site doesn’t have. Publishing will stop until{" "}
+          {blockers.length === 1 ? "it points" : "they point"} at a page that exists.
+        </p>
+      )}
       {failures.length > 0 && (
         <p className="st-dc-gate__note">
           Couldn’t check {failures.map((f) => failureWhere(doc, f)).join(", ")}. Look it over

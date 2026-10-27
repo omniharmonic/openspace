@@ -6,7 +6,9 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import {
+  findBrokenLinks,
   isMediaPath,
+  LinkTargets,
   type MediaMeta,
   type SiteDocument,
   SiteDocumentSchema,
@@ -150,39 +152,6 @@ function fileDepth(path: readonly (string | number | symbol)[]): number {
 
 const IMAGE_EXT_RE = /\.(?:jpe?g|png|gif|webp|avif|svg)$/i;
 const MEDIA_REF_RE = /(?<![\w/.:-])media\/[A-Za-z0-9_\-./]+\.[A-Za-z0-9]+/g;
-const MD_LINK_RE = /\]\((\/[^)\s]*)\)|href="(\/[^"\s]*)"/g;
-const COLLECTION_SUBPATHS = new Set(["page", "category", "categories", "tag", "tags"]);
-
-class Resolver {
-  readonly slugs: Set<string>;
-  readonly redirectFroms: Set<string>;
-  constructor(readonly doc: SiteDocument) {
-    this.slugs = new Set(Object.values(doc.pages).map((p) => p.slug));
-    this.redirectFroms = new Set(
-      (doc.site.redirects ?? []).map((r) => r.from.replace(/^\/+|\/+$/g, "")),
-    );
-  }
-  hasCollection(name: string): boolean {
-    return name in this.doc.collections || name in (this.doc.collectionConfigs ?? {});
-  }
-  /** Does a site-internal path (`/about/`, `/journal/hello`) lead somewhere? */
-  pathResolves(raw: string): boolean {
-    const path = raw.split(/[?#]/)[0] ?? "";
-    const slug = path.replace(/^\/+|\/+$/g, "");
-    const last = slug.split("/").pop() ?? "";
-    if (/\.[A-Za-z0-9]+$/.test(last)) return true; // files: feeds, downloads, sitemap
-    if (slug === "404" || slug.startsWith("_os/")) return true;
-    if (this.slugs.has(slug) || this.redirectFroms.has(slug)) return true;
-    const [head, second, ...rest] = slug.split("/");
-    if (head && this.hasCollection(head)) {
-      if (second === undefined) return true;
-      if (this.doc.collections[head]?.[second]) return rest.length === 0;
-      return COLLECTION_SUBPATHS.has(second);
-    }
-    return false;
-  }
-}
-
 export async function runCheck(root: string, options: CheckOptions = {}): Promise<CheckReport> {
   const budgets: Budgets = { ...DEFAULT_BUDGETS, ...options.budgets };
   const findings: Finding[] = [];
@@ -353,7 +322,7 @@ function checkReferences(
   budgets: Budgets,
   add: Add,
 ): void {
-  const resolver = new Resolver(doc);
+  const resolver = new LinkTargets(doc);
   const reportedImages = new Set<string>();
 
   const checkImage = (ref: string, file: string, path: string) => {
@@ -385,71 +354,30 @@ function checkReferences(
     if (typeof value === "string") {
       const here = dotPath(path);
       for (const m of value.matchAll(MEDIA_REF_RE)) checkImage(m[0], file, here);
-      if (path[path.length - 1] === "body") {
-        for (const m of value.matchAll(MD_LINK_RE)) {
-          const target = m[1] ?? m[2];
-          if (target && !resolver.pathResolves(target))
-            add({
-              severity: "error",
-              rule: "link",
-              file,
-              path: here,
-              message: `Link to ${target} does not lead to any page`,
-            });
-        }
-      }
       return;
     }
     if (Array.isArray(value)) {
       for (const [i, v] of value.entries()) walk(v, file, [...path, i]);
       return;
     }
-    if (value && typeof value === "object") {
-      const o = value as Record<string, unknown>;
-      const here = dotPath(path);
-      if (o.type === "page" && typeof o.page === "string" && !(o.page in doc.pages))
-        add({
-          severity: "error",
-          rule: "link",
-          file,
-          path: here || undefined,
-          message: `Link to page ${o.page} but no such page exists`,
-        });
-      else if (
-        o.type === "item" &&
-        typeof o.collection === "string" &&
-        typeof o.slug === "string"
-      ) {
-        if (!doc.collections[o.collection]?.[o.slug])
-          add({
-            severity: "error",
-            rule: "link",
-            file,
-            path: here || undefined,
-            message: `Link to ${o.collection}/${o.slug} but no such item exists`,
-          });
-      } else if (o.type === "collection" && typeof o.collection === "string") {
-        if (!resolver.hasCollection(o.collection))
-          add({
-            severity: "error",
-            rule: "link",
-            file,
-            path: here || undefined,
-            message: `Navigation points at collection "${o.collection}" which does not exist`,
-          });
-      } else if (o.type === "url" && typeof o.url === "string" && o.url.startsWith("/")) {
-        if (!resolver.pathResolves(o.url))
-          add({
-            severity: "error",
-            rule: "link",
-            file,
-            path: here || undefined,
-            message: `Link to ${o.url} does not lead to any page`,
-          });
-      }
-      for (const [k, v] of Object.entries(o)) walk(v, file, [...path, k]);
-    }
+    if (value && typeof value === "object")
+      for (const [k, v] of Object.entries(value)) walk(v, file, [...path, k]);
   };
+
+  // Links: the same rules Studio's Design check and the Hub's publish gate use.
+  for (const l of findBrokenLinks(doc))
+    add({
+      severity: l.severity,
+      rule: "link",
+      file:
+        l.scope.kind === "site"
+          ? SITE_FILE
+          : l.scope.kind === "page"
+            ? (pageFiles[l.scope.page] ?? PAGES_DIR)
+            : `${COLLECTIONS_DIR}/${l.scope.collection}/${l.scope.slug}${ITEM_EXT}`,
+      path: dotPath(l.path) || undefined,
+      message: l.message,
+    });
 
   walk(doc.site, SITE_FILE, []);
   for (const page of Object.values(doc.pages)) walk(page, pageFiles[page.id] ?? PAGES_DIR, []);

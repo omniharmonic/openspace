@@ -375,6 +375,53 @@ describe("GitHubAppAccess", () => {
     );
   });
 
+  it("reads a failed run's steps and job logs (following the download redirect without the token)", async () => {
+    const LOG =
+      "2026-10-27T09:14:05.1Z ##[error]content/pages/home.json error link sections.0.blocks.1.fields.link: Link to /book does not lead to any page";
+    const m = mockFetch([
+      installationRoute(),
+      [
+        "GET",
+        /\/actions\/runs\/991\/jobs$/,
+        () => ({
+          jobs: [
+            {
+              id: 5,
+              name: "build",
+              conclusion: "failure",
+              steps: [
+                { name: "Install", conclusion: "success" },
+                { name: "Check site", conclusion: "failure" },
+              ],
+            },
+            { id: 6, name: "deploy", conclusion: "skipped", steps: [] },
+          ],
+        }),
+      ],
+      [
+        "GET",
+        /\/actions\/jobs\/5\/logs$/,
+        () =>
+          new Response(null, {
+            status: 302,
+            headers: { location: "https://logs.example.net/job-5.txt?sig=abc" },
+          }),
+      ],
+      [
+        "GET",
+        /^logs\.example\.net\/job-5\.txt/,
+        () => new Response(LOG, { headers: { "content-type": "text/plain" } }),
+      ],
+    ]);
+    const gh = new GitHubAppAccess({ app, installationId: 77, fetch: m.fetch });
+    expect(await gh.failedRun(repo, 991)).toEqual({ steps: ["build: Check site"], log: LOG });
+    const download = m.calls.find((c) => c.path.startsWith("logs.example.net"));
+    expect(download?.headers.get("authorization")).toBeNull();
+    expect(m.calls.find((c) => c.path.endsWith("/jobs/5/logs"))?.headers.get("authorization")).toBe(
+      "Bearer ghs_install",
+    );
+  });
+
   it("writes Actions secrets as sealed boxes; collaborators, PRs, tags, transfer, archive", async () => {
     const recipient = nacl.box.keyPair();
     const m = mockFetch([

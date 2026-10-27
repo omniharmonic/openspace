@@ -32,7 +32,7 @@ export const btn = (label = "Book a class", role: "primary" | "secondary" = "pri
     fields: {
       label,
       role,
-      link: { type: "url", url: "/book" },
+      link: { type: "url", url: "/" },
       secondaryLabel: undefined,
       secondaryLink: undefined,
       note: undefined,

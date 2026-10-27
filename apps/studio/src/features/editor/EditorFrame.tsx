@@ -1,4 +1,4 @@
-import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { resolveInternalLinks, type SiteDocument } from "@omniharmonic/openspace-schema";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -490,7 +490,8 @@ function EditorChrome({ site }: { site: Site }) {
       label: `Add section: ${st.label}`,
       group: "Add",
       icon: <Plus />,
-      run: () => s().run(insertSection(s().pageId, st.build(), "end")),
+      run: () =>
+        s().run(insertSection(s().pageId, resolveInternalLinks(st.build(), s().doc).value, "end")),
     })),
     {
       id: "add-block",

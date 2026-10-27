@@ -81,7 +81,7 @@ export async function listVersions(
       date: c.date,
       kind: p?.kind ?? (c.parents.length === 0 ? "setup" : "publish"),
       status: p?.status ?? null,
-      error: p?.status === "failure" ? buildErrorByCode(p.error_code) : null,
+      error: p?.status === "failure" ? buildErrorByCode(p.error_code, p.error_detail) : null,
       current: i === 0,
     };
   });

@@ -1,3 +1,4 @@
+import { findBrokenLinks } from "@omniharmonic/openspace-schema";
 import { compileStyles, contrastRatio } from "@omniharmonic/openspace-theme";
 import { describe, expect, it } from "vitest";
 import {
@@ -215,6 +216,27 @@ describe("guards", () => {
       },
     });
     expect(styled.code).toBe("forbidden");
+  });
+
+  it("points preset and block demo links at pages the site has (no broken links, editors too)", async () => {
+    const editor = await setup({ grant: { sites: "*", publish: false, role: "editor" } });
+    const home = Object.values((await editor.store.getDocument(editor.siteId)).pages).find(
+      (p) => p.slug === "",
+    );
+    const r = await editor.rpc.call("insert_section", {
+      page: home?.id,
+      preset: "hero/full-bleed-photo@1",
+    });
+    expect(r.data.linksChanged.map((c: { from: string }) => c.from)).toContain("/book");
+    const page = await editor.rpc.call("create_page", {
+      title: "Retreats",
+      presets: ["hero/full-bleed-photo@1", "cta/banner@1"],
+    });
+    expect(page.data.linksChanged.length).toBeGreaterThan(0);
+    const section = r.data.section.id as string;
+    await editor.rpc.call("insert_block", { page: home?.id, section, block: { type: "button" } });
+    const doc = await editor.store.getDocument(editor.siteId);
+    expect(findBrokenLinks(doc).filter((l) => l.severity === "error")).toEqual([]);
   });
 
   it("starts an agent session (with a snapshot) on the first edit and ends it on close", async () => {

@@ -17,6 +17,15 @@ export {
 export { designCheck } from "./design-check";
 export { type Autofix, type CheckOptions, type Issue, type Severity, sortIssues } from "./issue";
 export {
+  describeBrokenLink,
+  linkIssues,
+  linkPlace,
+  type PublishCheck,
+  type PublishCheckOptions,
+  type PublishProblem,
+  publishCheck,
+} from "./links";
+export {
   type AutoMobileOptions,
   autoMobileLayout,
   autoMobileLayoutOps,

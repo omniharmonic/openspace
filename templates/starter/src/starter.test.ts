@@ -56,7 +56,7 @@ describe("starter site shell", () => {
       "actions/upload-pages-artifact@v5",
     ]);
     expect(build?.steps[1]?.with).toEqual({
-      "node-version": 22,
+      "node-version": 24,
       cache: "npm",
       "cache-dependency-path": "package.json",
     });

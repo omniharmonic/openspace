@@ -1,3 +1,5 @@
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { blockRegistry } from "../blocks";
 import { audit } from "../db/audit";
 import { latestPublish, publishBySha, updatePublish } from "../db/publishes";
 import { type SiteRow, type SiteStatus, updateSite } from "../db/sites";
@@ -6,9 +8,9 @@ import type { HubBindings } from "../env";
 import { MAIN_BRANCH, PUBLISH_WORKFLOW, parseRepo } from "../github/types";
 import { toHex } from "../lib/crypto";
 import type { Logger } from "../lib/log";
-import { roomStub } from "../room";
+import { roomStub, unwrapRoom } from "../room";
 import type { BuildState } from "../room/protocol";
-import { translateBuildError } from "./build-errors";
+import { buildErrorDetail, type SiteNames, translateBuildError } from "./build-errors";
 import type { Services } from "./index";
 import { completeTransfer, ownerOf } from "./sites";
 
@@ -57,6 +59,36 @@ interface WorkflowRunPayload {
   };
 }
 
+/**
+ * Page titles and block labels from the room's document, so a failed check names "A button on
+ * Home" rather than a file path. Best effort: the copy falls back to file names without it.
+ */
+async function siteNames(env: HubBindings, siteId: string, log?: Logger): Promise<SiteNames> {
+  let doc: SiteDocument;
+  try {
+    doc = (await unwrapRoom(roomStub(env, siteId).getDocument(siteId))).doc;
+  } catch (err) {
+    log?.warn("room document for build error failed", { siteId, err });
+    return {};
+  }
+  const pageOf = (file: string) => {
+    const m = /^content\/pages\/(.+)\.json$/.exec(file);
+    if (!m) return undefined;
+    const slug = m[1] === "home" ? "" : m[1];
+    return Object.values(doc.pages).find((p) => p.slug === slug);
+  };
+  return {
+    pageTitle: (file) => pageOf(file)?.title,
+    blockLabel: (file, path) => {
+      const m = /^sections\.(\d+)\.blocks\.(\d+)(?:\.|$)/.exec(path);
+      const page = pageOf(file);
+      if (!m || !page) return undefined;
+      const block = page.sections[Number(m[1])]?.blocks[Number(m[2])];
+      return block ? blockRegistry().get(block.type)?.meta.label : undefined;
+    },
+  };
+}
+
 /** `workflow_run` → publish status → site status → pushed to the room (arch §5.5). */
 async function onWorkflowRun(
   env: HubBindings,
@@ -89,18 +121,23 @@ async function onWorkflowRun(
   let error = null;
   if (state === "failure") {
     let steps: string[] = [];
+    let logText = "";
     try {
       const owner = await ownerOf(services, site);
-      steps = await services
+      const failed = await services
         .github({ site, user: owner })
-        .failedSteps(parseRepo(site.repo), run.id);
+        .failedRun(parseRepo(site.repo), run.id);
+      steps = failed.steps;
+      logText = failed.log;
     } catch (err) {
-      log?.warn("failed steps lookup failed", { siteId: site.id, err });
+      log?.warn("failed run lookup failed", { siteId: site.id, err });
     }
     error = translateBuildError({
       conclusion: run.conclusion,
       steps,
+      log: logText,
       text: run.display_title ?? null,
+      names: await siteNames(env, site.id, log),
     });
   }
   const now = services.now();
@@ -112,7 +149,12 @@ async function onWorkflowRun(
     await updatePublish(
       services.db,
       publish.id,
-      { status: state, error_code: error?.code ?? null, run_url: run.html_url ?? null },
+      {
+        status: state,
+        error_code: error?.code ?? null,
+        error_detail: buildErrorDetail(error),
+        run_url: run.html_url ?? null,
+      },
       now,
     );
   // Only the newest publish decides the site's status.

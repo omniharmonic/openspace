@@ -10,8 +10,10 @@ import {
   type Block,
   type BlockRegistry,
   COLOR_THEMES,
+  type LinkChange,
   LinkSchema,
   newId,
+  resolveInternalLinks,
   type Section,
   type SiteDocument,
 } from "@omniharmonic/openspace-schema";
@@ -187,14 +189,29 @@ export const insertSection = defineTool({
     if (input.preset) {
       const preset = findPreset(input.preset);
       const opts = { colorTheme: input.colorTheme, collection: input.collection, ...links };
+      // The preset's example links (/book, /retreats…) point at pages this site has, so an
+      // inserted preset never stops a publish; links passed in are checked the same way.
+      const linkNote = (changes: LinkChange[]) =>
+        changes.length
+          ? {
+              linksChanged: changes.map((c) => ({ from: c.from, to: c.to })),
+              linkNote:
+                "Example links that lead nowhere on this site were pointed at existing pages; change them with update_block.",
+            }
+          : {};
       if (preset.target === "header") {
-        const header = preset.build(opts);
+        const { value: header, changes } = resolveInternalLinks(preset.build(opts), doc);
         await ctx.apply(siteId, [{ op: "site.update", set: { header } } as OpBody]);
         return {
-          data: { applied: preset.id, header, note: "The site header now uses this preset." },
+          data: {
+            applied: preset.id,
+            header,
+            note: "The site header now uses this preset.",
+            ...linkNote(changes),
+          },
         };
       }
-      const section = preset.build(opts) as Section;
+      const { value: section, changes } = resolveInternalLinks(preset.build(opts) as Section, doc);
       if (input.label) section.label = input.label;
       if (preset.target === "footer") {
         await ctx.apply(siteId, [{ op: "site.update", set: { footer: section } } as OpBody]);
@@ -203,6 +220,7 @@ export const insertSection = defineTool({
             replaced: "footer",
             section: sectionSummary(ctx.registry, section),
             note: 'Edit footer blocks with page "footer".',
+            ...linkNote(changes),
           },
         };
       }
@@ -218,6 +236,7 @@ export const insertSection = defineTool({
           section: sectionSummary(ctx.registry, section),
           copyGuidance: preset.copy.map((c) => `${c.label}: ${c.words[0]}–${c.words[1]} words`),
           next: "Replace the demo copy with the owner's content (update_block), then run design_check.",
+          ...linkNote(changes),
         },
       };
     }
@@ -334,7 +353,12 @@ export const insertBlock = defineTool({
     const doc = await ctx.doc(siteId);
     const page = container(doc, input.page);
     requireSection(doc, page, input.section);
-    const block = makeBlock(ctx.registry, input.block as { type: string });
+    const made = makeBlock(ctx.registry, input.block as { type: string });
+    // Demo links from the block's defaults (/schedule…) point at pages this site has; links
+    // the caller gave are kept as given (design_check reports them if they lead nowhere).
+    const block = resolveInternalLinks(made, doc).value;
+    for (const k of Object.keys(input.block.fields ?? {}))
+      if (k in made.fields) block.fields[k] = made.fields[k];
     const body: Record<string, unknown> = {
       op: "block.insert",
       page,

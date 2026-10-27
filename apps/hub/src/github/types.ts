@@ -188,8 +188,11 @@ export interface GitHubAccess {
   getVariable(repo: RepoRef, name: string): Promise<string | null>;
   addCollaborator(repo: RepoRef, login: string, permission?: CollaboratorPermission): Promise<void>;
   removeCollaborator(repo: RepoRef, login: string): Promise<void>;
-  /** Names of the failed jobs/steps of a workflow run (for plain-language build errors). */
-  failedSteps(repo: RepoRef, runId: number): Promise<string[]>;
+  /**
+   * What failed in a workflow run, for plain-language build errors: the failed jobs/steps'
+   * names, and the failed jobs' log text (`##[error]` lines, `openspace check`'s report).
+   */
+  failedRun(repo: RepoRef, runId: number): Promise<{ steps: string[]; log: string }>;
   openPullRequest(repo: RepoRef, input: PullRequestInput): Promise<{ number: number; url: string }>;
   /**
    * Squash-merge a pull request (Task 18 update bot). `sha` guards against the head having moved

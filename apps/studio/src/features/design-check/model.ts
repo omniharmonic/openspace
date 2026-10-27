@@ -219,7 +219,8 @@ export function canFix(doc: SiteDocument, issue: Issue, role: string): boolean {
   );
 }
 
-const NEVER_BULK = new Set(["seo-noindex"]);
+// Where a broken link should lead is a guess the person confirms one link at a time.
+const NEVER_BULK = new Set(["seo-noindex", "broken-link"]);
 
 const DESTRUCTIVE = new Set(["section.delete", "block.delete", "page.delete", "media.remove"]);
 
@@ -230,7 +231,8 @@ const DESTRUCTIVE = new Set(["section.delete", "block.delete", "page.delete", "m
 export function isSafeFix(issue: Issue): boolean {
   const fix = issue.autofix;
   if (!fix?.ops.length) return false;
-  // Putting a page back into search results is the owner's call, never a bulk fix.
+  // Putting a page back into search results is the owner's call, never a bulk fix; nor is
+  // picking where a broken link should go.
   if (NEVER_BULK.has(issue.rule)) return false;
   return fix.ops.every((op) => !DESTRUCTIVE.has(op.op));
 }

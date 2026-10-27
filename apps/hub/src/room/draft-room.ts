@@ -30,6 +30,7 @@ import {
 } from "../services/gated-content";
 import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
+import { assertPublishable } from "../services/publish-check";
 import { recordNextScheduled } from "../services/site-automation";
 import { diffSiteFiles, isDocumentPath, loadSiteDocument } from "../services/site-files";
 import { syncWorkerSecretsSafely } from "../services/worker-secrets";
@@ -56,7 +57,7 @@ const AGENT_PRESENCE_MS = 30_000;
 /** RPC result: a value, or a client-facing error (see `rpc`). */
 export type RoomResult<T> =
   | { ok: true; value: T }
-  | { ok: false; error: { status: number; code: string; message: string } };
+  | { ok: false; error: { status: number; code: string; message: string; details?: unknown } };
 
 /** Who is submitting, as the Worker authenticated them. The room resolves names and roles. */
 export interface RoomActorInput {
@@ -153,7 +154,15 @@ export class DraftRoom extends DurableObject<HubBindings> {
               ? new HttpError(404, "not_found", "We couldn't find that.")
               : null;
       if (!http) throw err;
-      return { ok: false, error: { status: http.status, code: http.code, message: http.message } };
+      return {
+        ok: false,
+        error: {
+          status: http.status,
+          code: http.code,
+          message: http.message,
+          ...(http.details !== undefined ? { details: http.details } : {}),
+        },
+      };
     }
   }
 
@@ -1333,6 +1342,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
           this.state.markPublished(this.state.flushedSeq);
           return { status: "no_changes" };
         }
+        // Refuse what the site's publish run would fail on (broken links, invalid content),
+        // naming the page, block and link, before anything reaches main.
+        assertPublishable(this.state.doc as SiteDocument);
         const pending = this.state.unpublished().filter((o) => o.seq <= this.state.flushedSeq);
         const first = pending[0];
         const before =
@@ -1516,7 +1528,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
           await updatePublish(
             services.db,
             last.id,
-            { status: "queued", error_code: null },
+            { status: "queued", error_code: null, error_detail: null },
             services.now(),
           );
           await updateSite(

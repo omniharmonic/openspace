@@ -1,6 +1,6 @@
 import { blocksRegistry } from "@omniharmonic/openspace-blocks";
 import { validateDocument } from "@omniharmonic/openspace-ops";
-import type { NavItem, SiteDocument } from "@omniharmonic/openspace-schema";
+import { findBrokenLinks, type NavItem, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { devSiteDocument } from "../editor/model/dev-site";
 import { createEditorStore } from "../editor/model/store";
@@ -131,6 +131,7 @@ const valid = (doc: SiteDocument) => {
 describe("page commands (ops)", () => {
   it("adds every page template as a valid page linked in the navigation", () => {
     const store = session();
+    const broken = findBrokenLinks(store.getState().doc).length;
     for (const t of PAGE_TEMPLATES) {
       const cmd = createPage(store.getState().doc, t);
       const res = store.getState().commit(cmd.bodies, { label: cmd.label });
@@ -141,6 +142,8 @@ describe("page commands (ops)", () => {
       expect(pagesInNav(doc.site.nav).has(cmd.pageId)).toBe(true);
     }
     expect(valid(store.getState().doc)).toMatchObject({ ok: true });
+    // Template demo links point at pages the site has.
+    expect(findBrokenLinks(store.getState().doc).length).toBe(broken);
     // Undo removes the last page and its nav entry.
     store.getState().undo();
     expect(Object.keys(store.getState().doc.pages)).toHaveLength(3 + PAGE_TEMPLATES.length - 1);

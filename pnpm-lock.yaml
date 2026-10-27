@@ -81,6 +81,9 @@ importers:
       '@omniharmonic/openspace-email-render':
         specifier: workspace:*
         version: link:../../packages/email-render
+      '@omniharmonic/openspace-lint':
+        specifier: workspace:*
+        version: link:../../packages/lint
       '@omniharmonic/openspace-mcp-tools':
         specifier: workspace:*
         version: link:../../packages/mcp-tools
