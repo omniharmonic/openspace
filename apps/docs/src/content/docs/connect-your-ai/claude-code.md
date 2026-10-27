@@ -29,6 +29,7 @@ You need Node.js 22 or newer. Screenshots need the `playwright` package in your 
 | `/openspace:design-check` | A design and SEO review of a page or the whole site. |
 | `/openspace:restyle` | Change the whole look to a mood, through looks and Site Styles. |
 | `/openspace:publish` | Show what changed, check it, publish after you confirm. |
+| `/openspace:import-squarespace` | Move a Squarespace site into OpenSpace and match its look page by page ([guide](/guides/migrate-from-squarespace/)). |
 | **Agent: openspace-designer** | An independent design reviewer that returns a prioritized fix list. |
 
 ## Work on a local site
