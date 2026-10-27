@@ -236,8 +236,8 @@ describe("sites API (dev GitHub)", () => {
     const live = await call(app, `/s/${site.id}/`);
     expect(live.status).toBe(200);
     // Owner content on the Hub origin is sandboxed (opaque origin: no Hub cookies or APIs).
-    expect(live.headers.get("content-security-policy")).toBe(
-      "sandbox allow-scripts allow-popups allow-forms",
+    expect(live.headers.get("content-security-policy")).toMatch(
+      /^sandbox allow-scripts allow-popups allow-forms; frame-ancestors /,
     );
     expect(live.headers.get("x-content-type-options")).toBe("nosniff");
     const html = await live.text();

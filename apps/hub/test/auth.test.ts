@@ -31,6 +31,13 @@ describe("dev sign-in and sessions", () => {
       auth: { github: false, dev: true },
       devMode: true,
       github: { configured: false, emulated: true },
+      // A dev Hub: mail goes to the outbox, DevStripe takes payments, no Turnstile secret.
+      capabilities: {
+        email: { configured: false, devOutbox: true },
+        payments: { configured: true, dev: true },
+        turnstile: { configured: false },
+        hosting: { githubPages: true, cloudflare: true },
+      },
     });
 
     // Only the hash of the session token is stored.

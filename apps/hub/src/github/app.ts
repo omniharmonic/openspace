@@ -334,13 +334,45 @@ export class GitHubAppAccess implements GitHubAccess {
       `${this.repoPath(repo)}/git/commits/${source}`,
     );
     if (!src) throw new GitHubNotFoundError(`Commit ${source} not found`);
+    let treeSha = src.tree.sha;
+    if (input.onlyPaths) {
+      // The head's tree, with just the matching paths taken from the source.
+      const only = input.onlyPaths;
+      const headCommit = await this.rest<{ tree: { sha: string } }>(
+        `${this.repoPath(repo)}/git/commits/${head}`,
+      );
+      if (!headCommit) throw new GitHubNotFoundError(`Commit ${head} not found`);
+      const [from, to] = await Promise.all([
+        this.readTree(repo, source),
+        this.readTree(repo, head),
+      ]);
+      const current = new Map(to.filter((e) => only(e.path)).map((e) => [e.path, e.sha]));
+      const entries: Array<{ path: string; mode: string; type: "blob"; sha: string | null }> = [];
+      for (const e of from)
+        if (only(e.path)) {
+          if (current.get(e.path) !== e.sha)
+            entries.push({ path: e.path, mode: "100644", type: "blob", sha: e.sha });
+          current.delete(e.path);
+        }
+      for (const path of current.keys())
+        entries.push({ path, mode: "100644", type: "blob", sha: null });
+      treeSha = headCommit.tree.sha;
+      if (entries.length) {
+        const made = await this.rest<{ sha: string }>(`${this.repoPath(repo)}/git/trees`, {
+          method: "POST",
+          body: { base_tree: headCommit.tree.sha, tree: entries },
+        });
+        if (!made) throw new GitHubApiError("Tree creation returned nothing", 502);
+        treeSha = made.sha;
+      }
+    }
     const message = withCoAuthor(input.message, input.author);
     const created = await this.rest<{
       sha: string;
       author: { name: string; email: string; date: string };
     }>(`${this.repoPath(repo)}/git/commits`, {
       method: "POST",
-      body: { message, tree: src.tree.sha, parents: [head] },
+      body: { message, tree: treeSha, parents: [head] },
     });
     if (!created) throw new GitHubApiError("Commit creation returned nothing", 502);
     try {

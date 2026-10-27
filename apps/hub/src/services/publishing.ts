@@ -57,6 +57,11 @@ export interface VersionView {
   error: { code: string; title: string; message: string; fix: string | null } | null;
   /** The version the live site is on. */
   current: boolean;
+  /**
+   * The site can go back to it. False for a repository's own first commit that OpenSpace didn't
+   * make (GitHub's "Initial commit" README): it isn't a site, and rolling back would wipe it.
+   */
+  restorable: boolean;
 }
 
 /** Every commit on main is a published version (arch §5.4), newest first. */
@@ -83,6 +88,7 @@ export async function listVersions(
       status: p?.status ?? null,
       error: p?.status === "failure" ? buildErrorByCode(p.error_code, p.error_detail) : null,
       current: i === 0,
+      restorable: !!p || c.parents.length > 0,
     };
   });
 }

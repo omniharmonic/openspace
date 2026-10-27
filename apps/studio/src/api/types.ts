@@ -265,6 +265,8 @@ export interface SiteVersion {
   error: PublishError | null;
   /** The version the live site is on. */
   current: boolean;
+  /** The site can go back to it (false for a repository's own empty first commit). */
+  restorable?: boolean;
 }
 
 export interface RollbackResult {

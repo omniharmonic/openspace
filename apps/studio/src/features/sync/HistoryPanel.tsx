@@ -67,11 +67,13 @@ function Versions() {
   });
   const [target, setTarget] = useState<SiteVersion | null>(null);
   const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
   const canRollback = DESIGNERS.has(role);
 
   const rollback = async () => {
     if (!target) return;
     setBusy(true);
+    setFailure(null);
     try {
       const r = await hub.rollback(site.id, target.sha);
       session.setState({
@@ -104,11 +106,10 @@ function Versions() {
       void queryClient.invalidateQueries({ queryKey: ["versions", site.id] });
       void queryClient.invalidateQueries({ queryKey: ["snapshots", site.id] });
     } catch (err) {
-      toast({
-        tone: "danger",
-        title: "Couldn’t roll back",
-        description: plainError(err, "Try again in a moment."),
-      });
+      const message = plainError(err, "Try again in a moment.");
+      // Said in the dialog too: a toast behind an open dialog is easy to miss.
+      setFailure(message);
+      toast({ tone: "danger", title: "Couldn’t roll back", description: message });
     } finally {
       setBusy(false);
     }
@@ -165,7 +166,7 @@ function Versions() {
               ) : (
                 <span className="st-history__unavailable">Preview not available yet</span>
               )}
-              {!v.current && v.status !== "failure" && canRollback && (
+              {!v.current && v.status !== "failure" && v.restorable !== false && canRollback && (
                 <Button
                   size="sm"
                   variant="secondary"
@@ -187,7 +188,12 @@ function Versions() {
       )}
       <Dialog
         open={target !== null}
-        onOpenChange={(o) => !o && setTarget(null)}
+        onOpenChange={(o) => {
+          if (!o) {
+            setTarget(null);
+            setFailure(null);
+          }
+        }}
         title="Roll back to this version?"
         description={
           target
@@ -196,6 +202,11 @@ function Versions() {
         }
         footer={
           <>
+            {failure && (
+              <p className="st-history__failure" role="alert">
+                Couldn’t roll back: {failure}
+              </p>
+            )}
             <Button variant="secondary" onClick={() => setTarget(null)}>
               Cancel
             </Button>

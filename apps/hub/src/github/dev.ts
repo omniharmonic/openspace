@@ -412,7 +412,16 @@ export class DevGitHubAccess implements GitHubAccess {
     const head = await this.checkHead(repo, input.branch, input.expectedHead);
     if (!head) throw new GitHubNotFoundError(`Branch ${input.branch} not found`);
     const source = await this.resolve(repo, input.treeOf);
-    const tree = (await this.commitRow(key(repo), source))?.tree ?? {};
+    const from = (await this.commitRow(key(repo), source))?.tree ?? {};
+    let tree = from;
+    if (input.onlyPaths) {
+      const only = input.onlyPaths;
+      const current = (await this.commitRow(key(repo), head))?.tree ?? {};
+      tree = Object.fromEntries([
+        ...Object.entries(current).filter(([p]) => !only(p)),
+        ...Object.entries(from).filter(([p]) => only(p)),
+      ]) as typeof from;
+    }
     const commit = await this.writeCommit(repo, {
       parents: [head],
       base: {},

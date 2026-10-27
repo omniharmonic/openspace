@@ -293,6 +293,24 @@ describe("history", () => {
     expect(label(hub.room(willow.id).doc).label).toBe("Before the redesign");
   });
 
+  it("never offers to roll back to a version that isn't a site (the repository's empty first commit)", async () => {
+    const { user, hub } = await openEditor();
+    await hub.listVersions(willow.id);
+    const state = hub.state as unknown as {
+      versions: Record<string, Array<{ restorable?: boolean; summary: string }>>;
+    };
+    const first = state.versions[willow.id]?.at(-1);
+    if (first) {
+      first.restorable = false;
+      first.summary = "Initial commit";
+    }
+    await user.click(screen.getByRole("button", { name: "History" }));
+    const sheet = await screen.findByRole("dialog", { name: "History" });
+    const list = await within(sheet).findByRole("list", { name: "Published versions" });
+    const item = within(list).getByText("Initial commit").closest("li") as HTMLElement;
+    expect(within(item).queryByRole("button", { name: /Roll back/ })).not.toBeInTheDocument();
+  });
+
   it("only offers rollback to designers and owners", async () => {
     const editorSites = sites.map((s) =>
       s.id === willow.id ? { ...s, role: "editor" as const } : s,

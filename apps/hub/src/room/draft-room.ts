@@ -32,7 +32,15 @@ import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
 import { assertPublishable } from "../services/publish-check";
 import { recordNextScheduled } from "../services/site-automation";
-import { diffSiteFiles, isDocumentPath, loadSiteDocument } from "../services/site-files";
+import {
+  CONFIG_PATH,
+  diffSiteFiles,
+  isContentPath,
+  isDocumentPath,
+  isPublishedPath,
+  loadSiteDocument,
+  SiteFilesError,
+} from "../services/site-files";
 import { syncWorkerSecretsSafely } from "../services/worker-secrets";
 import { commitMessage, type TrailerActor, trailerEmail } from "./commit";
 import {
@@ -1218,11 +1226,18 @@ export class DraftRoom extends DurableObject<HubBindings> {
     }
   }
 
-  private async sameTree(gh: GitHubAccess, repo: RepoRef, a: string, b: string): Promise<boolean> {
+  private async sameTree(
+    gh: GitHubAccess,
+    repo: RepoRef,
+    a: string,
+    b: string,
+    only: (path: string) => boolean = () => true,
+  ): Promise<boolean> {
     if (a === b) return true;
     const [ta, tb] = await Promise.all([gh.readTree(repo, a), gh.readTree(repo, b)]);
     const key = (t: typeof ta) =>
       t
+        .filter((e) => only(e.path))
         .map((e) => `${e.path}:${e.sha}`)
         .sort()
         .join("\n");
@@ -1338,7 +1353,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const draftHead = await this.syncDraft(siteId, gh, repo);
         const mainHead = await gh.getRef(repo, MAIN_BRANCH);
         if (!mainHead) throw new HttpError(409, "not_ready", "This site isn't set up yet.");
-        if (await this.sameTree(gh, repo, mainHead, draftHead)) {
+        if (await this.sameTree(gh, repo, mainHead, draftHead, isPublishedPath)) {
           this.state.markPublished(this.state.flushedSeq);
           return { status: "no_changes" };
         }
@@ -1372,12 +1387,15 @@ export class DraftRoom extends DurableObject<HubBindings> {
           gh,
           doc: this.state.doc as SiteDocument,
         });
+        // Only content, media and openspace.json: main's workflow, package.json and custom
+        // code stay as they are there (a manual fix on main is never reverted by a publish).
         const commit = await gh.commitTree(repo, {
           branch: MAIN_BRANCH,
           treeOf: draftHead,
           expectedHead: mainHead,
           message,
           author: { name: publisher?.name ?? publisher?.login ?? "OpenSpace" },
+          onlyPaths: isPublishedPath,
         });
         this.state.markPublished(this.state.flushedSeq);
         await this.noteScheduled(services, siteId, this.state.doc as SiteDocument);
@@ -1420,7 +1438,16 @@ export class DraftRoom extends DurableObject<HubBindings> {
     input: { userId: string; sha: string; agentSession?: string },
   ): Promise<RoomResult<{ sha: string; summary: string; snapshot: string | null }>> {
     return this.rpc(async () => {
-      await this.ensureLoaded(siteId);
+      // A site whose files are broken (e.g. main lost openspace.json) can't load its draft; it
+      // must still be able to go back to a version that works.
+      let broken = false;
+      try {
+        await this.ensureLoaded(siteId);
+      } catch (err) {
+        if (!(err instanceof SiteFilesError)) throw err;
+        broken = true;
+        this.log.warn("rolling back a site whose files don't load", { siteId, err });
+      }
       // Defense in depth (Studio and MCP check too): rolling back needs a designer or the owner.
       const role = await this.roleOf(this.services(), siteId, input.userId);
       if (!role || ROLE_RANK[role] < ROLE_RANK.designer)
@@ -1434,7 +1461,16 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const site = await this.site(services, siteId);
         const gh = await this.github(services, site);
         const repo = parseRepo(site.repo);
-        const draftHead = await this.syncDraft(siteId, gh, repo);
+        let draftHead = "";
+        if (!broken)
+          try {
+            draftHead = await this.syncDraft(siteId, gh, repo);
+          } catch (err) {
+            // The draft moved to files that don't load (e.g. a README-only commit).
+            if (!(err instanceof SiteFilesError)) throw err;
+            broken = true;
+          }
+        if (broken) draftHead = (await gh.getRef(repo, DRAFT_BRANCH)) ?? "";
         const mainHead = await gh.getRef(repo, MAIN_BRANCH);
         if (!mainHead) throw new HttpError(409, "not_ready", "This site isn't set up yet.");
         const history = await gh.listCommits(repo, { ref: MAIN_BRANCH, limit: 100 });
@@ -1449,8 +1485,17 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const target = matches[0];
         if (!target)
           throw new HttpError(404, "version_not_found", "We couldn't find that version.");
+        // Only versions that are a whole site (e.g. never the repository's empty first commit).
+        if ((await gh.readFile(repo, CONFIG_PATH, target.sha)) === null)
+          throw new HttpError(
+            422,
+            "not_a_site",
+            "That version isn't a complete site, so your site can't go back to it. Pick a later version.",
+          );
+        // Main itself broken (no openspace.json): take the target's whole tree, workflow included.
+        const mainBroken = (await gh.readFile(repo, CONFIG_PATH, mainHead)) === null;
         let snapshot: string | null = null;
-        if (!(await this.sameTree(gh, repo, mainHead, draftHead))) {
+        if (draftHead && !broken && !(await this.sameTree(gh, repo, mainHead, draftHead))) {
           snapshot = `os/snap/before-rollback-${Date.now()}`;
           await gh.tag(repo, snapshot, draftHead);
         }
@@ -1467,8 +1512,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
             user ? `\nCo-authored-by: ${user.name ?? user.login} <${trailerEmail(user)}>` : ""
           }`,
           author: { name: user?.name ?? user?.login ?? "OpenSpace" },
+          // Content and media go back; today's workflow, packages and hosting stay.
+          ...(mainBroken ? {} : { onlyPaths: isContentPath }),
         });
-        if (!(await this.resetDraftIfAt(gh, repo, draftHead, commit.sha))) {
+        if (broken || !draftHead) await gh.resetBranch(repo, DRAFT_BRANCH, commit.sha);
+        else if (!(await this.resetDraftIfAt(gh, repo, draftHead, commit.sha))) {
           // A commit landed on the draft meanwhile: keep it in a snapshot too, then follow main.
           const moved = await gh.getRef(repo, DRAFT_BRANCH);
           if (moved) await this.tagUnique(gh, repo, `os/snap/before-rollback-${Date.now()}`, moved);

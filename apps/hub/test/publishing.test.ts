@@ -178,6 +178,77 @@ describe("publishing", () => {
     expect(bad.status).toBe(404);
   });
 
+  it("publish and rollback leave main's workflow and other non-content files alone", async () => {
+    const { app, owner, site } = await setup();
+    const v1 = (await gh().getRef(repo, "main")) as string;
+    // The owner fixes the workflow directly on main (e.g. a newer Node version).
+    const wf = ".github/workflows/publish.yml";
+    const fixed = "# fixed on main\n";
+    await gh().commitFiles(repo, {
+      branch: "main",
+      message: "Build with Node 24",
+      files: [{ path: wf, content: fixed }],
+    });
+    await edit(app, site.id, owner, "After the fix");
+    expect((await publish(app, site.id, owner)).body.publish).toMatchObject({
+      status: "published",
+    });
+    let files = await gh().readFiles(repo, "main", { textOnly: true });
+    expect(files[wf]).toBe(fixed);
+    expect(files["content/pages/home.json"]).toContain("After the fix");
+    // Going back to v1 brings v1's content, not v1's workflow.
+    const res = await call(app, `/api/sites/${site.id}/rollback`, {
+      method: "POST",
+      cookie: owner,
+      json: { sha: v1 },
+    });
+    expect(res.status).toBe(200);
+    files = await gh().readFiles(repo, "main", { textOnly: true });
+    expect(files[wf]).toBe(fixed);
+    expect(files["content/pages/home.json"]).not.toContain("After the fix");
+  });
+
+  it("never rolls back to a commit that isn't a site, and a broken main can still go back", async () => {
+    const { app, owner, site } = await setup();
+    const good = (await gh().getRef(repo, "main")) as string;
+    // A README-only commit on main (like GitHub's "Initial commit", or the bad rollback that
+    // bricked a site): the site's files are gone from main and the draft.
+    const all = await gh().readFiles(repo, "main", { textOnly: true });
+    const wiped = await gh().commitFiles(repo, {
+      branch: "main",
+      message: "Initial commit",
+      files: [
+        ...Object.keys(all).map((path) => ({ path, content: null })),
+        { path: "README.md", content: "# empty\n" },
+      ],
+    });
+    // Refused as a target: it isn't a complete site.
+    const refused = await call(app, `/api/sites/${site.id}/rollback`, {
+      method: "POST",
+      cookie: owner,
+      json: { sha: wiped.sha },
+    });
+    expect(refused.status).toBe(422);
+    expect(((await refused.json()) as { error: { code: string } }).error.code).toBe("not_a_site");
+    // The draft follows the broken main (as after the bad rollback); going back still works.
+    await gh().resetBranch(repo, "os/draft", wiped.sha);
+    const res = await call(app, `/api/sites/${site.id}/rollback`, {
+      method: "POST",
+      cookie: owner,
+      json: { sha: good },
+    });
+    expect(res.status).toBe(200);
+    const files = await gh().readFiles(repo, "main", { textOnly: true });
+    expect(files["openspace.json"]).toBeDefined();
+    expect(files[".github/workflows/publish.yml"]).toBeDefined();
+    expect(await gh().getRef(repo, "os/draft")).toBe(await gh().getRef(repo, "main"));
+    // The versions list marks restorable versions; the site's own versions are.
+    const versions = (await (
+      await call(app, `/api/sites/${site.id}/versions`, { cookie: owner })
+    ).json()) as { versions: Array<{ sha: string; restorable: boolean }> };
+    expect(versions.versions.find((v) => v.sha === good)?.restorable).toBe(true);
+  });
+
   it("takes named snapshots and restores them into the draft as ops", async () => {
     const { app, owner, site } = await setup();
     await edit(app, site.id, owner, "Snapshot me");
