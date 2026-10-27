@@ -6,8 +6,13 @@ import { blogPresets, eventsPresets, productsPresets } from "./categories/collec
 import { featuresPresets } from "./categories/features";
 import { galleryPresets } from "./categories/gallery";
 import { heroPresets } from "./categories/hero";
+import { heroMorePresets } from "./categories/hero-more";
+import { impactPresets } from "./categories/impact";
+import { menuPresets } from "./categories/menu";
 import { faqPresets, logosPresets, statsPresets, teamPresets } from "./categories/people";
+import { portfolioPresets } from "./categories/portfolio";
 import { pricingPresets } from "./categories/pricing";
+import { processPresets } from "./categories/process";
 import { servicesPresets } from "./categories/services";
 import { testimonialsPresets } from "./categories/testimonials";
 import type { HeaderPreset, Preset, PresetCategory, PresetMeta, SectionPreset } from "./types";
@@ -38,15 +43,20 @@ export * from "./types";
 /** Every section and footer preset, in menu order. */
 export const sectionPresets: readonly SectionPreset[] = [
   ...heroPresets,
+  ...heroMorePresets,
   ...aboutPresets,
   ...servicesPresets,
   ...featuresPresets,
+  ...processPresets,
   ...galleryPresets,
+  ...portfolioPresets,
   ...testimonialsPresets,
   ...pricingPresets,
+  ...menuPresets,
   ...faqPresets,
   ...teamPresets,
   ...statsPresets,
+  ...impactPresets,
   ...logosPresets,
   ...ctaPresets,
   ...contactPresets,
