@@ -95,11 +95,22 @@ interface MountOptions {
   mode?: RenderMode;
   doc?: SiteDocument;
   collections?: CollectionsValue;
+  /** Render on the Cloudflare hosting option (checkout and member sign-in run there). */
+  cloudflare?: boolean;
 }
 
 function render(blocks: Block[], opts: MountOptions = {}): string {
   const p = page("Page", "page", [stackSection(blocks)]);
-  const doc = opts.doc ?? siteWith([p]);
+  const base = opts.doc ?? siteWith([p]);
+  const doc = opts.cloudflare
+    ? {
+        ...base,
+        config: {
+          ...base.config,
+          deploy: { ...base.config.deploy, target: "cloudflare" as const },
+        },
+      }
+    : base;
   const tree = (
     <RenderContext.Provider
       value={{ doc, page: p, mode: opts.mode ?? "production", basePath: "", hubUrl: HUB }}
@@ -674,7 +685,7 @@ describe("product", () => {
     const fetchSpy = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(new Response(JSON.stringify({ message: "nope" }), { status: 400 }));
-    mount([create(productBlock)]);
+    mount([create(productBlock)], { cloudflare: true });
     const add = $<HTMLButtonElement>("button[data-os-add]");
     behavior("cart")(add);
     add.click();
@@ -692,7 +703,7 @@ describe("product", () => {
   });
 
   it("emits the cart contract (SKU + qty only) with a variant picker", () => {
-    mount([create(productBlock)]);
+    mount([create(productBlock)], { cloudflare: true });
     expect($(".os-product__title a").getAttribute("href")).toBe("/shop/cork-yoga-mat/");
     expect($(".os-product__price").textContent).toBe("Was $80 · , sale price: From $68");
     const add = $<HTMLButtonElement>("button[data-os-add]");
@@ -723,7 +734,7 @@ describe("product", () => {
     const variants = mat.frontmatter.variants ?? [];
     (variants[0] as { image?: string }).image = "https://images.example.com/std.jpg";
     (variants[1] as { image?: string }).image = "https://images.example.com/long.jpg";
-    mount([create(productBlock)], { doc });
+    mount([create(productBlock)], { doc, cloudflare: true });
     const add = $<HTMLButtonElement>("button[data-os-add]");
     const target = add.dataset.osImageTarget ?? "";
     expect(target).toMatch(/^\./);
@@ -744,7 +755,7 @@ describe("product", () => {
   });
 
   it("products without variant photos keep the plain markup", () => {
-    mount([create(productBlock)]);
+    mount([create(productBlock)], { cloudflare: true });
     const add = $<HTMLButtonElement>("button[data-os-add]");
     expect(add.dataset.osImageTarget).toBeUndefined();
     expect($$("option[data-os-image]")).toHaveLength(0);
@@ -767,7 +778,7 @@ describe("product", () => {
 
 describe("donation", () => {
   it("posts to Hub checkout with kind=donation and amounts in minor units", () => {
-    mount([create(donationBlock)]);
+    mount([create(donationBlock)], { cloudflare: true });
     const form = $<HTMLFormElement>("form.os-donation__form");
     expect(form.getAttribute("method")).toBe("post");
     expect(form.getAttribute("action")).toBe(`${HUB}/c/${SITE_ID}/checkout`);
@@ -800,13 +811,16 @@ describe("donation", () => {
   });
 
   it("zero-decimal currencies and link mode", () => {
-    mount([
-      withFields(donationBlock, {
-        currency: "JPY",
-        amounts: [{ amount: 1000 }],
-        frequency: "monthly",
-      }),
-    ]);
+    mount(
+      [
+        withFields(donationBlock, {
+          currency: "JPY",
+          amounts: [{ amount: 1000 }],
+          frequency: "monthly",
+        }),
+      ],
+      { cloudflare: true },
+    );
     expect($<HTMLInputElement>('input[name="amount"]').value).toBe("1000");
     expect($<HTMLInputElement>('input[name="interval"]').type).toBe("hidden");
     mount([
@@ -822,7 +836,7 @@ describe("donation", () => {
 
 describe("member sign-in", () => {
   it("asks the Hub for a magic link (no password field) and confirms inline", async () => {
-    mount([create(memberLoginBlock)]);
+    mount([create(memberLoginBlock)], { cloudflare: true });
     const form = $<HTMLFormElement>("form");
     expect(form.getAttribute("action")).toBe(`${HUB}/m/${SITE_ID}/login`);
     expect(form.dataset.osBehavior).toBe("newsletter");
@@ -842,12 +856,45 @@ describe("member sign-in", () => {
   });
 
   it("gated notice links to sign-in and membership", () => {
-    mount([create(memberLoginBlock, { variant: "gated" })]);
+    mount([create(memberLoginBlock, { variant: "gated" })], { cloudflare: true });
     expect($$("form")).toHaveLength(0);
     expect($$("a.os-button").map((a) => a.getAttribute("href"))).toEqual([
       "/members/",
       "/membership",
     ]);
+  });
+});
+
+describe("checkout and member sign-in on GitHub Pages", () => {
+  // GitHub Pages can't run them: an honest sentence, nothing that looks clickable.
+  it("product, donation and member sign-in render no form or buy button", () => {
+    mount([create(productBlock), create(donationBlock), create(memberLoginBlock)]);
+    expect($$("form")).toHaveLength(0);
+    expect($$("[data-os-add]")).toHaveLength(0);
+    expect($$("button")).toHaveLength(0);
+    expect($$(".os-unavailable").map((p) => p.textContent)).toEqual([
+      "Online ordering isn't open yet.",
+      "Online giving isn't open yet.",
+      "Member sign-in isn't open yet.",
+    ]);
+    // Visitors get no owner hints; Studio does.
+    expect($$(".os-empty")).toHaveLength(0);
+    expect($(".os-product__title a").getAttribute("href")).toBe("/shop/cork-yoga-mat/");
+    mount([create(donationBlock)], { mode: "editor" });
+    expect($(".os-empty").textContent).toMatch(/Cloudflare hosting/);
+  });
+
+  it("gated notices drop the sign-in button; link-mode donations still work", () => {
+    mount([create(memberLoginBlock, { variant: "gated" })]);
+    expect($$("a.os-button").map((a) => a.getAttribute("href"))).toEqual(["/membership"]);
+    expect($(".os-unavailable").textContent).toBe("Member sign-in isn't open yet.");
+    mount([
+      withFields(donationBlock, {
+        mode: "link",
+        link: { type: "url", url: "https://opencollective.com/juniper" },
+      }),
+    ]);
+    expect($("a.os-button").getAttribute("href")).toBe("https://opencollective.com/juniper");
   });
 });
 

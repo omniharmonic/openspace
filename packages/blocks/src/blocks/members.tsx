@@ -1,7 +1,15 @@
 import { Button, type ButtonRole, cx } from "@omniharmonic/openspace-renderer";
 import { defineBlock, f, type Link as LinkValue } from "@omniharmonic/openspace-schema";
 import { Icon } from "../icons";
-import { EditorNotice, headingLevelField, sub, typo, useHub } from "../shared";
+import {
+  EditorNotice,
+  headingLevelField,
+  sub,
+  typo,
+  UnavailableNotice,
+  useHub,
+  useSiteServer,
+} from "../shared";
 import { Honeypot, TurnstileSlot, useSourcePath } from "./form";
 
 /** Button role (a variable keeps the a11y role lint off the Button prop). */
@@ -63,6 +71,12 @@ export const memberLoginBlock = defineBlock({
     const HTag = fields.headingLevel;
     const { hub, siteId } = useHub();
     const source = useSourcePath();
+    const canSignIn = useSiteServer();
+    const unavailable = (
+      <UnavailableNotice hint="Member sign-in needs the Cloudflare hosting option (Settings → Hosting). Until then visitors see this message instead of a sign-in form.">
+        Member sign-in isn't open yet.
+      </UnavailableNotice>
+    );
     const heading = fields.heading ? (
       <HTag
         className={cx(
@@ -93,13 +107,26 @@ export const memberLoginBlock = defineBlock({
             ) : null}
           </div>
           <div className="os-members__actions">
-            {fields.signInLink ? (
+            {!canSignIn ? (
+              unavailable
+            ) : fields.signInLink ? (
               <Button to={fields.signInLink as LinkValue}>Sign in</Button>
             ) : (
               <EditorNotice>Link to the page where members sign in.</EditorNotice>
             )}
             {join}
           </div>
+        </div>
+      );
+    }
+
+    if (!canSignIn) {
+      return (
+        // The description explains the form ("enter your email…"), so it goes with it.
+        <div className={cx("os-members", "os-members--form")}>
+          {heading ? <div className="os-members__intro">{heading}</div> : null}
+          {unavailable}
+          {join ? <div className="os-members__row">{join}</div> : null}
         </div>
       );
     }

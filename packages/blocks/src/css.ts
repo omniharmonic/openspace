@@ -81,6 +81,7 @@ ${[
   searchCss,
   commerceCss,
   membersCss,
+  `.os-unavailable{margin:0;padding:var(--os-space-xs) var(--os-space-sm);border-inline-start:3px solid var(--os-color-text-muted);background:var(--os-color-surface);border-radius:var(--os-radius-sm);color:var(--os-color-text);max-inline-size:var(--os-measure)}`,
   `.os-empty{margin:0;padding:var(--os-space-xs) var(--os-space-sm);border:1px dashed var(--os-color-text-muted);border-radius:var(--os-radius-sm);font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}`,
 ]
   .map((s) => s.trim())

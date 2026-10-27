@@ -338,6 +338,30 @@ export function dateParts(iso: string, timeZone?: string) {
  * A short notice for owners (Studio canvas and previews). Production renders nothing, so a
  * half-configured block never shows instructions to visitors.
  */
+/**
+ * Whether the site's hosting can run checkout (shop, donations) and member sign-in. They need the
+ * Cloudflare hosting option: on GitHub Pages the Hub has no site server to hand visitors back
+ * to, so these blocks render an honest, non-interactive state instead of a button that ends on
+ * an error page (Studio warns the owner too). Renders without a document assume they can.
+ */
+export function useSiteServer(): boolean {
+  const { doc } = useRenderContext();
+  return !doc || doc.config.deploy.target === "cloudflare";
+}
+
+/**
+ * What visitors see in place of a checkout or sign-in form the site's hosting can't run: one
+ * plain sentence (no button, nothing to click), plus a note for the owner in Studio.
+ */
+export function UnavailableNotice({ children, hint }: { children: ReactNode; hint: ReactNode }) {
+  return (
+    <>
+      <p className="os-unavailable">{children}</p>
+      <EditorNotice>{hint}</EditorNotice>
+    </>
+  );
+}
+
 export function EditorNotice({ children }: { children: ReactNode }) {
   const { mode } = useRenderContext();
   if (mode === "production") return null;
