@@ -223,6 +223,28 @@ describe("rendering", () => {
     expect(ogSpec(plan.doc, { ...page, seo: { title: "Different" } }).hash).not.toBe(og?.hash);
   });
 
+  it("uses the site's default sharing image before a generated card", () => {
+    const home = plan.routes.find((r) => r.path === "/");
+    if (!home) throw new Error("no route");
+    const withDefault: SitePlan = {
+      ...plan,
+      doc: {
+        ...plan.doc,
+        site: { ...plan.doc.site, seo: { ...plan.doc.site.seo, image: "media/social.jpg" } },
+      },
+    };
+    expect(routePage(withDefault, home).og).toBeUndefined();
+    const html = renderRoute({
+      plan: withDefault,
+      route: home,
+      location: deployLocation({
+        deploy: { target: "github-pages", url: "https://maya.github.io/maya-yoga/" },
+      } as SiteDocument["config"]),
+    });
+    expect(html).toContain('og:image" content="https://maya.github.io/maya-yoga/media/social.jpg"');
+    expect(html).not.toContain("/_os/og/");
+  });
+
   it("names stylesheets by content hash", () => {
     const a = siteStylesheets(doc, "/repo");
     expect(a.hrefs.base).toMatch(/^\/repo\/_os\/os\.[a-f0-9]{10}\.css$/);

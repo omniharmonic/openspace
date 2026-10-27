@@ -130,7 +130,11 @@ export interface RenderRouteOptions {
   mode?: "production" | "preview";
 }
 
-/** The page a route renders, with its generated share image applied (if any). */
+/**
+ * The page a route renders, with its generated share image applied (if any). Share image order:
+ * the page's own image, then the site's default sharing image (`site.seo.image`, which the
+ * renderer falls back to), then a generated card.
+ */
 export function routePage(
   plan: SitePlan,
   route: SiteRoute,
@@ -138,7 +142,8 @@ export function routePage(
 ): { page: Page; og?: OgSpec } {
   const page = plan.doc.pages[route.pageId as Page["id"]];
   if (!page) throw new Error(`Route ${route.path} has no page ${route.pageId}`);
-  if (!ogImages || page.seo?.image || route.kind === "notFound") return { page };
+  if (!ogImages || page.seo?.image || plan.doc.site.seo?.image || route.kind === "notFound")
+    return { page };
   const og = ogSpec(plan.doc, page);
   return { page: { ...page, seo: { ...page.seo, image: `${OG_MEDIA_PREFIX}${og.hash}.png` } }, og };
 }
