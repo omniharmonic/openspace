@@ -106,6 +106,22 @@ describe("openspace.host site document", () => {
     expect(SIGN_IN).toBe("https://studio.openspace.host/sites");
   });
 
+  it("Move my site leads to Studio's no-install move; commands are for developers", () => {
+    const home = bySlug("");
+    const hero = text(home?.sections.find((s) => s.anchor === "hero"));
+    expect(hero).toContain("https://studio.openspace.host/move");
+    expect(text(home?.sections.find((s) => s.anchor === "start"))).toContain(
+      "https://studio.openspace.host/move",
+    );
+    const move = home?.sections.find((s) => s.anchor === "move");
+    const t = text(move);
+    // The Studio link comes before any command.
+    expect(t.indexOf("https://studio.openspace.host/move")).toBeGreaterThan(-1);
+    expect(t.indexOf("https://studio.openspace.host/move")).toBeLessThan(t.indexOf("/plugin"));
+    expect(t).toContain("For developers");
+    expect(t).toContain("Nothing to install");
+  });
+
   it("centers moving an existing site, with the plugin commands and honest platform scope", () => {
     const move = text(bySlug("")?.sections.find((s) => s.anchor === "move"));
     for (const phrase of [

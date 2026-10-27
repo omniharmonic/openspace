@@ -669,9 +669,8 @@
             "role": "primary",
             "secondaryLabel": "Move my site",
             "secondaryLink": {
-              "type": "page",
-              "page": "pg_p5dpv5xxt4",
-              "anchor": "move"
+              "type": "url",
+              "url": "https://studio.openspace.host/move"
             }
           },
           "variant": "large",

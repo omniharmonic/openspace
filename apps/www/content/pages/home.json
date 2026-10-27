@@ -135,7 +135,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "OpenSpace gives everyone what developers have always had: a website made of plain files in your own account, hosted free on GitHub Pages or Cloudflare. Start from a designer template, or let Claude bring your current site home."
+                      "text": "A website that's yours to keep, hosted free, with no monthly bill. Start from a designer template, or move the site you already have: paste its address and we bring it across."
                     }
                   ]
                 }
@@ -157,9 +157,8 @@
             },
             "secondaryLabel": "Move my site",
             "secondaryLink": {
-              "type": "page",
-              "page": "pg_p5dpv5xxt4",
-              "anchor": "move"
+              "type": "url",
+              "url": "https://studio.openspace.host/move"
             },
             "note": "Free forever and open source. In pre-release; you need a free GitHub account."
           },
@@ -268,7 +267,7 @@
             "level": "h2",
             "size": "auto",
             "text": "Bring your site home",
-            "subheading": "Claude moves your site from wherever it lives today to a free one you own forever. It keeps your words and pictures, and checks its work against the original, page by page."
+            "subheading": "Paste your site's address and we move it to a free site you own forever: your words, pictures and pages, at the same addresses. Nothing to install, and your current site stays online throughout."
           },
           "variant": "plain",
           "column": 0
@@ -295,77 +294,57 @@
                     },
                     {
                       "type": "text",
-                      "text": "Claude recognises where your site lives and brings it across, and for platforms without a dedicated importer it rebuilds each page from what visitors see."
+                      "text": "We recognise where your site lives and bring it across; for platforms without a dedicated importer, each page is rebuilt from what visitors see."
                     }
                   ]
-                },
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_w43737wdf2",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "primary",
+            "label": "Move my site",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.host/move"
+            }
+          },
+          "variant": "large",
+          "column": 0
+        },
+        {
+          "id": "blk_yc7q01ghsb",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
                 {
                   "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
                   "content": [
                     {
                       "type": "text",
-                      "text": "In Claude Code, install the plugin:",
+                      "text": "For developers: ",
                       "marks": [
                         {
                           "type": "bold"
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "type": "paragraph",
-                  "content": [
+                    },
                     {
                       "type": "text",
-                      "text": "/plugin marketplace add omniharmonic/openspace",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "/plugin install openspace@openspace",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "Then point it at your site:",
-                      "marks": [
-                        {
-                          "type": "bold"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "/openspace:migrate https://www.example.com",
-                      "marks": [
-                        {
-                          "type": "code"
-                        }
-                      ]
+                      "text": "the same move from Claude Code or a terminal."
                     }
                   ]
                 },
@@ -377,7 +356,58 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "Prefer a terminal? "
+                      "text": "In Claude Code: "
+                    },
+                    {
+                      "type": "text",
+                      "text": "/plugin marketplace add omniharmonic/openspace",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "/plugin install openspace@openspace",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", then "
+                    },
+                    {
+                      "type": "text",
+                      "text": "/openspace:migrate https://www.example.com",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "In a terminal: "
                     },
                     {
                       "type": "text",
@@ -390,7 +420,7 @@
                     },
                     {
                       "type": "text",
-                      "text": " does the import on its own."
+                      "text": "."
                     }
                   ]
                 }
@@ -401,7 +431,7 @@
           "column": 0
         },
         {
-          "id": "blk_w43737wdf2",
+          "id": "blk_sz97qszjcc",
           "type": "button",
           "v": 1,
           "fields": {
@@ -424,7 +454,7 @@
             "aspect": "original",
             "items": [
               {
-                "heading": "Point Claude at your address",
+                "heading": "Paste your address",
                 "body": {
                   "type": "doc",
                   "content": [
@@ -433,7 +463,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Give it the address of the site you have today. It asks first that the site is yours, and the old one stays up throughout."
+                          "text": "Sign in, paste the address of the site you have today and confirm it's yours. The old one stays up throughout."
                         }
                       ]
                     }
@@ -458,7 +488,7 @@
                 }
               },
               {
-                "heading": "It compares until they match",
+                "heading": "It goes live, free",
                 "body": {
                   "type": "doc",
                   "content": [
@@ -467,7 +497,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Claude screenshots the original and the new site side by side, at desktop and phone widths, and refines each page. Then it tells you plainly what still differs."
+                          "text": "In a few minutes your new site is online at a free address, and open in the editor. We tell you plainly anything that didn't come across exactly."
                         }
                       ]
                     }
@@ -475,7 +505,7 @@
                 }
               },
               {
-                "heading": "You publish, free, on GitHub Pages",
+                "heading": "Polish it, with Claude if you like",
                 "body": {
                   "type": "doc",
                   "content": [
@@ -484,7 +514,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Your new site goes online at no cost, as files in your own GitHub account."
+                          "text": "Edit anything you see. Connect Claude and it compares the old and new pages side by side, at desktop and phone widths, and refines them for you."
                         }
                       ]
                     }
@@ -2219,7 +2249,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Yes. Squarespace sites import automatically: pages, blog posts, images, SEO details and redirects. Claude then compares the old and new pages side by side until they match. Importers for more platforms are coming; meanwhile Claude can rebuild a site from WordPress, Wix, Webflow or anywhere else from its public pages."
+                          "text": "Yes. Choose Move my site and paste its address: pages, blog posts, images, SEO details and redirects come across from Squarespace, WordPress, Wix, Webflow, GitHub Pages or anywhere else, with nothing to install. Your old site stays online until you decide. Claude can then compare the old and new pages side by side and polish them."
                         }
                       ]
                     }
@@ -2313,9 +2343,8 @@
             },
             "secondaryLabel": "Move my site",
             "secondaryLink": {
-              "type": "page",
-              "page": "pg_p5dpv5xxt4",
-              "anchor": "move"
+              "type": "url",
+              "url": "https://studio.openspace.host/move"
             }
           },
           "variant": "large"
