@@ -123,4 +123,4 @@ it.skipIf(!OUT)("renders every section preset under stress, and long names in he
       }
     }
   writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));
-});
+}, 600_000);

@@ -9,7 +9,8 @@ how to repeat each check. Each page lists what was measured, what we fixed and w
 | [lighthouse.md](lighthouse.md) | Lighthouse (mobile) on all twelve template demos, built through site-kit; Studio first load, JavaScript, typing and canvas latency |
 | [stress.md](stress.md) | Template stress tests (doc 04 §8.2): every section preset with 3× / 0.3× copy, missing / tall / wide images, 1 / 2 / 5 / 12 items, long names, wide logos, at 320–1920 px and 200% zoom |
 | [accessibility.md](accessibility.md) | axe on Studio's main screens (light and dark) and the keyboard walkthrough of core editing |
-| [templates/](templates/) | Template screenshots (Task 9) and stress samples |
+| [templates-v2.md](templates-v2.md) | Templates v2: 277 presets, 20 templates — checks, stress, Lighthouse, visual-review fixes |
+| [templates/](templates/) | Template screenshots (Task 9, templates v2) and stress samples |
 
 ## Repeating the checks
 

@@ -32,6 +32,34 @@ Median of 3 runs, served over HTTP/2 (TLS, like GitHub Pages and Cloudflare), bu
 target, including LCP under 2.0 s** (hearth, the closest, at 1.95 s).
 
 
+### Templates v2 (October 27, 2026)
+
+The eight new templates and the three upgraded ones (field-notes, ledger, encore), same harness
+and settings (publish build with downloaded fonts and photos, HTTP/2, mobile preset, median of 3):
+
+| Template | Perf | A11y | Best practices | SEO | FCP | LCP | TBT | CLS | JS (KB, transfer) |
+|---|---|---|---|---|---|---|---|---|---|
+| beacon | 100 | 100 | 100 | 100 | 1.05 s | 1.80 s | 0 ms | 0.000 | 3.1 |
+| darkroom | 100 | 100 | 100 | 100 | 1.05 s | 1.65 s | 0 ms | 0.000 | 1.8 |
+| fixwell | 100 | 100 | 100 | 100 | 1.05 s | 1.35 s | 0 ms | 0.000 | 1.8 |
+| folio | 100 | 100 | 100 | 100 | 1.05 s | 1.35 s | 0 ms | 0.000 | 1.8 |
+| gather | 100 | 100 | 100 | 100 | 1.05 s | 1.80 s | 0 ms | 0.001 | 4.3 |
+| inkwell | 100 | 100 | 100 | 100 | 1.06 s | 1.51 s | 0 ms | 0.000 | 2.6 |
+| keystone | 99 | 100 | 100 | 100 | 1.20 s | 1.88 s | 0 ms | 0.000 | 1.8 |
+| orbit | 100 | 100 | 100 | 100 | 0.91 s | 1.21 s | 0 ms | 0.000 | 1.8 |
+| encore (upgraded) | 100 | 100 | 100 | 100 | 1.05 s | 1.73 s | 0 ms | 0.000 | 3.6 |
+| field-notes (upgraded) | 100 | 100 | 100 | 100 | 1.05 s | 1.35 s | 0 ms | 0.000 | 3.1 |
+| ledger (upgraded) | 100 | 100 | 100 | 100 | 1.20 s | 1.65 s | 0 ms | 0.001 | 2.3 |
+
+All meet every target, LCP under 2.0 s (keystone, the closest, at 1.88 s). Repeat with:
+
+```sh
+cd tools/visual-tests
+OPENSPACE_GOOGLE_FONTS=download OPENSPACE_REMOTE_IMAGES=download \
+  node scripts/build-templates.mjs --only=darkroom,orbit,beacon,fixwell,keystone,gather,inkwell,folio
+node scripts/lighthouse.mjs --only=darkroom,orbit,beacon,fixwell,keystone,gather,inkwell,folio --runs=3
+```
+
 ### Before this pass
 
 The first run (same harness) had:
