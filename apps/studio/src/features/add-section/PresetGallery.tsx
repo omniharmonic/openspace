@@ -73,13 +73,16 @@ export const PresetThumb = memo(function PresetThumb({
 });
 
 /**
- * How well a preset matches a search: 2 when every word is in its name, description, category or
- * tags; 1 when some only appear in its AI guidance (so "restaurant" or "nonprofit" still finds
- * the presets written for them, after the direct matches); 0 for no match.
+ * How well a preset matches a search: 3 when the words name its category ("menu" → Menus, ahead
+ * of navigation presets that merely mention a menu); 2 when every word is in its name,
+ * description, category or tags; 1 when some only appear in its AI guidance (so "restaurant" or
+ * "nonprofit" still finds the presets written for them, after the direct matches); 0 for none.
  */
 export function presetScore(p: Preset, query: string): number {
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (!words.length) return 2;
+  const category = `${p.category} ${PRESET_CATEGORY_LABELS[p.category]}`.toLowerCase();
+  if (words.every((w) => category.includes(w))) return 3;
   const main = [p.label, p.description, p.category, PRESET_CATEGORY_LABELS[p.category], ...p.tags]
     .join(" ")
     .toLowerCase();

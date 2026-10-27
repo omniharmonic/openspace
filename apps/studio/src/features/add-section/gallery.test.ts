@@ -32,9 +32,18 @@ describe("section gallery filters", () => {
   it("ranks direct matches above matches found only in AI guidance", async () => {
     const { presetScore } = await import("./PresetGallery");
     const pricing = allPresets.filter((p) => p.category === "pricing");
-    expect(pricing.every((p) => presetScore(p, "pricing") === 2)).toBe(true);
+    expect(pricing.every((p) => presetScore(p, "pricing") === 3)).toBe(true);
     const viaAi = allPresets.filter((p) => presetScore(p, "restaurant") === 1);
     expect(viaAi.length).toBeGreaterThan(0);
+  });
+
+  it("ranks the category a search names above presets that only mention it (menu → Menus)", async () => {
+    const { presetScore } = await import("./PresetGallery");
+    const menus = allPresets.filter((p) => p.category === "menu");
+    const nav = allPresets.filter((p) => p.category === "header" && presetScore(p, "menu") > 0);
+    expect(nav.length).toBeGreaterThan(0);
+    const worstMenu = Math.min(...menus.map((p) => presetScore(p, "menu")));
+    expect(nav.every((p) => presetScore(p, "menu") < worstMenu)).toBe(true);
   });
 
   it("matches labels case-insensitively", () => {
