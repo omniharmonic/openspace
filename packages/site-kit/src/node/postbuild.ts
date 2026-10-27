@@ -132,7 +132,7 @@ export async function writeSiteOutputs(opts: PostbuildOptions): Promise<Postbuil
     written.push(rel.replace(/^\/+/, ""));
   };
 
-  // Stylesheets.
+  // The site stylesheet (tokens + base + blocks).
   const sheets = siteStylesheets(plan.doc, basePath);
   for (const [rel, css] of Object.entries(sheets.files)) await put(rel, css);
 

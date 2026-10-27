@@ -79,13 +79,20 @@ export function jpegSize(b: Uint8Array): { width: number; height: number } | nul
   return null;
 }
 
+/**
+ * AVIF quality. The content's `q` (usually 80) is a JPEG quality; AVIF at 50 looks the same and is
+ * about 40% smaller (a 640 px hero: 84 → 50 KB), which is most of a phone's LCP budget.
+ */
+export const AVIF_QUALITY = 50;
+
 const variant = (src: string, w: number, fm: string) => {
   const u = new URL(src);
   u.searchParams.set("w", String(w));
   u.searchParams.set("fm", fm);
   u.searchParams.delete("auto");
   if (!u.searchParams.has("fit")) u.searchParams.set("fit", "max");
-  if (!u.searchParams.has("q")) u.searchParams.set("q", "80");
+  if (fm === "avif") u.searchParams.set("q", String(AVIF_QUALITY));
+  else if (!u.searchParams.has("q")) u.searchParams.set("q", "80");
   return u.toString();
 };
 
@@ -175,7 +182,8 @@ async function plan(
       for (const fmt of FORMATS) {
         const entries: string[] = [];
         for (const w of widths) {
-          const name = `${hash}-${w}.${fmt.ext}`;
+          // The quality is part of an AVIF's name: a cached file at another quality isn't reused.
+          const name = `${hash}-${w}${fmt.ext === "avif" ? `-q${AVIF_QUALITY}` : ""}.${fmt.ext}`;
           const bytes = await get(variant(src, w, fmt.fm), name);
           if (!bytes) {
             ok = false;

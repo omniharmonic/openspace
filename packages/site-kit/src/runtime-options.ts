@@ -10,6 +10,8 @@ export interface RuntimeOptions {
   assets: SiteAssets;
   /** Self-hosted font stylesheet hrefs (undefined: Google Fonts). */
   fontStylesheets?: string[] | undefined;
+  /** Self-hosted `@font-face` CSS, inlined in each page (one fewer render-blocking request). */
+  fontCss?: string | undefined;
   /** Self-hosted font files preloaded on every page (Latin, upright, one per family). */
   fontPreloads?: string[] | undefined;
   hubUrl?: string | undefined;

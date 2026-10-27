@@ -54,7 +54,12 @@ describe("self-hosted demo photos", () => {
     const hit = plan.map[PHOTO];
     expect(hit?.width).toBe(960);
     expect(hit?.sources?.[0]?.type).toBe("image/avif");
-    expect(hit?.sources?.[0]?.srcset).toMatch(/^\/site\/_os\/img\/[0-9a-f]{12}-480\.avif 480w, /);
+    expect(hit?.sources?.[0]?.srcset).toMatch(
+      /^\/site\/_os\/img\/[0-9a-f]{12}-480-q50\.avif 480w, /,
+    );
+    // AVIF at its own quality (the content's q=80 is a JPEG quality).
+    expect(urls.filter((u) => u.includes("fm=avif")).every((u) => u.includes("q=50"))).toBe(true);
+    expect(urls.filter((u) => u.includes("fm=jpg")).every((u) => u.includes("q=80"))).toBe(true);
     expect(hit?.srcset).toMatch(/-960\.jpg 960w$/);
     // 480, 640, 768, 960 × AVIF + JPEG; nothing for the site's own media.
     expect(urls).toHaveLength(8);
@@ -128,7 +133,7 @@ describe("self-hosted demo photos", () => {
     expect(plan.map[PORTRAIT]?.srcset).toMatch(
       /-320\.jpg 320w, \/r\/_os\/img\/[0-9a-f]{12}-640\.jpg 640w$/,
     );
-    expect(plan.map[PORTRAIT]?.sources?.[0]?.srcset).toMatch(/-640\.avif 640w$/);
+    expect(plan.map[PORTRAIT]?.sources?.[0]?.srcset).toMatch(/-640-q50\.avif 640w$/);
     expect(plan.map[PORTRAIT]?.width).toBe(320);
     expect(plan.map[AVATAR]?.src).toMatch(/^\/r\/_os\/img\/[0-9a-f]{12}-192\.jpg$/);
     expect(plan.map[OG]?.src).toMatch(/-1080\.jpg$/);

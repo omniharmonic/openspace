@@ -245,15 +245,52 @@ describe("rendering", () => {
     expect(html).not.toContain("/_os/og/");
   });
 
-  it("names stylesheets by content hash", () => {
+  it("publishes one stylesheet named by content hash (tokens, base, blocks)", () => {
     const a = siteStylesheets(doc, "/repo");
-    expect(a.hrefs.base).toMatch(/^\/repo\/_os\/os\.[a-f0-9]{10}\.css$/);
+    expect(a.hrefs.site).toMatch(/^\/repo\/_os\/site\.[a-f0-9]{10}\.css$/);
+    expect(Object.keys(a.files)).toEqual([a.hrefs.site.slice("/repo/".length)]);
+    const css = Object.values(a.files)[0] as string;
+    // Cascade order as before: tokens, then the base layers, then the block layer.
+    expect(css.indexOf("--os-")).toBeLessThan(css.indexOf("@layer os.reset, os.base"));
+    expect(css.indexOf("@layer os.reset, os.base")).toBeLessThan(css.indexOf("@layer os.blocks {"));
     const b = siteStylesheets(
       { ...doc, styles: { ...doc.styles, choices: { ...doc.styles.choices, density: "compact" } } },
       "/repo",
     );
-    expect(b.hrefs.tokens).not.toBe(a.hrefs.tokens);
-    expect(b.hrefs.base).toBe(a.hrefs.base);
+    expect(b.hrefs.site).not.toBe(a.hrefs.site);
+  });
+
+  it("has one render-blocking stylesheet: fonts inline, font files preloaded early", () => {
+    const route = plan.routes.find((r) => r.path === "/");
+    if (!route) throw new Error("no route");
+    const location = deployLocation({
+      deploy: { target: "github-pages", url: "https://maya.github.io/maya-yoga/" },
+    } as SiteDocument["config"]);
+    const assets = siteStylesheets(plan.doc, location.basePath).hrefs;
+    const html = renderRoute({
+      plan,
+      route,
+      location,
+      assets,
+      fontStylesheets: ["/maya-yoga/_os/fonts/fonts.abc.css"],
+      fontCss: "@font-face{font-family:X;src:url(/maya-yoga/_os/fonts/x.woff2)}",
+      fontPreloads: ["/maya-yoga/_os/fonts/x.woff2"],
+    });
+    const head = html.slice(0, html.indexOf("</head>"));
+    expect(head.match(/<link rel="stylesheet"[^>]*>/g)).toEqual([
+      `<link rel="stylesheet" href="${assets.site}">`,
+    ]);
+    expect(head).toContain(
+      '<style data-os="fonts">@font-face{font-family:X;src:url(/maya-yoga/_os/fonts/x.woff2)}</style>',
+    );
+    expect(head).not.toContain('data-os="blocks"');
+    expect(head).not.toContain('data-os="tokens"');
+    const preload = head.indexOf(
+      '<link rel="preload" href="/maya-yoga/_os/fonts/x.woff2" as="font"',
+    );
+    expect(preload).toBeGreaterThan(-1);
+    expect(preload).toBeLessThan(head.indexOf('<link rel="stylesheet"'));
+    expect(head.split('_os/fonts/x.woff2" as="font"').length).toBe(2);
   });
 });
 

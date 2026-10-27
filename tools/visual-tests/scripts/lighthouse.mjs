@@ -29,6 +29,9 @@ const BUILD = flags.build ?? join(PKG, ".build");
 const OUT = flags.out ?? join(PKG, "out", "lighthouse");
 const RUNS = Number(flags.runs ?? 1);
 const PAGE = flags.page ?? "/";
+// --project: sites built with `build-templates.mjs --project` live under /<id>/ (GitHub Pages
+// project sites).
+const PROJECT = Boolean(flags.project);
 // HTTP/2 over TLS like the hosts sites publish to (default); --http1 for the old harness.
 const HTTP2 = !flags.http1;
 
@@ -84,8 +87,9 @@ const chrome = await chromeLauncher.launch({
 const rows = [];
 try {
   for (const id of ids) {
-    const server = await serve(join(BUILD, id, "dist"), 0, { http2: HTTP2 });
-    const url = `${HTTP2 ? "https" : "http"}://localhost:${server.address().port}${PAGE}`;
+    const base = PROJECT ? `/${id}` : "";
+    const server = await serve(join(BUILD, id, "dist"), 0, { http2: HTTP2, base });
+    const url = `${HTTP2 ? "https" : "http"}://localhost:${server.address().port}${base}${PAGE}`;
     const runs = [];
     for (let i = 0; i < RUNS; i++) {
       const r = await lighthouse(url, {

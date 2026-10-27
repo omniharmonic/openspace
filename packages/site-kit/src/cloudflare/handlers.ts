@@ -68,6 +68,8 @@ export interface GateContext {
   location: DeployLocation;
   assets?: SiteAssets;
   fontStylesheets?: string[] | undefined;
+  fontCss?: string | undefined;
+  fontPreloads?: string[] | undefined;
   hubUrl?: string | undefined;
   turnstileSiteKey?: string | undefined;
   /** Image map override (tests); default: `/_os/images.json` from the ASSETS binding. */
@@ -169,6 +171,8 @@ function renderGated(ctx: GateContext, page: Page, imageMap: ImageMap, extraMain
     imageMap,
     ...(ctx.assets ? { assets: ctx.assets } : {}),
     ...(ctx.fontStylesheets ? { fontStylesheets: ctx.fontStylesheets } : {}),
+    ...(ctx.fontCss ? { fontCss: ctx.fontCss } : {}),
+    ...(ctx.fontPreloads ? { fontPreloads: ctx.fontPreloads } : {}),
     ...(ctx.hubUrl ? { hubUrl: ctx.hubUrl } : {}),
     ...(ctx.turnstileSiteKey ? { turnstileSiteKey: ctx.turnstileSiteKey } : {}),
     collections: collectionsContextValueFor(doc, now),

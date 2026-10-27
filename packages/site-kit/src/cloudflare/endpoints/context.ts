@@ -9,6 +9,8 @@ export function gateContext(): GateContext {
     location: options.location,
     assets: options.assets,
     fontStylesheets: options.fontStylesheets,
+    fontCss: options.fontCss,
+    fontPreloads: options.fontPreloads,
     hubUrl: options.hubUrl,
     turnstileSiteKey: options.turnstileSiteKey,
     // `astro dev` with gated content in the working copy; a deployed Worker reads only R2.
