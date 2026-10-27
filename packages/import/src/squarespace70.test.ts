@@ -30,7 +30,7 @@ const page70 = `<!doctype html><html><head><title>Home — Fernway</title></head
 <div id="preFooter"><div class="sqs-layout sqs-grid-12 columns-12"><div class="row sqs-row"><div class="col sqs-col-12 span-12">
  <div class="sqs-block newsletter-block sqs-block-newsletter" data-definition-name="website.components.newsletter"><div class="sqs-block-content"><div class="newsletter-form-header-title">Subscribe</div><form><input type="email" name="email"><button>Sign Up</button></form></div></div>
 </div></div></div></div>
-<footer id="footer"><div id="siteInfo"><span class="site-address">459 Broadway, New York</span><span class="site-phone">(212) 555-0123</span><a href="mailto:hi@x.example" class="site-email"><span>hi@x.example</span></a></div>
+<footer id="footer"><div class="sqs-layout sqs-grid-12 columns-12"><div class="row sqs-row"><div class="col sqs-col-12 span-12"><div class="sqs-block html-block sqs-block-html"><div class="sqs-block-content"><div class="sqs-html-content"><p>Fernway<br/><br/>Made with <a href="https://www.squarespace.com/">Squarespace</a></p></div></div></div></div></div></div><div id="siteInfo"><span class="site-address">459 Broadway, New York</span><span class="site-phone">(212) 555-0123</span><a href="mailto:hi@x.example" class="site-email"><span>hi@x.example</span></a></div>
 <div class="sqs-layout sqs-grid-12 columns-12"><div class="row sqs-row"><div class="col sqs-col-12 span-12"><div class="sqs-block html-block sqs-block-html"><div class="sqs-block-content"><div class="sqs-html-content"><p>Powered by <a href="https://www.squarespace.com">Squarespace</a></p></div></div></div></div></div></div></footer>
 </body></html>`;
 
@@ -72,11 +72,12 @@ describe("Squarespace 7.0 pages", () => {
         ? s.layout.rows.flatMap((r) => r.columns.flatMap((c) => c.blocks))
         : [],
     );
-    expect(blocks.map((b) => b.kind)).toEqual(["newsletter", "text"]);
+    expect(blocks.map((b) => b.kind)).toEqual(["newsletter", "text", "text"]);
     const info = blocks[1] as { html: string };
     expect(info.html).toContain("459 Broadway, New York");
     expect(info.html).toContain('href="mailto:hi@x.example"');
-    expect(JSON.stringify(blocks)).not.toContain("Powered by");
+    expect(JSON.stringify(blocks)).not.toMatch(/Powered by|Made with/);
+    expect((blocks[2] as { html: string }).html).toContain("Fernway");
   });
 
   it("reads 7.0 fonts, the button color and the button shape", () => {

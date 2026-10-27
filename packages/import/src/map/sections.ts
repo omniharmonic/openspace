@@ -243,7 +243,15 @@ export async function mapSection(ctx: SectionContext, sq: SqSection): Promise<Se
   const out: Section[] = [];
   let run: { blocks: { block: Block; column: number }[]; spans: number[] } | undefined;
   const flush = () => {
-    if (!run?.blocks.length) return;
+    // Spacers at the edges of a section (or alone) only add a gap: section padding does that.
+    if (run) {
+      while (run.blocks[0]?.block.type === "spacer") run.blocks.shift();
+      while (run.blocks[run.blocks.length - 1]?.block.type === "spacer") run.blocks.pop();
+    }
+    if (!run?.blocks.length) {
+      run = undefined;
+      return;
+    }
     out.push(
       stackSection(
         run.blocks,

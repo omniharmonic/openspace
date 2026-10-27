@@ -845,15 +845,38 @@ function siteInfoRows(footer: Element): SqRow[] {
 const CREDIT = /^\s*(?:Powered by|Built with|Made with)\s+Squarespace\.?\s*$/i;
 
 function withoutSquarespaceCredit(s: SqSection): SqSection {
-  const keep = (b: SqBlock) => !(b.kind === "text" && CREDIT.test(stripTags(b.html)));
+  const strip = (b: SqBlock): SqBlock =>
+    b.kind === "text"
+      ? {
+          ...b,
+          html: b.html
+            .replace(
+              /(?:<br\s*\/?>\s*)*(?:Made|Powered|Built) with\s*(?:<a\b[^>]*>\s*)?Squarespace\.?(?:\s*<\/a>)?/gi,
+              "",
+            )
+            .replace(/<p\b[^>]*>([\s\S]*?)<\/p>/gi, (p, inner: string) =>
+              CREDIT.test(stripTags(inner)) || !stripTags(inner) ? "" : p,
+            ),
+        }
+      : b;
+  const keep = (b: SqBlock) =>
+    !(b.kind === "text" && (CREDIT.test(stripTags(b.html)) || !stripTags(b.html)));
   if (s.layout.mode === "fluid")
-    return { ...s, layout: { ...s.layout, items: s.layout.items.filter((i) => keep(i.block)) } };
+    return {
+      ...s,
+      layout: {
+        ...s.layout,
+        items: s.layout.items
+          .map((i) => ({ ...i, block: strip(i.block) }))
+          .filter((i) => keep(i.block)),
+      },
+    };
   return {
     ...s,
     layout: {
       mode: "classic",
       rows: s.layout.rows.map((r) => ({
-        columns: r.columns.map((c) => ({ ...c, blocks: c.blocks.filter(keep) })),
+        columns: r.columns.map((c) => ({ ...c, blocks: c.blocks.map(strip).filter(keep) })),
       })),
     },
   };
