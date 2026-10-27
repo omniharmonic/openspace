@@ -356,6 +356,7 @@
 
 .st-move__upload-button:focus-within {
   outline: 2px solid var(--st-accent);
+}
 
 .st-fidelity__pages {
   display: grid;

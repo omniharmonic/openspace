@@ -124,8 +124,8 @@ describe("HTML import (a page Claude made)", () => {
       "studio/css/site.css": readFileSync(join(FIX, "studio", "css", "site.css"), "utf8"),
       "studio/img/portrait.png": pngBytes(800, 1000),
       "studio/img/work-1.png": pngBytes(1200, 800),
-      "studio/img/work-2.png": pngBytes(1200, 800),
-      "studio/img/work-3.png": pngBytes(1200, 800),
+      "studio/img/work-2.png": pngBytes(1100, 800),
+      "studio/img/work-3.png": pngBytes(1000, 800),
     };
     const bundle = bundleFromFiles(files, { label: "studio.zip" });
     expect(bundle.entry).toBe("index.html");

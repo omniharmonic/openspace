@@ -30,11 +30,15 @@ test("Start with Claude: idea + design tokens → live site in their brand → h
   const name = unique("Crumb and Kettle");
   await page.getByLabel("Site name").fill(name);
   await page.getByLabel("What is it for?").fill("A neighbourhood bakery and tea room in Leith.");
-  await page.getByLabel("Who is it for?").fill("Locals on their way to work, families at the weekend");
+  await page
+    .getByLabel("Who is it for?")
+    .fill("Locals on their way to work, families at the weekend");
   await page.getByRole("button", { name: "warm", exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByRole("heading", { name: "Bring anything you already have" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Bring anything you already have" }),
+  ).toBeVisible();
   const tokens = {
     color: {
       cream: { $value: "#fbf3e6", $type: "color" },
@@ -60,7 +64,9 @@ test("Start with Claude: idea + design tokens → live site in their brand → h
   await expect(page.getByRole("heading", { name: `${name} is live` })).toBeVisible({
     timeout: 60_000,
   });
-  await expect(page.getByRole("heading", { name: /Now let Claude design it with you/ })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /Now let Claude design it with you/ }),
+  ).toBeVisible();
   await expect(page.getByText(/What it's for: A neighbourhood bakery/)).toBeVisible();
   await expect(page.getByRole("link", { name: /Design-from-scratch skill/ })).toBeVisible();
 
