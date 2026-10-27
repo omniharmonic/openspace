@@ -982,7 +982,7 @@
               {
                 "icon": "sparkles",
                 "title": "Templates and sections",
-                "text": "Twelve templates in three looks, and a growing library of designed section presets in your site's style."
+                "text": "Twenty templates in three looks, and 277 designed section presets that take on your site's style."
               },
               {
                 "icon": "brush",
@@ -1084,7 +1084,7 @@
           "fields": {
             "level": "h2",
             "size": "auto",
-            "text": "Twelve templates, three looks each",
+            "text": "Twenty templates, three looks each",
             "subheading": "Each one arrives finished, with real-feeling pages and a type pairing chosen for its subject. Switch looks any time without touching your content."
           },
           "variant": "plain"

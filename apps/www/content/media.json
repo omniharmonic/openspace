@@ -414,5 +414,261 @@
     },
     "license": "CC-BY-4.0",
     "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/templates/darkroom-looks.png": {
+    "id": "med_www0000026",
+    "path": "media/templates/darkroom-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 182507,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Darkroom template's home page in its three looks: Gallery, Contact sheet, Golden hour",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/darkroom.jpg": {
+    "id": "med_www0000027",
+    "path": "media/showcase/darkroom.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 68024,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Darkroom template's demo home page, in its Gallery look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/templates/orbit-looks.png": {
+    "id": "med_www0000028",
+    "path": "media/templates/orbit-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 111938,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Orbit template's home page in its three looks: Indigo, Aurora, Blueprint",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/orbit.jpg": {
+    "id": "med_www0000029",
+    "path": "media/showcase/orbit.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 84623,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Orbit template's demo home page, in its Indigo look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/templates/beacon-looks.png": {
+    "id": "med_www0000030",
+    "path": "media/templates/beacon-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 215840,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Beacon template's home page in its three looks: Canopy, Sunrise, Civic",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/beacon.jpg": {
+    "id": "med_www0000031",
+    "path": "media/showcase/beacon.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 101756,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Beacon template's demo home page, in its Canopy look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/templates/fixwell-looks.png": {
+    "id": "med_www0000032",
+    "path": "media/templates/fixwell-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 114970,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Fixwell template's home page in its three looks: Workwear, Fresh, Heritage",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/fixwell.jpg": {
+    "id": "med_www0000033",
+    "path": "media/showcase/fixwell.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 71003,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Fixwell template's demo home page, in its Workwear look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/templates/keystone-looks.png": {
+    "id": "med_www0000034",
+    "path": "media/templates/keystone-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 79253,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Keystone template's home page in its three looks: Slate, Clay, Boardroom",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/keystone.jpg": {
+    "id": "med_www0000035",
+    "path": "media/showcase/keystone.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 52606,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Keystone template's demo home page, in its Slate look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/templates/gather-looks.png": {
+    "id": "med_www0000036",
+    "path": "media/templates/gather-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 333775,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Gather template's home page in its three looks: Marquee, Programme, Festival",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/gather.jpg": {
+    "id": "med_www0000037",
+    "path": "media/showcase/gather.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 98522,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Gather template's demo home page, in its Marquee look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/templates/inkwell-looks.png": {
+    "id": "med_www0000038",
+    "path": "media/templates/inkwell-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 153980,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Inkwell template's home page in its three looks: Paper, Riverbank, Night edition",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/inkwell.jpg": {
+    "id": "med_www0000039",
+    "path": "media/showcase/inkwell.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 46265,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Inkwell template's demo home page, in its Paper look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/templates/folio-looks.png": {
+    "id": "med_www0000040",
+    "path": "media/templates/folio-looks.png",
+    "kind": "image",
+    "mime": "image/png",
+    "bytes": 146350,
+    "width": 1400,
+    "height": 478,
+    "alt": "The Folio template's home page in its three looks: Studio, Sketchbook, Monospace",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/folio.jpg": {
+    "id": "med_www0000041",
+    "path": "media/showcase/folio.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 55908,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Folio template's demo home page, in its Studio look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   }
 }
