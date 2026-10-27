@@ -1,7 +1,7 @@
 {
   "name": "@omniharmonic/openspace-cli",
   "version": "0.1.2",
-  "description": "The openspace command line: check, dev, migrate, new, eject, agents-md, mcp.",
+  "description": "The openspace command line: check, dev, migrate, new, import, eject, agents-md, mcp.",
   "license": "MIT",
   "author": "The OpenSpace contributors",
   "homepage": "https://github.com/omniharmonic/openspace#readme",
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "@omniharmonic/openspace-blocks": "workspace:*",
+    "@omniharmonic/openspace-import": "workspace:*",
     "@omniharmonic/openspace-mcp-tools": "workspace:*",
     "@omniharmonic/openspace-ops": "workspace:*",
     "@omniharmonic/openspace-schema": "workspace:*",
@@ -57,7 +58,8 @@
     "playwright": "1.64.1",
     "tsup": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "zod": "^4.6.7"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",

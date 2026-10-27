@@ -7,6 +7,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { createMcpServer, type ImageResizer } from "@omniharmonic/openspace-mcp-tools";
 import { CliError, type Io } from "../io";
 import { FileSiteStore } from "./file-store";
+import { importSquarespaceTool } from "./import-tool";
 import { createScreenshotter, loadPlaywright } from "./screenshot";
 
 export { FileSiteStore } from "./file-store";
@@ -21,7 +22,7 @@ export interface McpOptions {
 }
 
 /** sharp (optional) as the image resizer for uploads above 2400px. */
-async function loadResizer(): Promise<ImageResizer | undefined> {
+export async function loadResizer(): Promise<ImageResizer | undefined> {
   try {
     const spec = "sharp";
     const mod = (await import(/* @vite-ignore */ spec)) as { default: (b: Uint8Array) => unknown };
@@ -59,6 +60,8 @@ export async function runMcp(io: Io, dir: string, opts: McpOptions = {}): Promis
     store,
     { sites: "*", publish: opts.publish !== false, role: "owner" },
     {
+      // Local only: fetches the web and writes a new site folder next to this one.
+      tools: [importSquarespaceTool({ siteRoot: dir })],
       onError: (e, where) =>
         io.err(`openspace mcp: ${where}: ${e instanceof Error ? e.stack : String(e)}`),
     },
