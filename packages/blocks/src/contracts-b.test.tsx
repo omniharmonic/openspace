@@ -873,21 +873,53 @@ describe("checkout and member sign-in on GitHub Pages", () => {
     expect($$("[data-os-add]")).toHaveLength(0);
     expect($$("button")).toHaveLength(0);
     expect($$(".os-unavailable").map((p) => p.textContent)).toEqual([
-      "Online ordering isn't open yet.",
-      "Online giving isn't open yet.",
-      "Member sign-in isn't open yet.",
+      "Online ordering opens here soon.",
+      "Online giving opens here soon.",
+      "Member sign-in opens here soon.",
     ]);
+    // A designed note, not a broken form: an icon, a sentence for visitors, no links.
+    expect($$(".os-soon__mark")).toHaveLength(3);
+    expect($$("a.os-soon__link")).toHaveLength(0);
     // Visitors get no owner hints; Studio does.
     expect($$(".os-empty")).toHaveLength(0);
     expect($(".os-product__title a").getAttribute("href")).toBe("/shop/cork-yoga-mat/");
     mount([create(donationBlock)], { mode: "editor" });
-    expect($(".os-empty").textContent).toMatch(/Cloudflare hosting/);
+    expect($(".os-empty").textContent).toMatch(/Finish setting up/);
+  });
+
+  it("links to the owner's current shop and donation page from the site's redirects", () => {
+    const p = page("Page", "page", []);
+    const base = siteWith([p]);
+    const doc = {
+      ...base,
+      site: {
+        ...base.site,
+        redirects: [
+          {
+            from: "/shop-elsewhere",
+            to: "https://old-shop.example.com/store",
+            status: 302 as const,
+          },
+          {
+            from: "/give-elsewhere/",
+            to: "https://opencollective.com/juniper",
+            status: 302 as const,
+          },
+        ],
+      },
+    };
+    mount([create(productBlock), create(donationBlock), create(memberLoginBlock)], { doc });
+    expect($$("a.os-soon__link").map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+      ["Order from our current shop", "https://old-shop.example.com/store"],
+      ["Give on our current page", "https://opencollective.com/juniper"],
+    ]);
+    expect($$("form")).toHaveLength(0);
   });
 
   it("gated notices drop the sign-in button; link-mode donations still work", () => {
     mount([create(memberLoginBlock, { variant: "gated" })]);
     expect($$("a.os-button").map((a) => a.getAttribute("href"))).toEqual(["/membership/"]);
-    expect($(".os-unavailable").textContent).toBe("Member sign-in isn't open yet.");
+    expect($(".os-unavailable").textContent).toBe("Member sign-in opens here soon.");
     mount([
       withFields(donationBlock, {
         mode: "link",

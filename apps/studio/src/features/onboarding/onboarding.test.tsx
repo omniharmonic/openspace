@@ -77,11 +77,20 @@ describe("onboarding: template → details → sign in → building → editor",
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/sites\/st_/), {
       timeout: 3000,
     });
+    // The first-run tour opens on the live site and ends on "it's live — and it's yours".
+    const tour = await screen.findByRole(
+      "dialog",
+      { name: "This is your site" },
+      { timeout: 3000 },
+    );
+    for (let i = 0; i < 3; i++)
+      await user.click(within(tour).getByRole("button", { name: "Next" }));
     expect(
-      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+      await screen.findByRole("dialog", { name: /Your site is live — and it's yours/ }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Your site is live")).toBeInTheDocument();
     expect(screen.getByText("sam-rivera.github.io/juniper-bodywork")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Copy link" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Start editing" }));
     expect(screen.getByRole("region", { name: "Get your site ready" })).toBeInTheDocument();
     expect(router.state.location.search).not.toContain("welcome");
 
@@ -101,7 +110,7 @@ describe("onboarding: template → details → sign in → building → editor",
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(await screen.findByRole("button", { name: "Continue with GitHub" }));
     expect(
-      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(hub.calls.find((c) => c.method === "startGitHubSignIn")?.args[0]).toEqual({
       template: "hearth",
@@ -123,7 +132,7 @@ describe("onboarding: template → details → sign in → building → editor",
     saveDraft({ template: "ledger", look: "ink", name: "Okafor Advisory", tagline: "Clear plans" });
     const { hub } = renderStudio("/new/ledger?look=ink&resume=1", { user: SAM });
     expect(
-      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(hub.calls.filter((c) => c.method === "createSite")).toHaveLength(1);
     expect(hub.calls.find((c) => c.method === "createSite")?.args[0]).toMatchObject({
@@ -142,7 +151,7 @@ describe("onboarding: template → details → sign in → building → editor",
     await user.click(screen.getByRole("button", { name: "Try again" }));
     // Retries publishing the same site instead of creating a duplicate.
     expect(
-      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(hub.calls.filter((c) => c.method === "createSite")).toHaveLength(1);
     const created = hub.state.sites[0];
@@ -166,7 +175,7 @@ describe("onboarding: template → details → sign in → building → editor",
     expect(await screen.findByText(/Having trouble reaching OpenSpace/)).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /isn’t online yet/ })).not.toBeInTheDocument();
     expect(
-      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(failures).toBe(2);
   });
@@ -194,7 +203,7 @@ describe("onboarding: template → details → sign in → building → editor",
     await user.type(await screen.findByLabelText("Site name"), "Juniper");
     await user.click(screen.getByRole("button", { name: "Create my site" }));
     expect(
-      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
     ).toBeInTheDocument();
     const calls = hub.calls.filter((c) => c.method === "createSite");
     expect(calls).toHaveLength(2);
@@ -214,7 +223,7 @@ describe("onboarding: template → details → sign in → building → editor",
     await user.type(await screen.findByLabelText("Site name"), "Juniper");
     await user.click(screen.getByRole("button", { name: "Create my site" }));
     expect(
-      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /isn’t online yet/ })).not.toBeInTheDocument();
   });

@@ -224,7 +224,9 @@ describe("domains wizard", () => {
 
   it("tells Cloudflare-hosted sites where to connect a domain", async () => {
     await openSettings("domains", { deployTarget: "cloudflare" });
-    expect(await screen.findByText(/Your site is hosted on Cloudflare/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Your site runs on your own Cloudflare account/),
+    ).toBeInTheDocument();
   });
 
   it("shows a plain error for an invalid domain", async () => {
@@ -403,7 +405,7 @@ describe("people", () => {
 });
 
 describe("hosting", () => {
-  it("seals the Cloudflare token in the browser so the Hub only sees ciphertext", async () => {
+  it("moves to Cloudflare from one pasted key: checked, sealed in the browser, confirmed", async () => {
     const pair = sodium.crypto_box_keypair();
     const { user, hub } = await openSettings("general");
     // The site's Actions key (in production, GitHub's actions/secrets/public-key).
@@ -414,21 +416,22 @@ describe("hosting", () => {
     await user.click(screen.getByRole("button", { name: "Hosting" }));
     // Built at runtime: never a secret-shaped literal in the source.
     const token = ["cf", "test", "Z".repeat(36)].join("_");
-    const account = "0123456789abcdef0123456789abcdef";
-    expect(await screen.findByRole("link", { name: /Create token on Cloudflare/ })).toHaveAttribute(
-      "href",
-      cloudflareTokenUrl(willow.name),
-    );
-    await user.type(screen.getByLabelText("Access token"), token);
-    await user.type(screen.getByLabelText("Account ID"), account);
-    await user.click(screen.getByRole("button", { name: "Connect Cloudflare" }));
-    await screen.findByText(/Almost there/);
+    expect(
+      await screen.findByRole("link", { name: /Open Cloudflare, ready to create/ }),
+    ).toHaveAttribute("href", cloudflareTokenUrl(willow.name));
+    await user.type(screen.getByLabelText("Your Cloudflare key"), token);
+    // The account is found from the key: nothing else to copy.
+    expect(await screen.findByText(/Found/)).toHaveTextContent("Maya's account");
+    await user.click(screen.getByRole("button", { name: "Move my site to Cloudflare" }));
+    expect(
+      await screen.findByRole("heading", { name: "Your own Cloudflare account" }),
+    ).toBeInTheDocument();
 
     const put = hub.calls.find((c) => c.method === "putHostingSecrets");
     const secrets = put?.args[1] as Array<{ name: string; encryptedValue: string; keyId: string }>;
     expect(secrets.map((s) => s.name)).toEqual(["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"]);
-    // Nothing the Hub received contains the token in the clear.
-    expect(JSON.stringify(hub.calls)).not.toContain(token);
+    // What's saved is sealed: no stored request carries the key in the clear.
+    expect(JSON.stringify(put?.args)).not.toContain(token);
     expect(hub.calls.find((c) => c.method === "switchHosting")?.args).toEqual([
       willow.id,
       "cloudflare",
@@ -445,7 +448,7 @@ describe("hosting", () => {
       );
     };
     expect(open("CLOUDFLARE_API_TOKEN")).toBe(token);
-    expect(open("CLOUDFLARE_ACCOUNT_ID")).toBe(account);
+    expect(open("CLOUDFLARE_ACCOUNT_ID")).toBe("0123456789abcdef0123456789abcdef");
     expect(secrets.every((s) => s.keyId === "kid_1")).toBe(true);
   });
 
@@ -464,13 +467,16 @@ describe("hosting", () => {
     await expect(sealSecret("c2hvcnQ=", secret)).rejects.toThrow();
   });
 
-  it("asks for a valid token and account ID", async () => {
+  it("explains a key Cloudflare doesn't recognise, and won't move without a good one", async () => {
     const { user } = await openSettings("hosting");
-    await user.type(await screen.findByLabelText("Access token"), "nope");
-    await user.type(screen.getByLabelText("Account ID"), "123");
-    expect(screen.getByText("That doesn't look like a Cloudflare token.")).toBeInTheDocument();
-    expect(screen.getByText("Account IDs are 32 letters and numbers.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Connect Cloudflare" })).toBeDisabled();
+    await user.type(await screen.findByLabelText("Your Cloudflare key"), "nope");
+    expect(
+      screen.getByText("That doesn't look like a whole Cloudflare key yet."),
+    ).toBeInTheDocument();
+    await user.clear(screen.getByLabelText("Your Cloudflare key"));
+    await user.type(screen.getByLabelText("Your Cloudflare key"), `bad_${"Q".repeat(40)}`);
+    expect(await screen.findByText(/didn't recognise that token/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Move my site to Cloudflare" })).toBeDisabled();
   });
 });
 

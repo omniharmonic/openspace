@@ -94,7 +94,7 @@ Never invent replacements for content that didn't import — ask.
 
 ## 5. Celebrate, then an honest summary
 
-Start with the good news: **"Your new site is live!"** with the live link (and the Studio link if it's a Hub site), and what they save — they can stop paying their old platform for hosting once they move their address (a Squarespace plan is typically about $200–$550 a year). Then a short **when you're ready** list of only what applies (their own web address, turning the shop back on, donations, member or password pages, newsletter subscribers, extras the old site had), one plain line each.
+Start with the good news: **"Your new site is live!"** with the live link (and the Studio link if it's a Hub site), and what they save — they can stop paying their old platform for hosting once they move their address (a Squarespace plan is typically about $200–$550 a year). If the old site had a shop, say its products came across and show an “opening soon” note until they turn checkout on — and offer to point that note at their old shop meanwhile (a `redirects` entry from `/shop-elsewhere` to the old shop's address, status 302). Then a short **when you're ready** list of only what applies (their own web address, turning the shop back on, donations, member or password pages, newsletter subscribers, extras the old site had), one plain line each.
 
 Then tell the owner, briefly:
 

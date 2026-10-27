@@ -208,8 +208,61 @@ export interface HostingInfo {
   actionsPublicKey: { keyId: string; key: string } | null;
   /** Which sealed secrets are already set (names only; values are never readable). */
   secrets: string[];
-  /** Progress of a switch between hosts. */
-  switching: { to: HostingTarget; status: "pending" | "failed"; error?: string } | null;
+  /**
+   * The latest move between hosts. `publishing` → `verifying` → `done`; a failed Cloudflare
+   * publish (or a Worker that doesn't answer) ends `rolled_back` (the site stayed on GitHub Pages)
+   * with a plain-language `error`.
+   */
+  switching: HostingSwitch | null;
+  /** Has the site been live on GitHub Pages yet? Nothing else is offered before (wow first). */
+  everLive?: boolean;
+}
+
+export interface HostingSwitch {
+  to: HostingTarget;
+  status: "publishing" | "verifying" | "done" | "rolled_back" | "failed";
+  /** The new address (workers.dev). */
+  url: string | null;
+  error: string | null;
+  startedAt: string;
+}
+
+/** `POST /api/sites/:id/hosting/cloudflare/check` — the token is read once, never stored. */
+export interface CloudflareCheck {
+  ok: boolean;
+  accounts: Array<{ id: string; name: string }>;
+  account: { id: string; name: string } | null;
+  subdomain: string | null;
+  workersUrl: string | null;
+  problems: Array<{ code: string; message: string; fixUrl?: string }>;
+}
+
+/** One item the importer left to finish (`content/setup-checklist.json`). */
+export interface ImportedSetupItem {
+  id: string;
+  kind:
+    | "store"
+    | "donations"
+    | "members"
+    | "password-pages"
+    | "forms-email"
+    | "newsletter"
+    | "domain"
+    | "analytics"
+    | "comments"
+    | "custom-code"
+    | "other";
+  title: string;
+  detail: string | null;
+  where: string[];
+  count: number | null;
+  done: boolean;
+}
+
+/** `GET /api/sites/:id/setup`. */
+export interface SetupInfo {
+  everLive: boolean;
+  imported: { from: string | null; items: ImportedSetupItem[] } | null;
 }
 
 /** One sealed secret for `PUT /api/sites/:id/hosting/secrets` (planned). */
@@ -283,7 +336,9 @@ export interface ManageApi {
 
   getHosting(siteId: string): Promise<HostingInfo>;
   putHostingSecrets(siteId: string, secrets: SealedSecret[]): Promise<void>;
-  switchHosting(siteId: string, target: HostingTarget): Promise<HostingInfo>;
+  switchHosting(siteId: string, target: HostingTarget, url?: string): Promise<HostingInfo>;
+  checkCloudflare(siteId: string, token: string, accountId?: string): Promise<CloudflareCheck>;
+  getSetup(siteId: string): Promise<SetupInfo>;
 
   downloadExport(siteId: string, kind: ExportKind): Promise<DownloadedFile>;
 }

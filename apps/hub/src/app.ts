@@ -26,6 +26,7 @@ import { publicMemberRoutes } from "./routes/public/members";
 import { publicNewsletterRoutes } from "./routes/public/newsletter";
 import { publishingRoutes } from "./routes/publishing";
 import { roomRoutes } from "./routes/room";
+import { setupRoutes } from "./routes/setup";
 import { domainInfoRoutes, siteServiceRoutes } from "./routes/site-services";
 import { siteRoutes } from "./routes/sites";
 import { templateRoutes } from "./routes/templates";
@@ -114,6 +115,7 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api/sites", mcpTokenRoutes);
   app.route("/api/sites", mediaRoutes);
   app.route("/api/sites", hostingRoutes);
+  app.route("/api/sites", setupRoutes);
   app.route("/", mcpRoutes);
   // The site's own publish workflow (GitHub Actions OIDC): gated content for Cloudflare deploys.
   app.route("/ci", ciRoutes);

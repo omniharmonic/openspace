@@ -22,6 +22,7 @@ export const manageKeys = {
   collaborators: (id: string) => ["collaborators", id] as const,
   approvals: (id: string) => ["approvals", id] as const,
   hosting: (id: string) => ["hosting", id] as const,
+  setup: (id: string) => ["setup", id] as const,
 };
 
 export function useRenameSite(siteId: string) {
@@ -240,12 +241,35 @@ export function useCollaboratorActions(siteId: string) {
   };
 }
 
-export function useHosting(siteId: string, enabled = true) {
+export function useHosting(
+  siteId: string,
+  enabled = true,
+  opts: { pollWhileMoving?: number } = {},
+) {
   const hub = useHub();
   return useQuery({
     queryKey: manageKeys.hosting(siteId),
     queryFn: () => hub.getHosting(siteId),
     enabled,
+    // While a move to Cloudflare is publishing / being confirmed, keep reading: the Hub confirms
+    // (or rolls back) as it's read.
+    refetchInterval: (q) => {
+      const s = q.state.data?.switching?.status;
+      return opts.pollWhileMoving && (s === "publishing" || s === "verifying")
+        ? opts.pollWhileMoving
+        : false;
+    },
+  });
+}
+
+/** "Finish setting up": whether the site has been live yet and what the importer left to do. */
+export function useSetupInfo(siteId: string, enabled = true) {
+  const hub = useHub();
+  return useQuery({
+    queryKey: manageKeys.setup(siteId),
+    queryFn: () => hub.getSetup(siteId),
+    enabled,
+    staleTime: 60_000,
   });
 }
 
@@ -257,13 +281,21 @@ export function useHostingActions(siteId: string) {
       mutationFn: (secrets: SealedSecret[]) => hub.putHostingSecrets(siteId, secrets),
     }),
     switchTo: useMutation({
-      mutationFn: (target: HostingTarget) => hub.switchHosting(siteId, target),
+      mutationFn: (input: HostingTarget | { target: HostingTarget; url?: string }) =>
+        typeof input === "string"
+          ? hub.switchHosting(siteId, input)
+          : hub.switchHosting(siteId, input.target, input.url),
       onSuccess: (info) => {
         qc.setQueryData(manageKeys.hosting(siteId), info);
         qc.setQueryData<Site>(queryKeys.site(siteId), (s) =>
           s ? { ...s, deployTarget: info.target } : s,
         );
+        void qc.invalidateQueries({ queryKey: queryKeys.site(siteId) });
       },
+    }),
+    check: useMutation({
+      mutationFn: (input: { token: string; accountId?: string }) =>
+        hub.checkCloudflare(siteId, input.token, input.accountId),
     }),
   };
 }

@@ -14,9 +14,9 @@ import {
   EditorNotice,
   formatMoney,
   headingLevelField,
+  OpeningSoon,
   sub,
   typo,
-  UnavailableNotice,
   useHub,
   useLocale,
   useSiteServer,
@@ -153,9 +153,10 @@ export const productBlock = defineBlock({
             <p className="os-product__desc">{fm.excerpt}</p>
           ) : null}
           {firstAvailable && !canSell ? (
-            <UnavailableNotice hint="Checkout needs the Cloudflare hosting option and a connected Stripe account (Settings → Hosting). Until then visitors see this message instead of “Add to cart”.">
-              Online ordering isn't open yet.
-            </UnavailableNotice>
+            <OpeningSoon
+              kind="store"
+              hint="Visitors see this friendly “opening soon” note instead of “Add to cart” until you turn on your shop in Finish setting up (about 10 minutes, free)."
+            />
           ) : firstAvailable ? (
             <div className="os-product__buy">
               {options.length > 1 ? (
@@ -360,9 +361,10 @@ export const donationBlock = defineBlock({
       return (
         <div className={cx("os-donation", `os-donation--${variant}`)}>
           {intro}
-          <UnavailableNotice hint="Donations through Stripe need the Cloudflare hosting option (Settings → Hosting). Until then visitors see this message — or choose “Link to another donation page” to take gifts now.">
-            Online giving isn't open yet.
-          </UnavailableNotice>
+          <OpeningSoon
+            kind="donations"
+            hint="Visitors see this friendly “opening soon” note until you turn on donations in Finish setting up — or choose “Link to another donation page” to take gifts today."
+          />
         </div>
       );
     }

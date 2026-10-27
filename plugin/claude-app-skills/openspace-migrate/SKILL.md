@@ -87,7 +87,7 @@ Finish with a short, warm message:
 - **What they save:** they no longer need to pay their old platform for hosting once they switch over (a Squarespace plan is typically about $200–$550 a year; say "you can stop paying for <platform> hosting" when you don't know their plan).
 - **When you're ready** — a short list, only of what applies to their site, each one line, in plain words (Studio's **Finish setting up** list walks them through each):
   - use your own web address (e.g. www.their-site.com) — the old site stays up until this is done; cancel the old plan only after the address shows the new site;
-  - turn your shop back on (products came across as pages; selling needs a payment account);
+  - turn your shop back on (products came across as pages, with a friendly “opening soon” note where the Buy button will be; selling needs a payment account) — meanwhile, offer to point that note at their old shop: add a redirect from `/shop-elsewhere` to the old shop's address (status 302) with `update_site`;
   - donations, member pages or password pages;
   - bring your newsletter subscribers across, and where form messages now arrive;
   - any extras the old site had (booking widgets, chat, analytics) — say what each did and what replaces it.

@@ -56,7 +56,7 @@ Options for `openspace new <template> <dir>`:
 - `--repo <owner/name>` — the GitHub repository; sets the GitHub Pages address (`https://owner.github.io/name`).
 - `--url <url>` — the address before a custom domain, when not using `--repo`.
 - `--domain <hostname>` — a custom domain from the start.
-- `--target github-pages|cloudflare` — default `github-pages`. Always start on the default: the first goal is a live site. Cloudflare (needed later for selling, member areas and password pages, since GitHub Pages' terms exclude commerce) is switched on afterwards from Studio's **Finish setting up**, never while creating or moving a site.
+- `--target` — leave it out: only `github-pages` is accepted when creating a site (the CLI refuses `cloudflare` with an explanation). The first goal is a live site. Cloudflare (needed later for selling, member areas and password pages, since GitHub Pages' terms exclude commerce) is switched on afterwards from Studio's **Finish setting up**, which checks the person's Cloudflare account first and keeps the current version live until the move is confirmed.
 - `--hub <url>` — a self-hosted Hub instead of the public one.
 
 The folder must not exist yet (or be empty). The result has a fresh site id, the template's pages, styles and demo content, `AGENTS.md`, and a `.github/workflows/publish.yml`.
