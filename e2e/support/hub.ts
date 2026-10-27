@@ -137,9 +137,13 @@ export class Hub {
   }
 }
 
-export async function devLogin(api: APIRequestContext, name: string) {
+export async function devLogin(
+  api: APIRequestContext,
+  name: string,
+  opts: { installApp?: boolean } = {},
+) {
   const res = await api.post(`${HUB_URL}/auth/dev/login`, {
-    data: { name },
+    data: { name, ...opts },
     headers: { origin: STUDIO_URL },
   });
   const body = await ok<{ user: { id: string; login: string; name: string } }>(res, "dev login");

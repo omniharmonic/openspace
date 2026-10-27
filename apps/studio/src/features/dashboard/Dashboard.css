@@ -231,3 +231,10 @@
 .st-sitecard__problem .st-sitecard__note {
   margin-top: 0;
 }
+
+.st-dash__empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}

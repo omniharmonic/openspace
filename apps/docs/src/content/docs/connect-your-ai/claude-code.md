@@ -28,12 +28,21 @@ The **OpenSpace plugin** turns Claude Code into a careful web designer for OpenS
 
 ### Install
 
-In Claude Code:
+The plugin is **not** in Claude Code's built-in plugin directory, so searching for it in `/plugin` won't find it. Add OpenSpace's own plugin catalog (a "marketplace") first, then install from it. In Claude Code, type these one at a time:
 
 ```
 /plugin marketplace add omniharmonic/openspace
-/plugin install openspace
+/plugin install openspace@openspace
 ```
+
+Then quit and restart Claude Code so the plugin loads. From a terminal instead of inside Claude Code:
+
+```sh
+claude plugin marketplace add omniharmonic/openspace
+claude plugin install openspace@openspace
+```
+
+(`openspace@openspace` means "the plugin `openspace` from the marketplace `openspace`".)
 
 You need Node.js 22.23.4 or newer (Node 24 recommended). Screenshots need the `playwright` package in your site (`npm i -D playwright`) **and** a browser — `npx playwright install chromium`, or an installed Google Chrome; without them Claude falls back to the rendered HTML. To resize large uploads, also `npm i -D sharp`.
 

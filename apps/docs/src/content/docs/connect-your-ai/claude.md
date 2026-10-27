@@ -5,18 +5,30 @@ description: Connect Claude on the web or Claude Desktop to your OpenSpace site 
 
 Claude on the web (claude.ai) and Claude Desktop connect to OpenSpace as a **custom connector**. Nothing is installed on your computer — for the full no-install path, including the OpenSpace skills and moving an existing site, see [No installs: the Claude app](/connect-your-ai/claude-app/). Custom connectors are available on Claude's paid plans; your workspace admin may need to allow them on Team and Enterprise plans.
 
+This is the easiest way to work with OpenSpace: nothing to download or install, and **you don't need a site yet**.
+
 ## Add the connector
 
-1. In Claude, open **Settings → Connectors** and choose **Add custom connector**.
+1. In Claude (claude.ai in your browser, or the Claude Desktop app), open **Settings → Connectors** and choose **Add custom connector**.
 2. Name it **OpenSpace** and paste the address from Studio → Settings → Connect your AI:
    - `https://hub.openspace.host/mcp` to **sign in** and choose sites, or
    - your **personal link** (`https://hub.openspace.host/mcp/t/…`) for one site without signing in.
-3. If you used the sign-in address, Claude opens OpenSpace: sign in with GitHub, tick the sites Claude may edit, and decide whether to **Allow publishing** (off by default). Press **Allow**. A personal link skips this step: there's no sign-in, and it edits the draft only unless the site owner allows that link to publish.
+3. If you used the sign-in address, Claude opens OpenSpace: sign in with GitHub, tick the sites Claude may edit — or, with no site yet, keep **Create new sites** ticked — and decide whether to **Allow publishing** (off by default). Press **Allow**. A personal link skips this step: there's no sign-in, and it edits the draft only unless the site owner allows that link to publish.
 4. In a new chat, make sure the OpenSpace connector is turned on in the tools menu.
 
 Claude Desktop uses the same Settings → Connectors screen, and connectors you add on the web appear there too.
 
 If your site runs on a [self-hosted Hub](/self-hosting/), use that Hub's address instead, such as `https://hub.example.org/mcp`.
+
+## No site yet?
+
+Ask Claude:
+
+> Make me a website for my pottery studio. Show me a few templates first.
+
+Claude lists the templates, asks for your site's name, and creates it — the same as **Create my site** in Studio. The very first time, GitHub (the free service where your site lives, in your own account) asks you to let OpenSpace save your site there: Claude gives you a Studio link; open it, choose **Continue to GitHub**, keep **All repositories** and choose **Install**. You come straight back and your site is set up. Then tell Claude you're done and it carries on.
+
+Already have a site somewhere else (Squarespace, Wix, WordPress, GitHub Pages)? Ask Claude to **move your site to OpenSpace**.
 
 ## A good first conversation
 

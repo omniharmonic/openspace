@@ -1,0 +1,78 @@
+.st-ghconnect {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: var(--st-bg);
+}
+.st-ghconnect__card {
+  width: min(36rem, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.st-ghconnect__title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+  margin: 8px 0 0;
+}
+.st-ghconnect__subtitle {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+.st-ghconnect__lede {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+.st-ghconnect__explain {
+  border: 1px solid var(--st-line);
+  border-radius: var(--st-r-lg);
+  padding: 16px;
+}
+.st-ghconnect__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.st-ghconnect__list li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  line-height: 1.5;
+}
+.st-ghconnect__list svg {
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  color: var(--st-live);
+}
+.st-ghconnect__note,
+.st-ghconnect__fine {
+  margin: 8px 0 0;
+  font-size: 0.875rem;
+  color: var(--st-text-2);
+}
+.st-ghconnect__outcome {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--st-pending-soft);
+}
+.st-ghconnect__outcome--danger {
+  color: var(--st-danger);
+  background: var(--st-danger-soft);
+}
+.st-ghconnect__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.st-ghconnect__actions a svg {
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+}

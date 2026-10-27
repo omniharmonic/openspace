@@ -11,6 +11,7 @@ import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { BuildState } from "../room/protocol";
 import { buildErrorDetail, type SiteNames, translateBuildError } from "./build-errors";
+import { GITHUB_ACCESS_DETAIL, GITHUB_RECONNECT_DETAIL } from "./github-install";
 import type { Services } from "./index";
 import { completeTransfer, ownerOf } from "./sites";
 
@@ -219,7 +220,7 @@ async function onInstallation(
   event: string,
   p: {
     action: string;
-    installation: { id: number };
+    installation: { id: number; account?: { login: string } | null };
     repositories?: Array<{ full_name: string }>;
     repositories_added?: Array<{ full_name: string }>;
     repositories_removed?: Array<{ full_name: string }>;
@@ -234,21 +235,43 @@ async function onInstallation(
   const removed = event === "installation_repositories" ? p.repositories_removed : [];
   for (const r of added ?? [])
     await services.db
-      .prepare("UPDATE sites SET installation_id = ? WHERE repo = ? COLLATE NOCASE")
+      .prepare(
+        `UPDATE sites SET installation_id = ?,
+           github_access = CASE WHEN github_access = 'repo_access' THEN NULL ELSE github_access END
+         WHERE repo = ? COLLATE NOCASE`,
+      )
       .bind(p.installation.id, r.full_name)
       .run();
+  // A repository taken out of the installation: its site can't be edited or published until
+  // the owner gives OpenSpace access again ("Reconnect GitHub" in Studio).
   for (const r of removed ?? [])
     await services.db
       .prepare(
-        "UPDATE sites SET installation_id = NULL WHERE repo = ? COLLATE NOCASE AND installation_id = ?",
+        `UPDATE sites SET installation_id = NULL, github_access = 'repo_access', status_detail = ?
+         WHERE repo = ? COLLATE NOCASE AND installation_id = ? AND archived_at IS NULL`,
       )
-      .bind(r.full_name, p.installation.id)
+      .bind(GITHUB_RECONNECT_DETAIL, r.full_name, p.installation.id)
       .run();
-  if (event === "installation" && (p.action === "deleted" || p.action === "suspend"))
+  // The App was uninstalled (or suspended): every site on it shows "Reconnect GitHub". Sites
+  // created before the Hub stored installation ids are matched by the account's login.
+  if (event === "installation" && (p.action === "deleted" || p.action === "suspend")) {
+    const account = p.installation.account?.login;
     await services.db
-      .prepare("UPDATE sites SET installation_id = NULL WHERE installation_id = ?")
-      .bind(p.installation.id)
+      .prepare(
+        `UPDATE sites SET installation_id = NULL, github_access = 'install',
+           status_detail = CASE WHEN status = 'failed' THEN ? ELSE ? END
+         WHERE archived_at IS NULL AND (installation_id = ?
+           OR (? IS NOT NULL AND installation_id IS NULL AND repo LIKE ? || '/%' COLLATE NOCASE))`,
+      )
+      .bind(
+        GITHUB_ACCESS_DETAIL.install,
+        GITHUB_RECONNECT_DETAIL,
+        p.installation.id,
+        account ?? null,
+        account ?? "",
+      )
       .run();
+  }
   return "ok";
 }
 

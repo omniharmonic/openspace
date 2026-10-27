@@ -86,7 +86,9 @@ describe("docs content", () => {
       await Promise.all(cliMcp.filter(Boolean).map((p) => readFile(p, "utf8")))
     ).join("\n");
     for (const t of local) expect(localSource, t).toContain(`name: "${t}"`);
-    const tools = new Set([...ALL_TOOLS.map((t) => t.name), ...local]);
+    // Hub-only account tools (apps/hub/src/mcp/tools/account.ts).
+    const hubOnly = ["create_site"];
+    const tools = new Set([...ALL_TOOLS.map((t) => t.name), ...local, ...hubOnly]);
     const prompts = new Set(PROMPTS.map((p) => p.name));
     const unknown: string[] = [];
     for (const f of await walk(CONTENT)) {
@@ -168,7 +170,8 @@ describe("docs content", () => {
   it("gives the plugin install commands", async () => {
     const text = await source("connect-your-ai/claude-code");
     expect(text).toContain("/plugin marketplace add omniharmonic/openspace");
-    expect(text).toContain("/plugin install openspace");
+    expect(text).toContain("/plugin install openspace@openspace");
+    expect(text).toContain("claude plugin install openspace@openspace");
     expect(text).toContain("npx -y @omniharmonic/openspace-cli mcp");
   });
 });

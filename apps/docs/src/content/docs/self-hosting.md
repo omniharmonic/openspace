@@ -44,7 +44,8 @@ Replace the placeholder ids in `wrangler.jsonc`'s `production` environment with 
 
 In GitHub → Settings → Developer settings → **GitHub Apps → New GitHub App**:
 
-- **Callback URL**: `https://<your-hub>/auth/github/callback`; turn on "Request user authorization (OAuth) during installation" and expiring user tokens.
+- **Callback URL**: `https://<your-hub>/auth/github/callback`, with expiring user tokens. Leave "Request user authorization (OAuth) during installation" **off**.
+- **Setup URL**: `https://<your-hub>/auth/github/installed`, with **Redirect on update** on — this is how new people come back after installing the App ([details](/operators/github-app/)).
 - **Webhook URL**: `https://<your-hub>/webhooks/github`, with a secret.
 - **Repository permissions**: Contents, Workflows, Pages, Administration, Secrets, Variables and Pull requests — read & write; Actions and Metadata — read. (Variables carry the public Turnstile site key to site builds.) **Account permissions**: Email addresses — read.
 - **Events**: installation, installation repositories, GitHub app authorization, workflow run, push.
