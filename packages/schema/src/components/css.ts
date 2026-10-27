@@ -267,8 +267,7 @@ const URL_RE = /url\(\s*(['"]?)(.*?)\1\s*\)/gi;
 function declIssues(d: CssDecl): string[] {
   const out: string[] = [];
   const v = d.value;
-  if (/expression\s*\(|javascript:|-moz-binding|behaviou?r\s*:/i.test(`${d.prop}:${v}`))
-    out.push("Scripts can't run from CSS");
+  if (/expression\s*\(|javascript:|-moz-binding/i.test(v)) out.push("Scripts can't run from CSS");
   if (d.prop === "behavior" || d.prop === "-moz-binding") out.push("Scripts can't run from CSS");
   if (/<\/?style|<\/?script|<!--/i.test(v)) out.push("CSS can't contain HTML tags");
   if (/@import/i.test(v)) out.push("@import isn't allowed");

@@ -44,6 +44,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@omniharmonic/openspace-renderer": "workspace:*",
     "@types/node": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",

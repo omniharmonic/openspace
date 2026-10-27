@@ -551,6 +551,9 @@ importers:
         specifier: workspace:*
         version: link:../theme
     devDependencies:
+      '@omniharmonic/openspace-renderer':
+        specifier: workspace:*
+        version: link:../renderer
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.5

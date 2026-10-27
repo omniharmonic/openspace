@@ -311,3 +311,11 @@ describe("component definitions", () => {
     expect(componentInstances(doc as never, "story-cards")).toHaveLength(1);
   });
 });
+
+describe("component CSS false positives", () => {
+  it("allows scroll-behavior and similar properties", () => {
+    expect(
+      scopeCss("x", ".a { scroll-behavior: smooth; overscroll-behavior-x: contain }").issues,
+    ).toEqual([]);
+  });
+});

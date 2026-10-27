@@ -116,6 +116,7 @@ export { teamBlock } from "./blocks/team";
 export { textBlock } from "./blocks/text";
 export { parseVideoUrl, type VideoEmbed, videoBlock } from "./blocks/video";
 export { BLOCKS_CSS, blocksStyleTag } from "./css";
+export * from "./designer";
 export { ICON_NAMES, ICON_OPTIONS, Icon, type IconName, type IconProps } from "./icons";
 export * from "./presets";
 export { DEMO, formatDate, formatMoney, rt } from "./shared";
