@@ -59,8 +59,11 @@ export function AppHeader({ children }: { children?: ReactNode }) {
             Templates
           </NavLink>
           {user && (
-            <NavLink to="/connect" className="st-header__link">
-              Connect your AI
+            <NavLink to="/connect" className="st-header__link" aria-label="Connect your AI">
+              <span className="st-header__long">Connect your AI</span>
+              <span className="st-header__short" aria-hidden="true">
+                Your AI
+              </span>
             </NavLink>
           )}
         </nav>
