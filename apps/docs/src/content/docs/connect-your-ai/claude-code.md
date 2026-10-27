@@ -45,13 +45,14 @@ You need Node.js 22.23.4 or newer (Node 24 recommended). Screenshots need the `p
 | **Skill: web design** | Preset-first composition, the iteration loop, Squarespace-grade craft heuristics, mobile review and the "never invent facts" rule. |
 | **Skill: site setup** | Creating a site from a template, connecting Claude, publishing, connecting a domain. |
 | **Skill: content** | Blog posts, events, products, projects and podcast episodes. |
-| **Skill: migrate** | Moving a Squarespace site: the import, a side-by-side screenshot loop to match the original, redirects and the domain move. |
+| **Skill: migrate** | Moving a site from any platform (Squarespace, WordPress, Wix, Webflow, anything): detection and import, a side-by-side screenshot loop to match the original, redirects, publishing and the domain move. |
 | `/openspace:new-site` | Create a site from one of the twenty templates. |
 | `/openspace:iterate` | Rapid design iteration on one page, with screenshots after every change. |
 | `/openspace:design-check` | A design and SEO review of a page or the whole site. |
 | `/openspace:restyle` | Change the whole look to a mood, through looks and Site Styles. |
 | `/openspace:publish` | Show what changed, check it, publish after you confirm. |
-| `/openspace:import-squarespace` | Move a Squarespace site into OpenSpace and match its look page by page ([guide](/guides/migrate-from-squarespace/)). |
+| `/openspace:migrate` | Move any site (Squarespace, WordPress, Wix, Webflow, anything) into OpenSpace and match its look page by page ([guide](/guides/migrate-to-openspace/)). |
+| `/openspace:import-squarespace` | Move a Squarespace site into OpenSpace and match its look page by page ([guide](/guides/migrate-to-openspace/#squarespace)). |
 | **Agent: openspace-designer** | An independent design reviewer that returns a prioritized fix list. |
 
 ## Work on a local site folder

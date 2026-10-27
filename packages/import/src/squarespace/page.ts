@@ -25,7 +25,7 @@ import {
   scriptText,
   text,
 } from "../dom";
-import { cleanImageUrl, imageFrom, parseBlock, videoUrl } from "./blocks";
+import { cleanImageUrl, imageFrom, parseBlock, stripTags, videoUrl } from "./blocks";
 import type {
   SqBlock,
   SqCard,
@@ -90,7 +90,7 @@ export function parseLayout(layout: Element): SqRow[] {
     const blocks = loose.map(parseBlock).filter((b): b is SqBlock => !!b);
     if (blocks.length) rows.push({ columns: [{ span: 12, blocks }] });
   }
-  return rows.filter((r) => r.columns.some((c) => c.blocks.length));
+  return expandImageCards(rows.filter((r) => r.columns.some((c) => c.blocks.length)));
 }
 
 function columnBlocks(col: Element): SqBlock[] {
@@ -103,6 +103,70 @@ function columnBlocks(col: Element): SqBlock[] {
       for (const nested of parseRow(c).columns) out.push(...nested.blocks);
     } else out.push(...columnBlocks(c));
   }
+  return out;
+}
+
+/** Image blocks with text beside them become their own two-column row (image | text). */
+export function expandImageCards(rows: SqRow[]): SqRow[] {
+  const out: SqRow[] = [];
+  for (const row of rows) {
+    const wide = row.columns.length === 1;
+    let rest: SqBlock[] = [];
+    const flush = () => {
+      if (rest.length) out.push({ columns: [{ span: row.columns[0]?.span ?? 12, blocks: rest }] });
+      rest = [];
+    };
+    if (!wide) {
+      // In narrow columns the text goes under the image.
+      out.push({
+        columns: row.columns.map((c) => ({
+          ...c,
+          blocks: c.blocks.flatMap((b) =>
+            b.kind === "image" && b.card ? [{ ...b, card: undefined }, ...cardBlocks(b.card)] : [b],
+          ),
+        })),
+      });
+      continue;
+    }
+    for (const b of row.columns[0]?.blocks ?? []) {
+      if (b.kind !== "image" || !b.card) {
+        rest.push(b);
+        continue;
+      }
+      const image: SqBlock = { kind: "image", image: b.image, ...(b.href ? { href: b.href } : {}) };
+      const words = cardBlocks(b.card);
+      if (b.card.position === "below" || b.card.position === "over" || !words.length) {
+        rest.push(image, ...words);
+        continue;
+      }
+      flush();
+      const img = { span: 6, blocks: [image] };
+      const txt = { span: 6, blocks: words };
+      out.push({ columns: b.card.position === "left" ? [txt, img] : [img, txt] });
+    }
+    flush();
+  }
+  return out;
+}
+
+function cardBlocks(card: NonNullable<Extract<SqBlock, { kind: "image" }>["card"]>): SqBlock[] {
+  const out: SqBlock[] = [];
+  const sub = card.html ? stripTags(card.html) : "";
+  // A short title above a sentence (Squarespace's usual card): an eyebrow over a heading.
+  if (card.title && card.title.length <= 40 && sub && sub.length <= 160)
+    out.push({ kind: "heading", text: sub, level: 2, eyebrow: card.title });
+  else if (card.title || card.html)
+    out.push({
+      kind: "text",
+      html: `${card.title ? `<h2>${escapeText(card.title)}</h2>` : ""}${card.html ?? ""}`,
+    });
+  if (card.button)
+    out.push({
+      kind: "button",
+      label: card.button.label,
+      href: card.button.href,
+      style: "primary",
+    });
   return out;
 }
 
@@ -540,6 +604,11 @@ export function parsePage(html: string): ParsedPage {
       if (rows.length) sections = [{ theme: "", layout: { mode: "classic", rows } }];
     }
   }
+  // 7.0 page banners (the page's main image with its description) open the page as a hero.
+  if (!isItem && !pageSections.length) {
+    const banner = bannerSection(body, (e) => inHeader(e) || inFooter(e));
+    if (banner) sections = [banner, ...sections];
+  }
 
   // Footer sections.
   let footer: SqSection[] = [];
@@ -549,11 +618,23 @@ export function parsePage(html: string): ParsedPage {
     });
     if (fs.length) footer = fs.map(parseSection).filter((s): s is SqSection => !!s);
     else {
-      const rows = findAll(footerEl, (e) => hasClass(e, "sqs-layout"), { deep: false }).flatMap(
-        parseLayout,
+      // 7.0: the pre-footer blocks (often the newsletter), the site info line, footer blocks.
+      const pre = find(
+        body,
+        (e) => (attr(e, "id") === "preFooter" || hasClass(e, "pre-footer")) && !inFooter(e),
       );
+      const rows = [
+        ...(pre
+          ? findAll(pre, (e) => hasClass(e, "sqs-layout"), { deep: false }).flatMap(parseLayout)
+          : []),
+        ...siteInfoRows(footerEl),
+        ...findAll(footerEl, (e) => hasClass(e, "sqs-layout"), { deep: false }).flatMap(
+          parseLayout,
+        ),
+      ];
       if (rows.length) footer = [{ theme: "", layout: { mode: "classic", rows } }];
     }
+    footer = footer.map(withoutSquarespaceCredit).filter((s) => sectionHasBlocks(s));
   }
 
   // Item metadata.
@@ -676,6 +757,135 @@ export function parsePage(html: string): ParsedPage {
         : {}),
     ...(version ? { version } : {}),
   };
+}
+
+/** The 7.0 banner: the page's main image with its description, as a hero section. */
+function bannerSection(body: Element, skip: (e: Element) => boolean): SqSection | undefined {
+  const el = find(
+    body,
+    (e) =>
+      !skip(e) &&
+      (hasClass(e, "banner-thumbnail-wrapper") ||
+        attr(e, "id") === "bannerImage" ||
+        hasClass(e, "banner-image") ||
+        (attr(e, "data-content-field") === "main-image" && e.tagName !== "img")),
+  );
+  if (!el) return undefined;
+  const img = find(el, byTag("img"));
+  const image = img ? imageFrom(img) : undefined;
+  const desc =
+    find(el, (e) => hasClass(e, "desc-wrapper") || hasClass(e, "page-desc")) ??
+    find(body, (e) => attr(e, "data-content-field") === "description" && !skip(e));
+  const blocks: SqBlock[] = [];
+  if (desc) {
+    const paras = children(desc).filter((p) => text(p));
+    const links = paras.filter(
+      (p) => (find(p, byTag("a")) && text(find(p, byTag("a"))) === text(p)) || p.tagName === "a",
+    );
+    const words = paras.filter((p) => !links.includes(p));
+    const strong =
+      words.find((p) => /^h[1-4]$/.test(p.tagName)) ??
+      words.find((p) => !!find(p, (x) => x.tagName === "strong" || x.tagName === "b")) ??
+      words[words.length - 1];
+    const before = strong ? words.slice(0, words.indexOf(strong)) : [];
+    const after = strong ? words.slice(words.indexOf(strong) + 1) : [];
+    if (strong)
+      blocks.push({
+        kind: "heading",
+        text: text(strong),
+        level: 2,
+        ...(before.length === 1 && text(before[0] as Element).length <= 60
+          ? { eyebrow: text(before[0] as Element) }
+          : {}),
+        ...(after.length && after.map((p) => text(p)).join(" ").length <= 280
+          ? { subheading: after.map((p) => text(p)).join(" ") }
+          : {}),
+        align: "center",
+      });
+    links.forEach((p, i) => {
+      const a = p.tagName === "a" ? p : (find(p, byTag("a")) as Element);
+      const href = attr(a, "href");
+      if (href)
+        blocks.push({
+          kind: "button",
+          label: text(a),
+          href,
+          style: i === 0 ? "primary" : "secondary",
+        });
+    });
+  }
+  if (!image && !blocks.length) return undefined;
+  return {
+    theme: "",
+    ...(image ? { background: { image: { ...image, alt: "" }, overlay: 0.3 } } : {}),
+    height: "large",
+    align: "center",
+    role: "hero",
+    layout: { mode: "classic", rows: blocks.length ? [{ columns: [{ span: 12, blocks }] }] : [] },
+  };
+}
+
+/** 7.0 footers show the business address, phone and email from site settings. */
+function siteInfoRows(footer: Element): SqRow[] {
+  const parts = ["site-address", "site-phone", "site-email"]
+    .map((c) => find(footer, (e) => hasClass(e, c)))
+    .filter((e): e is Element => !!e && !!text(e));
+  if (!parts.length) return [];
+  const html = parts
+    .map((e) => {
+      const t = escapeText(text(e));
+      if (hasClass(e, "site-email")) return `<a href="mailto:${t}">${t}</a>`;
+      if (hasClass(e, "site-phone")) return `<a href="tel:${t.replace(/[^\d+]/g, "")}">${t}</a>`;
+      return t;
+    })
+    .join(" · ");
+  return [{ columns: [{ span: 12, blocks: [{ kind: "text", html: `<p>${html}</p>` }] }] }];
+}
+
+const CREDIT = /^\s*(?:Powered by|Built with|Made with)\s+Squarespace\.?\s*$/i;
+
+function withoutSquarespaceCredit(s: SqSection): SqSection {
+  const strip = (b: SqBlock): SqBlock =>
+    b.kind === "text"
+      ? {
+          ...b,
+          html: b.html
+            .replace(
+              /(?:<br\s*\/?>\s*)*(?:Made|Powered|Built) with\s*(?:<a\b[^>]*>\s*)?Squarespace\.?(?:\s*<\/a>)?/gi,
+              "",
+            )
+            .replace(/<p\b[^>]*>([\s\S]*?)<\/p>/gi, (p, inner: string) =>
+              CREDIT.test(stripTags(inner)) || !stripTags(inner) ? "" : p,
+            ),
+        }
+      : b;
+  const keep = (b: SqBlock) =>
+    !(b.kind === "text" && (CREDIT.test(stripTags(b.html)) || !stripTags(b.html)));
+  if (s.layout.mode === "fluid")
+    return {
+      ...s,
+      layout: {
+        ...s.layout,
+        items: s.layout.items
+          .map((i) => ({ ...i, block: strip(i.block) }))
+          .filter((i) => keep(i.block)),
+      },
+    };
+  return {
+    ...s,
+    layout: {
+      mode: "classic",
+      rows: s.layout.rows.map((r) => ({
+        columns: r.columns.map((c) => ({ ...c, blocks: c.blocks.map(strip).filter(keep) })),
+      })),
+    },
+  };
+}
+
+function sectionHasBlocks(s: SqSection): boolean {
+  return s.layout.mode === "fluid"
+    ? s.layout.items.length > 0
+    : s.layout.rows.some((r) => r.columns.some((c) => c.blocks.length));
 }
 
 /** Sections of an HTML fragment that is a Squarespace layout (item bodies from JSON or WXR). */

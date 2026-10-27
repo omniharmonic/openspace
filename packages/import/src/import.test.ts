@@ -149,7 +149,7 @@ describe("importing the Juniper fixture (HTML and sitemap only)", () => {
       (b) => b.type === "text" && JSON.stringify(b.fields).includes("curious"),
     );
     // Rich text: links rewritten to the new addresses (absolute same-site URLs too).
-    expect(JSON.stringify(text?.fields)).toContain('"href":"/about-us"');
+    expect(JSON.stringify(text?.fields)).toContain('"href":"/about-us/"');
     expect(JSON.stringify(text?.fields)).toContain('"href":"/shop/"');
     expect(blocks.find((b) => b.type === "summary")?.fields).toMatchObject({
       source: { collection: "journal" },
@@ -246,7 +246,7 @@ describe("importing the Juniper fixture (HTML and sitemap only)", () => {
       });
       expect(post.frontmatter.image).toMatch(/^media\//);
       expect(post.body).toContain("## What we changed");
-      expect(post.body).toContain("[glaze notes](/journal/glaze-notes)");
+      expect(post.body).toContain("[glaze notes](/journal/glaze-notes/)");
       expect(post.body).toContain('{% video source="embed"');
     }
     const ev = r.doc.collections.events?.["open-studio-day"];

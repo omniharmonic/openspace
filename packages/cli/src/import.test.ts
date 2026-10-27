@@ -1,14 +1,23 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { JUNIPER_EXPORT, JUNIPER_URL, juniperFetch } from "@omniharmonic/openspace-import/testing";
+import {
+  FERNHILL_EXPORT,
+  FERNHILL_URL,
+  fernhillFetch,
+  JUNIPER_EXPORT,
+  JUNIPER_URL,
+  juniperFetch,
+  TIDEWATER_URL,
+  tidewaterFetch,
+} from "@omniharmonic/openspace-import/testing";
 import { createMcpServer } from "@omniharmonic/openspace-mcp-tools";
 import { afterAll, describe, expect, it } from "vitest";
 import { runCheck } from "./check";
 import { defaultFolder } from "./import";
 import { captureIo } from "./io";
 import { FileSiteStore } from "./mcp/file-store";
-import { importSquarespaceTool } from "./mcp/import-tool";
+import { importSiteTool, importSquarespaceTool } from "./mcp/import-tool";
 import { screenshotUrlTool } from "./mcp/reference-tool";
 import { run } from "./program";
 import { cleanup, meadowCopy, tmpDir } from "./test-helpers";
@@ -57,7 +66,7 @@ describe("openspace import squarespace", () => {
     expect(await readFile(join(dir, "AGENTS.md"), "utf8")).toContain("Juniper Ceramics");
     const check = await runCheck(dir);
     expect(check.findings.filter((f) => f.severity === "error")).toEqual([]);
-    expect(r.out).toMatch(/Imported Juniper Ceramics into .*juniper:/);
+    expect(r.out).toMatch(/Imported Juniper Ceramics \(Squarespace\) into .*juniper:/);
     expect(r.out).toMatch(/openspace check: OK — 0 error\(s\)/);
     expect(r.out).toContain("/openspace:import-squarespace");
     expect(r.err).toContain("robots.txt is honoured");
@@ -118,6 +127,141 @@ describe("openspace import squarespace", () => {
     expect(code).toBe(1);
     expect(cap.errText()).toContain("doesn't look like a Squarespace site");
     expect(existsSync(join(parent, "plain"))).toBe(false);
+  });
+});
+
+describe("openspace import <url> (any platform)", () => {
+  const cli = async (args: string[], fetchFn: typeof fetch) => {
+    const parent = await tmpDir();
+    const cap = captureIo(parent, { NO_COLOR: "1" });
+    const code = await run(["import", ...args, "--delay", "0"], cap.io, { fetch: fetchFn });
+    return { parent, code, out: cap.text(), err: cap.errText() };
+  };
+
+  it("detects a Webflow site, imports it with the generic importer and passes openspace check", async () => {
+    const r = await cli([TIDEWATER_URL, "tide"], tidewaterFetch() as typeof fetch);
+    expect(r.code, r.err).toBe(0);
+    const dir = join(r.parent, "tide");
+    expect(r.out).toMatch(/Imported Tidewater Studio \(Webflow\) into .*tide:/);
+    expect(r.out).toMatch(/openspace check: OK — 0 error\(s\)/);
+    expect(r.out).toContain(`/openspace:migrate ${TIDEWATER_URL}`);
+    expect(r.err).toContain("Webflow (generator");
+    expect(existsSync(join(dir, "content/collections/journal/tide-tables.mdoc"))).toBe(true);
+    expect(await readFile(join(dir, "IMPORT-REPORT.md"), "utf8")).toContain("openspace import url");
+    const check = await runCheck(dir);
+    expect(check.findings.filter((f) => f.severity === "error")).toEqual([]);
+  });
+
+  it("imports WordPress from the REST API and an export (openspace import wordpress)", async () => {
+    const r = await cli(
+      ["wordpress", FERNHILL_URL, "fern", "--export", FERNHILL_EXPORT],
+      fernhillFetch() as typeof fetch,
+    );
+    expect(r.code, r.err).toBe(0);
+    const dir = join(r.parent, "fern");
+    expect(r.out).toMatch(/Imported Fernhill Bakery \(WordPress\)/);
+    expect(existsSync(join(dir, "content/collections/news/winter-menu.mdoc"))).toBe(true);
+    const site = JSON.parse(await readFile(join(dir, "content/site.json"), "utf8"));
+    expect(site.redirects).toEqual(
+      expect.arrayContaining([
+        { from: "/2025/03/our-first-loaf", to: "/news/our-first-loaf/", status: 301 },
+      ]),
+    );
+    expect((await runCheck(dir)).ok).toBe(true);
+  });
+
+  it("accepts --platform and rejects unknown ones", async () => {
+    const ok = await cli(
+      [TIDEWATER_URL, "tw", "--platform", "url", "--no-media"],
+      tidewaterFetch() as typeof fetch,
+    );
+    expect(ok.code, ok.err).toBe(0);
+    expect(ok.err).not.toContain("Detecting");
+    const bad = await cli(
+      [TIDEWATER_URL, "tw2", "--platform", "myspace"],
+      tidewaterFetch() as typeof fetch,
+    );
+    expect(bad.code).toBe(1);
+    expect(bad.err).toContain('Unknown --platform "myspace"');
+  });
+
+  it("names folders after platform hosting addresses", () => {
+    expect(defaultFolder("https://amanda.wixsite.com/my-site")).toBe("amanda");
+    expect(defaultFolder("https://tidewater.webflow.io")).toBe("tidewater");
+  });
+});
+
+describe("import_site (local MCP tool)", () => {
+  it("detects the platform, needs confirm: true and keeps import_squarespace as an alias", async () => {
+    const site = await meadowCopy();
+    const store = await FileSiteStore.open(site);
+    const server = createMcpServer(
+      store,
+      { sites: "*", publish: false, role: "owner" },
+      {
+        tools: [
+          importSiteTool({ siteRoot: site, fetch: tidewaterFetch() as typeof fetch, delayMs: 0 }),
+          importSquarespaceTool({
+            siteRoot: site,
+            fetch: juniperFetch() as typeof fetch,
+            delayMs: 0,
+          }),
+        ],
+      },
+    );
+    await server.handle({
+      jsonrpc: "2.0",
+      id: 0,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "t", version: "1" },
+      },
+    });
+    const list = (await server.handle({
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/list",
+    })) as unknown as {
+      result: { tools: { name: string }[] };
+    };
+    expect(list.result.tools.map((t) => t.name)).toEqual(
+      expect.arrayContaining(["import_site", "import_squarespace"]),
+    );
+    const call = async (name: string, args: Record<string, unknown>) =>
+      (
+        (await server.handle({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/call",
+          params: { name, arguments: args },
+        })) as unknown as {
+          result: {
+            isError?: boolean;
+            content: { text: string }[];
+            structuredContent?: Record<string, unknown>;
+          };
+        }
+      ).result;
+    const refused = await call("import_site", { url: TIDEWATER_URL, folder: "tide" });
+    expect(refused.isError).toBe(true);
+    expect(refused.content[0]?.text).toContain("confirm: true");
+    const done = await call("import_site", { url: TIDEWATER_URL, folder: "tide", confirm: true });
+    expect(done.isError, done.content[0]?.text).toBeFalsy();
+    expect(done.structuredContent).toMatchObject({
+      platform: "webflow",
+      check: { ok: true, errors: 0 },
+    });
+    expect(done.content[0]?.text).toContain("# Import report: Tidewater Studio");
+    const legacy = await call("import_squarespace", {
+      url: JUNIPER_URL,
+      folder: "jun",
+      confirm: true,
+    });
+    expect(legacy.isError, legacy.content[0]?.text).toBeFalsy();
+    expect(legacy.structuredContent).toMatchObject({ platform: "squarespace" });
+    await store.close();
   });
 });
 

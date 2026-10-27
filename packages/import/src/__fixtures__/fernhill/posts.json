@@ -1,0 +1,117 @@
+[
+ {
+  "id": 21,
+  "slug": "our-first-loaf",
+  "link": "https://fernhill.example/2025/03/our-first-loaf/",
+  "date_gmt": "2025-03-14T07:30:00",
+  "title": {
+   "rendered": "Our first loaf &#8217;s story"
+  },
+  "content": {
+   "rendered": "<p>It was a cold March morning when Gus finally rose.</p><figure class=\"wp-block-image\"><img src=\"https://fernhill.example/wp-content/uploads/2025/03/first-loaf-1024x768.jpg\" srcset=\"https://fernhill.example/wp-content/uploads/2025/03/first-loaf-1024x768.jpg 1024w, https://fernhill.example/wp-content/uploads/2025/03/first-loaf-2048x1536.jpg 2048w, https://fernhill.example/wp-content/uploads/2025/03/first-loaf-300x225.jpg 300w\" width=\"1600\" height=\"1200\" alt=\"The first loaf\" class=\"\" loading=\"lazy\"/></figure><p>We sold out by nine.</p><h2 class=\"wp-block-heading\">What we learned</h2><ol><li>Patience</li><li>More patience</li></ol>"
+  },
+  "excerpt": {
+   "rendered": "<p>How a stubborn starter became a bakery. <a href=\"/2025/03/our-first-loaf/\" class=\"more-link\">Continue reading</a></p>"
+  },
+  "featured_media": 31,
+  "_embedded": {
+   "author": [
+    {
+     "id": 1,
+     "name": "Rosa Lind"
+    }
+   ],
+   "wp:featuredmedia": [
+    {
+     "id": 31,
+     "source_url": "https://fernhill.example/wp-content/uploads/2025/03/first-loaf-hero.jpg",
+     "alt_text": "Flour-dusted loaf",
+     "media_details": {
+      "width": 3000,
+      "height": 2000,
+      "sizes": {
+       "medium": {
+        "source_url": "https://fernhill.example/wp-content/uploads/2025/03/first-loaf-hero-300x200.jpg",
+        "width": 300,
+        "height": 200
+       },
+       "large": {
+        "source_url": "https://fernhill.example/wp-content/uploads/2025/03/first-loaf-hero-1024x683.jpg",
+        "width": 1024,
+        "height": 683
+       },
+       "1536x1536": {
+        "source_url": "https://fernhill.example/wp-content/uploads/2025/03/first-loaf-hero-1536x1024.jpg",
+        "width": 1536,
+        "height": 1024
+       }
+      }
+     }
+    }
+   ],
+   "wp:term": [
+    [
+     {
+      "id": 3,
+      "name": "Baking",
+      "slug": "baking",
+      "taxonomy": "category"
+     }
+    ],
+    [
+     {
+      "id": 7,
+      "name": "sourdough",
+      "slug": "sourdough",
+      "taxonomy": "post_tag"
+     }
+    ]
+   ]
+  },
+  "yoast_head_json": {
+   "title": "Our first loaf | Fernhill Bakery",
+   "description": "How a stubborn starter became a bakery."
+  }
+ },
+ {
+  "id": 22,
+  "slug": "rye-season",
+  "link": "https://fernhill.example/2025/09/rye-season/",
+  "date_gmt": "2025-09-02T08:00:00",
+  "title": {
+   "rendered": "Rye season"
+  },
+  "content": {
+   "rendered": "<p>The rye is in. Expect dark, dense loaves on Fridays.</p><blockquote class=\"wp-block-quote\"><p>Rye is bread with an opinion.</p><cite>Rosa</cite></blockquote>"
+  },
+  "excerpt": {
+   "rendered": "<p>Dark, dense loaves are back on Fridays [&hellip;]</p>"
+  },
+  "featured_media": 0,
+  "_embedded": {
+   "author": [
+    {
+     "id": 1,
+     "name": "Rosa Lind"
+    }
+   ],
+   "wp:term": [
+    [
+     {
+      "id": 4,
+      "name": "News",
+      "slug": "news-cat",
+      "taxonomy": "category"
+     },
+     {
+      "id": 1,
+      "name": "Uncategorized",
+      "slug": "uncategorized",
+      "taxonomy": "category"
+     }
+    ],
+    []
+   ]
+  }
+ }
+]

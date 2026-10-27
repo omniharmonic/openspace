@@ -1,0 +1,16 @@
+[
+ {
+  "id": 3,
+  "slug": "baking",
+  "name": "Baking",
+  "count": 1,
+  "link": "https://fernhill.example/category/baking/"
+ },
+ {
+  "id": 4,
+  "slug": "news-cat",
+  "name": "News",
+  "count": 1,
+  "link": "https://fernhill.example/category/news-cat/"
+ }
+]

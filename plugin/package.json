@@ -1,6 +1,6 @@
 {
   "name": "@omniharmonic/openspace-claude-plugin",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "private": true,
   "description": "OpenSpace plugin for Claude Code: local MCP server, web-design skills, commands and a design-review agent.",
   "license": "MIT",

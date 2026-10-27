@@ -196,6 +196,13 @@ export function tagSlug(tag: string): string {
   );
 }
 
+/** Shorten text to `max` characters on a word boundary, with an ellipsis. */
+function clipText(s: string, max: number): string {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), max - 40)).trimEnd()}…`;
+}
+
 export function itemDescription(item: CollectionItem): string | undefined {
   return (
     item.frontmatter.seo?.description ??
@@ -518,8 +525,10 @@ export function cardRows(
       const date = itemDate(item);
       const fields: Record<string, unknown> = {
         aspect: "3:2",
-        heading: fm.title,
-        body: rt.doc(rt.p(itemDescription(item) ?? "")),
+        // Card headings hold up to 90 characters; titles may be up to 200.
+        heading: clipText(fm.title, 90),
+        // Card bodies hold up to 400 characters; excerpts may be up to 500.
+        body: rt.doc(rt.p(clipText(itemDescription(item) ?? "", 400))),
         link: { type: "item", collection, slug: item.slug } satisfies Link,
       };
       if (fm.image) fields.image = imageValue(fm.image, doc.media, fm.imageAlt);
@@ -532,7 +541,7 @@ export function cardRows(
               ? formatDate(date, doc.site.locale)
               : undefined;
       if (eyebrow) fields.eyebrow = eyebrow;
-      if (!itemDescription(item)) fields.body = rt.doc(rt.p(fm.title));
+      if (!itemDescription(item)) fields.body = rt.doc(rt.p(clipText(fm.title, 400)));
       const b = makeBlock(ctx, `${seed}#card-${item.slug}`, "card", fields, "stacked");
       b.column = i;
       return b;

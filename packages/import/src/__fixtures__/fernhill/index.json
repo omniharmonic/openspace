@@ -1,0 +1,13 @@
+{
+ "name": "Fernhill Bakery",
+ "description": "Slow bread from a small oven",
+ "url": "https://fernhill.example",
+ "home": "https://fernhill.example",
+ "namespaces": [
+  "oembed/1.0",
+  "wp/v2",
+  "wp-site-health/v1",
+  "yoast/v1"
+ ],
+ "site_icon_url": "https://fernhill.example/wp-content/uploads/2024/01/icon-512.png"
+}

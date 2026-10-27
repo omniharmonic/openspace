@@ -1,13 +1,15 @@
 /**
- * `import_squarespace`: the Squarespace importer as an MCP tool. Local stdio server only — it
- * fetches the web and writes a new site folder next to the one being served, so it is never part
- * of the shared (Hub) tool set. Like `publish`, it does nothing without `confirm: true`.
+ * `import_site` (and its older name `import_squarespace`): the site importer as an MCP tool. It
+ * detects the platform (Squarespace, WordPress, Wix, Webflow, anything else) unless told. Local
+ * stdio server only — it fetches the web and writes a new site folder next to the one being
+ * served, so it is never part of the shared (Hub) tool set. Like `publish`, it does nothing
+ * without `confirm: true`.
  */
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { REPORT_FILE } from "@omniharmonic/openspace-import";
 import { defineTool, ToolError } from "@omniharmonic/openspace-mcp-tools";
 import { z } from "zod";
-import { defaultFolder, importSummary, runImportSquarespace } from "../import";
+import { defaultFolder, importSummary, runImportSite } from "../import";
 import { captureIo } from "../io";
 
 export interface ImportToolOptions {
@@ -18,17 +20,50 @@ export interface ImportToolOptions {
   delayMs?: number;
 }
 
-export function importSquarespaceTool(opts: ImportToolOptions) {
+const PLATFORMS = [
+  "auto",
+  "squarespace",
+  "wordpress",
+  "wix",
+  "webflow",
+  "framer",
+  "carrd",
+  "url",
+] as const;
+
+const DESCRIPTION =
+  "Move a site the owner controls — Squarespace, WordPress, Wix, Webflow, Carrd, Framer or any HTML site — into a NEW OpenSpace site folder (pages, blog posts, media, navigation, SEO, redirects, an approximate Site Styles look with the closest section presets) and run openspace check. Detects the platform unless `platform` is given. Fetches the site politely (robots.txt honoured) and writes files, so it requires confirm: true after the owner agrees; `owner: true` (Squarespace ?format=json) only when they confirm they own the site; `render: true` reads JavaScript-built pages in a browser (Playwright). Does not change the site this server is serving. Returns the summary and the IMPORT-REPORT.md text.";
+
+/** `import_site`; `alias: true` registers the same tool as `import_squarespace` (Squarespace). */
+export function importSiteTool(opts: ImportToolOptions & { alias?: boolean }) {
+  const legacy = opts.alias === true;
   return defineTool({
-    name: "import_squarespace",
-    title: "Import a Squarespace site",
-    description:
-      "Move a Squarespace site the owner controls into a NEW OpenSpace site folder (pages, blog/events/products, media, navigation, SEO, redirects, an approximate Site Styles look) and run openspace check. Fetches the site politely (robots.txt honoured) and writes files, so it requires confirm: true after the owner agrees; `owner: true` (also read ?format=json) only when they confirm they own the site. Does not change the site this server is serving. Returns the summary and the IMPORT-REPORT.md text.",
+    ...(legacy
+      ? {
+          name: "import_squarespace",
+          title: "Import a Squarespace site",
+          description:
+            "Older name of import_site for Squarespace sites (same behaviour with platform: squarespace). Prefer import_site.",
+        }
+      : {
+          name: "import_site",
+          title: "Import a website (any platform)",
+          description: DESCRIPTION,
+        }),
     input: z.object({
-      url: z
-        .string()
-        .min(4)
-        .describe("The Squarespace site's address, e.g. https://www.example.com"),
+      url: z.string().min(4).describe("The site's address, e.g. https://www.example.com"),
+      platform: z
+        .enum(PLATFORMS)
+        .optional()
+        .describe(
+          "Skip detection: the platform that built the site (url = the generic HTML importer). Default auto.",
+        ),
+      render: z
+        .boolean()
+        .optional()
+        .describe(
+          "Render pages in a browser first (needs Playwright): for sites built by JavaScript, e.g. some Wix and Framer sites.",
+        ),
       folder: z
         .string()
         .optional()
@@ -45,7 +80,7 @@ export function importSquarespaceTool(opts: ImportToolOptions) {
         .string()
         .optional()
         .describe(
-          "Path to the site's WordPress export (XML) for blog posts, if the owner has one.",
+          "Path to a WordPress export (WXR XML): a WordPress site's full export, or Squarespace's blog export.",
         ),
       target: z
         .enum(["github-pages", "cloudflare"])
@@ -75,9 +110,16 @@ export function importSquarespaceTool(opts: ImportToolOptions) {
           "invalid_arguments",
         );
       const cap = captureIo(parent);
-      let r: Awaited<ReturnType<typeof runImportSquarespace>>;
+      let r: Awaited<ReturnType<typeof runImportSite>>;
+      const platform = legacy
+        ? "squarespace"
+        : input.platform === "url"
+          ? "generic"
+          : (input.platform ?? "auto");
       try {
-        r = await runImportSquarespace(cap.io, input.url, dir, {
+        r = await runImportSite(cap.io, input.url, dir, {
+          platform,
+          ...(input.render && !legacy ? { render: true } : {}),
           ...(input.owner ? { owner: true } : {}),
           ...(input.exportFile ? { export: resolve(parent, input.exportFile) } : {}),
           ...(input.target ? { target: input.target } : {}),
@@ -99,6 +141,8 @@ export function importSquarespaceTool(opts: ImportToolOptions) {
         ].join("\n"),
         data: {
           dir: r.dir,
+          platform: r.result.site.platform ?? "squarespace",
+          ...(r.result.detection ? { detection: r.result.detection.evidence } : {}),
           pages: Object.values(r.result.doc.pages).map((p) => ({
             id: p.id,
             slug: p.slug,
@@ -112,4 +156,9 @@ export function importSquarespaceTool(opts: ImportToolOptions) {
       };
     },
   });
+}
+
+/** @deprecated the `import_squarespace` alias of `import_site`. */
+export function importSquarespaceTool(opts: ImportToolOptions) {
+  return importSiteTool({ ...opts, alias: true });
 }

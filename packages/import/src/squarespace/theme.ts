@@ -123,6 +123,64 @@ export function parseTheme(css: string, bodyClasses: readonly string[] = []): Sq
     const fam = h1 ? /font-family\s*:\s*([^;}]+)/.exec(h1)?.[1] : undefined;
     if (fam) theme.fonts.heading = { family: unquote(fam) };
   }
+  // 7.0 templates set fonts per element (`.title`, `h2`, nav…): take the most used families.
+  if (
+    !theme.fonts.heading ||
+    !theme.fonts.body ||
+    /^(?:inherit|initial)$/i.test(theme.fonts.body.family)
+  ) {
+    const ranked = (filter: (sel: string) => boolean) => {
+      const counts = new Map<string, number>();
+      for (const m of css.matchAll(/([^{}]+)\{([^{}]*font-family\s*:\s*([^;}]+)[^{}]*)\}/g)) {
+        if (!filter(m[1] as string)) continue;
+        const fam = unquote(m[3] as string);
+        if (
+          !fam ||
+          /squarespace-ui|^(?:inherit|initial|sans-serif|serif|monospace)$|helvetica|arial|icon|font ?awesome/i.test(
+            fam,
+          )
+        )
+          continue;
+        counts.set(fam, (counts.get(fam) ?? 0) + 1);
+      }
+      return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([f]) => f);
+    };
+    const all = ranked(() => true);
+    const headings = ranked((sel) => /(?:^|[\s,>])h[1-3]\b|title|heading/i.test(sel));
+    if (!theme.fonts.heading && (headings[0] ?? all[0]))
+      theme.fonts.heading = { family: (headings[0] ?? all[0]) as string };
+    const bodyFam = all.find((f) => f !== theme.fonts.heading?.family) ?? all[0];
+    if ((!theme.fonts.body || /^(?:inherit|initial)$/i.test(theme.fonts.body.family)) && bodyFam)
+      theme.fonts.body = { family: bodyFam };
+  }
+  // 7.0: the primary button color is the clearest brand signal.
+  if (!theme.colors.accent) {
+    const counts = new Map<string, number>();
+    for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      if (
+        !/sqs-block-button-element|sqs-button-element--primary|sqs-system-button|sqs-editable-button/.test(
+          m[1] as string,
+        ) ||
+        /:hover|:focus|:active/.test(m[1] as string)
+      )
+        continue;
+      const bg = /background(?:-color)?\s*:\s*(#[0-9a-f]{3,6}|rgba?\([^)]*\)|hsla?\([^)]*\))/i.exec(
+        m[2] as string,
+      )?.[1];
+      const hex = bg ? cssColorToHex(bg) : undefined;
+      if (!hex) continue;
+      const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+      if (
+        Math.max(r as number, g as number, b as number) -
+          Math.min(r as number, g as number, b as number) <
+        40
+      )
+        continue;
+      counts.set(hex, (counts.get(hex) ?? 0) + 1);
+    }
+    const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    if (top) theme.colors.accent = top;
+  }
   if (!theme.colors.accent) {
     const link = /(?:^|[}\s,])a\s*\{([^}]*)\}/.exec(css)?.[1];
     const c = link ? /(?:^|;)\s*color\s*:\s*([^;}]+)/.exec(link)?.[1] : undefined;
@@ -135,6 +193,15 @@ export function parseTheme(css: string, bodyClasses: readonly string[] = []): Sq
     .find((c) => c.startsWith("primary-button-shape-"))
     ?.slice("primary-button-shape-".length);
   if (shape === "square" || shape === "rounded" || shape === "pill") theme.buttons.shape = shape;
+  else {
+    // 7.0: `button-corner-style-pill`, `medium-button-shape-pill`.
+    const c7 = bodyClasses
+      .map(
+        (c) => /^(?:button-corner-style|medium-button-shape)-(square|rounded|pill)$/.exec(c)?.[1],
+      )
+      .find(Boolean);
+    if (c7 === "square" || c7 === "rounded" || c7 === "pill") theme.buttons.shape = c7;
+  }
   const style = bodyClasses
     .find((c) => c.startsWith("primary-button-style-"))
     ?.slice("primary-button-style-".length);

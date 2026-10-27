@@ -1,0 +1,7 @@
+body{background-color:#f7f5ef;color:#14323d;font-family:Inter,sans-serif;font-size:16px}
+h1{font-family:'DM Serif Display',serif;font-size:56px;font-weight:400}
+h2{font-family:'DM Serif Display',serif}
+.button{background-color:#0f6e7a;border-radius:4px;color:#fff}
+a{color:#0f6e7a}
+.mobile-heading{display:none}
+@media screen and (max-width:767px){.mobile-heading{display:block}}

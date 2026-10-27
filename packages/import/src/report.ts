@@ -4,7 +4,8 @@
  */
 import { designCheck } from "@omniharmonic/openspace-lint";
 import type { BuildResult } from "./map/site";
-import type { SqNotice, SqSite } from "./squarespace/types";
+import { platformInfo } from "./platform";
+import type { SqNotice, SqSite } from "./types";
 
 const NOTICE_TITLES: Record<SqNotice["kind"], string> = {
   "unsupported-block": "Blocks that need a look",
@@ -53,16 +54,29 @@ export interface ReportInput {
 
 export function renderReport(r: ReportInput): string {
   const { sq, build } = r;
+  const info = platformInfo(sq.platform);
+  const isSq = info.id === "squarespace";
+  const label = info.label;
+  /** Where the old site lives, for prose ("on Squarespace", "on the original site"). */
+  const onOld = info.id === "generic" ? "the original site" : label;
+  const command =
+    info.importer === "squarespace"
+      ? "squarespace"
+      : info.importer === "wordpress"
+        ? "wordpress"
+        : "url";
   const L: string[] = [];
   const pages = build.pages;
   const items = build.collections.reduce((n, c) => n + c.items, 0);
   L.push(`# Import report: ${sq.title}`);
   L.push("");
   L.push(
-    `Imported from ${sq.baseUrl}${sq.version ? ` (Squarespace ${sq.version})` : ""} on ${r.now.toISOString().slice(0, 10)} with \`openspace import squarespace\`.`,
+    `Imported from ${sq.baseUrl}${isSq ? (sq.version ? ` (Squarespace ${sq.version})` : "") : info.id === "generic" ? "" : ` (${label}${sq.generator && sq.generator.toLowerCase() !== label.toLowerCase() ? `, ${sq.generator}` : ""})`} on ${r.now.toISOString().slice(0, 10)} with \`openspace import ${command}\`.`,
   );
   L.push(
-    `Sources: page HTML and the sitemap${r.owner ? ", Squarespace's `?format=json` data (owner mode)" : ""}${r.wxr ? ", the WordPress export" : ""}. ${r.requests} requests.`,
+    sq.sources?.length
+      ? `Sources: ${sq.sources.join(", ")}. ${r.requests} requests.`
+      : `Sources: page HTML and the sitemap${r.owner ? ", Squarespace's `?format=json` data (owner mode)" : ""}${r.wxr ? ", the WordPress export" : ""}. ${r.requests} requests.`,
   );
   L.push("");
   L.push("## Summary");
@@ -82,7 +96,8 @@ export function renderReport(r: ReportInput): string {
 
   L.push("## Pages");
   L.push("");
-  L.push("| Squarespace | OpenSpace | Title | Sections | Blocks |");
+  const oldCol = isSq ? "Squarespace" : "Old address";
+  L.push(`| ${oldCol} | OpenSpace | Title | Sections | Blocks |`);
   L.push("| --- | --- | --- | ---: | ---: |");
   for (const p of pages)
     L.push(
@@ -92,7 +107,7 @@ export function renderReport(r: ReportInput): string {
   if (build.collections.length) {
     L.push("## Collections");
     L.push("");
-    L.push("| Squarespace | OpenSpace | Kind | Items | Drafts |");
+    L.push(`| ${oldCol} | OpenSpace | Kind | Items | Drafts |`);
     L.push("| --- | --- | --- | ---: | ---: |");
     for (const c of build.collections)
       L.push(`| \`${esc(c.from)}\` | \`${esc(c.to)}\` | ${c.kind} | ${c.items} | ${c.drafts} |`);
@@ -101,7 +116,7 @@ export function renderReport(r: ReportInput): string {
   L.push("## Design");
   L.push("");
   L.push(
-    "The look was recreated with OpenSpace's own design system (Site Styles tokens, section color themes and layouts), not by copying Squarespace's template CSS.",
+    `The look was recreated with OpenSpace's own design system (Site Styles tokens, section color themes, layouts and section presets), not by copying ${isSq ? "Squarespace's template" : `${onOld}'s`} CSS or code.`,
   );
   L.push("");
   for (const n of build.themeNotes) L.push(`- ${n}`);
@@ -144,7 +159,9 @@ export function renderReport(r: ReportInput): string {
       {
         kind: "custom-code",
         where: "site",
-        message: `Site-wide Code Injection was found (${sq.customCode.length} snippet(s)). It was **not** copied: review it and add what you still need in Settings → Advanced (head/footer code). Squarespace-specific scripts won't work here.`,
+        message: isSq
+          ? `Site-wide Code Injection was found (${sq.customCode.length} snippet(s)). It was **not** copied: review it and add what you still need in Settings → Advanced (head/footer code). Squarespace-specific scripts won't work here.`
+          : `Site-wide scripts were found (${sq.customCode.length}: ${sq.customCode.slice(0, 5).join(", ")}${sq.customCode.length > 5 ? "…" : ""}). They were **not** copied: add what you still need (analytics, chat) in Settings → Advanced. ${label}-specific scripts won't work here.`,
       },
       ...(byKind.get("custom-code") ?? []),
     ]);
@@ -164,7 +181,12 @@ export function renderReport(r: ReportInput): string {
       e.where.add(n.where);
       counts.set(n.message, e);
     }
+    let shown = 0;
     for (const [message, e] of counts) {
+      if (++shown > 15) {
+        L.push(`- … and ${counts.size - 15} more like these.`);
+        break;
+      }
       const where = [...e.where];
       L.push(
         `- ${message}${where.length ? ` _(${where.slice(0, 4).join(", ")}${where.length > 4 ? `, +${where.length - 4} more` : ""})_` : ""}`,
@@ -199,12 +221,7 @@ export function renderReport(r: ReportInput): string {
 
   L.push("## Not moved by the importer");
   L.push("");
-  L.push(
-    "- Orders, customers, inventory, discounts, gift cards, shipping and tax settings (commerce stays in Squarespace until you switch).",
-  );
-  L.push("- Newsletter subscribers, form submissions, member accounts and blog comments.");
-  L.push("- Scheduling (Acuity), donations, digital-download files and anything behind a login.");
-  L.push("- Squarespace analytics and SEO history (search engines follow the redirects).");
+  for (const line of info.notMoved) L.push(`- ${line}`);
   L.push("");
   L.push("## Next steps");
   L.push("");
@@ -212,7 +229,7 @@ export function renderReport(r: ReportInput): string {
     "1. `npm install`, then `npx openspace check` (it should report no errors) and `npx openspace dev` to look around.",
   );
   L.push(
-    "2. Bring it to visual parity with Claude: in this folder run `claude`, then `/openspace:import-squarespace` (or ask Claude to compare each page with the original). It screenshots both sites at desktop and mobile and adjusts presets, Site Styles and sections — never raw HTML.",
+    `2. Bring it to visual parity with Claude: in this folder run \`claude\`, then \`${isSq ? "/openspace:import-squarespace" : `/openspace:migrate ${sq.baseUrl}`}\` (or ask Claude to compare each page with the original). It screenshots both sites at desktop and mobile and adjusts presets, Site Styles and sections — never raw HTML.`,
   );
   L.push(
     "3. Fix the items under **Needs attention**, then publish (push to GitHub, or `publish` with Claude).",
@@ -222,10 +239,12 @@ export function renderReport(r: ReportInput): string {
     "   - add the custom domain in OpenSpace (`deploy.customDomain` in `openspace.json`, or the Hub);",
   );
   L.push(
-    "   - at your DNS provider (Squarespace Domains or elsewhere), point the records at the new host as the domain guide says (GitHub Pages: `A`/`CNAME` records; Cloudflare: the Pages project's records);",
+    `   - at your DNS provider (${isSq ? "Squarespace Domains" : info.id === "generic" || info.id === "wordpress" ? "your registrar" : `${label} Domains, your registrar`} or elsewhere), point the records at the new host as the domain guide says (GitHub Pages: \`A\`/\`CNAME\` records; Cloudflare: the Pages project's records);`,
   );
   L.push(
-    "   - keep the Squarespace subscription until the new site serves your domain over HTTPS and the redirects work; then cancel it (and transfer the domain away from Squarespace if you like).",
+    isSq
+      ? "   - keep the Squarespace subscription until the new site serves your domain over HTTPS and the redirects work; then cancel it (and transfer the domain away from Squarespace if you like)."
+      : `   - keep ${info.id === "generic" ? "the old hosting" : info.id === "wordpress" ? "the WordPress hosting" : `the ${label} plan`} until the new site serves your domain over HTTPS and the redirects work; then cancel it (and transfer the domain if you like).`,
   );
   L.push("");
   return `${L.join("\n")}\n`;
