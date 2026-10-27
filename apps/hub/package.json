@@ -13,7 +13,9 @@
     "cf-typegen": "wrangler types --strict-vars=false",
     "db:migrate:local": "wrangler d1 migrations apply openspace-hub --local",
     "embed:starter": "node scripts/embed-starter.mjs",
-    "embed:behaviors": "node scripts/embed-behaviors.mjs"
+    "embed:behaviors": "node scripts/embed-behaviors.mjs",
+    "embed:catalog": "vitest run -c vitest.node.config.ts scripts/embed-catalog",
+    "bench": "vitest run -c vitest.node.config.ts bench"
   },
   "dependencies": {
     "@cloudflare/workers-oauth-provider": "^1.2.4",
