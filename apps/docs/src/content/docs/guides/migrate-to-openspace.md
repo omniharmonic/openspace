@@ -14,7 +14,7 @@ Only import sites you own or are moving for their owner. The importer reads your
 ## What you need
 
 - Your site's address, for example `https://www.fernwoodyoga.com`. The site must be public while you import (turn off any site-wide password for an hour).
-- Node.js 22 or newer for the command line, or the [Claude Code plugin](/connect-your-ai/claude-code/).
+- Node.js 22.23.4+ (Node 24 recommended) for the command line, or the [Claude Code plugin](/connect-your-ai/claude-code/).
 - **Optional:** an export from your platform — see your platform's section below.
 
 ## 1. Import
