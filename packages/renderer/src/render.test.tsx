@@ -19,13 +19,14 @@ import {
   type RenderMode,
   type RichTextHookArgs,
 } from "./context";
-import { Header } from "./header";
+import { Header, navFit } from "./header";
 import { Img } from "./image";
 import { resolveLink } from "./link";
 import { PageView } from "./page";
 import { registerBlocks, unregisterBlocks } from "./registry";
 import { RichText } from "./richtext";
 import { SectionView } from "./section";
+import { BASE_CSS } from "./styles/base-css";
 
 beforeAll(() => registerBlocks(fixtureBlocks));
 afterAll(() => unregisterBlocks());
@@ -375,6 +376,56 @@ describe("Header", () => {
         "os-header--transparent-overlay os-theme-light-accent is-sticky is-overlay",
       );
     }
+  });
+
+  it("keeps a long menu behind the menu button instead of squeezing the site name", () => {
+    const leaf = (label: string) =>
+      ({ kind: "leaf", label, href: "/", current: false, newTab: false }) as const;
+    const few = ["Classes", "About", "Journal", "Contact"].map(leaf);
+    // The live site from production testing: 15 items, a 15-character name and a button.
+    const many = [
+      "Classes",
+      "Bodywork",
+      "Workshops",
+      "Journal",
+      "About",
+      "Pg Blank",
+      "Contact",
+      "Pg About",
+      "Pg Services",
+      "Pg Contact",
+      "Pg Blog",
+      "Pg Events",
+      "Pg Shop",
+      "Pg Link in bio",
+    ].map(leaf);
+    const base = {
+      variant: "classic-left" as const,
+      title: "os-e2e-editor-1",
+      social: 0,
+      cart: false,
+    };
+    const reserve = [{ label: "Reserve a mat" }];
+    expect(navFit({ ...base, nav: few, buttons: reserve })).toBe("lg");
+    expect(navFit({ ...base, nav: many.slice(0, 9), buttons: reserve })).toBe("xl");
+    expect(navFit({ ...base, nav: many, buttons: reserve })).toBe("menu");
+    // A menu on its own row only has to fit that row.
+    expect(navFit({ ...base, variant: "stacked", nav: many.slice(0, 9), buttons: reserve })).toBe(
+      "lg",
+    );
+
+    const site = {
+      ...doc.site,
+      title: "os-e2e-editor-1",
+      nav: many.map((m) => ({ type: "link" as const, label: m.label, href: "/" })),
+    };
+    const out = html(<Header site={site} page={home} />);
+    expect(out).not.toMatch(/is-nav-(lg|xl)/);
+    expect(html(<Header site={doc.site} page={home} />)).toContain("is-nav-lg");
+    expect(BASE_CSS).toContain(
+      "@media (min-width:1440px){\n.os-header.is-nav-xl .os-header__toggle{display:none}",
+    );
+    expect(BASE_CSS).toContain(".os-header.is-nav-lg .os-header__brand{flex-shrink:0}");
   });
 
   it("resolves nav: folders, hidden items, aria-current, buttons", () => {

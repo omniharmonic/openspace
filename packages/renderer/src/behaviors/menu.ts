@@ -66,10 +66,14 @@ export default function menu(header: HTMLElement): void {
       if (f.open && !panel?.contains(f)) for (const o of folders) if (o !== f) o.open = false;
     });
   }
-  const desktop = matchMedia("(min-width: 1024px)");
-  desktop.addEventListener?.("change", () => {
-    if (desktop.matches && !header.classList.contains("is-drawer")) close(false);
-  });
+  // Close the menu when the window grows past the point where the inline menu shows (1024px,
+  // or 1440px for long menus); the menu button is then hidden.
+  for (const q of ["(min-width: 1024px)", "(min-width: 1440px)"]) {
+    const mq = matchMedia(q);
+    mq.addEventListener?.("change", () => {
+      if (mq.matches && toggle && getComputedStyle(toggle).display === "none") close(false);
+    });
+  }
 
   if (header.classList.contains("is-sticky") || header.classList.contains("is-overlay")) {
     let frame = 0;
