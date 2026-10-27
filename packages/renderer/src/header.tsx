@@ -128,61 +128,6 @@ export function resolveNav(
   return out;
 }
 
-/** Where a header's navigation fits inline: from 1024px, from 1440px, or never (menu button). */
-export type NavFit = "lg" | "xl" | "menu";
-
-// Rough widths in px at the nav type preset (~16px), measured on published sites.
-const NAV_CHAR = 8.6;
-const NAV_ITEM_GAP = 30;
-const NAV_CHEVRON = 18;
-const TITLE_CHAR = 12;
-const BUTTON_PAD = 56;
-const BAR_GAP = 16;
-/** Content width of the header bar at 1024px and 1440px (viewport minus the widest gutters). */
-const BAR_LG = 1024 - 96;
-const BAR_XL = 1440 - 96;
-
-/**
- * Estimate the width of the header's single row (brand, inline menu, buttons, social, cart) and
- * say from which breakpoint it fits. A long menu used to squeeze the site name into a narrow
- * column ("os-/eze-/editor-/1") and wrap itself onto two rows; it now stays behind the menu
- * button until there is room. Pure: depends on the document only.
- */
-export function navFit(opts: {
-  variant: HeaderVariant;
-  nav: readonly ResolvedNav[];
-  title: string;
-  logo?: { width?: number | undefined; height?: number | undefined } | null | undefined;
-  buttons: readonly { label: string }[];
-  social: number;
-  cart: boolean;
-}): NavFit {
-  if (!opts.nav.length) return "lg";
-  const navWidth = opts.nav.reduce(
-    (w, item) =>
-      w + item.label.length * NAV_CHAR + NAV_ITEM_GAP + (item.kind === "folder" ? NAV_CHEVRON : 0),
-    0,
-  );
-  const logo = opts.logo;
-  const brand = logo
-    ? logo.width && logo.height
-      ? Math.min(240, (40 * logo.width) / logo.height)
-      : 160
-    : Math.min(opts.title.length, 30) * TITLE_CHAR;
-  const actions =
-    opts.buttons.reduce((w, b) => w + b.label.length * NAV_CHAR + BUTTON_PAD + BAR_GAP, 0) +
-    opts.social * 40 +
-    (opts.cart ? 44 : 0);
-  // Layouts with the menu on its own row only need the menu to fit that row.
-  const ownRow = opts.variant === "logo-center-nav-below" || opts.variant === "stacked";
-  const need = ownRow
-    ? Math.max(navWidth, brand + actions + 2 * BAR_GAP)
-    : navWidth + brand + actions + 3 * BAR_GAP;
-  if (need <= BAR_LG) return "lg";
-  if (need <= BAR_XL) return "xl";
-  return "menu";
-}
-
 function NavLeafLink({ item, className }: { item: ResolvedNavLeaf; className: string }) {
   return (
     <a
@@ -334,17 +279,6 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
   const split = h.variant === "split-nav";
   const half = Math.ceil(nav.length / 2);
   const menuId = "os-menu";
-  const fit = drawer
-    ? null
-    : navFit({
-        variant: h.variant,
-        nav,
-        title: site.title,
-        logo: site.logo,
-        buttons,
-        social: social.length,
-        cart: cart ?? false,
-      });
 
   const actions = (
     <div className="os-header__actions">
@@ -382,8 +316,6 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
         h.sticky && "is-sticky",
         h.overlay && "is-overlay",
         drawer && "is-drawer",
-        fit === "lg" && "is-nav-lg",
-        fit === "xl" && "is-nav-xl",
         `has-menu-${h.variant === "sidebar-drawer" ? "drawer" : h.mobileMenu}`,
       )}
       data-os-header=""

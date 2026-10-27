@@ -8,7 +8,7 @@ import { TOKEN_VARS, TYPE_PRESET_NAMES } from "@omniharmonic/openspace-theme";
  *
  * Everything sits in cascade layers so a site's custom CSS (unlayered) always wins.
  * Breakpoints: mobile < 768px, tablet 768–1199px, desktop ≥ 1200px; the header collapses to
- * its menu button below 1024px (below 1440px, or always, when its menu is long: `navFit`).
+ * its menu button below 1024px.
  */
 
 const T = TOKEN_VARS;
@@ -36,36 +36,6 @@ const button = (role: "primary" | "secondary" | "tertiary") => {
 
 const M = T.motion;
 const ease = v(M.ease);
-
-/**
- * The header's inline (desktop) navigation for headers matching `h`. The renderer estimates how
- * wide the menu is (`navFit`) and marks the header `is-nav-lg` (inline from 1024px) or
- * `is-nav-xl` (from 1440px); a menu that never fits stays behind the menu button, so the site
- * name never gets squeezed into a narrow column.
- */
-const inlineNav = (h: string) => `${h} .os-header__toggle{display:none}
-${h} .os-menu{display:none}
-${h} .os-nav{display:block}
-${h} .os-header__brand{flex-shrink:0}
-${h}.os-header--classic-left .os-nav{margin-inline-start:auto}
-${h}.os-header--transparent-overlay .os-nav{margin-inline-start:auto}
-${h}.os-header--classic-center .os-header__bar{display:grid;grid-template-columns:1fr auto 1fr}
-${h}.os-header--classic-center .os-header__actions{justify-self:end}
-${h}.os-header--split-nav .os-header__brand--main{display:none}
-${h}.os-header--split-nav .os-nav{flex:1}
-${h}.os-header--split-nav .os-nav--split{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(1.5rem,3vw,3rem)}
-${h}.os-header--split-nav .os-nav__list--start{justify-content:flex-end}
-${h}.os-header--split-nav .os-header__brand--split{display:inline-flex;margin:0}
-${h}.os-header--logo-center-nav-below,${h}.os-header--stacked{--header-row:3rem}
-${h}.os-header--logo-center-nav-below .os-header__bar{display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:". brand actions" "nav nav nav";row-gap:0;padding-bottom:0}
-${h}.os-header--logo-center-nav-below .os-header__brand{grid-area:brand;margin:0}
-${h}.os-header--logo-center-nav-below .os-header__actions{grid-area:actions;justify-self:end}
-${h}.os-header--logo-center-nav-below .os-nav{grid-area:nav;justify-self:center;min-height:var(--header-row);display:flex;align-items:center}
-${h}.os-header--stacked .os-header__bar{display:grid;grid-template-columns:1fr auto;grid-template-areas:"brand actions" "nav nav";padding-bottom:0}
-${h}.os-header--stacked .os-header__brand{grid-area:brand}
-${h}.os-header--stacked .os-header__actions{grid-area:actions}
-${h}.os-header--stacked .os-nav{grid-area:nav;min-height:var(--header-row);display:flex;align-items:center;border-top:1px solid ${v(c.border)}}
-.os-page:has(${h}.os-header--logo-center-nav-below,${h}.os-header--stacked){--header-h:calc(var(--bar-h) + 3rem)}`;
 
 export const BASE_CSS = `/* OpenSpace base stylesheet (@omniharmonic/openspace-renderer). Tokens: --os-* from @omniharmonic/openspace-theme. */
 @layer os.reset, os.base, os.layout, os.components, os.behaviors, os.utilities;
@@ -292,7 +262,7 @@ ${button("tertiary")}
 .os-header__title{font-family:${v(T.font.heading)};font-weight:${v(T.font.weightHeading)};font-size:${v(T.type.h4["font-size"])};letter-spacing:${v(T.type.h4["letter-spacing"])};line-height:1.1;text-wrap:balance;overflow-wrap:break-word;max-inline-size:30ch}
 .os-header__brand--split,.os-nav{display:none}
 .os-header__actions{display:none;align-items:center;gap:${v(T.space.xs)}}
-.os-header__actions .os-button{min-height:2.5rem;padding-block:0.5rem;white-space:nowrap}
+.os-header__actions .os-button{min-height:2.5rem;padding-block:0.5rem}
 .os-header__toggle,.os-header__cart,.os-menu__close{position:relative;display:inline-grid;place-items:center;width:2.75rem;height:2.75rem;padding:0;border:0;border-radius:${v(T.radius.full)};background:transparent;color:inherit}
 .os-header__toggle:hover,.os-header__cart:hover,.os-menu__close:hover{background:${v(c.surface)}}
 html:not(.os-js) .os-header__toggle{display:none}
@@ -340,12 +310,30 @@ html:not(.os-js) .os-header__toggle{display:none}
 .os-header.has-menu-dropdown.is-menu-open::before,.os-header.has-menu-fullscreen.is-menu-open::before{display:none}
 
 @media (min-width:1024px){
+.os-header:not(.is-drawer) .os-header__toggle{display:none}
+.os-header:not(.is-drawer) .os-menu{display:none}
+.os-header:not(.is-drawer) .os-nav{display:block}
 .os-header__actions{display:flex;flex:none}
+.os-header--classic-left .os-nav{margin-inline-start:auto}
+.os-header--transparent-overlay .os-nav{margin-inline-start:auto}
+.os-header--classic-center .os-header__bar{display:grid;grid-template-columns:1fr auto 1fr}
+.os-header--classic-center .os-header__actions{justify-self:end}
+.os-header--split-nav .os-header__brand--main{display:none}
+.os-header--split-nav .os-nav{flex:1}
+.os-header.os-header--split-nav .os-nav--split{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(1.5rem,3vw,3rem)}
+.os-header--split-nav .os-nav__list--start{justify-content:flex-end}
+.os-header--split-nav .os-header__brand--split{display:inline-flex;margin:0}
+.os-header--logo-center-nav-below,.os-header--stacked{--header-row:3rem}
+.os-header--logo-center-nav-below .os-header__bar{display:grid;grid-template-columns:1fr auto 1fr;grid-template-areas:". brand actions" "nav nav nav";row-gap:0;padding-bottom:0}
+.os-header--logo-center-nav-below .os-header__brand{grid-area:brand;margin:0}
+.os-header--logo-center-nav-below .os-header__actions{grid-area:actions;justify-self:end}
+.os-header.os-header--logo-center-nav-below .os-nav{grid-area:nav;justify-self:center;min-height:var(--header-row);display:flex;align-items:center}
+.os-header--stacked .os-header__bar{display:grid;grid-template-columns:1fr auto;grid-template-areas:"brand actions" "nav nav";padding-bottom:0}
+.os-header--stacked .os-header__brand{grid-area:brand}
+.os-header--stacked .os-header__actions{grid-area:actions}
+.os-header.os-header--stacked .os-nav{grid-area:nav;min-height:var(--header-row);display:flex;align-items:center;border-top:1px solid ${v(c.border)}}
+.os-page:has(.os-header--logo-center-nav-below,.os-header--stacked){--header-h:calc(var(--bar-h) + 3rem)}
 .os-header.is-drawer .os-header__actions .os-button{display:none}
-${inlineNav(".os-header.is-nav-lg")}
-}
-@media (min-width:1440px){
-${inlineNav(".os-header.is-nav-xl")}
 }
 .os-header__logo{height:var(--mlogo-h,2rem)}
 @media (min-width:768px){.os-header__logo{height:var(--tlogo-h,2.5rem)}}
