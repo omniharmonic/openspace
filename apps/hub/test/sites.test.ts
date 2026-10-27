@@ -850,9 +850,10 @@ describe("sites API (GitHub App, mocked GitHub)", () => {
       .first<{ installation_id: number }>();
     expect(row?.installation_id).toBe(77);
 
-    // With real GitHub, sites are served by Pages: the Hub's dev preview is off.
+    // With real GitHub, Pages serves the published site, so the Hub's `/s/` stand-in is off;
+    // template previews (bundled in the Hub) still work for the gallery.
     expect((await call(app, `/s/${siteId}/`, {}, githubEnv)).status).toBe(404);
-    expect((await call(app, "/t/basic/", {}, githubEnv)).status).toBe(404);
+    expect((await call(app, "/t/basic/", {}, githubEnv)).status).toBe(200);
 
     // Transfers need the recipient to accept on GitHub: pending, nothing changes yet.
     await env.HUB_DB.prepare(

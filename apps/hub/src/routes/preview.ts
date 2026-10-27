@@ -48,9 +48,10 @@ export const PREVIEW_CSP = "sandbox allow-scripts allow-popups allow-forms";
 
 for (const prefix of ["/s/*", "/p/*", "/t/*"]) {
   previewRoutes.use(prefix, async (c, next) => {
-    // Dev preview only: with real GitHub, sites are served by Pages (and reading every file per
-    // request would be too slow until Task 15's DraftRoom caching).
-    if (!c.var.config.useDevGitHub) return c.notFound();
+    // The published site (`/s/`) is a dev stand-in for GitHub Pages: with real GitHub, Pages
+    // serves it (and reading every file from GitHub per request would be too slow). Templates
+    // (`/t/`, bundled in the Hub) and drafts (`/p/`, read from the DraftRoom) work everywhere.
+    if (c.req.path.startsWith("/s/") && !c.var.config.useDevGitHub) return c.notFound();
     await next();
     c.header("Content-Security-Policy", PREVIEW_CSP);
     c.header("X-Content-Type-Options", "nosniff");
