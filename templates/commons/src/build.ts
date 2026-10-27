@@ -29,7 +29,9 @@ import {
 const T = "commons";
 const PAGES = definePages(T, {
   home: "",
-  members: "members",
+  // Not "members": `/members/` is members-only by definition (gated, never on GitHub Pages),
+  // and this is the public member directory.
+  members: "directory",
   join: "join",
   about: "about",
 });
@@ -215,7 +217,7 @@ function members() {
   return makePage(
     P.members,
     "Members",
-    "members",
+    PAGES.slug.members,
     "The directory of Hudson Valley Food Commons members: farms, kitchens, food banks and grocers across nine counties.",
     [
       fromPreset("hero/centered@1", {

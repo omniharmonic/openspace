@@ -31,6 +31,7 @@ import {
   isTextBlock,
   type OutlineHeading,
 } from "./content";
+import { hostingWarnings } from "./hosting";
 import { type CheckOptions, type Issue, issue, opMeta, sortIssues } from "./issue";
 import { linkIssues } from "./links";
 import { autoMobileLayout } from "./mobile";
@@ -61,6 +62,19 @@ export function designCheck(
   for (const page of pages) ctx.page(page);
   ctx.container(FOOTER, [doc.site.footer], { footer: true });
   ctx.issues.push(...linkIssues(doc, pageId, options, ctx.meta));
+  for (const w of hostingWarnings(doc, pageId))
+    ctx.issues.push(
+      issue({
+        rule: w.rule,
+        severity: "warning",
+        ...w.where,
+        message: w.message,
+        fix:
+          w.rule === "gated-page"
+            ? "Switch the site to Cloudflare hosting (Settings → Hosting) to publish members-only pages, or make the page public."
+            : "Switch the site to Cloudflare hosting (Settings → Hosting), or remove this block.",
+      }),
+    );
   return sortIssues(ctx.issues);
 }
 
