@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="{{ site.lang }}">
+<head>
+  <meta charset="utf-8">
+  <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+  {% seo %}
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+  {% include header.html %}
+  <main class="page-content">
+    {{ content }}
+  </main>
+  {% include footer.html %}
+</body>
+</html>

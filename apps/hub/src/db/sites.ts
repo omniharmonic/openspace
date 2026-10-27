@@ -30,6 +30,10 @@ export interface SiteRow {
 }
 
 export interface SiteWithRole extends SiteRow {
+  /** The site's newest hosted import (migration 0510), if it was moved in. */
+  import_id?: string | null;
+  import_state?: string | null;
+  import_kind?: string | null;
   role: Role;
   inbox_count: number;
   owner_login: string;
@@ -39,7 +43,10 @@ export interface SiteWithRole extends SiteRow {
 export const RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 const WITH_ROLE = `SELECT s.*, r.role AS role, o.login AS owner_login, o.name AS owner_name,
-  (SELECT COUNT(*) FROM submissions sub WHERE sub.site_id = s.id AND sub.read_at IS NULL) AS inbox_count
+  (SELECT COUNT(*) FROM submissions sub WHERE sub.site_id = s.id AND sub.read_at IS NULL) AS inbox_count,
+  (SELECT i.id FROM site_imports i WHERE i.site_id = s.id ORDER BY i.created_at DESC LIMIT 1) AS import_id,
+  (SELECT i.state FROM site_imports i WHERE i.site_id = s.id ORDER BY i.created_at DESC LIMIT 1) AS import_state,
+  (SELECT i.kind FROM site_imports i WHERE i.site_id = s.id ORDER BY i.created_at DESC LIMIT 1) AS import_kind
   FROM sites s JOIN site_roles r ON r.site_id = s.id JOIN users o ON o.id = s.owner_id`;
 
 export async function insertSite(

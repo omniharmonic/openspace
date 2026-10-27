@@ -1,4 +1,5 @@
 import {
+  ArrowRightLeft,
   Bot,
   LayoutGrid,
   LayoutTemplate,
@@ -16,6 +17,8 @@ import { InvitePage } from "../features/auth/InvitePage";
 import { SignInPage } from "../features/auth/SignInPage";
 import { ConnectAiPage } from "../features/connect/ConnectAiPage";
 import { Dashboard } from "../features/dashboard/Dashboard";
+import { MoveProgress } from "../features/move/MoveProgress";
+import { MoveSite } from "../features/move/MoveSite";
 import { NewSite } from "../features/onboarding/NewSite";
 import { TemplateGallery } from "../features/templates/TemplateGallery";
 import { Button, EmptyState, Spinner, useRegisterCommands } from "../ui";
@@ -68,6 +71,14 @@ function GlobalCommands() {
       group: "Go to",
       icon: <Bot />,
       run: () => navigate("/connect"),
+    },
+    {
+      id: "go-move",
+      label: "Move an existing site to OpenSpace",
+      group: "Go to",
+      icon: <ArrowRightLeft />,
+      keywords: ["import", "migrate", "squarespace", "wordpress", "wix", "github pages"],
+      run: () => navigate("/move"),
     },
     {
       id: "go-templates",
@@ -180,6 +191,8 @@ export function createRoutes(config: Pick<StudioConfig, "showKit">): RouteObject
         { index: true, element: <Home /> },
         { path: "templates", element: <TemplateGallery /> },
         { path: "new/:template", element: <NewSite /> },
+        { path: "move", element: <MoveSite /> },
+        { path: "move/:importId", element: <MoveProgress /> },
         { path: "signin", element: <SignInPage /> },
         { path: "invite/:token", element: <InvitePage /> },
         { path: "sites", element: <Dashboard /> },

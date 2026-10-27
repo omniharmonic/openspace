@@ -5,7 +5,7 @@
  * Without a platform the importer detects it from the home page.
  */
 
-import { mkdir, readdir, readFile, rm } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import {
   type ComputedLook,
@@ -13,6 +13,7 @@ import {
   importSite,
   type PageRenderer,
   type Platform,
+  parseGitHubTarget,
   platformLabel,
   REPORT_FILE,
   writeImport,
@@ -46,6 +47,16 @@ export interface ImportSiteOptions {
   delay?: number;
   /** Don't download images and files (structure only). */
   media?: boolean;
+  /**
+   * Import into an existing OpenSpace site folder (the hosted import, a repository being
+   * converted): its `openspace.json` identity (site id, Hub, address) and shell are kept, its
+   * content and media are replaced.
+   */
+  intoExisting?: boolean;
+  /** GitHub imports: read the source from this checkout instead of the network. */
+  sourceDir?: string;
+  /** Write a JSON summary here (the hosted import reports it back). */
+  summary?: string;
   /** Injected for tests. */
   fetch?: typeof fetch;
   now?: Date;
@@ -62,6 +73,9 @@ export interface ImportSiteResult {
 
 /** A folder name from the site's address: `https://www.maya-yoga.com` → `maya-yoga`. */
 export function defaultFolder(url: string): string {
+  const gh = parseGitHubTarget(url);
+  if (gh && !/\.(?:com|org|net|io|co)\b/.test(gh.repo.replace(/\.github\.io$/i, "")))
+    return slugify(gh.repo.replace(/\.github\.io$/i, "") || gh.owner);
   try {
     const host = new URL(url.includes("://") ? url : `https://${url}`).host.replace(/^www\./, "");
     const first =
@@ -137,6 +151,59 @@ export async function loadRenderer(): Promise<PageRenderer> {
   };
 }
 
+/** SVG → PNG with sharp (icons and marks), when sharp is installed. */
+export async function loadRasterizer(): Promise<
+  ((svg: Uint8Array, opts?: { icon?: boolean }) => Promise<Uint8Array>) | undefined
+> {
+  try {
+    const spec = "sharp";
+    const mod = (await import(/* @vite-ignore */ spec)) as { default: unknown };
+    // biome-ignore lint/suspicious/noExplicitAny: optional dependency without types here
+    const sharp = mod.default as any;
+    return async (svg, opts = {}) => {
+      if (!opts.icon)
+        return new Uint8Array(
+          await sharp(Buffer.from(svg), { density: 288 })
+            .resize({ width: 384, height: 384, fit: "inside", withoutEnlargement: false })
+            .png()
+            .toBuffer(),
+        );
+      // An icon: small, on the left of a wide transparent strip, so a full-width card image
+      // shows it at icon size (as the original did).
+      const h = 96;
+      const icon = await sharp(Buffer.from(svg), { density: 288 })
+        .resize({ width: h, height: h, fit: "inside" })
+        .png()
+        .toBuffer();
+      return new Uint8Array(
+        await sharp({
+          create: {
+            width: h * 6,
+            height: h,
+            channels: 4,
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
+          },
+        })
+          .composite([{ input: icon, left: 0, top: 0 }])
+          .png()
+          .toBuffer(),
+      );
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+async function existingConfig(dir: string): Promise<SiteConfig> {
+  try {
+    return JSON.parse(await readFile(join(dir, "openspace.json"), "utf8")) as SiteConfig;
+  } catch {
+    throw new CliError(
+      `${dir} isn't an OpenSpace site folder (no openspace.json). Leave out --into-existing to create a new one.`,
+    );
+  }
+}
+
 export async function runImportSite(
   io: Io,
   url: string,
@@ -147,7 +214,8 @@ export async function runImportSite(
   assertGitHubPagesStart(opts.target);
   const target = "github-pages" as const;
   const dir = resolve(io.cwd, dirArg ?? defaultFolder(url));
-  if (!(await isEmptyDir(dir)))
+  const existing = opts.intoExisting ? await existingConfig(dir) : undefined;
+  if (!existing && !(await isEmptyDir(dir)))
     throw new CliError(`${dir} already exists and is not empty. Choose a new folder.`);
   let wxr: string | undefined;
   if (opts.export) {
@@ -158,7 +226,7 @@ export async function runImportSite(
     }
   }
   const slug = slugify(basename(dir));
-  const config: SiteConfig = {
+  const config: SiteConfig = existing ?? {
     $schema: "https://schema.openspace.host/v1/site-config.json",
     siteId: newId("st"),
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -183,13 +251,32 @@ export async function runImportSite(
     ...(opts.now ? { now: opts.now } : {}),
     ...(opts.maxPages ? { maxPages: opts.maxPages } : {}),
     ...(opts.delay !== undefined ? { delayMs: opts.delay } : {}),
-    ...(opts.media === false ? { offline: true } : { resize: await loadResizer() }),
+    ...(opts.media === false
+      ? { offline: true }
+      : { resize: await loadResizer(), rasterizeSvg: await loadRasterizer() }),
+    ...(opts.sourceDir ? { repoDir: resolve(io.cwd, opts.sourceDir) } : {}),
+    ...(io.env.GITHUB_TOKEN || io.env.GH_TOKEN
+      ? { token: (io.env.GITHUB_TOKEN || io.env.GH_TOKEN) as string }
+      : {}),
     onProgress: (m) => io.err(`  ${m}`),
   }).catch((e: Error) => {
     throw new CliError(e.message);
   });
   if (opts.title) result.doc.site.title = opts.title.slice(0, 120);
 
+  if (existing) {
+    // Replace the content and media; the shell, workflows and identity stay.
+    await rm(join(dir, "content"), { recursive: true, force: true });
+    await rm(join(dir, "media"), { recursive: true, force: true });
+    if (!(await readFile(join(dir, "package.json"), "utf8").catch(() => "")))
+      await writeShell(dir, existing.deploy?.target ?? "github-pages", slug);
+    await writeImport(dir, result);
+    await writeAgentsMd(dir, result.doc.site.title);
+    const check = await runCheck(dir);
+    const r = { dir, result, check };
+    if (opts.summary) await writeSummary(resolve(io.cwd, opts.summary), r);
+    return r;
+  }
   const createdRoot = await mkdir(dir, { recursive: true });
   try {
     await writeShell(dir, target, slug);
@@ -203,7 +290,32 @@ export async function runImportSite(
     throw e;
   }
   const check = await runCheck(dir);
-  return { dir, result, check };
+  const r = { dir, result, check };
+  if (opts.summary) await writeSummary(resolve(io.cwd, opts.summary), r);
+  return r;
+}
+
+/** Counts for the hosted import's progress ("12 pages, 48 images"). */
+export function importCounts(r: ImportSiteResult) {
+  const { result, check } = r;
+  return {
+    title: result.site.title,
+    platform: result.site.platform ?? "squarespace",
+    pages: Object.keys(result.doc.pages).length,
+    items: Object.values(result.doc.collections).reduce((n, c) => n + Object.keys(c).length, 0),
+    media: result.files.size,
+    redirects: result.build.redirects.length,
+    attention: result.build.notices.filter((n) => n.kind !== "collection" && n.kind !== "theme")
+      .length,
+    setup: result.checklist.items.length,
+    check: { ok: check.ok, errors: check.errors, warnings: check.warnings },
+    ...(result.github?.domain ? { domain: result.github.domain } : {}),
+  };
+}
+
+async function writeSummary(path: string, r: ImportSiteResult): Promise<void> {
+  await mkdir(join(path, ".."), { recursive: true });
+  await writeFile(path, `${JSON.stringify(importCounts(r), null, 2)}\n`);
 }
 
 /** `openspace import squarespace`: the Squarespace importer (no detection). */

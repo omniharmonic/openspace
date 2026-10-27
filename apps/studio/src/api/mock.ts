@@ -6,6 +6,7 @@ import { type CatalogMockState, createCatalogMock } from "./catalog-mock";
 import { demoSites, TEMPLATE_FIXTURES } from "./fixtures";
 import { demoCollections } from "./growth-fixtures";
 import { createGrowthMock, type GrowthMockState } from "./growth-mock";
+import { createImportMock, type ImportMockState } from "./import-mock";
 import { createManageMock, type ManageMockState } from "./manage-mock";
 import { MockRoom } from "./mockRoom";
 import {
@@ -53,6 +54,9 @@ export interface MockHubOptions {
   demoContent?: boolean;
   /** What the mock Hub reports it can deliver (default: everything works, like a dev Hub). */
   capabilities?: Partial<HubCapabilities>;
+  /** "Move my site": time per import step (ms) and when a conversion's PR "merges" itself. */
+  importStepMs?: number;
+  importAutoMergeMs?: number;
 }
 
 /** Plain-language publish failures the mock can simulate (mirrors the Hub's translations). */
@@ -112,6 +116,10 @@ export interface MockHub extends HubApi {
   readonly manage: ManageMockState;
   /** Kit updates (Task 26). */
   readonly catalog: CatalogMockState;
+  /** "Move my site" imports. */
+  readonly imports: ImportMockState;
+  /** Merge an in-place conversion's pull request (tests). */
+  mergeImport(id: string): void;
   /** Inbox, subscribers, commerce, members and email state (Task 25). */
   readonly growth: GrowthMockState;
   /** The site's in-memory draft room (created on first use). */
@@ -225,6 +233,19 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   };
 
   const manage = createManageMock({ calls, wait, requireUser, findSite, now });
+  const imports = createImportMock({
+    calls,
+    wait,
+    requireUser,
+    findSite,
+    addSite: (site) => {
+      state.sites.push(site);
+    },
+    now,
+    save: () => save(),
+    ...(options.importStepMs !== undefined ? { stepMs: options.importStepMs } : {}),
+    ...(options.importAutoMergeMs !== undefined ? { autoMergeMs: options.importAutoMergeMs } : {}),
+  });
   const catalog = createCatalogMock({
     calls,
     wait,
@@ -440,6 +461,9 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   const hub: MockHub = {
     ...manage.api,
     ...catalog.api,
+    ...imports.api,
+    imports: imports.state,
+    mergeImport: (id: string) => imports.merge(id),
     ...growth.api,
     ...growth.overrides,
     kind: "mock",

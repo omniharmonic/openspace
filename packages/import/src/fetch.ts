@@ -86,6 +86,8 @@ export interface SiteFetcherOptions {
   delayMs?: number;
   /** Pause between image downloads from the CDN (ms, default 50). */
   cdnDelayMs?: number;
+  /** Per-host pause override (e.g. 0 for a repository served from memory). */
+  hostDelay?: (host: string) => number | undefined;
   /** Honour robots.txt (default true). */
   robots?: boolean;
   /**
@@ -155,7 +157,9 @@ export class SiteFetcher {
   private raw(url: string, init: RequestInit = {}): Promise<Response> {
     const u = new URL(url);
     const host = u.host;
-    const delay = this.isCdn(host) ? (this.opts.cdnDelayMs ?? 50) : (this.opts.delayMs ?? 300);
+    const delay =
+      this.opts.hostDelay?.(host) ??
+      (this.isCdn(host) ? (this.opts.cdnDelayMs ?? 50) : (this.opts.delayMs ?? 300));
     const run = async (): Promise<Response> => {
       for (let attempt = 0; ; attempt++) {
         const wait = (this.lastByHost.get(host) ?? 0) + delay - Date.now();

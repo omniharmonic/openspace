@@ -27,7 +27,11 @@
     "@omniharmonic/openspace-schema": "workspace:*",
     "@omniharmonic/openspace-site-kit": "workspace:*",
     "@omniharmonic/openspace-theme": "workspace:*",
-    "parse5": "^8.0.1"
+    "liquidjs": "10.29.0",
+    "micromark": "4.0.3",
+    "micromark-extension-gfm": "3.0.0",
+    "parse5": "^8.0.1",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",

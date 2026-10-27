@@ -158,7 +158,11 @@ export function createProgram(
   type ImportFlags = {
     export?: string;
     owner?: boolean;
-    target: string;
+    target?: string;
+    intoExisting?: boolean;
+    summary?: string;
+    sourceDir?: string;
+    token?: string;
     repo?: string;
     url?: string;
     domain?: string;
@@ -170,13 +174,21 @@ export function createProgram(
     render?: boolean;
     platform?: string;
   };
-  const commonImportOptions = (c: Command, kind: "squarespace" | "wordpress" | "url" | "auto") => {
+  const commonImportOptions = (
+    c: Command,
+    kind: "squarespace" | "wordpress" | "url" | "auto" | "github",
+  ) => {
     if (kind === "squarespace" || kind === "auto")
       c.option(
         "--owner",
         "I own this site: also read Squarespace's ?format=json data (richer collections and SEO); robots.txt asks crawlers not to read it",
       );
-    if (kind !== "url")
+    if (kind === "github")
+      c.option(
+        "--source-dir <dir>",
+        "read the repository from this checkout instead of downloading it from GitHub",
+      );
+    if (kind !== "url" && kind !== "github")
       c.option(
         "--export <file>",
         kind === "squarespace"
@@ -199,6 +211,11 @@ export function createProgram(
         "always github-pages: shops and member areas are switched on later in Studio",
         "github-pages",
       )
+      .option(
+        "--into-existing",
+        "import into an existing OpenSpace site folder: keep its openspace.json (site id, address) and replace its content and media",
+      )
+      .option("--summary <file>", "also write a JSON summary (pages, images, check result)")
       .option("--repo <owner/name>", "GitHub repository, used for the Pages address")
       .option("--url <url>", "address the new site is served from before a custom domain")
       .option("--domain <hostname>", "custom domain (set it when you move the domain)")
@@ -235,6 +252,10 @@ export function createProgram(
       ...(deps.fetch ? { fetch: deps.fetch } : {}),
     });
     for (const line of importSummary(r)) io.out(line);
+    if (opts.intoExisting) {
+      if (!r.check.ok) setExit(1);
+      return;
+    }
     io.out("Next:");
     io.out(`  cd ${dir ?? r.dir}`);
     io.out("  npm install && npx openspace dev");
@@ -279,6 +300,21 @@ export function createProgram(
     "wordpress",
   ).action((url: string, dir: string | undefined, opts: ImportFlags) =>
     runImportCommand(url, dir, opts, "wordpress"),
+  );
+  commonImportOptions(
+    importCmd
+      .command("github")
+      .description(
+        "Import a site from its GitHub repository or GitHub Pages address: Jekyll from its source (pages, posts, collections, layouts, redirects), sites whose pages are content files with typed sections (Decap/Sveltia CMS, Astro), plain HTML, or Hugo/Eleventy from their published pages.",
+      )
+      .argument(
+        "<repo>",
+        "owner/name, https://github.com/owner/name or https://owner.github.io/name/",
+      )
+      .argument("[dir]", "new folder to create (default: from the repository name)"),
+    "github",
+  ).action((repo: string, dir: string | undefined, opts: ImportFlags) =>
+    runImportCommand(repo, dir ?? (opts.intoExisting ? "." : undefined), opts, "github"),
   );
   commonImportOptions(
     importCmd

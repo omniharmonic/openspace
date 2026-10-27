@@ -64,7 +64,9 @@ export function renderReport(r: ReportInput): string {
       ? "squarespace"
       : info.importer === "wordpress"
         ? "wordpress"
-        : "url";
+        : info.importer === "github"
+          ? "github"
+          : "url";
   const L: string[] = [];
   const pages = build.pages;
   const items = build.collections.reduce((n, c) => n + c.items, 0);

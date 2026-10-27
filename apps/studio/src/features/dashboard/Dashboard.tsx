@@ -24,6 +24,7 @@ import {
   useTemplates,
   useTransferSite,
 } from "../../api";
+import { importInProgress } from "../../api/import-types";
 import { needsGitHub, type Site, type TemplateSummary } from "../../api/types";
 import { AppHeader } from "../../app/AppHeader";
 import { LoadError } from "../../app/Connection";
@@ -306,14 +307,11 @@ function SiteCard({
   retrying: boolean;
 }) {
   const look = template?.looks.find((l) => l.id === site.look) ?? template?.looks[0];
+  const moving = site.import && importInProgress(site.import.state) ? site.import : null;
+  const href = moving ? `/move/${moving.id}` : `/sites/${site.id}`;
   return (
     <article className="st-sitecard" aria-labelledby={`site-${site.id}`}>
-      <Link
-        to={`/sites/${site.id}`}
-        className="st-sitecard__preview"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
+      <Link to={href} className="st-sitecard__preview" tabIndex={-1} aria-hidden="true">
         {look && template ? (
           <TemplateRender
             template={template}
@@ -329,7 +327,7 @@ function SiteCard({
       <div className="st-sitecard__body">
         <div className="st-sitecard__row">
           <h2 id={`site-${site.id}`} className="st-sitecard__name">
-            <Link to={`/sites/${site.id}`}>{site.name}</Link>
+            <Link to={href}>{site.name}</Link>
           </h2>
           <Menu
             align="end"
@@ -349,7 +347,14 @@ function SiteCard({
           {displayUrl(site.url)}
         </a>
         <div className="st-sitecard__meta">
-          <StatusBadge status={site.status} github={site.github} />
+          {moving ? (
+            <Badge tone="accent">
+              <ArrowRightLeft size={11} aria-hidden="true" />
+              {moving.state === "review" ? "Waiting for your approval" : "Moving in…"}
+            </Badge>
+          ) : (
+            <StatusBadge status={site.status} github={site.github} />
+          )}
           {site.inboxCount > 0 && (
             <Badge tone="accent">
               <Inbox size={11} aria-hidden="true" />
@@ -558,6 +563,13 @@ export function Dashboard() {
       run: () => navigate("/templates"),
     },
     {
+      id: "move-site",
+      label: "Move an existing site",
+      group: "Sites",
+      icon: <ArrowRightLeft />,
+      run: () => navigate("/move"),
+    },
+    {
       id: "view-cards",
       label: "Show sites as cards",
       group: "View",
@@ -634,6 +646,9 @@ export function Dashboard() {
                 ]}
               />
             )}
+            <Button variant="secondary" icon={<ArrowRightLeft />} onClick={() => navigate("/move")}>
+              Move a site
+            </Button>
             <Button variant="primary" icon={<Plus />} onClick={() => navigate("/templates")}>
               New site
             </Button>
@@ -667,6 +682,13 @@ export function Dashboard() {
               <div className="st-dash__empty-actions">
                 <Button variant="primary" onClick={() => navigate("/templates")}>
                   Browse templates
+                </Button>
+                <Button
+                  variant="secondary"
+                  icon={<ArrowRightLeft />}
+                  onClick={() => navigate("/move")}
+                >
+                  Move my existing site
                 </Button>
                 <Button variant="secondary" icon={<Bot />} onClick={() => navigate("/connect")}>
                   Connect your AI

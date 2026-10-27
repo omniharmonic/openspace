@@ -77,9 +77,17 @@ Both servers add tools that fetch other websites. The local stdio server (`opens
 
 | Tool                 | Arguments                                                                                   | Use                                                                                                                                                                                                                 |
 | -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `import_site`        | Local: `url`, `platform?`, `folder?`, `owner?`, `exportFile?`, `render?`, `target?`, `confirm` | Import a site from any platform (detected unless `platform` is given: Squarespace, WordPress, Wix, Webflow…). Locally into a **new** folder next to the served site (never into it), then `openspace check`; on the Hub into a new site (follow what the tool returns). Needs `confirm: true` after the owner agrees; `owner: true` (Squarespace `?format=json`) only when they confirm they own the site; `render: true` reads script-built pages in a browser. Returns the summary and `IMPORT-REPORT.md`. |
+| `import_site`        | Local: `url`, `platform?`, `folder?`, `owner?`, `exportFile?`, `render?`, `confirm`; Hub: `url`, `confirmOwnership`, `name?`, `platform?`, `render?`, `inPlace?` | Import a site from any platform (detected unless `platform` is given: Squarespace, WordPress, Wix, Webflow, GitHub Pages…), always onto free GitHub Pages hosting. Locally into a **new** folder next to the served site (never into it), then `openspace check`; on the Hub into a new site that runs the import in the cloud — follow it with `import_status` (`inPlace: true` makes the person's own GitHub Pages repository editable where it is, through a pull request they approve). Needs `confirm: true` after the owner agrees; `owner: true` (Squarespace `?format=json`) only when they confirm they own the site; `render: true` reads script-built pages in a browser. Returns the summary and `IMPORT-REPORT.md`. |
 | `import_squarespace` | same as `import_site`                                                                  | Local only: older name of `import_site` for Squarespace sites. |
 | `screenshot_url`     | `url`, `device?` (`"desktop"` \| `"tablet"` \| `"mobile"` \| `"all"`), `fullPage?`; Hub also `site`, `page` | Image of any public page (the original site during a migration) at the same widths as `screenshot`, for side-by-side comparison. On the Hub, `site` (+ `page`) without `url` captures the site's live, published page. Locally it needs Playwright, like `screenshot`. |
+
+## Hub only (the Claude app connector)
+
+| Tool | What it does |
+| --- | --- |
+| `list_templates` | Templates and their looks, for `create_site`. |
+| `create_site` | A new site from a template and look (needs "Create new sites" on the consent screen). The first time, it returns a Studio link to approve OpenSpace on GitHub. |
+| `import_status` | How a move started with `import_site` is going: the steps, pages and images so far, what needs attention, the Finish setting up list, the live address. |
 
 ## Prompts
 

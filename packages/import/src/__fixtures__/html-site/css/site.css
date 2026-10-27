@@ -1,0 +1,17 @@
+:root {
+  --brand: #7a2e8c;
+}
+body {
+  font-family: "Nunito", sans-serif;
+  color: #222;
+  background: #fff;
+}
+h1,
+h2 {
+  font-family: "Merriweather", serif;
+}
+a.button {
+  background: #7a2e8c;
+  color: #fff;
+  border-radius: 999px;
+}

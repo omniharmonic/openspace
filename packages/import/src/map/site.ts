@@ -349,6 +349,9 @@ async function mapNav(
     const l = clip(label, 60);
     if (r.kind === "page")
       return { type: "page", page: (r.link as { page: Page["id"] }).page, label: l };
+    // Navigation can't point at a single item: its collection is the nearest entry.
+    if (r.kind === "item" && r.link.type === "item")
+      return { type: "collection", collection: r.link.collection, label: l };
     if (r.kind === "collection" && /^\/[a-z0-9-]+\/$/.test(r.path))
       return { type: "collection", collection: r.path.slice(1, -1), label: l };
     if (r.kind === "external" && r.link.type === "url" && /^https?:/.test(r.link.url))

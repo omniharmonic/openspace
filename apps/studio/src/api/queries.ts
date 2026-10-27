@@ -68,6 +68,9 @@ export function useSites(options: { enabled?: boolean; pollMs?: number } = {}) {
     refetchInterval: (q) => {
       const list = q.state.data;
       if (list?.some((s) => s.status === "building")) return options.pollMs ?? 3000;
+      // A site being moved in can be live (its placeholder) while the move continues.
+      if (list?.some((s) => s.import && s.import.state !== "ready" && s.import.state !== "failed"))
+        return (options.pollMs ?? 3000) * 2;
       // A just-made site can report "failed" before its first publish lands: look again.
       if (list?.some((s) => s.status === "failed" && isRecent(s.createdAt)))
         return (options.pollMs ?? 3000) * 4;

@@ -10,9 +10,11 @@ import { toHex } from "../lib/crypto";
 import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { BuildState } from "../room/protocol";
+import { IMPORT_WORKFLOW } from "../templates/import-workflow";
 import { buildErrorDetail, type SiteNames, translateBuildError } from "./build-errors";
 import { GITHUB_ACCESS_DETAIL, GITHUB_RECONNECT_DETAIL } from "./github-install";
 import { advanceSwitch } from "./hosting-switch";
+import { openImportForSite, refreshImport } from "./imports";
 import type { Services } from "./index";
 import { completeTransfer, ownerOf } from "./sites";
 
@@ -100,6 +102,14 @@ async function onWorkflowRun(
   log?: Logger,
 ): Promise<string> {
   const run = p.workflow_run;
+  // The hosted import's run (on main or the conversion branch): move the import along.
+  if ((run.path ?? "").endsWith(`/${IMPORT_WORKFLOW}`) || run.name === "OpenSpace import") {
+    const site = await siteByRepo(services, p.repository.full_name);
+    if (!site) return "unknown_site";
+    const open = await openImportForSite(services, site.id);
+    if (open) await refreshImport(services, env, open.id, log);
+    return "import";
+  }
   const isPublish =
     (run.path ?? "").endsWith(`/${PUBLISH_WORKFLOW}`) ||
     run.path === PUBLISH_WORKFLOW ||
@@ -188,8 +198,11 @@ async function onWorkflowRun(
   } catch (err) {
     log?.warn("room build notice failed", { siteId: site.id, err });
   }
-  // A move to Cloudflare waits for this run: confirm it, or switch back to GitHub Pages.
   if (state === "success" || state === "failure") {
+    // A moved-in site's first publish finishes its import ("Ready to review").
+    const open = await openImportForSite(services, site.id);
+    if (open?.state === "publishing") await refreshImport(services, env, open.id, log);
+    // A move to Cloudflare waits for this run: confirm it, or switch back to GitHub Pages.
     try {
       await advanceSwitch(env, services, site.id, log);
     } catch (err) {

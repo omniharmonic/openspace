@@ -610,14 +610,16 @@ export async function mapBlock(
         });
       }
       if (!items.length) return [];
-      // The columns block holds up to 8 cards: longer grids continue in another block.
+      // The columns block holds up to 8 cards: longer grids continue in blocks of equal size
+      // (10 → 5 + 5), so every card keeps the same width.
       const out: Block[] = [];
-      for (let i = 0; i < items.length; i += 8) {
-        const chunk = items.slice(i, i + 8);
+      const per = Math.ceil(items.length / Math.ceil(items.length / 8));
+      for (let i = 0; i < items.length; i += per) {
+        const chunk = items.slice(i, i + per);
         const b = makeBlock(ctx, "columns", {
           items: chunk,
           columns: String(Math.max(2, Math.min(4, items.length))) as "2" | "3" | "4",
-          aspect: "4:5",
+          aspect: sq.aspect ?? "4:5",
         });
         if (b) out.push(b);
       }

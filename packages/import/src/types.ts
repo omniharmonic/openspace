@@ -20,6 +20,10 @@ export type Platform =
   | "godaddy"
   | "jimdo"
   | "hostinger"
+  | "jekyll"
+  | "hugo"
+  | "eleventy"
+  | "github"
   | "generic";
 
 /** What a section is for, when the importer could tell (picks the closest section preset). */
@@ -92,7 +96,12 @@ export type SqBlock =
   | { kind: "social" }
   | { kind: "audio"; url: string; title?: string }
   | { kind: "product"; path?: string }
-  | { kind: "cards"; items: SqCard[] }
+  | {
+      kind: "cards";
+      items: SqCard[];
+      /** Image crop (`original` for icon strips, which must not be cropped). */
+      aspect?: "original" | "1:1" | "4:5" | "3:2" | "16:9";
+    }
   | {
       kind: "heading";
       text: string;
@@ -269,7 +278,7 @@ export interface SqItem {
   draft?: boolean;
   event?: SqEvent;
   product?: SqProduct;
-  source: "html" | "json" | "wxr" | "rest";
+  source: "html" | "json" | "wxr" | "rest" | "repo";
 }
 
 export interface SqCollection {

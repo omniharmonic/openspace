@@ -560,8 +560,16 @@ export class GitHubAppAccess implements GitHubAccess {
     } catch (err) {
       if (!(err instanceof GitHubConflictError)) throw err; // 409: already enabled
     }
-    const existing = await this.rest<{ html_url: string }>(`${this.repoPath(repo)}/pages`);
+    const existing = await this.rest<{ html_url: string; build_type?: string }>(
+      `${this.repoPath(repo)}/pages`,
+    );
     if (!existing) throw new GitHubApiError("Pages is not enabled", 502);
+    // A site published from a branch (classic Jekyll) now publishes with its workflow.
+    if (existing.build_type && existing.build_type !== "workflow")
+      await this.rest(`${this.repoPath(repo)}/pages`, {
+        method: "PUT",
+        body: { build_type: "workflow" },
+      });
     return { url: existing.html_url };
   }
 
@@ -617,6 +625,7 @@ export class GitHubAppAccess implements GitHubAccess {
     if (input.ref) q.set("branch", normalizeRef(input.ref).name);
     const data = await this.rest<{
       workflow_runs: Array<{
+        id?: number;
         status: string;
         conclusion: string | null;
         head_sha: string;
@@ -630,6 +639,7 @@ export class GitHubAppAccess implements GitHubAccess {
     if (!run) return { state: "none" };
     return {
       state: mapRunState(run.status, run.conclusion),
+      ...(typeof run.id === "number" ? { id: run.id } : {}),
       sha: run.head_sha,
       url: run.html_url,
       updatedAt: run.updated_at,

@@ -10,7 +10,7 @@ export interface PlatformInfo {
   id: Platform;
   label: string;
   /** The specialised importer, when there is one (otherwise the generic `url` importer). */
-  importer: "squarespace" | "wordpress" | "url";
+  importer: "squarespace" | "wordpress" | "github" | "url";
   /** What the importer can't move from this platform (the report's "Not moved" list). */
   notMoved: string[];
 }
@@ -117,6 +117,40 @@ export const PLATFORMS: Record<Platform, PlatformInfo> = {
     label: "Hostinger Website Builder",
     importer: "url",
     notMoved: ["Store, bookings and apps.", ...COMMON_NOT_MOVED],
+  },
+  jekyll: {
+    id: "jekyll",
+    label: "Jekyll (GitHub Pages)",
+    importer: "github",
+    notMoved: [
+      "Jekyll plugins' build-time behaviour and theme code (what they put on your pages was imported).",
+      "Comments (Disqus, giscus, utterances) and analytics settings.",
+      "Files outside the site's pages, posts and the media they use.",
+    ],
+  },
+  hugo: {
+    id: "hugo",
+    label: "Hugo",
+    importer: "github",
+    notMoved: [
+      "Hugo shortcodes, taxonomies' extra pages and theme code (pages were read as they are published).",
+      ...COMMON_NOT_MOVED,
+    ],
+  },
+  eleventy: {
+    id: "eleventy",
+    label: "Eleventy",
+    importer: "github",
+    notMoved: [
+      "Eleventy templates, filters and data files (pages were read as they are published).",
+      ...COMMON_NOT_MOVED,
+    ],
+  },
+  github: {
+    id: "github",
+    label: "GitHub Pages",
+    importer: "github",
+    notMoved: ["Scripts and anything built by JavaScript in the browser.", ...COMMON_NOT_MOVED],
   },
   generic: {
     id: "generic",
@@ -269,6 +303,9 @@ export function detectPlatform(html: string, headers: Record<string, string> = {
       ["hostinger", "hostinger"],
       ["zyro", "hostinger"],
       ["weebly", "weebly"],
+      ["jekyll", "jekyll"],
+      ["hugo", "hugo"],
+      ["eleventy", "eleventy"],
     ];
     for (const [needle, p] of byGen)
       if (g.includes(needle)) {

@@ -12,6 +12,7 @@ version: 0.2.0
 | --- | --- | --- |
 | Squarespace 7.0 / 7.1 | `import squarespace` | page HTML, the sitemap, `?format=json` with `--owner`, the blog's WordPress export with `--export` |
 | WordPress | `import wordpress` | the public REST API (pages, posts, categories, tags, featured media, Yoast/Rank Math SEO) and/or the WXR export (`--export`: drafts, menus, attachments), plus the home page for navigation, footer and look |
+| GitHub Pages (a `*.github.io` address or a GitHub repository) | `import github` | the repository: Jekyll from its source (_config.yml, pages, posts, collections, layouts and includes, front-matter redirects); sites whose pages are content files with typed sections (Decap/Sveltia CMS, Astro) field by field with their design tokens; plain HTML from the files; Hugo/Eleventy from the published pages plus their Markdown front matter |
 | Wix, Webflow, Carrd, Framer, Shopify pages, Ghost, hand-made HTML — anything else | `import url` | the sitemap (or the site's own links), each page's HTML: main content, header navigation, footer, SEO and Open Graph, the look from the CSS; `--render` reads pages JavaScript builds (Playwright) |
 
 Every importer writes the same result into a new folder: pages built from OpenSpace sections and blocks (landing-page sections are rebuilt with the closest section presets — hero, features, gallery, testimonials, call to action, contact), images downloaded into `media/` with their alt text, navigation, header and footer, blog posts as a collection, forms and newsletter signups, SEO titles and descriptions, a redirect for every changed address, and a Site Styles approximation of the look (palette, font pairing, buttons, density) that the contrast solver keeps accessible. It writes `IMPORT-REPORT.md` and runs `openspace check`.
@@ -41,10 +42,11 @@ npx -y @omniharmonic/openspace-cli import https://www.example.com my-site
 npx -y @omniharmonic/openspace-cli import squarespace https://www.example.com my-site --owner --export ~/Downloads/export.xml
 npx -y @omniharmonic/openspace-cli import wordpress https://www.example.com my-site --export ~/Downloads/site.WordPress.xml
 npx -y @omniharmonic/openspace-cli import url https://www.example.com my-site --render
+npx -y @omniharmonic/openspace-cli import github https://owner.github.io/site/ my-site
 cd my-site && npm install
 ```
 
-Options: `--platform <name>` (skip detection), `--target` (leave the default, `github-pages`, for every move), `--repo owner/name`, `--domain example.com`, `--title "…"`, `--max-pages N` (default 400), `--delay ms` (pause between requests, default 300), `--no-media` (structure only, for a quick look). The command paces its requests, honours robots.txt and identifies itself.
+Options: `--platform <name>` (skip detection), `--repo owner/name`, `--domain example.com`, `--title "…"`, `--max-pages N` (default 400), `--delay ms` (pause between requests, default 300), `--no-media` (structure only, for a quick look). The command paces its requests, honours robots.txt and identifies itself.
 
 When an OpenSpace site is already being served in this session, the `import_site` MCP tool does the same (with `confirm: true` after the owner agrees; `platform` to skip detection; `owner: true` only when they confirm ownership of a Squarespace site; `render: true` for script-built pages). It creates the new folder next to the current site and never writes into it. `import_squarespace` is its older name for Squarespace sites.
 

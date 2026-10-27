@@ -1,6 +1,14 @@
-import { Eye, LayoutTemplate, Monitor, Smartphone, Tablet } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowRightLeft,
+  Eye,
+  LayoutTemplate,
+  Monitor,
+  Smartphone,
+  Tablet,
+} from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useTemplates } from "../../api";
 import type { TemplateLook, TemplateSummary } from "../../api/types";
 import { AppHeader } from "../../app/AppHeader";
@@ -163,6 +171,19 @@ export function TemplateGallery() {
             online in a few minutes. Browse as long as you like — no account needed.
           </p>
         </div>
+        <Link to="/move" className="st-gallery__move">
+          <span className="st-gallery__move-icon" aria-hidden="true">
+            <ArrowRightLeft />
+          </span>
+          <span className="st-gallery__move-text">
+            <strong>Already have a site? Move it to OpenSpace</strong>
+            <span>
+              Paste its address — Squarespace, WordPress, Wix, GitHub Pages or anything else. Its
+              pages, pictures and look come across in a few minutes.
+            </span>
+          </span>
+          <ArrowRight className="st-gallery__move-go" aria-hidden="true" />
+        </Link>
         {templates.isPending ? (
           <div
             className="st-gallery__grid"

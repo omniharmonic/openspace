@@ -3,7 +3,7 @@ name: openspace-migrate
 description: Move an existing website (Squarespace, GitHub Pages, WordPress, Wix, any site) into OpenSpace with no installs, using the OpenSpace connector, then match the old look page by page with screenshots.
 license: MIT
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
   for: claude.ai and Claude Desktop with the OpenSpace connector (https://hub.openspace.host/mcp)
 ---
 
@@ -28,7 +28,8 @@ Everything runs through the **OpenSpace connector** (`https://hub.openspace.host
 - **Hosting: always the free default (GitHub Pages).** Never switch a site to Cloudflare or any other hosting during a move, even if the old site has a shop, donations, member pages or password pages. Those features come back later, from Studio's **Finish setting up** list, after the site is live. A move must never end in a publish that is known to fail.
 - **A new OpenSpace site** next to the old one. For an existing GitHub Pages site, also a new site — unless they explicitly ask to convert the existing one in place.
 - **Everything imported:** pages, posts, images, navigation, forms, products (as catalog pages, not yet for sale), redirects.
-- **Squarespace:** ask once, simply, "Is this your site?" If yes, pass `owner: true` (it reads Squarespace's own page data, which needs the owner's permission). Don't ask for exports; blog posts are read from the site.
+- **Is it theirs?** Ask once, simply, "Is this your site?" Only then pass `confirmOwnership: true` — it also lets the import read data only an owner may (Squarespace's own page data). Don't ask for exports; blog posts are read from the site.
+- **GitHub Pages:** a `*.github.io` address or a GitHub repository is read from its source (Jekyll pages and posts, sites whose pages are content files, plain HTML). Make a new site unless they explicitly ask to keep the site where it is — then pass `inPlace: true`: OpenSpace prepares the change on GitHub and they approve it with one click (they can undo it the same way).
 - **Script-heavy sites** (Wix, Framer): if the import report says pages came through nearly empty, re-run `import_site` with `render: true` yourself.
 
 ## 0. Check the connection
@@ -45,15 +46,19 @@ Ask for their site's address (and "Is this your site?" for Squarespace). Then `s
 
 ## 2. Bring it over
 
-Call `import_site` with the address. Say in one sentence what will happen ("I'll copy your pages, words and photos into a new OpenSpace site; your current site isn't touched") and pass `confirm: true` once they say yes.
+Call `import_site` with the address and `confirmOwnership: true` (after they said it's theirs). Say in one sentence what will happen ("I'll copy your pages, words and photos into a new OpenSpace site; your current site isn't touched").
 
-The import runs in the cloud and takes a few minutes. Follow exactly what `import_site` returns: where the new site is, how to check progress, when it's ready. Don't call it in a tight loop; give a one-line update while waiting.
+The import runs in the cloud and takes a few minutes. Follow `import_status` (with the site id `import_site` returned) every half minute or so, with a one-line update in between ("Bringing your pages across… 12 pages and 40 photos so far"). It tells you exactly what's next:
+
+- **"Connect GitHub"** (their first site): give them the Studio link it names; they press Connect GitHub (about a minute). Then keep following `import_status`.
+- **"Approve the change on GitHub"** (`inPlace` only): give them the link; they press **Merge pull request**. Then keep following.
+- **"is live"**: it's done. The new site is already part of this connection (`get_site` works).
+- **"didn't finish"**: tell them why in their words, and offer to try again (Studio's Try again, or `import_site` once more).
 
 When it's done:
 
-1. If the new site isn't in `list_sites`, the connection doesn't cover it yet: ask them to open Studio → Settings → Connect your AI and allow Claude on the new site (or reconnect and tick it). Then `get_site`.
-2. Read the import report the tool returns and keep the technical parts to yourself. Tell them only: what came across, and anything you need from them.
-3. Give them the Studio link for the new site so they can watch your changes arrive.
+1. Read the "What needs attention" and "Finish setting up" lists it returns and keep the technical parts to yourself. Tell them only: what came across, and anything you need from them.
+2. Give them the Studio link for the new site so they can watch your changes arrive.
 
 ## 3. Make it look like their site, page by page
 

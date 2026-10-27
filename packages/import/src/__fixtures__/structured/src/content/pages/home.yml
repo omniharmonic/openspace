@@ -1,0 +1,78 @@
+seo:
+  title: Meadow Book · A book by June Park
+  description: A field guide to slow attention.
+  social_image: /uploads/cover.png
+sections:
+  - type: hero_optin
+    ground: ink
+    id: top
+    kicker: A BOOK BY JUNE PARK
+    title: Meadow Book
+    subtitle: A field guide to slow attention
+    lead: Most of what matters grows slowly.
+    body: Meadow Book is for people who want to **notice** more and hurry less.
+    form:
+      show_first_name: false
+      email_label: EMAIL ADDRESS
+      email_placeholder: you@example.com
+      button: SEND ME CHAPTER ONE
+    helper: The first chapter, free in your inbox today.
+    image:
+      src: /uploads/cover.png
+      alt: The cover of Meadow Book.
+  - type: hidden_strip
+    visible: false
+    quote: "[An endorsement]"
+  - type: three_terms
+    ground: paper
+    id: idea
+    kicker: THE IDEA
+    headline: Three ways of looking.
+    items:
+      - label: GLANCE
+        icon: leaf
+        definition: A glance takes in the surface.
+        body: Useful, quick and incomplete.
+      - label: LOOK
+        icon: leaf
+        definition: A look follows one thing.
+        body: It asks a question and waits.
+      - label: ATTEND
+        icon: leaf
+        definition: Attention stays.
+        body: It lets the thing change you.
+    closing: Attention is a practice.
+  - type: numbered_measures
+    ground: moss
+    headline: Five small practices.
+    items:
+      - Walk the same path for a week.
+      - Name three plants.
+      - Sit for ten minutes.
+  - type: optin_band
+    ground: rust
+    id: chapter
+    headline: Read the first pages tonight.
+    form:
+      show_first_name: true
+      first_name_label: FIRST NAME
+      email_label: EMAIL ADDRESS
+      button: SEND IT
+  - type: faq
+    ground: ink
+    kicker: QUESTIONS
+    items:
+      - { question: When is it out?, answer: "Spring 2027." }
+      - { question: Is there an audiobook?, answer: "Yes, read by the author." }
+  - type: author
+    ground: paper
+    kicker: THE AUTHOR
+    paragraphs:
+      - June Park writes about fields, birds and the people who watch them.
+    buttons:
+      - label: INVITE JUNE TO SPEAK
+        link: hello@meadow-book.example
+        style: outline
+      - label: READ HER ESSAYS
+        link: "[Essays URL]"
+        style: outline

@@ -1,0 +1,2 @@
+backend: { name: github, repo: example/meadow-book }
+collections: []

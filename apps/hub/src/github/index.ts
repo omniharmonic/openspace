@@ -1,6 +1,8 @@
 import type { SiteRow } from "../db/sites";
 import type { User } from "../db/users";
 import type { HubConfig } from "../env";
+import { devImportRunner } from "../services/import-dev";
+import { IMPORT_WORKFLOW } from "../templates/import-workflow";
 import { GitHubAppAccess } from "./app";
 import { DevGitHubAccess } from "./dev";
 import type { FetchLike } from "./http";
@@ -45,6 +47,8 @@ export function selectGitHubAccess(deps: GitHubDeps, ctx: GitHubContext = {}): G
     return new DevGitHubAccess(deps.db, {
       now: deps.now,
       pagesUrl: (repo) => devPagesUrl(deps.db, config.hubUrl, repo),
+      // The hosted import's workflow commits an emulated import (services/import-dev.ts).
+      runners: { [IMPORT_WORKFLOW]: devImportRunner(deps.db) },
       ...(ctx.user ? { defaultAuthor: { name: ctx.user.name ?? ctx.user.login } } : {}),
     });
   const user = ctx.user;

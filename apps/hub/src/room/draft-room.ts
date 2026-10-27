@@ -1055,6 +1055,25 @@ export class DraftRoom extends DurableObject<HubBindings> {
     });
   }
 
+  /**
+   * A hosted import (or a conversion) replaced the site's content on main: the draft starts over
+   * from that commit and everyone in the room reloads. Edits made to the placeholder are dropped.
+   */
+  async adoptImport(siteId: string, sha: string): Promise<RoomResult<{ head: string }>> {
+    return this.rpc(async () => {
+      this.siteId(siteId);
+      return this.exclusive(async () => {
+        const services = this.services();
+        const site = await this.site(services, siteId);
+        const gh = await this.github(services, site);
+        const repo = parseRepo(site.repo);
+        await gh.resetBranch(repo, DRAFT_BRANCH, sha);
+        if (this.state.doc) await this.reloadFromHead(gh, repo, "Your imported site is ready.");
+        return { head: sha };
+      });
+    });
+  }
+
   /** Build status (from the `workflow_run` webhook) pushed to everyone in the room. */
   async notifyBuild(siteId: string, notice: BuildNotice): Promise<void> {
     this.siteId(siteId);

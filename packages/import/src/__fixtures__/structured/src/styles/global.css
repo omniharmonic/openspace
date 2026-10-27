@@ -1,0 +1,11 @@
+:root {
+  --ink: #141210;
+  --paper: #f4efe6;
+  --rust: #a4502e;
+  --moss: #3d4a33;
+}
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "Lora", Georgia, serif;
+}

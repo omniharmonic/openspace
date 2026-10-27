@@ -31,7 +31,10 @@ Move an existing site into a new site folder: pages, blog posts, images, navigat
 
 - `openspace import squarespace <url> [dir]` — Squarespace 7.0 and 7.1 (also events, products and portfolio);
 - `openspace import wordpress <url> [dir]` — WordPress, from the public REST API and/or the WXR export;
+- `openspace import github <repo> [dir]` — a GitHub Pages site from its repository (`owner/name`, a github.com or `*.github.io` address; `--source-dir` reads a checkout): Jekyll from source, content files with typed sections (Decap/Sveltia CMS, Astro), plain HTML, Hugo/Eleventy from the published pages;
 - `openspace import url <url> [dir]` — any other site (Wix, Webflow, Carrd, Framer, hand-made HTML).
+
+Imports always target GitHub Pages hosting; a shop, members or password pages are listed in `content/setup-checklist.json` for after launch. In Studio, **Move an existing site** runs the same importer in the new site's GitHub Actions — nothing to install.
 
 See [Move your site to OpenSpace](/guides/migrate-to-openspace/).
 
@@ -47,7 +50,10 @@ npx -y @omniharmonic/openspace-cli import wordpress https://www.example.com my-s
 | `--owner` | Squarespace: you own the site, so also read `?format=json` data (richer collections and SEO). |
 | `--export <file>` | A WordPress export (WXR): a WordPress site's full export, or Squarespace's blog export. |
 | `--render` | Read pages in a browser first (Playwright), for sites built by JavaScript. Not for `import squarespace`/`wordpress`. |
-| `--target`, `--repo`, `--url`, `--domain`, `--title`, `--hub` | As for `openspace new`. |
+| `--repo`, `--url`, `--domain`, `--title`, `--hub` | As for `openspace new`. |
+| `--into-existing` | Import into an existing site folder: keep `openspace.json` (site id, address), replace content and media. |
+| `--summary <file>` | Also write a JSON summary (pages, images, check result). |
+| `--source-dir <dir>` | `import github` only: read this checkout instead of downloading the repository. |
 | `--max-pages <n>` | Most pages and items to read (default 400). |
 | `--delay <ms>` | Pause between requests to the site (default 300). |
 | `--no-media` | Skip images and files (structure only). |

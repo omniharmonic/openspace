@@ -1,0 +1,11 @@
+{
+  "color": { "ink": "#141210", "paper": "#f4efe6", "rust": "#a4502e", "moss": "#3d4a33" },
+  "grounds": {
+    "ink": { "background": "ink", "text": "paper" },
+    "paper": { "background": "paper", "text": "ink" },
+    "rust": { "background": "rust", "text": "paper" },
+    "moss": { "background": "moss", "text": "paper" }
+  },
+  "font": { "display": "'Playfair Display', Georgia, serif", "body": "'Lora', Georgia, serif" },
+  "radius": "0"
+}
