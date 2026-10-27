@@ -37,9 +37,10 @@ test("a hero preset added in Studio links to real pages, and publishing it succe
     .or(page.getByLabel("Search sections"))
     .first()
     .fill("full-bleed");
+  // The card by its name: thumbnails may be an iframe or a cached snapshot, and the header
+  // presets that also match "full-bleed" change the header, not the page's sections.
   await page
-    .locator('[aria-label*=":"]')
-    .filter({ has: page.locator("iframe") })
+    .getByRole("button", { name: /^Full-bleed photograph:/ })
     .first()
     .click();
   await expect
