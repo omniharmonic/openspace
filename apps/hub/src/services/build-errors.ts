@@ -6,7 +6,7 @@
  */
 
 /** What "Fix it for me" does for a failure. */
-export type BuildFix = "revert" | "retry" | "enable_pages";
+export type BuildFix = "revert" | "retry" | "enable_pages" | "update_node";
 
 export interface BuildError {
   code: string;
@@ -62,6 +62,14 @@ const RULES: Rule[] = [
     title: "Publishing isn't switched on yet",
     message: "Web hosting for this site isn't switched on. We can switch it on and try again.",
     fix: "enable_pages",
+  },
+  {
+    code: "node_outdated",
+    test: /Node\.js v?[\d.]+ is not supported|Please upgrade Node\.js|requires? Node\.js|Unsupported engine[^\n]*node/i,
+    title: "The site's publishing setup needs a newer version of Node.js",
+    message:
+      "The tools that build your site need a newer Node.js than this site's publishing setup asks for. We can update the setup and publish again — your content isn't the problem.",
+    fix: "update_node",
   },
   {
     code: "install_failed",
@@ -298,6 +306,10 @@ export function translateBuildError(input: {
     .split(/\r?\n/)
     .filter((l) => l.includes("##[error]"))
     .join("\n");
+  // An outdated Node.js is reported by the build tool itself, not on a `##[error]` line.
+  const node = RULES.find((r) => r.code === "node_outdated");
+  if (node?.test.test(input.log ?? ""))
+    return { code: node.code, title: node.title, message: node.message, fix: node.fix };
   const haystack = [...(input.steps ?? []), input.text ?? "", errorLines].join("\n");
   for (const r of RULES)
     if (r.test.test(haystack))

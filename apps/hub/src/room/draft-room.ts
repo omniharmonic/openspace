@@ -1570,8 +1570,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const gh = await this.github(services, site);
         const repo = parseRepo(site.repo);
         const fix = buildErrorByCode(last.error_code)?.fix ?? "revert";
-        if (fix === "retry" || fix === "enable_pages") {
+        if (fix === "retry" || fix === "enable_pages" || fix === "update_node") {
           if (fix === "enable_pages") await gh.enablePages(repo);
+          if (fix === "update_node") await updateWorkflowNode(gh, repo);
           await gh.dispatchWorkflow(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
           await updatePublish(
             services.db,
@@ -1839,5 +1840,34 @@ export class DraftRoom extends DurableObject<HubBindings> {
       head: this.state.head,
       members: this.members(),
     };
+  }
+}
+
+const WORKFLOW_PATH = `.github/workflows/${PUBLISH_WORKFLOW}`;
+/** The Node.js major the starter's publish workflow uses (Astro needs a recent one). */
+export const WORKFLOW_NODE = 24;
+
+/** `node-version: 22` (or "20", '18'…) → the current major, on main then the draft. */
+export function bumpWorkflowNode(text: string): string {
+  return text.replace(/node-version:\s*(["']?)(\d+)(?:\.[\dx.]*)?\1/g, (m, q: string, v: string) =>
+    Number(v) < WORKFLOW_NODE ? `node-version: ${q}${WORKFLOW_NODE}${q}` : m,
+  );
+}
+
+async function updateWorkflowNode(gh: GitHubAccess, repo: RepoRef): Promise<void> {
+  for (const branch of [MAIN_BRANCH, DRAFT_BRANCH]) {
+    const head = await gh.getRef(repo, branch);
+    if (!head) continue;
+    const text = await gh.readFile(repo, WORKFLOW_PATH, head);
+    if (!text) continue;
+    const next = bumpWorkflowNode(text);
+    if (next === text) continue;
+    await gh.commitFiles(repo, {
+      branch,
+      expectedHead: head,
+      message: `Build with Node ${WORKFLOW_NODE}`,
+      files: [{ path: WORKFLOW_PATH, content: next }],
+      author: { name: "OpenSpace" },
+    });
   }
 }

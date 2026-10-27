@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { DevGitHubAccess } from "../src/github/dev";
 import { toHex } from "../src/lib/crypto";
 import { unwrapRoom } from "../src/room";
+import { bumpWorkflowNode } from "../src/room/draft-room";
 import { runScheduled } from "../src/scheduled";
 import { translateBuildError } from "../src/services/build-errors";
 import { call } from "./helpers";
@@ -637,6 +638,46 @@ describe("build status webhook", () => {
       .bind(site.id)
       .first<{ installation_id: number }>();
     expect(row?.installation_id).toBe(4242);
+  });
+
+  it("an outdated Node.js in the workflow is named, and 'Fix it for me' updates it on both branches", async () => {
+    expect(
+      translateBuildError({
+        steps: ["build: Run npm run build"],
+        log: 'Node.js v22.23.3 is not supported by Astro!\nPlease upgrade Node.js to a supported version: ">=22.23.4"\n##[error]Process completed with exit code 1.',
+      }),
+    ).toMatchObject({ code: "node_outdated", fix: "update_node" });
+    expect(bumpWorkflowNode("with: { node-version: 22, cache: npm }\n  node-version: '20'\n")).toBe(
+      "with: { node-version: 24, cache: npm }\n  node-version: '24'\n",
+    );
+    expect(bumpWorkflowNode("node-version: 24")).toBe("node-version: 24");
+
+    const { app, owner, site } = await setup();
+    const wf = ".github/workflows/publish.yml";
+    for (const branch of ["main", "os/draft"]) {
+      const text = (await gh().readFile(repo, wf, branch)) as string;
+      await gh().commitFiles(repo, {
+        branch,
+        message: "old node",
+        files: [{ path: wf, content: text.replace(/node-version: 24/g, "node-version: 22") }],
+      });
+    }
+    await edit(app, site.id, owner, "Node test");
+    await publish(app, site.id, owner);
+    const bad = (await gh().getRef(repo, "main")) as string;
+    await env.HUB_DB.prepare(
+      "UPDATE publishes SET status = 'failure', error_code = 'node_outdated' WHERE sha = ?",
+    )
+      .bind(bad)
+      .run();
+    const fix = await call(app, `/api/sites/${site.id}/fix`, { method: "POST", cookie: owner });
+    expect(fix.status).toBe(200);
+    expect(await fix.json()).toMatchObject({ fix: "update_node" });
+    for (const branch of ["main", "os/draft"]) {
+      const text = (await gh().readFile(repo, wf, branch)) as string;
+      expect(text, branch).not.toMatch(/node-version: 22/);
+      expect(text, branch).toMatch(/node-version: 24/);
+    }
   });
 
   it("translates common failures into plain language with a fix", () => {

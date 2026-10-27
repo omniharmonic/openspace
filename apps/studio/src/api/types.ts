@@ -249,7 +249,7 @@ export interface PublishResponse {
 }
 
 export interface FixResult {
-  fix: "revert" | "retry" | "enable_pages";
+  fix: "revert" | "retry" | "enable_pages" | "update_node";
   sha: string;
   site: Site;
 }
