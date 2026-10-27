@@ -1,0 +1,11 @@
+# Security headers for Studio on Cloudflare Workers static assets (copied into dist/ by Vite).
+# Scripts only from Studio itself; content sources (images, fonts, embeds, the Hub's API and
+# WebSocket, template previews framed from the Hub) stay open to https because owners' sites
+# use media and embeds from anywhere. Studio itself can't be framed.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https: blob:; media-src 'self' data: blob: https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https:; frame-ancestors 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
