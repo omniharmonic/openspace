@@ -4,14 +4,23 @@
  * custom-component generator keeping inline rich text, accent rules and panels on tokens.
  * Fixtures are authored here.
  */
-import { type Block, checkComponent, newId } from "@omniharmonic/openspace-schema";
+import {
+  type Block,
+  checkComponent,
+  newId,
+  type Section,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { find, parseDocument } from "./dom";
+import { compareLooks } from "./fidelity/compare";
 import { componentFromBlueprint } from "./fidelity/component-gen";
 import { lookFromProbe } from "./fidelity/look";
 import type { LookProbe, ProbeSection, ProbeText } from "./fidelity/probe";
+import { tuneRound } from "./fidelity/tune";
 import { parseHtmlPage } from "./html/extract";
 import { splitAtHeadings } from "./map/sections";
+import { splitFooterLine } from "./map/site";
 import { parseLayout } from "./squarespace/page";
 import { withPageTitle } from "./wordpress/crawl";
 
@@ -301,5 +310,163 @@ describe("a page title in a wrapper of its own", () => {
         ? page.sections[0].layout.rows[0]?.columns[0]?.blocks[0]
         : undefined;
     expect(JSON.stringify(first)).toContain("About");
+  });
+});
+
+describe("tuning: headings, banner heights and page widths", () => {
+  const doc = (): SiteDocument =>
+    ({
+      config: {},
+      site: { title: "x" },
+      styles: {
+        choices: {
+          palette: { brand: "#b8714a", neutral: "warm", contrast: "standard" },
+          pairing: "classic-editorial",
+          density: "comfortable",
+          shape: "soft",
+          buttons: "solid",
+          motion: "subtle",
+          imageTreatment: "none",
+          layout: { contentWidth: 1200 },
+        },
+      },
+      pages: {
+        pg_home: {
+          id: "pg_home",
+          title: "Home",
+          slug: "",
+          sections: [
+            {
+              id: "sec_a",
+              layout: { mode: "stack", columns: { d: [12] } },
+              style: {
+                colorTheme: "dark",
+                background: { type: "image", src: "media/a.jpg" },
+              },
+              blocks: [
+                { id: "blk_t", type: "heading", v: 1, fields: { text: "Press", level: "h2" } },
+              ],
+            },
+            {
+              id: "sec_b",
+              layout: { mode: "stack", columns: { d: [12] }, width: "wide" },
+              style: { colorTheme: "light" },
+              blocks: [
+                {
+                  id: "blk_u",
+                  type: "text",
+                  v: 1,
+                  fields: { content: { type: "doc", content: [] } },
+                },
+              ],
+            },
+          ],
+        },
+      },
+      collections: {},
+      collectionConfigs: {},
+      media: {},
+    }) as unknown as SiteDocument;
+  const section = (
+    heading: ProbeText & { text: string },
+    extra: Partial<ProbeSection> = {},
+  ): ProbeSection => ({
+    index: 0,
+    top: 0,
+    height: 500,
+    background: "#111111",
+    heading: { ...heading, tag: "h2", left: 120 },
+    columns: 1,
+    italicLines: 0,
+    text: heading.text,
+    ...extra,
+  });
+  const probe = (
+    viewport: number,
+    head: ProbeText,
+    s: Partial<ProbeSection>,
+    layout: LookProbe["layout"] = {},
+  ): LookProbe => ({
+    url: "https://x.example/",
+    viewport,
+    title: "",
+    presets: {
+      h2: t("Serif", viewport > 700 ? 60 : 40),
+      eyebrow: t("Sans", 12, { case: "uppercase", letterSpacing: 0.3 }),
+    },
+    layout,
+    sections: [
+      section({ ...head, text: "Press" }, { backgroundImage: true, ...s }),
+      {
+        ...section({ ...t("Serif", 60), text: "Words" }),
+        index: 1,
+        background: "#ffffff",
+        backgroundImage: false,
+      },
+    ],
+    height: 3000,
+  });
+
+  it("sets a label-like heading at the eyebrow preset, sizes a banner like the original, narrows a page's sections", () => {
+    const label = t("Sans", 12, { case: "uppercase", letterSpacing: 0.3 });
+    const original = probe(
+      1440,
+      label,
+      { height: 500, contentTop: 200, contentBottom: 260 },
+      { contentWidth: 1200 },
+    );
+    const imported = probe(
+      1440,
+      t("Serif", 60),
+      { height: 900, contentTop: 300, contentBottom: 360 },
+      { contentWidth: 1376 },
+    );
+    const m = [
+      {
+        path: "/",
+        viewport: 1440,
+        original,
+        imported,
+        comparison: compareLooks(original, imported, "/"),
+      },
+    ];
+    const h = tuneRound(doc(), m, ["headings"]);
+    expect(h.doc.pages.pg_home?.sections[0]?.blocks[0]?.style).toEqual({
+      typography: { heading: "eyebrow" },
+    });
+    const tall = tuneRound(doc(), m, ["heights"]);
+    expect(tall.doc.pages.pg_home?.sections[0]?.style).toMatchObject({ minHeight: { d: "500px" } });
+    const w = tuneRound(doc(), m, ["widths"]);
+    expect(w.doc.pages.pg_home?.sections[1]?.layout.width).toBeUndefined();
+    expect(w.changes.join(" ")).toContain("content width");
+  });
+});
+
+describe("a one-line footer", () => {
+  it("becomes that many columns of small labels", () => {
+    const p = (s: string) => ({ type: "paragraph", content: [{ type: "text", text: s }] });
+    const footer = {
+      id: "sec_f",
+      layout: { mode: "stack", columns: { d: [12] } },
+      style: { colorTheme: "dark" },
+      blocks: [
+        {
+          id: "blk_f",
+          type: "text",
+          v: 1,
+          fields: { content: { type: "doc", content: [p("NAME"), p("LINKS"), p("© 2026")] } },
+        },
+      ],
+    } as unknown as Section;
+    splitFooterLine(footer, 3, true);
+    expect(footer.layout).toMatchObject({ columns: { d: [4, 4, 4], m: [12] } });
+    expect(footer.blocks.map((b) => b.column)).toEqual([0, 1, 2]);
+    expect(footer.blocks.map((b) => (b.style as { align?: { d: string } }).align?.d)).toEqual([
+      "start",
+      "center",
+      "end",
+    ]);
+    expect(JSON.stringify(footer.blocks[0]?.fields)).toContain('"preset":"eyebrow"');
+    expect(new Set(footer.blocks.map((b) => b.id)).size).toBe(3);
   });
 });
