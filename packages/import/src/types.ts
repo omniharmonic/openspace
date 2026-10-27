@@ -44,13 +44,26 @@ export type SqBlock =
       /** The block has its own background panel (Squarespace "block background"). */
       panel?: boolean;
     }
-  | { kind: "image"; image: SqImage; caption?: string; href?: string }
+  | {
+      kind: "image";
+      image: SqImage;
+      caption?: string;
+      href?: string;
+      /** Squarespace image-block layouts with text (card, overlap, stack, poster…). */
+      card?: SqImageCard;
+    }
   | {
       kind: "gallery";
       images: (SqImage & { caption?: string; href?: string })[];
       layout: "grid" | "masonry" | "slideshow" | "carousel" | "strips";
     }
-  | { kind: "button"; label: string; href: string; style: "primary" | "secondary" | "tertiary" }
+  | {
+      kind: "button";
+      label: string;
+      href: string;
+      style: "primary" | "secondary" | "tertiary";
+      align?: "center" | "end";
+    }
   | { kind: "form"; form: SqForm }
   | {
       kind: "newsletter";
@@ -91,6 +104,14 @@ export type SqBlock =
   | { kind: "testimonial"; html: string; name?: string; role?: string; photo?: SqImage }
   | { kind: "table"; head?: string[]; rows: string[][]; caption?: string }
   | { kind: "unknown"; type: string; text: string };
+
+export interface SqImageCard {
+  title?: string;
+  html?: string;
+  button?: { label: string; href: string };
+  /** Where the text sits relative to the image. */
+  position: "left" | "right" | "below" | "over";
+}
 
 export interface SqCard {
   title: string;

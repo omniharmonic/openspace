@@ -17,6 +17,7 @@ import {
 } from "@omniharmonic/openspace-schema";
 import { requiredDefaults } from "@omniharmonic/openspace-site-kit/markdoc";
 import type { MediaImporter } from "../media";
+import { stripTags } from "../squarespace/blocks";
 import type { SqBlock, SqForm, SqNotice } from "../types";
 import { htmlToRichText, textToRichText } from "./richtext";
 import { slugify, type UrlMap } from "./urls";
@@ -126,8 +127,17 @@ export function hrefFor(ctx: MapContext, href: string): string | undefined {
   switch (r.kind) {
     case "page":
     case "item":
-    case "collection":
-      return r.path;
+    case "collection": {
+      // Published addresses end in a slash (GitHub Pages redirects `/contact` → `/contact/`).
+      const hash = (() => {
+        try {
+          return new URL(href, "https://x.invalid").hash;
+        } catch {
+          return "";
+        }
+      })();
+      return `${r.path === "/" || r.path.endsWith("/") ? r.path : `${r.path}/`}${hash}`;
+    }
     case "external":
       return r.path;
     case "file": {
@@ -317,13 +327,19 @@ export async function mapBlock(
     case "image": {
       const image = await img(ctx, sq.image);
       if (!image) return [];
-      const link = sq.href ? await linkFor(ctx, sq.href) : undefined;
+      // An image card that stayed in one cell (Fluid Engine): its words become the caption.
+      const cardCaption = sq.card
+        ? [sq.card.title, sq.card.html ? stripTags(sq.card.html) : ""].filter(Boolean).join(" — ")
+        : undefined;
+      const caption = sq.caption ?? cardCaption;
+      const href = sq.href ?? sq.card?.button?.href;
+      const link = href ? await linkFor(ctx, href) : undefined;
       return one(
         makeBlock(ctx, "image", {
           image,
           aspect: "original",
           lightbox: false,
-          ...(sq.caption ? { caption: clip(sq.caption, 200) } : {}),
+          ...(caption ? { caption: clip(caption, 200) } : {}),
           ...(link ? { link } : {}),
         }),
       );
@@ -364,7 +380,14 @@ export async function mapBlock(
     case "button": {
       const link = await linkFor(ctx, sq.href);
       if (!link) return [];
-      return one(makeBlock(ctx, "button", { label: clip(sq.label, 40), link, role: sq.style }));
+      return one(
+        makeBlock(
+          ctx,
+          "button",
+          { label: clip(sq.label, 40), link, role: sq.style },
+          sq.align ? { style: alignStyle(sq.align) as BlockStyle } : {},
+        ),
+      );
     }
     case "form": {
       const form = await mapForm(ctx, sq.form);

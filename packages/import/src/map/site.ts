@@ -445,6 +445,37 @@ function legibleOverlays(
 
 const toHexColor = (c: string) => (c.startsWith("#") ? c : "#000000");
 
+/** Give a page without a Heading 1 one: its first heading (rich text or heading block). */
+export function ensureHeading1(sections: Section[]): boolean {
+  const blocks = sections.flatMap((s) => s.blocks);
+  const isH1 = (b: Block) =>
+    (b.type === "heading" && b.fields.level === "h1") ||
+    (b.type === "text" &&
+      ((b.fields.content as RichTextDoc).content ?? []).some(
+        (n) => n.type === "heading" && (n as { attrs?: { level?: number } }).attrs?.level === 1,
+      ));
+  if (blocks.some(isH1)) return false;
+  for (const b of blocks) {
+    if (b.type === "heading") {
+      b.fields = { ...b.fields, level: "h1" };
+      return true;
+    }
+    if (b.type === "text") {
+      const doc = b.fields.content as RichTextDoc;
+      const h = (doc.content ?? []).find((n) => n.type === "heading") as
+        | { attrs: { level: number; preset?: string } }
+        | undefined;
+      if (h) {
+        // Keep its look: the old level becomes the visual preset.
+        if (!h.attrs.preset) h.attrs.preset = `h${h.attrs.level}`;
+        h.attrs.level = 1;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 // --- site -------------------------------------------------------------------------------------
 
 export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildResult> {
@@ -540,6 +571,13 @@ export async function buildSite(sq: SqSite, opts: BuildOptions): Promise<BuildRe
         message: "No content could be read from this page; it was created with just its title.",
       });
     }
+    if (ensureHeading1(sections))
+      notices.push({
+        kind: "other",
+        where: p.path,
+        message:
+          "The page had no Heading 1; its first heading was made the Heading 1 (search engines and screen readers use it).",
+      });
     legibleOverlays(sections, theme.styles, notices, p.path);
     const seoImage = p.seo.image ? await opts.media.image(p.seo.image, p.path) : undefined;
     const seoTitle = p.seo.title ? stripSiteName(p.seo.title, sq.title) : undefined;

@@ -8,15 +8,17 @@ import {
   byClass,
   byTag,
   classes,
+  closest,
   type Element,
   find,
   findAll,
+  hasClass,
   innerHtml,
   jsonAttr,
   scriptText,
   text,
 } from "../dom";
-import type { SqBlock, SqForm, SqFormField, SqFormFieldType, SqImage } from "./types";
+import type { SqBlock, SqForm, SqFormField, SqFormFieldType, SqImage, SqImageCard } from "./types";
 
 /** Strip Squarespace's `?format=…` resize suffix and protocol-relative prefixes. */
 export function cleanImageUrl(raw: string): string {
@@ -301,6 +303,41 @@ function firstHref(el: Element): string | undefined {
   return a ? attr(a, "href") : undefined;
 }
 
+/**
+ * Image blocks laid out with text (7.0/7.1 "card", "overlap", "collage", "stack", "poster"):
+ * the title, subtitle and button, and where they sit.
+ */
+function imageCard(el: Element): SqImageCard | undefined {
+  const wrapper = find(el, (e) => hasClass(e, "image-card-wrapper") || hasClass(e, "image-card"));
+  if (!wrapper) return undefined;
+  const title = text(find(wrapper, (e) => hasClass(e, "image-title")));
+  const sub = find(wrapper, (e) => hasClass(e, "image-subtitle"));
+  const a = find(
+    wrapper,
+    (e) =>
+      e.tagName === "a" && !!attr(e, "href") && !!closest(e, (p) => hasClass(p, "image-button")),
+  );
+  const label = a ? text(a) : "";
+  if (!title && !text(sub) && !label) return undefined;
+  const fig = find(el, (e) => e.tagName === "figure") ?? el;
+  const cls = classes(fig).join(" ");
+  const layout = /design-layout-([a-z]+)/.exec(cls)?.[1] ?? "card";
+  const position: SqImageCard["position"] =
+    layout === "poster"
+      ? "over"
+      : layout === "stack"
+        ? "below"
+        : /image-position-right/.test(cls)
+          ? "left"
+          : "right";
+  return {
+    ...(title ? { title } : {}),
+    ...(sub && text(sub) ? { html: innerHtml(sub) } : {}),
+    ...(a && label ? { button: { label, href: attr(a, "href") as string } } : {}),
+    position,
+  };
+}
+
 /** Parse one `.sqs-block` element. Returns undefined for purely decorative blocks. */
 export function parseBlock(el: Element): SqBlock | undefined {
   const kind = blockKind(el);
@@ -321,6 +358,8 @@ export function parseBlock(el: Element): SqBlock | undefined {
       const img = find(el, byTag("img"));
       const image = img ? imageFrom(img) : undefined;
       if (!image) return undefined;
+      const card = imageCard(el);
+      if (card) return { kind: "image", image, card };
       const caption = text(
         find(
           el,
@@ -371,10 +410,24 @@ export function parseBlock(el: Element): SqBlock | undefined {
       const label = text(a);
       if (!label) return undefined;
       const cls = classes(a).join(" ");
+      const container = find(el, (e) =>
+        classes(e).some((c) => c.startsWith("sqs-block-button-container--")),
+      );
+      const where = container
+        ? classes(container)
+            .find((c) => c.startsWith("sqs-block-button-container--"))
+            ?.slice("sqs-block-button-container--".length)
+        : (jsonAttr(el, "data-block-json") as { buttonAlignment?: string } | undefined)
+            ?.buttonAlignment;
       return {
         kind: "button",
         label,
         href: attr(a, "href") ?? "/",
+        ...(where === "center"
+          ? { align: "center" as const }
+          : where === "right"
+            ? { align: "end" as const }
+            : {}),
         style: /--secondary|secondary/.test(cls)
           ? "secondary"
           : /--tertiary|tertiary/.test(cls)
@@ -543,6 +596,16 @@ export function parseBlock(el: Element): SqBlock | undefined {
       const href = findAll(el, (e) => e.tagName === "a")
         .map((a) => attr(a, "href") ?? "")
         .find((h) => /\/p\//.test(h) || h.split("/").filter(Boolean).length >= 2);
+      // Product blocks set to show only the picture (title and price hidden) are a linked image.
+      const styles = findAll(el, byTag("style")).map(scriptText).join(" ");
+      if (
+        /--product-block-display-title\s*:\s*none/.test(styles) &&
+        /--product-block-display-price\s*:\s*none/.test(styles)
+      ) {
+        const img = find(el, byTag("img"));
+        const image = img ? imageFrom(img) : undefined;
+        if (image) return { kind: "image", image, ...(href ? { href } : {}) };
+      }
       return { kind: "product", ...(href ? { path: href } : {}) };
     }
     case "shape":
