@@ -18,10 +18,16 @@
   font-size: var(--st-fs-xs);
 }
 
-.st-ss-alert svg {
+.st-ss-alert > svg {
+  flex: none;
   width: 13px;
   height: 13px;
   color: var(--st-pending);
+}
+
+.st-ss-alert__text {
+  flex: 1;
+  min-width: 0;
 }
 
 .st-ss-strip {

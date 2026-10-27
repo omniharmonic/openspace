@@ -429,6 +429,26 @@ describe("Site Styles panel", () => {
     expect(value).not.toBe("#3a3a3a");
   });
 
+  it("names the hard-to-read pair in the banner and fixes it from there", async () => {
+    const t = setup(<SiteStylesPanel />);
+    act(() => {
+      t.s().commit([
+        {
+          op: "styles.patch",
+          patch: { set: { "overrides.color.dark.text": { $value: "#3a3a3a", $type: "color" } } },
+        } as never,
+      ]);
+    });
+    const banner = screen.getByRole("status");
+    // Not just "3 color pairs are hard to read": which ones.
+    expect(banner).toHaveTextContent(
+      "3 color pairs are hard to read: Body text on background (Dark theme), Body text on surface (Dark theme) and 1 more.",
+    );
+    // One color change fixes all three: offered right in the banner.
+    await t.user.click(within(banner).getByRole("button", { name: "Fix it" }));
+    expect(screen.queryByText(/hard to read/)).not.toBeInTheDocument();
+  });
+
   it("adds and removes a DTCG override (Designer)", async () => {
     const t = setup(<SiteStylesPanel />);
     await t.user.click(screen.getByRole("button", { name: "Design tokens" }));
