@@ -918,7 +918,16 @@ export async function crawlJekyll(opts: JekyllCrawlOptions): Promise<{
     progress(d.clean);
     const parsed = await parseDoc(d, false);
     if (d === home) homeParsed = parsed;
-    const p = parsed.page;
+    let p = parsed.page;
+    if (d === home && homeListsPosts) {
+      // The posts list becomes OpenSpace's own listing of the blog: keep only the page's own
+      // words (rendered without posts), so nothing shows twice.
+      const withPosts = d.html;
+      await render(d, { ...siteFinal, posts: [], related_posts: [], categories: {}, tags: {} });
+      const own = parseHtmlPage(fixHtml(wrap(d, d.html ?? ""), d), `${origin}/`, {});
+      d.html = withPosts;
+      p = { ...own, sections: own.textLength >= 40 ? own.sections : [] };
+    }
     const fmTitle = str(d.fm.title);
     const title =
       d.clean === "/"

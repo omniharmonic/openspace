@@ -174,6 +174,8 @@ export async function crawlGitHub(opts: GitHubCrawlOptions): Promise<GitHubCrawl
   if (opts.siteUrl) pagesUrl = opts.siteUrl;
   let origin = "https://site.example";
   if (pagesUrl) {
+    // GitHub reports older custom domains as http; every Pages site serves https.
+    pagesUrl = pagesUrl.replace(/^http:\/\//i, "https://");
     const u = new URL(pagesUrl);
     origin = u.origin;
     baseurl = u.pathname.replace(/\/+$/, "");
@@ -263,10 +265,28 @@ export async function crawlGitHub(opts: GitHubCrawlOptions): Promise<GitHubCrawl
       ...(opts.maxPages ? { maxPages: opts.maxPages } : {}),
     });
     // Pages reached by their file name (`/concerts.html` from the menu) are the clean ones.
+    // A project site's links carry its published prefix (`/repo/blog`): the new site's
+    // addresses don't, and the prefixed ones become aliases (links and redirects keep working).
+    const unprefix = (path: string) =>
+      baseurl && (path === baseurl || path.startsWith(`${baseurl}/`))
+        ? path.slice(baseurl.length) || "/"
+        : path;
+    for (const c of site.collections) {
+      for (const item of c.items) {
+        const to = unprefix(item.path);
+        if (to !== item.path) {
+          site.redirects = [...(site.redirects ?? []), { from: item.path, to }];
+          item.path = to;
+        }
+      }
+      c.path = unprefix(c.path);
+    }
     const kept = new Map<string, (typeof site.pages)[number]>();
     for (const p of site.pages) {
-      const clean = cleanPath(p.path);
+      const clean = cleanPath(unprefix(p.path));
       if (clean !== p.path) site.aliases.push({ from: p.path, to: clean });
+      if (baseurl && !p.path.startsWith(baseurl))
+        site.aliases.push({ from: `${baseurl}${clean === "/" ? "" : clean}`, to: clean });
       const prev = kept.get(clean);
       if (!prev || (prev.path !== clean && p.path === clean))
         kept.set(clean, { ...p, path: clean });

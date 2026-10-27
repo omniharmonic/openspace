@@ -184,7 +184,7 @@ if (step === "start") {
     // The old site leaves the branch (its history stays): only the OpenSpace site and the
     // repository's own files remain.
     const keep = new Set(req.keep || []);
-    const keepRe = /^(?:\.github\/|CNAME$|README|LICEN[CS]E|\.gitignore$|\.gitattributes$)/i;
+    const keepRe = /^(?:\.github\/|docs\/|CNAME$|README|LICEN[CS]E|\.gitignore$|\.gitattributes$)/i;
     const files = out("git", ["ls-files", "-z"]).split("\0").filter(Boolean);
     const gone = files.filter((f) => !keep.has(f) && !keepRe.test(f));
     for (let i = 0; i < gone.length; i += 200) sh("git", ["rm", "-q", "--", ...gone.slice(i, i + 200)]);

@@ -164,7 +164,7 @@ export function devImportRunner(db: D1Database): DevWorkflowRunner {
         if (
           !(p in files) &&
           !(req.keep ?? []).includes(p) &&
-          !/^(?:\.github\/|README|LICEN|CNAME$|\.gitignore$)/.test(p) &&
+          !/^(?:\.github\/|docs\/|README|LICEN|CNAME$|\.gitignore$)/.test(p) &&
           p !== IMPORT_HELPER_PATH &&
           p !== IMPORT_WORKFLOW_PATH &&
           !changes.some((c) => c.path === p)
