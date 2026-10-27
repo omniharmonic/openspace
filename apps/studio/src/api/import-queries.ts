@@ -19,10 +19,21 @@ export const importKeys = {
 /** A move's progress; polls while it is on its way (and while waiting for an approval). */
 export function useImport(id: string | undefined, options: { pollMs?: number } = {}) {
   const hub = useHub();
+  const qc = useQueryClient();
   const pollMs = options.pollMs ?? 2000;
   return useQuery({
     queryKey: importKeys.one(id ?? ""),
-    queryFn: () => hub.getImport(id as string),
+    queryFn: async () => {
+      const v = await hub.getImport(id as string);
+      // Keep the site's own record in step (the editor opens it once the move is done).
+      const patch = (s: Site) =>
+        s.id === v.siteId ? { ...s, import: { id: v.id, state: v.state, kind: v.kind } } : s;
+      qc.setQueryData<Site>(queryKeys.site(v.siteId), (prev) => (prev ? patch(prev) : prev));
+      qc.setQueryData<Site[]>(queryKeys.sites, (prev) => prev?.map(patch));
+      if (!importInProgress(v.state))
+        void qc.invalidateQueries({ queryKey: queryKeys.site(v.siteId), exact: true });
+      return v;
+    },
     enabled: Boolean(id),
     retry: (count, err) => isTransientError(err) && count < 3,
     refetchInterval: (q) => {

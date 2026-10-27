@@ -522,7 +522,7 @@ async function startImportSetup(
 /** After the GitHub App install step: the setup ran, so the import's run has started. */
 export async function resumeImportAfterSetup(services: Services, siteId: string): Promise<void> {
   const imp = await latestImport(services.db, siteId);
-  if (!imp || imp.state !== "waiting") return;
+  if (imp?.state !== "waiting") return;
   const site = await getSite(services.db, siteId);
   if (!site || site.github_access) return;
   const owner = (await ownerOf(services, site)) ?? undefined;
@@ -837,7 +837,7 @@ async function countsFromTree(gh: GitHubAccess, repo: RepoRef, sha: string): Pro
 }
 
 async function finishedContent(
-  services: Services,
+  _services: Services,
   gh: GitHubAccess,
   repo: RepoRef,
   row: ImportRow,
