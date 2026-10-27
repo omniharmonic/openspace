@@ -233,8 +233,7 @@ describe("FileSiteStore (local MCP)", () => {
     }
     try {
       const page = await browser.newPage({ viewport: { width: 390, height: 600 } });
-      const px =
-        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+      const px = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
       await page.setContent(
         `<header id="h" style="position:sticky;top:0;height:80px">Header</header>
          <div style="height:3000px"></div>

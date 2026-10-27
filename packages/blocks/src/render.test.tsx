@@ -128,7 +128,10 @@ describe("comparison table and pricing toggle", () => {
     expect(out).toContain('<th scope="row" class="os-table__rowhead">Classes</th>');
     expect(out).toContain("Included</span>");
     expect(out).toContain("Not included</span>");
-    expect(out).toMatch(/class="os-table__scroll" tabindex="0"/);
+    expect(out).toMatch(
+      /<div class="os-table__scroll" role="group" aria-label="[^"]*scrolls sideways[^"]*" tabindex="0"/,
+    );
+    expect(out).toContain("os-table__hint");
   });
 
   it("pricing: a CSS-only billing toggle appears only with both labels and a second price", () => {

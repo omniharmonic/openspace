@@ -91,6 +91,7 @@ export {
 } from "./image-map";
 export * from "./layout-vars";
 export {
+  internalHref,
   itemPath,
   Link,
   type LinkProps,
@@ -101,7 +102,6 @@ export {
   type ResolvedLink,
   resolveLink,
   sectionFragment,
-  internalHref,
   withBase,
   withTrailingSlash,
 } from "./link";

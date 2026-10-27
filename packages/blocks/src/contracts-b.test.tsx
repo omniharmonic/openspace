@@ -301,7 +301,7 @@ describe("commerce-adjacent content", () => {
     const plans = $$(".os-pricing__plan");
     expect(plans.map((p) => p.classList.contains("is-featured"))).toEqual([false, true, false]);
     expect($(".os-pricing__badge").textContent).toBe("Most popular");
-    expect($(".is-featured .os-button").getAttribute("href")).toBe("/membership");
+    expect($(".is-featured .os-button").getAttribute("href")).toBe("/membership/");
     expect($(".is-featured .os-button").className).toContain("os-button--primary");
   });
 
@@ -456,10 +456,10 @@ describe("link list and social feed", () => {
   it("link list renders big links and the site's social profiles", () => {
     mount([create(linkListBlock)]);
     expect($$(".os-linklist__link").map((a) => a.getAttribute("href"))).toEqual([
-      "/schedule",
-      "/foundations",
-      "/retreats",
-      "/gift",
+      "/schedule/",
+      "/foundations/",
+      "/retreats/",
+      "/gift/",
     ]);
     expect($(".os-linklist__link.is-highlight").textContent).toBe("Book a class");
     expect($$(".os-linklist__social a").length).toBeGreaterThan(0);
@@ -860,7 +860,7 @@ describe("member sign-in", () => {
     expect($$("form")).toHaveLength(0);
     expect($$("a.os-button").map((a) => a.getAttribute("href"))).toEqual([
       "/members/",
-      "/membership",
+      "/membership/",
     ]);
   });
 });
@@ -886,7 +886,7 @@ describe("checkout and member sign-in on GitHub Pages", () => {
 
   it("gated notices drop the sign-in button; link-mode donations still work", () => {
     mount([create(memberLoginBlock, { variant: "gated" })]);
-    expect($$("a.os-button").map((a) => a.getAttribute("href"))).toEqual(["/membership"]);
+    expect($$("a.os-button").map((a) => a.getAttribute("href"))).toEqual(["/membership/"]);
     expect($(".os-unavailable").textContent).toBe("Member sign-in isn't open yet.");
     mount([
       withFields(donationBlock, {

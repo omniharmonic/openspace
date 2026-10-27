@@ -208,7 +208,7 @@ describe("form block", () => {
     expect($("select[multiple]").getAttribute("name")).toBe("workshops[]");
     const date = $<HTMLInputElement>('input[type="date"]');
     expect(date.getAttribute("aria-describedby")).toBe(`${date.id}-help ${date.id}-error`);
-    expect($("form").dataset.osRedirect).toBe("/thanks");
+    expect($("form").dataset.osRedirect).toBe("/thanks/");
     expect(document.querySelector('input[name="_anchor"]')).toBeNull();
   });
 
