@@ -184,6 +184,49 @@ function NavList({ items, className }: { items: ResolvedNav[]; className?: strin
   );
 }
 
+/**
+ * Will the bar fit the brand, the whole menu and the buttons in one row? A deliberately
+ * generous estimate from text lengths (no layout engine here, and it must work without JS):
+ * - "fits": the nav shows from 1024px, as designed;
+ * - "wide": it only fits on large screens, so between 1024 and 1439px the menu button is used;
+ * - "collapse": it never fits, so the nav always lives behind the menu button — instead of the
+ *   site name being squeezed into a column and broken mid-word.
+ */
+export type NavFit = "fits" | "wide" | "collapse";
+
+const NAV_CHAR_PX = 9.2;
+const TITLE_CHAR_PX = 14;
+const BUTTON_CHAR_PX = 8.8;
+
+export function navFit(input: {
+  title: string;
+  logo?: { width?: number | undefined; height?: number | undefined } | undefined;
+  nav: readonly { label: string; kind: "leaf" | "folder" }[];
+  buttons: readonly { label: string }[];
+  social: number;
+  cart: boolean;
+}): NavFit {
+  if (!input.nav.length) return "fits";
+  const brand = input.logo
+    ? input.logo.width && input.logo.height
+      ? Math.min(240, (40 * input.logo.width) / input.logo.height)
+      : 160
+    : [...input.title].length * TITLE_CHAR_PX;
+  const navText = input.nav.reduce(
+    (w, i) => w + [...i.label].length * NAV_CHAR_PX + (i.kind === "folder" ? 20 : 0),
+    0,
+  );
+  const actions =
+    input.buttons.reduce((w, b) => w + [...b.label].length * BUTTON_CHAR_PX + 48 + 8, 0) +
+    input.social * 40 +
+    (input.cart ? 52 : 0);
+  // Bar width minus gutters and the gaps between brand, nav and actions; nav gaps per width.
+  const need = (gap: number) => brand + navText + (input.nav.length - 1) * gap + actions + 48;
+  if (need(21) <= 1024 - 80) return "fits";
+  if (need(29) <= 1440 - 96) return "wide";
+  return "collapse";
+}
+
 function Brand({ site, className }: { site: Site; className?: string }) {
   const { basePath } = useRenderContext();
   const logo = site.logo;
@@ -275,7 +318,18 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
   );
   const social = h.showSocial ? (site.social ?? []) : [];
   const theme: ColorTheme = h.overlay && heroTheme ? heroTheme : (h.colorTheme ?? "light");
-  const drawer = DRAWER_VARIANTS.includes(h.variant);
+  const fit = DRAWER_VARIANTS.includes(h.variant)
+    ? "fits"
+    : navFit({
+        title: site.title,
+        logo: site.logo,
+        nav: nav.map((i) => ({ label: i.label, kind: i.kind })),
+        buttons,
+        social: social.length,
+        cart: Boolean(cart),
+      });
+  // A menu too long for any screen goes behind the menu button, as the drawer layouts do.
+  const drawer = DRAWER_VARIANTS.includes(h.variant) || fit === "collapse";
   const split = h.variant === "split-nav";
   const half = Math.ceil(nav.length / 2);
   const menuId = "os-menu";
@@ -316,6 +370,7 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
         h.sticky && "is-sticky",
         h.overlay && "is-overlay",
         drawer && "is-drawer",
+        fit === "wide" && "os-header--nav-wide",
         `has-menu-${h.variant === "sidebar-drawer" ? "drawer" : h.mobileMenu}`,
       )}
       data-os-header=""
