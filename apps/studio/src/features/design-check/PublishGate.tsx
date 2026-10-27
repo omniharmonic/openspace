@@ -26,6 +26,11 @@ export function PublishGate({ doc, onReview }: { doc: SiteDocument; onReview: ()
     ...issues.filter((i) => i.severity !== "info" && !blockers.includes(i)),
   ];
   if (!attention.length && !failures.length) return null;
+  const sample = new Set(
+    issues
+      .filter((i) => i.rule === "sample-content" || i.rule === "placeholder-text")
+      .map((i) => i.section ?? i.id),
+  ).size;
   const errors = attention.filter((i) => i.severity === "error").length;
   const Icon = errors ? CircleAlert : TriangleAlert;
   const n = attention.length;
@@ -45,6 +50,13 @@ export function PublishGate({ doc, onReview }: { doc: SiteDocument; onReview: ()
           {blockers.length === 1 ? "A link leads" : `${blockers.length} links lead`} to a page your
           site doesn’t have. Publishing will stop until{" "}
           {blockers.length === 1 ? "it points" : "they point"} at a page that exists.
+        </p>
+      )}
+      {sample > 0 && (
+        <p className="st-dc-gate__note">
+          {sample === 1 ? "A section still has" : `${sample} sections still have`} sample content
+          from a design — people, quotes, prices or details that aren’t about your site. Replace{" "}
+          {sample === 1 ? "it" : "them"} before publishing.
         </p>
       )}
       {failures.length > 0 && (

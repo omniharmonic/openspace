@@ -95,7 +95,11 @@ describe.each(TEMPLATE_IDS)("template %s", (id) => {
     const issues = designCheck(doc, undefined, { now: NOW });
     const shown = issues
       // Hosting notes (donations / shop / members-only on GitHub Pages) aren't design problems.
-      .filter((i) => i.severity !== "info" && !HOSTING_RULES.has(i.rule))
+      // Sections reusing a preset's demo copy are flagged as sample content on purpose (the owner
+      // replaces it before publishing); that's the template being a template, not a design flaw.
+      .filter(
+        (i) => i.severity !== "info" && !HOSTING_RULES.has(i.rule) && i.rule !== "sample-content",
+      )
       .map((i) => `${i.severity} ${i.rule} ${i.page ?? ""} ${i.section ?? ""}: ${i.message}`);
     expect(shown.join("\n")).toBe("");
   });

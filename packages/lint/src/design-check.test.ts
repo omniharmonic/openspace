@@ -557,6 +557,81 @@ describe("text over photos", () => {
   });
 });
 
+describe("sample content", () => {
+  it("flags an inserted preset's unedited people and quotes, and clears once they're edited", () => {
+    const preset = getPreset("testimonials/three-cards@1") as SectionPreset;
+    const section = preset.build();
+    const { doc, pg } = onePage(section);
+    const found = only(designCheck(doc), "sample-content");
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatchObject({ severity: "warning", page: pg.id, section: section.id });
+    expect(found[0]?.block).toBeTruthy();
+
+    // Replace every testimonial's quote, name and role: the warning goes away.
+    const edited = structuredClone(section);
+    let n = 0;
+    for (const b of edited.blocks)
+      if (b.type === "testimonial") {
+        n++;
+        b.fields = {
+          ...b.fields,
+          quote: {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: `Our own customer number ${n} said something lovely and true here.`,
+                  },
+                ],
+              },
+            ],
+          },
+          name: `Real Person ${n}`,
+          role: `Customer ${n}`,
+        };
+      }
+    expect(only(designCheck(onePage(edited).doc), "sample-content")).toEqual([]);
+
+    // Editing only the quotes still leaves made-up names: still flagged.
+    const half = structuredClone(section);
+    for (const b of half.blocks)
+      if (b.type === "testimonial")
+        b.fields = {
+          ...b.fields,
+          quote: {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: "A real quote from a real customer of ours, with permission.",
+                  },
+                ],
+              },
+            ],
+          },
+        };
+    expect(only(designCheck(onePage(half).doc), "sample-content")).toHaveLength(1);
+  });
+
+  it("doesn't flag generic labels or sections that didn't come from a preset", () => {
+    const { doc } = healthyDoc();
+    expect(only(designCheck(doc), "sample-content")).toEqual([]);
+  });
+
+  it("flags placeholder text", () => {
+    const { doc } = onePage(
+      stackSection([h("About us"), p("[PLACEHOLDER] Write about the studio.")]),
+    );
+    expect(only(designCheck(doc), "placeholder-text")).toHaveLength(1);
+  });
+});
+
 describe("pages assembled from presets", () => {
   const sectionsOf = (pg: Page) => pg.sections.length;
   it("every page preset passes the Design check with no errors in every theme", () => {
@@ -595,6 +670,8 @@ describe("pages assembled from presets", () => {
           !i.rule.startsWith("rhythm") &&
           // Donation / product / sign-in presets on a GitHub Pages site: a hosting note, not design.
           i.rule !== "needs-cloudflare" &&
+          // Raw builds are, by definition, the presets' sample content.
+          i.rule !== "sample-content" &&
           i.severity !== "info" &&
           !(i.rule === "text-over-photo-contrast" && offDesign.has(i.section as never)),
       );

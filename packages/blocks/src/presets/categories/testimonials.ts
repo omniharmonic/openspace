@@ -54,25 +54,28 @@ export const testimonialsPresets = [
       avoid: AVOID,
     },
     make: () => {
-      const h = heading("Kind words from our regulars", { eyebrow: "Reviews", align: "center" });
+      const h = heading("Kind words from the people we work with", {
+        eyebrow: "Reviews",
+        align: "center",
+      });
       const a = testimonial(
-        "The sourdough is the best I've had outside San Francisco, and the staff remember my order.",
+        "Clear, friendly and on time from the first email to the last detail. We felt looked after throughout.",
         "Marcus Webb",
-        "Regular since 2019",
+        "Customer since 2019",
         "portraitDaniel",
         { rating: 5 },
       );
       const b = testimonial(
-        "We ordered our wedding cake here and people are still talking about it a year later.",
+        "They listened properly, explained every option and delivered exactly what we hoped for — a year later we still recommend them.",
         "Hana Okafor",
-        "Wedding cake, June",
+        "First-time customer",
         "portraitAna",
         { rating: 5 },
       );
       const d = testimonial(
-        "Saturday croissants have become a family ritual. Worth the queue, every single time.",
+        "Easy to work with and genuinely kind. We have come back again and again, and so have our friends.",
         "Leo Brandt",
-        "Neighbour",
+        "Returning customer",
         "portraitSam",
         { rating: 5 },
       );

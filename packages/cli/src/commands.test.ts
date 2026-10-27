@@ -70,6 +70,9 @@ describe("openspace new", () => {
       customDomain: null,
     });
     expect(doc.site.title).toBe("Hello Meadow");
+    // The footer's brand follows the new title (it kept the template's sample brand before).
+    expect(JSON.stringify(doc.site.footer)).not.toContain("Fernwood Yoga & Bodywork");
+    expect(JSON.stringify(doc.site.footer)).toContain("Hello Meadow");
     const pkg = JSON.parse(await readFile(join(site.dir, "package.json"), "utf8"));
     expect(pkg.name).toBe("my-site");
     expect(await readFile(join(site.dir, "AGENTS.md"), "utf8")).toContain("Hello Meadow");

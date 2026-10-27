@@ -61,6 +61,10 @@ export {
   photo,
 } from "./images";
 export { rectsOverlap } from "./kit";
+export * from "./sample";
+
+import { sectionSampleStrings } from "./sample";
+
 export * from "./types";
 
 /** Every section and footer preset, in menu order. */
@@ -146,4 +150,20 @@ export function presetSection(ref: string, colorTheme?: ColorTheme): Section | u
   const preset = getPreset(ref);
   if (!preset || preset.target === "header") return undefined;
   return preset.build(colorTheme ? { colorTheme } : {});
+}
+
+const sampleCache = new Map<string, ReadonlySet<string>>();
+
+/**
+ * The sample strings (people, quotes, prices, numbers, contact details) a section or footer
+ * preset ships with, normalized — see `./sample`. Built on first use per preset, then cached.
+ */
+export function presetSampleStrings(id: string): ReadonlySet<string> {
+  let set = sampleCache.get(id);
+  if (!set) {
+    const preset = getPreset(id);
+    set = preset && preset.target !== "header" ? sectionSampleStrings(preset.build()) : new Set();
+    sampleCache.set(id, set);
+  }
+  return set;
 }

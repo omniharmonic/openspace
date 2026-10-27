@@ -1,7 +1,7 @@
 import { getPreset, type SectionPreset } from "@omniharmonic/openspace-blocks";
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { loadTemplate } from "@omniharmonic/openspace-templates";
-import { act, render, screen, within } from "@testing-library/react";
+import { act, cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TooltipProvider } from "../../ui";
@@ -31,7 +31,7 @@ function must<T>(v: T | undefined | null): T {
 /** Meadow with a few known problems: a low-contrast accent override, a photo without alt
  * text, an empty section and an About page hidden from search without a description. */
 function brokenSite(): SiteDocument {
-  const doc = must(loadTemplate("meadow")).doc;
+  const doc = cleanMeadow();
   const pages = Object.values(doc.pages);
   const about = must(pages.find((p) => p.slug === "about"));
   about.seo = { ...about.seo, noindex: true };
@@ -48,6 +48,19 @@ function brokenSite(): SiteDocument {
   const img = must(home.sections.flatMap((s) => s.blocks).find((b) => b.type === "image"));
   (img.fields as { image: { alt: string } }).image.alt = "";
   doc.styles.overrides = { color: { accent: { $type: "color", $value: "#f5f5f0" } } } as never;
+  return doc;
+}
+
+/** Meadow without the pricing section that reuses a preset's demo prices (sample content). */
+function cleanMeadow(): SiteDocument {
+  const doc = must(loadTemplate("meadow")).doc;
+  const flagged = new Set(
+    runChecks(doc)
+      .filter((i) => i.rule === "sample-content")
+      .map((i) => i.section),
+  );
+  for (const page of Object.values(doc.pages))
+    page.sections = page.sections.filter((s) => !flagged.has(s.id));
   return doc;
 }
 
@@ -295,7 +308,7 @@ describe("Design check: panel", () => {
   });
 
   it("says when everything looks good", async () => {
-    const doc = must(loadTemplate("meadow")).doc;
+    const doc = cleanMeadow();
     setup("owner", doc);
     expect(screen.getByRole("heading", { name: "Looks good" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Design check: no issues" })).toBeInTheDocument();
@@ -314,10 +327,24 @@ describe("Design check: publish gate", () => {
     expect(reviewed).toBe(true);
   });
 
-  it("stays out of the way when there's nothing to fix", () => {
-    const { container } = render(
-      <PublishGate doc={must(loadTemplate("meadow")).doc} onReview={() => {}} />,
+  it("calls out sample content from a design, and offers Edit for it", async () => {
+    const doc = cleanMeadow();
+    const home = must(Object.values(doc.pages).find((p) => p.slug === ""));
+    home.sections.push((getPreset("testimonials/three-cards@1") as SectionPreset).build());
+    render(<PublishGate doc={doc} onReview={() => {}} />);
+    expect(screen.getByRole("region", { name: "Design check" })).toHaveTextContent(
+      /A section still has sample content from a design/,
     );
+    cleanup();
+    const { store, user } = setup("owner", doc);
+    const region = screen.getByRole("region", { name: "Home" });
+    expect(region).toHaveTextContent(/still has sample content/);
+    await user.click(within(region).getByRole("button", { name: "Edit" }));
+    expect(store.getState().selection[0]?.kind).toBe("block");
+  });
+
+  it("stays out of the way when there's nothing to fix", () => {
+    const { container } = render(<PublishGate doc={cleanMeadow()} onReview={() => {}} />);
     expect(container).toBeEmptyDOMElement();
   });
 });

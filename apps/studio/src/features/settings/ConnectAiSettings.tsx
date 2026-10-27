@@ -1,12 +1,6 @@
 import { Check, Copy, Link2, Plus, Terminal, Trash2, Unplug } from "lucide-react";
 import { useState } from "react";
-import {
-  hubMcpUrl,
-  type McpToken,
-  useMcpActions,
-  useMcpGrants,
-  useMcpTokens,
-} from "../../api";
+import { hubMcpUrl, type McpToken, useMcpActions, useMcpGrants, useMcpTokens } from "../../api";
 import type { Site } from "../../api/types";
 import {
   Badge,
@@ -168,8 +162,8 @@ function TokenRow({
           (confirmPublish ? (
             <div className="st-token__confirm" role="alert">
               <span className="st-media-warn">
-                Anyone who has this link could then publish to your live site. Only allow this for
-                a link you keep private; you can turn it off here at any time.
+                Anyone who has this link could then publish to your live site. Only allow this for a
+                link you keep private; you can turn it off here at any time.
               </span>
               <Button size="sm" variant="ghost" onClick={() => setConfirmPublish(false)}>
                 Cancel
@@ -340,8 +334,7 @@ export function ConnectAiSettings({ site }: { site: Site }) {
                   <ol className="st-steps">
                     <li>
                       <div>
-                        <Terminal aria-hidden="true" /> In a terminal, add OpenSpace to Claude
-                        Code:
+                        <Terminal aria-hidden="true" /> In a terminal, add OpenSpace to Claude Code:
                       </div>
                       <CopyLine value={claudeCodeCommand} label="command" />
                     </li>
@@ -363,9 +356,9 @@ export function ConnectAiSettings({ site }: { site: Site }) {
                     <strong>Personal link</strong>).
                   </p>
                   <p className="st-muted-note">
-                    <strong>Optional:</strong> the OpenSpace plugin adds skills and slash
-                    commands, such as a design check. Its own built-in server is for site folders
-                    on your computer, so for {site.name} keep the connection above.
+                    <strong>Optional:</strong> the OpenSpace plugin adds skills and slash commands,
+                    such as a design check. Its own built-in server is for site folders on your
+                    computer, so for {site.name} keep the connection above.
                   </p>
                   {PLUGIN_COMMANDS.map((c) => (
                     <CopyLine key={c} value={c} label="command" />
@@ -413,8 +406,8 @@ export function ConnectAiSettings({ site }: { site: Site }) {
               content: (
                 <div className="st-settings__stack">
                   <p className="st-muted-note">
-                    Your link works without signing in, for this site only. It edits the draft;
-                    it can publish only if you allow that on the link above.
+                    Your link works without signing in, for this site only. It edits the draft; it
+                    can publish only if you allow that on the link above.
                   </p>
                   <ol className="st-steps">
                     <li className={first ? "is-done" : undefined}>

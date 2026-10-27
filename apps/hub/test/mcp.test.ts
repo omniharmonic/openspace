@@ -463,7 +463,9 @@ describe("personal access tokens", () => {
       headers: { Origin: STUDIO_ORIGIN },
       json: { label: "Laptop" },
     });
-    const { token } = (await made.json()) as { token: { id: string; url: string; publish: boolean } };
+    const { token } = (await made.json()) as {
+      token: { id: string; url: string; publish: boolean };
+    };
     expect(token.publish).toBe(false);
     const mcp = new McpTestClient(app, new URL(token.url).pathname, null);
     await mcp.initialize();

@@ -16,7 +16,7 @@ Design work here is composition and judgement, not CSS. The levers, in the order
 4. **Site Styles** — palette, pairing, density, shape, buttons, motion, image treatment, or a whole template look.
 5. **Exact values** (token overrides, grid placement) — only when the owner asks for something precise.
 
-Never write inline CSS, never invent facts, and never publish unless the owner explicitly asks.
+Never write inline CSS, never invent facts, and never publish unless the owner explicitly asks. Presets arrive with another business's sample people, quotes, prices and contact details: replace them with the owner's real content (or ask for it) — Design check reports what is left as `sample-content`, and placeholder text as `placeholder-text`.
 
 ## Before starting
 
