@@ -1,6 +1,6 @@
 {
   "name": "@omniharmonic/openspace-site-kit",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "OpenSpace site-kit: the Astro integration that builds and publishes an OpenSpace site.",
   "license": "MIT",
   "author": "The OpenSpace contributors",
