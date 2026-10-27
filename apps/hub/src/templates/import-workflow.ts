@@ -7,14 +7,25 @@
  * keeps the site's identity and replaces its content — checks the result, commits it and starts
  * the normal publish. Progress goes back to the Hub with the run's own identity token (OIDC), so
  * no secret is stored anywhere.
+ *
+ * It reads the site exactly like a local import: a real browser (Playwright's Chromium, cached
+ * between runs) measures the live site's fonts, type scale and layout, and after the import the
+ * same browser compares both sites page by page and auto-tunes the new one (bounded rounds, the
+ * best version kept). The comparison — score before and after tuning, per-page scores and small
+ * side-by-side pictures — is saved with the site in `.openspace/fidelity/`, which Studio shows
+ * under "What needs your attention".
  */
 
 /** The CLI release the workflow runs. Bump with each CLI release that changes the importer. */
 export const IMPORT_CLI_VERSION = "0.1.10";
 /** Image processing (resizing, SVG icons) for the importer, installed next to the CLI. */
 export const IMPORT_SHARP_VERSION = "0.34.5";
-/** Browser for `--render` (script-built pages); only installed when asked for. */
+/** The browser that measures the live site, renders script-built pages and compares the result. */
 export const IMPORT_PLAYWRIGHT_VERSION = "1.64.1";
+/** Where the hosted import saves its fidelity comparison (committed with the site). */
+export const IMPORT_FIDELITY_DIR = ".openspace/fidelity";
+/** Rounds of auto-tuning after a hosted import. */
+export const IMPORT_TUNE_ROUNDS = 3;
 
 export const IMPORT_WORKFLOW = "openspace-import.yml";
 export const IMPORT_WORKFLOW_PATH = `.github/workflows/${IMPORT_WORKFLOW}`;
@@ -88,9 +99,20 @@ jobs:
           IN_PLATFORM: \${{ inputs.platform }}
           IN_OPTIONS: \${{ inputs.options }}
         run: node ${IMPORT_HELPER_PATH} start
+      # The browser that measures your site (cached between runs, so later runs start faster).
       - name: Getting a browser ready
-        if: steps.ready.outputs.render == 'true'
-        run: npx -y "$OPENSPACE_PLAYWRIGHT" install --with-deps chromium
+        id: browser
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: openspace-chromium-${IMPORT_PLAYWRIGHT_VERSION}-\${{ runner.os }}
+      - name: Installing the browser
+        run: |
+          if [ "\${{ steps.browser.outputs.cache-hit }}" = "true" ]; then
+            npx -y "$OPENSPACE_PLAYWRIGHT" install-deps chromium
+          else
+            npx -y "$OPENSPACE_PLAYWRIGHT" install --with-deps chromium
+          fi
       - name: Bringing pages across
         env:
           GITHUB_TOKEN: \${{ github.token }}
@@ -196,9 +218,20 @@ if (step === "run") {
   const req = state();
   await progress("importing");
   const cli = process.env.OPENSPACE_CLI;
-  const pkgs = ["-p", cli, "-p", process.env.OPENSPACE_SHARP];
-  if (req.render) pkgs.push("-p", process.env.OPENSPACE_PLAYWRIGHT);
-  const common = [".", "--into-existing", "--summary", SUMMARY];
+  // The browser always comes along: it measures the live site's fonts and layout, and compares
+  // and tunes the result (exactly like an import on a computer).
+  const pkgs = ["-p", cli, "-p", process.env.OPENSPACE_SHARP, "-p", process.env.OPENSPACE_PLAYWRIGHT];
+  const common = [
+    ".",
+    "--into-existing",
+    "--summary",
+    SUMMARY,
+    "--tune",
+    "${IMPORT_TUNE_ROUNDS}",
+    "--compare-thumbs",
+    "--compare-out",
+    "${IMPORT_FIDELITY_DIR}",
+  ];
   const args =
     req.mode === "convert"
       ? ["import", "github", req.source, ...common, "--source-dir", SOURCE]

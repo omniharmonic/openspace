@@ -9,6 +9,7 @@ import { newId, type Page, type SiteConfig } from "@omniharmonic/openspace-schem
 import { updateImport } from "../db/imports";
 import type { DevWorkflowRunner } from "../github/dev";
 import {
+  IMPORT_FIDELITY_DIR,
   IMPORT_HELPER_PATH,
   IMPORT_REQUEST_PATH,
   IMPORT_WORKFLOW_PATH,
@@ -39,6 +40,21 @@ function section(blocks: string[][]) {
     })),
   };
 }
+
+/** A 1×1 JPEG (the dev emulation's side-by-side thumbnail). */
+const TINY_JPEG =
+  "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=";
+
+const DEV_FIDELITY = {
+  version: 1,
+  score: 93,
+  before: 81,
+  changes: ["h2: 40px", "content width 1200px"],
+  pages: [
+    { path: "/", device: "desktop", score: 93, before: 81, image: "thumb-home-d.jpg" },
+    { path: "/", device: "phone", score: 91, before: 84, differs: ["Image placement"] },
+  ],
+};
 
 export function devImportRunner(db: D1Database): DevWorkflowRunner {
   return async (gh, repo, input) => {
@@ -154,6 +170,16 @@ export function devImportRunner(db: D1Database): DevWorkflowRunner {
       ...Object.entries(files).map(([path, content]) => ({ path, content })),
       { path: "IMPORT-REPORT.md", content: report },
       { path: "content/setup-checklist.json", content: `${JSON.stringify(checklist, null, 2)}\n` },
+      // What the real run's comparison saves: scores before/after auto-tuning and a thumbnail.
+      {
+        path: `${IMPORT_FIDELITY_DIR}/fidelity-summary.json`,
+        content: `${JSON.stringify(DEV_FIDELITY, null, 2)}\n`,
+      },
+      {
+        path: `${IMPORT_FIDELITY_DIR}/thumb-home-d.jpg`,
+        content: TINY_JPEG,
+        encoding: "base64" as const,
+      },
       { path: IMPORT_REQUEST_PATH, content: null },
       ...Object.keys(existing)
         .filter((p) => !(p in files))
