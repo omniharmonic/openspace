@@ -23,6 +23,7 @@ import type { FileChange } from "../github/types";
  * content/collections/<name>/_collection.json → doc.collectionConfigs[name]
  * content/collections/<name>/<slug>.mdoc      → doc.collections[name][slug] (YAML frontmatter + Markdoc)
  * content/components/<name>.json              → doc.components[name] (custom components)
+ * content/design-system.json                  → doc.designSystem (brief, brand, tokens)
  * ```
  *
  * Everything else in the repo (src/, public/, media bytes, presets, workflows…) is not part of
@@ -36,6 +37,7 @@ export const MEDIA_INDEX_PATH = "content/media.json";
 export const PAGES_DIR = "content/pages/";
 export const COLLECTIONS_DIR = "content/collections/";
 export const COMPONENTS_DIR = "content/components/";
+export const DESIGN_SYSTEM_PATH = "content/design-system.json";
 const HOME_FILE = "home.json";
 
 export class SiteFilesError extends Error {
@@ -155,6 +157,9 @@ export function loadSiteDocument(files: Record<string, string>): SiteDocument {
     collections,
     ...(Object.keys(collectionConfigs).length ? { collectionConfigs } : {}),
     ...(Object.keys(components).length ? { components } : {}),
+    ...(files[DESIGN_SYSTEM_PATH] !== undefined
+      ? { designSystem: parseJson(files, DESIGN_SYSTEM_PATH) }
+      : {}),
     media: files[MEDIA_INDEX_PATH] === undefined ? {} : parseJson(files, MEDIA_INDEX_PATH),
   };
   const parsed = SiteDocumentSchema.safeParse(raw);
@@ -192,6 +197,7 @@ export function siteDocumentToFiles(doc: SiteDocument): Record<string, string> {
       );
   for (const [name, def] of Object.entries(doc.components ?? {}))
     files[`${COMPONENTS_DIR}${name}.json`] = json(def);
+  if (doc.designSystem) files[DESIGN_SYSTEM_PATH] = json(doc.designSystem);
   return files;
 }
 
@@ -216,7 +222,8 @@ export function isDocumentPath(path: string): boolean {
     path === CONFIG_PATH ||
     path === SITE_PATH ||
     path === STYLES_PATH ||
-    path === MEDIA_INDEX_PATH
+    path === MEDIA_INDEX_PATH ||
+    path === DESIGN_SYSTEM_PATH
   )
     return true;
   if (path.startsWith(PAGES_DIR) && path.endsWith(".json")) return true;

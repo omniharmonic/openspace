@@ -212,3 +212,28 @@ describe("custom components on disk", () => {
     }
   });
 });
+
+describe("design-system record on disk", () => {
+  it("loads content/design-system.json, writes it back and removes it when dropped", async () => {
+    const record = {
+      version: 1,
+      brief: { about: "A bakery", feeling: ["warm"] },
+      tokens: { colors: { cream: { value: "#fff8f0", role: "background" } } },
+    };
+    await writeFile(
+      join(dir, "content/design-system.json"),
+      `${JSON.stringify(record, null, 2)}\n`,
+    );
+    const doc = await loadSiteDocument(dir);
+    expect(doc.designSystem?.brief?.about).toBe("A bakery");
+    expect((await writeSiteDocument(dir, doc)).written).toEqual([]);
+    const { designSystem: _gone, ...without } = doc;
+    const r = await writeSiteDocument(dir, without);
+    expect(r.removed).toContain("content/design-system.json");
+  });
+
+  it("reports an invalid record with its file", async () => {
+    await writeFile(join(dir, "content/design-system.json"), JSON.stringify({ version: 3 }));
+    await expect(loadSite(dir)).rejects.toThrow(/design-system\.json/);
+  });
+});

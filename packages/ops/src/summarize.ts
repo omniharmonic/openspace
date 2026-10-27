@@ -33,6 +33,8 @@ export interface ChangeStats {
   /** Labels of custom components whose design was added or changed. */
   componentsChanged: string[];
   componentsRemoved: number;
+  /** The design-system record (content/design-system.json) changed. */
+  designSystemChanged: boolean;
 }
 
 const STYLE_LABELS: Record<string, string> = {
@@ -87,6 +89,7 @@ export function stats(ops: readonly Op[], doc: SiteDocument): ChangeStats {
     collectionSettingsChanged: 0,
     componentsChanged: [],
     componentsRemoved: 0,
+    designSystemChanged: false,
   };
   const components = new Set<string>();
   const edited = new Set<string>();
@@ -183,6 +186,9 @@ export function stats(ops: readonly Op[], doc: SiteDocument): ChangeStats {
       case "component.delete":
         s.componentsRemoved++;
         break;
+      case "designSystem.set":
+        s.designSystemChanged = true;
+        break;
     }
   }
   s.pagesCreated = [...created];
@@ -253,6 +259,7 @@ export function summarize(ops: readonly Op[], doc: SiteDocument): string {
       )}`,
     );
   if (s.componentsRemoved) parts.push(`removed ${count(s.componentsRemoved, "designer section")}`);
+  if (s.designSystemChanged) parts.push("updated the design system");
   if (parts.length === 0) return "No changes";
   const text = parts.join("; ");
   return text.charAt(0).toUpperCase() + text.slice(1);

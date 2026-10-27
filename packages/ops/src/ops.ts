@@ -7,6 +7,7 @@ import {
   CollectionNameSchema,
   ComponentDefinitionSchema,
   ComponentNameSchema,
+  DesignSystemSchema,
   GridItemSchema,
   GridRectSchema,
   MAX_GRID_ROWS,
@@ -266,6 +267,15 @@ export const ComponentDeleteOpSchema = op("component.delete", {
   keepEmpty: z.boolean().optional(),
 });
 
+/**
+ * Replaces (or with `designSystem: null` removes) the site's design-system record
+ * (`content/design-system.json`): the brief, brand material, tokens and their Site Styles mapping
+ * that Claude's design skills keep to. Owners and designers only.
+ */
+export const DesignSystemSetOpSchema = op("designSystem.set", {
+  designSystem: DesignSystemSchema.nullable(),
+});
+
 export const OpSchema = z.discriminatedUnion("op", [
   BlockUpdateOpSchema,
   BlockInsertOpSchema,
@@ -289,6 +299,7 @@ export const OpSchema = z.discriminatedUnion("op", [
   CollectionConfigUpsertOpSchema,
   ComponentUpsertOpSchema,
   ComponentDeleteOpSchema,
+  DesignSystemSetOpSchema,
 ]);
 
 export type Op = z.infer<typeof OpSchema>;
@@ -316,6 +327,7 @@ export type CollectionDeleteOp = OpOf<"collection.delete">;
 export type CollectionConfigUpsertOp = OpOf<"collectionConfig.upsert">;
 export type ComponentUpsertOp = OpOf<"component.upsert">;
 export type ComponentDeleteOp = OpOf<"component.delete">;
+export type DesignSystemSetOp = OpOf<"designSystem.set">;
 
 /** Every op type, in vocabulary order. */
 export const OP_TYPES = OpSchema.options.map((o) => o.shape.op.value) as OpType[];

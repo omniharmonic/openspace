@@ -2,6 +2,7 @@ import { z } from "zod";
 import { CollectionConfigSchema, CollectionItemSchema } from "./collections";
 import { ComponentsSchema } from "./components/definition";
 import { SiteConfigSchema } from "./config";
+import { DesignSystemSchema } from "./design-system";
 import { PageIdSchema } from "./ids";
 import { MediaMetaSchema } from "./media";
 import { PageSchema } from "./page";
@@ -33,6 +34,11 @@ export const SiteDocumentSchema = named(
        * Optional: documents without components are unchanged.
        */
       components: ComponentsSchema.optional(),
+      /**
+       * The design-system record (`content/design-system.json`): brief, brand material, tokens and
+       * their Site Styles mapping, for Claude's design skills. Optional; never rendered.
+       */
+      designSystem: DesignSystemSchema.optional(),
     })
     .superRefine((doc, ctx) => {
       const slugs = new Map<string, string>();

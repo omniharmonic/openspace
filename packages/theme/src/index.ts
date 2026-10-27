@@ -4,6 +4,7 @@ export * from "./color";
 export * from "./compile";
 export * from "./contrast";
 export * from "./custom-fonts";
+export * from "./design-system";
 export * from "./extract";
 export * from "./layout";
 export * from "./overrides";

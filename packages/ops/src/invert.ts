@@ -267,6 +267,11 @@ function invertBody(doc: SiteDocument, op: Op): Body {
       );
       return { op: "component.upsert", component: clone(prev) };
     }
+    case "designSystem.set":
+      return {
+        op: "designSystem.set",
+        designSystem: doc.designSystem ? clone(doc.designSystem) : null,
+      };
     default: {
       const never: never = op;
       throw new OpError(`Unknown op ${(never as { op: string }).op}`, ["op"]);
