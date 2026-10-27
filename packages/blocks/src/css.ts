@@ -29,6 +29,7 @@ import { restaurantMenuCss } from "./blocks/restaurant-menu";
 import { searchCss } from "./blocks/search";
 import { socialCss } from "./blocks/social";
 import { socialFeedCss } from "./blocks/social-feed";
+import { tableCss } from "./blocks/table";
 import { tabsCss } from "./blocks/tabs";
 import { teamCss } from "./blocks/team";
 import { textCss } from "./blocks/text";
@@ -69,6 +70,7 @@ ${[
   chartCss,
   countdownCss,
   pricingCss,
+  tableCss,
   teamCss,
   restaurantMenuCss,
   businessCss,

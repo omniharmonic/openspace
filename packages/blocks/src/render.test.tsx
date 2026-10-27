@@ -98,3 +98,58 @@ describe("every block × variant renders through renderPageHtml", () => {
     expect(behaviorsInHtml(html)).toContain("accordion");
   });
 });
+
+describe("comparison table and pricing toggle", () => {
+  const html = (block: ReturnType<(typeof allBlocks)[number]["create"]>) => {
+    const p = page("T", "t", [stackSection([block])]);
+    return renderPageHtml({ doc: siteWith([p]), pageId: p.id });
+  };
+
+  it("table: real headers, checks and dashes with text, a focusable scroll box", () => {
+    const def = allBlocks.find((b) => b.type === "table");
+    if (!def) throw new Error("no table block");
+    const out = html(
+      def.create({
+        fields: {
+          corner: "Features",
+          rows: [
+            { label: "Basics", group: true, cells: [] },
+            {
+              label: "Classes",
+              group: false,
+              cells: [{ value: "yes" }, { value: "no" }, { value: "3" }],
+            },
+          ],
+        },
+      }),
+    );
+    expect(out).toContain('<th scope="col" class="os-table__corner">Features</th>');
+    expect(out).toMatch(/<th scope="colgroup" colSpan="4">Basics<\/th>/i);
+    expect(out).toContain('<th scope="row" class="os-table__rowhead">Classes</th>');
+    expect(out).toContain("Included</span>");
+    expect(out).toContain("Not included</span>");
+    expect(out).toMatch(/class="os-table__scroll" tabindex="0"/);
+  });
+
+  it("pricing: a CSS-only billing toggle appears only with both labels and a second price", () => {
+    const def = allBlocks.find((b) => b.type === "pricing");
+    if (!def) throw new Error("no pricing block");
+    const base = def.create();
+    expect(html(base)).not.toContain("os-pricing__toggle");
+    const plans = (base.fields.plans as Record<string, unknown>[]).map((p, i) => ({
+      ...p,
+      ...(i === 1 ? { altPrice: "$99", altPeriod: "/ month, billed yearly" } : {}),
+    }));
+    const out = html(
+      def.create({
+        fields: { plans, periodLabel: "Monthly", altPeriodLabel: "Yearly", altNote: "Save 20%" },
+      }),
+    );
+    expect(out).toContain('class="os-pricing__toggle"');
+    expect(out.match(/type="radio"/g)).toHaveLength(2);
+    expect(out).toMatch(/type="radio"[^>]*checked/);
+    expect(out).toContain("$99");
+    expect(out).toContain("os-pricing__price is-main has-alt");
+    expect(out.slice(out.indexOf("os-pricing"))).not.toMatch(/data-os-behavior="[^"]*pricing/);
+  });
+});

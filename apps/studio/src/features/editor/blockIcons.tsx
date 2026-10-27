@@ -50,6 +50,7 @@ import {
   Sprout,
   SquareChartGantt,
   SquareSplitHorizontal,
+  Table,
   Timer,
   Type,
   Users,
@@ -109,6 +110,7 @@ const ICONS: Record<string, LucideIcon> = {
   shapes: Shapes,
   "share-2": Share2,
   "square-chart-gantt": SquareChartGantt,
+  table: Table,
   type: Type,
 };
 
