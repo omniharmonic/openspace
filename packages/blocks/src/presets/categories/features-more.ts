@@ -2,7 +2,7 @@ import { chartBlock } from "../../blocks/chart";
 import { tabsBlock } from "../../blocks/tabs";
 import { photo } from "../images";
 import { button, copy, definePreset, grid, heading, image, make, r, rt, stack, text } from "../kit";
-import { card, icons, logos, panel, stats, table, testimonial } from "../parts";
+import { card, icons, logos, panel, raised, stats, table, testimonial } from "../parts";
 
 /** Second wave of features & benefits: alternating rows, comparisons, tabs, tiles, specs. */
 
@@ -456,7 +456,7 @@ export const featuresMorePresets = [
             ["check", "Journals and materials"],
           ],
           "3",
-          { variant: "checklist", style: panel("light-accent", "xl") },
+          { variant: "checklist", style: panel(raised(c.theme), "xl") },
         ),
         button("Reserve a place", c.primary, { align: "center" }),
       ],

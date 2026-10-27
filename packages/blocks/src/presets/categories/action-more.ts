@@ -24,6 +24,7 @@ import {
   hours,
   icons,
   panel,
+  raised,
   testimonial,
   weekHours,
 } from "../parts";
@@ -215,7 +216,7 @@ export const ctaMorePresets = [
           "Lauren Pike",
           "Owner, Pike Design Studio",
           "portraitCoach",
-          { col: 1, variant: "card", rating: 5, style: panel("light-accent") },
+          { col: 1, variant: "card", rating: 5, style: panel(raised(c.theme)) },
         ),
       ],
     }),
@@ -287,7 +288,7 @@ export const ctaMorePresets = [
             ["mail", "Emailed in minutes"],
           ],
           "1",
-          { col: 1, variant: "list", style: panel("light") },
+          { col: 1, variant: "list", style: panel(raised(c.theme)) },
         ),
       ],
     }),
@@ -332,7 +333,7 @@ export const contactMorePresets = [
       whenToUse: "Shops, restaurants, clinics and venues.",
       avoid: CONTACT_AVOID,
     },
-    make: () => {
+    make: (c) => {
       const h = heading("Find the studio", { eyebrow: "Visit" });
       const map = make(
         mapBlock,
@@ -354,11 +355,11 @@ export const contactMorePresets = [
           phone: "+1 (303) 555-0172",
           email: "hello@junohair.example",
         },
-        { style: panel("light-accent") },
+        { style: panel(raised(c.theme)) },
       );
       const hrs = hours(weekHours("10:00", "19:00", ["09:00", "16:00"]), {
         heading: "Hours",
-        style: panel("light-accent"),
+        style: panel(raised(c.theme)),
       });
       return {
         ...grid([

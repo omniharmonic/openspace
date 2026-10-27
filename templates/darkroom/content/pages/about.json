@@ -274,7 +274,7 @@
           "column": 1,
           "variant": "list",
           "style": {
-            "colorTheme": "light",
+            "colorTheme": "light-accent",
             "padding": {
               "d": "lg",
               "m": "md"

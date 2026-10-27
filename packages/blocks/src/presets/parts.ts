@@ -37,6 +37,21 @@ export const panel = (theme: ColorTheme, pad: "md" | "lg" | "xl" = "lg"): BlockS
   radius: "md",
 });
 
+/**
+ * The theme for a card that should stand out gently from its section: light sections get a
+ * tinted card, tinted sections a plain one, dark sections the other dark.
+ */
+export const raised = (section: ColorTheme): ColorTheme =>
+  (
+    ({
+      light: "light-accent",
+      "light-accent": "light",
+      dark: "dark-accent",
+      "dark-accent": "dark",
+      brand: "dark",
+    }) as const
+  )[section];
+
 export const avatar = (k: PhotoKey) => photo(k, 80, "1:1");
 
 export function testimonial(

@@ -1,7 +1,7 @@
 import { videoBlock } from "../../blocks/video";
 import { photo } from "../images";
 import { button, copy, definePreset, grid, heading, image, make, r, rt, stack, text } from "../kit";
-import { columns, icons, panel, stats } from "../parts";
+import { columns, icons, panel, raised, stats } from "../parts";
 
 /** Second wave of about & story presets: letters, statements, numbers, beliefs, awards. */
 
@@ -304,7 +304,7 @@ export const aboutMorePresets = [
       whenToUse: "Professional services, trades, restaurants and schools.",
       avoid: `${AVOID} Awards that were paid for or don't exist.`,
     },
-    make: () => ({
+    make: (c) => ({
       layout: stack({ cols: [5, 7], gap: "2xl" }),
       blocks: [
         heading("Recognised by our peers", { col: 0, eyebrow: "Credentials" }),
@@ -324,7 +324,7 @@ export const aboutMorePresets = [
             ["star", "4.9 stars from 380 reviews", "Across the major review sites."],
           ],
           "1",
-          { col: 1, variant: "list", style: panel("light") },
+          { col: 1, variant: "list", style: panel(raised(c.theme)) },
         ),
       ],
     }),

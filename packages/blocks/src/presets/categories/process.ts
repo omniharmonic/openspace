@@ -1,7 +1,7 @@
 import { tabsBlock } from "../../blocks/tabs";
 import { photo } from "../images";
 import { button, copy, definePreset, grid, heading, image, make, r, rt, stack, text } from "../kit";
-import { card, columns, icons, panel, timeline } from "../parts";
+import { card, columns, icons, panel, raised, timeline } from "../parts";
 
 /** Process & timeline presets: steps, how-it-works, histories, schedules and programmes. */
 
@@ -301,7 +301,7 @@ export const processPresets = [
         {
           icon: "home",
           eyebrow: "Step one",
-          style: panel("dark-accent"),
+          style: panel(raised(c.theme)),
         },
       );
       const b = card(
@@ -310,7 +310,7 @@ export const processPresets = [
         {
           icon: "shield-check",
           eyebrow: "Step two",
-          style: panel("dark-accent"),
+          style: panel(raised(c.theme)),
         },
       );
       const d = card(
@@ -319,7 +319,7 @@ export const processPresets = [
         {
           icon: "sun",
           eyebrow: "Step three",
-          style: panel("dark-accent"),
+          style: panel(raised(c.theme)),
         },
       );
       const cta = button("Book a roof survey", c.primary);

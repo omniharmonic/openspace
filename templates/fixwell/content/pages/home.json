@@ -543,7 +543,7 @@
           },
           "variant": "stacked",
           "style": {
-            "colorTheme": "dark-accent",
+            "colorTheme": "light-accent",
             "padding": {
               "d": "lg",
               "m": "md"
@@ -577,7 +577,7 @@
           },
           "variant": "stacked",
           "style": {
-            "colorTheme": "dark-accent",
+            "colorTheme": "light-accent",
             "padding": {
               "d": "lg",
               "m": "md"
@@ -611,7 +611,7 @@
           },
           "variant": "stacked",
           "style": {
-            "colorTheme": "dark-accent",
+            "colorTheme": "light-accent",
             "padding": {
               "d": "lg",
               "m": "md"

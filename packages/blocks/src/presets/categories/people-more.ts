@@ -15,7 +15,7 @@ import {
   stack,
   text,
 } from "../kit";
-import { card, logos, panel, qa, questions, stats, team } from "../parts";
+import { card, logos, panel, qa, questions, raised, stats, team } from "../parts";
 
 /** Second wave of FAQ, team, stats and logos presets. */
 
@@ -696,17 +696,17 @@ export const logosMorePresets = [
       whenToUse: "Nonprofits, coalitions and programmes delivered with partners.",
       avoid: LOGO_AVOID,
     },
-    make: () => {
+    make: (c) => {
       const h = heading("Our partners", { eyebrow: "Working together" });
       const a = card(
         "Eastside Schools Trust",
         "Hosts our gardens at twelve schools and builds harvest lunches into the timetable.",
-        { icon: "graduation-cap", eyebrow: "Education partner", style: panel("light") },
+        { icon: "graduation-cap", eyebrow: "Education partner", style: panel(raised(c.theme)) },
       );
       const b = card(
         "City Parks Department",
         "Supplies trees at cost and maps the hottest streets with us each spring.",
-        { icon: "leaf", eyebrow: "Public partner", style: panel("light") },
+        { icon: "leaf", eyebrow: "Public partner", style: panel(raised(c.theme)) },
       );
       const d = card(
         "Riverside Community Fund",
@@ -714,7 +714,7 @@ export const logosMorePresets = [
         {
           icon: "heart-handshake",
           eyebrow: "Funder",
-          style: panel("light"),
+          style: panel(raised(c.theme)),
         },
       );
       return {

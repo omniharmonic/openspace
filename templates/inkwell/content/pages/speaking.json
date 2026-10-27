@@ -346,7 +346,7 @@
           },
           "variant": "card",
           "style": {
-            "colorTheme": "light-accent",
+            "colorTheme": "light",
             "padding": {
               "d": "lg",
               "m": "md"
@@ -384,7 +384,7 @@
           },
           "variant": "card",
           "style": {
-            "colorTheme": "light-accent",
+            "colorTheme": "light",
             "padding": {
               "d": "lg",
               "m": "md"

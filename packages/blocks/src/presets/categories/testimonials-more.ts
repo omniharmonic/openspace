@@ -15,7 +15,7 @@ import {
   stack,
   text,
 } from "../kit";
-import { avatar, logos, panel, pullQuote, stats, testimonial } from "../parts";
+import { avatar, logos, panel, pullQuote, raised, stats, testimonial } from "../parts";
 
 /** Second wave of social proof: walls, spotlights, ratings, logos with quotes, results. */
 
@@ -131,21 +131,21 @@ export const testimonialsMorePresets = [
       whenToUse: "Agencies, consultants and software sold to organisations.",
       avoid: AVOID,
     },
-    make: () => {
+    make: (c) => {
       const h = heading("What our clients say", { eyebrow: "Clients" });
       const a = testimonial(
         "They rebuilt our checkout in eight weeks and conversion went up by a third. The calmest project we've ever run.",
         "Marta Oyelaran",
         "Head of Digital, Northwind Outfitters",
         "portraitClara",
-        { variant: "card", style: panel("light-accent") },
+        { variant: "card", style: panel(raised(c.theme)) },
       );
       const b = testimonial(
         "Clear thinking, honest estimates and a team that actually answers email. We've hired them three times.",
         "Tom Becker",
         "COO, Fieldhouse Coffee",
         "portraitOwen",
-        { variant: "card", style: panel("light-accent") },
+        { variant: "card", style: panel(raised(c.theme)) },
       );
       const wall = logos([
         "Northwind Outfitters",
@@ -280,11 +280,11 @@ export const testimonialsMorePresets = [
       whenToUse: "Coaches, consultants, tutors and trainers.",
       avoid: `${AVOID} Results that aren't typical without saying so.`,
     },
-    make: () => {
+    make: (c) => {
       const h = heading("Real results from real clients", { eyebrow: "Outcomes" });
       const tile = (value: string, quote: string, who: string) =>
         text([rt.h(3, value, "h1"), rt.p(`“${quote}”`), rt.p(who, "small")], {
-          style: panel("light"),
+          style: panel(raised(c.theme)),
         });
       const a = tile(
         "2× revenue",

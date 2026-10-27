@@ -2,7 +2,7 @@ import { mapBlock } from "../../blocks/map";
 import type { IconName } from "../../icons";
 import { type CropAspect, type PhotoKey, photo } from "../images";
 import { button, copy, definePreset, grid, heading, image, make, r, rt, stack, text } from "../kit";
-import { card, icons, panel, qa, questions, table } from "../parts";
+import { card, icons, panel, qa, questions, raised, table } from "../parts";
 
 /** Second wave of services & offerings: dark cards, index lists, detail, overlays, areas. */
 
@@ -24,13 +24,13 @@ export const servicesMorePresets = [
       whenToUse: "Trades, agencies, clinics and consultancies with four core services.",
       avoid: AVOID,
     },
-    make: () => {
+    make: (c) => {
       const h = heading("What we can help with", {
         eyebrow: "Services",
         sub: "Licensed electricians for homes and small businesses across the county.",
       });
       const s = (title: string, body: string, icon: IconName, link: string) =>
-        card(title, body, { icon, link, linkLabel: "Learn more", style: panel("dark-accent") });
+        card(title, body, { icon, link, linkLabel: "Learn more", style: panel(raised(c.theme)) });
       const a = s(
         "Rewiring",
         "Safe, tidy rewires for older homes, room by room or all at once.",
