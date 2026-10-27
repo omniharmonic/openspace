@@ -125,9 +125,9 @@ export const tableBlock = defineBlock({
           Swipe sideways to see every column →
         </p>
         <div className="os-table__frame">
+          {/* biome-ignore lint/a11y/useSemanticElements: a named scroll group, not a form fieldset or a landmark */}
           <div
             className="os-table__scroll"
-            // biome-ignore lint/a11y/useSemanticElements: a named group, not a form fieldset or a landmark
             role="group"
             aria-label={`${fields.caption || "Comparison table"} (scrolls sideways on small screens)`}
             // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable so keyboard users can scroll it
