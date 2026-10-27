@@ -17,8 +17,9 @@ binary is still `openspace`, and sites still use `openspace.json`.
 | `@omniharmonic/openspace-mcp-tools` | `packages/mcp-tools` | no (library) |
 | `@omniharmonic/openspace-email-render` | `packages/email-render` | no (library, used by the Hub) |
 
-Not published (marked `private`): `@omniharmonic/openspace-templates` and
-`@omniharmonic/openspace-template-starter`. The CLI bundles what it needs from them (see below).
+Not published (marked `private`): `@omniharmonic/openspace-templates`,
+`@omniharmonic/openspace-template-starter` and `@omniharmonic/openspace-import` (the Squarespace
+importer behind `openspace import`). The CLI bundles what it needs from them (see below).
 Apps, `e2e`, `tools/*` and `plugin` are private too.
 
 ## How the packages are laid out

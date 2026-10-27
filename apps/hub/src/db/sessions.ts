@@ -1,5 +1,5 @@
 import { randomToken, sha256Hex } from "../lib/crypto";
-import { getUserRow, toUser, type User } from "./users";
+import { toUser, type User, type UserRow } from "./users";
 
 export const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 /** Sliding renewal: extend a session at most once a day. */
@@ -36,20 +36,29 @@ export async function lookupSession(
   now = Date.now(),
 ): Promise<{ user: User; expiresAt: number; renewed: boolean } | null> {
   const idHash = await sha256Hex(token);
+  // One round trip for the session and its user (every signed-in request makes this lookup).
   const row = await db
-    .prepare("SELECT user_id, expires_at, last_seen_at FROM sessions WHERE id_hash = ?")
+    .prepare(
+      `SELECT s.expires_at AS session_expires_at, s.last_seen_at AS session_last_seen_at, u.*
+       FROM sessions s LEFT JOIN users u ON u.id = s.user_id WHERE s.id_hash = ?`,
+    )
     .bind(idHash)
-    .first<{ user_id: string; expires_at: number; last_seen_at: number }>();
+    .first<
+      { session_expires_at: number; session_last_seen_at: number } & (
+        | UserRow
+        | { [K in keyof UserRow]: null }
+      )
+    >();
   if (!row) return null;
-  if (row.expires_at <= now) {
+  if (row.session_expires_at <= now) {
     await db.prepare("DELETE FROM sessions WHERE id_hash = ?").bind(idHash).run();
     return null;
   }
-  const userRow = await getUserRow(db, row.user_id);
-  if (!userRow) return null;
-  let expiresAt = row.expires_at;
+  if (row.id === null) return null;
+  const { session_expires_at, session_last_seen_at, ...userRow } = row;
+  let expiresAt = session_expires_at;
   let renewed = false;
-  if (now - row.last_seen_at > RENEW_AFTER_MS) {
+  if (now - session_last_seen_at > RENEW_AFTER_MS) {
     expiresAt = now + SESSION_TTL_MS;
     renewed = true;
     await db
@@ -57,7 +66,7 @@ export async function lookupSession(
       .bind(now, expiresAt, idHash)
       .run();
   }
-  return { user: toUser(userRow), expiresAt, renewed };
+  return { user: toUser(userRow as UserRow), expiresAt, renewed };
 }
 
 export async function deleteSession(db: D1Database, token: string): Promise<void> {

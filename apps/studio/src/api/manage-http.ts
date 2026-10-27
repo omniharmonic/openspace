@@ -18,6 +18,7 @@ import type {
   PagePasswordEntry,
   RegistrarGuide,
 } from "./manage-types";
+import { unreachableMessage } from "./resilience";
 import { HubError } from "./types";
 
 type Request = <T>(method: string, path: string, body?: unknown) => Promise<T>;
@@ -58,11 +59,7 @@ export function createManageHttp({
     try {
       res = await doFetch(`${baseUrl}${path}`, { method, credentials: "include", ...init });
     } catch {
-      throw new HubError(
-        0,
-        "network",
-        `Can't reach OpenSpace at ${baseUrl}. Check your connection.`,
-      );
+      throw new HubError(0, "network", unreachableMessage());
     }
     if (!res.ok) throw await readError(res);
     return res;

@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@astrojs/cloudflare": "^14.4.2",
+    "@omniharmonic/openspace-import": "workspace:*",
     "@types/node": "catalog:",
     "sharp": "^0.35.5",
     "typescript": "catalog:",

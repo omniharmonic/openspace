@@ -86,7 +86,7 @@
             "secondaryLabel": "Read the docs",
             "secondaryLink": {
               "type": "url",
-              "url": "https://github.com/omniharmonic/openspace/tree/main/apps/docs/src/content/docs"
+              "url": "https://docs.openspace.host"
             }
           },
           "column": 1,

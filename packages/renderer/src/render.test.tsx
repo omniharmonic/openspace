@@ -19,13 +19,14 @@ import {
   type RenderMode,
   type RichTextHookArgs,
 } from "./context";
-import { Header } from "./header";
+import { Header, navFit } from "./header";
 import { Img } from "./image";
 import { resolveLink } from "./link";
 import { PageView } from "./page";
 import { registerBlocks, unregisterBlocks } from "./registry";
 import { RichText } from "./richtext";
 import { SectionView } from "./section";
+import { BASE_CSS } from "./styles/base-css";
 
 beforeAll(() => registerBlocks(fixtureBlocks));
 afterAll(() => unregisterBlocks());
@@ -375,6 +376,65 @@ describe("Header", () => {
         "os-header--transparent-overlay os-theme-light-accent is-sticky is-overlay",
       );
     }
+  });
+
+  it("moves a menu that can't fit behind the menu button instead of squeezing the name", () => {
+    const leaf = (label: string) => ({ label, kind: "leaf" as const });
+    const few = ["Home", "About", "Classes", "Contact"].map(leaf);
+    expect(navFit({ title: "Maya Yoga", nav: few, buttons: [], social: 0, cart: false })).toBe(
+      "fits",
+    );
+    const many = [
+      "Home",
+      "About us",
+      "Classes",
+      "Schedule",
+      "Teachers",
+      "Workshops",
+      "Retreats",
+      "Pricing",
+      "Journal",
+      "Events",
+      "Shop",
+      "Gift cards",
+      "FAQ",
+      "Members",
+      "Contact",
+    ].map(leaf);
+    expect(
+      navFit({
+        title: "os-e2e-editor-1",
+        nav: many,
+        buttons: [{ label: "Book" }],
+        social: 0,
+        cart: false,
+      }),
+    ).toBe("collapse");
+    expect(
+      navFit({
+        title: "os-e2e-editor-1",
+        nav: many.slice(0, 9),
+        buttons: [],
+        social: 0,
+        cart: false,
+      }),
+    ).toBe("wide");
+
+    // Rendered: the collapsed header has no inline nav and works like the drawer layouts.
+    const nav = many.map((l, i) => ({
+      type: "link" as const,
+      label: l.label,
+      href: `https://example.com/${i}`,
+    }));
+    const site = { ...doc.site, title: "os-e2e-editor-1", logo: undefined, nav };
+    const out = html(<Header site={site as never} page={home} />);
+    expect(out).toContain("is-drawer");
+    expect(/<nav class="os-nav[ "]/.test(out)).toBe(false);
+    expect(out).toContain("os-menu__list");
+    // The site name never wraps mid-word on desktop.
+    expect(BASE_CSS).toMatch(
+      /\.os-header:not\(\.is-drawer\) \.os-header__title\{white-space:nowrap/,
+    );
   });
 
   it("resolves nav: folders, hidden items, aria-current, buttons", () => {

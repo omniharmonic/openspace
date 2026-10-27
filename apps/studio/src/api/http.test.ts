@@ -57,13 +57,40 @@ describe("createHttpHub", () => {
     });
   });
 
-  it("maps network failures to a plain-language HubError", async () => {
-    const hub = createHttpHub({
-      fetch: vi.fn(async () => Promise.reject(new TypeError("Failed to fetch"))),
-    });
+  it("maps network failures to a plain-language HubError after retrying", async () => {
+    const fetch = vi.fn(async () => Promise.reject(new TypeError("Failed to fetch")));
+    const hub = createHttpHub({ fetch, retry: { sleep: async () => {} } });
     const err = await hub.listTemplates().catch((e) => e);
     expect(err).toBeInstanceOf(HubError);
     expect(err.code).toBe("network");
+    expect(err.message).not.toMatch(/check your connection/i);
+    expect(fetch).toHaveBeenCalledTimes(5);
+  });
+
+  it("reads the platform's HTML 503 page as a temporary problem, not a broken request", async () => {
+    const fetch = vi.fn(async () => new Response("<html>error code: 1102</html>", { status: 503 }));
+    const hub = createHttpHub({ fetch, retry: { sleep: async () => {}, retries: 1 } });
+    const err = await hub.listSites().catch((e) => e);
+    expect(err).toMatchObject({ status: 503, code: "unavailable" });
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("sends the create's Idempotency-Key so retries can't make a second site", async () => {
+    const fetch = vi
+      .fn<typeof globalThis.fetch>()
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockResolvedValueOnce(jsonResponse({ id: "st_1" }, 201));
+    const hub = createHttpHub({ fetch, retry: { sleep: async () => {} } });
+    const site = await hub.createSite(
+      { template: "meadow", look: "oat", name: "W", tagline: "" },
+      { idempotencyKey: "key-123" },
+    );
+    expect(site.id).toBe("st_1");
+    expect(fetch).toHaveBeenCalledTimes(2);
+    for (const [, init] of fetch.mock.calls)
+      expect((init?.headers as Record<string, string> | undefined)?.["Idempotency-Key"]).toBe(
+        "key-123",
+      );
   });
 
   it("posts the transfer recipient and dev login name", async () => {

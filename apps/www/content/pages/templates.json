@@ -59,7 +59,7 @@
             "secondaryLabel": "How looks work",
             "secondaryLink": {
               "type": "url",
-              "url": "https://github.com/omniharmonic/openspace/blob/main/apps/docs/src/content/docs/templates.md"
+              "url": "https://docs.openspace.host/templates/"
             }
           },
           "variant": "default",

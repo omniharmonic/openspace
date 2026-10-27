@@ -150,3 +150,12 @@
     bottom: 64px;
   }
 }
+
+/*
+ * A bottom sheet or the More menu is open (phones): toasts move to the top so they never sit
+ * over the sheet's buttons.
+ */
+body:has(.st-sheet--bottom[data-state="open"]) .st-toast-viewport {
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  bottom: auto;
+}

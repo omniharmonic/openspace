@@ -24,6 +24,7 @@ import { SiteStylesPanel } from "../styles/SiteStylesPanel";
 import { InspectorEnvProvider, useInspectorTab } from "./env";
 import { FIELD_COMMIT_MS } from "./fields/basic";
 import { Inspector } from "./Inspector";
+import { registerMediaPicker } from "./media";
 
 function setup(
   ui: ReactNode,
@@ -428,6 +429,26 @@ describe("Site Styles panel", () => {
     expect(value).not.toBe("#3a3a3a");
   });
 
+  it("names the hard-to-read pair in the banner and fixes it from there", async () => {
+    const t = setup(<SiteStylesPanel />);
+    act(() => {
+      t.s().commit([
+        {
+          op: "styles.patch",
+          patch: { set: { "overrides.color.dark.text": { $value: "#3a3a3a", $type: "color" } } },
+        } as never,
+      ]);
+    });
+    const banner = screen.getByRole("status");
+    // Not just "3 color pairs are hard to read": which ones.
+    expect(banner).toHaveTextContent(
+      "3 color pairs are hard to read: Body text on background (Dark theme), Body text on surface (Dark theme) and 1 more.",
+    );
+    // One color change fixes all three: offered right in the banner.
+    await t.user.click(within(banner).getByRole("button", { name: "Fix it" }));
+    expect(screen.queryByText(/hard to read/)).not.toBeInTheDocument();
+  });
+
   it("adds and removes a DTCG override (Designer)", async () => {
     const t = setup(<SiteStylesPanel />);
     await t.user.click(screen.getByRole("button", { name: "Design tokens" }));
@@ -550,5 +571,44 @@ describe("media kind on pick", () => {
     expect(mediaKindOf("media/2026/10/song.mp3")).toBe("audio");
     expect(mediaKindOf("https://cdn.example.com/clip.MP4?x=1")).toBe("video");
     expect(mediaKindOf("media/2026/10/thing")).toBeNull();
+  });
+});
+
+describe("replacing an image", () => {
+  const heroAlt = (s: () => ReturnType<EditorStore["getState"]>) => {
+    const block = Object.values(s().doc.pages)
+      .flatMap((p) => p.sections)
+      .flatMap((x) => x.blocks)
+      .find((b) => b.id === I.heroImage);
+    return (block?.fields as { image?: { src: string; alt: string } } | undefined)?.image;
+  };
+  let unregister: () => void = () => {};
+  afterEach(() => unregister());
+
+  it("doesn't keep the old picture's alt text: it asks for a new one, offering the old back", async () => {
+    unregister = registerMediaPicker(async () => ({ src: "media/2026/10/new-photo.jpg" }));
+    const { user, s } = setup(<Inspector />, { select: { kind: "block", id: I.heroImage } });
+    const before = heroAlt(s)?.alt ?? "";
+    expect(before).not.toBe("");
+    await user.click(within(panel()).getAllByRole("button", { name: "Replace" })[0] as HTMLElement);
+    await waitFor(() => expect(heroAlt(s)?.src).toBe("media/2026/10/new-photo.jpg"));
+    expect(heroAlt(s)?.alt).toBe("");
+    // Not shown as "decorative": the field is open and asks for a description.
+    const input = within(panel()).getByLabelText("Alt text");
+    expect(input).toBeEnabled();
+    expect(within(panel()).getByText(/New image: describe it/)).toBeInTheDocument();
+    await user.click(within(panel()).getByRole("button", { name: "Keep the old description" }));
+    expect(heroAlt(s)?.alt).toBe(before);
+  });
+
+  it("uses the library file's own alt text when it has one", async () => {
+    unregister = registerMediaPicker(async () => ({
+      src: "media/2026/10/described.jpg",
+      alt: "Two potters at the wheel",
+    }));
+    const { user, s } = setup(<Inspector />, { select: { kind: "block", id: I.heroImage } });
+    await user.click(within(panel()).getAllByRole("button", { name: "Replace" })[0] as HTMLElement);
+    await waitFor(() => expect(heroAlt(s)?.alt).toBe("Two potters at the wheel"));
+    expect(within(panel()).queryByText(/New image: describe it/)).not.toBeInTheDocument();
   });
 });

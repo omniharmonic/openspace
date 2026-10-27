@@ -25,6 +25,25 @@ npx -y @omniharmonic/openspace-cli new harbor riverbend --title "Riverbend Neigh
 
 The folder must be new or empty. You get the template's content and media, a fresh site id, the starter shell, `AGENTS.md` and the publish workflow.
 
+## `openspace import squarespace <url> [dir]`
+
+Move a Squarespace site (7.0 or 7.1) into a new site folder: pages, blog, events, products, images, navigation, forms, SEO, redirects and a Site Styles approximation of the look, plus an `IMPORT-REPORT.md` of what needs your attention. It ends with `openspace check`. See [Move from Squarespace](/guides/migrate-from-squarespace/).
+
+```sh
+npx -y @omniharmonic/openspace-cli import squarespace https://www.example.com my-site --export export.xml
+```
+
+| Option | Meaning |
+|---|---|
+| `--owner` | You own the site: also read Squarespace's `?format=json` data (richer collections and SEO). |
+| `--export <file>` | Squarespace's WordPress export, for complete blog posts and drafts. |
+| `--target`, `--repo`, `--url`, `--domain`, `--title`, `--hub` | As for `openspace new`. |
+| `--max-pages <n>` | Most pages and items to read (default 400). |
+| `--delay <ms>` | Pause between requests to the site (default 300). |
+| `--no-media` | Don't download images and files. |
+
+Requests are paced, `robots.txt` is honoured, and the folder must be new or empty.
+
 ## `openspace check [dir]`
 
 Validates the site before publishing: schemas (with file and field names), links (pages, items, navigation, redirects, links inside posts), images (referenced files exist and are in the media library), sizes (warns at 600 MB of media, fails at 900 MB; images over 2400 px), a **secret scan** (anything that looks like an API key fails), and pages that need Cloudflare hosting on GitHub Pages.
@@ -41,7 +60,7 @@ Runs the site locally with live reload (`astro dev`; Astro needs Node 22.23.4 or
 
 ## `openspace mcp [dir]`
 
-Runs the OpenSpace MCP server over stdio for a local folder — the same tools as the Hub, plus screenshots. See the [Claude Code plugin](/connect-your-ai/claude-code/).
+Runs the OpenSpace MCP server over stdio for a local folder — the same tools as the Hub, plus screenshots, `screenshot_url` (a screenshot of any public page, such as the site you're moving from) and `import_squarespace` (the importer as a tool; it creates a new folder next to the served site). See the [Claude Code plugin](/connect-your-ai/claude-code/).
 
 | Option | Meaning |
 |---|---|

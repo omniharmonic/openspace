@@ -37,6 +37,7 @@ const REQUIRED = [
   "guides/media",
   "guides/publishing",
   "guides/domains",
+  "guides/migrate-from-squarespace",
   "connect-your-ai",
   "connect-your-ai/claude",
   "connect-your-ai/claude-code",
@@ -73,7 +74,16 @@ describe("docs content", () => {
   });
 
   it("names only real MCP tools and prompts", async () => {
-    const tools = new Set(ALL_TOOLS.map((t) => t.name));
+    // The local stdio server adds tools that reach the web (never served by the Hub).
+    const local = ["import_squarespace", "screenshot_url"];
+    const cliMcp = ["import-tool.ts", "reference-tool.ts"]
+      .map((f) => join(REPO, "packages", "cli", "src", "mcp", f))
+      .map((p) => (existsSync(p) ? p : ""));
+    const localSource = (
+      await Promise.all(cliMcp.filter(Boolean).map((p) => readFile(p, "utf8")))
+    ).join("\n");
+    for (const t of local) expect(localSource, t).toContain(`name: "${t}"`);
+    const tools = new Set([...ALL_TOOLS.map((t) => t.name), ...local]);
     const prompts = new Set(PROMPTS.map((p) => p.name));
     const unknown: string[] = [];
     for (const f of await walk(CONTENT)) {
@@ -105,6 +115,25 @@ describe("docs content", () => {
     expect(text).toContain("DEV_MODE");
     expect(text).toContain("ALLOW_DEV_MODE");
     expect(text).toMatch(/Deploy to Cloudflare/);
+  });
+
+  it("documents the Squarespace import with the CLI's real options", async () => {
+    const text = await source("guides/migrate-from-squarespace");
+    const program = await readFile(join(REPO, "packages", "cli", "src", "program.ts"), "utf8");
+    for (const flag of [
+      "--owner",
+      "--export",
+      "--target",
+      "--max-pages",
+      "--delay",
+      "--no-media",
+    ]) {
+      expect(text, flag).toContain(flag);
+      expect(program, flag).toContain(flag);
+    }
+    expect(text).toContain("npx -y @omniharmonic/openspace-cli import squarespace");
+    expect(text).toContain("/openspace:import-squarespace");
+    expect(await source("developers/cli")).toContain("openspace import squarespace");
   });
 
   it("gives the plugin install commands", async () => {
@@ -153,7 +182,7 @@ describe("docs build", () => {
       await readFile(join(REPO, "plugin", ".claude-plugin", "plugin.json"), "utf8"),
       await readFile(join(REPO, ".claude-plugin", "marketplace.json"), "utf8"),
     ].join("\n");
-    const paths = [...sources.matchAll(/(?:\$\{DOCS\}|docs\.openspace\.dev)(\/[a-z0-9/-]*)/g)].map(
+    const paths = [...sources.matchAll(/(?:\$\{DOCS\}|docs\.openspace\.host)(\/[a-z0-9/-]*)/g)].map(
       (m) => m[1] as string,
     );
     expect(paths.length).toBeGreaterThan(5);

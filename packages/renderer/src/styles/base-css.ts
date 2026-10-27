@@ -334,6 +334,14 @@ html:not(.os-js) .os-header__toggle{display:none}
 .os-header.os-header--stacked .os-nav{grid-area:nav;min-height:var(--header-row);display:flex;align-items:center;border-top:1px solid ${v(c.border)}}
 .os-page:has(.os-header--logo-center-nav-below,.os-header--stacked){--header-h:calc(var(--bar-h) + 3rem)}
 .os-header.is-drawer .os-header__actions .os-button{display:none}
+.os-header:not(.is-drawer) .os-header__brand{flex:none}
+.os-header:not(.is-drawer) .os-header__title{white-space:nowrap;max-inline-size:none}
+}
+/* A long menu that only fits on large screens: the menu button until then. */
+@media (min-width:1024px) and (max-width:1439.98px){
+.os-header.os-header--nav-wide .os-nav{display:none}
+.os-header.os-header--nav-wide .os-menu{display:block}
+.os-js .os-header.os-header--nav-wide .os-header__toggle{display:inline-grid}
 }
 .os-header__logo{height:var(--mlogo-h,2rem)}
 @media (min-width:768px){.os-header__logo{height:var(--tlogo-h,2.5rem)}}

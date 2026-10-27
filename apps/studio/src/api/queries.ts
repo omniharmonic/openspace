@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useHub } from "./context";
+import { isTransientError } from "./resilience";
 import {
   type CreateSiteInput,
   DEFAULT_CAPABILITIES,
   type GitHubSignInParams,
   type HubCapabilities,
+  HubError,
   type Site,
 } from "./types";
 
@@ -53,6 +55,9 @@ export function useTemplates() {
   });
 }
 
+const RECENT_MS = 10 * 60_000;
+const isRecent = (iso: string) => Date.now() - Date.parse(iso) < RECENT_MS;
+
 /** Polls while any site is still being set up. */
 export function useSites(options: { enabled?: boolean; pollMs?: number } = {}) {
   const hub = useHub();
@@ -60,8 +65,14 @@ export function useSites(options: { enabled?: boolean; pollMs?: number } = {}) {
     queryKey: queryKeys.sites,
     queryFn: () => hub.listSites(),
     enabled: options.enabled ?? true,
-    refetchInterval: (q) =>
-      q.state.data?.some((s) => s.status === "building") ? (options.pollMs ?? 3000) : false,
+    refetchInterval: (q) => {
+      const list = q.state.data;
+      if (list?.some((s) => s.status === "building")) return options.pollMs ?? 3000;
+      // A just-made site can report "failed" before its first publish lands: look again.
+      if (list?.some((s) => s.status === "failed" && isRecent(s.createdAt)))
+        return (options.pollMs ?? 3000) * 4;
+      return false;
+    },
   });
 }
 
@@ -74,7 +85,12 @@ const MAX_BACKOFF_MS = 30_000;
  */
 export function useSite(
   id: string | undefined,
-  options: { pollMs?: number; pollOnError?: boolean } = {},
+  options: {
+    pollMs?: number;
+    pollOnError?: boolean;
+    /** Keep polling a site that isn't building (e.g. to re-check an early "failed"). */
+    pollWhile?: (site: Site) => boolean;
+  } = {},
 ) {
   const hub = useHub();
   const pollMs = options.pollMs ?? 1500;
@@ -82,12 +98,15 @@ export function useSite(
     queryKey: queryKeys.site(id ?? ""),
     queryFn: () => hub.getSite(id as string),
     enabled: Boolean(id),
-    retry: false,
+    // Polling handles errors itself when asked; otherwise ride out a temporary Hub failure.
+    retry: (count, err) => !options.pollOnError && isTransientError(err) && count < 3,
     refetchInterval: (q) => {
       if (q.state.status === "error" && options.pollOnError) {
         return Math.min(pollMs * 2 ** Math.min(q.state.errorUpdateCount, 8), MAX_BACKOFF_MS);
       }
-      return q.state.data?.status === "building" ? pollMs : false;
+      const site = q.state.data;
+      if (!site) return false;
+      return site.status === "building" || options.pollWhile?.(site) ? pollMs : false;
     },
   });
 }
@@ -124,11 +143,19 @@ export function useLogout() {
   });
 }
 
-export function useCreateSite() {
+export function useCreateSite(options: { retryBaseMs?: number } = {}) {
   const hub = useHub();
+  const base = options.retryBaseMs ?? 2000;
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateSiteInput) => hub.createSite(input),
+    mutationFn: ({ idempotencyKey, ...input }: CreateSiteInput & { idempotencyKey?: string }) =>
+      hub.createSite(input, { idempotencyKey }),
+    // With an idempotency key a repeat can't make a second site, so ride out a flaky Hub
+    // (and a create that's still running from an earlier attempt) for about a minute.
+    retry: (count, err) =>
+      count < 6 &&
+      (isTransientError(err) || (err instanceof HubError && err.code === "create_in_progress")),
+    retryDelay: (attempt) => Math.min(base * 2 ** attempt, 8 * base),
     onSuccess: (site) => {
       qc.setQueryData(queryKeys.site(site.id), site);
       qc.setQueryData<Site[]>(queryKeys.sites, (prev) => (prev ? [site, ...prev] : prev));

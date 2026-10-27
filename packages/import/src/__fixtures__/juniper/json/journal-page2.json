@@ -1,0 +1,26 @@
+{
+  "collection": {
+    "id": "64f0journal",
+    "title": "Journal",
+    "urlId": "journal",
+    "typeName": "blog-basic-grid",
+    "fullUrl": "/journal"
+  },
+  "items": [
+    {
+      "id": "64f0post0",
+      "collectionId": "64f0journal",
+      "publishOn": 1735722000000,
+      "workflowState": 1,
+      "urlId": "studio-opening",
+      "title": "We opened the studio",
+      "fullUrl": "/journal/studio-opening",
+      "tags": [],
+      "categories": ["Studio news"],
+      "excerpt": "",
+      "body": "<p>Doors open on Alder Street. <a href=\"/contact\">Come by</a>.</p>",
+      "author": { "displayName": "Ana Ruiz" }
+    }
+  ],
+  "pagination": { "nextPage": false }
+}

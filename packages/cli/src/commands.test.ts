@@ -30,7 +30,7 @@ async function newSite(args: string[] = []) {
 describe("command list", () => {
   it("registers every command", async () => {
     const r = await cli(process.cwd(), ["--help"]);
-    for (const c of ["check", "dev", "migrate", "new", "eject", "agents-md", "mcp"])
+    for (const c of ["check", "dev", "migrate", "new", "import", "eject", "agents-md", "mcp"])
       expect(r.out).toContain(c);
   });
 

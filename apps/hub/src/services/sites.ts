@@ -114,7 +114,7 @@ function compareVersions(a: string, b: string): number {
   return 0;
 }
 
-export function toSiteView(row: SiteWithRole, templates: TemplateMeta[] = []): SiteView {
+export function toSiteView(row: SiteWithRole, templates: readonly TemplateMeta[] = []): SiteView {
   const tpl = templates.find((t) => t.id === row.template_id);
   return {
     id: row.id,

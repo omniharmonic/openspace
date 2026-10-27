@@ -71,6 +71,15 @@ Preset categories: header, hero, about, services, features, gallery, testimonial
 | `rollback`        | `version`, `confirm`  | Restore a published version.                                                                                 |
 | `create_snapshot` | `name`                | Named restore point before risky work.                                                                       |
 
+## Local server only
+
+The local stdio server (`openspace mcp`) adds two tools that reach the web. The Hub doesn't serve them.
+
+| Tool                 | Arguments                                                                                   | Use                                                                                                                                                                                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `import_squarespace` | `url`, `folder?`, `owner?`, `exportFile?`, `target?`, `confirm`                              | Import a Squarespace site into a **new** folder next to the served site (never into it) and run `openspace check`. Needs `confirm: true` after the owner agrees; `owner: true` (reads `?format=json`) only when they confirm they own the site. Returns the summary and `IMPORT-REPORT.md`. |
+| `screenshot_url`     | `url`, `device?` (`"desktop"` \| `"tablet"` \| `"mobile"` \| `"all"`), `fullPage?`          | PNG of any public page (the original site during a migration) at the same widths as `screenshot`, for side-by-side comparison. Needs Playwright, like `screenshot`.                                                  |
+
 ## Prompts
 
 - `design-a-page` (`brief`, `page?`) — compose or redesign a page from presets with real copy.

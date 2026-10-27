@@ -6,6 +6,10 @@ import { STUDIO_MANIFEST } from "./src/pwa/manifest";
 
 const YEAR = 60 * 60 * 24 * 365;
 
+// Stamped into index.html so every deploy changes the precached shell's revision: a new service
+// worker then replaces a stale (e.g. redirected) cached copy instead of keeping it.
+process.env.VITE_BUILD_ID ??= new Date().toISOString();
+
 export default defineConfig({
   plugins: [
     react(),

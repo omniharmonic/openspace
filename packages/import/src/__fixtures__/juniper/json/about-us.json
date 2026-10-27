@@ -1,0 +1,17 @@
+{
+  "website": { "id": "64jun1per", "siteTitle": "Juniper Ceramics" },
+  "collection": {
+    "id": "64f0about",
+    "title": "About Us",
+    "navigationTitle": "About",
+    "urlId": "about-us",
+    "typeName": "page",
+    "fullUrl": "/about-us",
+    "passwordProtected": false,
+    "seoData": {
+      "seoTitle": "Our story — two potters in Portland",
+      "seoDescription": "Meet Ana and Theo, the two potters behind Juniper Ceramics.",
+      "seoHidden": false
+    }
+  }
+}

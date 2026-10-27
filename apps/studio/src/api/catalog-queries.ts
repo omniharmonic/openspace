@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { KitUpdate } from "./catalog-types";
 import { useHub } from "./context";
 import { queryKeys } from "./queries";
+import { isTransientError } from "./resilience";
 import type { Site } from "./types";
 
 /** Query keys for template documents and kit updates (Task 26). */
@@ -22,7 +23,8 @@ export function useTemplateDetail(id: string | undefined, options: { enabled?: b
     enabled: Boolean(id) && (options.enabled ?? true),
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: 30 * 60_000,
-    retry: 1,
+    // A busy Hub (503) is worth riding out; a missing template isn't.
+    retry: (count, err) => (isTransientError(err) ? count < 4 : count < 1),
   });
 }
 

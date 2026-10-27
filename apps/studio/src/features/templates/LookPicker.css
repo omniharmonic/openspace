@@ -7,15 +7,25 @@
 .st-looks__item {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  /* At least 24×24 (WCAG 2.5.8 target size); a bit more for fingers. */
   height: 24px;
-  padding: 0 3px;
+  min-width: 24px;
+  padding: 0 4px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--st-text-2);
   font-size: var(--st-fs-sm);
   cursor: default;
+}
+
+@media (pointer: coarse) {
+  .st-looks__item {
+    height: 32px;
+    min-width: 32px;
+  }
 }
 
 .st-looks__item:has(.st-looks__name) {

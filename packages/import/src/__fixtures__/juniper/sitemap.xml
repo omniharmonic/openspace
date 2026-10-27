@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>https://www.juniperceramics.example/home</loc><priority>1.0</priority></url>
+  <url><loc>https://www.juniperceramics.example/about-us</loc></url>
+  <url><loc>https://www.juniperceramics.example/workshops</loc></url>
+  <url><loc>https://www.juniperceramics.example/contact</loc></url>
+  <url><loc>https://www.juniperceramics.example/journal</loc></url>
+  <url><loc>https://www.juniperceramics.example/journal/2025/3/14/first-firing-of-spring</loc></url>
+  <url><loc>https://www.juniperceramics.example/journal/glaze-notes</loc></url>
+  <url><loc>https://www.juniperceramics.example/shop</loc></url>
+  <url><loc>https://www.juniperceramics.example/shop/p/speckled-mug</loc></url>
+  <url><loc>https://www.juniperceramics.example/events</loc></url>
+  <url><loc>https://www.juniperceramics.example/events/open-studio-day</loc></url>
+  <url><loc>https://www.juniperceramics.example/members-corner</loc></url>
+</urlset>

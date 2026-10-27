@@ -263,6 +263,10 @@
 .st-publish__spacer {
   flex: 1;
 }
+.st-publish__nothing {
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+}
 .st-publish__discard {
   color: var(--st-danger);
 }

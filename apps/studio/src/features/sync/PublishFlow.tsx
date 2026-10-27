@@ -246,10 +246,14 @@ function PublishDialog({
               </Button>
             )}
             <span className="st-publish__spacer" />
-            <Button variant="secondary" onClick={close}>
-              Cancel
+            {empty && (
+              // Everything is live: no primary "Publish now" to press for nothing.
+              <span className="st-publish__nothing">Nothing new to publish</span>
+            )}
+            <Button variant={empty ? "primary" : "secondary"} onClick={close}>
+              {empty ? "Done" : "Cancel"}
             </Button>
-            {mode === "now" ? (
+            {empty ? null : mode === "now" ? (
               <Button
                 variant="primary"
                 onClick={publishNow}

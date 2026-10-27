@@ -347,7 +347,11 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
           <button
             type="button"
             className="st-mob__row"
-            onClick={() => navigate(`/sites/${site.id}/settings`)}
+            onClick={() => {
+              // Close More first, as every other row does, so Settings isn't stuck behind it.
+              setSheet(null);
+              navigate(`/sites/${site.id}/settings`);
+            }}
           >
             <span className="st-mob__row-icon">
               <Settings />

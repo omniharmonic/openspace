@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { HubError } from "../../api/types";
-import { renderStudio, SAM } from "../../test/render";
+import { FAST, renderStudio, SAM } from "../../test/render";
 import { loadDraft, saveDraft } from "./draft";
 
 describe("onboarding: template → details → sign in → building → editor", () => {
@@ -178,6 +178,74 @@ describe("onboarding: template → details → sign in → building → editor",
     expect(await screen.findByLabelText("Site name")).toHaveValue("Okafor Advisory");
     expect(router.state.location.search).not.toContain("resume");
     expect(screen.queryByRole("status", { name: "Starting your site" })).not.toBeInTheDocument();
+  });
+
+  it("retries a create that got no answer with the same key, making exactly one site", async () => {
+    const { user, hub } = renderStudio("/new/meadow", { user: SAM });
+    const realCreate = hub.createSite.bind(hub);
+    let attempts = 0;
+    hub.createSite = async (input, opts) => {
+      attempts++;
+      // The first attempt reaches the Hub (site made) but the answer is lost.
+      const site = await realCreate(input, opts);
+      if (attempts === 1) throw new HubError(0, "network", "No answer");
+      return site;
+    };
+    await user.type(await screen.findByLabelText("Site name"), "Juniper");
+    await user.click(screen.getByRole("button", { name: "Create my site" }));
+    expect(
+      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    const calls = hub.calls.filter((c) => c.method === "createSite");
+    expect(calls).toHaveLength(2);
+    const keys = calls.map((c) => (c.args[1] as { idempotencyKey?: string }).idempotencyKey);
+    expect(keys[0]).toEqual(expect.any(String));
+    expect(keys[1]).toBe(keys[0]);
+    expect(hub.state.sites).toHaveLength(1);
+  });
+
+  it("doesn't trust an early 'failed' from the create: keeps checking until it's live", async () => {
+    const { user, hub } = renderStudio("/new/meadow", { user: SAM, buildMs: 40 });
+    const realCreate = hub.createSite.bind(hub);
+    hub.createSite = async (input, opts) => ({
+      ...(await realCreate(input, opts)),
+      status: "failed",
+    });
+    await user.type(await screen.findByLabelText("Site name"), "Juniper");
+    await user.click(screen.getByRole("button", { name: "Create my site" }));
+    expect(
+      await screen.findByRole("button", { name: "Copy link" }, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /isn’t online yet/ })).not.toBeInTheDocument();
+  });
+
+  it("shows the form after the gallery fails to load for a moment", async () => {
+    let failures = 0;
+    renderStudio("/new/meadow", { user: SAM }, FAST, (hub) => {
+      const realList = hub.listTemplates.bind(hub);
+      hub.listTemplates = async () => {
+        if (failures < 3) {
+          failures++;
+          throw new HubError(503, "unavailable", "Busy");
+        }
+        return realList();
+      };
+    });
+    expect(await screen.findByLabelText("Site name", {}, { timeout: 3000 })).toBeInTheDocument();
+    expect(failures).toBe(3);
+    expect(screen.queryByText(/may have been renamed/)).not.toBeInTheDocument();
+  });
+
+  it("says it's reconnecting, not that the template was renamed, while the Hub is down", async () => {
+    renderStudio("/new/meadow", { user: SAM }, FAST, (hub) => {
+      hub.listTemplates = async () => {
+        throw new HubError(0, "network", "No answer");
+      };
+    });
+    expect(
+      await screen.findByRole("heading", { name: "Reconnecting to OpenSpace…" }, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/renamed/)).not.toBeInTheDocument();
   });
 
   it("explains when a template doesn't exist", async () => {

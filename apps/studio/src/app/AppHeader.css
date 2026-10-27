@@ -101,7 +101,16 @@
     min-width: 0;
   }
 
-  .st-header__search > span,
+  /* Icon only on phones; the label stays for screen readers (the button's name). */
+  .st-header__search > span {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   .st-header__search .st-kbd {
     display: none;
   }

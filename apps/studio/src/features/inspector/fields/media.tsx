@@ -116,7 +116,12 @@ export function ImageControl({
   const alt = useDraft<string>(value?.alt, (a) =>
     value ? onChange({ ...value, alt: a ?? "" }, { merge: true, label: "Edit alt text" }) : null,
   );
-  const decorative = value !== undefined && value.alt === "";
+  // After a replace the old alt text no longer describes the picture: it's cleared and the
+  // field asks for a new one (offering the old text back) instead of reading as "decorative".
+  const [askAlt, setAskAlt] = useState<{ previous: string } | null>(null);
+  const altInput = useRef<HTMLInputElement>(null);
+  const asking = askAlt !== null && value !== undefined && value.alt === "";
+  const decorative = value !== undefined && value.alt === "" && !asking;
 
   const choose = async () => {
     const pick = await open({
@@ -125,14 +130,21 @@ export function ImageControl({
       current: value?.src,
     });
     if (!pick) return;
+    const previous = value?.alt.trim() ?? "";
+    const own = pick.alt?.trim() ?? "";
     const next: ImageValue = {
       src: pick.src,
-      alt: pick.alt ?? value?.alt ?? "",
+      alt: own,
       ...(pick.width && pick.height ? { width: pick.width, height: pick.height } : {}),
       ...(pick.mediaId ? { mediaId: pick.mediaId as ImageValue["mediaId"] & string } : {}),
       ...(pick.focal ? { focal: pick.focal } : {}),
     };
-    setError(onChange(next, { label: "Replace image" }));
+    const err = onChange(next, { label: "Replace image" });
+    setError(err);
+    if (!err && value && !own && pick.src !== value.src) {
+      setAskAlt({ previous });
+      setTimeout(() => altInput.current?.focus(), 0);
+    } else setAskAlt(null);
   };
 
   return (
@@ -180,13 +192,16 @@ export function ImageControl({
             htmlFor={`${id}-alt`}
             stacked
             hint={
-              decorative
-                ? "Marked decorative: screen readers skip it."
-                : "Describe what the image is for, not just what’s in it."
+              asking
+                ? "New image: describe it for people using screen readers."
+                : decorative
+                  ? "Marked decorative: screen readers skip it."
+                  : "Describe what the image is for, not just what’s in it."
             }
             error={alt.error}
           >
             <Input
+              ref={altInput}
               id={`${id}-alt`}
               size="sm"
               value={decorative ? "" : (alt.draft ?? "")}
@@ -195,6 +210,20 @@ export function ImageControl({
               onChange={(e) => alt.change(e.target.value)}
               onBlur={alt.blur}
             />
+            {asking && askAlt.previous && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setAskAlt(null);
+                  setError(
+                    onChange({ ...value, alt: askAlt.previous }, { label: "Edit alt text" }),
+                  );
+                }}
+              >
+                Keep the old description
+              </Button>
+            )}
           </PropRow>
           <PropRow label="Decorative" htmlFor={`${id}-deco`}>
             <div className="st-ip-fixed">
@@ -203,11 +232,12 @@ export function ImageControl({
                 size="sm"
                 checked={decorative}
                 disabled={disabled}
-                onCheckedChange={(c) =>
+                onCheckedChange={(c) => {
+                  setAskAlt(null);
                   setError(
                     onChange({ ...value, alt: c ? "" : "Image" }, { label: "Edit alt text" }),
-                  )
-                }
+                  );
+                }}
               />
             </div>
           </PropRow>

@@ -27,6 +27,7 @@ import type {
   SubscriberPage,
 } from "./growth-types";
 import type { ManageHttpDeps } from "./manage-http";
+import { unreachableMessage } from "./resilience";
 import { HubError } from "./types";
 
 const enc = encodeURIComponent;
@@ -56,11 +57,7 @@ export function createGrowthHttp({
     try {
       res = await doFetch(`${baseUrl}${path}`, { method, credentials: "include", ...init });
     } catch {
-      throw new HubError(
-        0,
-        "network",
-        `Can't reach OpenSpace at ${baseUrl}. Check your connection.`,
-      );
+      throw new HubError(0, "network", unreachableMessage());
     }
     if (!res.ok) throw await readError(res);
     return res;

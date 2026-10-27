@@ -3,6 +3,13 @@ import { createCatalogHttp } from "./catalog-http";
 import { createGrowthHttp } from "./growth-http";
 import { createManageHttp } from "./manage-http";
 import {
+  BUSY_MESSAGE,
+  type RetryOptions,
+  TRANSIENT_STATUSES,
+  unreachableMessage,
+  withRetry,
+} from "./resilience";
+import {
   type AgentUndoResult,
   type CreateSiteInput,
   type FixResult,
@@ -32,6 +39,8 @@ export interface HttpHubOptions {
   navigate?: (url: string) => void;
   /** WebSocket constructor for the draft room (overridable for tests). */
   WebSocket?: typeof WebSocket;
+  /** Backoff for idempotent requests on network errors / 502-504 (`false` turns it off). */
+  retry?: RetryOptions | false;
 }
 
 const SIGNED_OUT: Session = { user: null, auth: { github: true, dev: false } };
@@ -47,7 +56,11 @@ export async function readError(res: Response): Promise<HubError> {
       message = body.error.message ?? message;
     }
   } catch {
-    // Non-JSON error body; keep the status text.
+    // Non-JSON error body (e.g. the platform's HTML error page); keep the status text.
+    if (TRANSIENT_STATUSES.has(res.status)) {
+      code = "unavailable";
+      message = BUSY_MESSAGE;
+    }
   }
   return new HubError(res.status, code, message);
 }
@@ -55,12 +68,18 @@ export async function readError(res: Response): Promise<HubError> {
 /** Hub client over fetch. Cookies carry the session (`credentials: "include"`). */
 export function createHttpHub(options: HttpHubOptions = {}): HubApi {
   const baseUrl = (options.baseUrl ?? DEFAULT_HUB_URL).replace(/\/+$/, "");
-  const doFetch = options.fetch ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
+  const baseFetch = options.fetch ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
+  const doFetch = options.retry === false ? baseFetch : withRetry(baseFetch, options.retry);
   const navigate = options.navigate ?? ((url: string) => window.location.assign(url));
 
   const site = (id: string) => `/api/sites/${encodeURIComponent(id)}`;
 
-  async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  async function request<T>(
+    method: string,
+    path: string,
+    body?: unknown,
+    extraHeaders?: Record<string, string>,
+  ): Promise<T> {
     let res: Response;
     try {
       res = await doFetch(`${baseUrl}${path}`, {
@@ -69,15 +88,12 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
         headers: {
           Accept: "application/json",
           ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+          ...extraHeaders,
         },
         body: body !== undefined ? JSON.stringify(body) : undefined,
       });
     } catch {
-      throw new HubError(
-        0,
-        "network",
-        `Can't reach OpenSpace at ${baseUrl}. Check your connection.`,
-      );
+      throw new HubError(0, "network", unreachableMessage());
     }
     if (!res.ok) throw await readError(res);
     if (res.status === 204) return undefined as T;
@@ -134,8 +150,13 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
       return "site" in res ? res.site : res;
     },
 
-    async createSite(input: CreateSiteInput) {
-      const res = await request<{ site: Site } | Site>("POST", "/api/sites", input);
+    async createSite(input: CreateSiteInput, opts) {
+      const res = await request<{ site: Site } | Site>(
+        "POST",
+        "/api/sites",
+        input,
+        opts?.idempotencyKey ? { "Idempotency-Key": opts.idempotencyKey } : undefined,
+      );
       return "site" in res ? res.site : res;
     },
 

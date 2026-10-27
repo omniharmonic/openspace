@@ -55,6 +55,9 @@ describe("tablet (834px): one side panel at a time", () => {
     await waitFor(() => expect(ui().onePanel).toBe(true));
     expect(ui().leftPanel).toBeNull();
     expect(ui().inspectorOpen).toBe(true);
+    // The tablet layout, fitted, rather than the 1440px desktop page at ~30%.
+    expect(ui().breakpoint).toBe("tablet");
+    expect(ui().zoom).toBe("fit");
 
     const rail = screen.getByRole("navigation", { name: "Panels" });
     await user.click(within(rail).getByRole("button", { name: /^Layers/ }));

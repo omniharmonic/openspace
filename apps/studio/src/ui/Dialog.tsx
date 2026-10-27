@@ -33,6 +33,9 @@ export function Dialog({
   className,
 }: DialogProps) {
   const content = useRef<HTMLDivElement>(null);
+  // Without a Radix trigger (dialogs opened from state), Radix has nowhere to send focus on
+  // close; send it back to whatever opened the dialog (e.g. the Publish button).
+  const opener = useRef<HTMLElement | null>(null);
   return (
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       {trigger && <RDialog.Trigger asChild>{trigger}</RDialog.Trigger>}
@@ -42,12 +45,22 @@ export function Dialog({
           ref={content}
           className={cx("st-dialog", className)}
           onOpenAutoFocus={(e) => {
+            const active = document.activeElement;
+            opener.current =
+              active instanceof HTMLElement && active !== document.body ? active : null;
             // Prefer a field marked data-autofocus over the close button.
             const target = content.current?.querySelector<HTMLElement>("[data-autofocus]");
             if (target) {
               e.preventDefault();
               target.focus();
             }
+          }}
+          onCloseAutoFocus={(e) => {
+            const back = opener.current;
+            opener.current = null;
+            if (trigger || !back?.isConnected) return;
+            e.preventDefault();
+            back.focus();
           }}
           style={{ width: `min(${width}px, calc(100vw - 32px))` }}
           {...(description ? {} : NO_DESCRIPTION)}

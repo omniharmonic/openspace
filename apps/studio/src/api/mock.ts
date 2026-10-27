@@ -180,6 +180,8 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   };
 
   const calls: MockHub["calls"] = [];
+  /** `user:key` → site id, for Idempotency-Key replays of createSite. */
+  const createKeys = new Map<string, string>();
   const wait = () => (latency > 0 ? new Promise((r) => setTimeout(r, latency)) : Promise.resolve());
 
   const signIn = (user: User) => {
@@ -729,10 +731,14 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       save();
     },
 
-    async createSite(input: CreateSiteInput) {
-      calls.push({ method: "createSite", args: [input] });
+    async createSite(input: CreateSiteInput, opts) {
+      calls.push({ method: "createSite", args: [input, opts] });
       await wait();
       const user = requireUser();
+      // Like the Hub: a repeat of the same Idempotency-Key answers with the site it made.
+      const replay = opts?.idempotencyKey && createKeys.get(`${user.id}:${opts.idempotencyKey}`);
+      const replayed = replay ? state.sites.find((s) => s.id === replay) : undefined;
+      if (replayed) return clone(replayed);
       const template = templates.find((t) => t.id === input.template);
       if (!template)
         throw new HubError(
@@ -764,6 +770,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       state.sites.push(site);
       state.readyAt[site.id] = now() + buildMs;
       state.attempts[site.id] = 1;
+      if (opts?.idempotencyKey) createKeys.set(`${user.id}:${opts.idempotencyKey}`, site.id);
       save();
       return clone(site);
     },
