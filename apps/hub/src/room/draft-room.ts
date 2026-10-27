@@ -32,7 +32,7 @@ import {
 } from "../services/gated-content";
 import { hostingChanges } from "../services/hosting";
 import { createServices, type Services } from "../services/index";
-import { assertPublishable } from "../services/publish-check";
+import { assertPublishable, siteKitFiles } from "../services/publish-check";
 import { recordNextScheduled } from "../services/site-automation";
 import {
   CONFIG_PATH,
@@ -1387,7 +1387,11 @@ export class DraftRoom extends DurableObject<HubBindings> {
         }
         // Refuse what the site's publish run would fail on (broken links, invalid content),
         // naming the page, block and link, before anything reaches main.
-        assertPublishable(this.state.doc as SiteDocument);
+        // Custom components also need a site-kit that renders them (main's package files).
+        const kit = await siteKitFiles(this.state.doc as SiteDocument, (path) =>
+          gh.readFile(repo, path, MAIN_BRANCH),
+        );
+        assertPublishable(this.state.doc as SiteDocument, kit);
         const pending = this.state.unpublished().filter((o) => o.seq <= this.state.flushedSeq);
         const first = pending[0];
         const before =

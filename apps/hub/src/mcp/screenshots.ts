@@ -75,7 +75,10 @@ export function draftScreenshots(
         services.now(),
       );
       const path = `/${pagePath.replace(/^\/+/, "")}`;
-      const url = `${services.config.hubUrl}/p/${siteId}${path}?os_shot=${encodeURIComponent(token)}`;
+      // The path may carry its own query (component previews); the token is added to it.
+      const target = new URL(`${services.config.hubUrl}/p/${siteId}${path}`);
+      target.searchParams.set("os_shot", token);
+      const url = target.toString();
       const [r] = await backend.capture([
         { url, width: req.width, fullPage: req.fullPage, sectionId: req.sectionId },
       ]);

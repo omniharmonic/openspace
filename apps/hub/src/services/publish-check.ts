@@ -1,4 +1,4 @@
-import { type PublishProblem, publishCheck } from "@omniharmonic/openspace-lint";
+import { type PublishProblem, publishCheck, usesComponents } from "@omniharmonic/openspace-lint";
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { HttpError } from "../lib/errors";
 
@@ -8,14 +8,33 @@ import { HttpError } from "../lib/errors";
  * refuse with what to fix instead of letting the run fail after the fact. Warnings (text links
  * that lead nowhere, members-only pages on GitHub Pages) never block.
  */
-export function assertPublishable(doc: SiteDocument): { warnings: PublishProblem[] } {
+export function assertPublishable(
+  doc: SiteDocument,
+  siteKit?: { packageJson?: string | null; packageLock?: string | null },
+): { warnings: PublishProblem[] } {
   // Links and the document's shape block; block field differences are left to the site's own
-  // check (its pinned block library is the authority on them).
-  const r = publishCheck(doc, { blocks: "warning" });
+  // check (its pinned block library is the authority on them). Custom components must be valid
+  // and pass their quality gates, and the site's site-kit must be able to render them.
+  const r = publishCheck(doc, { blocks: "warning", ...(siteKit ? { siteKit } : {}) });
   if (r.ok) return { warnings: r.warnings };
+  const kit = r.errors.find((e) => e.rule === "kit");
+  if (kit) throw new HttpError(409, "kit_update_needed", kit.message, { problems: r.errors });
   throw new HttpError(422, "publish_blocked", publishBlockedMessage(r.errors), {
     problems: r.errors,
   });
+}
+
+/** The site's package files on `main` (what its publish run installs), when the draft needs them. */
+export async function siteKitFiles(
+  doc: SiteDocument,
+  read: (path: string) => Promise<string | null>,
+): Promise<{ packageJson: string | null; packageLock: string | null } | undefined> {
+  if (!usesComponents(doc)) return undefined;
+  const [packageJson, packageLock] = await Promise.all([
+    read("package.json").catch(() => null),
+    read("package-lock.json").catch(() => null),
+  ]);
+  return { packageJson, packageLock };
 }
 
 /** "A button on Home links to /book, which isn't a page on your site. …" */
