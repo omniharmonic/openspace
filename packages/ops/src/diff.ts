@@ -309,7 +309,14 @@ export function diff(before: SiteDocument, after: SiteDocument, options: DiffOpt
     if (!deepEqual(wc[name], config))
       emit({ op: "collectionConfig.upsert", collection: name, config: clone(config) });
 
-  // 12. Components nobody uses any more (after the content that used them is gone).
+  // 12. The design-system record.
+  if (!deepEqual(work.designSystem, after.designSystem))
+    emit({
+      op: "designSystem.set",
+      designSystem: after.designSystem ? clone(after.designSystem) : null,
+    });
+
+  // 13. Components nobody uses any more (after the content that used them is gone).
   const ac2 = after.components;
   for (const name of Object.keys(work.components ?? {}))
     if (!ac2 || !Object.hasOwn(ac2, name))

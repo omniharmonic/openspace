@@ -38,6 +38,7 @@ const REQUIRED = [
   "guides/publishing",
   "guides/domains",
   "guides/migrate-to-openspace",
+  "guides/start-with-claude",
   "guides/migrate-from-squarespace",
   "connect-your-ai",
   "connect-your-ai/claude",
@@ -87,7 +88,7 @@ describe("docs content", () => {
     ).join("\n");
     for (const t of local) expect(localSource, t).toContain(`name: "${t}"`);
     // Hub-only account tools (apps/hub/src/mcp/tools/account.ts).
-    const hubOnly = ["create_site", "import_status"];
+    const hubOnly = ["create_site", "import_status", "start_site"];
     const tools = new Set([...ALL_TOOLS.map((t) => t.name), ...local, ...hubOnly]);
     const prompts = new Set(PROMPTS.map((p) => p.name));
     const unknown: string[] = [];
@@ -194,6 +195,7 @@ describe("docs build", () => {
     expect(files).toContain("index.html");
     // Claude app skills, generated at build time and linked from the docs and Studio.
     for (const name of [
+      "openspace-design-from-scratch",
       "openspace-migrate",
       "openspace-web-design",
       "openspace-content",

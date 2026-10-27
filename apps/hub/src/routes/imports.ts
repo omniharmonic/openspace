@@ -26,6 +26,7 @@ import {
   siteImportView,
 } from "../services/imports";
 import type { AppEnv } from "../types";
+import { uploadImport } from "./start";
 
 export const importRoutes = new Hono<AppEnv>();
 export const siteImportRoutes = new Hono<AppEnv>();
@@ -38,6 +39,9 @@ importRoutes.post("/", async (c) => {
     201,
   );
 });
+
+/** "Upload a page": an HTML file or zip (a page Claude made) → an editable site, live at once. */
+importRoutes.post("/html", (c) => uploadImport(c));
 
 importRoutes.post("/convert", async (c) => {
   const user = requireUser(c);

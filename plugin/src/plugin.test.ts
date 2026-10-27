@@ -34,7 +34,7 @@ import {
 const LOCAL_TOOLS = ["import_site", "import_squarespace", "screenshot_url", "compare_fidelity"];
 const CLI_MCP = join(REPO_ROOT, "packages", "cli", "src", "mcp");
 /** Hub-only tools (the remote connector's account-level tools; defined in apps/hub). */
-const HUB_TOOLS = ["create_site", "list_templates", "import_status"];
+const HUB_TOOLS = ["create_site", "list_templates", "import_status", "start_site"];
 const TOOL_NAMES = new Set([...ALL_TOOLS.map((t) => t.name), ...LOCAL_TOOLS, ...HUB_TOOLS]);
 const read = (rel: string) => readFileSync(join(PLUGIN_ROOT, rel), "utf8");
 
@@ -70,6 +70,7 @@ describe("plugin structure (plugin-validator checklist)", () => {
     const base = (p: string) => p.split("/").pop();
     expect(commandFiles().map(base)).toEqual([
       "design-check.md",
+      "design-from-scratch.md",
       "import-squarespace.md",
       "iterate.md",
       "migrate.md",
@@ -79,6 +80,7 @@ describe("plugin structure (plugin-validator checklist)", () => {
     ]);
     expect(skillFiles().map((p) => p.split("/").at(-2))).toEqual([
       "openspace-content",
+      "openspace-design-from-scratch",
       "openspace-migrate",
       "openspace-site-setup",
       "openspace-web-design",
@@ -434,6 +436,20 @@ describe("every JSON example in the skills and commands is valid", () => {
       expect(
         (placed.structuredContent?.findings ?? []).filter((f) => f.severity === "error"),
       ).toEqual([]);
+      return;
+    }
+    // Design-system tokens: saved and applied through the real tool.
+    if (value.colors && value.fonts) {
+      const r = (await server.handle({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "tools/call",
+        params: {
+          name: "update_design_system",
+          arguments: { changes: { tokens: value }, applyToStyles: true },
+        },
+      })) as unknown as { result: { isError?: boolean; content: { text?: string }[] } };
+      expect(r.result.isError ?? false, r.result.content[0]?.text).toBe(false);
       return;
     }
     // Anything else must be a create_post call: run it through the real server.

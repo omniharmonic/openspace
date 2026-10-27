@@ -6,6 +6,9 @@ import {
   type ImportStarted,
   type ImportView,
   importInProgress,
+  type StartInput,
+  type StartStarted,
+  type UploadPageInput,
 } from "./import-types";
 import { queryKeys } from "./queries";
 import { isTransientError } from "./resilience";
@@ -81,6 +84,34 @@ export function useCreateImport() {
   const started = useStarted();
   return useMutation({
     mutationFn: (input: ImportInput) => hub.createImport(input),
+    onSuccess: started,
+  });
+}
+
+function useSiteStarted() {
+  const qc = useQueryClient();
+  return (r: StartStarted) => {
+    qc.setQueryData(queryKeys.site(r.site.id), r.site);
+    qc.setQueryData<Site[]>(queryKeys.sites, (prev) => (prev ? [r.site, ...prev] : prev));
+  };
+}
+
+/** Start with Claude: a new site from a brief and brand material. */
+export function useStartSite() {
+  const hub = useHub();
+  const started = useSiteStarted();
+  return useMutation({
+    mutationFn: (input: StartInput) => hub.startSite(input),
+    onSuccess: started,
+  });
+}
+
+/** Move my site → upload a page (an HTML file or zip). */
+export function useUploadPage() {
+  const hub = useHub();
+  const started = useSiteStarted();
+  return useMutation({
+    mutationFn: (input: UploadPageInput) => hub.uploadPage(input),
     onSuccess: started,
   });
 }

@@ -56,6 +56,10 @@ export const MIGRATE_GUIDE = `${DOCS}/guides/migrate-to-openspace/`;
 /** Studio's "Move my site": paste an address, nothing to install (the non-technical path). */
 export const STUDIO_MOVE = `${STUDIO}/move`;
 const MOVE = url(STUDIO_MOVE);
+/** Studio's "Start with Claude": an idea and a brand (or a page Claude made) → a live site. */
+export const STUDIO_START = `${STUDIO}/start`;
+const START_CLAUDE = url(STUDIO_START);
+export const START_GUIDE = `${DOCS}/guides/start-with-claude/`;
 
 /**
  * Donation links: Stripe Payment Links, one per amount (US dollars). This is the ONE place they
@@ -221,7 +225,7 @@ function hero() {
   });
   const lead = text([
     rt.p(
-      "A website that's yours to keep, hosted free, with no monthly bill. Start from a designer template, or move the site you already have: paste its address and we bring it across.",
+      "A website that's yours to keep, hosted free, with no monthly bill. Start from a designer template, move the site you already have, or start with Claude: describe your idea, bring your brand, and Claude designs it with you.",
     ),
   ]);
   const cta = button("Start free", START, {
@@ -352,6 +356,48 @@ function move() {
     ],
     { cols: [5, 7], t: [12], gap: "2xl", width: "wide" },
     { theme: "dark", anchor: "move", label: "Move your site" },
+  );
+}
+
+function startWithClaude() {
+  const step = (h: string, t: string) => ({ heading: h, body: body(t) });
+  return section(
+    [
+      heading("Or start with Claude", {
+        sub: "Tell us what your site is for, who it's for and how it should feel. Bring your brand if you have one: a Claude design system, a Canva brand kit, your logo and photos, or a page Claude already made you. A good site goes live in minutes, then Claude designs it properly with you.",
+        col: 0,
+      }),
+      button("Start with Claude", START_CLAUDE, { col: 0, size: "large" }),
+      button("How it works", url(START_GUIDE), { col: 0, role: "secondary" }),
+      block(
+        "columns",
+        {
+          items: [
+            step(
+              "Describe your idea",
+              "In your own words: what it's for, who comes, three words for how it should feel. No forms full of options.",
+            ),
+            step(
+              "Bring what you have",
+              "Your colours, fonts and sizes from a design-token file, your logo and photos, a brand guide. A page Claude made becomes the site itself, every word and picture editable.",
+            ),
+            step(
+              "Live straight away",
+              "The closest template, in your brand and checked for readability, goes online on free hosting in a couple of minutes. Nothing to install.",
+            ),
+            step(
+              "Claude makes it yours",
+              "Connect Claude and it works like a designer: two or three directions to choose from, your design system, a page plan, bespoke sections, and a screenshot check at every step.",
+            ),
+          ],
+          columns: "2",
+          aspect: "original",
+        },
+        { variant: "steps", col: 1 },
+      ),
+    ],
+    { cols: [5, 7], t: [12], gap: "2xl", width: "wide" },
+    { theme: "light-accent", anchor: "start-with-claude", label: "Start with Claude" },
   );
 }
 
@@ -1055,6 +1101,7 @@ function home() {
       hero(),
       numbers(),
       move(),
+      startWithClaude(),
       why(),
       cost(),
       lockin(),

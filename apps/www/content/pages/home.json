@@ -135,7 +135,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "A website that's yours to keep, hosted free, with no monthly bill. Start from a designer template, or move the site you already have: paste its address and we bring it across."
+                      "text": "A website that's yours to keep, hosted free, with no monthly bill. Start from a designer template, move the site you already have, or start with Claude: describe your idea, bring your brand, and Claude designs it with you."
                     }
                   ]
                 }
@@ -532,6 +532,157 @@
                         {
                           "type": "text",
                           "text": "The domain wizard shows the exact records to change and checks them until HTTPS is on. Only then do you cancel the old plan."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "steps",
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_fcxbpagfvd",
+      "label": "Start with Claude",
+      "anchor": "start-with-claude",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "t": [
+            12
+          ],
+          "m": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_6s767bf29z",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Or start with Claude",
+            "subheading": "Tell us what your site is for, who it's for and how it should feel. Bring your brand if you have one: a Claude design system, a Canva brand kit, your logo and photos, or a page Claude already made you. A good site goes live in minutes, then Claude designs it properly with you."
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_vtgrz4g1qw",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "primary",
+            "label": "Start with Claude",
+            "link": {
+              "type": "url",
+              "url": "https://studio.openspace.host/start"
+            }
+          },
+          "variant": "large",
+          "column": 0
+        },
+        {
+          "id": "blk_cjbq9t1n3r",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "secondary",
+            "label": "How it works",
+            "link": {
+              "type": "url",
+              "url": "https://docs.openspace.host/guides/start-with-claude/"
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_pe3vjwp7vm",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "columns": "2",
+            "aspect": "original",
+            "items": [
+              {
+                "heading": "Describe your idea",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "In your own words: what it's for, who comes, three words for how it should feel. No forms full of options."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Bring what you have",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Your colours, fonts and sizes from a design-token file, your logo and photos, a brand guide. A page Claude made becomes the site itself, every word and picture editable."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Live straight away",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "The closest template, in your brand and checked for readability, goes online on free hosting in a couple of minutes. Nothing to install."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Claude makes it yours",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Connect Claude and it works like a designer: two or three directions to choose from, your design system, a page plan, bespoke sections, and a screenshot check at every step."
                         }
                       ]
                     }

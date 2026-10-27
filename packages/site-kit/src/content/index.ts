@@ -13,6 +13,9 @@ import {
   CollectionItemSchema,
   type ComponentDefinition,
   ComponentDefinitionSchema,
+  DESIGN_SYSTEM_FILE,
+  type DesignSystem,
+  DesignSystemSchema,
   type MediaMeta,
   type Page,
   PageSchema,
@@ -245,8 +248,14 @@ export async function loadSite(rootDir: string, opts: LoadOptions = {}): Promise
     components[name] = def;
   }
 
+  // The design-system record (optional; Claude's design skills keep to it).
+  const dsRaw = await readJson(DESIGN_SYSTEM_FILE, false);
+  const designSystem: DesignSystem | undefined =
+    dsRaw === undefined ? undefined : check(DesignSystemSchema, dsRaw, DESIGN_SYSTEM_FILE);
+
   if (issues.length || !config || !site || !styles) throw new SiteContentError(issues);
   const doc: SiteDocument = { config, site, styles, pages, collections, media };
+  if (designSystem) doc.designSystem = designSystem;
   if (Object.keys(collectionConfigs).length) doc.collectionConfigs = collectionConfigs;
   if (Object.keys(components).length) doc.components = components;
 
@@ -301,6 +310,8 @@ function fileForDocPath(path: (string | number)[], pageFiles: Record<string, str
       return `${COLLECTIONS_DIR}/${a}/${COLLECTION_CONFIG_FILE}`;
     case "components":
       return `${COMPONENTS_DIR}/${a}.json`;
+    case "designSystem":
+      return DESIGN_SYSTEM_FILE;
     default:
       return "content";
   }
@@ -448,6 +459,16 @@ export async function writeSiteDocument(
   } catch {
     // No collections folder.
   }
+
+  // The design-system record: written when present, removed when the document drops it.
+  if (doc.designSystem) await put(DESIGN_SYSTEM_FILE, formatJson(doc.designSystem));
+  else
+    try {
+      await readFile(join(rootDir, DESIGN_SYSTEM_FILE));
+      await remove(DESIGN_SYSTEM_FILE);
+    } catch {
+      // None on disk.
+    }
 
   // Custom components: one file each; files of removed components are deleted.
   const components = doc.components ?? {};

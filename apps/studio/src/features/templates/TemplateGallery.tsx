@@ -5,6 +5,7 @@ import {
   LayoutTemplate,
   Monitor,
   Smartphone,
+  Sparkles,
   Tablet,
 } from "lucide-react";
 import { useState } from "react";
@@ -171,6 +172,20 @@ export function TemplateGallery() {
             online in a few minutes. Browse as long as you like — no account needed.
           </p>
         </div>
+        <Link to="/start" className="st-gallery__move st-gallery__move--claude">
+          <span className="st-gallery__move-icon" aria-hidden="true">
+            <Sparkles />
+          </span>
+          <span className="st-gallery__move-text">
+            <strong>Start with Claude</strong>
+            <span>
+              Describe your idea and bring your brand — a design system, a Canva brand kit, your
+              logo and photos, or a page Claude made you. A site goes live in minutes, then Claude
+              designs it with you.
+            </span>
+          </span>
+          <ArrowRight className="st-gallery__move-go" aria-hidden="true" />
+        </Link>
         <Link to="/move" className="st-gallery__move">
           <span className="st-gallery__move-icon" aria-hidden="true">
             <ArrowRightLeft />

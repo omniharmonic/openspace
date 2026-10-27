@@ -111,6 +111,7 @@ ${typeClasses}
 /* Stack mode: 1–4 columns, per-breakpoint ratios (--cols/--tcols/--mcols) and order (--to/--mo) */
 .os-stack{display:grid;max-inline-size:calc(var(--content-max) + 2 * ${v(T.section.gutter)});padding-inline:${v(T.section.gutter)};grid-template-columns:var(--mcols,minmax(0,1fr));row-gap:var(--gap,${v(T.section.blockGap)});column-gap:var(--gap,${v(T.space.xl)});align-items:start}
 .os-w-full.os-stack{max-inline-size:none}
+.os-stack.is-bleed{padding-inline:0}
 .os-stack.is-align-center{align-items:center}
 .os-stack.is-align-end{align-items:end}
 .os-stack.is-align-stretch{align-items:stretch}

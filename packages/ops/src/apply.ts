@@ -392,6 +392,11 @@ export function mutate(doc: SiteDocument, op: Op): void {
       if (!op.keepEmpty && Object.keys(components).length === 0) delete doc.components;
       return;
     }
+    case "designSystem.set": {
+      if (op.designSystem === null) delete doc.designSystem;
+      else doc.designSystem = clone(op.designSystem);
+      return;
+    }
     default: {
       const never: never = op;
       throw new OpError(`Unknown op ${(never as { op: string }).op}`, ["op"]);

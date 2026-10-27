@@ -63,6 +63,7 @@ import { personalizeDocument } from "./personalize";
 import { draftReady } from "./publishing";
 import { refreshRepoIdentity, syncTurnstileVariable } from "./site-automation";
 import { CONFIG_PATH, isDocumentPath, loadSiteDocument, siteDocumentToFiles } from "./site-files";
+import { applyStart, type StartSetup, startHtmlFiles } from "./start-with-claude";
 import type { TemplateMeta } from "./templates";
 
 // --- API shapes ----------------------------------------------------------------------------------
@@ -310,6 +311,8 @@ export async function getSiteView(services: Services, id: string, user: User, lo
 export interface SiteSetup {
   /** A hosted import ("Move my site"): the first files are the shell, a placeholder and the import. */
   import?: { request: ImportRequest; sourceLabel: string };
+  /** Start with Claude: the brief, brand material (uploads in R2) and/or a page they made. */
+  start?: StartSetup;
   template: string;
   look: string;
   tagline: string | null;
@@ -364,6 +367,8 @@ async function buildSiteFiles(
       request: setup.import.request,
     });
   }
+  if (setup.start?.html)
+    return startHtmlFiles(services, site, setup as SiteSetup & { start: StartSetup });
   const template = await services.templates.load(setup.template);
   if (!template) throw new HttpError(404, "template_not_found", "That template doesn't exist.");
   const look = template.meta.looks.find((l) => l.id === setup.look);
@@ -400,6 +405,16 @@ async function buildSiteFiles(
       issues: (err as { issues?: unknown }).issues,
     });
   }
+  // Start with Claude: the template wears the person's brand, photos and brief.
+  let startFiles: Record<string, string | FileContent> = {};
+  if (setup.start) {
+    const r = await applyStart(services, setup as SiteSetup & { start: StartSetup }, {
+      doc,
+      templateName: template.meta.name,
+    });
+    doc = r.doc;
+    startFiles = r.files;
+  }
   // The public Turnstile key also lives in openspace.json (site-kit's fallback when the
   // repository variable is missing).
   const turnstileSiteKey = services.pub.config.turnstile.siteKey;
@@ -433,7 +448,18 @@ async function buildSiteFiles(
     }
     files[setup.logo.path] = { content: b64, encoding: "base64" };
   }
+  Object.assign(files, startFiles);
   return files;
+}
+
+/** A Start-with-Claude site's first files (built at create time and on resume). */
+export function buildStartFiles(
+  services: Services,
+  site: { id: string; name: string; repo?: string },
+  setup: SiteSetup,
+  actor: string,
+): Promise<Record<string, string | FileContent>> {
+  return buildSiteFiles(services, site, setup, actor);
 }
 
 function parseSetup(row: Pick<SiteRow, "setup_json">): SiteSetup | null {

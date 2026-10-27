@@ -13,6 +13,7 @@ export * from "./collections";
 export * from "./components";
 export * from "./config";
 export * from "./define-block";
+export * from "./design-system";
 export * from "./document";
 export * from "./fields";
 export * from "./form";

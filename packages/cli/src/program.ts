@@ -8,6 +8,7 @@ import { EJECT_WARNING, runEject } from "./eject";
 import { addFidelityToSummary, browserReady, compareSummary, runCompare } from "./fidelity";
 import { type GatedSyncDeps, runGatedSync } from "./gated-sync";
 import { importSummary, runImportSite } from "./import";
+import { importHtmlSummary, isHtmlSource, runImportHtml, serveBundle } from "./import-html";
 import { CliError, colorEnabled, type Io, paint } from "./io";
 import { runMcp } from "./mcp";
 import { runMigrate } from "./migrate";
@@ -262,6 +263,18 @@ export function createProgram(
     platform: Platform | "auto",
   ) => {
     assertGitHubPagesStart(opts.target);
+    // A page file or zip (a page Claude made): the HTML importer.
+    if (platform === "auto" && isHtmlSource(url)) {
+      const r = await runImportHtml(io, url, dir, {
+        ...(opts.intoExisting ? { intoExisting: true } : {}),
+        ...(opts.summary ? { summary: opts.summary } : {}),
+        ...(opts.title ? { title: opts.title } : {}),
+        ...(deps.fetch ? { fetch: deps.fetch } : {}),
+      });
+      for (const line of importHtmlSummary(r)) io.out(line);
+      if (!r.check.ok) setExit(1);
+      return;
+    }
     // Flags a subcommand accepts only for compatibility have no effect there.
     opts = { ...opts };
     if (platform !== "auto" && platform !== "squarespace") delete opts.owner;
@@ -396,6 +409,80 @@ export function createProgram(
   ).action((url: string, dir: string | undefined, opts: ImportFlags) =>
     runImportCommand(url, dir, opts, "generic"),
   );
+
+  importCmd
+    .command("html")
+    .description(
+      "Import a page Claude (or anyone) made: a single HTML file, an artifact export, a folder or .zip of HTML/CSS/images, or a page's address. Every section keeps its design as a designer component whose words, pictures and links you edit in Studio.",
+    )
+    .argument("<source>", "an .html file, a folder, a .zip, or https://… address")
+    .argument("[dir]", "new folder to create (default: from the file name)")
+    .option("--entry <file>", "the page to start from in a folder or zip (default index.html)")
+    .option(
+      "--into-existing",
+      "import into an existing OpenSpace site folder: keep its openspace.json and replace its content and media",
+    )
+    .option("--summary <file>", "also write a JSON summary (pages, components, check result)")
+    .option("--title <title>", "site title (default: the page's)")
+    .option("--repo <owner/name>", "GitHub repository, used for the Pages address")
+    .option("--url <url>", "address the new site is served from before a custom domain")
+    .option("--domain <hostname>", "custom domain")
+    .option("--hub <url>", "Hub address")
+    .option("--no-render", "don't render script-styled pages (Tailwind CDN…) in a browser first")
+    .option(
+      "--compare",
+      "afterwards, compare the import with the original in a browser (needs Playwright)",
+    )
+    .option("--compare-out <dir>", "where --compare writes its report (default <dir>/.fidelity)")
+    .action(
+      async (
+        source: string,
+        dir: string | undefined,
+        opts: {
+          entry?: string;
+          intoExisting?: boolean;
+          summary?: string;
+          title?: string;
+          repo?: string;
+          url?: string;
+          domain?: string;
+          hub?: string;
+          render?: boolean;
+          compare?: boolean;
+          compareOut?: string;
+        },
+      ) => {
+        const { compare, compareOut, ...rest } = opts;
+        io.err(`Importing ${source}…`);
+        const r = await runImportHtml(io, source, dir ?? (opts.intoExisting ? "." : undefined), {
+          ...rest,
+          ...(deps.fetch ? { fetch: deps.fetch } : {}),
+        });
+        for (const line of importHtmlSummary(r)) io.out(line);
+        if (compare) {
+          const served = r.bundle.siteUrl ? undefined : await serveBundle(r.bundle);
+          try {
+            const original = r.bundle.siteUrl ?? (served as { url: string }).url;
+            io.err(`Comparing with ${r.bundle.label} in a browser…`);
+            const c = await runCompare(
+              original,
+              r.dir,
+              compareOut ? { out: resolve(io.cwd, compareOut) } : {},
+              (l) => io.err(`  ${l}`),
+            );
+            for (const line of compareSummary(c)) io.out(line);
+          } finally {
+            await served?.close();
+          }
+        }
+        if (!r.check.ok) setExit(1);
+        if (!opts.intoExisting) {
+          io.out("Next:");
+          io.out(`  cd ${r.dir}`);
+          io.out("  npm install && npx openspace dev");
+        }
+      },
+    );
 
   program
     .command("compare")

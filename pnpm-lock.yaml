@@ -87,6 +87,9 @@ importers:
       '@omniharmonic/openspace-email-render':
         specifier: workspace:*
         version: link:../../packages/email-render
+      '@omniharmonic/openspace-import':
+        specifier: workspace:*
+        version: link:../../packages/import
       '@omniharmonic/openspace-lint':
         specifier: workspace:*
         version: link:../../packages/lint
@@ -516,6 +519,15 @@ importers:
       '@omniharmonic/openspace-theme':
         specifier: workspace:*
         version: link:../theme
+      css-select:
+        specifier: 6.0.0
+        version: 6.0.0
+      css-what:
+        specifier: 7.0.0
+        version: 7.0.0
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       liquidjs:
         specifier: 10.29.0
         version: 10.29.0
