@@ -2,15 +2,20 @@
 
 The `openspace` command line: `check`, `dev`, `migrate`, `new`, `import`, `eject`, `agents-md` and `mcp`.
 
-## `openspace import squarespace <url> [dir]` — move a Squarespace site
+## `openspace import <url> [dir]` — move a site from anywhere
 
-Creates a new site folder from a Squarespace 7.0/7.1 site: pages and sections, blog, events,
-products, images, navigation, forms, SEO, redirects and a Site Styles approximation of the look,
-plus `IMPORT-REPORT.md`; then runs `openspace check`. Options: `--owner` (you own the site: also
-read `?format=json`), `--export <wordpress.xml>` (complete blog posts), `--target`, `--repo`,
-`--url`, `--domain`, `--title`, `--hub`, `--max-pages`, `--delay`, `--no-media`. Requests are
-paced and robots.txt is honoured. The local MCP server offers the same as `import_squarespace`,
-and `screenshot_url` to compare the original site with the new one.
+Creates a new site folder from an existing site. The platform is detected from the home page,
+or name the importer: `import squarespace` (7.0/7.1: pages and sections, blog, events, products),
+`import wordpress` (public REST API and/or a WXR export: pages, posts, menus, Yoast/Rank Math SEO,
+permalink redirects), `import url` (any site — Wix, Webflow, Carrd, Framer, hand-made HTML: sitemap
+crawl, main content, navigation, footer, look, closest section presets). Every importer brings
+images, navigation, forms, SEO, redirects and a Site Styles approximation of the look, writes
+`IMPORT-REPORT.md` and runs `openspace check`. Options: `--platform` (skip detection), `--owner`
+(Squarespace: also read `?format=json`), `--export <wxr.xml>`, `--render` (read script-built pages
+in a browser; needs Playwright), `--target`, `--repo`, `--url`, `--domain`, `--title`, `--hub`,
+`--max-pages`, `--delay`, `--no-media`. Requests are paced and robots.txt is honoured. The local MCP
+server offers the same as `import_site` (`import_squarespace` is its older name), and
+`screenshot_url` to compare the original site with the new one.
 
 ## `openspace mcp [dir]` — let Claude edit and design your site
 

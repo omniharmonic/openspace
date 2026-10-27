@@ -56,7 +56,8 @@ The local server (`openspace mcp`, used by the Claude Code plugin) adds two tool
 | Tool | What it does |
 |---|---|
 | `screenshot_url` | PNG of any public page — for example the site you're moving from — at desktop, tablet or phone width, to compare with `screenshot`. |
-| `import_squarespace` | Imports a Squarespace site into a new folder next to the site being served (asks for confirmation first). See [Move from Squarespace](/guides/migrate-from-squarespace/). |
+| `import_site` | Imports a site from any platform — Squarespace, WordPress, Wix, Webflow or any HTML site, detected automatically — into a new folder next to the site being served (asks for confirmation first). See [Move your site to OpenSpace](/guides/migrate-to-openspace/). |
+| `import_squarespace` | The older name of `import_site`, for Squarespace sites. |
 
 ## Prompts
 

@@ -2,7 +2,7 @@
   "name": "@omniharmonic/openspace-import",
   "version": "0.1.2",
   "private": true,
-  "description": "Move an existing website into OpenSpace: the Squarespace importer behind `openspace import squarespace`.",
+  "description": "Move an existing website into OpenSpace from anywhere: the Squarespace, WordPress and generic HTML importers behind `openspace import`.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,

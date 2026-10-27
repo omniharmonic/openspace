@@ -37,6 +37,7 @@ const REQUIRED = [
   "guides/media",
   "guides/publishing",
   "guides/domains",
+  "guides/migrate-to-openspace",
   "guides/migrate-from-squarespace",
   "connect-your-ai",
   "connect-your-ai/claude",
@@ -75,7 +76,7 @@ describe("docs content", () => {
 
   it("names only real MCP tools and prompts", async () => {
     // The local stdio server adds tools that reach the web (never served by the Hub).
-    const local = ["import_squarespace", "screenshot_url"];
+    const local = ["import_site", "import_squarespace", "screenshot_url"];
     const cliMcp = ["import-tool.ts", "reference-tool.ts"]
       .map((f) => join(REPO, "packages", "cli", "src", "mcp", f))
       .map((p) => (existsSync(p) ? p : ""));
@@ -117,12 +118,14 @@ describe("docs content", () => {
     expect(text).toMatch(/Deploy to Cloudflare/);
   });
 
-  it("documents the Squarespace import with the CLI's real options", async () => {
-    const text = await source("guides/migrate-from-squarespace");
+  it("documents the import for every platform with the CLI's real options", async () => {
+    const text = await source("guides/migrate-to-openspace");
     const program = await readFile(join(REPO, "packages", "cli", "src", "program.ts"), "utf8");
     for (const flag of [
       "--owner",
       "--export",
+      "--render",
+      "--platform",
       "--target",
       "--max-pages",
       "--delay",
@@ -131,9 +134,33 @@ describe("docs content", () => {
       expect(text, flag).toContain(flag);
       expect(program, flag).toContain(flag);
     }
-    expect(text).toContain("npx -y @omniharmonic/openspace-cli import squarespace");
-    expect(text).toContain("/openspace:import-squarespace");
-    expect(await source("developers/cli")).toContain("openspace import squarespace");
+    for (const heading of [
+      "### Squarespace",
+      "### WordPress",
+      "### Wix",
+      "### Webflow",
+      "### Anything else",
+    ])
+      expect(text, heading).toContain(heading);
+    for (const cmd of [
+      "npx -y @omniharmonic/openspace-cli import https://",
+      "npx -y @omniharmonic/openspace-cli import squarespace",
+      "npx -y @omniharmonic/openspace-cli import wordpress",
+      "npx -y @omniharmonic/openspace-cli import url",
+    ])
+      expect(text, cmd).toContain(cmd);
+    expect(text).toContain("/openspace:migrate");
+    expect(await source("guides/migrate-from-squarespace")).toContain(
+      "/guides/migrate-to-openspace/",
+    );
+    const cli = await source("developers/cli");
+    for (const c of [
+      "openspace import <url>",
+      "openspace import squarespace",
+      "openspace import wordpress",
+      "openspace import url",
+    ])
+      expect(cli, c).toContain(c);
   });
 
   it("gives the plugin install commands", async () => {
