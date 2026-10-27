@@ -48,7 +48,9 @@ test("template journey: live first, a tour that ends on 'it's yours', then Finis
   // "Need a hand?" knows what's next.
   await page.getByRole("button", { name: "Close settings" }).click();
   await page.getByRole("button", { name: "Need a hand?" }).click();
-  await expect(page.getByRole("heading", { name: "Next: Use your own domain" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Next: Get your form messages" })).toBeVisible();
+  await page.getByRole("button", { name: "Show me how" }).click();
+  await expect(page).toHaveURL(/\/settings\/setup$/);
 });
 
 // Journey 2 — a site with a shop on GitHub Pages: it publishes fine and looks finished (a designed
