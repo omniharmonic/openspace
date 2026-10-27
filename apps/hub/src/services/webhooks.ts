@@ -11,11 +11,8 @@ import type { Logger } from "../lib/log";
 import { roomStub, unwrapRoom } from "../room";
 import type { BuildState } from "../room/protocol";
 import { buildErrorDetail, type SiteNames, translateBuildError } from "./build-errors";
-<<<<<<< HEAD
-import { advanceSwitch } from "./hosting-switch";
-=======
 import { GITHUB_ACCESS_DETAIL, GITHUB_RECONNECT_DETAIL } from "./github-install";
->>>>>>> main
+import { advanceSwitch } from "./hosting-switch";
 import type { Services } from "./index";
 import { completeTransfer, ownerOf } from "./sites";
 

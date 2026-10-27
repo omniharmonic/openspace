@@ -650,6 +650,7 @@ function EditorChrome({ site }: { site: Site }) {
           onFrameDocument={setFrameDoc}
         />
       </Suspense>
+      <FirstRunTour site={site} />
       <InspectorRuntime />
       <WorkspaceHost site={site} />
       <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />
