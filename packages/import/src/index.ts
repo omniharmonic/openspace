@@ -13,8 +13,11 @@ import { dirname, join } from "node:path";
 import type { ImageResizer } from "@omniharmonic/openspace-mcp-tools";
 import type { SiteConfig, SiteDocument } from "@omniharmonic/openspace-schema";
 import { writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
+import { CHECKLIST_FILE, type SetupChecklist, setupChecklist } from "./checklist";
 import { type FetchFn, SiteFetcher } from "./fetch";
 import { crawlGeneric, type PageRenderer } from "./generic/crawl";
+import { crawlGitHub, type GitHubCrawl } from "./github/import";
+import { parseGitHubTarget } from "./github/target";
 import { type BuildResult, buildSite } from "./map/site";
 import { MediaImporter } from "./media";
 import { type Detection, detectPlatform, platformInfo, platformLabel } from "./platform";
@@ -25,8 +28,32 @@ import { crawlWordPress } from "./wordpress/crawl";
 
 export const name = "@omniharmonic/openspace-import";
 
+export {
+  CHECKLIST_FILE,
+  type SetupChecklist,
+  type SetupItem,
+  type SetupKind,
+  setupChecklist,
+} from "./checklist";
 export { parseRobots, RobotsDisallowed, robotsAllows, SiteFetcher, USER_AGENT } from "./fetch";
 export { crawlGeneric, type PageRenderer } from "./generic/crawl";
+export { detectRepo, type RepoDetection, type RepoKind } from "./github/detect";
+export { crawlGitHub, type GitHubCrawl, type GitHubCrawlOptions } from "./github/import";
+export { cleanPath, crawlJekyll, repoFetch } from "./github/jekyll";
+export { markdownToHtml, parseFrontMatter } from "./github/markdown";
+export {
+  GitHubSourceError,
+  githubRepoInfo,
+  githubRepoSource,
+  localRepoSource,
+  type RepoSource,
+} from "./github/source";
+export {
+  type GitHubTarget,
+  isGitHubAddress,
+  pagesUrlFor,
+  parseGitHubTarget,
+} from "./github/target";
 export { sitemapUrls } from "./html/discover";
 export { type HtmlPage, parseHtmlPage, sectionsFrom } from "./html/extract";
 export { bestRendition, imageFromImg, parseSrcset } from "./html/image";
@@ -82,11 +109,21 @@ export interface ImportOptions {
   delayMs?: number;
   /** Don't download media (structure-only dry run). */
   offline?: boolean;
+  /** GitHub imports: read the source from this checkout instead of the network. */
+  repoDir?: string;
+  /** GitHub API token (private repositories, rate limits). */
+  token?: string;
+  /** GitHub imports: the published address, when it isn't the default Pages one. */
+  siteUrl?: string;
+  /** SVG → PNG (icons); sharp in the CLI. */
+  rasterizeSvg?: (svg: Uint8Array) => Promise<Uint8Array>;
   onProgress?: (message: string) => void;
 }
 
 export interface ImportResult {
   site: SqSite;
+  /** Where a GitHub import read from (repository, branch, folder), and its custom domain. */
+  github?: Pick<GitHubCrawl, "repo" | "detection" | "domain">;
   /** How the platform was chosen (auto-detection), when it was. */
   detection?: Detection;
   doc: SiteDocument;
@@ -94,6 +131,8 @@ export interface ImportResult {
   /** Media files to write (repo path → bytes). */
   files: Map<string, Uint8Array>;
   report: string;
+  /** "Finish setting up" items for after the site is live (`content/setup-checklist.json`). */
+  checklist: SetupChecklist;
   requests: number;
 }
 
@@ -122,6 +161,7 @@ async function finish(
     ...(opts.resize ? { resize: opts.resize } : {}),
     now,
     ...(opts.offline ? { offline: true } : {}),
+    ...(opts.rasterizeSvg ? { rasterizeSvg: opts.rasterizeSvg } : {}),
     source: platformLabel(site.platform),
   });
   opts.onProgress?.("Mapping pages, collections and media…");
@@ -150,6 +190,7 @@ async function finish(
     build,
     files: media.files,
     report,
+    checklist: setupChecklist(site, build),
     requests: fetcher.requested.length,
   };
 }
@@ -208,6 +249,33 @@ export async function importUrl(
   }
 }
 
+/**
+ * Read a site from its GitHub repository (`owner/name`, a github.com or github.io address) or a
+ * checkout of it (`repoDir`): Jekyll from source, plain HTML from the files, other generators from
+ * their published pages.
+ */
+export async function importGitHub(opts: ImportOptions): Promise<ImportResult> {
+  const crawl = await crawlGitHub({
+    input: opts.url,
+    ...(opts.repoDir ? { dir: opts.repoDir } : {}),
+    ...(opts.siteUrl ? { siteUrl: opts.siteUrl } : {}),
+    ...(opts.fetch ? { fetch: opts.fetch as typeof fetch } : {}),
+    ...(opts.token ? { token: opts.token } : {}),
+    ...(opts.maxPages ? { maxPages: opts.maxPages } : {}),
+    ...(opts.offline ? { offline: true } : {}),
+    ...(opts.onProgress ? { onProgress: opts.onProgress } : {}),
+  });
+  const result = await finish(crawl.site, crawl.fetcher, opts);
+  return {
+    ...result,
+    github: {
+      ...(crawl.repo ? { repo: crawl.repo } : {}),
+      detection: crawl.detection,
+      ...(crawl.domain ? { domain: crawl.domain } : {}),
+    },
+  };
+}
+
 /** Fetch the home page and say which platform built the site. */
 export async function detectSite(
   url: string,
@@ -237,6 +305,25 @@ export async function detectSite(
 export async function importSite(opts: ImportOptions): Promise<ImportResult> {
   let detection: Detection | undefined;
   let platform: Platform;
+  // A GitHub repository or a github.io site: read it from its source.
+  if (opts.repoDir) return importGitHub(opts);
+  if (
+    (!opts.platform ||
+      opts.platform === "auto" ||
+      platformInfo(opts.platform).importer === "github") &&
+    parseGitHubTarget(opts.url) &&
+    !/^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/.test(opts.url.trim())
+  ) {
+    try {
+      return await importGitHub(opts);
+    } catch (e) {
+      // A github.io site whose repository can't be read (private, renamed): read the pages.
+      if (!/github\.io/i.test(opts.url)) throw e;
+      opts.onProgress?.(
+        `Couldn't read the repository (${(e as Error).message}); reading the published pages instead.`,
+      );
+    }
+  }
   if (!opts.platform || opts.platform === "auto") {
     opts.onProgress?.(`Detecting the platform of ${opts.url}…`);
     detection = await detectSite(opts.url, opts);
@@ -249,17 +336,19 @@ export async function importSite(opts: ImportOptions): Promise<ImportResult> {
   const result =
     importer === "squarespace"
       ? await importSquarespace(opts)
-      : importer === "wordpress"
-        ? await importWordPress({
-            ...opts,
-            ...(detection?.wpApi ? { apiRoot: detection.wpApi } : {}),
-            ...(detection?.generator ? { generator: detection.generator } : {}),
-          })
-        : await importUrl({
-            ...opts,
-            platform,
-            ...(detection?.generator ? { generator: detection.generator } : {}),
-          });
+      : importer === "github" && parseGitHubTarget(opts.url)
+        ? await importGitHub(opts)
+        : importer === "wordpress"
+          ? await importWordPress({
+              ...opts,
+              ...(detection?.wpApi ? { apiRoot: detection.wpApi } : {}),
+              ...(detection?.generator ? { generator: detection.generator } : {}),
+            })
+          : await importUrl({
+              ...opts,
+              platform,
+              ...(detection?.generator ? { generator: detection.generator } : {}),
+            });
   return detection ? { ...result, detection } : result;
 }
 
@@ -272,5 +361,7 @@ export async function writeImport(dir: string, result: ImportResult): Promise<{ 
   }
   const w = await writeSiteDocument(dir, result.doc);
   await writeFile(join(dir, REPORT_FILE), result.report);
-  return { written: w.written.length + result.files.size + 1 };
+  await mkdir(dirname(join(dir, CHECKLIST_FILE)), { recursive: true });
+  await writeFile(join(dir, CHECKLIST_FILE), `${JSON.stringify(result.checklist, null, 2)}\n`);
+  return { written: w.written.length + result.files.size + 2 };
 }

@@ -250,7 +250,7 @@ describe("the Squarespace migration skill and command", () => {
   it("the CLI has the import command the skill runs", () => {
     const program = readFileSync(join(REPO_ROOT, "packages", "cli", "src", "program.ts"), "utf8");
     expect(program).toMatch(/\.command\("import"\)/);
-    for (const sub of ["squarespace", "wordpress", "url"])
+    for (const sub of ["squarespace", "wordpress", "url", "github"])
       expect(program).toMatch(new RegExp(`\\.command\\("${sub}"\\)`));
     // `openspace import <url>`: the default subcommand detects the platform.
     expect(program).toMatch(/\.command\("site", \{ isDefault: true/);
@@ -259,7 +259,6 @@ describe("the Squarespace migration skill and command", () => {
       "--export",
       "--render",
       "--platform",
-      "--target",
       "--max-pages",
       "--delay",
       "--no-media",
@@ -267,6 +266,9 @@ describe("the Squarespace migration skill and command", () => {
     for (const flag of flags) expect(program).toContain(flag);
     const skill = read("skills/openspace-migrate/SKILL.md");
     for (const flag of flags) expect(skill).toContain(flag);
+    // Imports always land on free GitHub Pages hosting first: no hosting choice in the import.
+    expect(program).not.toMatch(/"--target <target>",\s*"github-pages or cloudflare \(use cloudflare to sell/);
+    expect(skill).not.toContain("--target cloudflare");
     for (const cmd of [
       "npx -y @omniharmonic/openspace-cli import https://",
       "npx -y @omniharmonic/openspace-cli import squarespace",

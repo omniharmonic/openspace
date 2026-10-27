@@ -28,11 +28,12 @@ const PLATFORMS = [
   "webflow",
   "framer",
   "carrd",
+  "github",
   "url",
 ] as const;
 
 const DESCRIPTION =
-  "Move a site the owner controls — Squarespace, WordPress, Wix, Webflow, Carrd, Framer or any HTML site — into a NEW OpenSpace site folder (pages, blog posts, media, navigation, SEO, redirects, an approximate Site Styles look with the closest section presets) and run openspace check. Detects the platform unless `platform` is given. Fetches the site politely (robots.txt honoured) and writes files, so it requires confirm: true after the owner agrees; `owner: true` (Squarespace ?format=json) only when they confirm they own the site; `render: true` reads JavaScript-built pages in a browser (Playwright). Does not change the site this server is serving. Returns the summary and the IMPORT-REPORT.md text.";
+  "Move a site the owner controls — Squarespace, WordPress, Wix, Webflow, Carrd, Framer, a GitHub Pages site or repository (Jekyll, structured content, plain HTML) or any HTML site — into a NEW OpenSpace site folder on free GitHub Pages hosting (shops, members and other paid features become Finish-setting-up steps after launch; never switch hosting during an import) (pages, blog posts, media, navigation, SEO, redirects, an approximate Site Styles look with the closest section presets) and run openspace check. Detects the platform unless `platform` is given. Fetches the site politely (robots.txt honoured) and writes files, so it requires confirm: true after the owner agrees; `owner: true` (Squarespace ?format=json) only when they confirm they own the site; `render: true` reads JavaScript-built pages in a browser (Playwright). Does not change the site this server is serving. Returns the summary and the IMPORT-REPORT.md text.";
 
 /** `import_site`; `alias: true` registers the same tool as `import_squarespace` (Squarespace). */
 export function importSiteTool(opts: ImportToolOptions & { alias?: boolean }) {
@@ -82,10 +83,6 @@ export function importSiteTool(opts: ImportToolOptions & { alias?: boolean }) {
         .describe(
           "Path to a WordPress export (WXR XML): a WordPress site's full export, or Squarespace's blog export.",
         ),
-      target: z
-        .enum(["github-pages", "cloudflare"])
-        .optional()
-        .describe("cloudflare to sell products or gate pages"),
       confirm: z
         .boolean()
         .optional()
@@ -122,7 +119,6 @@ export function importSiteTool(opts: ImportToolOptions & { alias?: boolean }) {
           ...(input.render && !legacy ? { render: true } : {}),
           ...(input.owner ? { owner: true } : {}),
           ...(input.exportFile ? { export: resolve(parent, input.exportFile) } : {}),
-          ...(input.target ? { target: input.target } : {}),
           ...(opts.fetch ? { fetch: opts.fetch } : {}),
           ...(opts.delayMs !== undefined ? { delay: opts.delayMs } : {}),
         });

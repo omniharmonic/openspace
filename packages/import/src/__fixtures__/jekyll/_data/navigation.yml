@@ -1,0 +1,8 @@
+- title: About
+  url: /about.html
+- title: Journal
+  url: /journal/
+- title: Projects
+  children:
+    - title: Seed library
+      url: /projects/seed-library/

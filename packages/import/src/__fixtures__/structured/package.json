@@ -1,0 +1,7 @@
+{
+  "name": "meadow-book",
+  "private": true,
+  "dependencies": {
+    "astro": "^5.0.0"
+  }
+}

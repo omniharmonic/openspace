@@ -1,0 +1,19 @@
+title: Garden Notes
+description: A small community garden's notes, seasons and work days.
+baseurl: /garden-notes
+url: https://ada-gardens.github.io
+lang: en
+twitter_username: gardennotes
+github_username: ada-gardens
+email: hello@garden-notes.example
+collections:
+  projects:
+    output: true
+    permalink: /projects/:path/
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-gallery-generator
+google_analytics: UA-000000-1
+exclude:
+  - notes-to-self.md

@@ -20,6 +20,10 @@ export type Platform =
   | "godaddy"
   | "jimdo"
   | "hostinger"
+  | "jekyll"
+  | "hugo"
+  | "eleventy"
+  | "github"
   | "generic";
 
 /** What a section is for, when the importer could tell (picks the closest section preset). */
@@ -269,7 +273,7 @@ export interface SqItem {
   draft?: boolean;
   event?: SqEvent;
   product?: SqProduct;
-  source: "html" | "json" | "wxr" | "rest";
+  source: "html" | "json" | "wxr" | "rest" | "repo";
 }
 
 export interface SqCollection {

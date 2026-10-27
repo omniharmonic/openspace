@@ -44,6 +44,12 @@ export interface MediaImporterOptions {
   offline?: boolean;
   /** Where the media came from, for its credit line ("Squarespace", "WordPress"). */
   source?: string;
+  /**
+   * Turn an SVG (icons, marks) into a PNG; without it SVGs are reported, not imported. An image
+   * address ending in `#color=RRGGBB` paints `currentColor` in that color first (line icons drawn
+   * in the text color of their section).
+   */
+  rasterizeSvg?: (svg: Uint8Array) => Promise<Uint8Array>;
 }
 
 export class MediaImporter {
@@ -58,8 +64,27 @@ export class MediaImporter {
   readonly fileLinks = new Map<string, string>();
   private readonly now: Date;
 
+  private readonly fetchImage: typeof fetch;
+
   constructor(private readonly opts: MediaImporterOptions) {
     this.now = opts.now ?? new Date();
+    const raster = opts.rasterizeSvg;
+    this.fetchImage = raster
+      ? ((async (input: RequestInfo | URL, init?: RequestInit) => {
+          const url = String(input instanceof Request ? input.url : input);
+          const res = await opts.fetch(input, init);
+          const type = res.headers.get("content-type") ?? "";
+          if (!res.ok || !(/svg/i.test(type) || /\.svg(?:[?#]|$)/i.test(url))) return res;
+          let svg = await res.text();
+          const color = /#color=([0-9a-f]{6})\b/i.exec(url)?.[1];
+          if (color) svg = svg.replace(/currentColor/g, `#${color}`);
+          const png = await raster(new TextEncoder().encode(svg));
+          return new Response(png as unknown as BodyInit, {
+            status: 200,
+            headers: { "content-type": "image/png" },
+          });
+        }) as typeof fetch)
+      : opts.fetch;
   }
 
   get count(): number {
@@ -100,7 +125,7 @@ export class MediaImporter {
 
   private async download(img: SqImage, where: string): Promise<ImageValue | undefined> {
     if (this.opts.offline) return undefined;
-    let base = new URL(img.url).pathname.split("/").pop() || "image";
+    let base = (new URL(img.url).pathname.split("/").pop() || "image").replace(/\.svg$/i, ".png");
     try {
       base = decodeURIComponent(base).replace(/\+/g, " ");
     } catch {
@@ -116,7 +141,7 @@ export class MediaImporter {
         const prepared = await prepareImage(
           { url, alt: img.alt ?? "", filename: base },
           {
-            fetch: this.opts.fetch,
+            fetch: this.fetchImage,
             ...(this.opts.resize ? { resize: this.opts.resize } : {}),
             now: this.now,
           },

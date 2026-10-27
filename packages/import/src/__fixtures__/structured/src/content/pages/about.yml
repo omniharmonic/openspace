@@ -1,0 +1,22 @@
+seo:
+  title: About · Meadow Book
+sections:
+  - type: text_page
+    ground: ink
+    kicker: ABOUT
+    headline: About this book
+    body: |-
+      Meadow Book took six years and one very patient field.
+
+      It is published by a small press in Vermont.
+  - type: claim_gift
+    ground: rust
+    headline: Pre-ordered? Claim your bookmark.
+    form:
+      name_label: NAME
+      email_label: EMAIL
+      store_label: WHERE YOU ORDERED
+      store_options: [Bookshop.org, Local bookstore]
+      order_label: ORDER NUMBER
+      button: CLAIM IT
+      success_message: Thank you, your bookmark is on its way.

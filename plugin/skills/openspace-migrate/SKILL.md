@@ -12,6 +12,7 @@ version: 0.2.0
 | --- | --- | --- |
 | Squarespace 7.0 / 7.1 | `import squarespace` | page HTML, the sitemap, `?format=json` with `--owner`, the blog's WordPress export with `--export` |
 | WordPress | `import wordpress` | the public REST API (pages, posts, categories, tags, featured media, Yoast/Rank Math SEO) and/or the WXR export (`--export`: drafts, menus, attachments), plus the home page for navigation, footer and look |
+| GitHub Pages (a `*.github.io` address or a GitHub repository) | `import github` | the repository: Jekyll from its source (_config.yml, pages, posts, collections, layouts and includes, front-matter redirects); sites whose pages are content files with typed sections (Decap/Sveltia CMS, Astro) field by field with their design tokens; plain HTML from the files; Hugo/Eleventy from the published pages plus their Markdown front matter |
 | Wix, Webflow, Carrd, Framer, Shopify pages, Ghost, hand-made HTML — anything else | `import url` | the sitemap (or the site's own links), each page's HTML: main content, header navigation, footer, SEO and Open Graph, the look from the CSS; `--render` reads pages JavaScript builds (Playwright) |
 
 Every importer writes the same result into a new folder: pages built from OpenSpace sections and blocks (landing-page sections are rebuilt with the closest section presets — hero, features, gallery, testimonials, call to action, contact), images downloaded into `media/` with their alt text, navigation, header and footer, blog posts as a collection, forms and newsletter signups, SEO titles and descriptions, a redirect for every changed address, and a Site Styles approximation of the look (palette, font pairing, buttons, density) that the contrast solver keeps accessible. It writes `IMPORT-REPORT.md` and runs `openspace check`.
@@ -27,7 +28,7 @@ Ground rules for the whole migration:
 
 ## 1. Detect and import
 
-Gather: the site address, the folder name for the new site, whether they sell products or have member/password pages (then use `--target cloudflare`), and any export they have:
+Gather: the site address, the folder name for the new site, and any export they have. Don't ask about hosting: an import always lands on free GitHub Pages hosting and goes live first; shops, member and password pages become "Finish setting up" steps afterwards (listed in `content/setup-checklist.json`). Never switch hosting during a migration:
 
 - **Squarespace:** the blog export (Settings → Import & Export → Export → WordPress). Ask whether they own the site: owner mode (`--owner`) also reads Squarespace's `?format=json` data (variants, sale prices, SEO fields), but robots.txt asks automated tools not to read it — only use it with the owner's say-so.
 - **WordPress:** Tools → Export → All content gives drafts, menus and SEO meta; the public REST API is used when it's open (most sites). Without either, pages are read from their HTML.
@@ -39,10 +40,11 @@ npx -y @omniharmonic/openspace-cli import https://www.example.com my-site
 npx -y @omniharmonic/openspace-cli import squarespace https://www.example.com my-site --owner --export ~/Downloads/export.xml
 npx -y @omniharmonic/openspace-cli import wordpress https://www.example.com my-site --export ~/Downloads/site.WordPress.xml
 npx -y @omniharmonic/openspace-cli import url https://www.example.com my-site --render
+npx -y @omniharmonic/openspace-cli import github https://owner.github.io/site/ my-site
 cd my-site && npm install
 ```
 
-Options: `--platform <name>` (skip detection), `--target github-pages|cloudflare`, `--repo owner/name`, `--domain example.com`, `--title "…"`, `--max-pages N` (default 400), `--delay ms` (pause between requests, default 300), `--no-media` (structure only, for a quick look). The command paces its requests, honours robots.txt and identifies itself.
+Options: `--platform <name>` (skip detection), `--repo owner/name`, `--domain example.com`, `--title "…"`, `--max-pages N` (default 400), `--delay ms` (pause between requests, default 300), `--no-media` (structure only, for a quick look). The command paces its requests, honours robots.txt and identifies itself.
 
 When an OpenSpace site is already being served in this session, the `import_site` MCP tool does the same (with `confirm: true` after the owner agrees; `platform` to skip detection; `owner: true` only when they confirm ownership of a Squarespace site; `render: true` for script-built pages). It creates the new folder next to the current site and never writes into it. `import_squarespace` is its older name for Squarespace sites.
 
@@ -76,8 +78,8 @@ Go through `IMPORT-REPORT.md` → **Needs attention** with the owner:
 - **Forms and newsletter:** submissions now arrive in the OpenSpace inbox. Existing subscribers must be exported from the old platform (or its email service) and imported in the Hub. Form plugins and integrations (Zapier, Mailchimp) need setting up again.
 - **Custom code and scripts:** embeds became sandboxed Embed blocks; site-wide scripts (analytics, chat, pixels) were listed, not copied. Ask which are still needed; site-wide code goes in Settings → Advanced, which the owner adds — never through MCP.
 - **Platform features:** shortcodes and page-builder widgets (WordPress), Wix apps, Webflow interactions, commerce and bookings are not imported — say what each did and offer the OpenSpace block or service that replaces it, or leave a note.
-- **Commerce:** products are catalog content (Squarespace) or not imported (WooCommerce, Wix Stores, Shopify). Selling needs the Cloudflare target and Stripe connected in the Hub.
-- **Member areas and password pages:** recreate them as members-only or password pages in Studio (Cloudflare target); their content was not readable.
+- **Commerce:** products are catalog content (Squarespace) or not imported (WooCommerce, Wix Stores, Shopify). Selling is a "Finish setting up" step after the site is live (the owner connects payments in Studio); don't change hosting during the migration.
+- **Member areas and password pages:** they are "Finish setting up" steps after launch; their content was not readable.
 - **Pages with little content** (script-built): re-import with `--render`, or rebuild those sections with presets using the original's screenshot and the owner's copy.
 - **Links pointed at the home page** and **images that failed:** fix each one (`update_block`), asking the owner where a link should go.
 - **Alt text:** often missing; write purposeful alt text for meaningful images (`update_block`), or mark them decorative.

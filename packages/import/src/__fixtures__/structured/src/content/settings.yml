@@ -1,0 +1,24 @@
+site:
+  name: Meadow Book
+navigation:
+  wordmark: MEADOW BOOK
+  items:
+    - label: THE IDEA
+      link: /#idea
+    - label: ABOUT
+      link: /about
+  button:
+    label: GET CHAPTER ONE
+    link: /#chapter
+footer:
+  wordmark_line: MEADOW BOOK · JUNE PARK
+  links:
+    - label: INSTAGRAM
+      link: https://www.instagram.com/meadowbook
+    - label: PODCAST
+      link: "[Podcast URL]"
+    - label: ABOUT
+      link: /about
+  copyright: © 2026 JUNE PARK
+forms:
+  optin_destination: https://meadow-book.example/api/subscribe

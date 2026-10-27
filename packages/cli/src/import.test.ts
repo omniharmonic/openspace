@@ -72,14 +72,12 @@ describe("openspace import squarespace", () => {
     expect(r.err).toContain("robots.txt is honoured");
   });
 
-  it("supports owner mode, a WordPress export, the Cloudflare target and a structure-only run", async () => {
+  it("supports owner mode, a WordPress export and a structure-only run, always on GitHub Pages", async () => {
     const r = await importCli([
       "jc",
       "--owner",
       "--export",
       JUNIPER_EXPORT,
-      "--target",
-      "cloudflare",
       "--no-media",
       "--delay",
       "0",
@@ -88,10 +86,13 @@ describe("openspace import squarespace", () => {
     ]);
     expect(r.code, r.err).toBe(0);
     const dir = join(r.parent, "jc");
+    // A shop never moves the import off free GitHub Pages: it becomes a setup step instead.
     expect(JSON.parse(await readFile(join(dir, "openspace.json"), "utf8")).deploy.target).toBe(
-      "cloudflare",
+      "github-pages",
     );
-    expect(existsSync(join(dir, "wrangler.jsonc"))).toBe(true);
+    expect(existsSync(join(dir, "wrangler.jsonc"))).toBe(false);
+    const checklist = JSON.parse(await readFile(join(dir, "content/setup-checklist.json"), "utf8"));
+    expect(checklist.items.map((i: { kind: string }) => i.kind)).toContain("store");
     expect(JSON.parse(await readFile(join(dir, "content/site.json"), "utf8")).title).toBe(
       "Juniper Studio",
     );
@@ -389,5 +390,89 @@ describe("screenshot_url (local MCP tool)", () => {
     expect(none.content[0]?.text).toContain("Playwright");
     const file = await callTool(undefined, { url: "file:///etc/passwd" });
     expect(file.content[0]?.text).toContain("Only http(s)");
+  });
+});
+
+describe("openspace import github", () => {
+  const fixtures = join(__dirname, "..", "..", "import", "src", "__fixtures__");
+  const offline = (async () => new Response("not found", { status: 404 })) as typeof fetch;
+
+  it("imports a Jekyll repository checkout into a new folder that passes openspace check", async () => {
+    const parent = await tmpDir();
+    const cap = captureIo(parent, { NO_COLOR: "1" });
+    const code = await run(
+      [
+        "import",
+        "github",
+        "ada-gardens/garden-notes",
+        "--source-dir",
+        join(fixtures, "jekyll"),
+        "--delay",
+        "0",
+        "--summary",
+        "summary.json",
+      ],
+      cap.io,
+      { fetch: offline },
+    );
+    expect(code, cap.errText()).toBe(0);
+    const dir = join(parent, "garden-notes");
+    expect(existsSync(join(dir, "content/collections/journal/first-seeds.mdoc"))).toBe(true);
+    expect(existsSync(join(dir, "content/setup-checklist.json"))).toBe(true);
+    const summary = JSON.parse(await readFile(join(parent, "summary.json"), "utf8"));
+    expect(summary).toMatchObject({ title: "Garden Notes", platform: "jekyll", pages: 2 });
+    expect(summary.check.ok).toBe(true);
+  });
+
+  it("imports into an existing site folder, keeping its identity (the hosted import)", async () => {
+    const parent = await tmpDir();
+    void parent;
+    const dir = await meadowCopy();
+    const before = JSON.parse(await readFile(join(dir, "openspace.json"), "utf8"));
+    const cap = captureIo(dir, { NO_COLOR: "1" });
+    const code = await run(
+      [
+        "import",
+        "github",
+        "pine-street/choir",
+        ".",
+        "--into-existing",
+        "--source-dir",
+        join(fixtures, "html-site"),
+        "--delay",
+        "0",
+      ],
+      cap.io,
+      { fetch: offline },
+    );
+    expect(code, `${cap.text()}\n${cap.errText()}`).toBe(0);
+    const after = JSON.parse(await readFile(join(dir, "openspace.json"), "utf8"));
+    expect(after.siteId).toBe(before.siteId);
+    expect(after.deploy).toEqual(before.deploy);
+    expect(JSON.parse(await readFile(join(dir, "content/site.json"), "utf8")).title).toBe(
+      "Pine Street Choir",
+    );
+    expect(existsSync(join(dir, "content/pages/concerts.json"))).toBe(true);
+    expect((await runCheck(dir)).ok).toBe(true);
+  });
+
+  it("refuses --into-existing outside an OpenSpace site folder", async () => {
+    const parent = await tmpDir();
+    const cap = captureIo(parent, { NO_COLOR: "1" });
+    const code = await run(
+      [
+        "import",
+        "github",
+        "a/b",
+        ".",
+        "--into-existing",
+        "--source-dir",
+        join(fixtures, "html-site"),
+      ],
+      cap.io,
+      { fetch: offline },
+    );
+    expect(code).toBe(1);
+    expect(cap.errText()).toContain("isn't an OpenSpace site folder");
   });
 });

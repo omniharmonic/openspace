@@ -12,7 +12,9 @@
       "!**/node_modules",
       "!docs",
       "!.superpowers",
-      "!pnpm-lock.yaml"
+      "!pnpm-lock.yaml",
+      "!packages/import/src/__fixtures__/jekyll",
+      "!packages/import/src/__fixtures__/structured"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 100 },
