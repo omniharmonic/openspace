@@ -812,6 +812,42 @@ export const PHOTOS = {
     4000,
     "A brush painting a butterfly in glaze on a white plate",
   ),
+  stoneWall: p(
+    "1611950318733-51d05def21ee",
+    4032,
+    3024,
+    "An old dry-stone wall in the woods under early snow",
+  ),
+  appleTree: p(
+    "1789448720981-96879056796d",
+    12032,
+    8018,
+    "A gnarled old apple tree in a grassy field, in black and white",
+  ),
+  hayField: p(
+    "1676903761134-a7806cd2f26d",
+    3600,
+    2400,
+    "Hay bales in a green field below a barn and a wooded hill in Vermont",
+  ),
+  oldBarn: p(
+    "1743351831171-a4317f076b2f",
+    5370,
+    2679,
+    "A weathered barn with a rusted roof against autumn hills",
+  ),
+  dirtRoad: p(
+    "1670967595704-f5f38475bb01",
+    6000,
+    4000,
+    "A dirt road running between fields and forest under a grey sky",
+  ),
+  autumnFarm: p(
+    "1744488340684-2b86590c15dd",
+    4799,
+    2673,
+    "A small farm with a barn among autumn trees below a mountain",
+  ),
   dunes: p("1542401886-65d6c61db217", 5835, 3890, "Rippled orange sand dunes under a hazy sky"),
   canyon: p(
     "1509316785289-025f5b846b35",
@@ -1775,6 +1811,36 @@ const PHOTO_CREDITS: Record<string, readonly [name: string, username: string, sl
     "a-group-of-women-sitting-at-a-table-working-on-pottery-kJiPUr1KQSE",
   ],
   "1657395348373-28a0cb49804b": ["Grant Durr", "grant_durr", "a-child-painting-a-bowl-GjpUt15XbPE"],
+  "1611950318733-51d05def21ee": [
+    "natalie bowers",
+    "nbowers",
+    "gray-rocks-on-brown-soil-khAcUpojwhA",
+  ],
+  "1789448720981-96879056796d": [
+    "Julian Kraus",
+    "juliankraus",
+    "gnarled-apple-tree-in-grassy-field-b3pCgNT1fn0",
+  ],
+  "1676903761134-a7806cd2f26d": [
+    "David Trinks",
+    "dtrinksrph",
+    "a-large-field-with-hay-bales-in-the-foreground-and-a-barn-in-the-Rf5SsbLmFmc",
+  ],
+  "1743351831171-a4317f076b2f": [
+    "LXS Photography",
+    "lxsphotography",
+    "old-weathered-barn-against-autumn-foliage-i7jff9hPR-U",
+  ],
+  "1670967595704-f5f38475bb01": [
+    "Giuli Canderle",
+    "giulicanderle",
+    "a-dirt-road-in-the-middle-of-a-forest-G2k-BQWJ3DM",
+  ],
+  "1744488340684-2b86590c15dd": [
+    "LXS Photography",
+    "lxsphotography",
+    "autumn-farm-scene-with-a-barn-and-covered-bridge-1PnkD5YV6Sw",
+  ],
   "1542401886-65d6c61db217": [
     "Wolfgang Hasselmann",
     "wolfgang_hasselmann",

@@ -77,10 +77,10 @@
           "v": 1,
           "fields": {
             "image": {
-              "src": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=2560&q=80",
-              "alt": "Green hills of the valley seen from above",
+              "src": "https://images.unsplash.com/photo-1744488340684-2b86590c15dd?w=2560&q=80",
+              "alt": "A member farm among autumn trees below the mountains",
               "width": 2560,
-              "height": 1524
+              "height": 1426
             },
             "aspect": "21:9",
             "lightbox": false

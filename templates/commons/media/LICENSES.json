@@ -29,17 +29,6 @@
     },
     {
       "kind": "image",
-      "src": "https://images.unsplash.com/photo-1501854140801-50d01698950b",
-      "title": "Rolling green hills seen from above, ridges catching the light",
-      "author": "Qingbao Meng",
-      "authorUrl": "https://unsplash.com/@ideasboom",
-      "source": "Unsplash",
-      "sourceUrl": "https://unsplash.com/photos/birds-eye-view-photograph-of-green-mountains-01_igFr7hd4",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
-    },
-    {
-      "kind": "image",
       "src": "https://images.unsplash.com/photo-1511632765486-a01980e01a18",
       "title": "Friends with their arms around each other watching the sunset",
       "author": "Helena Lopes",
@@ -79,6 +68,17 @@
       "authorUrl": "https://unsplash.com/@jakenackos",
       "source": "Unsplash",
       "sourceUrl": "https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1744488340684-2b86590c15dd",
+      "title": "A small farm with a barn among autumn trees below a mountain",
+      "author": "LXS Photography",
+      "authorUrl": "https://unsplash.com/@lxsphotography",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/autumn-farm-scene-with-a-barn-and-covered-bridge-1PnkD5YV6Sw",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
