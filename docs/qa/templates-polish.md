@@ -56,7 +56,7 @@ every one through `OPENSPACE_REMOTE_IMAGES=download`.
 | Field Notes | Vermont essays shown as Asian terraced hills, a forest path and poppies; recent list and archive wall showed the same four essays | A Vermont hayfield, a stone wall in snow, an old apple tree; two older essays so the home lists the three newest and the archive the three oldest |
 | Commons | Hudson Valley farms opened on the same terraced hills | A farm under autumn trees |
 | Kitchen presets (`features/alternating-rows`, `hero/bento`) | A stool for "aftercare" and in the bento | A woodworker at the bench |
-| `services/cards` (garden) | "Full garden builds" showed a clapboard house | Raised garden beds |
+| `services/image-cards` (garden) | "Full garden builds" showed a clapboard house | Raised garden beds |
 | `gallery/wide-carousel` | "Around the lodge" mixed desert and alpine | Alpine lakes, valley, cliffs and hills |
 
 ## Reviewed and left as is
