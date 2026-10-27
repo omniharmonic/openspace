@@ -81,7 +81,7 @@ export interface ProbeSection {
   align?: "left" | "center";
   /** First words of the section, for matching. */
   text: string;
-  /** More of its words (up to 4000 characters), for matching parts of long sections. */
+  /** More of its words (up to 20 000 characters), for matching parts of long sections. */
   words?: string;
 }
 
@@ -322,7 +322,7 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       const er = e.getBoundingClientRect();
       return visible(e) && er.width >= r.width * 0.9 && er.height >= r.height * 0.7;
     });
-    const res = { index, top: Math.round(r.top), height: Math.round(r.height), background: bgOf(sec.els ? sec.els[0] : sec), columns: 1, italicLines: 0, text: ownText(sec).slice(0, 120), words: ownText(sec).slice(0, 4000) };
+    const res = { index, top: Math.round(r.top), height: Math.round(r.height), background: bgOf(sec.els ? sec.els[0] : sec), columns: 1, italicLines: 0, text: ownText(sec).slice(0, 120), words: ownText(sec).slice(0, 20000) };
     if (bgEl || coverImg) res.backgroundImage = true;
     const h = [...sec.querySelectorAll(headSel)].find((e) => visible(e) && ownText(e).length > 1);
     if (h) {
@@ -444,13 +444,17 @@ export const PROBE_SCRIPT = String.raw`(async () => {
   if (header) {
     // The menu's links: the header's <nav>, else the page's main navigation, else the header.
     const navEl = header.querySelector("nav") || [...document.querySelectorAll("nav, [role=navigation]")].find((n) => visible(n) && !n.closest("footer") && n.querySelectorAll("a").length >= 2);
-    const linkOk = (a) => visible(a) && ownText(a).length > 1 && ownText(a).length < 30 && toHex(cs(a).backgroundColor) === undefined && !a.matches(".os-header__brand, .os-button, [rel=home]") && !a.closest(".os-header__brand, [class*=site-title], [class*=brand]");
+    // A link to the home page is the site's name, not a menu entry.
+    const homeLink = (a) => { try { const u = new URL(a.href, location.href); return u.origin === location.origin && !u.hash && /^\/?(?:index\.html)?$/.test(u.pathname); } catch (e) { return false; } };
+    const linkOk = (a) => visible(a) && ownText(a).length > 1 && ownText(a).length < 30 && toHex(cs(a).backgroundColor) === undefined && !a.matches(".os-header__brand, .os-button, [rel=home]") && !a.closest(".os-header__brand, [class*=site-title], [class*=brand]") && !homeLink(a);
     let links = navEl ? [...navEl.querySelectorAll("a")].filter(linkOk) : [];
     if (!links.length) links = [...header.querySelectorAll("a")].filter(linkOk);
     const mid = links[Math.floor(links.length / 2)];
     if (mid) presets.nav = textOf(mid);
     // The site title set as text (a wordmark), not a logo image.
-    const brand = [...header.querySelectorAll(".os-header__title, [class*=wordmark], [class*=logo], [class*=brand], [class*=site-title], a[href='/'], a[href='./'], a[rel=home]")].find((e) => visible(e) && ownText(e).length > 1 && ownText(e).length <= 40 && !e.querySelector("img, svg"));
+    // The innermost element holding the title text (an OpenSpace title span, not its link).
+    const brandOk = (e) => visible(e) && ownText(e).length > 1 && ownText(e).length <= 40 && !e.querySelector("img, svg");
+    const brand = [...header.querySelectorAll(".os-header__title")].find(brandOk) || [...header.querySelectorAll("[class*=wordmark], [class*=logo], [class*=brand], [class*=site-title], a[href='/'], a[href='./'], a[rel=home]")].filter(brandOk).find((e, _, list) => !list.some((o) => o !== e && e.contains(o)));
     if (brand) presets.wordmark = textOf(brand);
   }
   const isButton = (e) => {
