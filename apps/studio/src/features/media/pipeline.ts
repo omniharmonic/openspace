@@ -269,7 +269,7 @@ export async function processMedia(
     }
   } else if (kind === "video" && !options.allowVideo) {
     throw new MediaError(
-      "Videos are hosted on Cloudflare. Paste a YouTube or Vimeo link into a video block instead, or switch hosting in Settings.",
+      "Video files need your site on your own free Cloudflare account (Finish setting up → any shop or members step sets it up). For now, paste a YouTube or Vimeo link into a video block.",
       "video-needs-cloudflare",
     );
   } else {

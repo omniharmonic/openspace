@@ -199,12 +199,12 @@ export function DomainsSettings({ site }: { site: Site }) {
         <div className="st-callout st-callout--accent" role="note">
           <Cloud aria-hidden="true" />
           <div>
-            <strong>Your site is hosted on Cloudflare.</strong> Connect your domain in your
-            Cloudflare dashboard: the domain's DNS needs to be on Cloudflare (add it as a site there
-            and switch its nameservers). Then open Workers &amp; Pages → your site → Settings →
-            Domains &amp; Routes → Add → Custom domain, and enter the main domain or a subdomain
-            such as blog.yourdomain.com. Cloudflare adds the DNS records itself — you don't add A or
-            CNAME records by hand.
+            <strong>Your site runs on your own Cloudflare account.</strong> Connect your domain
+            there, in two steps: first add the domain to Cloudflare (it asks you to change two
+            “nameservers” where you bought the domain — Cloudflare shows you exactly what to copy).
+            Then open Workers &amp; Pages → your site → Settings → Domains &amp; Routes → Add →
+            Custom domain, and type your domain. Cloudflare does the rest — there are no records to
+            add by hand, and your site stays online the whole time.
           </div>
         </div>
         <a
@@ -245,7 +245,7 @@ export function DomainsSettings({ site }: { site: Site }) {
               </Badge>
             ) : (
               <Badge tone="pending" dot pulse>
-                {view.status === "verifying" ? "Securing" : "Waiting for records"}
+                {view.status === "verifying" ? "Making it secure" : "Waiting for your records"}
               </Badge>
             )}
           </div>
@@ -330,8 +330,9 @@ export function DomainsSettings({ site }: { site: Site }) {
     <div className="st-settings__stack">
       <p className="st-settings__lede">
         Use a domain you own, like <strong>mayayoga.com</strong>. We'll show you exactly what to
-        change where you bought it, and turn on HTTPS for you. Both the plain domain and its www
-        version will work.
+        copy into the website of the company you bought it from, then make it secure (the padlock
+        in the browser) for you. Both mayayoga.com and www.mayayoga.com will work, and your site
+        stays online at its current address the whole time.
       </p>
       <ol className="st-wizard">
         <li className={cx("st-wizard__step", lookup && "is-done")}>
@@ -374,6 +375,10 @@ export function DomainsSettings({ site }: { site: Site }) {
             <h3>
               <span>2</span> Add these records
             </h3>
+            <p className="st-muted-note">
+              “Records” are a few short lines of settings that tell the internet where your site
+              lives. You copy them once; it takes about five minutes.
+            </p>
             <Guide guide={lookup.guide} lookup={lookup} records={lookup.records} />
             <RecordsTable records={lookup.records} guide={lookup.guide} />
           </li>
@@ -384,8 +389,8 @@ export function DomainsSettings({ site }: { site: Site }) {
               <span>3</span> Connect
             </h3>
             <p className="st-muted-note">
-              Once you've saved the records, connect the domain. We'll keep checking and switch on
-              HTTPS as soon as everything points here.
+              Once you've saved them, connect the domain. We'll keep checking by ourselves and make
+              it secure as soon as everything points here — usually within an hour.
             </p>
             <div className="st-row-actions st-row-actions--start">
               <Button

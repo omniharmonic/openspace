@@ -105,6 +105,8 @@ const SiteChromePanel = lazy(() =>
   import("../site-chrome/SiteChromePanel").then((m) => ({ default: m.SiteChromePanel })),
 );
 
+import { FirstRunTour } from "../setup/FirstRunTour";
+import { HelpMenu } from "../setup/HelpMenu";
 import { SetupChip } from "../setup/SetupChip";
 import { can } from "../site-mgmt/manage-ui";
 import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
@@ -814,6 +816,7 @@ function EditorChrome({ site }: { site: Site }) {
         ))}
         <WorkspaceRail site={site} />
         <span className="st-ed-rail__spacer" />
+        <HelpMenu site={site} />
         <IconButton
           label="Settings"
           icon={<Settings />}
@@ -879,6 +882,7 @@ function EditorChrome({ site }: { site: Site }) {
       )}
 
       <ShortcutsSheet />
+      <FirstRunTour site={site} />
       <InspectorRuntime />
       <WorkspaceHost site={site} />
       <HistorySheet open={historyOpen} onOpenChange={setHistoryOpen} />

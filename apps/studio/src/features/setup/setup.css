@@ -414,3 +414,106 @@
 .st-setup-cf .st-field {
   justify-self: stretch;
 }
+
+/* --- Need a hand? ------------------------------------------------------------------------- */
+
+.st-help__now {
+  display: grid;
+  gap: var(--st-2);
+  justify-items: start;
+  padding-block-end: var(--st-3);
+  border-block-end: 1px solid var(--st-line);
+}
+.st-help__now h3 {
+  margin: 0;
+  font-size: var(--st-fs-md);
+  font-weight: 600;
+}
+.st-help__now p {
+  margin: 0;
+  color: var(--st-text-2);
+}
+.st-help__list {
+  list-style: none;
+  margin: var(--st-2) 0 0;
+  padding: 0;
+  display: grid;
+}
+.st-help__list button,
+.st-help__list a {
+  inline-size: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--st-2);
+  padding: var(--st-2);
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: none;
+  color: var(--st-text);
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+.st-help__list button:hover,
+.st-help__list a:hover {
+  background: var(--st-hover);
+}
+.st-help__list button:focus-visible,
+.st-help__list a:focus-visible {
+  outline: none;
+  box-shadow: var(--st-focus);
+}
+.st-help__list svg {
+  flex: none;
+  inline-size: 15px;
+  block-size: 15px;
+  color: var(--st-text-2);
+}
+.st-help__count {
+  margin-inline-start: auto;
+  font-size: var(--st-fs-sm);
+  color: var(--st-text-3);
+}
+
+/* --- first-run tour ----------------------------------------------------------------------- */
+
+.st-tour__body {
+  margin: 0;
+  font-size: var(--st-fs-md);
+  line-height: 1.5;
+  color: var(--st-text-2);
+}
+.st-tour__dots {
+  display: inline-flex;
+  gap: 6px;
+  margin-inline-end: auto;
+  align-items: center;
+}
+.st-tour__dots span {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: var(--st-line-strong);
+}
+.st-tour__dots span.is-on {
+  background: var(--st-text);
+}
+.st-tour__end {
+  display: grid;
+  gap: var(--st-3);
+}
+.st-tour__end p {
+  margin: 0;
+  color: var(--st-text-2);
+  line-height: 1.5;
+}
+.st-tour__end .st-tour__save {
+  font-size: var(--st-fs-lg);
+  line-height: 1.3;
+  color: var(--st-text);
+}
+.st-tour__save strong {
+  color: var(--st-live);
+  font-variant-numeric: tabular-nums;
+}

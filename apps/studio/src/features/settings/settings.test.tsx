@@ -224,7 +224,9 @@ describe("domains wizard", () => {
 
   it("tells Cloudflare-hosted sites where to connect a domain", async () => {
     await openSettings("domains", { deployTarget: "cloudflare" });
-    expect(await screen.findByText(/Your site is hosted on Cloudflare/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Your site runs on your own Cloudflare account/),
+    ).toBeInTheDocument();
   });
 
   it("shows a plain error for an invalid domain", async () => {

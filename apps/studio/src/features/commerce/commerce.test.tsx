@@ -306,9 +306,9 @@ describe("what the store, donations and members need", () => {
       hub: { capabilities: { payments: { configured: false, dev: false } } },
     });
     const note = await screen.findByRole("note", { name: "What this needs" });
-    expect(note).toHaveTextContent(/Donations won’t work on your live site yet/);
-    expect(note).toHaveTextContent(/Cloudflare hosting/);
-    expect(note).toHaveTextContent(/Stripe payments/);
+    expect(note).toHaveTextContent(/Online giving isn't open on your live site yet/);
+    expect(note).toHaveTextContent(/free Cloudflare account/);
+    expect(note).toHaveTextContent(/Card payments/);
   });
 
   it("members on GitHub Pages without email: both requirements; nothing once on Cloudflare", async () => {
@@ -317,8 +317,8 @@ describe("what the store, donations and members need", () => {
       hub: { capabilities: { email: { configured: false, devOutbox: false } } },
     });
     const note = await screen.findByRole("note", { name: "What this needs" });
-    expect(note).toHaveTextContent(/Cloudflare hosting/);
-    expect(note).toHaveTextContent(/Email sending/);
+    expect(note).toHaveTextContent(/free Cloudflare account/);
+    expect(note).toHaveTextContent(/can't send email yet/);
   });
 
   it("shows nothing when the site is on Cloudflare and the Hub can take payments", async () => {
