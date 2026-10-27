@@ -35,7 +35,7 @@ import { lazy, type ReactNode, Suspense, useEffect, useMemo, useRef, useState } 
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { useSession, useSite } from "../../api";
 import { isTransientError } from "../../api/resilience";
-import type { Site } from "../../api/types";
+import { needsGitHub, type Site } from "../../api/types";
 import { LoadError } from "../../app/Connection";
 import { useConfig } from "../../app/config";
 import { Mark } from "../../app/Wordmark";
@@ -56,6 +56,7 @@ import {
   useRegisterCommands,
 } from "../../ui";
 import { displayUrl } from "../onboarding/BuildingProgress";
+import { ConnectGitHub } from "../onboarding/ConnectGitHub";
 import { type DraftBootstrap, useDraftBootstrap } from "../sync/bootstrap";
 import { HistorySheet } from "../sync/HistoryPanel";
 import { PublishButton, PublishPill } from "../sync/PublishFlow";
@@ -955,15 +956,19 @@ export function EditorFrame() {
   const { timing } = useConfig();
   const user = session.data?.user;
   const site = useSite(user ? id : undefined, { pollMs: timing.pollMs });
+  // Waiting for GitHub permission: there's no content to load yet (or it can't be reached).
+  const waitingForGitHub = needsGitHub(site.data);
   // The draft loads from the room (or this device's copy); offline, the cached site is used.
   const content = useDraftBootstrap(
-    user ? id : undefined,
+    user && !waitingForGitHub ? id : undefined,
     user?.id,
     site.data ? site.data.status !== "building" : site.isError,
   );
   const navigate = useNavigate();
   const siteData = site.data ?? (content.data?.offline ? content.data.site : undefined);
 
+  if (user && site.data && waitingForGitHub)
+    return <ConnectGitHub site={site.data} isOwner={(site.data.role ?? "owner") === "owner"} />;
   const loading =
     session.isPending ||
     (user && site.isPending) ||

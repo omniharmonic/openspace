@@ -2,12 +2,13 @@ import { Check, Lock } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useRetryPublish, useSite } from "../../api";
-import type { TemplateLook, TemplateSummary } from "../../api/types";
+import { needsGitHub, type TemplateLook, type TemplateSummary } from "../../api/types";
 import { useConfig } from "../../app/config";
 import { Wordmark } from "../../app/Wordmark";
 import { Button, cx, Spinner } from "../../ui";
 import { TemplateRender } from "../templates/TemplateRender";
 import "./BuildingProgress.css";
+import { ConnectGitHub } from "./ConnectGitHub";
 import type { SiteDraft } from "./draft";
 
 export function displayUrl(url: string) {
@@ -97,6 +98,8 @@ export function BuildingProgress({ siteId, template, look, draft, onDone }: Buil
     }
   }, [step, status, failConfirmed, finished, steps.length, timing, navigate, siteId, onDone]);
 
+  if (site.data && needsGitHub(site.data))
+    return <ConnectGitHub site={site.data} isOwner={(site.data.role ?? "owner") === "owner"} />;
   const failed = status === "failed" && failConfirmed;
   const reconnecting = site.isError && !failed;
   const tooSlow = slow && !failed && !finished;

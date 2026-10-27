@@ -1,4 +1,5 @@
 import {
+  Bot,
   LayoutGrid,
   LayoutTemplate,
   LogIn,
@@ -13,6 +14,7 @@ import { Navigate, Outlet, type RouteObject, useNavigate } from "react-router";
 import { useLogout, useSession } from "../api";
 import { InvitePage } from "../features/auth/InvitePage";
 import { SignInPage } from "../features/auth/SignInPage";
+import { ConnectAiPage } from "../features/connect/ConnectAiPage";
 import { Dashboard } from "../features/dashboard/Dashboard";
 import { NewSite } from "../features/onboarding/NewSite";
 import { TemplateGallery } from "../features/templates/TemplateGallery";
@@ -60,6 +62,13 @@ function GlobalCommands() {
           },
         ]
       : []),
+    {
+      id: "go-connect",
+      label: "Connect your AI (Claude)",
+      group: "Go to",
+      icon: <Bot />,
+      run: () => navigate("/connect"),
+    },
     {
       id: "go-templates",
       label: "Browse templates",
@@ -174,6 +183,7 @@ export function createRoutes(config: Pick<StudioConfig, "showKit">): RouteObject
         { path: "signin", element: <SignInPage /> },
         { path: "invite/:token", element: <InvitePage /> },
         { path: "sites", element: <Dashboard /> },
+        { path: "connect", element: <ConnectAiPage /> },
         {
           path: "sites/:id/*",
           element: (
