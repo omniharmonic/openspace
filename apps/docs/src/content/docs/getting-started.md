@@ -5,6 +5,10 @@ description: Pick a template, sign in with GitHub, and your OpenSpace site is on
 
 OpenSpace gets you from nothing to a live, good-looking website in about three minutes, without installing anything.
 
+:::tip[Two other ways to begin]
+**[Start with Claude](/guides/start-with-claude/)**: describe your idea and bring your brand (or a page Claude made) — your site goes live, then Claude designs it with you. **[Move your site](/guides/migrate-to-openspace/)**: bring a site you already have.
+:::
+
 ## 1. Pick a template
 
 Open **Studio** (the OpenSpace editor) at [studio.openspace.host](https://studio.openspace.host/templates) and browse the gallery. You don't need an account to look around or preview. There are [twenty templates](/templates/), each with three looks. Pick the one closest to what you do — you can change the look later without losing anything.

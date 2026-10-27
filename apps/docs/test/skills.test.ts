@@ -22,6 +22,7 @@ const WEB_TOOLS = [
   "import_status",
   "create_site",
   "list_templates",
+  "start_site",
 ];
 const TOOLS = new Set([...ALL_TOOLS.map((t) => t.name), ...WEB_TOOLS]);
 const SPEC_KEYS = new Set([
@@ -52,8 +53,9 @@ function frontmatter(text: string): {
 }
 
 describe("Claude app skills", () => {
-  it("packages the four skills", () => {
+  it("packages the five skills", () => {
     expect(names).toEqual([
+      "openspace-design-from-scratch",
       "openspace-migrate",
       "openspace-web-design",
       "openspace-content",
@@ -122,5 +124,27 @@ describe("Claude app skills", () => {
     const skill = strFromU8(files["openspace-web-design/SKILL.md"] as Uint8Array);
     expect(skill).toMatch(/taken by OpenSpace in the cloud/);
     expect(skill).not.toMatch(/Playwright/);
+  });
+});
+
+describe("the design-from-scratch skill", () => {
+  it("runs the whole design process on the connector, in plain language", async () => {
+    const files = unzipSync(await buildZip("openspace-design-from-scratch"));
+    const skill = strFromU8(files["openspace-design-from-scratch/SKILL.md"] as Uint8Array);
+    for (const t of [
+      "get_design_system",
+      "update_design_system",
+      "start_site",
+      "screenshot",
+      "design_check",
+      "create_component",
+      "publish",
+    ])
+      expect(skill, t).toContain(`\`${t}\``);
+    expect(skill).toMatch(/moodboard/i);
+    expect(skill).toMatch(/never invent/i);
+    expect(Object.keys(files)).toContain(
+      "openspace-design-from-scratch/references/design-process.md",
+    );
   });
 });

@@ -27,6 +27,7 @@ Never write inline CSS, never invent facts, and never publish unless the owner e
 1. Confirm the OpenSpace connector's tools are available (tools named like `get_site`, `design_check`, `screenshot`). If they are missing, explain how to connect, in plain words: in Claude, **Settings → Connectors → Add custom connector**, name it OpenSpace, address `https://hub.openspace.host/mcp`, then sign in with GitHub and tick the sites Claude may edit. Then turn the connector on in this chat's tools menu. Nothing needs installing.
 2. Read the design rules once per session: the resource `openspace://guidance/design` (and `openspace://guidance/iteration`). They are the same rules Studio's Design check enforces.
 3. Call `get_site` to learn page ids, the navigation and the current look. Call `get_styles` before any restyle (pass `options: false` when the option lists aren't needed).
+4. Call `get_design_system`: the owner's brief (what the site is for, who it's for, how it should feel), the brand material they brought and the design tokens and rules. **Keep to it** — colours through Site Styles roles, its fonts and type sizes, its rules — so every new section looks like the same site. When you agree a new direction or make a bespoke component, record it with `update_design_system` (`changes.rules`, `changes.components`). To design a whole site from an idea, use the `openspace-design-from-scratch` skill.
 
 ## Preset-first composition
 

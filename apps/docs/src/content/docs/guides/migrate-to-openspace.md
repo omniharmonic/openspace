@@ -11,6 +11,10 @@ Your old site keeps running the whole time. You switch your domain over only whe
 Only import sites you own or are moving for their owner. The importer reads your public site the way a careful visitor would: one page at a time, with a pause between requests, and it respects your site's `robots.txt`.
 :::
 
+:::tip[Have a page Claude made instead?]
+Upload it: **Move my site → Upload a page** (an HTML file or a zip). Every section keeps its design and becomes editable. See [Start with Claude](/guides/start-with-claude/#bring-a-page-claude-made).
+:::
+
 ## The easy way: Move my site in Studio (nothing to install)
 
 1. Open [OpenSpace Studio](https://studio.openspace.host/move) and choose **Move an existing site** (it's next to the templates, and on your sites page).
