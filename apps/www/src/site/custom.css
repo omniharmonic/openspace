@@ -1,0 +1,256 @@
+/* openspace.host art direction: Site Styles do the heavy lifting (Unbounded & Figtree, a cobalt
+   brand palette); this file adds what styles can't say. Sections are targeted by their anchors. */
+:root {
+  --ink: #0e1233;
+  --cobalt: #2c40e6;
+  --marigold: #ffcb52;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.os-type-display,
+.os-type-h1,
+.os-type-h2 {
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.os-type-h3 {
+  letter-spacing: -0.03em;
+}
+.os-heading__sub {
+  text-wrap: pretty;
+  max-width: 60ch;
+}
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  padding: 0.1em 0.35em;
+  border-radius: 5px;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  overflow-wrap: anywhere;
+}
+.os-header__title {
+  font-family: var(--os-font-heading);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+/* hero: the cobalt field with Studio's 24-column grid drawn on it, and the editor docked at the bottom */
+#hero {
+  padding-bottom: 0;
+  overflow: hidden;
+}
+#hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 max(var(--os-section-gutter), calc((100% - var(--os-width-wide)) / 2));
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 0.09) 1px, transparent 1px) 0 0 / calc(100% / 8) 100%,
+    linear-gradient(90deg, transparent calc(100% - 1px), rgb(255 255 255 / 0.09) 0);
+}
+@media (min-width: 768px) {
+  #hero::before {
+    background-size:
+      calc(100% / 24) 100%,
+      100% 100%;
+  }
+}
+#hero h1 {
+  font-size: clamp(2.45rem, 1.1rem + 5.7vw, 6.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+  padding-block-end: 0.18em;
+}
+#hero .os-block--heading {
+  margin-block-end: 0.75rem;
+}
+#hero .os-block--text p {
+  font-size: clamp(1.08rem, 1rem + 0.35vw, 1.3rem);
+  line-height: 1.5;
+  max-width: 40ch;
+}
+#hero .os-buttons__note {
+  opacity: 0.85;
+}
+#hero .os-block--embed {
+  margin-top: clamp(1rem, 3vw, 2.5rem);
+}
+#hero .os-embed {
+  aspect-ratio: 3 / 4;
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+  box-shadow:
+    0 -1px 0 rgb(255 255 255 / 0.25),
+    0 30px 80px rgb(8 12 60 / 0.45);
+}
+@media (min-width: 640px) {
+  #hero .os-embed {
+    aspect-ratio: 16 / 11;
+  }
+}
+@media (min-width: 1200px) {
+  #hero .os-embed {
+    aspect-ratio: 16 / 8.4;
+  }
+}
+
+/* the numbers strip */
+#numbers .os-stats__value {
+  font-family: var(--os-font-heading);
+  font-weight: 500;
+  letter-spacing: -0.05em;
+}
+
+/* how it works: the three steps are a real sequence, so they're numbered */
+#how .os-embed,
+#claude .os-embed {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgb(14 18 51 / 0.12),
+    0 24px 60px rgb(14 18 51 / 0.16);
+}
+#how .os-embed > iframe {
+  height: 680px;
+}
+@media (min-width: 640px) {
+  #how .os-embed > iframe {
+    height: 500px;
+  }
+}
+#how .os-block--text p {
+  max-width: 62ch;
+}
+
+/* the cost comparison: one shared scale; OpenSpace's row is the point, so it gets the weight */
+#cost .os-chart {
+  padding: clamp(1rem, 2.4vw, 1.75rem);
+  border-radius: 14px;
+  background: var(--os-color-surface);
+}
+#cost .os-chart__title {
+  font-family: var(--os-font-body);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+#cost .os-chart__row:last-child :is(.os-chart__label, .os-chart__value) {
+  font-weight: 700;
+  color: var(--os-color-heading);
+}
+#cost .os-chart__row:last-child .os-chart__track {
+  position: relative;
+}
+@media (max-width: 640px) {
+  #cost .os-chart__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 2px;
+  }
+  #cost .os-chart__label {
+    grid-column: 1 / -1;
+  }
+  #cost .os-chart__bars {
+    gap: var(--os-space-xs);
+  }
+}
+#cost .os-chart__row:last-child .os-chart__track::before {
+  content: "";
+  position: absolute;
+  inset-block: 15%;
+  left: 0;
+  width: 6px;
+  border-radius: 3px;
+  background: var(--marigold);
+}
+#cost .os-block--text .os-type-small,
+#cost .os-block--text p.os-type-small {
+  max-width: none;
+  opacity: 0.9;
+}
+#lockin .os-columns__item,
+#lockin .os-card {
+  border-top: 2px solid currentColor;
+  padding-top: 1rem;
+}
+
+/* Claude */
+#claude .os-embed {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.12),
+    0 30px 80px rgb(0 0 0 / 0.4);
+}
+#claude .os-embed > iframe {
+  height: 620px;
+}
+@media (min-width: 640px) {
+  #claude .os-embed > iframe {
+    height: 540px;
+  }
+}
+#claude code {
+  background: rgb(255 255 255 / 0.1);
+}
+
+/* features: an index, not a wall of cards */
+#features .os-iconlist--tiles {
+  row-gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+#features .os-iconlist--tiles .os-iconlist__item {
+  background: none;
+  border-radius: 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--os-color-text) 22%, transparent);
+}
+#features .os-iconlist__icon {
+  background: none;
+  width: auto;
+  height: auto;
+  justify-content: flex-start;
+}
+
+/* questions read better in the body face */
+.os-accordion__summary {
+  font-family: var(--os-font-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.os-type-eyebrow {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+/* dark sections and the footer sit on ink blue rather than neutral black */
+.os-theme-dark {
+  --os-color-background: #0e1233;
+  --os-color-surface: #161b47;
+  --os-color-surface-raised: #1d2356;
+}
+
+/* templates wall */
+#templates .os-gallery img {
+  border-radius: 10px;
+  box-shadow:
+    0 1px 2px rgb(14 18 51 / 0.1),
+    0 12px 32px rgb(14 18 51 / 0.12);
+}
+
+/* the final call to action gets the hero's grid too */
+#start {
+  overflow: hidden;
+}
+#start::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px) 50% 0 / calc(100% / 12)
+    100%;
+}
+#start .os-type-display,
+#start h2 {
+  font-size: clamp(2.2rem, 1rem + 5vw, 5.4rem);
+  line-height: 1;
+}

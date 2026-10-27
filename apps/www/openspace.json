@@ -4,13 +4,13 @@
   "schemaVersion": 1,
   "template": {
     "id": "openspace-www",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
-  "hub": "https://hub.openspace.dev",
+  "hub": "https://hub.openspace.host",
   "deploy": {
     "target": "github-pages",
-    "url": "https://openspace.dev",
-    "customDomain": "openspace.dev"
+    "url": "https://openspace.host",
+    "customDomain": "openspace.host"
   },
   "features": {
     "forms": false,

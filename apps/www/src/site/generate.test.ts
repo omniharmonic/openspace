@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
+import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { WWW_ROOT, writeWww, wwwFiles } from "./generate";
 
@@ -36,13 +37,18 @@ describe("generated site files", () => {
 });
 
 describe("media", () => {
-  it("records the real size of every screenshot", async () => {
+  it("records the real type and size of every image", async () => {
     const { buildWww } = await import("./www");
     const { doc } = buildWww(() => 1);
     for (const [path, meta] of Object.entries(doc.media)) {
-      const png = await readFile(join(WWW_ROOT, path));
-      expect(png.subarray(1, 4).toString(), path).toBe("PNG");
-      expect([png.readUInt32BE(16), png.readUInt32BE(20)], path).toEqual([meta.width, meta.height]);
+      const file = await readFile(join(WWW_ROOT, path));
+      if (meta.mime === "image/svg+xml") {
+        expect(file.toString("utf8"), path).toMatch(/^<svg [^>]*viewBox="0 0 64 64"/);
+        continue;
+      }
+      const info = await sharp(file).metadata();
+      expect(`image/${info.format === "jpeg" ? "jpeg" : info.format}`, path).toBe(meta.mime);
+      expect([info.width, info.height], path).toEqual([meta.width, meta.height]);
     }
   });
 });

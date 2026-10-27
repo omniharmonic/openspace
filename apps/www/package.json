@@ -2,7 +2,7 @@
   "name": "@omniharmonic/openspace-www",
   "version": "0.1.0",
   "private": true,
-  "description": "openspace.dev — the OpenSpace marketing site and template gallery, built with OpenSpace itself.",
+  "description": "openspace.host — the OpenSpace marketing site and template gallery, built with OpenSpace itself.",
   "license": "CC-BY-4.0",
   "type": "module",
   "scripts": {

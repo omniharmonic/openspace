@@ -4,7 +4,7 @@
   "title": "Pricing",
   "slug": "pricing",
   "seo": {
-    "description": "OpenSpace is free forever, by architecture: your site runs on free accounts you own, and you bring your own AI. No plans, no transaction fees."
+    "description": "OpenSpace is free by architecture: your site runs on free accounts you own, and you bring your own AI. No plans and no transaction fees."
   },
   "sections": [
     {
@@ -20,7 +20,7 @@
         }
       },
       "style": {
-        "colorTheme": "light-accent",
+        "colorTheme": "brand",
         "padding": {
           "d": "2xl",
           "m": "xl"
@@ -50,16 +50,17 @@
           "type": "button",
           "v": 1,
           "fields": {
-            "label": "Make your site — free",
+            "label": "Start free",
             "link": {
               "type": "url",
-              "url": "https://studio.openspace.dev/templates"
+              "url": "https://studio.openspace.host/templates"
             },
             "role": "primary",
-            "secondaryLabel": "Read how it works",
+            "secondaryLabel": "Compare the cost",
             "secondaryLink": {
-              "type": "url",
-              "url": "https://docs.openspace.dev/architecture/"
+              "type": "page",
+              "page": "pg_p5dpv5xxt4",
+              "anchor": "cost"
             }
           },
           "variant": "default",
@@ -119,15 +120,15 @@
               },
               {
                 "icon": "check",
-                "title": "Forms, newsletter signups and analytics"
+                "title": "Forms, newsletter, campaigns and analytics"
               },
               {
                 "icon": "check",
-                "title": "Blog, events, members and a store"
+                "title": "Blog, events, portfolio and podcast"
               },
               {
                 "icon": "check",
-                "title": "Custom domains with free HTTPS"
+                "title": "Store and members on your own Cloudflare"
               }
             ],
             "columns": "1"
@@ -157,10 +158,10 @@
                     "text": "Export everything, any time"
                   }
                 ],
-                "buttonLabel": "Make your site",
+                "buttonLabel": "Start free",
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/templates"
+                  "url": "https://studio.openspace.host/templates"
                 },
                 "featured": true
               }
@@ -216,7 +217,7 @@
               {
                 "icon": "globe",
                 "title": "Hosting",
-                "text": "GitHub Pages serves content sites free; stores use your own free Cloudflare plan."
+                "text": "GitHub Pages serves content sites free; stores use your own Cloudflare account."
               },
               {
                 "icon": "rocket",
@@ -226,7 +227,7 @@
               {
                 "icon": "message-circle",
                 "title": "AI",
-                "text": "You bring your own AI, so there is no metered model to pay for."
+                "text": "You bring your own Claude, so there is no metered model to pay for."
               },
               {
                 "icon": "users",
@@ -342,7 +343,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Generous fair-use limits on the public Hub keep it free, such as 1,000 form entries a month per site. Self-hosted Hubs set their own."
+                          "text": "Fair-use limits on the public Hub keep it free, such as 1,000 form entries a month and 5,000 subscribers per site. Self-hosted Hubs set their own."
                         }
                       ]
                     }
@@ -402,10 +403,10 @@
           "type": "button",
           "v": 1,
           "fields": {
-            "label": "Make your site — free",
+            "label": "Start free",
             "link": {
               "type": "url",
-              "url": "https://studio.openspace.dev/templates"
+              "url": "https://studio.openspace.host/templates"
             },
             "role": "primary",
             "secondaryLabel": "See the templates",
