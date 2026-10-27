@@ -21,16 +21,16 @@ export const GITHUB_ACCESS_NEEDS: readonly GitHubAccessNeed[] = [
 /** What the dashboard and editor say while a site waits for GitHub. */
 export const GITHUB_ACCESS_DETAIL: Record<GitHubAccessNeed, string> = {
   install:
-    "One more step: let OpenSpace create your site’s repository on GitHub. Choose Connect GitHub to finish.",
+    "One more step: give OpenSpace permission on GitHub (the free service that stores your site) so it can save your site there. Choose Connect GitHub to finish.",
   repo_access:
-    "OpenSpace can only reach some of your GitHub repositories. Choose Connect GitHub and allow “All repositories” so it can create your site’s repository.",
+    "OpenSpace needs permission for all your GitHub projects so it can save new sites there. Choose Connect GitHub and pick “All repositories”.",
   requested:
-    "Waiting for your GitHub organization’s owners to approve OpenSpace. Once they do, choose Try again.",
+    "Waiting for the owners of your GitHub organization to approve OpenSpace. Once they do, choose Try again.",
 };
 
 /** The same, for a site that was working until GitHub access was removed. */
 export const GITHUB_RECONNECT_DETAIL =
-  "OpenSpace lost access to this site on GitHub (the app was removed or its access changed). Choose Reconnect GitHub to fix it.";
+  "OpenSpace can no longer reach this site on GitHub (its permission was removed or changed). Choose Reconnect GitHub to fix it — your site stays online meanwhile.";
 
 export function asAccessNeed(value: string | null | undefined): GitHubAccessNeed | null {
   return GITHUB_ACCESS_NEEDS.includes(value as GitHubAccessNeed)

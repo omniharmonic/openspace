@@ -30,6 +30,7 @@ import {
   touchConnection,
   touchMcpSession,
 } from "./db";
+import { hubTools } from "./hub-tools";
 import { endSession, MCP_IDLE_MS } from "./sessions";
 import { HubSiteStore, imagesResizer } from "./store";
 
@@ -308,6 +309,15 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
     },
     {
       label,
+      // Account-level tools (create_site, list_templates…) next to the shared site tools.
+      tools: hubTools({
+        env: c.env,
+        services,
+        user: auth.user,
+        connection: auth.connection,
+        sites,
+        log,
+      }),
       assumeInitialized: !init,
       onError: (err, where) => log.error("mcp tool failed", { where, err }),
     },
