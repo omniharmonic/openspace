@@ -196,6 +196,13 @@ export function tagSlug(tag: string): string {
   );
 }
 
+/** Shorten text to `max` characters on a word boundary, with an ellipsis. */
+function clipText(s: string, max: number): string {
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), max - 40)).trimEnd()}…`;
+}
+
 export function itemDescription(item: CollectionItem): string | undefined {
   return (
     item.frontmatter.seo?.description ??
@@ -519,7 +526,8 @@ export function cardRows(
       const fields: Record<string, unknown> = {
         aspect: "3:2",
         heading: fm.title,
-        body: rt.doc(rt.p(itemDescription(item) ?? "")),
+        // Card bodies hold up to 400 characters; excerpts may be up to 500.
+        body: rt.doc(rt.p(clipText(itemDescription(item) ?? "", 400))),
         link: { type: "item", collection, slug: item.slug } satisfies Link,
       };
       if (fm.image) fields.image = imageValue(fm.image, doc.media, fm.imageAlt);

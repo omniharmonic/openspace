@@ -212,7 +212,7 @@ async function mapItem(
   const base = {
     title: clip(item.title, 200),
     status: item.draft ? ("draft" as const) : ("published" as const),
-    ...(excerptText ? { excerpt: clip(excerptText, 500) } : {}),
+    ...(excerptText ? { excerpt: clip(excerptText, 300) } : {}),
     ...(image
       ? { image: image.src, ...(image.alt ? { imageAlt: clip(image.alt, 500) } : {}) }
       : {}),
