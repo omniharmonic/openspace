@@ -107,6 +107,7 @@ const SiteChromePanel = lazy(() =>
   import("../site-chrome/SiteChromePanel").then((m) => ({ default: m.SiteChromePanel })),
 );
 
+import { markSetupDone } from "../setup/checklist";
 import { FirstRunTour, tourSeen } from "../setup/FirstRunTour";
 import { HelpMenu } from "../setup/HelpMenu";
 import { SetupChip } from "../setup/SetupChip";
@@ -114,7 +115,6 @@ import { can } from "../site-mgmt/manage-ui";
 import { SiteManagementHost } from "../site-mgmt/SiteManagementHost";
 import { UpdateBanner } from "../updates/UpdateBanner";
 import { WorkspaceHost, WorkspaceRail } from "../workspace/WorkspaceHost";
-import { FirstRunChecklist, useChecklist } from "./FirstRunChecklist";
 import {
   type ClipPayload,
   copyItems,
@@ -370,7 +370,6 @@ function EditorChrome({ site }: { site: Site }) {
   const narrow = useIsNarrow();
   // Settings and workspace screens cover the canvas: its device and zoom controls step back.
   const overCanvas = /^\/sites\/[^/]+\/./.test(useLocation().pathname);
-  const checklist = useChecklist(site.id);
   const [frameDoc, setFrameDoc] = useState<Document | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const store = useDocStoreApi();
@@ -410,23 +409,17 @@ function EditorChrome({ site }: { site: Site }) {
     if (compact && ui.breakpoint === "desktop") ui.setBreakpoint("tablet");
   }, [compact]);
 
-  // The first-run checklist ticks itself when the home page's opening words or photo change.
-  const complete = checklist.complete;
+  // "Make it yours" (Finish setting up) ticks itself the first time anything on the site is
+  // edited — whichever block holds the headline or photo in this template.
   useEffect(
     () =>
       store.getState().onLocalOps((ops) => {
-        const s = store.getState();
-        const home = Object.values(s.doc.pages).find((p) => p.slug === "");
-        const first = home?.sections[0];
-        for (const op of ops) {
-          if (op.op !== "block.update" || !first) continue;
-          const block = first.blocks.find((b) => b.id === op.block);
-          if (block?.type === "text") complete("headline");
-          if (block?.type === "image") complete("photo");
-        }
+        if (ops.some((op) => op.op.startsWith("block.") || op.op.startsWith("site.")))
+          markSetupDone(site.id, "personalize");
       }),
-    [store, complete],
+    [store, site.id],
   );
+  const showChecklist = () => navigate(`/sites/${site.id}/settings/setup`);
 
   // On phones the phone layout opens the requested panel as a sheet (it watches `leftPanel`).
   const openPanel = (id: LeftPanel) =>
@@ -620,10 +613,10 @@ function EditorChrome({ site }: { site: Site }) {
     },
     {
       id: "show-checklist",
-      label: "Show setup checklist",
+      label: "Finish setting up",
       group: "Site",
       icon: <ListChecks />,
-      run: checklist.show,
+      run: showChecklist,
     },
     {
       id: "back",
@@ -692,7 +685,7 @@ function EditorChrome({ site }: { site: Site }) {
                 onSelect: () => window.open(site.url, "_blank", "noopener"),
               },
               { label: "Copy live link", icon: <Copy />, onSelect: () => void copyLink(site.url) },
-              { label: "Show setup checklist", icon: <ListChecks />, onSelect: checklist.show },
+              { label: "Finish setting up", icon: <ListChecks />, onSelect: showChecklist },
               {
                 label: "History and versions",
                 icon: <History />,
@@ -875,9 +868,6 @@ function EditorChrome({ site }: { site: Site }) {
             <LookStage />
           </Suspense>
         )}
-        <div className="st-ed-main__overlay">
-          <FirstRunChecklist checklist={checklist} />
-        </div>
       </main>
 
       {showRight && (

@@ -50,13 +50,15 @@ describe("buildChecklist", () => {
     expect(contentNeeds(doc)).toMatchObject({ store: 3, donations: 1, members: 1, forms: 1 });
     const items = buildChecklist({ ...base, doc });
     expect(items.map((i) => [i.id, i.status])).toEqual([
+      ["personalize", "todo"],
       ["store", "todo"],
       ["donations", "todo"],
       ["members", "todo"],
       ["forms-email", "todo"],
       ["domain", "todo"],
+      ["ai", "todo"],
     ]);
-    expect(items[0]).toMatchObject({ count: 3, where: ["/shop"], minutes: 10, wizard: "shop" });
+    expect(items[1]).toMatchObject({ count: 3, where: ["/shop"], minutes: 10, wizard: "shop" });
     expect(items.every((i) => i.why.length > 20)).toBe(true);
   });
 
@@ -69,8 +71,10 @@ describe("buildChecklist", () => {
       setup: { everLive: false, imported: null },
     });
     expect(items.map((i) => [i.id, i.status])).toEqual([
+      ["personalize", "todo"],
       ["store", "later"],
       ["domain", "todo"],
+      ["ai", "todo"],
     ]);
   });
 
@@ -81,8 +85,11 @@ describe("buildChecklist", () => {
       doc,
       site: { deployTarget: "cloudflare", domain: "maya.yoga", status: "live" },
       paymentsReady: true,
+      // The first edit ticks "Make it yours"; a connected Claude ticks "Connect your AI".
+      acknowledged: ["personalize"],
+      aiConnected: true,
     });
-    expect(progress(items)).toEqual({ done: 2, total: 2, left: 0 });
+    expect(progress(items)).toEqual({ done: 4, total: 4, left: 0 });
   });
 
   it("merges the importer's list: known kinds join their step, others become their own", () => {
@@ -117,9 +124,11 @@ describe("buildChecklist", () => {
       },
       acknowledged: ["import:cc"],
     });
+    // A moved site is already theirs: no "Make it yours".
     expect(items.map((i) => [i.id, i.status, i.source])).toEqual([
       ["store", "todo", "import"],
       ["domain", "todo", "content"],
+      ["ai", "todo", "always"],
       ["import:cc", "done", "import"],
     ]);
     expect(items[0]).toMatchObject({ count: 12, detail: "12 products came across." });

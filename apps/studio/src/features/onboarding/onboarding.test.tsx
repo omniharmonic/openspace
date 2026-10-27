@@ -91,7 +91,9 @@ describe("onboarding: template → details → sign in → building → editor",
     expect(screen.getByText("sam-rivera.github.io/juniper-bodywork")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy link" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Start editing" }));
-    expect(screen.getByRole("region", { name: "Get your site ready" })).toBeInTheDocument();
+    // One to-do list: "Finish setting up" in the top bar (no second floating card).
+    expect(await screen.findByRole("button", { name: /Finish setting up/ })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Get your site ready" })).not.toBeInTheDocument();
     expect(router.state.location.search).not.toContain("welcome");
 
     const created = hub.calls.find((c) => c.method === "createSite");
