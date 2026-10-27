@@ -592,7 +592,15 @@ const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
 /** The report as Markdown (FIDELITY-REPORT.md). */
 export function fidelityMarkdown(
   report: FidelityReport,
-  opts: { images?: Record<string, string[]>; tuning?: { before: number; changes: string[] } } = {},
+  opts: {
+    images?: Record<string, string[]>;
+    tuning?: {
+      before: number;
+      changes: string[];
+      withoutComponents?: number;
+      withComponents?: number;
+    };
+  } = {},
 ): string {
   const lines = [
     "# Visual fidelity",
@@ -606,6 +614,14 @@ export function fidelityMarkdown(
       "",
       ...opts.tuning.changes.slice(0, 30).map((c) => `- ${c}`),
       "",
+      ...(opts.tuning.withoutComponents !== undefined
+        ? [
+            opts.tuning.withComponents !== undefined
+              ? `Without custom components: ${opts.tuning.withoutComponents}/100; with the sections recreated as components: ${opts.tuning.withComponents}/100.`
+              : `Recreating low-scoring sections as custom components didn't raise the score (${opts.tuning.withoutComponents}/100), so none were kept.`,
+            "",
+          ]
+        : []),
     );
   }
   for (const p of report.pages) {

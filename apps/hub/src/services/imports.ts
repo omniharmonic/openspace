@@ -158,6 +158,9 @@ export interface ImportFidelity {
   }>;
   /** What auto-tuning changed. */
   changes?: string[];
+  /** The score before sections were recreated as custom components, and with them. */
+  withoutComponents?: number;
+  withComponents?: number;
 }
 
 /** The fidelity comparison as Studio shows it (thumbnails served by the Hub). */
@@ -216,11 +219,15 @@ export function parseFidelitySummary(text: string | null): ImportFidelity | unde
         .filter((c): c is string => !!c)
         .slice(0, 20)
     : [];
+  const without = num(r.withoutComponents);
+  const withC = num(r.withComponents);
   return {
     score,
     ...(before !== undefined ? { before } : {}),
     pages,
     ...(changes.length ? { changes } : {}),
+    ...(without !== undefined ? { withoutComponents: without } : {}),
+    ...(withC !== undefined ? { withComponents: withC } : {}),
   };
 }
 

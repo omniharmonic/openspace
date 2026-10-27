@@ -5,7 +5,8 @@
  * share) and the auto-tuner. Fixtures are authored here.
  */
 import { readFileSync } from "node:fs";
-import type { SiteDocument } from "@omniharmonic/openspace-schema";
+import { componentIssues } from "@omniharmonic/openspace-lint";
+import { checkComponent, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { setupChecklist } from "./checklist";
 import { parseDocument } from "./dom";
@@ -14,8 +15,10 @@ import {
   fidelityReport,
   fontCredit,
   matchSections,
+  type SectionComparison,
   withVisual,
 } from "./fidelity/compare";
+import { canGenerate, componentFromBlueprint } from "./fidelity/component-gen";
 import {
   categoryOf,
   metricDistance,
@@ -526,5 +529,149 @@ describe("the probe script", () => {
     const src = readFileSync(new URL("./fidelity/probe.ts", import.meta.url), "utf8");
     for (const s of ["measureText", "fontRequests", "sidebar", "res.button", "words:"])
       expect(src).toContain(s);
+  });
+});
+
+describe("importers → custom components", () => {
+  const card = (): ProbeSection =>
+    sec("", {
+      heading: undefined,
+      height: 385,
+      text: "ABOUT Find out about our organization",
+      blueprint: [
+        {
+          kind: "image",
+          src: "https://images.example.com/bridge.jpg",
+          alt: "A bridge",
+          box: { x: 242, y: 1068, w: 468, h: 351 },
+        },
+        {
+          kind: "text",
+          text: "ABOUT",
+          box: { x: 928, y: 1130, w: 71, h: 21 },
+          style: {
+            ...t("proxima-nova", 14.6, { case: "uppercase", letterSpacing: 0.2, color: "#999999" }),
+            align: "center",
+          },
+        },
+        {
+          kind: "text",
+          text: "Find out about our organization, mission, our methods, and the results of our decades of advocacy.",
+          box: { x: 772, y: 1180, w: 384, h: 103 },
+          style: { ...t("adobe-garamond-pro", 23, { color: "#222222" }), align: "center" },
+        },
+        {
+          kind: "button",
+          text: "LEARN MORE",
+          href: "/about-bedford",
+          box: { x: 890, y: 1321, w: 148, h: 39 },
+          style: { ...t("proxima-nova", 12.3, { case: "uppercase" }), align: "center" },
+        },
+      ],
+    });
+
+  it("recreates a section's layout on tokens with every part an editable field", () => {
+    const gen = componentFromBlueprint({
+      name: "imported-home-3",
+      label: "About card",
+      section: card(),
+      roles: { heading: "adobe-garamond-pro", body: "adobe-garamond-pro", label: "proxima-nova" },
+      colors: { text: "#222222", heading: "#111111", "text-muted": "#999999" },
+      link: (href) =>
+        href.startsWith("/") ? { type: "url", url: `https://x.example${href}` } : undefined,
+    });
+    expect(gen).toBeDefined();
+    const def = gen?.def as NonNullable<typeof gen>["def"];
+    const check = checkComponent(def);
+    expect(check.ok ? [] : check.issues).toEqual([]);
+    expect(Object.keys(def.fields).sort()).toEqual(["image1", "label4", "link4", "text2", "text3"]);
+    expect(gen?.fields).toMatchObject({
+      image1: { src: "https://images.example.com/bridge.jpg", alt: "A bridge" },
+      text2: "ABOUT",
+      label4: "LEARN MORE",
+      link4: { type: "url", url: "https://x.example/about-bedford" },
+    });
+    // Theme fonts and colours, never fixed colours or the original's CSS.
+    expect(def.css).toContain("font-family: var(--os-font-label)");
+    expect(def.css).toContain("color: var(--os-color-text-muted)");
+    expect(def.css).not.toMatch(/#[0-9a-f]{6}/i);
+    expect(def.css).toContain("@media (max-width: 767px)");
+    expect(def.template).toContain('{{button link4 label=label4 variant="primary"}}');
+    expect(canGenerate(card())).toBe(true);
+    expect(canGenerate(sec("x", { blueprint: undefined }))).toBe(false);
+  });
+
+  it("the tuner swaps a low-scoring section for its component, and lint gates pass", () => {
+    const original: LookProbe = {
+      url: "https://x.example/",
+      viewport: 1440,
+      title: "",
+      presets: { body: t("adobe-garamond-pro", 18), button: t("proxima-nova", 12) },
+      layout: {},
+      sections: [card()],
+      height: 2000,
+    };
+    const imported: LookProbe = {
+      ...original,
+      sections: [sec("Find out about our organization", { columns: 2, height: 900, text: "x" })],
+    };
+    const comparison = compareLooks(original, imported, "/");
+    comparison.sections[0] = {
+      ...(comparison.sections[0] as SectionComparison),
+      importedIndex: 0,
+      score: 30,
+    };
+    const d = {
+      config: {},
+      site: {
+        title: "x",
+        footer: {
+          id: "sec_f",
+          layout: { mode: "stack", columns: { d: [12] } },
+          style: {},
+          blocks: [],
+        },
+      },
+      styles: {
+        choices: {
+          palette: { brand: "#2a9d8f", neutral: "warm", contrast: "standard" },
+          pairing: "classic-editorial",
+          density: "comfortable",
+          shape: "soft",
+          buttons: "solid",
+          motion: "subtle",
+          imageTreatment: "none",
+        },
+      },
+      pages: {
+        pg_home: {
+          id: "pg_home",
+          title: "Home",
+          slug: "",
+          sections: [
+            {
+              id: "sec_a",
+              layout: { mode: "stack", columns: { d: [6, 6] } },
+              style: { colorTheme: "light" },
+              blocks: [],
+            },
+          ],
+        },
+      },
+      collections: {},
+      collectionConfigs: {},
+      media: {},
+    } as unknown as SiteDocument;
+    const r = tuneRound(
+      d,
+      [{ path: "/", viewport: 1440, original, imported, comparison }],
+      ["components"],
+    );
+    expect(r.changes).toEqual(["/: section 1 recreated as a custom component"]);
+    const section = r.doc.pages.pg_home?.sections[0];
+    expect(section?.id).toBe("sec_a");
+    expect(section?.blocks[0]?.type).toBe("component/imported-home-1");
+    expect(r.doc.components?.["imported-home-1"]?.category).toBe("imported");
+    expect(componentIssues(r.doc).filter((i) => i.severity === "error")).toEqual([]);
   });
 });

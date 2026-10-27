@@ -6,16 +6,22 @@
  * of the original. The CLI applies a round, renders again, measures again and keeps whichever
  * version scored best (bounded number of rounds), so a change that doesn't help is undone.
  */
-import type {
-  Block,
-  Page,
-  Section,
-  SiteDocument,
-  TypeScalePreset,
-  TypeStep,
+
+import { componentIssues } from "@omniharmonic/openspace-lint";
+import {
+  type Block,
+  checkComponent,
+  componentSection,
+  type Link,
+  type Page,
+  type Section,
+  type SiteDocument,
+  type TypeScalePreset,
+  type TypeStep,
 } from "@omniharmonic/openspace-schema";
 import { compileStyles, SPACE_SCALES } from "@omniharmonic/openspace-theme";
 import { colorDistance, type PageComparison } from "./compare";
+import { canGenerate, componentFromBlueprint } from "./component-gen";
 import { nearestOpenFont } from "./font-match";
 import { applyLayoutHints } from "./hints";
 import type { LookProbe, ProbeSection } from "./probe";
@@ -42,7 +48,11 @@ export const TUNE_GROUPS = [
   "backgrounds",
   "crops",
   "phone-images",
+  "components",
 ] as const;
+
+/** Sections scoring below this (computer) are recreated as custom components, if that helps. */
+export const COMPONENT_THRESHOLD = 60;
 export type TuneGroup = (typeof TUNE_GROUPS)[number];
 
 export interface TuneResult {
@@ -447,6 +457,107 @@ export function tuneRound(
       changes.push(
         `${m.path}: the image in section ${s.index + 1} narrower on phones, as on the original`,
       );
+    }
+  }
+  // --- sections presets can't reproduce: recreated as custom components ------------------------
+  if (on("components")) {
+    const origs = desk.map((m) => m.original.presets);
+    const pick = (f: (p: LookProbe["presets"]) => string | undefined) =>
+      origs.map(f).find((x): x is string => !!x);
+    const roles = {
+      heading: pick((p) => (p.h1 ?? p.h2)?.family),
+      body: pick((p) => p.body?.family),
+      label: pick((p) => (p.eyebrow ?? p.button ?? p.nav)?.family),
+    };
+    const pages = Object.values(doc.pages);
+    const linkFor =
+      (base: string) =>
+      (href: string): Link | undefined => {
+        if (!href || href.startsWith("#")) return undefined;
+        let u: URL;
+        try {
+          u = new URL(href, base);
+        } catch {
+          return undefined;
+        }
+        if (u.origin === new URL(base).origin) {
+          const slug =
+            u.pathname
+              .replace(/^\/+|\/+$/g, "")
+              .split("/")
+              .pop() ?? "";
+          const page = pages.find((p) => p.slug === slug);
+          if (page) return { type: "page", page: page.id } as Link;
+        }
+        if (u.protocol === "mailto:") return { type: "email", email: u.pathname } as Link;
+        return u.protocol === "https:" ? ({ type: "url", url: u.toString() } as Link) : undefined;
+      };
+    for (const m of desk) {
+      const page = pageOf(doc, m.path);
+      if (!page || m.imported.sections.length !== page.sections.length) continue;
+      const used = new Set<number>();
+      for (const s of m.comparison.sections) {
+        if (s.importedIndex === undefined || s.score >= COMPONENT_THRESHOLD) continue;
+        if (used.has(s.importedIndex)) continue;
+        const o = m.original.sections[s.index];
+        const old = page.sections[s.importedIndex];
+        if (!o || !old || !canGenerate(o)) continue;
+        // One original section per imported section (an article split in parts isn't recreated).
+        if (m.comparison.sections.filter((x) => x.importedIndex === s.importedIndex).length > 1)
+          continue;
+        const name = `imported-${(page.slug || "home").replace(/[^a-z0-9]+/g, "-")}-${s.index + 1}`
+          .replace(/-+/g, "-")
+          .slice(0, 40)
+          .replace(/-$/, "");
+        const theme = themes?.[old.style.colorTheme ?? "light"] as
+          | Record<string, string | undefined>
+          | undefined;
+        const gen = componentFromBlueprint({
+          name,
+          label: `${s.heading ?? "Section"} (as on the original)`.slice(0, 60),
+          section: o,
+          roles,
+          ...(theme
+            ? {
+                colors: {
+                  text: theme.text,
+                  heading: theme.heading,
+                  "text-muted": theme["text-muted"],
+                  accent: theme.accent,
+                  link: theme.link,
+                },
+              }
+            : {}),
+          link: linkFor(m.original.url),
+        });
+        if (!gen) continue;
+        const check = checkComponent(gen.def);
+        if (!check.ok) continue;
+        const before = { components: doc.components, section: old };
+        used.add(s.importedIndex);
+        doc.components = { ...(doc.components ?? {}), [name]: gen.def };
+        const fresh = componentSection(gen.def, { fields: gen.fields });
+        page.sections[s.importedIndex] = {
+          ...fresh,
+          id: old.id,
+          ...(old.anchor ? { anchor: old.anchor } : {}),
+          style: { ...old.style },
+          layout: { ...fresh.layout, width: "wide" },
+        };
+        // The component gates (contrast, headings, accessibility, budgets) must pass.
+        const blocking = componentIssues(doc, page.id).filter(
+          (i) => i.severity === "error" && JSON.stringify(i).includes(name),
+        );
+        if (blocking.length) {
+          if (before.components) doc.components = before.components;
+          else delete doc.components;
+          page.sections[s.importedIndex] = before.section;
+          continue;
+        }
+        changes.push(
+          `${m.path}: section ${s.index + 1}${s.heading ? ` "${s.heading.slice(0, 40)}"` : ""} recreated as a custom component`,
+        );
+      }
     }
   }
   return { doc, changes };

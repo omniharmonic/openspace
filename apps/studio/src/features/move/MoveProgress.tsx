@@ -82,6 +82,9 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
           ? `We compared both sites page by page and fine-tuned the new one (it started at ${fidelity.before}/100).`
           : "We compared both sites page by page, on a computer and a phone."}{" "}
         Your old site is on the left, the new one on the right.
+        {fidelity.withComponents !== undefined
+          ? " A few sections were rebuilt as custom designs so they look as they did — you can still change every word and picture."
+          : ""}
       </p>
       <ul className="st-fidelity__pages">
         {fidelity.pages.map((p) => (

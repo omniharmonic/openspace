@@ -174,6 +174,8 @@ describe("the import workflow", () => {
       JSON.stringify({
         score: 92.4,
         before: 80,
+        withoutComponents: 88,
+        withComponents: 92,
         changes: ["h2: 60px", 7],
         pages: [
           {
@@ -192,6 +194,8 @@ describe("the import workflow", () => {
     expect(f).toEqual({
       score: 92,
       before: 80,
+      withoutComponents: 88,
+      withComponents: 92,
       changes: ["h2: 60px"],
       pages: [
         {

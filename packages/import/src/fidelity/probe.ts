@@ -73,6 +73,13 @@ export interface ProbeSection {
   textColor?: string;
   /** The fill of the section's first filled button (`#rrggbb`). */
   button?: string;
+  /**
+   * What the section is made of, where (a computer-width probe): its words, pictures, buttons and
+   * links with their boxes and text styles — enough to recreate an unmappable section as a
+   * custom component on theme tokens (never its CSS). Absent for sections with forms, video,
+   * embeds or more than 30 parts.
+   */
+  blueprint?: BlueprintItem[];
   /** Distance from the section top to its first text (px). */
   padTop?: number;
   /** Where the section's own content (text, images, forms) starts and ends (page px). */
@@ -83,6 +90,20 @@ export interface ProbeSection {
   text: string;
   /** More of its words (up to 20 000 characters), for matching parts of long sections. */
   words?: string;
+}
+
+export interface BlueprintItem {
+  kind: "heading" | "text" | "image" | "button" | "link";
+  /** Heading level (1–6). */
+  level?: number;
+  text?: string;
+  href?: string;
+  /** The picture's best address (`currentSrc`) and alt text. */
+  src?: string;
+  alt?: string;
+  /** Page-pixel box. */
+  box: { x: number; y: number; w: number; h: number };
+  style?: ProbeText & { align?: string };
 }
 
 export interface LookProbe {
@@ -388,6 +409,33 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       const lefts = [];
       for (const b of items) if (b.top <= mid && b.bottom >= mid && !lefts.some((l) => Math.abs(l - b.left) < 40)) lefts.push(b.left);
       res.columns = Math.max(res.columns, Math.min(6, lefts.length));
+    }
+    // The section's parts and where they sit (to recreate it as a component when needed).
+    if (!sec.querySelector("form, input, textarea, select, iframe, video, canvas, embed, object")) {
+      const parts = [];
+      const inPart = (e) => parts.some((p) => p.el.contains(e));
+      const btnLike = (e) => { const st = cs(e); return (toHex(st.backgroundColor) || parseFloat(st.borderTopWidth) >= 1) && parseFloat(st.paddingLeft) >= 8; };
+      const els = [...sec.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, img, a, button")].filter((e) => visible(e));
+      for (const e of els) {
+        if (inPart(e) || parts.length > 30) continue;
+        const t = ownText(e);
+        const box = rect(e);
+        const at = { x: Math.round(box.left), y: Math.round(box.top), w: Math.round(box.width), h: Math.round(box.height) };
+        if (e.tagName === "IMG") {
+          if (box.width < 40 || box.height < 30 || e === coverImg) continue;
+          parts.push({ el: e, item: { kind: "image", src: e.currentSrc || e.src, alt: (e.alt || "").slice(0, 300), box: at } });
+        } else if (/^H[1-6]$/.test(e.tagName)) {
+          if (!t) continue;
+          parts.push({ el: e, item: { kind: "heading", level: Number(e.tagName[1]), text: t.slice(0, 300), box: at, style: { ...textOf(e), align: cs(e).textAlign } } });
+        } else if (e.tagName === "A" || e.tagName === "BUTTON") {
+          if (!t || t.length > 60 || e.closest("p, li, h1, h2, h3, h4, h5, h6, blockquote")) continue;
+          parts.push({ el: e, item: { kind: btnLike(e) ? "button" : "link", text: t, href: e.getAttribute("href") || "", box: at, style: { ...textOf(e), align: cs(e).textAlign } } });
+        } else {
+          if (!t || e.querySelector("p, li, h1, h2, h3, h4, h5, h6, img")) continue;
+          parts.push({ el: e, item: { kind: "text", text: t.slice(0, 1500), box: at, style: { ...textOf(e), align: cs(e).textAlign } } });
+        }
+      }
+      if (parts.length && parts.length <= 30) res.blueprint = parts.map((p) => p.item);
     }
     // Where the section's own content starts and ends (for the spacing between sections).
     const content = [...sec.querySelectorAll(textSel + ", h1, h2, img, picture, video, iframe, form, button, a")].filter((e) => visible(e) && (/^(IMG|PICTURE|VIDEO|IFRAME|FORM)$/.test(e.tagName) || ownText(e).length > 1)).map(rect);

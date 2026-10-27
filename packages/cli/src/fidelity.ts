@@ -13,6 +13,7 @@ import {
   fidelityMarkdown,
   fidelityReport,
   type LookProbe,
+  MediaImporter,
   type PageComparison,
   PROBE_SCRIPT,
   parseProbe,
@@ -23,7 +24,9 @@ import {
 } from "@omniharmonic/openspace-import";
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { loadSiteDocument, writeSiteDocument } from "@omniharmonic/openspace-site-kit/content";
+import { runCheck } from "./check";
 import { CliError } from "./io";
+import { loadResizer } from "./mcp";
 import { startPreviewServer } from "./mcp/preview-server";
 import { loadPlaywright, prepareScript } from "./mcp/screenshot";
 
@@ -176,7 +179,14 @@ export interface CompareResult {
   /** Written side-by-side images (absolute paths). */
   images: string[];
   /** Score before auto-tuning (when it ran) and what tuning changed. */
-  tuning?: { before: FidelityReport; changes: string[]; rounds: number };
+  tuning?: {
+    before: FidelityReport;
+    changes: string[];
+    rounds: number;
+    /** Score just before sections were recreated as custom components, and with them. */
+    withoutComponents?: number;
+    withComponents?: number;
+  };
   /** The thumbnails written (file names in `out`), when asked for. */
   thumbs?: Record<string, string>;
 }
@@ -397,6 +407,9 @@ export async function runCompare(
       let bestDoc = doc;
       let bestScore = first.exact ?? first.score;
       let ran = 0;
+      /** The score before recreating sections as components, and with them (when kept). */
+      let withoutComponents: number | undefined;
+      let withComponents: number | undefined;
       // Each try re-renders and re-measures every page: bounded.
       let budget = 2 + rounds * 3;
       for (let pass = 0; pass < rounds && budget > 0; pass++) {
@@ -410,6 +423,11 @@ export async function runCompare(
           log(
             `Tuning ${group}: ${t.changes.slice(0, 4).join("; ")}${t.changes.length > 4 ? "…" : ""}`,
           );
+          if (group === "components") {
+            withoutComponents ??= bestScore;
+            // The recreated sections' pictures come into media/ like every other picture.
+            await localizeComponentImages(root, t.doc).catch(() => undefined);
+          }
           try {
             await writeSiteDocument(root, t.doc);
           } catch (e) {
@@ -424,6 +442,16 @@ export async function runCompare(
           log(
             `  score ${bestScore.toFixed(1)} → ${score.toFixed(1)}${better ? " (kept)" : " (undone)"}`,
           );
+          // A recreated section must also pass the site's checks (component gates).
+          if (better && group === "components") {
+            const check = await runCheck(root).catch(() => undefined);
+            if (!check?.ok) {
+              log("  the recreated sections didn't pass the site's checks; undone");
+              await writeSiteDocument(root, bestDoc);
+              continue;
+            }
+            withComponents = score;
+          }
           if (better) {
             bestScore = score;
             bestDoc = t.doc;
@@ -435,7 +463,19 @@ export async function runCompare(
         ran++;
         if (!improved) break;
       }
-      tuning = { before: first, changes, rounds: ran };
+      tuning = {
+        before: first,
+        changes,
+        rounds: ran,
+        ...(withoutComponents !== undefined
+          ? {
+              withoutComponents: Math.round(withoutComponents),
+              ...(withComponents !== undefined
+                ? { withComponents: Math.round(withComponents) }
+                : {}),
+            }
+          : {}),
+      };
     }
   } catch (e) {
     await browser.close().catch(() => undefined);
@@ -474,7 +514,20 @@ export async function runCompare(
   const report = fidelityReport(best.comparisons);
   const markdown = fidelityMarkdown(report, {
     images,
-    ...(tuning ? { tuning: { before: tuning.before.score, changes: tuning.changes } } : {}),
+    ...(tuning
+      ? {
+          tuning: {
+            before: tuning.before.score,
+            changes: tuning.changes,
+            ...(tuning.withoutComponents !== undefined
+              ? { withoutComponents: tuning.withoutComponents }
+              : {}),
+            ...(tuning.withComponents !== undefined
+              ? { withComponents: tuning.withComponents }
+              : {}),
+          },
+        }
+      : {}),
   });
   await writeFile(join(out, "FIDELITY-REPORT.md"), markdown);
   await writeFile(join(out, "fidelity.json"), `${JSON.stringify(report, null, 2)}\n`);
@@ -520,6 +573,12 @@ export function fidelitySummary(
     version: 1,
     score: report.score,
     ...(tuning ? { before: tuning.before.score, changes: tuning.changes.slice(0, 40) } : {}),
+    ...(tuning?.withoutComponents !== undefined
+      ? {
+          withoutComponents: tuning.withoutComponents,
+          ...(tuning.withComponents !== undefined ? { withComponents: tuning.withComponents } : {}),
+        }
+      : {}),
     pages: report.pages.map((p) => {
       const key = `${p.path}@${p.viewport}`;
       const b = before.get(key);
@@ -538,6 +597,39 @@ export function fidelitySummary(
       };
     }),
   };
+}
+
+/**
+ * Pictures in recreated sections (custom component instances) still point at the original site:
+ * bring them into media/ through the same pipeline as every imported picture.
+ */
+async function localizeComponentImages(root: string, doc: SiteDocument): Promise<void> {
+  const media = new MediaImporter({
+    fetch,
+    resize: await loadResizer(),
+    source: "the original site",
+  });
+  const visit = async (v: unknown): Promise<void> => {
+    if (Array.isArray(v)) for (const x of v) await visit(x);
+    else if (v && typeof v === "object") {
+      const o = v as Record<string, unknown>;
+      if (typeof o.src === "string" && /^https:\/\//.test(o.src) && "alt" in o) {
+        const got = await media.image({ url: o.src, alt: String(o.alt ?? "") }, "component");
+        if (got) Object.assign(o, got);
+        return;
+      }
+      for (const x of Object.values(o)) await visit(x);
+    }
+  };
+  for (const page of Object.values(doc.pages))
+    for (const section of page.sections)
+      for (const block of section.blocks)
+        if (block.type.startsWith("component/")) await visit(block.fields);
+  for (const [path, bytes] of media.files) {
+    await mkdir(join(root, path, ".."), { recursive: true });
+    await writeFile(join(root, path), bytes);
+  }
+  doc.media = { ...doc.media, ...(media.media as SiteDocument["media"]) };
 }
 
 /** Is a browser available for measuring and tuning (Playwright installed)? */
@@ -564,7 +656,7 @@ export async function addFidelityToSummary(file: string, r: CompareResult): Prom
 export function compareSummary(r: CompareResult): string[] {
   const lines = [
     r.tuning
-      ? `Visual match with the original: ${r.tuning.before.score}/100 → ${r.report.score}/100 after ${r.tuning.rounds} tuning round(s).`
+      ? `Visual match with the original: ${r.tuning.before.score}/100 → ${r.report.score}/100 after ${r.tuning.rounds} tuning round(s)${r.tuning.withoutComponents !== undefined ? ` (${r.tuning.withoutComponents}/100 before recreating sections as custom components${r.tuning.withComponents !== undefined ? "" : "; none kept"})` : ""}.`
       : `Visual match with the original: ${r.report.score}/100.`,
   ];
   for (const p of r.report.pages) {

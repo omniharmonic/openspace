@@ -44,6 +44,9 @@ export interface ImportFidelity {
   }>;
   /** What auto-tuning adjusted. */
   changes?: string[];
+  /** Score before sections were recreated as custom designs, and with them (when kept). */
+  withoutComponents?: number;
+  withComponents?: number;
 }
 
 export interface ImportView {
