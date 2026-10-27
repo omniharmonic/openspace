@@ -1,4 +1,5 @@
 import type { ToolDefinition } from "../tool";
+import { componentTools } from "./components";
 import { designTools } from "./design";
 import { editTools } from "./edit";
 import { pageTools } from "./pages";
@@ -23,9 +24,11 @@ export const ALL_TOOLS: readonly ToolDefinition[] = [
   ...editTools,
   ...pageTools,
   ...designTools,
+  ...componentTools,
   ...publishTools,
 ] as unknown as ToolDefinition[];
 
+export * from "./components";
 export * from "./design";
 export * from "./edit";
 export * from "./pages";

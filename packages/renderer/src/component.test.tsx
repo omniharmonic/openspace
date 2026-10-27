@@ -127,3 +127,22 @@ describe("custom components in the renderer", () => {
     expect(none).toContain("no designer section called");
   });
 });
+
+describe("component preview paths", () => {
+  it("round-trips name, sample fields (UTF-8) and theme", async () => {
+    const { componentPreviewPath, parseComponentPreviewPath } = await import("./component");
+    const path = componentPreviewPath("split-reveal", {
+      fields: { headline: "Café — été ✓" },
+      colorTheme: "dark",
+    });
+    const url = new URL(path, "https://x.test");
+    expect(url.pathname).toBe("/_os/component/split-reveal/");
+    const parsed = parseComponentPreviewPath(url.pathname, url.search);
+    expect(parsed).toEqual({
+      name: "split-reveal",
+      fields: { headline: "Café — été ✓" },
+      colorTheme: "dark",
+    });
+    expect(parseComponentPreviewPath("/about/")).toBeNull();
+  });
+});

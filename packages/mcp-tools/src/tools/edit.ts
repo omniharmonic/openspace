@@ -353,7 +353,7 @@ export const insertBlock = defineTool({
     const doc = await ctx.doc(siteId);
     const page = container(doc, input.page);
     requireSection(doc, page, input.section);
-    const made = makeBlock(ctx.registry, input.block as { type: string });
+    const made = makeBlock(ctx.registryFor(doc), input.block as { type: string });
     // Demo links from the block's defaults (/schedule…) point at pages this site has; links
     // the caller gave are kept as given (design_check reports them if they lead nowhere).
     const block = resolveInternalLinks(made, doc).value;
@@ -371,7 +371,7 @@ export const insertBlock = defineTool({
     const placed = findBlock(next, page as never, block.id);
     return {
       data: {
-        block: blockSummary(ctx.registry, placed?.block ?? block),
+        block: blockSummary(ctx.registryFor(next), placed?.block ?? block),
         ...(warnings.length ? { warnings } : {}),
       },
     };
@@ -402,7 +402,7 @@ export const updateBlock = defineTool({
     const page = container(doc, input.page);
     const { block } = requireBlock(doc, page, input.block);
     const body: Record<string, unknown> = { op: "block.update", page, block: input.block };
-    if (input.set) body.set = fieldsFromAgent(ctx.registry, block.type, input.set);
+    if (input.set) body.set = fieldsFromAgent(ctx.registryFor(doc), block.type, input.set);
     if (input.unset?.length) body.unset = input.unset;
     for (const k of ["variant", "style", "column", "label", "hidden"] as const)
       if (input[k] !== undefined) body[k] = input[k];
@@ -413,7 +413,7 @@ export const updateBlock = defineTool({
       );
     const { doc: next } = await ctx.apply(siteId, [body as OpBody]);
     const updated = findBlock(next, page as never, input.block)?.block ?? block;
-    return { data: { block: blockSummary(ctx.registry, updated) } };
+    return { data: { block: blockSummary(ctx.registryFor(next), updated) } };
   },
 });
 

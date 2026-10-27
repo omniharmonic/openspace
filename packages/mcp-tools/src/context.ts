@@ -12,7 +12,12 @@ import {
   type OpIssue,
   transformForRole,
 } from "@omniharmonic/openspace-ops";
-import type { BlockRegistry, Page, SiteDocument } from "@omniharmonic/openspace-schema";
+import {
+  type BlockRegistry,
+  type Page,
+  type SiteDocument,
+  withComponents,
+} from "@omniharmonic/openspace-schema";
 import { issueLines, ToolError } from "./errors";
 import type { AgentSession, Grant, SiteStore } from "./store";
 
@@ -60,6 +65,11 @@ export class ToolContext {
 
   now(): number {
     return this.clock();
+  }
+
+  /** The block registry plus this document's custom components (`component/<name>` types). */
+  registryFor(doc: Pick<SiteDocument, "components">): BlockRegistry {
+    return withComponents(this.registry, doc.components);
   }
 
   /** Site ids this connection may touch. */

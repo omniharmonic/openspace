@@ -41,13 +41,16 @@ export {
   useCollections,
 } from "./collections";
 export {
+  COMPONENT_PREVIEW_IDS,
   COMPONENT_PREVIEW_PATH,
   ComponentView,
   componentDefinitionFor,
   componentPreview,
+  componentPreviewPath,
   componentScripts,
   componentStyles,
   componentsInHtml,
+  parseComponentPreviewPath,
   renderComponent,
 } from "./component";
 export {

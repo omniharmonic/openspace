@@ -132,6 +132,11 @@ export interface ScreenshotRequest {
   fullPage: boolean;
   /** Rendered preview HTML (stores that render through their own preview server may ignore it). */
   html: string;
+  /**
+   * Capture this preview path instead of the page's (e.g. a component preview,
+   * `/_os/component/<name>/?f=…`); stores that render through their preview server use it.
+   */
+  path?: string;
 }
 
 export interface Screenshot {

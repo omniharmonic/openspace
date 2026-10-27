@@ -14,7 +14,6 @@ import {
   type ImageTreatment,
   type ImageValue,
   type Link as LinkValue,
-  newId,
   type Page,
   type SiteDocument,
   type XNode,
@@ -257,8 +256,64 @@ export function componentScripts(components: readonly CompiledComponent[]): stri
 
 // --- previews ----------------------------------------------------------------------------------------
 
+/** Ids of the synthetic preview page, section and block. */
+export const COMPONENT_PREVIEW_IDS = {
+  page: "pg_c0mp0nent0",
+  section: "sec_c0mp0nent0",
+  block: "blk_c0mp0nent0",
+} as const;
+
 /** Slug of the synthetic page that previews a component (Hub/CLI preview routes, MCP). */
 export const COMPONENT_PREVIEW_PATH = "_os/component";
+
+const toBase64Url = (text: string) => {
+  let bin = "";
+  for (const b of new TextEncoder().encode(text)) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+const fromBase64Url = (text: string) => {
+  const bin = atob(text.replace(/-/g, "+").replace(/_/g, "/"));
+  return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+};
+
+/** Preview path for a component: `/_os/component/<name>/` (+ `?f=` sample fields, `&t=` theme). */
+export function componentPreviewPath(
+  name: string,
+  opts: { fields?: Record<string, unknown>; colorTheme?: string } = {},
+): string {
+  const q = new URLSearchParams();
+  if (opts.fields && Object.keys(opts.fields).length)
+    q.set("f", toBase64Url(JSON.stringify(opts.fields)));
+  if (opts.colorTheme) q.set("t", opts.colorTheme);
+  const qs = q.toString();
+  return `/${COMPONENT_PREVIEW_PATH}/${name}/${qs ? `?${qs}` : ""}`;
+}
+
+/** Parse a preview path (`/_os/component/<name>/`) and its query; null for other paths. */
+export function parseComponentPreviewPath(
+  path: string,
+  search: string | URLSearchParams = "",
+): { name: string; fields?: Record<string, unknown>; colorTheme?: string } | null {
+  const m = /^\/?_os\/component\/([a-z0-9-]+)\/?$/.exec(path);
+  if (!m) return null;
+  const q = typeof search === "string" ? new URLSearchParams(search) : search;
+  const out: { name: string; fields?: Record<string, unknown>; colorTheme?: string } = {
+    name: m[1] as string,
+  };
+  const f = q.get("f");
+  if (f) {
+    try {
+      const v = JSON.parse(fromBase64Url(f)) as unknown;
+      if (v && typeof v === "object" && !Array.isArray(v))
+        out.fields = v as Record<string, unknown>;
+    } catch {
+      /* ignore malformed sample fields */
+    }
+  }
+  const t = q.get("t");
+  if (t && /^[a-z-]+$/.test(t)) out.colorTheme = t;
+  return out;
+}
 
 /**
  * A document with one extra page showing `def` (or `doc.components[name]`) with its sample
@@ -274,12 +329,18 @@ export function componentPreview(
 ): { doc: SiteDocument; page: Page; block: Block } {
   const def = typeof input === "string" ? doc.components?.[input] : input;
   if (!def) throw new Error(`No component called ${String(input)}`);
-  const section = componentSection(def, {
+  const built = componentSection(def, {
     ...(opts.fields ? { fields: opts.fields } : {}),
     ...(opts.colorTheme ? { colorTheme: opts.colorTheme } : {}),
   });
+  // Fixed ids so a screenshot can target the section wherever the preview is rendered.
+  const section = {
+    ...built,
+    id: COMPONENT_PREVIEW_IDS.section,
+    blocks: built.blocks.map((b) => ({ ...b, id: COMPONENT_PREVIEW_IDS.block })),
+  } as typeof built;
   const page: Page = {
-    id: newId("pg") as Page["id"],
+    id: COMPONENT_PREVIEW_IDS.page as Page["id"],
     title: `${def.label} preview`,
     slug: `os-component-preview-${def.name}`,
     seo: { noindex: true },

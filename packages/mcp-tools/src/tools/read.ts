@@ -129,20 +129,22 @@ function sectionView(
   ctx: ToolContext,
   section: Section,
   detail: "full" | "outline",
+  doc?: SiteDocument,
 ): Record<string, unknown> {
+  const registry = doc ? ctx.registryFor(doc) : ctx.registry;
   const blocks = section.blocks.map((b: Block) => {
     if (detail === "outline") {
       const out: Record<string, unknown> = {
         id: b.id,
         type: b.type,
-        text: blockPreview(ctx.registry, b),
+        text: blockPreview(registry, b),
       };
       if (b.variant) out.variant = b.variant;
       if (b.column !== undefined) out.column = b.column;
       if (b.hidden) out.hidden = true;
       return out;
     }
-    return blockToAgent(ctx.registry, b);
+    return blockToAgent(registry, b);
   });
   const base: Record<string, unknown> = {
     id: section.id,
@@ -184,7 +186,7 @@ export const getPage = defineTool({
     const detail = input.detail ?? "full";
     const { id, page } = resolvePage(doc, input.page, { allowFooter: true });
     if (id === FOOTER || !page)
-      return { data: { page: FOOTER, sections: [sectionView(ctx, doc.site.footer, detail)] } };
+      return { data: { page: FOOTER, sections: [sectionView(ctx, doc.site.footer, detail, doc)] } };
     return {
       data: {
         id: page.id,
@@ -194,7 +196,7 @@ export const getPage = defineTool({
         seo: page.seo ?? {},
         ...(page.header ? { header: page.header } : {}),
         ...(page.hidden ? { hidden: true } : {}),
-        sections: page.sections.map((s) => sectionView(ctx, s, detail)),
+        sections: page.sections.map((s) => sectionView(ctx, s, detail, doc)),
       },
     };
   },
