@@ -1,0 +1,186 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Priya Raman",
+  "tagline": "Product designer making data feel obvious.",
+  "nav": [
+    {
+      "type": "collection",
+      "collection": "projects",
+      "label": "Projects"
+    },
+    {
+      "type": "page",
+      "page": "pg_g9675xv106",
+      "label": "Experience"
+    },
+    {
+      "type": "collection",
+      "collection": "writing",
+      "label": "Writing"
+    },
+    {
+      "type": "page",
+      "page": "pg_5ftpyf62n1",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_2vmpjzd641",
+      "label": "Contact"
+    }
+  ],
+  "header": {
+    "variant": "minimal-burger",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_7z2fmjf0z9",
+    "preset": "footer/legal-row@1",
+    "label": "Single row with legal links",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          6,
+          6
+        ],
+        "m": [
+          12
+        ]
+      },
+      "align": "center",
+      "gap": "md"
+    },
+    "style": {
+      "colorTheme": "light",
+      "padding": {
+        "d": "md",
+        "m": "md"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_z2tqgkxrcc",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Priya Raman. Designed in Pittsburgh."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_9h68c18b42",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Experience",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/experience/"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Writing",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/writing/"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Contact",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/contact/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "end",
+            "m": "start"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "linkedin",
+      "url": "https://linkedin.com/in/priyaraman-example"
+    },
+    {
+      "network": "github",
+      "url": "https://github.com/priyaraman-example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Priya Raman",
+    "description": "Product designer making data tools clear for nurses, planners and scientists.",
+    "image": "https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

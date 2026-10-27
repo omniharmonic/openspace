@@ -1,0 +1,185 @@
+{
+  "$comment": "Licenses for the demo media in the Folio template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
+      "title": "Sunlight falling through tall trees onto a forest path",
+      "author": "Lukasz Szmigiel",
+      "authorUrl": "https://unsplash.com/@szmigieldesign",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/forest-trees-jFCViYFYcus",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1460925895917-afdab827c52f",
+      "title": "A laptop on a desk showing a light dashboard with graphs",
+      "author": "Carlos Muza",
+      "authorUrl": "https://unsplash.com/@kmuza",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/laptop-computer-on-glass-top-table-hpjSkU2UYSU",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07",
+      "title": "Wild red poppies scattered through a summer meadow",
+      "author": "enrico bet",
+      "authorUrl": "https://unsplash.com/@henry_be",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/orange-flowers-IicyiaPYGGI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735",
+      "title": "Young seedlings sprouting in a dark tray of soil",
+      "author": "Markus Spiske",
+      "authorUrl": "https://unsplash.com/@markusspiske",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/selective-focus-photo-of-plant-spouts-vrbZVyX2k4I",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1542744173-8e7e53415bb0",
+      "title": "A team listening to a presentation around a boardroom table",
+      "author": "Campaign Creators",
+      "authorUrl": "https://unsplash.com/@campaign_creators",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-standing-in-front-of-people-sitting-beside-table-with-laptop-computers-gMsnXqILjp4",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1551288049-bebda4e38f71",
+      "title": "A monitor showing charts and a dashboard in a dark room",
+      "author": "Luke Chesser",
+      "authorUrl": "https://unsplash.com/@lukechesser",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/graphs-of-performance-analytics-on-a-laptop-screen-JKUTrJ4vK00",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1573497019236-17f8177b81e8",
+      "title": "A woman seated in a modern office, smiling at the camera",
+      "author": "Christina @ wocintechchat.com M",
+      "authorUrl": "https://unsplash.com/@wocintechchat",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-smiling-and-sitting-PlikkWB79qs",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956",
+      "title": "Portrait of a woman with dark hair pinned up, smiling",
+      "author": "Jake Nackos",
+      "authorUrl": "https://unsplash.com/@jakenackos",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1580894723150-0ff6e9b907ea",
+      "title": "A woman sketching ideas on a whiteboard",
+      "author": "ThisisEngineering",
+      "authorUrl": "https://unsplash.com/@thisisengineering",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-black-shirt-holding-white-smartphone-DbLlKd8u2Rw",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1582005450386-52b25f82d9bb",
+      "title": "People working on laptops in a bright open office",
+      "author": "S O C I A L . C U T",
+      "authorUrl": "https://unsplash.com/@socialcut",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/3-women-sitting-on-chair-in-front-of-table-with-laptop-computers-r0saAQNjEjQ",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1582079768381-0e81b88db423",
+      "title": "A woman reading a book at a cafe table in low light",
+      "author": "Priscilla Du Preez 🇨🇦",
+      "authorUrl": "https://unsplash.com/@priscilladupreez",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-brown-long-sleeve-shirt-reading-book-JaH62ihQLuE",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1629317337307-e37f95ebc372",
+      "title": "A tidy desk with a monitor, keyboard and headphones",
+      "author": "Workperch",
+      "authorUrl": "https://unsplash.com/@workperch",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/silver-imac-on-brown-wooden-desk-3jjgUHIibPs",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1677462679593-97b817fb118a",
+      "title": "A colourful wall of books on wooden shelves",
+      "author": "Bree Anne",
+      "authorUrl": "https://unsplash.com/@breebuddy",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-book-shelf-filled-with-lots-of-books-NRRv0J0881Y",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1677506048892-edde55cf3277",
+      "title": "A man presenting a board of coloured sticky notes",
+      "author": "Paymo",
+      "authorUrl": "https://unsplash.com/@paymo",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/a-man-standing-in-front-of-a-white-board-4wSnhAT8d9g",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1780387477222-730504564368",
+      "title": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+      "author": "Centre for Ageing Better",
+      "authorUrl": "https://unsplash.com/@ageing_better",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-beige-jumpsuit-smiling-sitting-on-a-stool-IxacjtwPdGM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

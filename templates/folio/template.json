@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "folio",
+  "name": "Folio",
+  "description": "A personal site and résumé: a friendly introduction, selected projects, experience as a timeline, skills, references, writing and a contact form.",
+  "persona": "Personal sites, résumés & freelancers",
+  "mood": "Friendly, clear, personal",
+  "version": "1.0.0",
+  "tags": [
+    "personal",
+    "resume",
+    "cv",
+    "portfolio",
+    "freelancer",
+    "writing"
+  ],
+  "sample": {
+    "name": "Priya Raman",
+    "tagline": "Product designer making data feel obvious."
+  },
+  "thumbnailPage": "pg_69rkgd3jmk",
+  "looks": [
+    {
+      "id": "studio",
+      "name": "Studio",
+      "description": "Off-white, a cobalt accent and Inter with Space Grotesk headings.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.5 0.18 260)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "space-grotesk-inter",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "sketchbook",
+      "name": "Sketchbook",
+      "description": "A warm coral accent, DM Serif headings and round, friendly shapes.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.62 0.15 30)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "dm-serif-dm-sans",
+        "density": "airy",
+        "shape": "round",
+        "buttons": "pill-outline",
+        "motion": "subtle",
+        "imageTreatment": "circle"
+      }
+    },
+    {
+      "id": "monospace",
+      "name": "Monospace",
+      "description": "IBM Plex Mono headings, a green accent and sharp corners for engineers.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.52 0.13 150)",
+          "neutral": "pure",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "plex-mono-plex-sans",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "outline",
+        "motion": "none",
+        "imageTreatment": "none"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_69rkgd3jmk",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_g9675xv106",
+      "title": "Experience",
+      "slug": "experience"
+    },
+    {
+      "id": "pg_5ftpyf62n1",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_2vmpjzd641",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

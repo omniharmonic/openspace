@@ -1,0 +1,218 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_2vmpjzd641",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Contact product designer Priya Raman about senior and lead design roles, freelance projects or speaking. Email or use the form."
+  },
+  "sections": [
+    {
+      "id": "sec_h6mnrrv4pr",
+      "preset": "contact/simple-centered@1",
+      "label": "Email and phone, centred",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "md"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_j1b40j6thc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Say hello",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Contact"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_1az08j9d6m",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "hello@priyaraman.example",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "mailto:hello@priyaraman.example"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Open to senior and lead product design roles from January."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_d1h5m9tepn",
+      "preset": "contact/appointment@1",
+      "label": "Appointment request",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_xwynd35a17",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Tell me about the work",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Roles & projects"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_g1zfnaxbsn",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A few lines about the team and the problem is plenty. I'll reply within two working days."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_rw6sypaneq",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_ehw4acqq7x",
+              "name": "Role or project",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "text",
+                  "name": "company",
+                  "label": "Company",
+                  "required": false,
+                  "width": "full"
+                },
+                {
+                  "type": "radio",
+                  "name": "kind",
+                  "label": "It's about",
+                  "required": false,
+                  "options": [
+                    "A full-time role",
+                    "A freelance project",
+                    "Speaking"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "The team and the problem",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send",
+              "success": {
+                "type": "message",
+                "message": "Thanks — I'll reply within two working days."
+              },
+              "notifyOwner": true
+            }
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

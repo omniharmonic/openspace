@@ -15,6 +15,7 @@ import { darkroom } from "./darkroom/src/build";
 import { encore } from "./encore/src/build";
 import { fieldNotes } from "./field-notes/src/build";
 import { fixwell } from "./fixwell/src/build";
+import { folio } from "./folio/src/build";
 import { gather } from "./gather/src/build";
 import { harbor } from "./harbor/src/build";
 import { hearth } from "./hearth/src/build";
@@ -69,6 +70,7 @@ export const templateSpecs: readonly TemplateSpec[] = [
   keystone,
   gather,
   inkwell,
+  folio,
 ];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);

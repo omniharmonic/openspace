@@ -1,0 +1,16 @@
+{
+  "kind": "blog",
+  "label": "Writing",
+  "itemLabel": "Note",
+  "list": {
+    "layout": "list",
+    "pageSize": 20,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": false,
+    "showRelated": true
+  }
+}

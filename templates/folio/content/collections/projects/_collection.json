@@ -1,0 +1,13 @@
+{
+  "kind": "portfolio",
+  "label": "Projects",
+  "itemLabel": "Project",
+  "list": {
+    "layout": "grid",
+    "pageSize": 24,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "wide"
+  }
+}
