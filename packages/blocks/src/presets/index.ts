@@ -2,8 +2,19 @@ import type { ColorTheme, Section } from "@omniharmonic/openspace-schema";
 import { aboutPresets } from "./categories/about";
 import { aboutMorePresets } from "./categories/about-more";
 import { contactPresets, ctaPresets, newsletterPresets } from "./categories/action";
+import {
+  contactMorePresets,
+  ctaMorePresets,
+  newsletterMorePresets,
+} from "./categories/action-more";
 import { footerPresets, headerPresets as headers } from "./categories/chrome";
+import { footerMorePresets, headerMorePresets } from "./categories/chrome-more";
 import { blogPresets, eventsPresets, productsPresets } from "./categories/collections";
+import {
+  blogMorePresets,
+  eventsMorePresets,
+  productsMorePresets,
+} from "./categories/collections-more";
 import { featuresPresets } from "./categories/features";
 import { featuresMorePresets } from "./categories/features-more";
 import { galleryPresets } from "./categories/gallery";
@@ -13,6 +24,12 @@ import { heroMorePresets } from "./categories/hero-more";
 import { impactPresets } from "./categories/impact";
 import { menuPresets } from "./categories/menu";
 import { faqPresets, logosPresets, statsPresets, teamPresets } from "./categories/people";
+import {
+  faqMorePresets,
+  logosMorePresets,
+  statsMorePresets,
+  teamMorePresets,
+} from "./categories/people-more";
 import { portfolioPresets } from "./categories/portfolio";
 import { pricingPresets } from "./categories/pricing";
 import { pricingMorePresets } from "./categories/pricing-more";
@@ -66,21 +83,32 @@ export const sectionPresets: readonly SectionPreset[] = [
   ...pricingMorePresets,
   ...menuPresets,
   ...faqPresets,
+  ...faqMorePresets,
   ...teamPresets,
+  ...teamMorePresets,
   ...statsPresets,
+  ...statsMorePresets,
   ...impactPresets,
   ...logosPresets,
+  ...logosMorePresets,
   ...ctaPresets,
+  ...ctaMorePresets,
   ...contactPresets,
+  ...contactMorePresets,
   ...newsletterPresets,
+  ...newsletterMorePresets,
   ...blogPresets,
+  ...blogMorePresets,
   ...eventsPresets,
+  ...eventsMorePresets,
   ...productsPresets,
+  ...productsMorePresets,
   ...footerPresets,
+  ...footerMorePresets,
 ];
 
 /** Site header presets (they set `site.header`, they are not sections). */
-export const headerPresets: readonly HeaderPreset[] = headers;
+export const headerPresets: readonly HeaderPreset[] = [...headers, ...headerMorePresets];
 
 /** All presets: headers, sections and footers. */
 export const allPresets: readonly Preset[] = [...headerPresets, ...sectionPresets];
