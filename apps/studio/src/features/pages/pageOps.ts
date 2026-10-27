@@ -1,5 +1,12 @@
 import type { OpBody } from "@omniharmonic/openspace-ops";
-import { newId, type Page, type Redirect, type SiteDocument } from "@omniharmonic/openspace-schema";
+import {
+  newId,
+  type Page,
+  type Redirect,
+  resolveInternalLinks,
+  type SiteDocument,
+  withPages,
+} from "@omniharmonic/openspace-schema";
 import type { Command } from "../editor/model/actions";
 import { cloneSection } from "../editor/model/actions";
 import { type Nav, pagesInNav, rowForPage, withoutPage, withPage } from "./navTree";
@@ -68,12 +75,14 @@ export function createPage(
 ): Command & { pageId: string } {
   const title = input.title?.trim() || template.title;
   const slug = uniqueSlug(doc, normalizeSlug(input.slug ?? "") || slugify(title));
-  const page: Page = {
+  const draft: Page = {
     id: newId("pg"),
     title,
     slug,
     sections: template.build().map(cloneSection),
   } as Page;
+  // The template's demo links point at pages the site has (or this new page).
+  const page = resolveInternalLinks(draft, withPages(doc, [draft])).value;
   const nav = input.addToNav === false ? undefined : withPage(doc.site.nav, page.id, input.after);
   return {
     pageId: page.id,

@@ -10,6 +10,7 @@ import {
   type GridItem,
   type GridLayout,
   resolve,
+  resolveInternalLinks,
   type Section,
   type SiteDocument,
 } from "@omniharmonic/openspace-schema";
@@ -71,7 +72,8 @@ export function insertBlockCommand(
   const def = blocksRegistry().get(type);
   const loc = locate(doc, pageId, { kind: "section", id: target.section });
   if (!def || !loc) return null;
-  const block = cloneBlock(def.create());
+  // A new block's demo links (/schedule…) point at pages this site has.
+  const block = resolveInternalLinks(cloneBlock(def.create()), doc).value;
   const section = loc.section;
   const after =
     target.after && section.blocks.some((b) => b.id === target.after) ? target.after : undefined;
@@ -104,7 +106,9 @@ export const isHeaderPreset = (p: Preset): p is HeaderPreset => p.target === "he
 
 /**
  * Apply a preset: page sections insert at `at`; footer presets replace the site footer;
- * header presets set the site header (keeping the logo size the person chose).
+ * header presets set the site header (keeping the logo size the person chose). The preset's
+ * example links (`/book`, `/retreats`) are pointed at pages the site has
+ * (`resolveInternalLinks`), so adding a section never leaves a link that stops a publish.
  */
 export function presetCommand(
   doc: SiteDocument,
@@ -113,7 +117,7 @@ export function presetCommand(
   at: Position,
 ): Command {
   if (isHeaderPreset(preset)) {
-    const header = { ...preset.build() };
+    const header = { ...resolveInternalLinks(preset.build(), doc).value };
     if (doc.site.header.logoHeight) header.logoHeight = doc.site.header.logoHeight;
     if (doc.site.header.showSocial !== undefined && header.showSocial === undefined)
       header.showSocial = doc.site.header.showSocial;
@@ -122,7 +126,7 @@ export function presetCommand(
       label: `Use the ${preset.label.toLowerCase()} header`,
     };
   }
-  const section: Section = (preset as SectionPreset).build();
+  const section: Section = resolveInternalLinks((preset as SectionPreset).build(), doc).value;
   if (preset.target === "footer") {
     return {
       bodies: [{ op: "site.update", set: { footer: section } } as OpBody],

@@ -7,8 +7,10 @@ import {
   type NavItem,
   newId,
   type Page,
+  resolveInternalLinks,
   type Section,
   type SiteDocument,
+  withPages,
 } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { pagePathOf, resolvePage } from "../context";
@@ -87,7 +89,6 @@ export const createPage = defineTool({
       const colorTheme = input.themes?.[i];
       sections.push(preset.build(colorTheme ? { colorTheme } : {}) as Section);
     });
-    for (const raw of input.sections ?? []) sections.push(makeSection(ctx.registry, raw));
     const page: Page = {
       id: newId("pg") as Page["id"],
       title: input.title,
@@ -95,6 +96,11 @@ export const createPage = defineTool({
       seo: input.description ? { description: input.description } : {},
       sections,
     } as Page;
+    // The presets' example links (/book, /retreats…) point at pages the site has (or this
+    // one); explicit sections are kept as given.
+    const linked = resolveInternalLinks(sections, withPages(doc, [page]));
+    page.sections = linked.value;
+    for (const raw of input.sections ?? []) page.sections.push(makeSection(ctx.registry, raw));
     if (input.hidden) page.hidden = true;
     const body: Record<string, unknown> = { op: "page.create", page };
     if (input.addToNav !== false && !input.hidden)
@@ -103,8 +109,15 @@ export const createPage = defineTool({
     return {
       data: {
         page: { id: page.id, title: page.title, slug: page.slug, path: pagePathOf(page) },
-        sections: sections.map((s) => sectionSummary(ctx.registry, s)),
+        sections: page.sections.map((s) => sectionSummary(ctx.registry, s)),
         inNav: Boolean(body.nav),
+        ...(linked.changes.length
+          ? {
+              linksChanged: linked.changes.map((c) => ({ from: c.from, to: c.to })),
+              linkNote:
+                "Example links that lead nowhere on this site were pointed at existing pages; change them with update_block.",
+            }
+          : {}),
       },
     };
   },

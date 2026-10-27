@@ -1,6 +1,11 @@
 import { headerPresets } from "@omniharmonic/openspace-blocks";
 import type { OpBody } from "@omniharmonic/openspace-ops";
-import type { HeaderVariant, NavItem, SiteDocument } from "@omniharmonic/openspace-schema";
+import {
+  type HeaderVariant,
+  type NavItem,
+  resolveInternalLinks,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cx, Field, Input, Segmented, Slider } from "../../ui";
@@ -178,7 +183,7 @@ export function HeaderBuilder() {
                       // The preset's layout and behavior; keep the owner's logo size and social icons.
                       set: {
                         header: {
-                          ...built,
+                          ...resolveInternalLinks(built, doc).value,
                           ...(header.logoHeight ? { logoHeight: header.logoHeight } : {}),
                           ...(header.showSocial !== undefined
                             ? { showSocial: header.showSocial }

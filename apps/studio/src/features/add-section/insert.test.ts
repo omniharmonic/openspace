@@ -1,5 +1,11 @@
 import { allPresets, getPreset } from "@omniharmonic/openspace-blocks";
-import { GRID_COLUMNS, type GridLayout, SectionSchema } from "@omniharmonic/openspace-schema";
+import {
+  findBrokenLinks,
+  GRID_COLUMNS,
+  type GridLayout,
+  LinkTargets,
+  SectionSchema,
+} from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { setLayoutMode } from "../editor/model/actions";
 import { devSiteDocument, DEV_IDS as I } from "../editor/model/dev-site";
@@ -45,10 +51,35 @@ describe("preset insert", () => {
 
   it("every page preset inserts cleanly into a real document", () => {
     const s = store();
-    for (const p of allPresets.filter((x) => x.target === "page")) {
+    const before = findBrokenLinks(s.getState().doc).length;
+    for (const p of allPresets) {
       const r = s.getState().run(presetCommand(s.getState().doc, I.home, p, "end"));
       expect(r.ok, p.id).toBe(true);
     }
+    // No preset, block or footer brings a link to a page the site doesn't have.
+    expect(findBrokenLinks(s.getState().doc).length).toBe(before);
+  });
+
+  it("a preset's example links point at the site's pages (the live-test hero: /book, /retreats)", () => {
+    const s = store();
+    const hero = getPreset("hero/full-bleed-photo@1");
+    if (!hero) throw new Error("no hero preset");
+    const r = s.getState().run(presetCommand(s.getState().doc, I.home, hero, "end"));
+    expect(r.ok).toBe(true);
+    const doc = s.getState().doc;
+    const section = doc.pages[I.home as keyof typeof doc.pages]?.sections.at(-1);
+    const button = section?.blocks.find((b) => b.type === "button");
+    for (const key of ["link", "secondaryLink"]) {
+      const link = button?.fields[key] as { type: string; page?: string; url?: string };
+      if (link.type === "page") expect(link.page && link.page in doc.pages).toBe(true);
+      else expect(new LinkTargets(doc).pathResolves(link.url ?? "")).toBe(true);
+    }
+    const block = insertBlockCommand(doc, I.home, "button", { section: section?.id as string });
+    if (!block) throw new Error("no command");
+    expect(s.getState().run(block).ok).toBe(true);
+    expect(
+      findBrokenLinks(s.getState().doc).filter((l) => l.block === block.select?.[0]?.id),
+    ).toEqual([]);
   });
 
   it("header presets set the site header (keeping the logo size); footer presets replace the footer", () => {
