@@ -18,6 +18,17 @@
     },
     {
       "kind": "image",
+      "src": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000",
+      "title": "A downtown street lined with tall buildings and yellow cabs",
+      "author": "Andrea Cau",
+      "authorUrl": "https://unsplash.com/@andreacau",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/pathway-between-high-rise-buildings-nV7GJmSq3zc",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
       "src": "https://images.unsplash.com/photo-1460925895917-afdab827c52f",
       "title": "A laptop on a desk showing a light dashboard with graphs",
       "author": "Carlos Muza",
@@ -46,6 +57,17 @@
       "authorUrl": "https://unsplash.com/@markusspiske",
       "source": "Unsplash",
       "sourceUrl": "https://unsplash.com/photos/selective-focus-photo-of-plant-spouts-vrbZVyX2k4I",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df",
+      "title": "A city skyline stretching to the lake at golden hour",
+      "author": "Pedro Lastra",
+      "authorUrl": "https://unsplash.com/@peterlaster",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/white-and-brown-city-buildings-during-daytime-Nyvq2juw4_o",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
@@ -134,6 +156,28 @@
       "authorUrl": "https://unsplash.com/@priscilladupreez",
       "source": "Unsplash",
       "sourceUrl": "https://unsplash.com/photos/woman-in-brown-long-sleeve-shirt-reading-book-JaH62ihQLuE",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1583508915901-b5f84c1dcde1",
+      "title": "A developer working at a desk with two monitors",
+      "author": "Luke Peters",
+      "authorUrl": "https://unsplash.com/@lukepeters",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-in-gray-dress-shirt-sitting-on-chair-in-front-of-computer-monitor-B6JINerWMz0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1589362281138-e3f7ebe47f1a",
+      "title": "A minimal desk with a laptop and a small plant",
+      "author": "Minh Pham",
+      "authorUrl": "https://unsplash.com/@minhphamdesign",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/macbook-pro-on-brown-wooden-table-IisDPFNUS4k",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },

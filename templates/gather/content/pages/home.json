@@ -522,60 +522,6 @@
           }
         }
       ]
-    },
-    {
-      "id": "sec_qbkbdmcgxq",
-      "preset": "newsletter/inline-band@1",
-      "label": "Slim signup band",
-      "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            5,
-            7
-          ],
-          "m": [
-            12
-          ]
-        },
-        "align": "center",
-        "gap": "xl"
-      },
-      "style": {
-        "colorTheme": "brand",
-        "padding": {
-          "d": "lg",
-          "m": "lg"
-        }
-      },
-      "blocks": [
-        {
-          "id": "blk_v74hd04p73",
-          "type": "heading",
-          "v": 1,
-          "fields": {
-            "text": "Hear first about speakers",
-            "level": "h2",
-            "size": "auto",
-            "eyebrow": "Announcements"
-          },
-          "column": 0,
-          "variant": "plain"
-        },
-        {
-          "id": "blk_h0k13707rh",
-          "type": "newsletter",
-          "v": 1,
-          "fields": {
-            "askName": false,
-            "placeholder": "you@example.com",
-            "buttonLabel": "Keep me posted",
-            "successMessage": "Thanks — you'll hear about new speakers first."
-          },
-          "column": 1,
-          "variant": "inline"
-        }
-      ]
     }
   ]
 }

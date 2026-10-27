@@ -208,15 +208,6 @@ function home() {
           button: { label: "Choose a ticket", secondaryLabel: "Ask about groups" },
         },
       }),
-      fromPreset("newsletter/inline-band@1", {
-        edit: {
-          heading: { eyebrow: "Announcements", text: "Hear first about speakers" },
-          newsletter: {
-            buttonLabel: "Keep me posted",
-            successMessage: "Thanks — you'll hear about new speakers first.",
-          },
-        },
-      }),
     ],
   );
 }
