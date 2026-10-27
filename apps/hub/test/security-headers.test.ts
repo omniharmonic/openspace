@@ -39,3 +39,14 @@ describe("security headers", () => {
     expect(page.headers.get("content-security-policy")).toContain("style-src 'unsafe-inline'");
   });
 });
+
+describe("masked MCP links", () => {
+  it("explains that a shortened link doesn't work (not 'turned off')", async () => {
+    const res = await call(createApp(), `/mcp/t/${encodeURIComponent("osmcp_…JkHw")}`, {
+      method: "POST",
+    });
+    expect(res.status).toBe(401);
+    const body = (await res.json()) as { error_description: string };
+    expect(body.error_description).toMatch(/shortened/);
+  });
+});

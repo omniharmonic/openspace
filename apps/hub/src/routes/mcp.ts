@@ -139,6 +139,16 @@ mcpRoutes.all("/mcp", async (c) => {
 
 mcpRoutes.all("/mcp/t/:token", async (c) => {
   const token = c.req.param("token");
+  // The masked form Studio lists ("osmcp_…JkHw") was pasted instead of the full link.
+  if (/…|%E2%80%A6|\.\.\./i.test(token))
+    return c.json(
+      {
+        error: "invalid_token",
+        error_description:
+          "This is the shortened form of a link, which doesn't work. Make a new link in Studio → Connect your AI and copy it when it's shown.",
+      },
+      401,
+    );
   if (!token.startsWith(TOKEN_PREFIX) || token.length > 100)
     return c.json({ error: "invalid_token", error_description: "This link isn't valid." }, 401);
   const auth = await liveConnection(
