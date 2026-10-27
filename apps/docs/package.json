@@ -21,6 +21,7 @@
     "@omniharmonic/openspace-mcp-tools": "workspace:*",
     "@omniharmonic/openspace-templates": "workspace:*",
     "@types/node": "catalog:",
+    "fflate": "^0.8.3",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

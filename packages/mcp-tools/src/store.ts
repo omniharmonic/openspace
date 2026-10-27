@@ -135,11 +135,15 @@ export interface ScreenshotRequest {
 }
 
 export interface Screenshot {
-  /** PNG bytes, base64-encoded. */
+  /** Image bytes (PNG locally, JPEG tiles from the Hub), base64-encoded. */
   base64: string;
-  mimeType: "image/png";
+  mimeType: "image/png" | "image/jpeg";
   width: number;
   height?: number;
+  /** Further tiles of a tall page, top to bottom (the first one is `base64`). */
+  more?: Array<{ base64: string; mimeType: "image/png" | "image/jpeg" }>;
+  /** Something the agent should know (cut at a maximum height, a dev placeholder, …). */
+  note?: string;
 }
 
 /** A template "look": Site Styles choices that restyle existing content (doc 04 §7.2). */

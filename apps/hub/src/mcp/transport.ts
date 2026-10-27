@@ -30,6 +30,7 @@ import {
   touchConnection,
   touchMcpSession,
 } from "./db";
+import { draftScreenshots, screenshotUrlTool } from "./screenshots";
 import { endSession, MCP_IDLE_MS } from "./sessions";
 import { HubSiteStore, imagesResizer } from "./store";
 
@@ -293,7 +294,9 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
     mcpSessionId: sessionId,
     agentSessions,
     resize: imagesResizer(c.env),
-    screenshots: null,
+    screenshots: services.screenshots
+      ? draftScreenshots(services.screenshots, services, auth.user.id)
+      : null,
   });
   const server = createMcpServer(
     store,
@@ -309,6 +312,8 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
     {
       label,
       assumeInitialized: !init,
+      // Hub-only tools (they fetch the public web through Browser Rendering).
+      tools: [screenshotUrlTool(services.screenshots, services, sites, auth.user.id)],
       onError: (err, where) => log.error("mcp tool failed", { where, err }),
     },
   );

@@ -164,3 +164,23 @@ test("a personal token URL works as an MCP endpoint", async () => {
   });
   expect(res.status).toBe(401);
 });
+
+test("screenshots work over the remote connector with no local browser (dev placeholder)", async () => {
+  const created = await owner.post<{ token: { url: string } }>(`/api/sites/${siteId}/mcp/tokens`, {
+    label: "Claude app",
+  });
+  const mcp = new McpClient(created.token.url, null);
+  await mcp.initialize();
+  const shot = await mcp.tool("screenshot", { site: siteId, page: "/", device: "all" });
+  expect(shot.isError, text(shot)).toBeFalsy();
+  const images = (shot.content ?? []).filter((c) => c.type === "image");
+  expect(images).toHaveLength(3);
+  expect(text(shot)).toMatch(/placeholder/);
+  // The original site during a migration: private addresses are refused (SSRF guard).
+  const blocked = await mcp.tool("screenshot_url", { url: "http://169.254.169.254/latest/" });
+  expect(blocked.isError).toBe(true);
+  // The site's own live page (on the dev Hub, its /s/ stand-in for GitHub Pages).
+  const live = await mcp.tool("screenshot_url", { site: siteId, device: "mobile" });
+  expect(live.isError, text(live)).toBeFalsy();
+  await mcp.end();
+});

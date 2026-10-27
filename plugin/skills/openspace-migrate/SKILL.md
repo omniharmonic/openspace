@@ -24,10 +24,12 @@ Ground rules for the whole migration:
 - **Recreate the look, never copy it.** Never paste the old site's template code, CSS, HTML or scripts into custom code or embeds. Match the look with presets, section color themes, grid placement and Site Styles tokens.
 - **Keep the owner's words.** Imported copy is theirs; don't rewrite it unless asked. Never invent content to fill gaps.
 - **The old site stays up** until the new one is live on the domain and verified.
+- **It has to just work.** Most people moving a site are not technical. Talk in plain words ("your site", "put it live", "your free address"); don't say repository, branch, commit, workflow, Actions, deploy, MCP, target or DNS unless they do, or explain the word in one friendly sentence. Make the technical decisions yourself with the defaults below; ask only what only they can answer (the address, whether it's theirs).
+- **Never change hosting during a move.** Every import stays on the default, free GitHub Pages target — even when the old site has a shop, donations, member or password pages. Don't pass `--target cloudflare` and don't set `deploy.target`. The first goal is a live site at visual parity on its free address; shops, members, email and the domain come after, from Studio's **Finish setting up** list (`content/setup-checklist.json`). A move must never end in a publish that is known to fail.
 
 ## 1. Detect and import
 
-Gather: the site address, the folder name for the new site, whether they sell products or have member/password pages (then use `--target cloudflare`), and any export they have:
+Gather only: the site address and whether it's theirs. Choose the folder name yourself (from the address). Use an export only if they already have one handy — don't send them looking:
 
 - **Squarespace:** the blog export (Settings → Import & Export → Export → WordPress). Ask whether they own the site: owner mode (`--owner`) also reads Squarespace's `?format=json` data (variants, sale prices, SEO fields), but robots.txt asks automated tools not to read it — only use it with the owner's say-so.
 - **WordPress:** Tools → Export → All content gives drafts, menus and SEO meta; the public REST API is used when it's open (most sites). Without either, pages are read from their HTML.
@@ -42,7 +44,7 @@ npx -y @omniharmonic/openspace-cli import url https://www.example.com my-site --
 cd my-site && npm install
 ```
 
-Options: `--platform <name>` (skip detection), `--target github-pages|cloudflare`, `--repo owner/name`, `--domain example.com`, `--title "…"`, `--max-pages N` (default 400), `--delay ms` (pause between requests, default 300), `--no-media` (structure only, for a quick look). The command paces its requests, honours robots.txt and identifies itself.
+Options: `--platform <name>` (skip detection), `--target` (leave the default, `github-pages`, for every move), `--repo owner/name`, `--domain example.com`, `--title "…"`, `--max-pages N` (default 400), `--delay ms` (pause between requests, default 300), `--no-media` (structure only, for a quick look). The command paces its requests, honours robots.txt and identifies itself.
 
 When an OpenSpace site is already being served in this session, the `import_site` MCP tool does the same (with `confirm: true` after the owner agrees; `platform` to skip detection; `owner: true` only when they confirm ownership of a Squarespace site; `render: true` for script-built pages). It creates the new folder next to the current site and never writes into it. `import_squarespace` is its older name for Squarespace sites.
 
@@ -76,8 +78,8 @@ Go through `IMPORT-REPORT.md` → **Needs attention** with the owner:
 - **Forms and newsletter:** submissions now arrive in the OpenSpace inbox. Existing subscribers must be exported from the old platform (or its email service) and imported in the Hub. Form plugins and integrations (Zapier, Mailchimp) need setting up again.
 - **Custom code and scripts:** embeds became sandboxed Embed blocks; site-wide scripts (analytics, chat, pixels) were listed, not copied. Ask which are still needed; site-wide code goes in Settings → Advanced, which the owner adds — never through MCP.
 - **Platform features:** shortcodes and page-builder widgets (WordPress), Wix apps, Webflow interactions, commerce and bookings are not imported — say what each did and offer the OpenSpace block or service that replaces it, or leave a note.
-- **Commerce:** products are catalog content (Squarespace) or not imported (WooCommerce, Wix Stores, Shopify). Selling needs the Cloudflare target and Stripe connected in the Hub.
-- **Member areas and password pages:** recreate them as members-only or password pages in Studio (Cloudflare target); their content was not readable.
+- **Commerce:** products are catalog content (Squarespace) or not imported (WooCommerce, Wix Stores, Shopify). Selling comes later, from **Finish setting up** in Studio, after the site is live — don't change hosting now.
+- **Member areas and password pages:** later, from **Finish setting up**; their content was not readable. Keep the public pages live meanwhile.
 - **Pages with little content** (script-built): re-import with `--render`, or rebuild those sections with presets using the original's screenshot and the owner's copy.
 - **Links pointed at the home page** and **images that failed:** fix each one (`update_block`), asking the owner where a link should go.
 - **Alt text:** often missing; write purposeful alt text for meaningful images (`update_block`), or mark them decorative.
@@ -87,12 +89,14 @@ Never invent replacements for content that didn't import — ask.
 ## 4. Redirects, publishing and the domain
 
 - Redirects for every changed address are in `content/site.json` → `redirects`: WordPress permalinks (`/2024/03/title/`) and category/tag archives point at the journal, Squarespace blog and product URLs at their new homes, renamed pages at their new slugs. Keep them; add any the owner knows about (old campaign links).
-- Run `npx openspace check` (zero errors) and a final `design_check` on every page, then `get_draft_diff`. Publish only when the owner asks (`publish` with `confirm: true`, or commit and push).
-- Domain move, in this order, after the new site is live on its temporary address and checked: (1) add the custom domain to the OpenSpace site (`deploy.customDomain` in `openspace.json`, or the Hub); (2) at the DNS provider — the old platform's domain service or the registrar — change the records as the domain guide says (GitHub Pages: `A` records and a `CNAME`; Cloudflare: the Pages project's records); (3) wait until the domain serves the new site over HTTPS and a few old URLs redirect correctly; (4) only then cancel the old plan or hosting — for Squarespace, only then cancel the Squarespace site plan. Transferring the domain registration is optional and can wait.
+- Run `npx openspace check` (zero errors) and a final `design_check` on every page, then `get_draft_diff`. Then ask one simple question — "Ready for me to put your new site live at its free address? Your current site isn't touched." — and publish when they say yes (`publish` with `confirm: true`, then push). The first live version comes before any shop, members, email or domain work.
+- Domain move (only when they're ready — it's an item on the "when you're ready" list, not a step of the move), in this order, after the new site is live on its temporary address and checked: (1) add the custom domain to the OpenSpace site (`deploy.customDomain` in `openspace.json`, or the Hub); (2) at the DNS provider — the old platform's domain service or the registrar — change the records as the domain guide says (GitHub Pages: `A` records and a `CNAME`; Cloudflare: the Pages project's records); (3) wait until the domain serves the new site over HTTPS and a few old URLs redirect correctly; (4) only then cancel the old plan or hosting — for Squarespace, only then cancel the Squarespace site plan. Transferring the domain registration is optional and can wait.
 
-## 5. Finish with an honest summary
+## 5. Celebrate, then an honest summary
 
-Tell the owner, briefly:
+Start with the good news: **"Your new site is live!"** with the live link (and the Studio link if it's a Hub site), and what they save — they can stop paying their old platform for hosting once they move their address (a Squarespace plan is typically about $200–$550 a year). Then a short **when you're ready** list of only what applies (their own web address, turning the shop back on, donations, member or password pages, newsletter subscribers, extras the old site had), one plain line each.
+
+Then tell the owner, briefly:
 
 - which platform was detected and what was imported (pages, posts, products, events, images, redirects);
 - per page, how close it is to the original and what still differs (e.g. "hero photo crops tighter on mobile", "the Instagram feed widget is gone — replaced with a link");
