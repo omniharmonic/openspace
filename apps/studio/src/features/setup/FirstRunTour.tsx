@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { useSetupInfo } from "../../api";
 import type { Site } from "../../api/types";
-import { Button, Dialog } from "../../ui";
+import { Button, Dialog, toast } from "../../ui";
 import { displayUrl } from "../onboarding/BuildingProgress";
 import { formatDollars, yearlySaving } from "./savings";
 import "./setup.css";
 
 const KEY = (siteId: string) => `openspace.tour.${siteId}`;
+
+/** Has this browser shown the tour for the site (or can't remember)? */
+export function tourSeen(siteId: string): boolean {
+  return seen(siteId);
+}
 
 function seen(siteId: string): boolean {
   try {
@@ -21,6 +26,15 @@ function markSeen(siteId: string) {
     localStorage.setItem(KEY(siteId), "1");
   } catch {
     // ignore
+  }
+}
+
+async function copyLink(url: string) {
+  try {
+    await navigator.clipboard.writeText(url);
+    toast({ tone: "success", title: "Link copied", description: displayUrl(url) });
+  } catch {
+    toast({ tone: "danger", title: "Couldn’t copy the link", description: url });
   }
 }
 
@@ -106,9 +120,14 @@ export function FirstRunTour({ site }: { site: Site }) {
             ))}
           </span>
           {last ? (
-            <Button variant="primary" onClick={close}>
-              Start editing
-            </Button>
+            <>
+              <Button variant="ghost" onClick={() => void copyLink(site.url)}>
+                Copy link
+              </Button>
+              <Button variant="primary" onClick={close}>
+                Start editing
+              </Button>
+            </>
           ) : (
             <>
               <Button variant="ghost" onClick={close}>

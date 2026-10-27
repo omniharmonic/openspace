@@ -12,7 +12,8 @@ import { renderStudio, SAM } from "./render";
  * Global Constraint 9: no Git/infra vocabulary in non-Advanced Studio copy. No exceptions:
  * the PRD's "Building your site…" screen ships as "Setting up your site…".
  */
-const FORBIDDEN = /\b(repo|repository|repositories|commit\w*|branch\w*|build\w*|deploy\w*)\b/gi;
+const FORBIDDEN =
+  /\b(repo|repository|repositories|commit\w*|branch\w*|build\w*|deploy\w*|workflow\w*|GitHub Actions|MCP|CNAME|API token|account ID)\b/gi;
 
 function visibleCopy(): string {
   let text = `${document.body.textContent ?? ""} `;
@@ -32,6 +33,26 @@ function expectCleanCopy() {
 const sites = demoSites(SAM.login, Date.UTC(2026, 9, 1));
 
 describe("UI copy avoids Git vocabulary", () => {
+  it("finish setting up, its helpers and hosting", async () => {
+    const site = sites[0] as Site;
+    const { user } = renderStudio(`/sites/${site.id}/settings/setup`, {
+      user: SAM,
+      sites,
+      demoContent: true,
+    });
+    await screen.findByTestId("setup-store");
+    expectCleanCopy();
+    await user.click(
+      within(screen.getByTestId("setup-store")).getByRole("button", { name: "Start" }),
+    );
+    await screen.findByRole("dialog", { name: "Open your shop" });
+    expectCleanCopy();
+    await user.keyboard("{Escape}");
+    await user.click(screen.getByRole("button", { name: "Hosting" }));
+    await screen.findByRole("heading", { name: /Shops, donations and member/ });
+    expectCleanCopy();
+  });
+
   it("template gallery", async () => {
     renderStudio("/templates");
     await screen.findAllByRole("article");
@@ -68,9 +89,19 @@ describe("UI copy avoids Git vocabulary", () => {
   });
 
   it("editor frame and command palette", async () => {
-    renderStudio(`/sites/${(sites[0] as Site).id}?welcome=1`, { user: SAM, sites });
+    const { user } = renderStudio(`/sites/${(sites[0] as Site).id}?welcome=1`, {
+      user: SAM,
+      sites,
+    });
+    // The first-run tour, through to its last stop.
+    const tour = await screen.findByRole("dialog", { name: "This is your site" });
+    expectCleanCopy();
+    for (let i = 0; i < 3; i++)
+      await user.click(within(tour).getByRole("button", { name: "Next" }));
+    await screen.findByRole("dialog", { name: /Your site is live — and it's yours/ });
     await screen.findByRole("button", { name: "Copy link" });
     expectCleanCopy();
+    await user.click(screen.getByRole("button", { name: "Start editing" }));
     await userEvent.keyboard("{Control>}k{/Control}");
     await screen.findByPlaceholderText("Search commands…");
     expectCleanCopy();

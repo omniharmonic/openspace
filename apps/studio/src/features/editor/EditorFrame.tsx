@@ -106,7 +106,7 @@ const SiteChromePanel = lazy(() =>
   import("../site-chrome/SiteChromePanel").then((m) => ({ default: m.SiteChromePanel })),
 );
 
-import { FirstRunTour } from "../setup/FirstRunTour";
+import { FirstRunTour, tourSeen } from "../setup/FirstRunTour";
 import { HelpMenu } from "../setup/HelpMenu";
 import { SetupChip } from "../setup/SetupChip";
 import { can } from "../site-mgmt/manage-ui";
@@ -249,18 +249,20 @@ function WelcomeToast({ site }: { site: Site }) {
   useEffect(() => {
     if (params.get("welcome") !== "1" || site.status !== "live" || shown.current) return;
     shown.current = true;
-    toast({
-      id: `welcome-${site.id}`,
-      tone: "celebrate",
-      title: "Your site is live",
-      description: (
-        <a href={site.url} target="_blank" rel="noreferrer">
-          {displayUrl(site.url)}
-        </a>
-      ),
-      duration: 12_000,
-      action: { label: "Copy link", keepOpen: true, onClick: () => void copyLink(site.url) },
-    });
+    // The first-run tour celebrates (and links the site) itself; a toast only when it's been seen.
+    if (tourSeen(site.id))
+      toast({
+        id: `welcome-${site.id}`,
+        tone: "celebrate",
+        title: "Your site is live",
+        description: (
+          <a href={site.url} target="_blank" rel="noreferrer">
+            {displayUrl(site.url)}
+          </a>
+        ),
+        duration: 12_000,
+        action: { label: "Copy link", keepOpen: true, onClick: () => void copyLink(site.url) },
+      });
     const next = new URLSearchParams(params);
     next.delete("welcome");
     setParams(next, { replace: true });

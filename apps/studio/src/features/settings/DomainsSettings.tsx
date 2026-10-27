@@ -330,9 +330,9 @@ export function DomainsSettings({ site }: { site: Site }) {
     <div className="st-settings__stack">
       <p className="st-settings__lede">
         Use a domain you own, like <strong>mayayoga.com</strong>. We'll show you exactly what to
-        copy into the website of the company you bought it from, then make it secure (the padlock
-        in the browser) for you. Both mayayoga.com and www.mayayoga.com will work, and your site
-        stays online at its current address the whole time.
+        copy into the website of the company you bought it from, then make it secure (the padlock in
+        the browser) for you. Both mayayoga.com and www.mayayoga.com will work, and your site stays
+        online at its current address the whole time.
       </p>
       <ol className="st-wizard">
         <li className={cx("st-wizard__step", lookup && "is-done")}>
