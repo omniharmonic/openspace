@@ -257,6 +257,45 @@ describe("RoomClient", () => {
     expect(store.getState().doc).toEqual(room.doc);
   });
 
+  it("says “X also edited this” when someone replaces a field I just edited (not silently)", async () => {
+    const { room, store, events } = setup();
+    await tick();
+    // Ana has the site open too (her name arrives with presence).
+    const anaTab = room.connect(ANA, null);
+    anaTab.onmessage = () => {};
+    const ana = room.collaborator(ANA);
+    await tick();
+    store.getState().commit([setLabel("Conflict from Sam")]);
+    await tick();
+    // Sam's edit is confirmed; then Ana types into the same field.
+    expect(label(room.doc).label).toBe("Conflict from Sam");
+    ana.edit([setLabel("Conflict from Ana")], room.seq);
+    await tick();
+    expect(label(store.getState().doc).label).toBe("Conflict from Ana");
+    const notices = events.filter((e) => e.type === "conflict") as Array<{
+      type: "conflict";
+      notice: ConflictNotice;
+    }>;
+    expect(notices).toHaveLength(1);
+    expect(notices[0]?.notice).toMatchObject({
+      message: "Ana Ruiz also edited this",
+      winner: "them",
+    });
+    // Her next keystrokes don't stack more notices.
+    ana.edit([setLabel("Conflict from Ana!")], room.seq);
+    await tick();
+    expect(events.filter((e) => e.type === "conflict")).toHaveLength(1);
+    // Mine is one click away.
+    store.getState().commit([asBody(notices[0]?.notice.restore as Op)]);
+    await tick();
+    expect(label(room.doc).label).toBe("Conflict from Sam");
+
+    // A different field merges quietly.
+    ana.edit([setLabel("Other", "secondaryLabel")], room.seq);
+    await tick();
+    expect(events.filter((e) => e.type === "conflict")).toHaveLength(1);
+  });
+
   it("queues edits offline, says so after a while, and syncs them when the room is back", async () => {
     const { room, store, client, cache, connects } = setup();
     await tick();
