@@ -1,20 +1,8 @@
 {
-  "$comment": "Licenses for the media on openspace.dev. Template screenshots are OpenSpace template designs (CC BY 4.0).",
+  "$comment": "Licenses for the media on openspace.host. Template screenshots and renders are OpenSpace template designs (CC BY 4.0).",
   "design": {
     "license": "CC-BY-4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
   },
-  "media": [
-    {
-      "kind": "image",
-      "src": "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc",
-      "title": "A tidy wooden desk with a notebook, coffee and laptop seen from above",
-      "author": "ian dooley",
-      "authorUrl": "https://unsplash.com/@sadswim",
-      "source": "Unsplash",
-      "sourceUrl": "https://unsplash.com/photos/cup-of-coffee-near-macbook-pro-DJ7bWa-Gwks",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
-    }
-  ]
+  "media": []
 }

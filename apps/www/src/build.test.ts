@@ -54,20 +54,36 @@ describe("openspace.dev build", () => {
       expect(all).toContain(f);
   });
 
-  it("renders the home page value proposition with the Studio call to action", async () => {
+  it("renders the home page promise with the Studio call to action and share metadata", async () => {
     const home = await html("index.html");
-    expect(home).toContain("Beautiful websites you actually own");
-    expect(home).toContain("Make your site — free");
-    expect(home).toContain('href="https://studio.openspace.dev/templates"');
-    expect(home).toContain('href="https://docs.openspace.dev"');
-    expect(home).toContain('<link rel="canonical" href="https://openspace.dev/"');
+    expect(home).toContain("A professional website that&#x27;s yours to keep");
+    expect(home).toContain("Start free");
+    expect(home).toContain('href="https://studio.openspace.host/templates"');
+    expect(home).toContain('href="https://github.com/omniharmonic/openspace"');
+    expect(home).toContain('<link rel="canonical" href="https://openspace.host/"');
+    expect(home).toMatch(
+      /<meta property="og:image" content="https:\/\/openspace\.host\/[^"]+\.png"/,
+    );
+    expect(home).toContain('<meta name="twitter:card" content="summary_large_image"');
+    expect(home).toMatch(/<link rel="icon" href="[^"]*favicon[^"]*\.svg"/);
+  });
+
+  it("runs the demos inside sandboxed iframes without same-origin access", async () => {
+    const home = await html("index.html");
+    const frames = home.match(/<iframe [^>]*>/g) ?? [];
+    expect(frames).toHaveLength(3);
+    for (const f of frames) {
+      expect(f).toMatch(/sandbox="allow-scripts[^"]*"/);
+      expect(f).not.toContain("allow-same-origin");
+      expect(f).toMatch(/title="Demo: /);
+    }
   });
 
   it("renders the gallery with every template, optimised screenshots and sized images", async () => {
     const page = await html("templates/index.html");
     for (const s of templateSpecs) {
       expect(page).toContain(`>${s.name}<`);
-      expect(page).toContain(`https://studio.openspace.dev/new/${s.id}`);
+      expect(page).toContain(`https://studio.openspace.host/new/${s.id}`);
     }
     const imgs = page.match(/<img [^>]*>/g) ?? [];
     expect(imgs.length).toBeGreaterThanOrEqual(12);

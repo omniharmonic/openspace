@@ -4,26 +4,107 @@
   "title": "Home",
   "slug": "",
   "seo": {
-    "description": "OpenSpace is a free, open-source website builder: Squarespace-quality templates, a visual editor, and your own AI — on a site you own.",
-    "title": "Beautiful websites you own, free forever"
+    "description": "OpenSpace is an open-source website builder: designer templates, a visual editor and Claude, on a site you own and host free on GitHub Pages.",
+    "title": "A professional website you own, free to host"
   },
   "sections": [
     {
-      "id": "sec_3jv99zwr5s",
-      "preset": "hero/image-below@1",
-      "label": "Headline over wide image",
+      "id": "sec_wr5994a2md",
+      "label": "Hero",
+      "anchor": "hero",
       "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            12
-          ]
+        "mode": "grid",
+        "rows": {
+          "d": 3,
+          "t": 4,
+          "m": 4
         },
-        "width": "wide",
-        "gap": "xl"
+        "items": {
+          "blk_ty9rhy8n7m": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 19,
+              "h": 1
+            },
+            "t": {
+              "x": 1,
+              "y": 1,
+              "w": 24,
+              "h": 1
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 1
+            }
+          },
+          "blk_fjsgd3y5dy": {
+            "d": {
+              "x": 1,
+              "y": 2,
+              "w": 11,
+              "h": 1
+            },
+            "t": {
+              "x": 1,
+              "y": 2,
+              "w": 18,
+              "h": 1
+            },
+            "m": {
+              "x": 1,
+              "y": 2,
+              "w": 8,
+              "h": 1
+            }
+          },
+          "blk_ypgj54pq06": {
+            "d": {
+              "x": 14,
+              "y": 2,
+              "w": 11,
+              "h": 1
+            },
+            "t": {
+              "x": 1,
+              "y": 3,
+              "w": 24,
+              "h": 1
+            },
+            "m": {
+              "x": 1,
+              "y": 3,
+              "w": 8,
+              "h": 1
+            }
+          },
+          "blk_1d1t1ddgxq": {
+            "d": {
+              "x": 1,
+              "y": 3,
+              "w": 24,
+              "h": 1
+            },
+            "t": {
+              "x": 1,
+              "y": 4,
+              "w": 24,
+              "h": 1
+            },
+            "m": {
+              "x": 1,
+              "y": 4,
+              "w": 8,
+              "h": 1
+            }
+          }
+        },
+        "width": "wide"
       },
       "style": {
-        "colorTheme": "light-accent",
+        "colorTheme": "brand",
         "padding": {
           "d": "xl",
           "m": "lg"
@@ -31,654 +112,18 @@
       },
       "blocks": [
         {
-          "id": "blk_sfemtkwt7j",
+          "id": "blk_ty9rhy8n7m",
           "type": "heading",
           "v": 1,
           "fields": {
-            "text": "Beautiful websites you actually own",
             "level": "h1",
             "size": "display",
-            "eyebrow": "Open source · Free forever",
-            "subheading": "Pick a template, sign in with GitHub and your site is live in about three minutes. Edit it on any device, or ask your own AI to. No subscription, ever."
-          },
-          "variant": "plain",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
-        },
-        {
-          "id": "blk_gq1bxzkff3",
-          "type": "button",
-          "v": 1,
-          "fields": {
-            "label": "Make your site — free",
-            "link": {
-              "type": "url",
-              "url": "https://studio.openspace.dev/templates"
-            },
-            "role": "primary",
-            "secondaryLabel": "See the templates",
-            "secondaryLink": {
-              "type": "page",
-              "page": "pg_8gvvjp3ezj"
-            }
-          },
-          "variant": "default",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
-        },
-        {
-          "id": "blk_4rx2vrmgpb",
-          "type": "image",
-          "v": 1,
-          "fields": {
-            "image": {
-              "src": "media/hero/meadow-looks.png",
-              "alt": "The Meadow template in three looks, showing how one site can change its whole style",
-              "width": 1400,
-              "height": 701
-            },
-            "aspect": "original",
-            "lightbox": false
-          },
-          "variant": "default"
-        }
-      ]
-    },
-    {
-      "id": "sec_evnk9b6742",
-      "preset": "features/icon-row@1",
-      "label": "Four benefits with icons",
-      "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            12
-          ]
-        },
-        "gap": "xl"
-      },
-      "style": {
-        "colorTheme": "light"
-      },
-      "blocks": [
-        {
-          "id": "blk_spj54ey3cb",
-          "type": "heading",
-          "v": 1,
-          "fields": {
-            "text": "Everything a website builder does, minus the rent",
-            "level": "h2",
-            "size": "auto",
-            "eyebrow": "Why OpenSpace",
-            "subheading": "The parts that used to justify a monthly fee are free today. OpenSpace puts them together with the design care they deserve."
-          },
-          "variant": "plain",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
-        },
-        {
-          "id": "blk_jydn4md1tv",
-          "type": "icon-list",
-          "v": 1,
-          "fields": {
-            "items": [
-              {
-                "icon": "home",
-                "title": "You own it",
-                "text": "Your site lives in your own GitHub account, in open formats. Leave any time with everything."
-              },
-              {
-                "icon": "heart",
-                "title": "Free by design",
-                "text": "Hosting, builds and storage run on free accounts you control. Nothing to renew."
-              },
-              {
-                "icon": "sparkles",
-                "title": "Beautiful by default",
-                "text": "Curated type, generated accessible palettes and designed sections make every page look intentional."
-              },
-              {
-                "icon": "message-circle",
-                "title": "Your AI, if you want it",
-                "text": "Ask Claude to add a page or restyle the site. It edits safely, and you approve before anything goes live."
-              }
-            ],
-            "columns": "4"
-          },
-          "variant": "tiles"
-        }
-      ]
-    },
-    {
-      "id": "sec_pqm5tqzhpt",
-      "preset": "services/steps@1",
-      "label": "How it works in three steps",
-      "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            12
-          ]
-        },
-        "gap": "xl"
-      },
-      "style": {
-        "colorTheme": "light-accent"
-      },
-      "blocks": [
-        {
-          "id": "blk_e4rsjw3nsq",
-          "type": "heading",
-          "v": 1,
-          "fields": {
-            "text": "From template to live site",
-            "level": "h2",
-            "size": "auto",
-            "eyebrow": "Live in three minutes"
-          },
-          "variant": "plain",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
-        },
-        {
-          "id": "blk_axfw1txp3k",
-          "type": "columns",
-          "v": 1,
-          "fields": {
-            "items": [
-              {
-                "heading": "Pick a template",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "Twelve designs for practices, restaurants, nonprofits, artists, shops and more, each in three looks."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              {
-                "heading": "Sign in with GitHub",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "A free account is where your site's files live. No account yet? Studio walks you through making one."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              },
-              {
-                "heading": "You're live",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "Your name and tagline go in, and the site is online at a free address you can swap for your own domain."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              }
-            ],
-            "columns": "3",
-            "aspect": "original"
-          },
-          "variant": "steps"
-        },
-        {
-          "id": "blk_46d2b980dk",
-          "type": "button",
-          "v": 1,
-          "fields": {
-            "label": "Make your site — free",
-            "link": {
-              "type": "url",
-              "url": "https://studio.openspace.dev/templates"
-            },
-            "role": "primary"
-          },
-          "variant": "default",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "sec_dez92jjbam",
-      "preset": "features/checklist-image@1",
-      "label": "Checklist beside photo",
-      "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            6,
-            6
-          ],
-          "m": [
-            12
-          ]
-        },
-        "align": "center",
-        "gap": "2xl"
-      },
-      "style": {
-        "colorTheme": "light"
-      },
-      "blocks": [
-        {
-          "id": "blk_1swvc4atfd",
-          "type": "heading",
-          "v": 1,
-          "fields": {
-            "text": "Your site, your files, your audience",
-            "level": "h2",
-            "size": "auto",
-            "eyebrow": "Ownership",
-            "subheading": "OpenSpace never holds your site hostage. If the project disappeared tomorrow, your site would keep working."
-          },
-          "column": 0,
-          "variant": "plain"
-        },
-        {
-          "id": "blk_017vb34fk7",
-          "type": "icon-list",
-          "v": 1,
-          "fields": {
-            "items": [
-              {
-                "icon": "check",
-                "title": "Files in your own GitHub account, under your name"
-              },
-              {
-                "icon": "check",
-                "title": "Published free by GitHub Pages, or your own Cloudflare"
-              },
-              {
-                "icon": "check",
-                "title": "Form entries and subscribers exportable any time"
-              },
-              {
-                "icon": "check",
-                "title": "Standard tools build it, with or without OpenSpace"
-              }
-            ],
-            "columns": "1"
-          },
-          "column": 0,
-          "variant": "checklist"
-        },
-        {
-          "id": "blk_vm2cexmczs",
-          "type": "button",
-          "v": 1,
-          "fields": {
-            "label": "Where everything lives",
-            "link": {
-              "type": "url",
-              "url": "https://docs.openspace.dev/getting-started/"
-            },
-            "role": "secondary"
-          },
-          "column": 0,
-          "variant": "default"
-        },
-        {
-          "id": "blk_x6w95xcvq3",
-          "type": "image",
-          "v": 1,
-          "fields": {
-            "image": {
-              "src": "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=1920&q=80",
-              "alt": "A tidy desk with a notebook, coffee and laptop, ready to work",
-              "width": 1920,
-              "height": 1280
-            },
-            "aspect": "1:1",
-            "lightbox": false
-          },
-          "column": 1,
-          "variant": "default"
-        }
-      ]
-    },
-    {
-      "id": "sec_2ddv02440r",
-      "preset": "features/three-cards@1",
-      "label": "Feature cards beside heading",
-      "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            4,
-            4,
-            4
-          ],
-          "m": [
-            12
-          ]
-        },
-        "gap": "md"
-      },
-      "style": {
-        "colorTheme": "dark"
-      },
-      "blocks": [
-        {
-          "id": "blk_hz019r97bn",
-          "type": "heading",
-          "v": 1,
-          "fields": {
-            "text": "Ask Claude to edit your site",
-            "level": "h2",
-            "size": "auto",
-            "eyebrow": "Connect your AI"
-          },
-          "column": 0,
-          "variant": "plain"
-        },
-        {
-          "id": "blk_pqafc0apcw",
-          "type": "card",
-          "v": 1,
-          "fields": {
-            "aspect": "4:5",
-            "heading": "Claude connector",
-            "body": {
-              "type": "doc",
-              "content": [
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "Paste one link into Claude. It can add pages, write posts and restyle, through safe, typed edits."
-                    }
-                  ]
-                }
-              ]
-            },
-            "icon": "message-circle"
-          },
-          "column": 1,
-          "variant": "minimal"
-        },
-        {
-          "id": "blk_qwe4q65baa",
-          "type": "card",
-          "v": 1,
-          "fields": {
-            "aspect": "4:5",
-            "heading": "Claude Code plugin",
-            "body": {
-              "type": "doc",
-              "content": [
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "Design checks and screenshots after every change, for fast design work on a local copy."
-                    }
-                  ]
-                }
-              ]
-            },
-            "icon": "wrench"
-          },
-          "column": 2,
-          "variant": "minimal"
-        },
-        {
-          "id": "blk_nd4pmrn2vs",
-          "type": "card",
-          "v": 1,
-          "fields": {
-            "aspect": "4:5",
-            "heading": "Drafts, never surprises",
-            "body": {
-              "type": "doc",
-              "content": [
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "AI edits land in a draft you can watch live. Undo all of them in one click, or publish."
-                    }
-                  ]
-                }
-              ]
-            },
-            "icon": "shield-check"
-          },
-          "column": 1,
-          "variant": "minimal"
-        },
-        {
-          "id": "blk_rxrfn5f3hs",
-          "type": "card",
-          "v": 1,
-          "fields": {
-            "aspect": "4:5",
-            "heading": "Free to run",
-            "body": {
-              "type": "doc",
-              "content": [
-                {
-                  "type": "paragraph",
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "Bring your own AI. OpenSpace never pays for, or meters, the model you use."
-                    }
-                  ]
-                }
-              ]
-            },
-            "icon": "zap"
-          },
-          "column": 2,
-          "variant": "minimal"
-        }
-      ]
-    },
-    {
-      "id": "sec_bqrzzqmq3v",
-      "preset": "services/image-cards@1",
-      "label": "Three services with photos",
-      "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            12
-          ]
-        },
-        "gap": "xl"
-      },
-      "style": {
-        "colorTheme": "light"
-      },
-      "blocks": [
-        {
-          "id": "blk_mqczxbeqva",
-          "type": "heading",
-          "v": 1,
-          "fields": {
-            "text": "Designed to look finished on day one",
-            "level": "h2",
-            "size": "auto",
-            "eyebrow": "Templates",
-            "subheading": "Real-feeling copy and photography, three looks each, and an accessible color system that keeps every combination readable."
+            "text": "A professional website that's yours to keep"
           },
           "variant": "plain"
         },
         {
-          "id": "blk_zv1r5xnxek",
-          "type": "columns",
-          "v": 1,
-          "fields": {
-            "items": [
-              {
-                "image": {
-                  "src": "media/templates/meadow-looks.png",
-                  "alt": "The Meadow template's home page in its three looks: Oat & Sage, Clay & Linen, Dusk",
-                  "width": 1400,
-                  "height": 478
-                },
-                "heading": "Meadow",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "For yoga, therapy, bodywork, wellness. Calm, airy, organic. Looks: Oat & Sage · Clay & Linen · Dusk."
-                        }
-                      ]
-                    }
-                  ]
-                },
-                "link": {
-                  "type": "url",
-                  "url": "https://studio.openspace.dev/new/meadow"
-                },
-                "linkLabel": "Start with Meadow"
-              },
-              {
-                "image": {
-                  "src": "media/templates/atelier-looks.png",
-                  "alt": "The Atelier template's home page in its three looks: Monochrome, Gallery Blue, Darkroom",
-                  "width": 1400,
-                  "height": 478
-                },
-                "heading": "Atelier",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "For photographers, visual artists. Gallery-first, minimal chrome. Looks: Monochrome · Gallery Blue · Darkroom."
-                        }
-                      ]
-                    }
-                  ]
-                },
-                "link": {
-                  "type": "url",
-                  "url": "https://studio.openspace.dev/new/atelier"
-                },
-                "linkLabel": "Start with Atelier"
-              },
-              {
-                "image": {
-                  "src": "media/templates/signal-looks.png",
-                  "alt": "The Signal template's home page in its three looks: Electric, Terminal, Volt",
-                  "width": 1400,
-                  "height": 478
-                },
-                "heading": "Signal",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "For products, startups, launches. Bold, modern, technical. Looks: Electric · Terminal · Volt."
-                        }
-                      ]
-                    }
-                  ]
-                },
-                "link": {
-                  "type": "url",
-                  "url": "https://studio.openspace.dev/new/signal"
-                },
-                "linkLabel": "Start with Signal"
-              }
-            ],
-            "columns": "3",
-            "aspect": "original"
-          },
-          "variant": "plain"
-        }
-      ]
-    },
-    {
-      "id": "sec_arcck4c8r8",
-      "preset": "faq/split@1",
-      "label": "Questions beside heading",
-      "layout": {
-        "mode": "stack",
-        "columns": {
-          "d": [
-            4,
-            8
-          ],
-          "m": [
-            12
-          ]
-        },
-        "gap": "2xl"
-      },
-      "style": {
-        "colorTheme": "light-accent"
-      },
-      "blocks": [
-        {
-          "id": "blk_e1c7x7wpnw",
-          "type": "heading",
-          "v": 1,
-          "fields": {
-            "text": "Good to know",
-            "level": "h2",
-            "size": "auto",
-            "eyebrow": "Questions"
-          },
-          "column": 0,
-          "variant": "plain"
-        },
-        {
-          "id": "blk_0akyx5fzm7",
+          "id": "blk_fjsgd3y5dy",
           "type": "text",
           "v": 1,
           "fields": {
@@ -690,37 +135,1338 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "The documentation covers everything in plain language."
+                      "text": "Start from a designer template, shape it in a visual editor or with Claude, and publish it free on GitHub Pages. Every page is a plain file in your own GitHub repository."
                     }
                   ]
                 }
               ]
             }
           },
-          "column": 0,
           "variant": "default"
         },
         {
-          "id": "blk_58900yh3s0",
+          "id": "blk_ypgj54pq06",
           "type": "button",
           "v": 1,
           "fields": {
-            "label": "Read the docs",
+            "role": "primary",
+            "label": "Start free",
             "link": {
               "type": "url",
-              "url": "https://docs.openspace.dev"
+              "url": "https://studio.openspace.host/templates"
             },
-            "role": "secondary"
+            "secondaryLabel": "See it on GitHub",
+            "secondaryLink": {
+              "type": "url",
+              "url": "https://github.com/omniharmonic/openspace"
+            },
+            "note": "Open source and in pre-release. You need a free GitHub account."
           },
-          "column": 0,
-          "variant": "default"
+          "variant": "large"
         },
         {
-          "id": "blk_sgnxqwykwd",
-          "type": "accordion",
+          "id": "blk_1d1t1ddgxq",
+          "type": "embed",
+          "v": 1,
+          "fields": {
+            "aspect": "auto",
+            "height": 560,
+            "embed": {
+              "type": "code",
+              "code": "<style>\n*,*::before,*::after{box-sizing:border-box}\nhtml,body{height:100%;background:#fff;color:#1b1e2e}\nbody{font:13px/1.4 system-ui,-apple-system,\"Segoe UI\",sans-serif}\nbutton{font:inherit;color:inherit}\n.app{display:grid;grid-template-rows:auto 1fr;height:100%;background:#eef0f6}\n.bar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border-bottom:1px solid #e3e6ef;min-width:0}\n.bar b{font-weight:600;white-space:nowrap}\n.bar .crumb{color:#5d6378;white-space:nowrap}\n.dev{display:flex;gap:2px;margin-inline:auto;padding:2px;border-radius:7px;background:#f1f2f7}\n.dev span{width:26px;height:20px;border-radius:5px;display:grid;place-items:center}\n.dev span:first-child{background:#fff;box-shadow:0 1px 2px #0002}\n.dev i{display:block;border:1.5px solid #4a5068;border-radius:2px}\n.pub{border:0;border-radius:7px;background:#2c40e6;color:#fff;padding:5px 11px;font-weight:600;white-space:nowrap}\n.main{display:grid;grid-template-columns:1fr 210px;min-height:0}\n.canvas{padding:14px;overflow:hidden;min-width:0}\n.panel{background:#fff;border-left:1px solid #e3e6ef;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}\n.panel h2{margin:0;font-size:13px;font-weight:600}\n.panel p{margin:0;color:#5d6378;font-size:12px}\n.looks{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}\n.look{display:flex;align-items:center;gap:8px;width:100%;padding:7px 8px;border:1px solid #e3e6ef;border-radius:8px;background:#fff;text-align:left;cursor:pointer}\n.look[aria-pressed=true]{border-color:#2c40e6;box-shadow:0 0 0 1px #2c40e6;background:#f4f5ff}\n.look:focus-visible,.pub:focus-visible,.pause:focus-visible{outline:2px solid #2c40e6;outline-offset:2px}\n.sw{display:flex;flex:none}\n.sw i{width:12px;height:12px;border-radius:50%;border:1.5px solid #fff;margin-left:-4px}\n.sw i:first-child{margin-left:0}\n.look small{display:block;color:#5d6378;font-size:11px}\n.meta{border-top:1px solid #eceef4;padding-top:10px;display:grid;gap:4px;font-size:12px}\n.meta div{display:flex;justify-content:space-between;gap:8px}\n.meta span:first-child{color:#5d6378}\n.ok{color:#14794a;font-weight:600}\n.pause{margin-top:auto;align-self:flex-start;border:1px solid #e3e6ef;background:#fff;border-radius:7px;padding:4px 10px;cursor:pointer}\n/* the mini site */\n.site{--bg:#f1f6ef;--ink:#1f2a22;--soft:#4b5a4f;--brand:#4f7a57;--on:#fff;--card:#fff;--r:999px;--rc:10px;--arch:999px 999px 8px 8px;--serif:\"Iowan Old Style\",\"Palatino Linotype\",Palatino,Georgia,serif;--hw:400;\nheight:100%;border-radius:8px;overflow:hidden;background:var(--bg);color:var(--ink);box-shadow:0 1px 3px #0002,0 8px 30px #1b1e2e1a;display:flex;flex-direction:column;transition:background-color .5s,color .5s}\n.s-nav{display:flex;align-items:center;gap:12px;padding:10px 16px;font-size:11px}\n.s-nav b{font:600 13px/1 var(--serif);margin-right:auto;letter-spacing:-.01em}\n.s-nav .lnk{color:var(--soft)}\n.btn{display:inline-block;padding:7px 13px;border-radius:var(--r);background:var(--brand);color:var(--on);border:1.5px solid var(--brand);font-size:11px;font-weight:600;white-space:nowrap;transition:background-color .5s,border-radius .5s,color .5s}\n.btn.alt{background:transparent;color:var(--ink);border-color:color-mix(in srgb,var(--ink) 35%,transparent)}\n.site[data-look=clay] .btn:not(.alt){background:transparent;color:var(--brand)}\n.s-hero{flex:1;display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(20px,4vw,56px);align-items:center;padding:6px clamp(22px,4vw,56px) 18px;min-height:0}\n.s-hero p.e{margin:0 0 8px;font-size:10px;letter-spacing:.12em;color:var(--brand);font-weight:600}\n.s-hero .h{margin:0 0 10px;font:var(--hw) clamp(20px,3.5vw,46px)/1.06 var(--serif);letter-spacing:-.015em;text-wrap:balance}\n.s-hero p.l{margin:0 0 14px;color:var(--soft);font-size:clamp(12px,1.2vw,15px);max-width:40ch}\n.s-hero .row{display:flex;gap:8px;flex-wrap:wrap}\n.arch{position:relative;justify-self:end;width:min(100%,280px);aspect-ratio:4/5;max-height:100%;min-height:120px;border-radius:var(--arch);overflow:hidden;background:linear-gradient(180deg,#f7c977 0%,#ec8a4f 38%,#b9483a 66%,#4a2433 100%);transition:border-radius .6s}\n.arch::before{content:\"\";position:absolute;left:50%;top:30%;width:34%;aspect-ratio:1;border-radius:50%;translate:-50% 0;background:#fff3c9;opacity:.85;filter:blur(1px)}\n.arch::after{content:\"\";position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#5c2a32,#2a1620)}\n.s-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 clamp(22px,4vw,56px) 18px}\n.s-cards div{background:var(--card);border-radius:var(--rc);padding:10px;font-size:10px;color:var(--soft);transition:border-radius .5s,background-color .5s}\n.s-cards b{display:block;color:var(--ink);font:var(--hw) 13px/1.2 var(--serif);margin-bottom:3px}\n.site[data-look=clay]{--bg:#fbede6;--ink:#2b1d17;--soft:#6a4f44;--brand:#a84a28;--card:#fff8f4;--r:999px;--rc:18px;--arch:22px;--serif:Didot,\"Bodoni 72\",\"Bodoni MT\",Georgia,serif}\n.site[data-look=dusk]{--bg:#f3f0fa;--ink:#24203a;--soft:#57516f;--brand:#6a52a6;--card:#fff;--r:8px;--rc:10px;--arch:999px 999px 6px 6px;--serif:Baskerville,\"Baskerville Old Face\",\"Libre Caslon Text\",\"Times New Roman\",serif;--hw:400}\n.chips{display:none}\n@media (max-width:640px){\n.main{grid-template-columns:1fr;grid-template-rows:auto 1fr}\n.panel{display:none}\n.chips{display:flex;gap:6px;padding:8px 12px 0;overflow-x:auto}\n.chips .look{width:auto;padding:5px 9px;white-space:nowrap}\n.chips .look small{display:none}\n.canvas{padding:10px 12px 12px}\n.crumb,.dev{display:none}\n.bar{justify-content:space-between}\n.s-nav .lnk{display:none}\n.s-hero{grid-template-columns:1fr;grid-template-rows:auto minmax(70px,1fr);padding:4px 16px 14px;gap:12px}\n.s-hero p.l{margin-bottom:10px}\n.s-hero .row .alt{display:none}\n.arch{justify-self:stretch;width:auto;aspect-ratio:auto;min-height:70px;height:auto}\n.s-cards{display:none}\n}\nfieldset{border:0;margin:0;min-width:0}\n.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\n@media (prefers-reduced-motion:reduce){.site,.btn,.arch,.s-cards div{transition:none}}\n</style>\n<div class=\"app\">\n<div class=\"bar\"><b>Fernwood Yoga</b><span class=\"crumb\">/ Home</span>\n<div class=\"dev\" aria-hidden=\"true\"><span><i style=\"width:12px;height:9px\"></i></span><span><i style=\"width:9px;height:11px\"></i></span><span><i style=\"width:6px;height:11px\"></i></span></div>\n<button class=\"pub\" type=\"button\" tabindex=\"-1\" aria-hidden=\"true\">Publish</button></div>\n<div class=\"main\">\n<fieldset class=\"chips\"><legend class=\"vh\">Looks</legend></fieldset>\n<div class=\"canvas\">\n<div class=\"site\" data-look=\"sage\">\n<div class=\"s-nav\"><b>Fernwood Yoga</b><span class=\"lnk\">Classes</span><span class=\"lnk\">Bodywork</span><span class=\"lnk\">Journal</span><span class=\"btn alt\">Book a class</span></div>\n<div class=\"s-hero\"><div><p class=\"e\">YOGA &amp; BODYWORK, SE PORTLAND</p><p class=\"h\">Slow yoga and bodywork for real bodies</p><p class=\"l\">Small, patient classes for every kind of body, and massage therapists who listen first.</p><div class=\"row\"><span class=\"btn\">See the class schedule</span><span class=\"btn alt\">Book a massage</span></div></div><div class=\"arch\" aria-hidden=\"true\"></div></div>\n<div class=\"s-cards\"><div><b>Twelve mats</b>Small enough that your teacher learns your name.</div><div><b>Time to arrive</b>Doors open fifteen minutes early.</div><div><b>Tea afterwards</b>Something warm on the bench by the window.</div></div>\n</div>\n</div>\n<div class=\"panel\"><h2>Site styles</h2><p>One click restyles every page. Your words stay put.</p>\n<ul class=\"looks\" aria-label=\"Looks\"></ul>\n<div class=\"meta\"><div><span>Fonts</span><span id=\"font\"></span></div><div><span>Body text</span><span id=\"cr\" class=\"ok\"></span></div></div>\n<button class=\"pause\" type=\"button\" aria-pressed=\"false\">Pause</button></div>\n</div>\n</div>\n<script>\n(()=>{\nconst L=[\n{id:\"sage\",name:\"Oat & Sage\",font:\"Fraunces & Hanken\",c:[\"#f1f6ef\",\"#4f7a57\",\"#b5603a\"],bg:\"#f1f6ef\",fg:\"#4b5a4f\"},\n{id:\"clay\",name:\"Clay & Linen\",font:\"DM Serif & DM Sans\",c:[\"#fbede6\",\"#a84a28\",\"#2b1d17\"],bg:\"#fbede6\",fg:\"#6a4f44\"},\n{id:\"dusk\",name:\"Dusk\",font:\"Libre Caslon & Nunito Sans\",c:[\"#f3f0fa\",\"#6a52a6\",\"#24203a\"],bg:\"#f3f0fa\",fg:\"#57516f\"}];\nconst site=document.querySelector(\".site\"),font=document.getElementById(\"font\"),cr=document.getElementById(\"cr\"),pause=document.querySelector(\".pause\");\nconst lum=h=>{const v=[1,3,5].map(i=>{const c=parseInt(h.slice(i,i+2),16)/255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4});return .2126*v[0]+.7152*v[1]+.0722*v[2]};\nconst ratio=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};\nconst btns=[];\nconst make=(host,l)=>{const b=document.createElement(\"button\");b.type=\"button\";b.className=\"look\";b.dataset.id=l.id;\nb.innerHTML=`<span class=\"sw\" aria-hidden=\"true\">${l.c.map(c=>`<i style=\"background:${c}\"></i>`).join(\"\")}</span><span>${l.name}<small>${l.font}</small></span>`;\nb.addEventListener(\"click\",()=>{stop();set(L.indexOf(l))});\nconst li=host.tagName===\"UL\"?document.createElement(\"li\"):null; if(li){li.append(b);host.append(li)}else host.append(b);btns.push(b)};\nfor(const l of L){make(document.querySelector(\".looks\"),l);make(document.querySelector(\".chips\"),l)}\nlet i=0,t=null;\nconst reduce=matchMedia(\"(prefers-reduced-motion: reduce)\").matches;\nfunction set(n){i=n;const l=L[n];const go=()=>{site.dataset.look=l.id};\nif(document.startViewTransition&&!reduce){const v=document.startViewTransition(go);v.ready.catch(()=>{});v.finished.catch(()=>{})}else go();\nfor(const b of btns)b.setAttribute(\"aria-pressed\",String(b.dataset.id===l.id));\nfont.textContent=l.font;cr.textContent=`${ratio(l.bg,l.fg).toFixed(1)} : 1, passes AA`}\nfunction stop(){if(t){clearInterval(t);t=null}pause.textContent=\"Play\";pause.setAttribute(\"aria-pressed\",\"true\")}\nfunction play(){if(t)return;t=setInterval(()=>set((i+1)%L.length),3400);pause.textContent=\"Pause\";pause.setAttribute(\"aria-pressed\",\"false\")}\npause.addEventListener(\"click\",()=>t?stop():play());\nset(0);\nif(!reduce)play();else stop();\n})();\n</script>"
+            },
+            "title": "Demo: the Studio editor switching a site between three looks"
+          },
+          "variant": "plain"
+        }
+      ]
+    },
+    {
+      "id": "sec_pq6da4k7kg",
+      "label": "Numbers",
+      "anchor": "numbers",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "lg",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_g1f2m8x6nf",
+          "type": "stats",
           "v": 1,
           "fields": {
             "items": [
+              {
+                "value": "$0",
+                "label": "to host on GitHub Pages",
+                "detail": "Or on your own Cloudflare account. A domain is optional."
+              },
+              {
+                "value": "12 × 3",
+                "label": "templates and looks",
+                "detail": "Plus a library of designed sections, and growing."
+              },
+              {
+                "value": "99–100",
+                "label": "Lighthouse performance",
+                "detail": "Every template's home page on mobile, in our own tests."
+              },
+              {
+                "value": "< 6 KB",
+                "label": "of JavaScript per page",
+                "detail": "Template home pages ship 1.6 to 5.2 KB. The rest is static HTML."
+              }
+            ]
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_ym83ky5t6h",
+      "label": "How it works",
+      "anchor": "how",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_cx2c5czwr6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Three steps, then it's yours",
+            "subheading": "No servers to rent and nothing to install. Studio runs in your browser, on a computer or a phone."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xjt1vfxdns",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "columns": "3",
+            "aspect": "original",
+            "items": [
+              {
+                "heading": "Pick a template",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Twelve designs for practices, restaurants, nonprofits, artists, shops and more, each in three looks. Your name and tagline go in as you start."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Edit visually, or ask Claude",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Click any words to change them. Drag blocks on a 24-column grid, restyle every page from Site Styles, or describe the change to Claude."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Publish to your GitHub Pages",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Publishing builds your site and puts it online at your own address. Roll back to any earlier version in one click."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "steps"
+        },
+        {
+          "id": "blk_45ba521t35",
+          "type": "embed",
+          "v": 1,
+          "fields": {
+            "aspect": "auto",
+            "height": 500,
+            "embed": {
+              "type": "code",
+              "code": "<style>\n*,*::before,*::after{box-sizing:border-box}\nhtml,body{height:100%}\nbody{font:14px/1.45 system-ui,-apple-system,\"Segoe UI\",sans-serif;color:#1b1e2e;background:#fff}\nbutton{font:inherit;color:inherit;cursor:pointer}\n.wrap{display:grid;grid-template-rows:auto 1fr;height:100%}\n.tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid #e3e6ef;background:#f7f8fc}\n.tools>legend{color:#5d6378;margin-right:4px}\n.act{border:1px solid #cfd3e3;background:#fff;border-radius:999px;padding:5px 12px;font-weight:500}\n.act:hover{border-color:#2c40e6}\n.act[disabled]{opacity:.45;cursor:default;border-color:#cfd3e3}\n.act:focus-visible{outline:2px solid #2c40e6;outline-offset:2px}\n.undo{margin-left:auto}\n.panes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);min-height:0}\n.code{display:grid;grid-template-rows:auto 1fr auto;min-height:0;background:#0f1230;color:#d9dcf5;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}\n.tabs{display:flex;gap:2px;padding:8px 10px 0;overflow:hidden}\n.tabs span{padding:5px 10px;border-radius:6px 6px 0 0;color:#8f95c4;white-space:nowrap}\n.tabs span.on{background:#181c45;color:#fff}\npre{margin:0;padding:10px 0;overflow:auto;background:#181c45;min-height:0}\npre div{padding:0 14px;white-space:pre;transition:background-color .9s}\npre div.hot{background:#ffcb5233;box-shadow:inset 3px 0 #ffcb52}\n.k{color:#9fb0ff}.s{color:#ffd88a}.n{color:#8ce0c4}.p{color:#6f76a8}\n.log{padding:8px 14px;border-top:1px solid #262b63;color:#aab0dc;min-height:3.2em}\n.log b{color:#8ce0c4;font-weight:500}\n.page{position:relative;display:flex;flex-direction:column;min-height:0;background:#eef0f6;padding:12px}\n.cap{font-size:12px;color:#5d6378;margin:0 0 8px;display:flex;justify-content:space-between;gap:8px}\n.sec{--bg:#fbf8f1;--ink:#231d14;--soft:#5d5345;--btn:#3f6b4a;flex:1;position:relative;display:grid;grid-template-columns:repeat(24,1fr);column-gap:4px;align-content:center;padding:18px;border-radius:8px;background:var(--bg);color:var(--ink);box-shadow:0 1px 3px #0002,0 8px 30px #1b1e2e14;transition:background-color .5s,color .5s;overflow:hidden}\n.sec[data-theme=dark]{--bg:#1d2a22;--ink:#f3efe6;--soft:#c9c2b3;--btn:#e7c66b}\n.guides{position:absolute;inset:0 18px;display:grid;grid-template-columns:repeat(24,1fr);column-gap:4px;pointer-events:none}\n.guides i{background:#2c40e60d;border-inline:1px solid #2c40e61a}\n.txt,.img{position:relative;grid-row:1}\n.txt{view-transition-name:txt}.img{view-transition-name:img}\n.txt .h{margin:0 0 8px;font:400 clamp(19px,2.4vw,30px)/1.1 \"Iowan Old Style\",Palatino,Georgia,serif;letter-spacing:-.01em;text-wrap:balance}\n.txt p{margin:0 0 12px;color:var(--soft);font-size:13px}\n.txt .b{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--btn);color:var(--bg);font-size:12px;font-weight:600}\n.img{align-self:stretch;min-height:150px;border-radius:10px;background:radial-gradient(60% 50% at 50% 60%,#e6b878,#b9773e 55%,#6b3e1f 100%)}\n.img::after{content:\"\";position:absolute;left:18%;right:18%;top:38%;bottom:30%;border-radius:50% 50% 40% 40%;background:linear-gradient(#d9a15f,#a8642e);box-shadow:inset 0 -6px 0 #0002}\n.sel{outline:2px solid #2c40e6;outline-offset:3px}\n@media (max-width:640px){\n.panes{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}\n.page{order:-1;padding:10px}\n.sec{padding:14px}\n.img{min-height:110px}\n.tools>legend{width:100%}\n.undo{margin-left:0}\n}\nfieldset{border:0;margin:0;min-width:0}\nlegend{float:left;padding:0;margin-right:4px;color:#5d6378}\n@media (prefers-reduced-motion:reduce){pre div,.sec,.act{transition:none}}\n</style>\n<div class=\"wrap\">\n<fieldset class=\"tools\"><legend>Try an edit:</legend>\n<button class=\"act\" type=\"button\" data-do=\"text\">Rewrite the headline</button>\n<button class=\"act\" type=\"button\" data-do=\"move\">Move the photo</button>\n<button class=\"act\" type=\"button\" data-do=\"theme\">Switch to dark</button>\n<button class=\"act undo\" type=\"button\" data-do=\"undo\" disabled>Undo</button></fieldset>\n<div class=\"panes\">\n<div class=\"code\">\n<div class=\"tabs\" aria-hidden=\"true\"><span>openspace.json</span><span>styles.json</span><span class=\"on\">pages/home.json</span></div>\n<!-- biome-ignore lint/a11y/noNoninteractiveTabindex: the scrollable file must be reachable by keyboard -->\n<pre tabindex=\"0\" title=\"content/pages/home.json, the first section\"></pre>\n<div class=\"log\" role=\"status\" aria-live=\"polite\">Pick an edit. Each one is a small, validated operation on this file.</div>\n</div>\n<div class=\"page\">\n<p class=\"cap\"><span>The same section, rendered</span><span id=\"n\"></span></p>\n<div class=\"sec\">\n<div class=\"guides\" aria-hidden=\"true\"></div>\n<div class=\"txt\"><p class=\"h\">Fresh bread, every morning at seven</p><p>Naturally leavened loaves and morning buns from a small oven on Calder Street.</p><span class=\"b\">See what's baking</span></div>\n<div class=\"img\" role=\"img\" aria-label=\"A sourdough loaf\"></div>\n</div>\n</div>\n</div>\n</div>\n<script>\n(()=>{\nconst g=document.querySelector(\".guides\");for(let i=0;i<24;i++)g.append(document.createElement(\"i\"));\nconst A=[\"Fresh bread, every morning at seven\",\"Still warm at seven, six days a week\"];\nlet doc={id:\"sec_hero\",layout:{mode:\"grid\",items:{blk_title:{d:{x:1,y:1,w:13,h:6}},blk_photo:{d:{x:15,y:1,w:10,h:6}}}},style:{colorTheme:\"light\"},blocks:[{id:\"blk_title\",type:\"heading\",fields:{text:A[0],level:\"h1\"}},{id:\"blk_photo\",type:\"image\",fields:{alt:\"A sourdough loaf\"}}]};\nconst hist=[];let prevLines=[];\nconst pre=document.querySelector(\"pre\"),log=document.querySelector(\".log\"),n=document.getElementById(\"n\"),undo=document.querySelector(\".undo\");\nconst esc=s=>s.replace(/&/g,\"&amp;\").replace(/</g,\"&lt;\");\nconst paint=l=>esc(l).replace(/(\"[^\"]*\")(\\s*:)?|(-?\\d+)|([{}[\\],])/g,(_m,str,colon,num,p)=>str?(colon?`<span class=\"k\">${str}</span><span class=\"p\">:</span>`:`<span class=\"s\">${str}</span>`):num?`<span class=\"n\">${num}</span>`:`<span class=\"p\">${p}</span>`);\nfunction render(changed){\nconst lines=JSON.stringify(doc,null,2).split(\"\\n\");\npre.innerHTML=lines.map((l,i)=>`<div${changed&&l!==prevLines[i]?' class=\"hot\"':''}>${paint(l)}</div>`).join(\"\");\nprevLines=lines;\nconst it=doc.layout.items,sec=document.querySelector(\".sec\"),t=document.querySelector(\".txt\"),im=document.querySelector(\".img\");\nconst place=(el,r)=>{el.style.gridColumn=`${r.d.x} / span ${r.d.w}`};\nplace(t,it.blk_title);place(im,it.blk_photo);\nt.querySelector(\".h\").textContent=doc.blocks[0].fields.text;\nsec.dataset.theme=doc.style.colorTheme;\nn.textContent=hist.length?`${hist.length+(hist.length===1?\" change\":\" changes\")} in the draft`:\"\";\nundo.disabled=!hist.length;\nconst hot=pre.querySelector(\".hot\");if(hot)hot.scrollIntoView({block:\"nearest\"});\n}\nconst ops={\ntext:()=>{const v=doc.blocks[0].fields.text===A[0]?A[1]:A[0];doc.blocks[0].fields.text=v;return{op:\"block.update\",block:\"blk_title\",set:{text:v}}},\nmove:()=>{const it=doc.layout.items,l=it.blk_photo.d.x>1;it.blk_photo.d.x=l?1:15;it.blk_title.d.x=l?12:1;return{op:\"grid.place\",block:\"blk_photo\",rect:it.blk_photo.d}},\ntheme:()=>{const v=doc.style.colorTheme===\"light\"?\"dark\":\"light\";doc.style.colorTheme=v;return{op:\"section.update\",set:{\"style.colorTheme\":v}}}\n};\nconst reduce=matchMedia(\"(prefers-reduced-motion: reduce)\").matches;\nconst vt=f=>{if(document.startViewTransition&&!reduce){const v=document.startViewTransition(f);v.ready.catch(()=>{});v.finished.catch(()=>{})}else f()};\nfor(const b of document.querySelectorAll(\".act\"))b.addEventListener(\"click\",()=>{\nconst k=b.dataset.do;\nif(k===\"undo\"){const h=hist.pop();if(!h)return;doc=h.before;vt(()=>render(true));log.innerHTML=`<b>Undone.</b> The file is back to how it was before <b>${h.op.op}</b>.`;return}\nconst before=structuredClone(doc);const op=ops[k]();hist.push({before,op});\nvt(()=>render(true));log.innerHTML=`<b>✓ valid</b> ${esc(JSON.stringify(op))}`;\n});\nrender(false);\n})();\n</script>"
+            },
+            "title": "Demo: editing a section and watching its JSON file change"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_8s4shqhy2w",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Your site is a normal repository: "
+                    },
+                    {
+                      "type": "text",
+                      "text": "openspace.json",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", a "
+                    },
+                    {
+                      "type": "text",
+                      "text": "content/",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " folder of JSON and a "
+                    },
+                    {
+                      "type": "text",
+                      "text": "media/",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " folder. Astro builds it and GitHub Pages serves it. Prefer a terminal? "
+                    },
+                    {
+                      "type": "text",
+                      "text": "npx @omniharmonic/openspace-cli new meadow my-site",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " starts the same site locally."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_ft7r7dftna",
+      "label": "Cost",
+      "anchor": "cost",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "t": [
+            12
+          ],
+          "m": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_gynyaq8q4n",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "What renting a website costs",
+            "subheading": "Website builders charge every month for hosting that is now free. Here is three years on each builder's cheapest plan that does the job, at their published annual prices."
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_34ny8jr3e1",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "What OpenSpace costs you: nothing for hosting on GitHub Pages, or on your own Cloudflare account, which has a free plan. A domain name costs the same wherever you buy it (builders include the first year with an annual plan). Card payments go through your own Stripe account at Stripe's usual rates, as they would anywhere, and OpenSpace adds no fee on top."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_h17jx6y1at",
+          "type": "chart",
+          "v": 1,
+          "fields": {
+            "showValues": true,
+            "showTable": true,
+            "title": "Three years of website plans, in US dollars",
+            "description": "The cheapest plan with a custom domain, and the cheapest that sells with no platform fee, at published annual prices.",
+            "rows": [
+              {
+                "label": "Squarespace Basic",
+                "value": 684
+              },
+              {
+                "label": "Wix Light",
+                "value": 612
+              },
+              {
+                "label": "Webflow Basic",
+                "value": 540
+              },
+              {
+                "label": "Squarespace Core, to sell",
+                "value": 1044
+              },
+              {
+                "label": "Wix Core, to sell",
+                "value": 1044
+              },
+              {
+                "label": "Webflow Ecommerce Plus, to sell",
+                "value": 2664
+              },
+              {
+                "label": "OpenSpace, either way",
+                "value": 0
+              }
+            ],
+            "prefix": "$"
+          },
+          "variant": "bar",
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_mg9phsc8j7",
+      "label": "Lock-in",
+      "anchor": "lockin",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "lg",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_8b66594kd7",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "And what you can take with you",
+            "subheading": "Price isn't the only cost. If you leave a builder, here is what comes along, according to each one's own help pages."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_j4eq8nrxbw",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "columns": "4",
+            "aspect": "original",
+            "items": [
+              {
+                "heading": "Squarespace",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Exports some pages and one blog as a WordPress file. Styles, custom CSS, store pages and most blocks stay behind."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Wix",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "A Wix site can't be moved to another host or backed up outside Wix. Blog posts can't be exported."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Webflow",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Code export needs a paid Workspace plan, and leaves out CMS, ecommerce and user content. Forms and search stop working."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "OpenSpace",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Everything. Your site is already a repository in your account, and form entries, subscribers and orders export as spreadsheets."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_vf8fbxkp9t",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Prices are in US dollars per month billed annually, before tax, read from each company's pricing page on 27 October 2026; monthly billing costs more on every builder. Squarespace Basic adds a 2% fee on store sales and Webflow's Standard ecommerce plan ($29) adds 2%, which is why the selling comparison uses the next plan up. Sources: "
+                    },
+                    {
+                      "type": "text",
+                      "text": "Squarespace pricing",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://www.squarespace.com/pricing"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "Wix plans",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://www.wix.com/plans"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": " (US prices as listed by "
+                    },
+                    {
+                      "type": "text",
+                      "text": "Website Builder Expert, September 2026",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://www.websitebuilderexpert.com/website-builders/wix-pricing/"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "; Wix shows regional prices), "
+                    },
+                    {
+                      "type": "text",
+                      "text": "Webflow pricing",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://webflow.com/pricing"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "Squarespace: exporting your site",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://support.squarespace.com/hc/en-us/articles/206566687-Exporting-your-site"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "Wix: exporting or embedding your site",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://support.wix.com/en/article/exporting-or-embedding-your-wix-site-elsewhere"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", "
+                    },
+                    {
+                      "type": "text",
+                      "text": "Webflow: code export",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "https://help.webflow.com/hc/en-us/articles/33961386739347"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_g49bq6sn2d",
+      "label": "Claude",
+      "anchor": "claude",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "t": [
+            12
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "width": "wide",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_fp653we2vj",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Work on your site with Claude",
+            "subheading": "Claude doesn't write HTML for you to maintain. It edits your site through the same typed operations as Studio, checks its work and keeps it reversible."
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_w6ym12tfhj",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "columns": "1",
+            "items": [
+              {
+                "icon": "shield-check",
+                "title": "Validated edits only",
+                "text": "Every change is a typed operation. An invalid edit is refused with the reason, and nothing changes."
+              },
+              {
+                "icon": "clock",
+                "title": "Undo everything",
+                "text": "A snapshot is taken before Claude's first edit, and edits land in a draft until you publish."
+              },
+              {
+                "icon": "target",
+                "title": "Design check and screenshots",
+                "text": "Claude checks contrast, headings and layout, applies one-click fixes and looks at the page at 1440, 834 and 390 px."
+              },
+              {
+                "icon": "users",
+                "title": "Your Claude, your account",
+                "text": "OpenSpace never runs or meters an AI model. Claude uses your own Claude plan."
+              }
+            ]
+          },
+          "variant": "list",
+          "column": 0
+        },
+        {
+          "id": "blk_x75dy5vxc5",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Claude Code: ",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "/plugin marketplace add omniharmonic/openspace",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": ", then "
+                    },
+                    {
+                      "type": "text",
+                      "text": "/plugin install openspace",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A site in Studio: ",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "text": "claude mcp add --transport http openspace https://hub.openspace.host/mcp",
+                      "marks": [
+                        {
+                          "type": "code"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_cfw151ne4z",
+          "type": "embed",
+          "v": 1,
+          "fields": {
+            "aspect": "auto",
+            "height": 540,
+            "embed": {
+              "type": "code",
+              "code": "<style>\n*,*::before,*::after{box-sizing:border-box}\nhtml,body{height:100%}\nbody{font:14px/1.5 system-ui,-apple-system,\"Segoe UI\",sans-serif;color:#e8eaff;background:#0f1230}\nbutton{font:inherit;color:inherit;cursor:pointer}\n.wrap{display:grid;grid-template-columns:230px minmax(0,1fr);height:100%}\n.side{padding:14px;border-right:1px solid #262b63;display:flex;flex-direction:column;gap:8px;background:#0c0f29}\n.side legend{margin:0 0 2px;color:#aab0dc;font-size:12px;float:left;width:100%}\n.pr{display:block;width:100%;text-align:left;border:1px solid #2e3477;background:#151a42;border-radius:10px;padding:9px 10px;font-size:13px;line-height:1.35}\n.pr[aria-pressed=true]{border-color:#ffcb52;background:#1c2150}\n.pr:focus-visible,.u:focus-visible{outline:2px solid #ffcb52;outline-offset:2px}\n.main{display:grid;grid-template-rows:auto 1fr auto;min-height:0}\n.head{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid #262b63;color:#aab0dc;font-size:12px}\n.dot{width:8px;height:8px;border-radius:50%;background:#45d49a}\n.feed{overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}\n.you{align-self:flex-end;max-width:85%;background:#2c40e6;color:#fff;border-radius:12px 12px 2px 12px;padding:8px 12px;font:14px/1.45 system-ui,-apple-system,\"Segoe UI\",sans-serif}\n.say{font:14px/1.5 system-ui,-apple-system,\"Segoe UI\",sans-serif;color:#d9dcf5;max-width:62ch}\n.op{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px;color:#c3c8ee}\n.op .i{color:#8ce0c4}.op.warn .i{color:#ffcb52}.op.no .i{color:#ff8f8f}\n.op em{font-style:normal;color:#8f95c4}\n.shots{display:flex;gap:8px;margin:2px 0 0 24px}\n.shots span{display:grid;place-items:end center;padding-bottom:3px;border:1px solid #39407f;border-radius:4px;background:linear-gradient(#f1f6ef 0 30%,#d6e6d3 30% 55%,#f1f6ef 55%);color:#4b5a4f;font-size:10px}\n.shots span:nth-child(1){width:96px;height:58px}.shots span:nth-child(2){width:52px;height:58px}.shots span:nth-child(3){width:30px;height:58px}\n.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}\n.u{border:1px solid #39407f;background:#151a42;border-radius:999px;padding:5px 12px;font:13px system-ui,sans-serif}\n.foot{padding:9px 16px;border-top:1px solid #262b63;color:#8f95c4;font-size:12px}\n.struck{opacity:.45;text-decoration:line-through}\n.hide{display:none}\n@media (max-width:640px){\n.wrap{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}\n.side{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid #262b63;padding:10px}\n.side legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\n.pr{flex:none;width:200px}\n.feed{padding:12px}\n}\nfieldset{border:0;margin:0;min-width:0}\nlegend{padding:0;margin:0 0 2px;color:#aab0dc;font-size:12px}\n</style>\n<div class=\"wrap\">\n<fieldset class=\"side\"><legend>Try a prompt</legend></fieldset>\n<div class=\"main\">\n<div class=\"head\"><span class=\"dot\" aria-hidden=\"true\"></span>Claude Code with the OpenSpace plugin, in your site's folder</div>\n<div class=\"feed\" role=\"log\" aria-live=\"polite\"></div>\n<div class=\"foot\">Every step is a typed tool call. Invalid edits are refused with a reason, and nothing changes.</div>\n</div>\n</div>\n<script>\n(()=>{\nconst S=[\n{p:\"Add a testimonials section under the classes, and check it on mobile\",steps:[\n[\"ok\",\"get_page\",\"home  <em>6 sections</em>\"],\n[\"ok\",\"list_section_presets\",\"testimonials  <em>6 presets</em>\"],\n[\"ok\",\"insert_section\",\"testimonials/three-cards@1 after \\\"Classes\\\"  <em>validated</em>\"],\n[\"no\",\"update_block\",\"quote 3: 1,140 characters  <em>refused: a testimonial quote is 600 characters at most</em>\"],\n[\"ok\",\"update_block\",\"quote 3: shortened to 410 characters, in the client's own words\"],\n[\"warn\",\"design_check\",\"home  <em>1 warning: card text 4.1:1 on light-accent</em>\"],\n[\"ok\",\"apply_fix\",\"contrast  <em>now 6.3:1</em>\"],\n[\"ok\",\"screenshot\",\"home, all widths\",1],\n[\"say\",\"Added three testimonials under Classes. One quote was too long for a card, so I trimmed it. The cards read well at 390 px; nothing is published yet.\"]]},\n{p:\"Make the whole site calmer and more editorial\",steps:[\n[\"ok\",\"get_styles\",\"Oat & Sage, Fraunces & Hanken, airy\"],\n[\"ok\",\"apply_template_look\",\"meadow / Dusk  <em>palette, fonts, shape</em>\"],\n[\"ok\",\"set_styles\",\"density: airy, buttons: solid\"],\n[\"ok\",\"design_check\",\"6 pages  <em>no errors, no warnings</em>\"],\n[\"ok\",\"screenshot\",\"home, all widths\",1],\n[\"say\",\"Switched to the Dusk look with Libre Caslon headings and more space between sections. Your words and photos are unchanged. Want the old look back? Undo restores it in one step.\"]]},\n{p:\"Write a draft post about our new Saturday class from these notes\",steps:[\n[\"ok\",\"list_posts\",\"journal  <em>14 posts</em>\"],\n[\"ok\",\"create_post\",\"\\\"Saturdays are for slow flow\\\"  <em>status: draft</em>\"],\n[\"ok\",\"upload_image\",\"from the link in your notes  <em>saved to media/</em>\"],\n[\"ok\",\"render_page\",\"/journal/saturdays-are-for-slow-flow/\"],\n[\"say\",\"The post is saved as a draft in your journal with the photo you linked. I used only facts from your notes: 9:30 to 10:45, $18, mats provided.\"]]}];\nconst side=document.querySelector(\".side\"),feed=document.querySelector(\".feed\");\nconst reduce=matchMedia(\"(prefers-reduced-motion: reduce)\").matches;\nlet run=0;const btns=[];\nconst el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};\nfunction play(k){\nconst id=++run;feed.innerHTML=\"\";for(const b of btns)b.setAttribute(\"aria-pressed\",String(b===btns[k]));\nconst s=S[k];feed.append(el(\"div\",\"you\",s.p));\nconst items=s.steps.map(st=>{\nif(st[0]===\"say\")return el(\"div\",\"say\",st[1]);\nconst d=el(\"div\",`op ${st[0]}`,`<span class=\"i\" aria-hidden=\"true\">${st[0]===\"no\"?\"✗\":st[0]===\"warn\"?\"!\":\"✓\"}</span><span><b>${st[1]}</b> ${st[2]}</span>`);\nif(st[3]){const w=el(\"div\",\"\");w.append(d,el(\"div\",\"shots\",'<span>1440</span><span>834</span><span>390</span>'));return w}\nreturn d});\nconst end=el(\"div\",\"row\",'<button class=\"u\" type=\"button\">Undo all</button>');\nend.querySelector(\"button\").addEventListener(\"click\",e=>{for(const n of feed.querySelectorAll(\".op,.say,.shots\"))n.classList.add(\"struck\");e.target.replaceWith(el(\"span\",\"say\",\"Restored the snapshot taken before Claude's first edit.\"))});\nitems.push(end);\nif(reduce){feed.append(...items);return}\nlet i=0;const tick=()=>{if(id!==run)return;feed.append(items[i]);feed.scrollTop=feed.scrollHeight;if(++i<items.length)setTimeout(tick,i===items.length-1?300:520)};\nsetTimeout(tick,350);\n}\nS.forEach((s,k)=>{const b=el(\"button\",\"pr\",s.p);b.type=\"button\";b.addEventListener(\"click\",()=>play(k));side.append(b);btns.push(b)});\nlet started=false;\nconst go=()=>{if(!started){started=true;play(0)}};\nif(\"IntersectionObserver\" in window){const o=new IntersectionObserver(e=>{if(e.some(x=>x.isIntersecting)){go();o.disconnect()}});o.observe(document.body)}else go();\n})();\n</script>"
+            },
+            "title": "Demo: three example prompts and the tool calls Claude makes"
+          },
+          "variant": "plain",
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_k384z2zj6h",
+      "label": "Features",
+      "anchor": "features",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_hqpmnhnjsv",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Everything a website needs",
+            "subheading": "Squarespace-class features, built as open source. The store, member areas and password pages need your site on your own Cloudflare account, and selling needs a Stripe account."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_msr7kk2qgm",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "columns": "4",
+            "items": [
+              {
+                "icon": "palette",
+                "title": "Visual editor",
+                "text": "Click to edit, drag and resize on a 24-column grid, layer blocks, and arrange the phone layout separately."
+              },
+              {
+                "icon": "sparkles",
+                "title": "Templates and sections",
+                "text": "Twelve templates in three looks, and a growing library of designed section presets in your site's style."
+              },
+              {
+                "icon": "brush",
+                "title": "Site Styles",
+                "text": "Palettes, 33 font pairings, buttons, spacing and corners. A contrast solver keeps every color pair readable."
+              },
+              {
+                "icon": "check",
+                "title": "Design check",
+                "text": "Finds weak contrast, skipped headings, missing alt text and crowded layouts, with one-click fixes."
+              },
+              {
+                "icon": "users",
+                "title": "Collaboration",
+                "text": "Edit together in real time. Invite owners, designers, editors and contributors, and lock sections."
+              },
+              {
+                "icon": "phone",
+                "title": "Edit from your phone",
+                "text": "Change words and photos, add sections and publish from Studio on a phone."
+              },
+              {
+                "icon": "clock",
+                "title": "History and scheduling",
+                "text": "Roll back to any published version, and schedule a publish or a blog post for later."
+              },
+              {
+                "icon": "mail",
+                "title": "Forms and inbox",
+                "text": "Contact and sign-up forms with spam protection, email notifications and CSV export."
+              },
+              {
+                "icon": "message-circle",
+                "title": "Newsletter and campaigns",
+                "text": "Double opt-in sign-ups, then email campaigns built from your site's own blocks."
+              },
+              {
+                "icon": "target",
+                "title": "Private analytics",
+                "text": "Visits and sources without cookies or tracking. Counts are aggregated and anonymous."
+              },
+              {
+                "icon": "shopping-bag",
+                "title": "Store and donations",
+                "text": "Products, variants, inventory, shipping and donations through Stripe Checkout. Cloudflare only."
+              },
+              {
+                "icon": "lock",
+                "title": "Members and passwords",
+                "text": "Members-only areas with free or paid tiers, and password pages. Cloudflare only."
+              },
+              {
+                "icon": "globe",
+                "title": "Your own domain",
+                "text": "A wizard finds your registrar, shows the exact DNS records and checks them until HTTPS is on."
+              },
+              {
+                "icon": "book-open",
+                "title": "Blog, events and more",
+                "text": "Posts with RSS, events with calendar files, portfolios and podcast feeds."
+              },
+              {
+                "icon": "rocket",
+                "title": "Fast and findable",
+                "text": "Static pages with sitemaps, structured data and share images. Templates score 99 to 100 on Lighthouse."
+              },
+              {
+                "icon": "accessibility",
+                "title": "Accessible by default",
+                "text": "Every template's home page passes automated WCAG checks in every look, with no serious issues."
+              }
+            ]
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_76m0jg711n",
+      "label": "Templates",
+      "anchor": "templates",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_tgc5sdf12m",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Twelve templates, three looks each",
+            "subheading": "Each one arrives finished, with real-feeling pages and a type pairing chosen for its subject. Switch looks any time without touching your content."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_fg2vt1j3gw",
+          "type": "gallery",
+          "v": 1,
+          "fields": {
+            "aspect": "16:9",
+            "columns": "3",
+            "lightbox": false,
+            "showCaptions": true,
+            "images": [
+              {
+                "image": {
+                  "src": "media/showcase/meadow.jpg",
+                  "alt": "The first screen of the Meadow template's demo home page, in its Oat & Sage look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Meadow, for yoga, therapy, bodywork, wellness",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/signal.jpg",
+                  "alt": "The first screen of the Signal template's demo home page, in its Electric look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Signal, for products, startups, launches",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/hearth.jpg",
+                  "alt": "The first screen of the Hearth template's demo home page, in its Tomato look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Hearth, for restaurants, cafés, bakeries",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/atelier.jpg",
+                  "alt": "The first screen of the Atelier template's demo home page, in its Monochrome look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Atelier, for photographers, visual artists",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/harbor.jpg",
+                  "alt": "The first screen of the Harbor template's demo home page, in its Harbor Blue look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Harbor, for nonprofits, community organisations",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/encore.jpg",
+                  "alt": "The first screen of the Encore template's demo home page, in its Night Plum look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Encore, for musicians, performers, podcasters",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/kiln.jpg",
+                  "alt": "The first screen of the Kiln template's demo home page, in its Charcoal & Clay look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Kiln, for makers, small shops",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/ledger.jpg",
+                  "alt": "The first screen of the Ledger template's demo home page, in its Ledger Green look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Ledger, for consultants, coaches, freelancers",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/commons.jpg",
+                  "alt": "The first screen of the Commons template's demo home page, in its Earth & Sky look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Commons, for coalitions, cooperatives, movements",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/field-notes.jpg",
+                  "alt": "The first screen of the Field Notes template's demo home page, in its Highlighter look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Field Notes, for writers, newsletters, blogs",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/vow.jpg",
+                  "alt": "The first screen of the Vow template's demo home page, in its Dusty Rose look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Vow, for weddings, celebrations",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              },
+              {
+                "image": {
+                  "src": "media/showcase/link.jpg",
+                  "alt": "The first screen of the Link template's demo home page, in its Saffron look",
+                  "width": 1280,
+                  "height": 800
+                },
+                "caption": "Link, for link-in-bio, single page",
+                "link": {
+                  "type": "page",
+                  "page": "pg_8gvvjp3ezj"
+                }
+              }
+            ]
+          },
+          "variant": "carousel"
+        },
+        {
+          "id": "blk_c29r1mnmxq",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "secondary",
+            "label": "Browse all twelve",
+            "link": {
+              "type": "page",
+              "page": "pg_8gvvjp3ezj"
+            },
+            "secondaryLabel": "Start free",
+            "secondaryLink": {
+              "type": "url",
+              "url": "https://studio.openspace.host/templates"
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_11cv29dm6h",
+      "label": "Ownership",
+      "anchor": "own",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "dark-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_x12kf4yz1z",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "If OpenSpace disappeared tomorrow, your site would keep working",
+            "subheading": "That's the test we design for. Nothing about your site lives only with us."
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_4vhnmvhbg8",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "columns": "2",
+            "items": [
+              {
+                "icon": "home",
+                "title": "Files in your own GitHub account",
+                "text": "Plain JSON content, your media and an Astro site kit, under your name."
+              },
+              {
+                "icon": "globe",
+                "title": "Hosted by GitHub Pages or your Cloudflare",
+                "text": "Your accounts, your free plans. Nobody can switch your site off for not paying."
+              },
+              {
+                "icon": "wrench",
+                "title": "Built by standard tools",
+                "text": "Any Node setup can build it, with or without Studio or the Hub."
+              },
+              {
+                "icon": "heart-handshake",
+                "title": "Open source, top to bottom",
+                "text": "MIT for templates and packages, AGPL for Studio and the Hub, CC BY for docs and designs. Anyone can run their own Hub."
+              }
+            ]
+          },
+          "variant": "list",
+          "column": 1
+        },
+        {
+          "id": "blk_mhg91bzme1",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "secondary",
+            "label": "Read the source",
+            "link": {
+              "type": "url",
+              "url": "https://github.com/omniharmonic/openspace"
+            },
+            "secondaryLabel": "How it's built",
+            "secondaryLink": {
+              "type": "url",
+              "url": "https://github.com/omniharmonic/openspace/blob/main/apps/docs/src/content/docs/architecture.md"
+            }
+          },
+          "variant": "default",
+          "column": 1
+        }
+      ]
+    },
+    {
+      "id": "sec_c71bwtj7jp",
+      "label": "Questions",
+      "anchor": "faq",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_mxzvvxzz4y",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "level": "h2",
+            "size": "auto",
+            "text": "Straight answers"
+          },
+          "variant": "plain",
+          "column": 0
+        },
+        {
+          "id": "blk_rbfbdbzjmy",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Something else? Ask on GitHub, where the whole project happens in the open."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_6wt25x735x",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "role": "secondary",
+            "label": "Open an issue",
+            "link": {
+              "type": "url",
+              "url": "https://github.com/omniharmonic/openspace/issues"
+            }
+          },
+          "variant": "default",
+          "column": 0
+        },
+        {
+          "id": "blk_nq352tmn1n",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true,
+            "items": [
+              {
+                "question": "Is it ready?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Not quite: OpenSpace is pre-release. Studio, the templates, the CLI and the Claude plugin work today. The connections to GitHub, Cloudflare, Stripe and email providers are built and tested against stand-ins, and some haven't yet run against the live services, so treat a business-critical site as an early adopter would."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
               {
                 "question": "Is it really free?",
                 "answer": {
@@ -731,7 +1477,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Yes. Your site is served by GitHub Pages or your own Cloudflare account, both free. The shared service for forms and newsletters is built to cost cents per thousand sites."
+                          "text": "Hosting is, because your site runs on GitHub Pages or your own Cloudflare account. The shared Hub, which handles forms, newsletters and analytics, is free with fair-use limits, such as 1,000 form entries a month per site. Anyone can run their own Hub."
                         }
                       ]
                     }
@@ -739,7 +1485,7 @@
                 }
               },
               {
-                "question": "Do I need to know how to code?",
+                "question": "Do I need to know code or GitHub?",
                 "answer": {
                   "type": "doc",
                   "content": [
@@ -748,7 +1494,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "No. You edit everything visually in Studio, on a computer or a phone. Words like repository and build stay out of sight unless you go looking."
+                          "text": "No. You need a free GitHub account, and Studio walks you through making one. After that you edit visually; words like repository and commit stay in Settings, under Advanced."
                         }
                       ]
                     }
@@ -756,7 +1502,7 @@
                 }
               },
               {
-                "question": "What would I pay for?",
+                "question": "What does Claude cost?",
                 "answer": {
                   "type": "doc",
                   "content": [
@@ -765,7 +1511,41 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Only optional extras: a custom domain from any registrar, and the usual card fees if you sell through Stripe. OpenSpace takes no cut."
+                          "text": "Nothing extra from OpenSpace. Claude works on your site with your own Claude account. OpenSpace never runs an AI model, so it has nothing to meter."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I sell things or run a members area?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes, with your site on your own Cloudflare account and payments through your own Stripe account. OpenSpace takes no cut; Stripe charges its usual card fees."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I use my own domain?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Buy one from any registrar, and the domain wizard shows the exact records to add and checks them until HTTPS is on."
                         }
                       ]
                     }
@@ -782,27 +1562,24 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Any time. Your site is a normal project in your account that standard tools can build, and your form entries and subscribers export as spreadsheets."
+                          "text": "Any time, and you take it all. Your site is already a repository in your account that standard tools build, and your form entries, subscribers and orders export as CSV."
                         }
                       ]
                     }
                   ]
                 }
               }
-            ],
-            "exclusive": false,
-            "openFirst": true,
-            "faqSchema": true
+            ]
           },
-          "column": 1,
-          "variant": "lines"
+          "variant": "lines",
+          "column": 1
         }
       ]
     },
     {
-      "id": "sec_7gpcqpax9m",
-      "preset": "cta/banner@1",
-      "label": "Centred banner",
+      "id": "sec_v945q6n5sn",
+      "label": "Start",
+      "anchor": "start",
       "layout": {
         "mode": "stack",
         "columns": {
@@ -810,57 +1587,46 @@
             12
           ]
         },
-        "width": "narrow",
-        "gap": "lg"
+        "width": "wide"
       },
       "style": {
         "colorTheme": "brand",
         "padding": {
-          "d": "xl",
-          "m": "lg"
+          "d": "2xl",
+          "m": "xl"
         }
       },
       "blocks": [
         {
-          "id": "blk_j6z2g5bwme",
+          "id": "blk_mb5tmb8acv",
           "type": "heading",
           "v": 1,
           "fields": {
-            "text": "Make your site today",
             "level": "h2",
-            "size": "auto",
-            "subheading": "Pick a template and be live in about three minutes. It's free, and it's yours."
+            "size": "display",
+            "text": "Make a website you'll never have to rent",
+            "subheading": "Pick a template and publish today. It's free, and it's yours."
           },
-          "variant": "plain",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
+          "variant": "plain"
         },
         {
-          "id": "blk_m3yv6nyaq0",
+          "id": "blk_091713pd8d",
           "type": "button",
           "v": 1,
           "fields": {
-            "label": "Make your site — free",
+            "role": "primary",
+            "label": "Start free",
             "link": {
               "type": "url",
-              "url": "https://studio.openspace.dev/templates"
+              "url": "https://studio.openspace.host/templates"
             },
-            "role": "primary",
-            "secondaryLabel": "Browse templates",
+            "secondaryLabel": "See it on GitHub",
             "secondaryLink": {
-              "type": "page",
-              "page": "pg_8gvvjp3ezj"
+              "type": "url",
+              "url": "https://github.com/omniharmonic/openspace"
             }
           },
-          "variant": "large",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
+          "variant": "large"
         }
       ]
     }

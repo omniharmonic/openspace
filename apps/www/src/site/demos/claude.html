@@ -1,0 +1,97 @@
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#e8eaff;background:#0f1230}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{display:grid;grid-template-columns:230px minmax(0,1fr);height:100%}
+.side{padding:14px;border-right:1px solid #262b63;display:flex;flex-direction:column;gap:8px;background:#0c0f29}
+.side legend{margin:0 0 2px;color:#aab0dc;font-size:12px;float:left;width:100%}
+.pr{display:block;width:100%;text-align:left;border:1px solid #2e3477;background:#151a42;border-radius:10px;padding:9px 10px;font-size:13px;line-height:1.35}
+.pr[aria-pressed=true]{border-color:#ffcb52;background:#1c2150}
+.pr:focus-visible,.u:focus-visible{outline:2px solid #ffcb52;outline-offset:2px}
+.main{display:grid;grid-template-rows:auto 1fr auto;min-height:0}
+.head{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid #262b63;color:#aab0dc;font-size:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:#45d49a}
+.feed{overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.you{align-self:flex-end;max-width:85%;background:#2c40e6;color:#fff;border-radius:12px 12px 2px 12px;padding:8px 12px;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.say{font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#d9dcf5;max-width:62ch}
+.op{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px;color:#c3c8ee}
+.op .i{color:#8ce0c4}.op.warn .i{color:#ffcb52}.op.no .i{color:#ff8f8f}
+.op em{font-style:normal;color:#8f95c4}
+.shots{display:flex;gap:8px;margin:2px 0 0 24px}
+.shots span{display:grid;place-items:end center;padding-bottom:3px;border:1px solid #39407f;border-radius:4px;background:linear-gradient(#f1f6ef 0 30%,#d6e6d3 30% 55%,#f1f6ef 55%);color:#4b5a4f;font-size:10px}
+.shots span:nth-child(1){width:96px;height:58px}.shots span:nth-child(2){width:52px;height:58px}.shots span:nth-child(3){width:30px;height:58px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.u{border:1px solid #39407f;background:#151a42;border-radius:999px;padding:5px 12px;font:13px system-ui,sans-serif}
+.foot{padding:9px 16px;border-top:1px solid #262b63;color:#8f95c4;font-size:12px}
+.struck{opacity:.45;text-decoration:line-through}
+.hide{display:none}
+@media (max-width:640px){
+ .wrap{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+ .side{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid #262b63;padding:10px}
+ .side legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .pr{flex:none;width:200px}
+ .feed{padding:12px}
+}
+fieldset{border:0;margin:0;min-width:0}
+legend{padding:0;margin:0 0 2px;color:#aab0dc;font-size:12px}
+</style>
+<div class="wrap">
+ <fieldset class="side"><legend>Try a prompt</legend></fieldset>
+ <div class="main">
+  <div class="head"><span class="dot" aria-hidden="true"></span>Claude Code with the OpenSpace plugin, in your site's folder</div>
+  <div class="feed" role="log" aria-live="polite"></div>
+  <div class="foot">Every step is a typed tool call. Invalid edits are refused with a reason, and nothing changes.</div>
+ </div>
+</div>
+<script>
+(()=>{
+const S=[
+{p:"Add a testimonials section under the classes, and check it on mobile",steps:[
+ ["ok","get_page","home  <em>6 sections</em>"],
+ ["ok","list_section_presets","testimonials  <em>6 presets</em>"],
+ ["ok","insert_section","testimonials/three-cards@1 after \"Classes\"  <em>validated</em>"],
+ ["no","update_block","quote 3: 1,140 characters  <em>refused: a testimonial quote is 600 characters at most</em>"],
+ ["ok","update_block","quote 3: shortened to 410 characters, in the client's own words"],
+ ["warn","design_check","home  <em>1 warning: card text 4.1:1 on light-accent</em>"],
+ ["ok","apply_fix","contrast  <em>now 6.3:1</em>"],
+ ["ok","screenshot","home, all widths",1],
+ ["say","Added three testimonials under Classes. One quote was too long for a card, so I trimmed it. The cards read well at 390 px; nothing is published yet."]]},
+{p:"Make the whole site calmer and more editorial",steps:[
+ ["ok","get_styles","Oat & Sage, Fraunces & Hanken, airy"],
+ ["ok","apply_template_look","meadow / Dusk  <em>palette, fonts, shape</em>"],
+ ["ok","set_styles","density: airy, buttons: solid"],
+ ["ok","design_check","6 pages  <em>no errors, no warnings</em>"],
+ ["ok","screenshot","home, all widths",1],
+ ["say","Switched to the Dusk look with Libre Caslon headings and more space between sections. Your words and photos are unchanged. Want the old look back? Undo restores it in one step."]]},
+{p:"Write a draft post about our new Saturday class from these notes",steps:[
+ ["ok","list_posts","journal  <em>14 posts</em>"],
+ ["ok","create_post","\"Saturdays are for slow flow\"  <em>status: draft</em>"],
+ ["ok","upload_image","from the link in your notes  <em>saved to media/</em>"],
+ ["ok","render_page","/journal/saturdays-are-for-slow-flow/"],
+ ["say","The post is saved as a draft in your journal with the photo you linked. I used only facts from your notes: 9:30 to 10:45, $18, mats provided."]]}];
+const side=document.querySelector(".side"),feed=document.querySelector(".feed");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let run=0;const btns=[];
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+function play(k){
+ const id=++run;feed.innerHTML="";for(const b of btns)b.setAttribute("aria-pressed",String(b===btns[k]));
+ const s=S[k];feed.append(el("div","you",s.p));
+ const items=s.steps.map(st=>{
+  if(st[0]==="say")return el("div","say",st[1]);
+  const d=el("div",`op ${st[0]}`,`<span class="i" aria-hidden="true">${st[0]==="no"?"✗":st[0]==="warn"?"!":"✓"}</span><span><b>${st[1]}</b> ${st[2]}</span>`);
+  if(st[3]){const w=el("div","");w.append(d,el("div","shots",'<span>1440</span><span>834</span><span>390</span>'));return w}
+  return d});
+ const end=el("div","row",'<button class="u" type="button">Undo all</button>');
+ end.querySelector("button").addEventListener("click",e=>{for(const n of feed.querySelectorAll(".op,.say,.shots"))n.classList.add("struck");e.target.replaceWith(el("span","say","Restored the snapshot taken before Claude's first edit."))});
+ items.push(end);
+ if(reduce){feed.append(...items);return}
+ let i=0;const tick=()=>{if(id!==run)return;feed.append(items[i]);feed.scrollTop=feed.scrollHeight;if(++i<items.length)setTimeout(tick,i===items.length-1?300:520)};
+ setTimeout(tick,350);
+}
+S.forEach((s,k)=>{const b=el("button","pr",s.p);b.type="button";b.addEventListener("click",()=>play(k));side.append(b);btns.push(b)});
+let started=false;
+const go=()=>{if(!started){started=true;play(0)}};
+if("IntersectionObserver" in window){const o=new IntersectionObserver(e=>{if(e.some(x=>x.isIntersecting)){go();o.disconnect()}});o.observe(document.body)}else go();
+})();
+</script>

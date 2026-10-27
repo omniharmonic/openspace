@@ -1,0 +1,122 @@
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;background:#fff;color:#1b1e2e}
+body{font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;color:inherit}
+.app{display:grid;grid-template-rows:auto 1fr;height:100%;background:#eef0f6}
+.bar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border-bottom:1px solid #e3e6ef;min-width:0}
+.bar b{font-weight:600;white-space:nowrap}
+.bar .crumb{color:#5d6378;white-space:nowrap}
+.dev{display:flex;gap:2px;margin-inline:auto;padding:2px;border-radius:7px;background:#f1f2f7}
+.dev span{width:26px;height:20px;border-radius:5px;display:grid;place-items:center}
+.dev span:first-child{background:#fff;box-shadow:0 1px 2px #0002}
+.dev i{display:block;border:1.5px solid #4a5068;border-radius:2px}
+.pub{border:0;border-radius:7px;background:#2c40e6;color:#fff;padding:5px 11px;font-weight:600;white-space:nowrap}
+.main{display:grid;grid-template-columns:1fr 210px;min-height:0}
+.canvas{padding:14px;overflow:hidden;min-width:0}
+.panel{background:#fff;border-left:1px solid #e3e6ef;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.panel h2{margin:0;font-size:13px;font-weight:600}
+.panel p{margin:0;color:#5d6378;font-size:12px}
+.looks{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.look{display:flex;align-items:center;gap:8px;width:100%;padding:7px 8px;border:1px solid #e3e6ef;border-radius:8px;background:#fff;text-align:left;cursor:pointer}
+.look[aria-pressed=true]{border-color:#2c40e6;box-shadow:0 0 0 1px #2c40e6;background:#f4f5ff}
+.look:focus-visible,.pub:focus-visible,.pause:focus-visible{outline:2px solid #2c40e6;outline-offset:2px}
+.sw{display:flex;flex:none}
+.sw i{width:12px;height:12px;border-radius:50%;border:1.5px solid #fff;margin-left:-4px}
+.sw i:first-child{margin-left:0}
+.look small{display:block;color:#5d6378;font-size:11px}
+.meta{border-top:1px solid #eceef4;padding-top:10px;display:grid;gap:4px;font-size:12px}
+.meta div{display:flex;justify-content:space-between;gap:8px}
+.meta span:first-child{color:#5d6378}
+.ok{color:#14794a;font-weight:600}
+.pause{margin-top:auto;align-self:flex-start;border:1px solid #e3e6ef;background:#fff;border-radius:7px;padding:4px 10px;cursor:pointer}
+/* the mini site */
+.site{--bg:#f1f6ef;--ink:#1f2a22;--soft:#4b5a4f;--brand:#4f7a57;--on:#fff;--card:#fff;--r:999px;--rc:10px;--arch:999px 999px 8px 8px;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--hw:400;
+height:100%;border-radius:8px;overflow:hidden;background:var(--bg);color:var(--ink);box-shadow:0 1px 3px #0002,0 8px 30px #1b1e2e1a;display:flex;flex-direction:column;transition:background-color .5s,color .5s}
+.s-nav{display:flex;align-items:center;gap:12px;padding:10px 16px;font-size:11px}
+.s-nav b{font:600 13px/1 var(--serif);margin-right:auto;letter-spacing:-.01em}
+.s-nav .lnk{color:var(--soft)}
+.btn{display:inline-block;padding:7px 13px;border-radius:var(--r);background:var(--brand);color:var(--on);border:1.5px solid var(--brand);font-size:11px;font-weight:600;white-space:nowrap;transition:background-color .5s,border-radius .5s,color .5s}
+.btn.alt{background:transparent;color:var(--ink);border-color:color-mix(in srgb,var(--ink) 35%,transparent)}
+.site[data-look=clay] .btn:not(.alt){background:transparent;color:var(--brand)}
+.s-hero{flex:1;display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(20px,4vw,56px);align-items:center;padding:6px clamp(22px,4vw,56px) 18px;min-height:0}
+.s-hero p.e{margin:0 0 8px;font-size:10px;letter-spacing:.12em;color:var(--brand);font-weight:600}
+.s-hero .h{margin:0 0 10px;font:var(--hw) clamp(20px,3.5vw,46px)/1.06 var(--serif);letter-spacing:-.015em;text-wrap:balance}
+.s-hero p.l{margin:0 0 14px;color:var(--soft);font-size:clamp(12px,1.2vw,15px);max-width:40ch}
+.s-hero .row{display:flex;gap:8px;flex-wrap:wrap}
+.arch{position:relative;justify-self:end;width:min(100%,280px);aspect-ratio:4/5;max-height:100%;min-height:120px;border-radius:var(--arch);overflow:hidden;background:linear-gradient(180deg,#f7c977 0%,#ec8a4f 38%,#b9483a 66%,#4a2433 100%);transition:border-radius .6s}
+.arch::before{content:"";position:absolute;left:50%;top:30%;width:34%;aspect-ratio:1;border-radius:50%;translate:-50% 0;background:#fff3c9;opacity:.85;filter:blur(1px)}
+.arch::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#5c2a32,#2a1620)}
+.s-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 clamp(22px,4vw,56px) 18px}
+.s-cards div{background:var(--card);border-radius:var(--rc);padding:10px;font-size:10px;color:var(--soft);transition:border-radius .5s,background-color .5s}
+.s-cards b{display:block;color:var(--ink);font:var(--hw) 13px/1.2 var(--serif);margin-bottom:3px}
+.site[data-look=clay]{--bg:#fbede6;--ink:#2b1d17;--soft:#6a4f44;--brand:#a84a28;--card:#fff8f4;--r:999px;--rc:18px;--arch:22px;--serif:Didot,"Bodoni 72","Bodoni MT",Georgia,serif}
+.site[data-look=dusk]{--bg:#f3f0fa;--ink:#24203a;--soft:#57516f;--brand:#6a52a6;--card:#fff;--r:8px;--rc:10px;--arch:999px 999px 6px 6px;--serif:Baskerville,"Baskerville Old Face","Libre Caslon Text","Times New Roman",serif;--hw:400}
+.chips{display:none}
+@media (max-width:640px){
+ .main{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+ .panel{display:none}
+ .chips{display:flex;gap:6px;padding:8px 12px 0;overflow-x:auto}
+ .chips .look{width:auto;padding:5px 9px;white-space:nowrap}
+ .chips .look small{display:none}
+ .canvas{padding:10px 12px 12px}
+ .crumb,.dev{display:none}
+ .bar{justify-content:space-between}
+ .s-nav .lnk{display:none}
+ .s-hero{grid-template-columns:1fr;grid-template-rows:auto minmax(70px,1fr);padding:4px 16px 14px;gap:12px}
+ .s-hero p.l{margin-bottom:10px}
+ .s-hero .row .alt{display:none}
+ .arch{justify-self:stretch;width:auto;aspect-ratio:auto;min-height:70px;height:auto}
+ .s-cards{display:none}
+}
+fieldset{border:0;margin:0;min-width:0}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.site,.btn,.arch,.s-cards div{transition:none}}
+</style>
+<div class="app">
+ <div class="bar"><b>Fernwood Yoga</b><span class="crumb">/ Home</span>
+  <div class="dev" aria-hidden="true"><span><i style="width:12px;height:9px"></i></span><span><i style="width:9px;height:11px"></i></span><span><i style="width:6px;height:11px"></i></span></div>
+  <button class="pub" type="button" tabindex="-1" aria-hidden="true">Publish</button></div>
+ <div class="main">
+  <fieldset class="chips"><legend class="vh">Looks</legend></fieldset>
+  <div class="canvas">
+   <div class="site" data-look="sage">
+    <div class="s-nav"><b>Fernwood Yoga</b><span class="lnk">Classes</span><span class="lnk">Bodywork</span><span class="lnk">Journal</span><span class="btn alt">Book a class</span></div>
+    <div class="s-hero"><div><p class="e">YOGA &amp; BODYWORK, SE PORTLAND</p><p class="h">Slow yoga and bodywork for real bodies</p><p class="l">Small, patient classes for every kind of body, and massage therapists who listen first.</p><div class="row"><span class="btn">See the class schedule</span><span class="btn alt">Book a massage</span></div></div><div class="arch" aria-hidden="true"></div></div>
+    <div class="s-cards"><div><b>Twelve mats</b>Small enough that your teacher learns your name.</div><div><b>Time to arrive</b>Doors open fifteen minutes early.</div><div><b>Tea afterwards</b>Something warm on the bench by the window.</div></div>
+   </div>
+  </div>
+  <div class="panel"><h2>Site styles</h2><p>One click restyles every page. Your words stay put.</p>
+   <ul class="looks" aria-label="Looks"></ul>
+   <div class="meta"><div><span>Fonts</span><span id="font"></span></div><div><span>Body text</span><span id="cr" class="ok"></span></div></div>
+   <button class="pause" type="button" aria-pressed="false">Pause</button></div>
+ </div>
+</div>
+<script>
+(()=>{
+const L=[
+ {id:"sage",name:"Oat & Sage",font:"Fraunces & Hanken",c:["#f1f6ef","#4f7a57","#b5603a"],bg:"#f1f6ef",fg:"#4b5a4f"},
+ {id:"clay",name:"Clay & Linen",font:"DM Serif & DM Sans",c:["#fbede6","#a84a28","#2b1d17"],bg:"#fbede6",fg:"#6a4f44"},
+ {id:"dusk",name:"Dusk",font:"Libre Caslon & Nunito Sans",c:["#f3f0fa","#6a52a6","#24203a"],bg:"#f3f0fa",fg:"#57516f"}];
+const site=document.querySelector(".site"),font=document.getElementById("font"),cr=document.getElementById("cr"),pause=document.querySelector(".pause");
+const lum=h=>{const v=[1,3,5].map(i=>{const c=parseInt(h.slice(i,i+2),16)/255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4});return .2126*v[0]+.7152*v[1]+.0722*v[2]};
+const ratio=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const btns=[];
+const make=(host,l)=>{const b=document.createElement("button");b.type="button";b.className="look";b.dataset.id=l.id;
+ b.innerHTML=`<span class="sw" aria-hidden="true">${l.c.map(c=>`<i style="background:${c}"></i>`).join("")}</span><span>${l.name}<small>${l.font}</small></span>`;
+ b.addEventListener("click",()=>{stop();set(L.indexOf(l))});
+ const li=host.tagName==="UL"?document.createElement("li"):null; if(li){li.append(b);host.append(li)}else host.append(b);btns.push(b)};
+for(const l of L){make(document.querySelector(".looks"),l);make(document.querySelector(".chips"),l)}
+let i=0,t=null;
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function set(n){i=n;const l=L[n];const go=()=>{site.dataset.look=l.id};
+ if(document.startViewTransition&&!reduce){const v=document.startViewTransition(go);v.ready.catch(()=>{});v.finished.catch(()=>{})}else go();
+ for(const b of btns)b.setAttribute("aria-pressed",String(b.dataset.id===l.id));
+ font.textContent=l.font;cr.textContent=`${ratio(l.bg,l.fg).toFixed(1)} : 1, passes AA`}
+function stop(){if(t){clearInterval(t);t=null}pause.textContent="Play";pause.setAttribute("aria-pressed","true")}
+function play(){if(t)return;t=setInterval(()=>set((i+1)%L.length),3400);pause.textContent="Pause";pause.setAttribute("aria-pressed","false")}
+pause.addEventListener("click",()=>t?stop():play());
+set(0);
+if(!reduce)play();else stop();
+})();
+</script>

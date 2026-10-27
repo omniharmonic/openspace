@@ -1,22 +1,38 @@
 {
-  "media/hero/meadow-looks.png": {
+  "media/brand/og.png": {
     "id": "med_www0000000",
-    "path": "media/hero/meadow-looks.png",
+    "path": "media/brand/og.png",
     "kind": "image",
     "mime": "image/png",
-    "bytes": 174593,
-    "width": 1400,
-    "height": 701,
-    "alt": "The Meadow template in three looks, showing how one site can change its whole style",
+    "bytes": 85110,
+    "width": 1200,
+    "height": 630,
+    "alt": "OpenSpace: a website you own, free to host",
     "credit": {
       "author": "OpenSpace contributors",
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/brand/favicon.svg": {
+    "id": "med_www0000001",
+    "path": "media/brand/favicon.svg",
+    "kind": "image",
+    "mime": "image/svg+xml",
+    "bytes": 272,
+    "width": 64,
+    "height": 64,
+    "alt": "The OpenSpace mark",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/meadow-looks.png": {
-    "id": "med_www0000001",
+    "id": "med_www0000002",
     "path": "media/templates/meadow-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -29,10 +45,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/meadow.jpg": {
+    "id": "med_www0000003",
+    "path": "media/showcase/meadow.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 96541,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Meadow template's demo home page, in its Oat & Sage look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/harbor-looks.png": {
-    "id": "med_www0000002",
+    "id": "med_www0000004",
     "path": "media/templates/harbor-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -45,10 +77,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/harbor.jpg": {
+    "id": "med_www0000005",
+    "path": "media/showcase/harbor.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 95711,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Harbor template's demo home page, in its Harbor Blue look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/atelier-looks.png": {
-    "id": "med_www0000003",
+    "id": "med_www0000006",
     "path": "media/templates/atelier-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -61,10 +109,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/atelier.jpg": {
+    "id": "med_www0000007",
+    "path": "media/showcase/atelier.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 158795,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Atelier template's demo home page, in its Monochrome look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/ledger-looks.png": {
-    "id": "med_www0000004",
+    "id": "med_www0000008",
     "path": "media/templates/ledger-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -77,10 +141,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/ledger.jpg": {
+    "id": "med_www0000009",
+    "path": "media/showcase/ledger.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 82375,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Ledger template's demo home page, in its Ledger Green look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/hearth-looks.png": {
-    "id": "med_www0000005",
+    "id": "med_www0000010",
     "path": "media/templates/hearth-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -93,10 +173,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/hearth.jpg": {
+    "id": "med_www0000011",
+    "path": "media/showcase/hearth.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 141895,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Hearth template's demo home page, in its Tomato look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/signal-looks.png": {
-    "id": "med_www0000006",
+    "id": "med_www0000012",
     "path": "media/templates/signal-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -109,10 +205,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/signal.jpg": {
+    "id": "med_www0000013",
+    "path": "media/showcase/signal.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 96707,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Signal template's demo home page, in its Electric look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/field-notes-looks.png": {
-    "id": "med_www0000007",
+    "id": "med_www0000014",
     "path": "media/templates/field-notes-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -125,10 +237,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/field-notes.jpg": {
+    "id": "med_www0000015",
+    "path": "media/showcase/field-notes.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 69314,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Field Notes template's demo home page, in its Highlighter look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/encore-looks.png": {
-    "id": "med_www0000008",
+    "id": "med_www0000016",
     "path": "media/templates/encore-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -141,10 +269,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/encore.jpg": {
+    "id": "med_www0000017",
+    "path": "media/showcase/encore.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 99607,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Encore template's demo home page, in its Night Plum look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/kiln-looks.png": {
-    "id": "med_www0000009",
+    "id": "med_www0000018",
     "path": "media/templates/kiln-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -157,10 +301,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/kiln.jpg": {
+    "id": "med_www0000019",
+    "path": "media/showcase/kiln.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 75308,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Kiln template's demo home page, in its Charcoal & Clay look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/commons-looks.png": {
-    "id": "med_www0000010",
+    "id": "med_www0000020",
     "path": "media/templates/commons-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -173,10 +333,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/commons.jpg": {
+    "id": "med_www0000021",
+    "path": "media/showcase/commons.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 159518,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Commons template's demo home page, in its Earth & Sky look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/vow-looks.png": {
-    "id": "med_www0000011",
+    "id": "med_www0000022",
     "path": "media/templates/vow-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -189,10 +365,26 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/vow.jpg": {
+    "id": "med_www0000023",
+    "path": "media/showcase/vow.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 101917,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Vow template's demo home page, in its Dusty Rose look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   },
   "media/templates/link-looks.png": {
-    "id": "med_www0000012",
+    "id": "med_www0000024",
     "path": "media/templates/link-looks.png",
     "kind": "image",
     "mime": "image/png",
@@ -205,6 +397,22 @@
       "source": "OpenSpace templates"
     },
     "license": "CC-BY-4.0",
-    "createdAt": "2026-10-26T12:00:00Z"
+    "createdAt": "2026-10-27T12:00:00Z"
+  },
+  "media/showcase/link.jpg": {
+    "id": "med_www0000025",
+    "path": "media/showcase/link.jpg",
+    "kind": "image",
+    "mime": "image/jpeg",
+    "bytes": 54536,
+    "width": 1280,
+    "height": 800,
+    "alt": "The first screen of the Link template's demo home page, in its Saffron look",
+    "credit": {
+      "author": "OpenSpace contributors",
+      "source": "OpenSpace templates"
+    },
+    "license": "CC-BY-4.0",
+    "createdAt": "2026-10-27T12:00:00Z"
   }
 }

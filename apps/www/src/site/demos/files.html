@@ -1,0 +1,111 @@
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#1b1e2e;background:#fff}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{display:grid;grid-template-rows:auto 1fr;height:100%}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid #e3e6ef;background:#f7f8fc}
+.tools>legend{color:#5d6378;margin-right:4px}
+.act{border:1px solid #cfd3e3;background:#fff;border-radius:999px;padding:5px 12px;font-weight:500}
+.act:hover{border-color:#2c40e6}
+.act[disabled]{opacity:.45;cursor:default;border-color:#cfd3e3}
+.act:focus-visible{outline:2px solid #2c40e6;outline-offset:2px}
+.undo{margin-left:auto}
+.panes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);min-height:0}
+.code{display:grid;grid-template-rows:auto 1fr auto;min-height:0;background:#0f1230;color:#d9dcf5;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.tabs{display:flex;gap:2px;padding:8px 10px 0;overflow:hidden}
+.tabs span{padding:5px 10px;border-radius:6px 6px 0 0;color:#8f95c4;white-space:nowrap}
+.tabs span.on{background:#181c45;color:#fff}
+pre{margin:0;padding:10px 0;overflow:auto;background:#181c45;min-height:0}
+pre div{padding:0 14px;white-space:pre;transition:background-color .9s}
+pre div.hot{background:#ffcb5233;box-shadow:inset 3px 0 #ffcb52}
+.k{color:#9fb0ff}.s{color:#ffd88a}.n{color:#8ce0c4}.p{color:#6f76a8}
+.log{padding:8px 14px;border-top:1px solid #262b63;color:#aab0dc;min-height:3.2em}
+.log b{color:#8ce0c4;font-weight:500}
+.page{position:relative;display:flex;flex-direction:column;min-height:0;background:#eef0f6;padding:12px}
+.cap{font-size:12px;color:#5d6378;margin:0 0 8px;display:flex;justify-content:space-between;gap:8px}
+.sec{--bg:#fbf8f1;--ink:#231d14;--soft:#5d5345;--btn:#3f6b4a;flex:1;position:relative;display:grid;grid-template-columns:repeat(24,1fr);column-gap:4px;align-content:center;padding:18px;border-radius:8px;background:var(--bg);color:var(--ink);box-shadow:0 1px 3px #0002,0 8px 30px #1b1e2e14;transition:background-color .5s,color .5s;overflow:hidden}
+.sec[data-theme=dark]{--bg:#1d2a22;--ink:#f3efe6;--soft:#c9c2b3;--btn:#e7c66b}
+.guides{position:absolute;inset:0 18px;display:grid;grid-template-columns:repeat(24,1fr);column-gap:4px;pointer-events:none}
+.guides i{background:#2c40e60d;border-inline:1px solid #2c40e61a}
+.txt,.img{position:relative;grid-row:1}
+.txt{view-transition-name:txt}.img{view-transition-name:img}
+.txt .h{margin:0 0 8px;font:400 clamp(19px,2.4vw,30px)/1.1 "Iowan Old Style",Palatino,Georgia,serif;letter-spacing:-.01em;text-wrap:balance}
+.txt p{margin:0 0 12px;color:var(--soft);font-size:13px}
+.txt .b{display:inline-block;padding:6px 12px;border-radius:999px;background:var(--btn);color:var(--bg);font-size:12px;font-weight:600}
+.img{align-self:stretch;min-height:150px;border-radius:10px;background:radial-gradient(60% 50% at 50% 60%,#e6b878,#b9773e 55%,#6b3e1f 100%)}
+.img::after{content:"";position:absolute;left:18%;right:18%;top:38%;bottom:30%;border-radius:50% 50% 40% 40%;background:linear-gradient(#d9a15f,#a8642e);box-shadow:inset 0 -6px 0 #0002}
+.sel{outline:2px solid #2c40e6;outline-offset:3px}
+@media (max-width:640px){
+ .panes{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+ .page{order:-1;padding:10px}
+ .sec{padding:14px}
+ .img{min-height:110px}
+ .tools>legend{width:100%}
+ .undo{margin-left:0}
+}
+fieldset{border:0;margin:0;min-width:0}
+legend{float:left;padding:0;margin-right:4px;color:#5d6378}
+@media (prefers-reduced-motion:reduce){pre div,.sec,.act{transition:none}}
+</style>
+<div class="wrap">
+ <fieldset class="tools"><legend>Try an edit:</legend>
+  <button class="act" type="button" data-do="text">Rewrite the headline</button>
+  <button class="act" type="button" data-do="move">Move the photo</button>
+  <button class="act" type="button" data-do="theme">Switch to dark</button>
+  <button class="act undo" type="button" data-do="undo" disabled>Undo</button></fieldset>
+ <div class="panes">
+  <div class="code">
+   <div class="tabs" aria-hidden="true"><span>openspace.json</span><span>styles.json</span><span class="on">pages/home.json</span></div>
+   <!-- biome-ignore lint/a11y/noNoninteractiveTabindex: the scrollable file must be reachable by keyboard -->
+<pre tabindex="0" title="content/pages/home.json, the first section"></pre>
+   <div class="log" role="status" aria-live="polite">Pick an edit. Each one is a small, validated operation on this file.</div>
+  </div>
+  <div class="page">
+   <p class="cap"><span>The same section, rendered</span><span id="n"></span></p>
+   <div class="sec">
+    <div class="guides" aria-hidden="true"></div>
+    <div class="txt"><p class="h">Fresh bread, every morning at seven</p><p>Naturally leavened loaves and morning buns from a small oven on Calder Street.</p><span class="b">See what's baking</span></div>
+    <div class="img" role="img" aria-label="A sourdough loaf"></div>
+   </div>
+  </div>
+ </div>
+</div>
+<script>
+(()=>{
+const g=document.querySelector(".guides");for(let i=0;i<24;i++)g.append(document.createElement("i"));
+const A=["Fresh bread, every morning at seven","Still warm at seven, six days a week"];
+let doc={id:"sec_hero",layout:{mode:"grid",items:{blk_title:{d:{x:1,y:1,w:13,h:6}},blk_photo:{d:{x:15,y:1,w:10,h:6}}}},style:{colorTheme:"light"},blocks:[{id:"blk_title",type:"heading",fields:{text:A[0],level:"h1"}},{id:"blk_photo",type:"image",fields:{alt:"A sourdough loaf"}}]};
+const hist=[];let prevLines=[];
+const pre=document.querySelector("pre"),log=document.querySelector(".log"),n=document.getElementById("n"),undo=document.querySelector(".undo");
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const paint=l=>esc(l).replace(/("[^"]*")(\s*:)?|(-?\d+)|([{}[\],])/g,(_m,str,colon,num,p)=>str?(colon?`<span class="k">${str}</span><span class="p">:</span>`:`<span class="s">${str}</span>`):num?`<span class="n">${num}</span>`:`<span class="p">${p}</span>`);
+function render(changed){
+ const lines=JSON.stringify(doc,null,2).split("\n");
+ pre.innerHTML=lines.map((l,i)=>`<div${changed&&l!==prevLines[i]?' class="hot"':''}>${paint(l)}</div>`).join("");
+ prevLines=lines;
+ const it=doc.layout.items,sec=document.querySelector(".sec"),t=document.querySelector(".txt"),im=document.querySelector(".img");
+ const place=(el,r)=>{el.style.gridColumn=`${r.d.x} / span ${r.d.w}`};
+ place(t,it.blk_title);place(im,it.blk_photo);
+ t.querySelector(".h").textContent=doc.blocks[0].fields.text;
+ sec.dataset.theme=doc.style.colorTheme;
+ n.textContent=hist.length?`${hist.length+(hist.length===1?" change":" changes")} in the draft`:"";
+ undo.disabled=!hist.length;
+ const hot=pre.querySelector(".hot");if(hot)hot.scrollIntoView({block:"nearest"});
+}
+const ops={
+ text:()=>{const v=doc.blocks[0].fields.text===A[0]?A[1]:A[0];doc.blocks[0].fields.text=v;return{op:"block.update",block:"blk_title",set:{text:v}}},
+ move:()=>{const it=doc.layout.items,l=it.blk_photo.d.x>1;it.blk_photo.d.x=l?1:15;it.blk_title.d.x=l?12:1;return{op:"grid.place",block:"blk_photo",rect:it.blk_photo.d}},
+ theme:()=>{const v=doc.style.colorTheme==="light"?"dark":"light";doc.style.colorTheme=v;return{op:"section.update",set:{"style.colorTheme":v}}}
+};
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const vt=f=>{if(document.startViewTransition&&!reduce){const v=document.startViewTransition(f);v.ready.catch(()=>{});v.finished.catch(()=>{})}else f()};
+for(const b of document.querySelectorAll(".act"))b.addEventListener("click",()=>{
+ const k=b.dataset.do;
+ if(k==="undo"){const h=hist.pop();if(!h)return;doc=h.before;vt(()=>render(true));log.innerHTML=`<b>Undone.</b> The file is back to how it was before <b>${h.op.op}</b>.`;return}
+ const before=structuredClone(doc);const op=ops[k]();hist.push({before,op});
+ vt(()=>render(true));log.innerHTML=`<b>✓ valid</b> ${esc(JSON.stringify(op))}`;
+});
+render(false);
+})();
+</script>

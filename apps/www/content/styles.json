@@ -2,12 +2,12 @@
   "$schema": "https://schema.openspace.dev/v1/styles.json",
   "choices": {
     "palette": {
-      "brand": "oklch(0.45 0.08 165)",
-      "neutral": "warm",
+      "brand": "oklch(0.47 0.23 268)",
+      "neutral": "cool",
       "contrast": "standard",
       "source": "brand"
     },
-    "pairing": "fraunces-hanken",
+    "pairing": "unbounded-figtree",
     "density": "comfortable",
     "shape": "soft",
     "buttons": "pill-solid",

@@ -26,7 +26,7 @@
         "gap": "xl"
       },
       "style": {
-        "colorTheme": "light-accent",
+        "colorTheme": "brand",
         "padding": {
           "d": "2xl",
           "m": "xl"
@@ -86,7 +86,7 @@
             "secondaryLabel": "Read the docs",
             "secondaryLink": {
               "type": "url",
-              "url": "https://docs.openspace.dev"
+              "url": "https://github.com/omniharmonic/openspace/tree/main/apps/docs/src/content/docs"
             }
           },
           "column": 1,
@@ -155,7 +155,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "The result is a website builder that costs the project almost nothing per site, which is what makes free forever a property of the design rather than a promotion."
+                      "text": "The result is a website builder that costs the project almost nothing per site, which is what makes free a property of the design rather than a promotion."
                     }
                   ]
                 }
@@ -429,10 +429,10 @@
           "type": "button",
           "v": 1,
           "fields": {
-            "label": "Make your site — free",
+            "label": "Start free",
             "link": {
               "type": "url",
-              "url": "https://studio.openspace.dev/templates"
+              "url": "https://studio.openspace.host/templates"
             },
             "role": "primary",
             "secondaryLabel": "Star on GitHub",

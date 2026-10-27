@@ -20,7 +20,7 @@
         }
       },
       "style": {
-        "colorTheme": "light-accent",
+        "colorTheme": "brand",
         "padding": {
           "d": "2xl",
           "m": "xl"
@@ -50,16 +50,16 @@
           "type": "button",
           "v": 1,
           "fields": {
-            "label": "Make your site — free",
+            "label": "Start free",
             "link": {
               "type": "url",
-              "url": "https://studio.openspace.dev/templates"
+              "url": "https://studio.openspace.host/templates"
             },
             "role": "primary",
             "secondaryLabel": "How looks work",
             "secondaryLink": {
               "type": "url",
-              "url": "https://docs.openspace.dev/templates/"
+              "url": "https://github.com/omniharmonic/openspace/blob/main/apps/docs/src/content/docs/templates.md"
             }
           },
           "variant": "default",
@@ -122,7 +122,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For yoga, therapy, bodywork, wellness. Calm, airy, organic. Looks: Oat & Sage · Clay & Linen · Dusk."
+                          "text": "For yoga, therapy, bodywork, wellness. Calm, airy, organic. Looks: Oat & Sage, Clay & Linen, Dusk."
                         }
                       ]
                     }
@@ -130,7 +130,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/meadow"
+                  "url": "https://studio.openspace.host/new/meadow"
                 },
                 "linkLabel": "Start with Meadow"
               },
@@ -150,7 +150,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For nonprofits, community organisations. Trustworthy, warm, civic. Looks: Harbor Blue · Signal · Riverside."
+                          "text": "For nonprofits, community organisations. Trustworthy, warm, civic. Looks: Harbor Blue, Signal, Riverside."
                         }
                       ]
                     }
@@ -158,7 +158,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/harbor"
+                  "url": "https://studio.openspace.host/new/harbor"
                 },
                 "linkLabel": "Start with Harbor"
               },
@@ -178,7 +178,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For photographers, visual artists. Gallery-first, minimal chrome. Looks: Monochrome · Gallery Blue · Darkroom."
+                          "text": "For photographers, visual artists. Gallery-first, minimal chrome. Looks: Monochrome, Gallery Blue, Darkroom."
                         }
                       ]
                     }
@@ -186,7 +186,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/atelier"
+                  "url": "https://studio.openspace.host/new/atelier"
                 },
                 "linkLabel": "Start with Atelier"
               },
@@ -206,7 +206,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For consultants, coaches, freelancers. Crisp, editorial, confident. Looks: Ledger Green · Ink Blue · Modern."
+                          "text": "For consultants, coaches, freelancers. Crisp, editorial, confident. Looks: Ledger Green, Ink Blue, Modern."
                         }
                       ]
                     }
@@ -214,7 +214,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/ledger"
+                  "url": "https://studio.openspace.host/new/ledger"
                 },
                 "linkLabel": "Start with Ledger"
               },
@@ -234,7 +234,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For restaurants, cafés, bakeries. Warm, appetizing. Looks: Tomato · Olive Grove · Bistro Noir."
+                          "text": "For restaurants, cafés, bakeries. Warm, appetizing. Looks: Tomato, Olive Grove, Bistro Noir."
                         }
                       ]
                     }
@@ -242,7 +242,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/hearth"
+                  "url": "https://studio.openspace.host/new/hearth"
                 },
                 "linkLabel": "Start with Hearth"
               },
@@ -262,7 +262,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For products, startups, launches. Bold, modern, technical. Looks: Electric · Terminal · Volt."
+                          "text": "For products, startups, launches. Bold, modern, technical. Looks: Electric, Terminal, Volt."
                         }
                       ]
                     }
@@ -270,7 +270,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/signal"
+                  "url": "https://studio.openspace.host/new/signal"
                 },
                 "linkLabel": "Start with Signal"
               }
@@ -334,7 +334,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For writers, newsletters, blogs. Reading-first, literary. Looks: Highlighter · Ink · Almanac."
+                          "text": "For writers, newsletters, blogs. Reading-first, literary. Looks: Highlighter, Ink, Almanac."
                         }
                       ]
                     }
@@ -342,7 +342,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/field-notes"
+                  "url": "https://studio.openspace.host/new/field-notes"
                 },
                 "linkLabel": "Start with Field Notes"
               },
@@ -362,7 +362,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For musicians, performers, podcasters. Expressive, nocturnal. Looks: Night Plum · Afterglow · Chrome."
+                          "text": "For musicians, performers, podcasters. Expressive, nocturnal. Looks: Night Plum, Afterglow, Chrome."
                         }
                       ]
                     }
@@ -370,7 +370,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/encore"
+                  "url": "https://studio.openspace.host/new/encore"
                 },
                 "linkLabel": "Start with Encore"
               },
@@ -390,7 +390,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For makers, small shops. Tactile, crafted. Looks: Charcoal & Clay · Celadon · Workshop."
+                          "text": "For makers, small shops. Tactile, crafted. Looks: Charcoal & Clay, Celadon, Workshop."
                         }
                       ]
                     }
@@ -398,7 +398,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/kiln"
+                  "url": "https://studio.openspace.host/new/kiln"
                 },
                 "linkLabel": "Start with Kiln"
               },
@@ -418,7 +418,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For coalitions, cooperatives, movements. Grounded, collective. Looks: Earth & Sky · Forest · Assembly."
+                          "text": "For coalitions, cooperatives, movements. Grounded, collective. Looks: Earth & Sky, Forest, Assembly."
                         }
                       ]
                     }
@@ -426,7 +426,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/commons"
+                  "url": "https://studio.openspace.host/new/commons"
                 },
                 "linkLabel": "Start with Commons"
               },
@@ -446,7 +446,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For weddings, celebrations. Romantic, refined. Looks: Dusty Rose · Garden Party · Black Tie."
+                          "text": "For weddings, celebrations. Romantic, refined. Looks: Dusty Rose, Garden Party, Black Tie."
                         }
                       ]
                     }
@@ -454,7 +454,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/vow"
+                  "url": "https://studio.openspace.host/new/vow"
                 },
                 "linkLabel": "Start with Vow"
               },
@@ -474,7 +474,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "For link-in-bio, single page. Mobile-first, punchy. Looks: Saffron · Coral · Lagoon."
+                          "text": "For link-in-bio, single page. Mobile-first, punchy. Looks: Saffron, Coral, Lagoon."
                         }
                       ]
                     }
@@ -482,7 +482,7 @@
                 },
                 "link": {
                   "type": "url",
-                  "url": "https://studio.openspace.dev/new/link"
+                  "url": "https://studio.openspace.host/new/link"
                 },
                 "linkLabel": "Start with Link"
               }
@@ -542,7 +542,7 @@
             "label": "Contributing templates",
             "link": {
               "type": "url",
-              "url": "https://docs.openspace.dev/contributing/templates/"
+              "url": "https://github.com/omniharmonic/openspace/tree/main/apps/docs/src/content/docs/contributing"
             },
             "role": "primary",
             "note": "Templates are data, not code."
