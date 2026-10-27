@@ -134,5 +134,19 @@ before tuning and every change kept.
 
 ## Results
 
-See the table below (measured October 2026, read-only against the live sites; side-by-sides
-in the fidelity-2 report).
+Measured October 27, 2026, read-only against the live sites (nothing third-party committed).
+"Before" is the previous importer's output scored by this tool; "after" is this importer with
+auto-tuning. Desktop 1440 px and phone 390 px, up to six pages each.
+
+| Site | Before | After tuning | Without components |
+|---|---|---|---|
+| Power With (GitHub Pages, structured content) | 83 | **87** | 86 (one FAQ section recreated as a component) |
+| Alameda (Squarespace 7.1 shop) | 72 | **77** | — (none tried) |
+| Bedford (Squarespace 7.0) | 50 | **68** | 68 (tried, not kept) |
+| WordPress Foundation (Twenty Fifteen) | 65 | **75** | — |
+| sive.rs (hand-made HTML) | 45 | **74** | 74 (tried, not kept) |
+
+Best pages: Power With home 93 (computer) / 90 (phone); Alameda about 91 on phones. None of the
+five sites reaches 90 overall yet — the remaining gaps are listed per page in each
+`FIDELITY-REPORT.md` (Squarespace 7.0 page layouts, Alameda's lookbook gallery and the
+"home-2" collection page, WordPress page headers and the white content card, sive.rs's book list).
