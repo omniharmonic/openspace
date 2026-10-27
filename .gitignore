@@ -13,3 +13,6 @@ playwright-report
 .astro
 .claude/
 .playwright-mcp/
+
+# Operator-specific deploy configs
+*.local.jsonc
