@@ -350,7 +350,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
       }
     ],
     "thumbnailPage": "pg_z815j3m0n5",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1783611066016-59e16b0ac1c8?w=2880&q=80",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=2880&q=80",
     "sample": {
       "name": "Elias Varga",
       "tagline": "Land, light and the buildings between."
@@ -1170,7 +1170,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
       }
     ],
     "thumbnailPage": "pg_782p7fqf60",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=2560&q=80",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1744488340684-2b86590c15dd?w=2560&q=80",
     "sample": {
       "name": "Hudson Valley Food Commons",
       "tagline": "Feeding the valley, together."
@@ -1500,7 +1500,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
       }
     ],
     "thumbnailPage": "pg_mdnn4w8hvq",
-    "thumbnailUrl": "https://images.unsplash.com/photo-1667053508464-eb11b394df83?w=680&q=80",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1620122303020-87ec826cf70d?w=680&q=80",
     "sample": {
       "name": "Mara Quill",
       "tagline": "Portrait and editorial photographer in Brooklyn."
