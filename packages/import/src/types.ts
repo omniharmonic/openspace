@@ -223,6 +223,11 @@ export interface SqSection {
   layout:
     | { mode: "classic"; rows: SqRow[] }
     | { mode: "fluid"; items: SqFluidItem[]; rows?: number; mobileRows?: number };
+  /**
+   * One visual band whose rows (of different column structures) belong together (a Squarespace
+   * 7.1 page section): kept as one section — a grid — instead of one section per row.
+   */
+  together?: boolean;
   /** Squarespace's own anchor/id, for in-page links. */
   id?: string;
   /** What the section is for (generic and WordPress importers): picks a section preset. */

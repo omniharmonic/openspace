@@ -334,7 +334,7 @@ html:not(.os-js) .os-header__toggle{display:none}
 .os-header.os-header--sidebar-left{position:fixed;inset-block:0;inset-inline-start:0;inline-size:var(--sidebar-w);overflow-y:auto;overscroll-behavior:contain}
 .os-header--sidebar-left .os-header__bar{flex-direction:column;align-items:flex-start;gap:${v(T.space.sm)};min-height:0;max-inline-size:none;margin:0;padding:clamp(2rem,4vw,4rem) clamp(1.5rem,3.5vw,3.5rem)}
 .os-header--sidebar-left .os-header__brand{flex-direction:column;align-items:flex-start;gap:0.75rem;margin:0}
-.os-header--sidebar-left .os-header__logo{height:auto;max-inline-size:min(100%,8rem)}
+.os-header--sidebar-left .os-header__logo{height:var(--logo-h,auto);max-block-size:var(--logo-h,8rem);max-inline-size:100%;width:auto}
 .os-header.os-header--sidebar-left .os-header__title{white-space:normal;max-inline-size:none}
 .os-header--sidebar-left .os-header__tagline{display:block;margin:0;font-size:${v(T.type.small["font-size"])};line-height:${v(T.type.small["line-height"])};color:${v(c["text-muted"])}}
 .os-header--sidebar-left .os-nav{inline-size:100%;margin-block-start:${v(T.space.sm)}}

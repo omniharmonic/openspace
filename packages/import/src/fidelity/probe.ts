@@ -371,7 +371,13 @@ export const PROBE_SCRIPT = String.raw`(async () => {
     });
     const res = { index, top: Math.round(r.top), height: Math.round(r.height), left: Math.round(r.left), width: Math.round(r.width), background: bgOf(sec.els ? sec.els[0] : sec), columns: 1, italicLines: 0, text: ownText(sec).slice(0, 120), words: ownText(sec).slice(0, 20000) };
     // A raised panel: the section's own box draws a shadow or a border (a theme's content card).
-    if (!sec.els) { const st = cs(sec); if ((st.boxShadow && st.boxShadow !== "none") || parseFloat(st.borderTopWidth) >= 1) res.raised = true; }
+    // (Its own box, or a panel around it narrower than the page: an article card around a band.)
+    for (let e = sec.els ? sec.els[0] : sec, k = 0; e && e !== document.body && k < 5; e = e.parentElement, k++) {
+      const st = cs(e);
+      const er = e.getBoundingClientRect();
+      if (k > 0 && er.width >= vw * 0.95) break;
+      if ((st.boxShadow && st.boxShadow !== "none") || (k === 0 && !sec.els && parseFloat(st.borderTopWidth) >= 1)) { res.raised = true; break; }
+    }
     if (bgEl || coverImg) res.backgroundImage = true;
     const h = [...sec.querySelectorAll(headSel)].find((e) => visible(e) && ownText(e).length > 1);
     if (h) {

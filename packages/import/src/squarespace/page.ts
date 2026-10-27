@@ -460,6 +460,8 @@ export function parseSection(section: Element): SqSection | undefined {
   const layouts = findAll(content, (e) => hasClass(e, "sqs-layout"), { deep: false });
   const rows = layouts.flatMap(parseLayout);
   out.layout = { mode: "classic", rows };
+  // A 7.1 page section is one band however its rows are laid out.
+  if (rows.length > 1) out.together = true;
   return rows.length || out.background ? out : undefined;
 }
 

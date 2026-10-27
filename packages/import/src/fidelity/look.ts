@@ -228,13 +228,11 @@ export function lookFromProbe(d: LookProbe, m?: LookProbe): TokenLook | undefine
     ...(d.eyebrowRule ? { eyebrowRule: true } : {}),
     ...(d.fonts && Object.keys(d.fonts).length ? { metrics: { ...m?.fonts, ...d.fonts } } : {}),
     ...(hosts.length ? { fontHosts: hosts } : {}),
-    ...(d.logoHeight && d.logoHeight >= 16 && d.logoHeight <= 240
+    ...(d.logoHeight && d.logoHeight >= 16
       ? {
           logoHeight: {
-            d: d.logoHeight,
-            ...(m?.logoHeight && m.logoHeight >= 16 && m.logoHeight <= 240
-              ? { m: m.logoHeight }
-              : {}),
+            d: Math.min(240, d.logoHeight),
+            ...(m?.logoHeight && m.logoHeight >= 16 ? { m: Math.min(240, m.logoHeight) } : {}),
           },
         }
       : {}),

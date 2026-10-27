@@ -152,7 +152,11 @@ function stackSection(
     layout: {
       mode: "stack",
       columns: cols > 1 ? { d: spans, m: [12] } : { d: [12] },
-      ...(cols > 1 ? { align: "center" as const } : {}),
+      // Words beside a picture sit centred on it; columns of words start at the top together.
+      ...(cols > 1 &&
+      blocks.some(({ block }) => ["image", "gallery", "video", "map", "embed"].includes(block.type))
+        ? { align: "center" as const }
+        : {}),
       ...(width && width !== "content" ? { width } : {}),
     },
     style,
@@ -370,6 +374,17 @@ async function mapSectionParts(ctx: SectionContext, sq: SqSection): Promise<Sect
     return [section];
   }
 
+  // One band of rows with different column structures (a Squarespace 7.1 page section): one
+  // grid section, each row placed under the one before, its columns side by side.
+  if (sq.together && sq.layout.rows.length > 1) {
+    const filled = sq.layout.rows.map((r) => r.columns.filter((c) => c.blocks.length));
+    const multi = filled.some((cols) => cols.length > 1);
+    const shapes = new Set(filled.map((cols) => cols.map((c) => c.span).join("-")));
+    if (multi && shapes.size > 1) {
+      const grid = await rowsAsGrid(ctx, sq.layout.rows, style, width);
+      if (grid) return [grid];
+    }
+  }
   // Classic rows: consecutive rows with the same column structure share a section.
   const out: Section[] = [];
   let run: { blocks: { block: Block; column: number }[]; spans: number[] } | undefined;
@@ -617,4 +632,67 @@ export function applyNearestPreset(section: Section, role: SectionRole, themeUnk
     if (model.variant && (PRESET_VARIANTS.has(b.type) || !b.variant)) b.variant = model.variant;
     if (model.style?.align && !b.style?.align) b.style = { ...b.style, align: model.style.align };
   }
+}
+
+/** Rows of columns (spans of 12) → one grid section on the 24-column grid. */
+async function rowsAsGrid(
+  ctx: SectionContext,
+  rows: { columns: { span: number; blocks: SqBlock[] }[] }[],
+  style: SectionStyle,
+  width?: ContentWidth,
+): Promise<Section | undefined> {
+  const ROW_PX = 24;
+  const contentPx = width === "wide" || width === "full" ? 1440 : width === "narrow" ? 720 : 1280;
+  const blocks: Block[] = [];
+  const items: Record<string, GridItem> = {};
+  let y = 1;
+  for (const row of rows) {
+    const cols = row.columns.filter((c) => c.blocks.length);
+    if (!cols.length) continue;
+    const total = row.columns.reduce((n, c) => n + c.span, 0) || 12;
+    let x = 1;
+    let rowH = 1;
+    for (const col of row.columns) {
+      const w = Math.max(
+        1,
+        Math.min(DESKTOP_COLS - x + 1, Math.round((col.span / Math.max(12, total)) * DESKTOP_COLS)),
+      );
+      let cy = y;
+      for (const b of await mapBlocks(ctx, col.blocks, true)) {
+        // Pictures fill their cell: as many rows as their shape needs at that width.
+        const img =
+          b.type === "image" ? (b.fields.image as { width?: number; height?: number }) : undefined;
+        const ratio = img?.width && img?.height ? img.width / img.height : undefined;
+        const h =
+          b.type === "image"
+            ? Math.max(4, Math.round(((w / DESKTOP_COLS) * contentPx) / (ratio ?? 1.5) / ROW_PX))
+            : 1;
+        blocks.push(b);
+        items[b.id] = { d: { x, y: cy, w, h } };
+        cy += h;
+      }
+      rowH = Math.max(rowH, cy - y);
+      x = Math.min(DESKTOP_COLS, x + w);
+    }
+    y += rowH;
+  }
+  if (blocks.length < 2) return undefined;
+  const section: Section = {
+    id: newId("sec") as Section["id"],
+    layout: {
+      mode: "grid",
+      rows: { d: y - 1 },
+      items,
+      ...(width && width !== "content" ? { width } : {}),
+    },
+    style,
+    blocks,
+  };
+  const mobile = autoMobileLayout(section, { reset: true });
+  if (mobile && section.layout.mode === "grid") {
+    section.layout.items = mobile;
+    const mRows = Math.max(1, ...Object.values(mobile).map((i) => (i.m ? i.m.y + i.m.h - 1 : 1)));
+    section.layout.rows = { d: y - 1, m: mRows };
+  }
+  return section;
 }

@@ -241,7 +241,7 @@ export function tuneRound(
     for (const preset of ["h2", "h3"] as const) {
       const fams = origs.map((p) => p[preset]?.family).filter((f): f is string => !!f);
       const f = fams[0];
-      if (!f || fams.length < 2 || !fams.every((x) => norm(x) === norm(f))) continue;
+      if (!f || !fams.every((x) => norm(x) === norm(f))) continue;
       const role =
         norm(f) === norm(heading)
           ? undefined
