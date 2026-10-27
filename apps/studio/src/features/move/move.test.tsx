@@ -79,6 +79,9 @@ describe("Move my site (hosted import)", () => {
       await screen.findByLabelText("Your site’s address"),
       "https://life-culture.github.io/powerwith/",
     );
+    // The default (a new site) needs no decision; converting in place waits behind More options.
+    expect(screen.queryByText("This site lives on GitHub. What would you like?")).toBeNull();
+    await user.click(screen.getByRole("button", { name: /More options for GitHub sites/ }));
     expect(screen.getByText("This site lives on GitHub. What would you like?")).toBeInTheDocument();
     await user.click(screen.getByRole("radio", { name: /Make this site editable where it is/ }));
     await user.click(screen.getByLabelText("This is my site, or I’m moving it for its owner."));
