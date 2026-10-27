@@ -11,7 +11,24 @@ Your old site keeps running the whole time. You switch your domain over only whe
 Only import sites you own or are moving for their owner. The importer reads your public site the way a careful visitor would: one page at a time, with a pause between requests, and it respects your site's `robots.txt`.
 :::
 
-## What you need
+## The easy way: Move my site in Studio (nothing to install)
+
+1. Open [OpenSpace Studio](https://studio.openspace.host/move) and choose **Move an existing site** (it's next to the templates, and on your sites page).
+2. Paste your site's address, tick **This is my site**, and choose **Move my site**. Sign in with GitHub if you haven't yet — the free place your site's files are kept.
+3. Watch it happen: *Reading your site… Bringing pages across… 12 pages, 48 images… Checking everything… Publishing.* It usually takes a few minutes, and you can close the tab — your new site waits on your sites page.
+4. When it's live, Studio shows its free address, **What needs your attention** (the few things that couldn't come across exactly) and **Finish setting up** (a shop, donations, member pages, your email list, your own domain — each a guided step, whenever you're ready).
+
+Behind the scenes OpenSpace creates your new site, runs the same importer described below inside your site's own GitHub space, checks the result and publishes it. Every move lands on free GitHub Pages hosting first, even when your old site had a shop: selling, members and password pages are set up afterwards, so the first version always goes live.
+
+You can do the same from the Claude app: connect OpenSpace (`https://hub.openspace.host/mcp`) and say *"Move my site www.example.com to OpenSpace"* — Claude uses the `import_site` tool and follows its progress with `import_status`.
+
+### Sites on GitHub Pages
+
+Paste the `*.github.io` address or the repository (`github.com/you/your-site`). OpenSpace reads the source, not just the pages: **Jekyll** sites (`_config.yml`, pages, `_posts` with dates, tags and categories, collections, the navigation in `_data`, layouts and includes, and front-matter redirects), sites whose pages are **content files with typed sections** (for example Astro with Decap or Sveltia CMS — each section's fields become the closest OpenSpace blocks, and the design tokens give the look), and **plain HTML**. Hugo and Eleventy sites are read from their published pages, with dates and tags from their Markdown.
+
+If the repository is yours, you can instead **make it editable where it is**: OpenSpace prepares the change on a separate branch and opens a pull request that explains what changes and how to undo it. When you merge it, GitHub Pages switches to publishing with OpenSpace, your address (including a custom domain) stays the same, and your history keeps the old site — the **Revert** button brings it back.
+
+## Doing it yourself: what you need
 
 - Your site's address, for example `https://www.fernwoodyoga.com`. The site must be public while you import (turn off any site-wide password for an hour).
 - Node.js 22.23.4+ (Node 24 recommended) for the command line, or the [Claude Code plugin](/connect-your-ai/claude-code/).
@@ -36,7 +53,7 @@ npm install
 npx openspace dev
 ```
 
-`openspace import <url>` looks at your home page, works out which platform built it, and uses the matching importer: **Squarespace**, **WordPress**, or the general importer for everything else (Wix, Webflow, Carrd, Framer, hand-made sites). You can name the importer yourself — `openspace import squarespace <url>`, `openspace import wordpress <url>`, `openspace import url <url>` — or skip detection with `--platform`.
+`openspace import <url>` looks at your home page, works out which platform built it, and uses the matching importer: **Squarespace**, **WordPress**, **GitHub Pages** (from the repository), or the general importer for everything else (Wix, Webflow, Carrd, Framer, hand-made sites). You can name the importer yourself — `openspace import squarespace <url>`, `openspace import wordpress <url>`, `openspace import github <repository or github.io address>`, `openspace import url <url>` — or skip detection with `--platform`.
 
 | Option | Meaning |
 |---|---|
@@ -44,13 +61,15 @@ npx openspace dev
 | `--owner` | Squarespace only: you own the site, so also read Squarespace's `?format=json` data (tags, authors, product variants, sale prices, event places, SEO fields). Squarespace's `robots.txt` asks automated tools not to read it, so it's off unless you say it's your site. |
 | `--render` | Read each page in a real browser first, for sites that build their pages with JavaScript (some Wix and Framer sites). Needs Playwright: `npm i -D playwright && npx playwright install chromium`. |
 | `--platform <name>` | Skip detection: `squarespace`, `wordpress`, `wix`, `webflow`, `framer`, `carrd`… or `url` for the general importer. |
-| `--target cloudflare` | Use the Cloudflare hosting target — needed to sell products, and for members-only or password pages. Default: GitHub Pages. |
+| `--source-dir <dir>` | `import github` only: read a checkout of the repository instead of downloading it. |
+| `--into-existing` | Import into an existing OpenSpace site folder: keep its `openspace.json` (site id, address) and replace its content and media. This is what the hosted import runs. |
+| `--summary <file>` | Also write a JSON summary (pages, images, the check result). |
 | `--repo <owner/name>`, `--domain <host>`, `--title <title>` | As for [`openspace new`](/developers/cli/). |
 | `--max-pages <n>` | Read at most this many pages and items (default 400). |
 | `--delay <ms>` | Pause between requests to your site (default 300 ms). |
 | `--no-media` | Skip downloading images and files — a quick look at the structure. |
 
-The new folder is a complete OpenSpace site. The import ends by running `openspace check`, which should report no errors.
+The new folder is a complete OpenSpace site on GitHub Pages hosting (a shop, members or password pages are set up after it's live, from the list in `content/setup-checklist.json`). The import ends by running `openspace check`, which should report no errors.
 
 ## 2. Read the import report
 

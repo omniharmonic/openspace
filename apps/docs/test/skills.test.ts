@@ -14,7 +14,7 @@ const buildZip = buildSkillZip as (name: string) => Promise<Uint8Array>;
 const names = SKILL_NAMES as string[];
 
 /** Tools only some servers add (the Hub's and the local server's web-reaching tools). */
-const WEB_TOOLS = ["screenshot_url", "import_site", "import_squarespace"];
+const WEB_TOOLS = ["screenshot_url", "import_site", "import_squarespace", "import_status"];
 const TOOLS = new Set([...ALL_TOOLS.map((t) => t.name), ...WEB_TOOLS]);
 const SPEC_KEYS = new Set([
   "name",

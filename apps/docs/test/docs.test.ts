@@ -87,7 +87,7 @@ describe("docs content", () => {
     ).join("\n");
     for (const t of local) expect(localSource, t).toContain(`name: "${t}"`);
     // Hub-only account tools (apps/hub/src/mcp/tools/account.ts).
-    const hubOnly = ["create_site"];
+    const hubOnly = ["create_site", "import_status"];
     const tools = new Set([...ALL_TOOLS.map((t) => t.name), ...local, ...hubOnly]);
     const prompts = new Set(PROMPTS.map((p) => p.name));
     const unknown: string[] = [];
@@ -130,7 +130,7 @@ describe("docs content", () => {
       "--export",
       "--render",
       "--platform",
-      "--target",
+      "--into-existing",
       "--max-pages",
       "--delay",
       "--no-media",
@@ -138,7 +138,10 @@ describe("docs content", () => {
       expect(text, flag).toContain(flag);
       expect(program, flag).toContain(flag);
     }
+    // Imports never choose hosting (they always go live on GitHub Pages first).
+    expect(text).not.toContain("--target cloudflare");
     for (const heading of [
+      "### Sites on GitHub Pages",
       "### Squarespace",
       "### WordPress",
       "### Wix",

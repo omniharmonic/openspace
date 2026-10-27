@@ -57,8 +57,9 @@ These fetch other websites. The Hub runs them in the cloud; the local server (`o
 | Tool | What it does |
 |---|---|
 | `screenshot_url` | An image of any public page — for example the site you're moving from — at desktop, tablet or phone width, to compare with `screenshot`. On the Hub, give it `site` (and `page`) instead of an address to capture your live, published page. Private and internal addresses are refused. |
-| `import_site` | Imports a site from any platform — Squarespace, WordPress, Wix, Webflow, GitHub Pages or any HTML site, detected automatically — after asking for confirmation. On the Hub it runs in the cloud and creates a new site; locally it writes a new folder next to the site being served. See [Move your site to OpenSpace](/guides/migrate-to-openspace/). |
+| `import_site` | Imports a site from any platform — Squarespace, WordPress, Wix, Webflow, GitHub Pages or any HTML site, detected automatically — after asking for confirmation. On the Hub it runs in the cloud and creates a new site on free hosting (`confirmOwnership: true` once the person says it's theirs; `inPlace: true` makes their own GitHub Pages repository editable where it is, through a pull request they approve); locally it writes a new folder next to the site being served. See [Move your site to OpenSpace](/guides/migrate-to-openspace/). |
 | `import_squarespace` | Local server: the older name of `import_site`, for Squarespace sites. |
+| `import_status` | Hub only: how a move is going — the steps, how many pages and images came across, what needs attention, the Finish setting up list, and the live address when it's done. |
 
 Screenshots on the Hub are limited to about forty every ten minutes per person, so Claude prefers one section at one width while it iterates.
 
