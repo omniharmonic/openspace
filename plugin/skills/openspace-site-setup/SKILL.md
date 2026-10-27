@@ -11,7 +11,7 @@ OpenSpace sites are ordinary folders (and GitHub repositories) holding `openspac
 - **Studio + Hub (no terminal):** the person signs in with GitHub at Studio, picks a template, and is live in about three minutes. Claude connects through the Hub's remote MCP connector. Point non-technical owners here.
 - **Local folder + CLI (this plugin's default):** create the site with `openspace new`, edit it with Claude through the local MCP server (`openspace mcp`), publish by committing and pushing.
 
-Ask which one the person wants if it isn't obvious. Never say "repository", "commit", "branch", "build" or "deploy" to an owner who chose Studio unless they use those words first.
+Ask which one the person wants if it isn't obvious; for anyone who isn't a developer, choose Studio for them. Talk in plain words and make the technical choices yourself with the defaults here. Never say "repository", "commit", "branch", "build" or "deploy" to an owner who chose Studio unless they use those words first.
 
 ## 1. Pick a template
 
@@ -56,7 +56,7 @@ Options for `openspace new <template> <dir>`:
 - `--repo <owner/name>` — the GitHub repository; sets the GitHub Pages address (`https://owner.github.io/name`).
 - `--url <url>` — the address before a custom domain, when not using `--repo`.
 - `--domain <hostname>` — a custom domain from the start.
-- `--target github-pages|cloudflare` — default `github-pages`. Use `cloudflare` for stores, member areas and password-protected pages (GitHub Pages' terms exclude commerce).
+- `--target github-pages|cloudflare` — default `github-pages`. Always start on the default: the first goal is a live site. Cloudflare (needed later for selling, member areas and password pages, since GitHub Pages' terms exclude commerce) is switched on afterwards from Studio's **Finish setting up**, never while creating or moving a site.
 - `--hub <url>` — a self-hosted Hub instead of the public one.
 
 The folder must not exist yet (or be empty). The result has a fresh site id, the template's pages, styles and demo content, `AGENTS.md`, and a `.github/workflows/publish.yml`.

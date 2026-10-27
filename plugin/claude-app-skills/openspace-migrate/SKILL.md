@@ -3,110 +3,101 @@ name: openspace-migrate
 description: Move an existing website (Squarespace, GitHub Pages, WordPress, Wix, any site) into OpenSpace with no installs, using the OpenSpace connector, then match the old look page by page with screenshots.
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
   for: claude.ai and Claude Desktop with the OpenSpace connector (https://hub.openspace.host/mcp)
 ---
 
-# Moving a website to OpenSpace — from the Claude app, nothing to install
+# Moving a website to OpenSpace — it has to just work
 
-This skill runs entirely through the **OpenSpace connector** (the remote MCP server at `https://hub.openspace.host/mcp`). The import runs in the cloud, screenshots are taken in the cloud, and the owner edits the result in OpenSpace Studio in their browser. Never ask the owner to open a terminal, install Node, npm, Playwright or anything else. If they mention a command line, they are in the wrong guide: this path needs only a browser and Claude.
+The person you're helping is usually not technical. They want their site out of a platform that charges them every month, looking the same, live, and easy to edit. Your job is to get them there with as little effort from them as possible.
 
-Ground rules for the whole migration:
+Everything runs through the **OpenSpace connector** (`https://hub.openspace.host/mcp`): the import runs in the cloud, screenshots are taken in the cloud, and they edit the result in OpenSpace Studio in their browser. Nothing is installed on their computer.
 
-- **Only for sites the person owns** or is moving on the owner's behalf. Ask before starting if it is not clear.
-- **Recreate the look, never copy it.** Never paste the old site's template code, CSS, HTML or scripts into embeds. Match the look with presets, section color themes, grid placement and Site Styles.
-- **Keep the owner's words.** Imported copy is theirs; don't rewrite it unless asked. Never invent content to fill gaps.
-- **The old site stays up** until the new one is live on the domain and checked.
-- Use plain words with the owner: "your site", "publish", "the live site". Avoid "repository", "commit", "branch", "build" and "deploy" unless they use them first.
+## How to work with the person
+
+- **Plain language, always.** Say "your site", "your new site", "put it live", "your web address", "your free address". Don't say repository, branch, commit, workflow, Actions, build, deploy, MCP, target, DNS or CNAME. If a technical word is truly needed, explain it in one friendly sentence.
+- **Make the technical decisions yourself**, with the defaults below. Ask only what only they can answer: the address of their site and whether it's theirs. Don't ask about hosting, importers, options or formats.
+- **Keep them posted in one short line** at each stage ("Copying your pages and photos now — this takes a few minutes").
+- **Never ask them to open a terminal** or install anything (Node, npm, Playwright…). This path needs only a browser and Claude.
+- **Never invent content.** Their words and photos are theirs; don't rewrite unless asked. Ask before filling a gap.
+- **Recreate the look, never copy it.** Never paste the old site's code, CSS or scripts into embeds. Match the look with OpenSpace's designs and Site Styles.
+- **Their old site keeps running** until they decide to move their web address — which is optional and comes at the very end.
+
+## Defaults (decide, don't ask)
+
+- **Hosting: always the free default (GitHub Pages).** Never switch a site to Cloudflare or any other hosting during a move, even if the old site has a shop, donations, member pages or password pages. Those features come back later, from Studio's **Finish setting up** list, after the site is live. A move must never end in a publish that is known to fail.
+- **A new OpenSpace site** next to the old one. For an existing GitHub Pages site, also a new site — unless they explicitly ask to convert the existing one in place.
+- **Everything imported:** pages, posts, images, navigation, forms, products (as catalog pages, not yet for sale), redirects.
+- **Squarespace:** ask once, simply, "Is this your site?" If yes, pass `owner: true` (it reads Squarespace's own page data, which needs the owner's permission). Don't ask for exports; blog posts are read from the site.
+- **Script-heavy sites** (Wix, Framer): if the import report says pages came through nearly empty, re-run `import_site` with `render: true` yourself.
 
 ## 0. Check the connection
 
-Call `list_sites`. If the OpenSpace tools are missing, walk the owner through it:
+Call `list_sites`. If the OpenSpace tools are missing, walk them through it, one step at a time:
 
-1. They need an OpenSpace account first: open https://studio.openspace.host, **Sign in with GitHub**, and accept the request to install OpenSpace on their GitHub account (OpenSpace keeps each site in their own GitHub account).
-2. In Claude: **Settings → Connectors → Add custom connector**, name **OpenSpace**, address `https://hub.openspace.host/mcp`. Claude opens OpenSpace: sign in, tick the sites Claude may work on, press **Allow**.
+1. Open https://studio.openspace.host and **Sign in with GitHub** (free; it's where their site's files are kept). When asked, allow OpenSpace on their GitHub account.
+2. In Claude: **Settings → Connectors → Add custom connector**, name **OpenSpace**, address `https://hub.openspace.host/mcp`. Sign in when it opens, tick their sites (if any) and press **Allow**.
 3. In this chat, turn the OpenSpace connector on in the tools menu.
 
-## 1. Gather and look first
+## 1. Look first
 
-Ask for: the address of the site to move; whether they own it; whether they sell products or have member or password pages (those need the Cloudflare hosting option in Studio); and, for Squarespace, whether they can export the blog (Settings → Import & Export → Export → WordPress) — the file can be added later in Studio.
+Ask for their site's address (and "Is this your site?" for Squarespace). Then `screenshot_url` with `device: "all"` for the home page, and desktop shots of two or three inner pages. Tell them in two or three warm sentences what you see (sections, mood, colors), so they know you've understood their site.
 
-Then look at the original before changing anything: `screenshot_url` with the address and `device: "all"` for the home page, and desktop shots of two or three inner pages. Describe the site back to the owner in two or three sentences (sections, mood, colors, type) so they know you've seen it.
+## 2. Bring it over
 
-## 2. Import in the cloud
+Call `import_site` with the address. Say in one sentence what will happen ("I'll copy your pages, words and photos into a new OpenSpace site; your current site isn't touched") and pass `confirm: true` once they say yes.
 
-Call `import_site` with the site's address. Explain first what will happen and pass `confirm: true` only after the owner agrees. Pass `owner: true` only when they confirm they own a Squarespace site (it reads Squarespace's own page data, which its robots.txt asks automated tools not to read without permission).
+The import runs in the cloud and takes a few minutes. Follow exactly what `import_site` returns: where the new site is, how to check progress, when it's ready. Don't call it in a tight loop; give a one-line update while waiting.
 
-The import runs in the cloud and takes a few minutes. Follow exactly what `import_site` returns: it says where the new site is, how to check progress, and when it is ready. While it runs, tell the owner what's happening in one line; don't call it in a tight loop.
+When it's done:
 
-When it is done:
+1. If the new site isn't in `list_sites`, the connection doesn't cover it yet: ask them to open Studio → Settings → Connect your AI and allow Claude on the new site (or reconnect and tick it). Then `get_site`.
+2. Read the import report the tool returns and keep the technical parts to yourself. Tell them only: what came across, and anything you need from them.
+3. Give them the Studio link for the new site so they can watch your changes arrive.
 
-1. If the new site isn't in `list_sites`, the connection doesn't cover it yet: ask the owner to open Studio → Settings → Connect your AI and allow Claude on the new site (or reconnect the connector and tick it). Then call `get_site` on it.
-2. Read the import report the tool returns (also `IMPORT-REPORT.md` in the site) and summarise it in plain language: what came across, what didn't, what needs their decision.
-3. Ask the owner to open the new site in Studio (the link comes with the import result) so they can watch your edits arrive.
+## 3. Make it look like their site, page by page
 
-### An existing GitHub Pages site (Jekyll or plain HTML)
+Home page first, then the pages in the menu. For each page (at most five passes; one change at a time):
 
-For a site that already lives on GitHub Pages (`something.github.io`, or a custom domain served by GitHub Pages), `import_site` can make it editable in Studio. Give it the site's address (or the GitHub address of its source, when the owner knows it). Ask the owner which they want:
+1. **Look at both.** `screenshot_url` of the original page and `screenshot` of the new one, same device — desktop, then mobile. Tall pages arrive as several images, top to bottom. Screenshots are limited (about forty every ten minutes), so once the structure is right compare one section at a time (`screenshot` with `section`).
+2. **Name the three biggest differences** a visitor would notice: section order, the top of the page, columns, photo crops, colors, type size, spacing, buttons.
+3. **Fix with the design tools:** `update_section` (`colorTheme`, `style.background`), a closer preset (`list_section_presets`, `insert_section`, move content across with `update_block`, `delete_section`), `place_in_grid` then `auto_mobile_layout`, and once, early, the global look with `set_styles` (brand color, fonts, spacing, buttons).
+4. **Check:** `design_check`; fix errors (`apply_fix` where offered). Imported pages often have several main headings — fix the levels without changing the words.
+5. **Look again** and judge: same first impression, same order, same main buttons?
 
-- **A new OpenSpace site** next to the old one (safest: the old site keeps running unchanged until they switch the domain), or
-- **convert the existing site in place**, when the tool offers it: the same GitHub location and address carry on, now edited in Studio. Explain that the old files are replaced by OpenSpace's on publish, and that the history keeps the old version.
+Stop when the remaining differences are details they wouldn't notice. If screenshots aren't available, continue with `render_page` (`fragment: true`) and say so once.
 
-Jekyll posts become blog posts, `_config.yml` title and navigation carry over, Markdown pages become OpenSpace pages. Liquid templates, plugins and custom layouts are approximated with presets and Site Styles, never copied.
+See `references/parity-checklist.md` for what to compare and the usual fixes, `references/squarespace-mapping.md` for Squarespace, and `references/platform-mapping.md` for other platforms. Those references mention import options in their command-line spelling (such as `--render`); here they are `import_site` options (for example `render: true`). Ignore any reference advice to change hosting during the move.
 
-## 3. Reach visual parity, page by page
+## 4. Put it live
 
-Work through the pages in navigation order, home page first. For each page (at most five passes; one intent per pass):
+The goal is a **live site that looks like theirs, on its free address**, before anything else.
 
-1. **Look at both.** `screenshot_url` of the original page and `screenshot` of the OpenSpace page, same device. Start with desktop, then mobile. Tall pages arrive as several images, top to bottom. Screenshots are rate-limited (about forty every ten minutes), so compare one section at a time (`screenshot` with `section`) once the page structure is right.
-2. **Name the three biggest differences**, in order of how much they change the impression: section order and rhythm, hero treatment, column structure, image crops, color themes, type scale, spacing, button style.
-3. **Fix with design tools only:**
-   - rhythm and surfaces: `update_section` with `colorTheme`; photo backgrounds and overlays through `update_section` `style.background`;
-   - structure: swap a section for a closer preset (`list_section_presets`, `insert_section`, move the imported blocks' content across with `update_block`, then `delete_section`);
-   - layout in grid sections: `place_in_grid`, then `auto_mobile_layout`;
-   - global look: `set_styles` (brand color, pairing, density, shape, buttons) — once, early, on the home page, then leave it alone.
-4. **Check:** `design_check` on the page; fix errors (`apply_fix` where offered). Imported pages often have several Heading 1s or skipped heading levels — fix the levels without changing the words.
-5. **Look again** at the same widths and judge: does a visitor get the same first impression, the same order of information and the same calls to action?
+- `design_check` on every page (zero errors), then `get_draft_diff`.
+- Ask one simple question: "Ready for me to put your new site live at its free address? Your current site stays exactly as it is." Then `publish` with `confirm: true`. If this connection can't publish, ask them to press **Publish** in Studio.
+- After a minute or two, `screenshot_url` with `site` (no `url`) to see the live home page, and check it looks right.
 
-Stop when the remaining differences are details the owner wouldn't notice, or are listed as limits. Note each page's outcome for the final summary.
+Shops, donations, member pages, password pages, newsletters and the web address do **not** block this step: they come after, in the "when you're ready" list.
 
-If `screenshot_url` or `screenshot` says screenshots aren't available, continue with `render_page` (`fragment: true`) and ask the owner to describe or share a screenshot of the original; say so once.
+## 5. Celebrate, then "when you're ready"
 
-See `references/parity-checklist.md` for what to compare and the usual fixes, `references/squarespace-mapping.md` for Squarespace, and `references/platform-mapping.md` for WordPress, Wix, Webflow and other sites. Those references mention import options in their command-line spelling (such as `--render` or `--export`); here they are `import_site` options or Studio settings — for example, script-built pages are re-imported with `import_site` and `render: true`.
+Finish with a short, warm message:
 
-## 4. Fix what the report flagged
-
-Go through the report's **Needs attention** list with the owner:
-
-- **Forms and newsletter:** submissions now arrive in the OpenSpace inbox (Studio → Forms). Existing subscribers are exported from the old platform and imported in Studio.
-- **Custom code and scripts:** embeds became sandboxed Embed blocks; site-wide scripts (analytics, chat, pixels) were listed, not copied. Ask which are still needed; the owner adds site-wide code in Studio → Settings → Advanced — never through the connector.
-- **Platform features** (shortcodes, page-builder widgets, Wix apps, Webflow interactions, bookings): say what each did and offer the OpenSpace block or service that replaces it, or leave a note.
-- **Commerce:** selling needs the Cloudflare hosting option and Stripe connected in Studio.
-- **Member areas and password pages:** recreate them in Studio as members-only or password pages.
-- **Links pointed at the home page** and **images that failed:** fix each one (`update_block`), asking the owner where a link should go.
-- **Alt text:** write purposeful alt text for meaningful images (`update_block`), or mark them decorative.
+- **Celebrate:** "Your new site is live!" with the live link, and the Studio link to edit it.
+- **What they save:** they no longer need to pay their old platform for hosting once they switch over (a Squarespace plan is typically about $200–$550 a year; say "you can stop paying for <platform> hosting" when you don't know their plan).
+- **When you're ready** — a short list, only of what applies to their site, each one line, in plain words (Studio's **Finish setting up** list walks them through each):
+  - use your own web address (e.g. www.their-site.com) — the old site stays up until this is done; cancel the old plan only after the address shows the new site;
+  - turn your shop back on (products came across as pages; selling needs a payment account);
+  - donations, member pages or password pages;
+  - bring your newsletter subscribers across, and where form messages now arrive;
+  - any extras the old site had (booking widgets, chat, analytics) — say what each did and what replaces it.
+- Mention, in one sentence, anything that looks different on purpose (the look comes from OpenSpace's designs, so some details are approximated).
 
 Never invent replacements for content that didn't import — ask.
 
-## 5. Publish and move the domain
-
-- Run a final `design_check` on every page (zero errors), then `get_draft_diff` and summarise it.
-- Publish only when the owner asks: they press **Publish** in Studio, or you call `publish` with `confirm: true` if the connection was allowed to publish. `screenshot_url` with `site` (and `page`) shows the live result once it is up.
-- Domain, in this order, after the new site is live on its temporary address and checked: (1) Studio → Settings → Domain, enter the domain — the wizard shows the exact records for their registrar and checks them; (2) the owner changes those records at the old platform's domain settings or their registrar; (3) wait until the domain serves the new site over HTTPS and a few old addresses redirect correctly; (4) only then cancel the old plan (for Squarespace, only then cancel the Squarespace site plan). Moving the domain registration itself is optional and can wait.
-- Redirects for every changed address were created by the import; keep them, and add any the owner knows about (old campaign links) in Studio.
-
-## 6. Finish with an honest summary
-
-Tell the owner, briefly:
-
-- which platform was detected and what was imported (pages, posts, products, events, images, redirects);
-- per page, how close it is to the original and what still differs;
-- what they must do themselves (subscribers, Stripe, DNS, code snippets, member areas, platform features);
-- what OpenSpace does differently by design (the look comes from Site Styles, so platform-specific styling is approximated, not copied).
-
 ## Additional resources
 
-- **`references/parity-checklist.md`** — what to compare between the two screenshots and the fix for each common difference.
-- **`references/squarespace-mapping.md`** — Squarespace blocks, sections and settings → OpenSpace equivalents.
-- **`references/platform-mapping.md`** — WordPress, Wix, Webflow and generic HTML → OpenSpace, and each platform's limits.
-- The `openspace-web-design` skill holds the full design loop and craft checklist; `openspace-content` covers posts, events and products.
+- **`references/parity-checklist.md`** — what to compare between the two screenshots, and the usual fixes.
+- **`references/squarespace-mapping.md`** — Squarespace blocks, sections and settings → OpenSpace.
+- **`references/platform-mapping.md`** — WordPress, Wix, Webflow, GitHub Pages and HTML sites → OpenSpace.
+- The `openspace-web-design` skill holds the full design loop; `openspace-content` covers posts, events and products.

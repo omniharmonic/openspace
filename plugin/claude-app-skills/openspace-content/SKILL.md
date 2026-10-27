@@ -70,7 +70,7 @@ Events use the same tool with extra `frontmatter`:
 
 ## Add a product
 
-Products need the Cloudflare hosting target to sell (GitHub Pages' terms exclude commerce); the catalog itself is public content. Prices are **minor units** with an ISO currency:
+Products can be listed on any site; taking payments is turned on later from Studio's **Finish setting up** list (never change the site's hosting yourself). The catalog itself is public content. Prices are **minor units** with an ISO currency:
 
 ```json
 {

@@ -9,9 +9,9 @@ metadata:
 
 # Setting up an OpenSpace site — browser and Claude only
 
-OpenSpace is a free, open-source website builder. The owner works in **OpenSpace Studio** (https://studio.openspace.host) in their browser; Claude works on the same site through the **OpenSpace connector**. Nothing is installed on their computer. Sites live in the owner's own GitHub account and are published for free on GitHub Pages (or Cloudflare, for stores and member areas).
+OpenSpace is a free, open-source website builder. The owner works in **OpenSpace Studio** (https://studio.openspace.host) in their browser; Claude works on the same site through the **OpenSpace connector**. Nothing is installed on their computer. Sites live in the owner's own GitHub account and are published for free on GitHub Pages. Every site starts there — never switch hosting while setting up. Shops, donations, member and password pages, email and a custom web address come later, from Studio's **Finish setting up** list, once the site is live.
 
-Talk in plain words: "your site", "publish", "the live site". Don't say "repository", "commit", "branch", "build" or "deploy" unless the owner does. Never suggest a terminal, Node, npm or the command line — that is a different, developer path.
+Talk in plain words: "your site", "put it live", "your free address". Don't say repository, commit, branch, workflow, build, deploy, MCP or DNS unless the owner does — or explain the word in one friendly sentence. Make technical choices yourself with the defaults here; ask only what only they can answer (what the site is for, its name, their words and photos). Never suggest a terminal, Node, npm or the command line — that is a different, developer path.
 
 ## 1. Create the site in Studio
 
@@ -54,13 +54,15 @@ Skills (this one, `openspace-web-design`, `openspace-migrate`, `openspace-conten
 
 With the connector on, offer the owner a first pass: replace the template's sample words, people, prices and photos with theirs (ask for anything you don't know — never invent it), then restyle if they want a different mood (`apply_template_look`). The `openspace-web-design` skill has the full design loop, including screenshots taken in the cloud.
 
-## 4. Publish
+## 4. Put it live, and celebrate
 
 Edits land in the **draft**; the live site changes only on publish. The owner presses **Publish** in Studio, or Claude calls `publish` with `confirm: true` after the owner asks, if the connection may publish. The live site updates in a minute or two. `list_versions` and `rollback` (with `confirm: true`) bring back an earlier version.
 
-## 5. Connect a custom domain
+When it's live, celebrate: "Your site is live!" with the link and the Studio link, then a short **when you're ready** list of only what applies to them (their own web address, a shop, donations, member pages, newsletter) — each one line; Studio's **Finish setting up** list guides each step.
 
-In Studio → Settings → **Domain**: enter the domain; the wizard recognises the registrar, shows the exact records with steps for that registrar, checks them every few seconds and turns on HTTPS when the certificate is ready. The owner makes the change at their registrar; Claude can explain each step but can't change DNS.
+## 5. Their own web address (when they're ready)
+
+In Studio → Settings → **Domain**: enter the address; the wizard recognises where they bought it, shows exactly what to change there, step by step, checks it every few seconds and turns on the padlock (HTTPS) when it's ready. The owner makes the change where they bought the address; Claude can explain each step but can't make it for them.
 
 ## Troubleshooting
 
