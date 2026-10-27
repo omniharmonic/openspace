@@ -1,6 +1,6 @@
 {
   "name": "@omniharmonic/openspace-cli",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "The openspace command line: check, dev, migrate, new, import, eject, agents-md, mcp.",
   "license": "MIT",
   "author": "The OpenSpace contributors",
