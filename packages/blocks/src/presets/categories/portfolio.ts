@@ -259,7 +259,7 @@ export const portfolioPresets = [
           "They listened to librarians, teenagers and the night cleaners before drawing a single line. You can feel that in every room.",
           "Dana Whitlock",
           "Head of Libraries, Port Ellis",
-          { col: 0 },
+          { col: 0, variant: "bar" },
         ),
         image(photo("architecture", 480, "4:5"), { col: 1, aspect: "4:5" }),
       ],

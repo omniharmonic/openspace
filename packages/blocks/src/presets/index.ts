@@ -4,6 +4,7 @@ import { contactPresets, ctaPresets, newsletterPresets } from "./categories/acti
 import { footerPresets, headerPresets as headers } from "./categories/chrome";
 import { blogPresets, eventsPresets, productsPresets } from "./categories/collections";
 import { featuresPresets } from "./categories/features";
+import { featuresMorePresets } from "./categories/features-more";
 import { galleryPresets } from "./categories/gallery";
 import { heroPresets } from "./categories/hero";
 import { heroMorePresets } from "./categories/hero-more";
@@ -12,9 +13,11 @@ import { menuPresets } from "./categories/menu";
 import { faqPresets, logosPresets, statsPresets, teamPresets } from "./categories/people";
 import { portfolioPresets } from "./categories/portfolio";
 import { pricingPresets } from "./categories/pricing";
+import { pricingMorePresets } from "./categories/pricing-more";
 import { processPresets } from "./categories/process";
 import { servicesPresets } from "./categories/services";
 import { testimonialsPresets } from "./categories/testimonials";
+import { testimonialsMorePresets } from "./categories/testimonials-more";
 import type { HeaderPreset, Preset, PresetCategory, PresetMeta, SectionPreset } from "./types";
 
 /**
@@ -47,11 +50,14 @@ export const sectionPresets: readonly SectionPreset[] = [
   ...aboutPresets,
   ...servicesPresets,
   ...featuresPresets,
+  ...featuresMorePresets,
   ...processPresets,
   ...galleryPresets,
   ...portfolioPresets,
   ...testimonialsPresets,
+  ...testimonialsMorePresets,
   ...pricingPresets,
+  ...pricingMorePresets,
   ...menuPresets,
   ...faqPresets,
   ...teamPresets,
