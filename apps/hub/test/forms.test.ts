@@ -411,4 +411,27 @@ describe("forms manifest and validation", () => {
     });
     expect(ok).toEqual({ ok: true, data: { ...VALID, phone: "+1 (555) 010-2030", updates: true } });
   });
+  it("never doubles punctuation when a label is a question or ends in a colon", () => {
+    const form = {
+      ...CONTACT_FORM,
+      fields: [
+        {
+          type: "text" as const,
+          name: "why",
+          label: "What would you use the commons for?",
+          required: true,
+        },
+        { type: "text" as const, name: "email", label: "Email:", required: true },
+        { type: "text" as const, name: "name", label: "Name", required: true },
+      ],
+    };
+    const r = validateSubmission(form, {});
+    expect(r.ok).toBe(false);
+    if (!r.ok)
+      expect(r.errors).toEqual({
+        why: "Please fill in What would you use the commons for?",
+        email: "Please fill in Email.",
+        name: "Please fill in Name.",
+      });
+  });
 });

@@ -207,6 +207,11 @@ const EMAIL_RE = /^[^\s@<>()[\],;:"]+@[^\s@<>()[\],;:"]+\.[^\s@<>()[\],;:"]+$/;
 const PHONE_RE = /^\+?[\d\s().-]{5,30}$/;
 const TRUE_VALUES = new Set(["yes", "on", "true", "1"]);
 
+/** End a message with a full stop unless it already ends in punctuation (labels can be questions). */
+function sentence(text: string): string {
+  return /[.?!…]["”’)]?$/.test(text) ? text : `${text}.`;
+}
+
 export function validateSubmission(
   form: Form,
   values: FieldValues,
@@ -219,19 +224,21 @@ export function validateSubmission(
       .map((v) => v.trim())
       .filter((v) => v !== "");
     const one = list[list.length - 1] ?? "";
-    const label = field.label;
-    const requiredMsg = `Please fill in ${label}.`;
+    // A trailing colon ("Email:") never belongs inside a sentence.
+    const label = field.label.trim().replace(/\s*:$/, "");
+    const requiredMsg = sentence(`Please fill in ${label}`);
     switch (field.type) {
       case "checkbox": {
         if (field.options) {
           const bad = list.find((v) => !field.options?.includes(v));
-          if (bad) errors[field.name] = `Please choose from the listed options for ${label}.`;
+          if (bad)
+            errors[field.name] = sentence(`Please choose from the listed options for ${label}`);
           else if (field.required && !list.length)
-            errors[field.name] = `Please choose at least one option for ${label}.`;
+            errors[field.name] = sentence(`Please choose at least one option for ${label}`);
           else if (list.length) data[field.name] = [...new Set(list)];
         } else {
           const checked = TRUE_VALUES.has(one.toLowerCase());
-          if (field.required && !checked) errors[field.name] = `Please tick ${label}.`;
+          if (field.required && !checked) errors[field.name] = sentence(`Please tick ${label}`);
           else data[field.name] = checked;
         }
         break;
@@ -239,14 +246,14 @@ export function validateSubmission(
       case "select": {
         const chosen = field.multiple ? [...new Set(list)] : one ? [one] : [];
         if (chosen.some((v) => !field.options.includes(v)))
-          errors[field.name] = `Please choose from the listed options for ${label}.`;
+          errors[field.name] = sentence(`Please choose from the listed options for ${label}`);
         else if (field.required && !chosen.length) errors[field.name] = requiredMsg;
         else if (chosen.length) data[field.name] = field.multiple ? chosen : (chosen[0] as string);
         break;
       }
       case "radio": {
         if (one && !field.options.includes(one))
-          errors[field.name] = `Please choose from the listed options for ${label}.`;
+          errors[field.name] = sentence(`Please choose from the listed options for ${label}`);
         else if (field.required && !one) errors[field.name] = requiredMsg;
         else if (one) data[field.name] = one;
         break;
