@@ -61,7 +61,13 @@ export function AppHeader({ children }: { children?: ReactNode }) {
       </div>
       {children}
       <div className="st-header__right">
-        <button type="button" className="st-header__search" onClick={() => openPalette(true)}>
+        {/* Named even on phones, where the "Search" label is hidden and only the icon shows. */}
+        <button
+          type="button"
+          className="st-header__search"
+          aria-label="Search"
+          onClick={() => openPalette(true)}
+        >
           <Search aria-hidden="true" />
           <span>Search</span>
           <Kbd shortcut="mod+k" />
