@@ -15,7 +15,12 @@ export interface SqImage {
 }
 
 export type SqBlock =
-  | { kind: "text"; html: string }
+  | {
+      kind: "text";
+      html: string;
+      /** The block has its own background panel (Squarespace "block background"). */
+      panel?: boolean;
+    }
   | { kind: "image"; image: SqImage; caption?: string; href?: string }
   | {
       kind: "gallery";

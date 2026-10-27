@@ -307,7 +307,10 @@ export async function mapBlock(
     case "text": {
       const r = await richText(ctx, sq.html);
       if (!r) return [];
-      return one(makeBlock(ctx, "text", { content: r.doc }, { style: alignStyle(r.align) }));
+      const style: BlockStyle = { ...alignStyle(r.align) };
+      // A text block on its own panel keeps reading on a light surface over photos.
+      if (sq.panel) style.colorTheme = "light";
+      return one(makeBlock(ctx, "text", { content: r.doc }, { style }));
     }
     case "image": {
       const image = await img(ctx, sq.image);

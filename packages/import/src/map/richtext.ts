@@ -133,6 +133,12 @@ function blocks(nodes: readonly Node[], ctx: Ctx): BlockNode[] {
       out.push({ type: "paragraph", content });
   };
   for (const n of nodes) {
+    // Inline wrappers around block content (Squarespace's scaled-text spans around headings).
+    if (isElement(n) && !BLOCK_TAGS.has(n.tagName) && n.tagName !== "a" && hasBlockChild(n)) {
+      flushInline();
+      out.push(...blocks(n.childNodes, ctx));
+      continue;
+    }
     if (!isElement(n) || !BLOCK_TAGS.has(n.tagName) || n.tagName === "hr") {
       if (isElement(n) && n.tagName === "hr") {
         flushInline();
@@ -204,6 +210,10 @@ function blocks(nodes: readonly Node[], ctx: Ctx): BlockNode[] {
   }
   flushInline();
   return out;
+}
+
+function hasBlockChild(el: Element): boolean {
+  return el.childNodes.some((c) => isElement(c) && (BLOCK_TAGS.has(c.tagName) || hasBlockChild(c)));
 }
 
 function collect(el: Element, tag: string): Element[] {

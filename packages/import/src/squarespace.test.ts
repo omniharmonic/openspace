@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { type Element, parseHtmlFragment } from "./dom";
 import { parseRobots, robotsAllows, SiteFetcher } from "./fetch";
 import { htmlToRichText } from "./map/richtext";
 import { colorThemeFor } from "./map/sections";
 import { fontCategory, nearestPairing } from "./map/theme";
 import { slugify } from "./map/urls";
-import { cleanImageUrl, videoUrl } from "./squarespace/blocks";
+import { cleanImageUrl, imageFrom, parseBlock, videoUrl } from "./squarespace/blocks";
 import { normalizeIso } from "./squarespace/crawl";
 import { parseFluidCss, parsePage, sectionsFromLayoutHtml } from "./squarespace/page";
 import { hslTripletToHex, parseTheme } from "./squarespace/theme";
@@ -380,5 +381,23 @@ describe("helpers", () => {
     expect(normalizeIso("2025-03-14T09:30:00-0700")).toBe("2025-03-14T09:30:00-07:00");
     expect(normalizeIso("2025-03-14")).toBe("2025-03-14");
     expect(slugify("Über Café & Bar!")).toBe("uber-cafe-and-bar");
+  });
+});
+
+describe("markup quirks", () => {
+  it("reads headings wrapped in Squarespace's scaled-text spans", () => {
+    const r = htmlToRichText(
+      '<div class="sqsrte-scaled-text-container"><span class="sqsrte-scaled-text"><h1>Wildly <em>Empowering</em></h1></span></div><p>After</p>',
+    );
+    expect(r?.doc.content.map((b) => b.type)).toEqual(["heading", "paragraph"]);
+  });
+
+  it("marks text blocks with their own background panel and decodes double-escaped alt text", () => {
+    const root = parseHtmlFragment(
+      '<div class="sqs-block html-block sqs-block-html sqs-background-enabled"><div class="sqs-block-content"><div class="sqs-html-content"><p>On a card</p></div></div></div><img data-src="https://images.squarespace-cdn.com/a/logo.png" alt="Big Cat &amp;amp; Co">',
+    );
+    const [block, img] = root.childNodes as Element[];
+    expect(parseBlock(block as Element)).toMatchObject({ kind: "text", panel: true });
+    expect(imageFrom(img as Element)?.alt).toBe("Big Cat & Co");
   });
 });

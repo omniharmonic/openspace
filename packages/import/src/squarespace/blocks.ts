@@ -53,7 +53,13 @@ export function imageFrom(img: Element): SqImage | undefined {
     size.width = w;
     size.height = h;
   }
-  const out: SqImage = { url: cleanImageUrl(src), alt: (attr(img, "alt") ?? "").trim() };
+  // Squarespace sometimes double-escapes alt text (`&amp;amp;`); parse5 undoes one level.
+  const alt = (attr(img, "alt") ?? "")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .trim();
+  const out: SqImage = { url: cleanImageUrl(src), alt };
   if (size.width && size.height) {
     out.width = size.width;
     out.height = size.height;
@@ -306,7 +312,10 @@ export function parseBlock(el: Element): SqBlock | undefined {
         find(el, byClass("sqs-block-content")) ??
         el;
       const html = innerHtml(content).replace(/<style[\s\S]*?<\/style>/gi, "");
-      return text(content) ? { kind: "text", html } : undefined;
+      if (!text(content)) return undefined;
+      return classes(el).includes("sqs-background-enabled")
+        ? { kind: "text", html, panel: true }
+        : { kind: "text", html };
     }
     case "image": {
       const img = find(el, byTag("img"));

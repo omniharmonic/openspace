@@ -49,22 +49,43 @@ const WIDTHS: Record<string, ContentWidth> = {
   full: "full",
 };
 
+/** Does any block draw text straight onto the section background (not on its own panel)? */
+function textOnBackground(sq: SqSection): boolean {
+  const blocks =
+    sq.layout.mode === "fluid"
+      ? sq.layout.items.map((i) => i.block)
+      : sq.layout.rows.flatMap((r) => r.columns.flatMap((c) => c.blocks));
+  return blocks.some(
+    (b) =>
+      !(b.kind === "text" && b.panel) &&
+      !["image", "gallery", "video", "map", "spacer", "line", "embed", "code"].includes(b.kind),
+  );
+}
+
 function styleFor(sq: SqSection, ctx: SectionContext, bgSrc?: string): SectionStyle {
   const style: SectionStyle = { colorTheme: colorThemeFor(sq.theme, ctx.siteDark) };
   if (sq.height === "small") style.padding = { d: "md", m: "sm" };
   else if (sq.height === "large") style.padding = { d: "2xl", m: "xl" };
   if (bgSrc) {
+    const onPhoto = textOnBackground(sq);
+    const opacity = sq.background?.overlay ?? 0;
     style.background = {
       type: "image",
       src: bgSrc as never,
       ...(sq.background?.image?.focal ? { focal: sq.background.image.focal } : {}),
-      overlay: {
-        color: "#000000",
-        opacity: Math.max(0.15, Math.min(0.8, sq.background?.overlay ?? 0.25)),
-      },
+      // Text on the photo needs a scrim (raised to the WCAG minimum later); a photo behind
+      // panels or images only keeps Squarespace's own overlay.
+      ...(onPhoto || opacity > 0
+        ? {
+            overlay: {
+              color: "#000000",
+              opacity: Math.max(onPhoto ? 0.15 : 0.05, Math.min(0.8, opacity || 0.25)),
+            },
+          }
+        : {}),
     };
-    // Photo sections: dark theme so text reads on the image (the overlay keeps contrast).
-    if (style.colorTheme !== "dark" && style.colorTheme !== "dark-accent")
+    // Text straight on a photo: dark theme so it reads (the overlay keeps contrast).
+    if (onPhoto && style.colorTheme !== "dark" && style.colorTheme !== "dark-accent")
       style.colorTheme = "dark";
     style.minHeight =
       sq.height === "custom" && sq.customHeight
