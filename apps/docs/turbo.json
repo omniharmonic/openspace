@@ -3,8 +3,24 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "inputs": ["src/**", "public/**", "astro.config.mjs", "scripts/**", "package.json"],
+      "inputs": [
+        "src/**",
+        "public/**",
+        "!public/skills/**",
+        "astro.config.mjs",
+        "scripts/**",
+        "package.json",
+        "$TURBO_ROOT$/plugin/claude-app-skills/**",
+        "$TURBO_ROOT$/plugin/skills/**"
+      ],
       "outputs": ["dist/**"]
+    },
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/plugin/claude-app-skills/**",
+        "$TURBO_ROOT$/plugin/skills/**"
+      ]
     }
   }
 }
