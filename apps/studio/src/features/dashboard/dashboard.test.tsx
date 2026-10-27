@@ -29,7 +29,8 @@ describe("dashboard", () => {
     expect(screen.getByText("15 new entries")).toBeInTheDocument();
     expect(screen.getByText("1 needs attention")).toBeInTheDocument();
     // The header's search button is named even where only its icon shows (phones).
-    expect(screen.getByRole("button", { name: "Search" })).toHaveAttribute("aria-label", "Search");
+    // Its visible label is its name (kept for screen readers when phones hide it).
+    expect(screen.getByRole("button", { name: /^Search/ })).toBeInTheDocument();
   });
 
   it("shows a building site as setting up", async () => {
