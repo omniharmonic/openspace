@@ -34,7 +34,9 @@ import {
 import { lazy, type ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router";
 import { useSession, useSite } from "../../api";
+import { isTransientError } from "../../api/resilience";
 import type { Site } from "../../api/types";
+import { LoadError } from "../../app/Connection";
 import { useConfig } from "../../app/config";
 import { Mark } from "../../app/Wordmark";
 import {
@@ -971,6 +973,26 @@ export function EditorFrame() {
   }
   if (!user) return <Navigate to={`/signin?next=${encodeURIComponent(`/sites/${id}`)}`} replace />;
   if (!siteData || content.isError) {
+    const error = site.error ?? content.error;
+    if (isTransientError(error)) {
+      return (
+        <div className="st-center">
+          <LoadError
+            title="This site can’t be opened"
+            error={error}
+            onRetry={() => {
+              void site.refetch();
+              void content.refetch();
+            }}
+            secondary={
+              <Button variant="ghost" onClick={() => navigate("/sites")}>
+                Back to your sites
+              </Button>
+            }
+          />
+        </div>
+      );
+    }
     return (
       <div className="st-center">
         <EmptyState

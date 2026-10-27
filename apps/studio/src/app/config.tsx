@@ -11,6 +11,15 @@ export interface StudioConfig {
     settleMs: number;
     /** Site status polling while it's being set up. */
     pollMs: number;
+    /**
+     * How long a new site must keep reporting "failed" before setup shows the failure (an early
+     * "failed" can be stale while the first publish is still on its way). Default 45 s.
+     */
+    failGraceMs?: number;
+    /** After this long without going live, setup offers to carry on from your sites. Default 5 min. */
+    setupTimeoutMs?: number;
+    /** First wait before retrying a create that didn't get an answer. Default 2 s. */
+    createRetryMs?: number;
   };
   /** Show the /kit route (dev builds and tests). */
   showKit: boolean;

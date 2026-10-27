@@ -1,0 +1,17 @@
+.st-connection {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--st-panel-raised);
+  color: var(--st-text);
+  box-shadow: var(--st-shadow-pop);
+  font-size: 12px;
+  pointer-events: none;
+}

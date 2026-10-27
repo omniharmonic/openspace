@@ -24,6 +24,7 @@ import {
 } from "../../api";
 import type { Site, TemplateSummary } from "../../api/types";
 import { AppHeader } from "../../app/AppHeader";
+import { LoadError } from "../../app/Connection";
 import { useConfig } from "../../app/config";
 import {
   Badge,
@@ -321,7 +322,7 @@ function SiteCard({
         </div>
         {site.status === "failed" && (
           <div className="st-sitecard__problem">
-            <p className="st-sitecard__note">The first version didn’t finish publishing.</p>
+            <p className="st-sitecard__note">{failedNote(site)}</p>
             <Button size="sm" icon={<RotateCcw />} onClick={onRetry} loading={retrying}>
               Try again
             </Button>
@@ -330,6 +331,14 @@ function SiteCard({
       </div>
     </article>
   );
+}
+
+/**
+ * Why a site shows as failed, in plain words. The Hub's own detail wins; otherwise don't claim
+ * it never went live (a site can be live with only its latest publish failing).
+ */
+export function failedNote(site: Pick<Site, "statusDetail">): string {
+  return site.statusDetail?.trim() || "The latest publish didn’t finish.";
 }
 
 function GardenerTable({
@@ -580,10 +589,10 @@ export function Dashboard() {
             ))}
           </div>
         ) : sites.isError ? (
-          <EmptyState
+          <LoadError
             title="Your sites didn’t load"
-            description={sites.error.message}
-            action={<Button onClick={() => sites.refetch()}>Try again</Button>}
+            error={sites.error}
+            onRetry={() => void sites.refetch()}
           />
         ) : list.length === 0 ? (
           <EmptyState

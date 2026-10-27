@@ -2,7 +2,10 @@ import { ArrowLeft, ImagePlus, Paintbrush, X } from "lucide-react";
 import { type ChangeEvent, type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useCreateSite, useSession, useTemplates } from "../../api";
+import { newIdempotencyKey } from "../../api/resilience";
 import type { TemplateSummary } from "../../api/types";
+import { LoadError } from "../../app/Connection";
+import { useConfig } from "../../app/config";
 import { Wordmark } from "../../app/Wordmark";
 import {
   Button,
@@ -22,7 +25,7 @@ import { SignInPanel } from "../auth/SignInPanel";
 import { LookPicker } from "../templates/LookPicker";
 import { TemplatePreview } from "../templates/TemplatePreview";
 import { BuildingProgress } from "./BuildingProgress";
-import { clearDraft, loadDraft, type SiteDraft, saveDraft } from "./draft";
+import { clearDraft, loadDraft, type SiteDraft, saveDraft, withCreateKey } from "./draft";
 import "./NewSite.css";
 
 const MAX_LOGO_BYTES = 1_000_000;
@@ -175,7 +178,10 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
   const session = useSession();
   const user = session.data?.user ?? null;
   const [params, setParams] = useSearchParams();
-  const create = useCreateSite();
+  const { timing } = useConfig();
+  const create = useCreateSite({ retryBaseMs: timing.createRetryMs });
+  // One create at a time: a second click, the resume effect and a retry can't overlap.
+  const inFlight = useRef(false);
   const siteId = params.get("site");
   const resume = params.get("resume") === "1";
 
@@ -198,8 +204,14 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
   const update = (patch: Partial<SiteDraft>) => setDraft((d) => ({ ...d, ...patch }));
 
   const startCreate = useCallback(
-    (d: SiteDraft) => {
+    (input: SiteDraft) => {
+      if (inFlight.current) return;
+      inFlight.current = true;
+      // The same details keep the same key, so "Try again" after a lost answer finds the site
+      // the first attempt made instead of making a second one.
+      const d = withCreateKey(input, newIdempotencyKey);
       saveDraft(d);
+      setDraft((cur) => ({ ...cur, createKey: d.createKey, createKeyFor: d.createKeyFor }));
       create.mutate(
         {
           template: d.template,
@@ -208,8 +220,12 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
           tagline: d.tagline.trim(),
           ...(d.brandColor ? { brandColor: d.brandColor } : {}),
           ...(d.logo ? { logo: d.logo } : {}),
+          idempotencyKey: d.createKey,
         },
         {
+          onSettled: () => {
+            inFlight.current = false;
+          },
           onSuccess: (site) => setParams({ look: d.look, site: site.id }, { replace: true }),
           onError: (err) => {
             toast({ tone: "danger", title: "Your site wasn’t created", description: err.message });
@@ -258,8 +274,13 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
 
   if (create.isPending || (resume && user)) {
     return (
-      <div className="st-center">
+      <div className="st-center st-new__starting">
         <Spinner size={18} label="Starting your site" />
+        {create.failureCount > 0 && (
+          <p className="st-new__starting-note" role="status">
+            Still starting your site. OpenSpace is slow to answer right now, so we’re trying again.
+          </p>
+        )}
       </div>
     );
   }
@@ -274,6 +295,7 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
     saveDraft(draft);
     if (user) startCreate(draft);
     else setStep("signin");
+    // (startCreate ignores the submit while a create is already running.)
   };
 
   const sample = template.sample ?? { name: template.name, tagline: template.description };
@@ -400,13 +422,25 @@ export function NewSite() {
       </div>
     );
   }
+  if (templates.isError && !templates.data) {
+    // Not "renamed": the gallery didn't load (offline, or the Hub is briefly unavailable).
+    return (
+      <div className="st-center">
+        <LoadError
+          title="Templates didn’t load"
+          error={templates.error}
+          onRetry={() => void templates.refetch()}
+        />
+      </div>
+    );
+  }
   const template = templates.data?.find((t) => t.id === templateId);
   if (!template) {
     return (
       <div className="st-center">
         <EmptyState
           title="That template isn’t available"
-          description="It may have been renamed. Pick another one from the gallery."
+          description="Pick another one from the gallery."
           action={
             <Button variant="primary" onClick={() => navigate("/templates")}>
               Browse templates

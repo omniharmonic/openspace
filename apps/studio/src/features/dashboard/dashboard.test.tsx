@@ -128,6 +128,27 @@ describe("dashboard", () => {
     expect(hub.calls.some((c) => c.method === "createSite")).toBe(false);
   });
 
+  it("doesn't claim a failed site never went live, and re-reads a fresh failure", async () => {
+    const fresh: Site = {
+      ...(sites[2] as Site),
+      id: "st_freshfail0",
+      name: "Fresh Site",
+      repo: `${SAM.login}/fresh-site`,
+      status: "failed",
+      statusDetail: null,
+      createdAt: new Date().toISOString(),
+    };
+    const { hub } = renderStudio("/sites", { user: SAM, sites: [...sites, fresh] });
+    const pan = await screen.findByRole("article", { name: "Pan & Crumb" });
+    expect(within(pan).queryByText(/first version/)).not.toBeInTheDocument();
+    const card = screen.getByRole("article", { name: "Fresh Site" });
+    expect(within(card).getByText("The latest publish didn’t finish.")).toBeInTheDocument();
+    // The Hub later reports it live: the dashboard picks that up without a reload.
+    const row = hub.state.sites.find((s) => s.id === fresh.id);
+    if (row) row.status = "live";
+    await waitFor(() => expect(within(card).getByText("Live")).toBeInTheDocument());
+  });
+
   it("clears the transfer form whichever way the dialog is closed", async () => {
     const { user } = renderStudio("/sites", { user: SAM, sites });
     const willow = await screen.findByRole("article", { name: "Willow Street Yoga" });
