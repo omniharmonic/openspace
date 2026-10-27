@@ -23,6 +23,18 @@ export const PLUGIN_COMMANDS = [
   "/plugin install openspace",
 ] as const;
 
+/**
+ * Skills for claude.ai and Claude Desktop (Customize → Skills → upload the .zip), built by the
+ * docs site (apps/docs/scripts/skills.mjs). No installs: they use this connector only.
+ */
+export const DOCS_URL = "https://docs.openspace.host";
+export const CLAUDE_APP_SKILLS = [
+  { name: "openspace-migrate", what: "move a site from Squarespace, GitHub Pages or anywhere" },
+  { name: "openspace-web-design", what: "design pages, checking screenshots as it goes" },
+  { name: "openspace-content", what: "blog posts, events and products" },
+  { name: "openspace-site-setup", what: "publishing and your domain" },
+] as const;
+
 async function copy(text: string, what: string) {
   try {
     await navigator.clipboard.writeText(text);
@@ -370,34 +382,66 @@ export function ConnectAiSettings({ site }: { site: Site }) {
               value: "claude",
               label: "Claude app",
               content: (
-                <ol className="st-steps st-steps--sketch">
-                  <li>
-                    <div>
-                      In claude.ai or Claude Desktop, open <strong>Settings → Connectors</strong>{" "}
-                      and choose <strong>Add custom connector</strong>.
-                    </div>
-                    <StepSketch kind="settings" />
-                  </li>
-                  <li>
-                    <div>
-                      Name it <strong>OpenSpace</strong>, use this URL, and click{" "}
-                      <strong>Add</strong>:
-                      <CopyLine value={mcpUrl} label="connector URL" />
-                    </div>
-                    <StepSketch kind="add" />
-                  </li>
-                  <li>
-                    <div>
-                      Sign in with GitHub when asked, tick <strong>{site.name}</strong>, and decide
-                      whether Claude may publish. You can change this below at any time.
-                    </div>
-                    <StepSketch kind="allow" />
-                  </li>
-                  <li>
-                    Ask Claude something like{" "}
-                    <em>“Add an FAQ section to my home page about class sizes.”</em>
-                  </li>
-                </ol>
+                <div className="st-settings__stack">
+                  <ol className="st-steps st-steps--sketch">
+                    <li>
+                      <div>
+                        In claude.ai or Claude Desktop, open <strong>Settings → Connectors</strong>{" "}
+                        and choose <strong>Add custom connector</strong>.
+                      </div>
+                      <StepSketch kind="settings" />
+                    </li>
+                    <li>
+                      <div>
+                        Name it <strong>OpenSpace</strong>, use this URL, and click{" "}
+                        <strong>Add</strong>:
+                        <CopyLine value={mcpUrl} label="connector URL" />
+                      </div>
+                      <StepSketch kind="add" />
+                    </li>
+                    <li>
+                      <div>
+                        Sign in with GitHub when asked, tick <strong>{site.name}</strong>, and
+                        decide whether Claude may publish. You can change this below at any time.
+                      </div>
+                      <StepSketch kind="allow" />
+                    </li>
+                    <li>
+                      Ask Claude something like{" "}
+                      <em>“Add an FAQ section to my home page about class sizes.”</em>
+                    </li>
+                  </ol>
+                  <section className="st-settings__stack" aria-labelledby="ai-skills">
+                    <h4 id="ai-skills" className="st-card__title">
+                      Add the OpenSpace skills
+                    </h4>
+                    <p className="st-muted-note">
+                      Skills teach Claude how to do these jobs well. Nothing to install: download a
+                      file below (don’t unzip it), then in Claude open{" "}
+                      <strong>Customize → Skills</strong>, choose <strong>Upload a skill</strong>,
+                      pick the file and turn the skill on.
+                    </p>
+                    <ul className="st-steps">
+                      {CLAUDE_APP_SKILLS.map((s) => (
+                        <li key={s.name}>
+                          <a href={`${DOCS_URL}/skills/${s.name}.zip`} download>
+                            {s.name}.zip
+                          </a>{" "}
+                          — {s.what}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="st-muted-note">
+                      <a
+                        href={`${DOCS_URL}/connect-your-ai/claude-app/`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Step-by-step guide and example requests
+                      </a>
+                    </p>
+                  </section>
+                </div>
               ),
             },
             {
