@@ -150,6 +150,39 @@ describe("planSite", () => {
     expect(JSON.stringify(second)).toContain('"url":"/notes/page/3/"');
   });
 
+  it("shortens long titles and excerpts to fit related-item cards", () => {
+    const long = `${"A long imported excerpt that keeps going. ".repeat(11)}End.`;
+    expect(long.length).toBeGreaterThan(400);
+    const items: Record<string, CollectionItem> = {};
+    for (const slug of ["one", "two"])
+      items[slug] = {
+        kind: "blog",
+        slug,
+        frontmatter: {
+          title: `${slug} ${"with a very long imported headline ".repeat(4)}`,
+          status: "published",
+          date: "2026-01-02",
+          excerpt: long,
+        },
+        body: "Hi.\n",
+      };
+    const cfg = {
+      kind: "blog" as const,
+      label: "Notes",
+      list: { layout: "list" as const, pageSize: 12, sort: "date-desc" as const },
+      itemPage: { layout: "article" as const, showRelated: true },
+    };
+    const p = planSite(
+      { ...doc, collections: { notes: items }, collectionConfigs: { notes: cfg } },
+      { now: NOW },
+    );
+    const route = p.routes.find((r) => r.path.startsWith("/notes/one"));
+    const page = p.doc.pages[route?.pageId as Page["id"]];
+    const card = page?.sections.flatMap((s) => s.blocks).find((b) => b.type === "card");
+    expect(JSON.stringify(card?.fields.body)).toContain("…");
+    expect(String(card?.fields.heading).length).toBeLessThanOrEqual(90);
+  });
+
   it("builds item pages from library blocks only", () => {
     const route = plan.routes.find((r) => r.path === "/events/autumn-retreat/");
     const page = plan.doc.pages[route?.pageId as Page["id"]];

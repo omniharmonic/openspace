@@ -11,9 +11,9 @@ import { cleanImageUrl, imageFrom, parseBlock, videoUrl } from "./squarespace/bl
 import { normalizeIso } from "./squarespace/crawl";
 import { parseFluidCss, parsePage, sectionsFromLayoutHtml } from "./squarespace/page";
 import { hslTripletToHex, parseTheme } from "./squarespace/theme";
-import type { SqBlock } from "./squarespace/types";
 import { parseWxr } from "./squarespace/wxr";
 import { composePage, FIXTURE_DIR, JUNIPER_URL, juniperFetch } from "./testing";
+import type { SqBlock } from "./types";
 
 const fixture = (f: string) => readFileSync(join(FIXTURE_DIR, f), "utf8");
 const kinds = (blocks: SqBlock[]) => blocks.map((b) => b.kind);

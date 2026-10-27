@@ -174,3 +174,162 @@ export function juniperFetch(log: FixtureFetchLog = { urls: [] }): FetchFn {
     return page ? ok(composePage(page), "text/html; charset=utf-8") : notFound();
   };
 }
+
+// --- WordPress: "Fernhill Bakery" ------------------------------------------------------------------
+
+export const FERNHILL_DIR = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "__fixtures__",
+  "fernhill",
+);
+export const FERNHILL_URL = "https://fernhill.example";
+export const FERNHILL_EXPORT = join(FERNHILL_DIR, "export.xml");
+const fern = (rel: string) => readFileSync(join(FERNHILL_DIR, rel), "utf8");
+
+/** Images and files any fixture site links to: PNGs sized from the URL (`-1024x683`), or 1600×1000. */
+function fixtureAsset(url: URL): Response | undefined {
+  const ok = (body: BodyInit, type: string) =>
+    new Response(body, { status: 200, headers: { "content-type": type } });
+  if (/\.(?:jpe?g|png|webp)$/i.test(url.pathname)) {
+    const m = /-(\d+)x(\d+)\.[a-z]+$/i.exec(url.pathname);
+    const [w, h] = m ? [Number(m[1]), Number(m[2])] : [1600, 1000];
+    return ok(pngBytes(Math.min(w, 2400), Math.min(h, 2400)) as unknown as BodyInit, "image/png");
+  }
+  if (/\.pdf$/i.test(url.pathname))
+    return ok(
+      new TextEncoder().encode("%PDF-1.4\n%%EOF\n") as unknown as BodyInit,
+      "application/pdf",
+    );
+  return undefined;
+}
+
+/**
+ * A `fetch` serving the Fernhill WordPress fixture: the home page HTML, the REST API (index,
+ * pages, posts with `_embed`, categories, tags; `restApi: false` makes it 404 like a locked-down
+ * site) and uploads.
+ */
+export function fernhillFetch(opts: { restApi?: boolean; log?: FixtureFetchLog } = {}): FetchFn {
+  const log = opts.log ?? { urls: [] };
+  return async (input) => {
+    const url = new URL(String(input));
+    log.urls.push(url.toString());
+    const json = (v: unknown) =>
+      new Response(JSON.stringify(v), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    const notFound = () => new Response("Not found", { status: 404 });
+    if (url.host !== "fernhill.example") return notFound();
+    const asset = url.pathname.startsWith("/wp-content/uploads/") ? fixtureAsset(url) : undefined;
+    if (asset) return asset;
+    const path = url.pathname;
+    if (path === "/robots.txt") return new Response(fern("robots.txt"), { status: 200 });
+    if (path === "/wp-content/themes/fernhill/style.css")
+      return new Response(fern("style.css"), {
+        status: 200,
+        headers: { "content-type": "text/css" },
+      });
+    if (path === "/" || path === "")
+      return new Response(fern("home.html"), {
+        status: 200,
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    if (path.startsWith("/wp-json/")) {
+      if (opts.restApi === false) return new Response('{"code":"rest_disabled"}', { status: 401 });
+      const route = path.slice("/wp-json/".length).replace(/\/+$/, "");
+      const page = Number(url.searchParams.get("page") ?? "1");
+      const per = Number(url.searchParams.get("per_page") ?? "10");
+      const list = (file: string) => {
+        const all = JSON.parse(fern(file)) as unknown[];
+        const slice = all.slice((page - 1) * per, page * per);
+        return slice.length || page === 1
+          ? json(slice)
+          : new Response('{"code":"rest_post_invalid_page_number"}', { status: 400 });
+      };
+      if (route === "") return json(JSON.parse(fern("index.json")));
+      if (route === "wp/v2/pages") return list("pages.json");
+      if (route === "wp/v2/posts") return list("posts.json");
+      if (route === "wp/v2/categories") return list("categories.json");
+      if (route === "wp/v2/tags") return list("tags.json");
+      return notFound();
+    }
+    return notFound();
+  };
+}
+
+// --- Any site (Webflow-style markup): "Tidewater Studio" --------------------------------------------
+
+export const TIDEWATER_DIR = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "__fixtures__",
+  "tidewater",
+);
+export const TIDEWATER_URL = "https://www.tidewater.example";
+const tide = (rel: string) => readFileSync(join(TIDEWATER_DIR, rel), "utf8");
+
+const TIDE_PAGES: Record<string, string> = {
+  "/": "index.html",
+  "/about": "about.html",
+  "/services": "services.html",
+  "/services/brand-identity": "brand-identity.html",
+  "/contact": "contact.html",
+  "/journal": "journal.html",
+  "/journal/new-sign-for-quay-cafe": "post-1.html",
+  "/journal/tide-tables": "post-2.html",
+  "/private-draft": "about.html",
+};
+
+/** A page body (first-line comment = `title | description | head`) in the site layout. */
+export function composeTidewater(file: string): string {
+  const src = tide(file);
+  const m = /^<!--([\s\S]*?)-->\n?/.exec(src);
+  const meta: Record<string, string> = {};
+  for (const part of (m?.[1] ?? "").split(" | ")) {
+    const i = part.indexOf(": ");
+    if (i > 0) meta[part.slice(0, i).trim()] = part.slice(i + 2).trim();
+  }
+  return tide("_layout.html")
+    .replace(/\{\{title\}\}/g, esc(meta.title ?? "Tidewater Studio"))
+    .replace("{{description}}", esc(meta.description ?? ""))
+    .replace("{{head}}", meta.head ?? "")
+    .replace("{{body}}", m ? src.slice(m[0].length) : src);
+}
+
+/** A `fetch` serving the Tidewater fixture (and its CDN), with or without a sitemap. */
+export function tidewaterFetch(opts: { sitemap?: boolean; log?: FixtureFetchLog } = {}): FetchFn {
+  const log = opts.log ?? { urls: [] };
+  return async (input) => {
+    const url = new URL(String(input));
+    log.urls.push(url.toString());
+    const notFound = () => new Response("Not found", { status: 404 });
+    if (url.host === "cdn.prod.website-files.com") {
+      if (url.pathname.endsWith("tidewater.webflow.css"))
+        return new Response(tide("tidewater.webflow.css"), {
+          status: 200,
+          headers: { "content-type": "text/css" },
+        });
+      return fixtureAsset(url) ?? notFound();
+    }
+    if (url.host !== "www.tidewater.example") return notFound();
+    const path = decodeURI(url.pathname).replace(/\/+$/, "") || "/";
+    if (path === "/robots.txt")
+      return new Response(
+        opts.sitemap === false ? "User-agent: *\nDisallow: /private-draft\n" : tide("robots.txt"),
+        { status: 200 },
+      );
+    if (path === "/sitemap.xml")
+      return opts.sitemap === false
+        ? notFound()
+        : new Response(tide("sitemap.xml"), {
+            status: 200,
+            headers: { "content-type": "application/xml" },
+          });
+    const file = TIDE_PAGES[path];
+    return file
+      ? new Response(composeTidewater(file), {
+          status: 200,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        })
+      : notFound();
+  };
+}

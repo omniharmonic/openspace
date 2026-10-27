@@ -10,7 +10,7 @@
     {
       "name": "openspace",
       "description": "Design and edit OpenSpace websites with Claude: local MCP server, web-design skill, rapid screenshot iteration, and commands to create, restyle, review and publish sites.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Benjamin Life",
         "url": "https://github.com/omniharmonic"

@@ -25,24 +25,32 @@ npx -y @omniharmonic/openspace-cli new harbor riverbend --title "Riverbend Neigh
 
 The folder must be new or empty. You get the template's content and media, a fresh site id, the starter shell, `AGENTS.md` and the publish workflow.
 
-## `openspace import squarespace <url> [dir]`
+## `openspace import <url> [dir]`
 
-Move a Squarespace site (7.0 or 7.1) into a new site folder: pages, blog, events, products, images, navigation, forms, SEO, redirects and a Site Styles approximation of the look, plus an `IMPORT-REPORT.md` of what needs your attention. It ends with `openspace check`. See [Move from Squarespace](/guides/migrate-from-squarespace/).
+Move an existing site into a new site folder: pages, blog posts, images, navigation, forms, SEO, redirects and a Site Styles approximation of the look, plus an `IMPORT-REPORT.md` of what needs your attention. It ends with `openspace check`. The platform is detected from the home page; or name the importer:
+
+- `openspace import squarespace <url> [dir]` — Squarespace 7.0 and 7.1 (also events, products and portfolio);
+- `openspace import wordpress <url> [dir]` — WordPress, from the public REST API and/or the WXR export;
+- `openspace import url <url> [dir]` — any other site (Wix, Webflow, Carrd, Framer, hand-made HTML).
+
+See [Move your site to OpenSpace](/guides/migrate-to-openspace/).
 
 ```sh
+npx -y @omniharmonic/openspace-cli import https://www.example.com my-site
 npx -y @omniharmonic/openspace-cli import squarespace https://www.example.com my-site --export export.xml
+npx -y @omniharmonic/openspace-cli import wordpress https://www.example.com my-site --export site.WordPress.xml
 ```
 
 | Option | Meaning |
 |---|---|
-| `--owner` | You own the site: also read Squarespace's `?format=json` data (richer collections and SEO). |
-| `--export <file>` | Squarespace's WordPress export, for complete blog posts and drafts. |
+| `--platform <name>` | Skip detection (`import <url>` only): `squarespace`, `wordpress`, `wix`, `webflow`, `framer`, `carrd`… or `url`. |
+| `--owner` | Squarespace: you own the site, so also read `?format=json` data (richer collections and SEO). |
+| `--export <file>` | A WordPress export (WXR): a WordPress site's full export, or Squarespace's blog export. |
+| `--render` | Read pages in a browser first (Playwright), for sites built by JavaScript. Not for `import squarespace`/`wordpress`. |
 | `--target`, `--repo`, `--url`, `--domain`, `--title`, `--hub` | As for `openspace new`. |
 | `--max-pages <n>` | Most pages and items to read (default 400). |
 | `--delay <ms>` | Pause between requests to the site (default 300). |
-| `--no-media` | Don't download images and files. |
-
-Requests are paced, `robots.txt` is honoured, and the folder must be new or empty.
+| `--no-media` | Skip images and files (structure only). |
 
 ## `openspace check [dir]`
 
@@ -60,7 +68,7 @@ Runs the site locally with live reload (`astro dev`; Astro needs Node 22.23.4 or
 
 ## `openspace mcp [dir]`
 
-Runs the OpenSpace MCP server over stdio for a local folder — the same tools as the Hub, plus screenshots, `screenshot_url` (a screenshot of any public page, such as the site you're moving from) and `import_squarespace` (the importer as a tool; it creates a new folder next to the served site). See the [Claude Code plugin](/connect-your-ai/claude-code/).
+Runs the OpenSpace MCP server over stdio for a local folder — the same tools as the Hub, plus screenshots, `screenshot_url` (a screenshot of any public page, such as the site you're moving from) and `import_site` (the importer as a tool, any platform; it creates a new folder next to the served site — `import_squarespace` is its older name). See the [Claude Code plugin](/connect-your-ai/claude-code/).
 
 | Option | Meaning |
 |---|---|

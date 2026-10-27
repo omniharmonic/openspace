@@ -1,11 +1,12 @@
 import { resolve } from "node:path";
+import { type Platform, parsePlatform } from "@omniharmonic/openspace-import";
 import { Command, CommanderError } from "commander";
 import { renderAgentsMd, writeAgentsMd } from "./agents";
 import { type Budgets, formatReport, githubAnnotations, runCheck } from "./check";
 import { runDev, type Spawner } from "./dev";
 import { EJECT_WARNING, runEject } from "./eject";
 import { type GatedSyncDeps, runGatedSync } from "./gated-sync";
-import { importSummary, runImportSquarespace } from "./import";
+import { importSummary, runImportSite } from "./import";
 import { CliError, colorEnabled, type Io, paint } from "./io";
 import { runMcp } from "./mcp";
 import { runMigrate } from "./migrate";
@@ -142,68 +143,147 @@ export function createProgram(
 
   const importCmd = program
     .command("import")
-    .description("Move an existing website into a new OpenSpace site folder.");
-  importCmd
-    .command("squarespace")
     .description(
-      "Import a Squarespace site (7.0 or 7.1): pages, blog/events/products, media, navigation, SEO, redirects and an approximate look. Only for sites you own or are moving for their owner.",
-    )
-    .argument("<url>", "the Squarespace site's address, e.g. https://www.example.com")
-    .argument("[dir]", "new folder to create (default: from the address)")
-    .option("--export <file>", "WordPress export (Settings → Import & Export) with your blog posts")
-    .option(
-      "--owner",
-      "I own this site: also read Squarespace's ?format=json data (richer collections and SEO); robots.txt asks crawlers not to read it",
-    )
-    .option(
-      "--target <target>",
-      "github-pages or cloudflare (use cloudflare to sell products)",
-      "github-pages",
-    )
-    .option("--repo <owner/name>", "GitHub repository, used for the Pages address")
-    .option("--url <url>", "address the new site is served from before a custom domain")
-    .option("--domain <hostname>", "custom domain (set it when you move the domain)")
-    .option("--title <title>", "site title (default: the Squarespace site title)")
-    .option("--hub <url>", "Hub address")
-    .option("--max-pages <n>", "most pages and items to read (default 400)", Number)
-    .option("--delay <ms>", "pause between requests to the site (default 300)", Number)
-    .option("--no-media", "don't download images and files (a quick structural preview)")
-    .action(
-      async (
-        url: string,
-        dir: string | undefined,
-        opts: {
-          export?: string;
-          owner?: boolean;
-          target: string;
-          repo?: string;
-          url?: string;
-          domain?: string;
-          title?: string;
-          hub?: string;
-          maxPages?: number;
-          delay?: number;
-          media?: boolean;
-        },
-      ) => {
-        if (opts.target !== "github-pages" && opts.target !== "cloudflare")
-          throw new CliError(`--target must be github-pages or cloudflare, not "${opts.target}".`);
-        io.err(
-          `Importing ${url}${opts.owner ? " (owner mode: also reading ?format=json)" : ""}. Requests are paced and robots.txt is honoured.`,
-        );
-        const r = await runImportSquarespace(io, url, dir, {
-          ...opts,
-          target: opts.target,
-          ...(deps.fetch ? { fetch: deps.fetch } : {}),
-        });
-        for (const line of importSummary(r)) io.out(line);
-        io.out("Next:");
-        io.out(`  cd ${dir ?? r.dir}`);
-        io.out("  npm install && npx openspace dev");
-        io.out("  claude   # then /openspace:import-squarespace to bring it to visual parity");
-        if (!r.check.ok) setExit(1);
-      },
+      "Move an existing website into a new OpenSpace site folder: `openspace import <url>` detects the platform (Squarespace, WordPress, Wix, Webflow, anything else).",
     );
+  type ImportFlags = {
+    export?: string;
+    owner?: boolean;
+    target: string;
+    repo?: string;
+    url?: string;
+    domain?: string;
+    title?: string;
+    hub?: string;
+    maxPages?: number;
+    delay?: number;
+    media?: boolean;
+    render?: boolean;
+    platform?: string;
+  };
+  const commonImportOptions = (c: Command, kind: "squarespace" | "wordpress" | "url" | "auto") => {
+    if (kind === "squarespace" || kind === "auto")
+      c.option(
+        "--owner",
+        "I own this site: also read Squarespace's ?format=json data (richer collections and SEO); robots.txt asks crawlers not to read it",
+      );
+    if (kind !== "url")
+      c.option(
+        "--export <file>",
+        kind === "squarespace"
+          ? "WordPress export (Settings → Import & Export) with your blog posts"
+          : "WordPress export file (WXR, Tools → Export): drafts, menus and SEO meta too",
+      );
+    if (kind === "url" || kind === "auto")
+      c.option(
+        "--render",
+        "render pages in a browser first (Playwright) for sites built by JavaScript, e.g. some Wix and Framer sites",
+      );
+    if (kind === "auto")
+      c.option(
+        "--platform <name>",
+        "skip detection: squarespace, wordpress, wix, webflow, framer, carrd… or url (generic)",
+      );
+    return c
+      .option(
+        "--target <target>",
+        "github-pages or cloudflare (use cloudflare to sell products)",
+        "github-pages",
+      )
+      .option("--repo <owner/name>", "GitHub repository, used for the Pages address")
+      .option("--url <url>", "address the new site is served from before a custom domain")
+      .option("--domain <hostname>", "custom domain (set it when you move the domain)")
+      .option("--title <title>", "site title (default: the original site's title)")
+      .option("--hub <url>", "Hub address")
+      .option("--max-pages <n>", "most pages and items to read (default 400)", Number)
+      .option("--delay <ms>", "pause between requests to the site (default 300)", Number)
+      .option("--no-media", "don't download images and files (a quick structural preview)");
+  };
+  const runImportCommand = async (
+    url: string,
+    dir: string | undefined,
+    opts: ImportFlags,
+    platform: Platform | "auto",
+  ) => {
+    if (opts.target !== "github-pages" && opts.target !== "cloudflare")
+      throw new CliError(`--target must be github-pages or cloudflare, not "${opts.target}".`);
+    let chosen = platform;
+    if (opts.platform) {
+      const p = parsePlatform(opts.platform);
+      if (!p)
+        throw new CliError(
+          `Unknown --platform "${opts.platform}". Use squarespace, wordpress, wix, webflow, framer, carrd or url.`,
+        );
+      chosen = p;
+    }
+    io.err(
+      `Importing ${url}${opts.owner ? " (owner mode: also reading ?format=json)" : ""}${opts.render ? " (rendering pages in a browser)" : ""}. Requests are paced and robots.txt is honoured.`,
+    );
+    const { platform: _p, ...rest } = opts;
+    const r = await runImportSite(io, url, dir, {
+      ...rest,
+      target: opts.target,
+      platform: chosen,
+      ...(deps.fetch ? { fetch: deps.fetch } : {}),
+    });
+    for (const line of importSummary(r)) io.out(line);
+    io.out("Next:");
+    io.out(`  cd ${dir ?? r.dir}`);
+    io.out("  npm install && npx openspace dev");
+    io.out(
+      r.result.site.platform === "squarespace"
+        ? "  claude   # then /openspace:import-squarespace to bring it to visual parity"
+        : `  claude   # then /openspace:migrate ${r.result.site.baseUrl} to bring it to visual parity`,
+    );
+    if (!r.check.ok) setExit(1);
+  };
+
+  commonImportOptions(
+    importCmd
+      .command("site", { isDefault: true, hidden: true })
+      .description("Detect the platform and import the site.")
+      .argument("<url>", "the site's address, e.g. https://www.example.com")
+      .argument("[dir]", "new folder to create (default: from the address)"),
+    "auto",
+  ).action((url: string, dir: string | undefined, opts: ImportFlags) =>
+    runImportCommand(url, dir, opts, "auto"),
+  );
+  commonImportOptions(
+    importCmd
+      .command("squarespace")
+      .description(
+        "Import a Squarespace site (7.0 or 7.1): pages, blog/events/products, media, navigation, SEO, redirects and an approximate look. Only for sites you own or are moving for their owner.",
+      )
+      .argument("<url>", "the Squarespace site's address, e.g. https://www.example.com")
+      .argument("[dir]", "new folder to create (default: from the address)"),
+    "squarespace",
+  ).action((url: string, dir: string | undefined, opts: ImportFlags) =>
+    runImportCommand(url, dir, opts, "squarespace"),
+  );
+  commonImportOptions(
+    importCmd
+      .command("wordpress")
+      .description(
+        "Import a WordPress site from its public REST API and/or a WXR export: pages, posts (as a journal), media, menus, Yoast/Rank Math SEO, permalink redirects and an approximate look.",
+      )
+      .argument("<url>", "the WordPress site's address, e.g. https://www.example.com")
+      .argument("[dir]", "new folder to create (default: from the address)"),
+    "wordpress",
+  ).action((url: string, dir: string | undefined, opts: ImportFlags) =>
+    runImportCommand(url, dir, opts, "wordpress"),
+  );
+  commonImportOptions(
+    importCmd
+      .command("url")
+      .description(
+        "Import any site (Wix, Webflow, Carrd, Framer, hand-made HTML) from its HTML: sitemap crawl, main content, navigation, footer, SEO, look and section presets.",
+      )
+      .argument("<url>", "the site's address, e.g. https://www.example.com")
+      .argument("[dir]", "new folder to create (default: from the address)"),
+    "url",
+  ).action((url: string, dir: string | undefined, opts: ImportFlags) =>
+    runImportCommand(url, dir, opts, "generic"),
+  );
 
   program
     .command("eject")
