@@ -151,20 +151,42 @@ export async function loadRenderer(): Promise<PageRenderer> {
 
 /** SVG → PNG with sharp (icons and marks), when sharp is installed. */
 export async function loadRasterizer(): Promise<
-  ((svg: Uint8Array) => Promise<Uint8Array>) | undefined
+  ((svg: Uint8Array, opts?: { icon?: boolean }) => Promise<Uint8Array>) | undefined
 > {
   try {
     const spec = "sharp";
     const mod = (await import(/* @vite-ignore */ spec)) as { default: unknown };
     // biome-ignore lint/suspicious/noExplicitAny: optional dependency without types here
     const sharp = mod.default as any;
-    return async (svg) =>
-      new Uint8Array(
-        await sharp(Buffer.from(svg), { density: 288 })
-          .resize({ width: 384, height: 384, fit: "inside", withoutEnlargement: false })
+    return async (svg, opts = {}) => {
+      if (!opts.icon)
+        return new Uint8Array(
+          await sharp(Buffer.from(svg), { density: 288 })
+            .resize({ width: 384, height: 384, fit: "inside", withoutEnlargement: false })
+            .png()
+            .toBuffer(),
+        );
+      // An icon: small, on the left of a wide transparent strip, so a full-width card image
+      // shows it at icon size (as the original did).
+      const h = 96;
+      const icon = await sharp(Buffer.from(svg), { density: 288 })
+        .resize({ width: h, height: h, fit: "inside" })
+        .png()
+        .toBuffer();
+      return new Uint8Array(
+        await sharp({
+          create: {
+            width: h * 6,
+            height: h,
+            channels: 4,
+            background: { r: 0, g: 0, b: 0, alpha: 0 },
+          },
+        })
+          .composite([{ input: icon, left: 0, top: 0 }])
           .png()
           .toBuffer(),
       );
+    };
   } catch {
     return undefined;
   }

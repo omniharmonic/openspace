@@ -116,7 +116,7 @@ export interface ImportOptions {
   /** GitHub imports: the published address, when it isn't the default Pages one. */
   siteUrl?: string;
   /** SVG → PNG (icons); sharp in the CLI. */
-  rasterizeSvg?: (svg: Uint8Array) => Promise<Uint8Array>;
+  rasterizeSvg?: (svg: Uint8Array, opts?: { icon?: boolean }) => Promise<Uint8Array>;
   onProgress?: (message: string) => void;
 }
 

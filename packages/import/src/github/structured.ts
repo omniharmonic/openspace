@@ -340,7 +340,7 @@ function cardFrom(o: Obj, ctx: StructuredContext): SqCard | undefined {
     imageFrom(o.image ?? o.photo ?? o.picture, ctx) ??
     (iconPath
       ? {
-          url: `${ctx.origin}/${iconPath}${ctx.currentFg ? `#color=${ctx.currentFg}` : ""}`,
+          url: `${ctx.origin}/${iconPath}#${ctx.currentFg ? `color=${ctx.currentFg}&` : ""}icon`,
           alt: "",
         }
       : undefined);
@@ -397,8 +397,14 @@ export function mapStructuredSection(
     return undefined;
   };
   // Heading.
-  const eyebrow = take(EYEBROW);
-  const heading = take(HEADING);
+  const eyebrow =
+    take(EYEBROW) ??
+    (Array.isArray(o.items) || Array.isArray(o.columns) ? undefined : take(["label"]));
+  // No heading field: a person's name (author sections) or a one-line statement (CTA bands)
+  // is the heading.
+  const heading =
+    take(HEADING) ??
+    (Array.isArray(o.items) || Array.isArray(o.columns) ? undefined : take(["name", "line"]));
   const sub = take(SUBHEAD);
   const level = (index === 0 || /hero/i.test(type) ? 1 : 2) as 1 | 2;
   if (heading)
@@ -418,7 +424,7 @@ export function mapStructuredSection(
   // Text.
   const texts: string[] = [];
   for (const k of TEXT) {
-    const v = filled(o[k]);
+    const v = used.has(k) ? undefined : filled(o[k]);
     if (!v) continue;
     used.add(k);
     texts.push(
@@ -498,7 +504,10 @@ export function mapStructuredSection(
       continue;
     }
     const cards = objs.map((x) => cardFrom(x, ctx)).filter((c): c is SqCard => !!c);
-    if (cards.length) main.push({ kind: "cards", items: cards });
+    // Line icons sit small above the text, as they did: never crop them to a photo shape.
+    const icons = cards.length > 0 && cards.every((c) => c.image?.url.endsWith("icon"));
+    if (cards.length)
+      main.push({ kind: "cards", items: cards, ...(icons ? { aspect: "original" as const } : {}) });
   }
   // Image (beside the text).
   for (const k of IMAGE) {
@@ -521,12 +530,14 @@ export function mapStructuredSection(
   }
   // Form.
   const form = formFrom(o.form, ctx);
+  // A sign-up beside the pitch (as landing pages lay it out) unless the band is centered.
+  const formAside = !!form && !side.length && !!heading && texts.length > 0 && o.align !== "center";
+  const formIntro = isObj(o.form) ? filled(o.form.intro) : undefined;
   if (form) {
     used.add("form");
-    if (form.kind === "newsletter" && heading && !side.length) {
-      // The sign-up sits under the heading and text.
-    }
-    main.push(form);
+    const target = formAside ? side : main;
+    if (formIntro) target.push({ kind: "text", html: para(formIntro) });
+    target.push(form);
   }
   // Buttons.
   for (const k of BUTTONS) {
@@ -552,7 +563,7 @@ export function mapStructuredSection(
   // Closing lines.
   const after: string[] = [];
   for (const k of AFTER) {
-    const v = filled(o[k]);
+    const v = used.has(k) ? undefined : filled(o[k]);
     if (!v) continue;
     used.add(k);
     after.push(
@@ -560,6 +571,12 @@ export function mapStructuredSection(
         ? `<p><em>${inlineMd(v)}</em></p>`
         : para(v),
     );
+  }
+  // The helper line under a form stays with the form.
+  const helper = filled(o.helper);
+  if (formAside && helper && after.length) {
+    const h = after.findIndex((x) => x.includes(inlineMd(helper)));
+    if (h >= 0) side.push({ kind: "text", html: after.splice(h, 1)[0] as string });
   }
   if (after.length) main.push({ kind: "text", html: after.join("") });
   // Anything left that reads as text.
@@ -589,6 +606,8 @@ export function mapStructuredSection(
       break;
     }
   if (index === 0 && !role && (heading || side.length)) role = "hero";
+  // A features preset suits card grids, not lists or prose.
+  if (role === "features" && !main.some((b) => b.kind === "cards")) role = undefined;
   const bg = bgName;
   const columns =
     side.length && main.length
@@ -746,7 +765,7 @@ export async function crawlStructured(
             : "";
     if (brand && hex.toLowerCase() === brand.toLowerCase()) return "bright";
     const l = lum(hex);
-    return l < 0.015 ? "black" : l < 0.2 ? "dark" : l > 0.6 ? "white" : "light";
+    return l < 0.015 ? "black" : l < 0.2 ? "dark" : l > 0.9 ? "white" : "light";
   };
   // Text color per background: the tokens' grounds, the CSS ground classes, else light-on-dark.
   const groundText = new Map<string, string>();

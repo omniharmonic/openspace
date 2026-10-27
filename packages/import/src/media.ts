@@ -49,7 +49,7 @@ export interface MediaImporterOptions {
    * address ending in `#color=RRGGBB` paints `currentColor` in that color first (line icons drawn
    * in the text color of their section).
    */
-  rasterizeSvg?: (svg: Uint8Array) => Promise<Uint8Array>;
+  rasterizeSvg?: (svg: Uint8Array, opts?: { icon?: boolean }) => Promise<Uint8Array>;
 }
 
 export class MediaImporter {
@@ -78,7 +78,9 @@ export class MediaImporter {
           let svg = await res.text();
           const color = /#color=([0-9a-f]{6})\b/i.exec(url)?.[1];
           if (color) svg = svg.replace(/currentColor/g, `#${color}`);
-          const png = await raster(new TextEncoder().encode(svg));
+          const png = await raster(new TextEncoder().encode(svg), {
+            icon: /#(?:.*&)?icon\b/.test(url),
+          });
           return new Response(png as unknown as BodyInit, {
             status: 200,
             headers: { "content-type": "image/png" },
