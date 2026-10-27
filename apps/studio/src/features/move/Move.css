@@ -216,7 +216,7 @@
   font-weight: 550;
 }
 
-.st-move__url svg {
+.st-move .st-move__url svg {
   width: 14px;
   height: 14px;
 }
@@ -258,7 +258,7 @@
   font-weight: 600;
 }
 
-.st-attention__title svg {
+.st-move .st-attention__title svg {
   width: 18px;
   height: 18px;
   color: var(--st-pending);
