@@ -720,7 +720,7 @@ export function createManageMock(ctx: ManageMockContext): {
           throw new HubError(
             409,
             "missing_secrets",
-            "Cloudflare isn't connected yet, so publishing there would fail. Paste your Cloudflare token in Finish setting up → Open your shop first.",
+            "Cloudflare isn't connected yet, so publishing there would fail. Paste your Cloudflare key in Finish setting up → Open your shop first.",
           );
         // The mock "publishes" at once and the Worker answers: the move is confirmed.
         state.switches[siteId] = {
@@ -753,7 +753,7 @@ export function createManageMock(ctx: ManageMockContext): {
             {
               code: "token_invalid",
               message:
-                "Cloudflare didn't recognise that token. Copy it again from the page Cloudflare showed after “Create token”.",
+                "Cloudflare didn't recognise that key. Copy it again from the page Cloudflare showed after “Create token”.",
             },
           ],
         };

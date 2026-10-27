@@ -475,7 +475,7 @@ describe("hosting", () => {
     ).toBeInTheDocument();
     await user.clear(screen.getByLabelText("Your Cloudflare key"));
     await user.type(screen.getByLabelText("Your Cloudflare key"), `bad_${"Q".repeat(40)}`);
-    expect(await screen.findByText(/didn't recognise that token/)).toBeInTheDocument();
+    expect(await screen.findByText(/didn't recognise that key/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Move my site to Cloudflare" })).toBeDisabled();
   });
 });
