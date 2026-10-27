@@ -63,7 +63,7 @@ Events use the same tool with extra `frontmatter`:
 
 ## Add a product
 
-Products need the Cloudflare hosting target to sell (GitHub Pages' terms exclude commerce); the catalog itself is public content. Prices are **minor units** with an ISO currency:
+Add products freely — the catalog is public content and publishes on any hosting. Until the owner turns on their shop (Studio → **Finish setting up** → Open your shop, which moves the site to their own free Cloudflare account; GitHub Pages' terms exclude commerce), product and donation blocks show a friendly “opening soon” note instead of a checkout. Never change `deploy.target` yourself. If they still have an old shop, a redirect from `/shop-elsewhere` to its address (site `redirects`, status 302) makes the note link there; `/give-elsewhere` does the same for donations. Prices are **minor units** with an ISO currency:
 
 ```json
 {
