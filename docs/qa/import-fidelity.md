@@ -50,7 +50,7 @@ passed:
 | Other preset sizes (h3, lead, eyebrows, buttons, nav, site title) | 1 each | within 12% |
 | Letter spacing and capitals (eyebrows, buttons, nav, site title) | 1 each | within 0.04 em, same case |
 | Content width (computer) | 2 | within 6% |
-| Section padding | 1 | within 25% |
+| Section spacing | 1 | within 25% (half the gap between one section's content and the next's — measured the same way whether sections carry their own padding or sit in a flow) |
 | Button corners | 1 | within 3 px (or both rounded) |
 | Section present | 4 | a matching section exists |
 | Section background | 2 | color distance < 16 (photo backgrounds aren't color-checked) |
@@ -93,10 +93,21 @@ score rises** (by more than 0.1, so measuring noise can't keep a bad change). Gr
    throughout that theme (Designer overrides `color.<theme>.<role>`; the contrast solver still
    checks them);
 5. **buttons** — corner shape; the button fill per section theme (a clay button on a dark band);
-6. **sections** — per page: backgrounds, card columns and image columns (layout hints), image
-   crops, and narrower images on phones where the original kept them narrow.
+6. **layout** — per page: card columns, image columns and section backgrounds matched by heading;
+7. **backgrounds** — section backgrounds matched by position;
+8. **crops** — image crops;
+9. **phone images** — narrower images on phones where the original kept them narrow;
+10. **components** — a section still scoring below 60 is recreated as a **custom component**
+    (ADR custom-components §9): the probe's *blueprint* of the original section (every heading,
+    paragraph, picture, button and link with its box and text style) becomes a component that
+    places each part on a 24-column grid where it sat on a computer and stacks them in reading
+    order on phones, using the theme's font roles and colour roles (no fixed colours, never the
+    original's CSS) and Site Styles buttons. Every word, picture and link is an editable field. It
+    must pass `checkComponent`, the component lint gates and `openspace check`, its pictures come
+    into `media/`, and it's kept only if the score rises. The report gives the score with and
+    without components.
 
-It is bounded: at most 3 passes and 2 + 2 × passes re-measurements. The report lists the score
+It is bounded: at most 3 passes and 2 + 3 × passes re-measurements. The report lists the score
 before tuning and every change kept.
 
 ## Fonts and licences
