@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "$schema": "https://schema.openspace.host/v1/site.json",
   "title": "Nadia Brooks",
   "tagline": "Leadership coaching for first-time founders.",
   "nav": [

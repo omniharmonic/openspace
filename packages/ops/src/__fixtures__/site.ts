@@ -22,11 +22,11 @@ export const IDS = {
 export function siteFixture(): SiteDocument {
   return {
     config: {
-      $schema: "https://schema.openspace.dev/v1/site-config.json",
+      $schema: "https://schema.openspace.host/v1/site-config.json",
       siteId: IDS.site,
       schemaVersion: 1,
       template: { id: "meadow", version: "1.2.0" },
-      hub: "https://hub.openspace.dev",
+      hub: "https://hub.openspace.host",
       deploy: {
         target: "github-pages",
         url: "https://maya.github.io/maya-yoga",
@@ -111,7 +111,7 @@ export function siteFixture(): SiteDocument {
       redirects: [{ from: "/classes", to: "/schedule", status: 301 }],
     },
     styles: {
-      $schema: "https://schema.openspace.dev/v1/styles.json",
+      $schema: "https://schema.openspace.host/v1/styles.json",
       choices: {
         palette: { brand: "oklch(0.62 0.09 145)", neutral: "warm", contrast: "standard" },
         pairing: "fraunces-hanken",

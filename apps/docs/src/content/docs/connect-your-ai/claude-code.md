@@ -77,7 +77,7 @@ Other options: `--no-screenshots`, and `--preview-port <n>` for a fixed preview 
 Sites you created in Studio live on the Hub; connect Claude Code to its remote server:
 
 ```sh
-claude mcp add --transport http openspace https://hub.openspace.dev/mcp
+claude mcp add --transport http openspace https://hub.openspace.host/mcp
 ```
 
 Claude Code opens the sign-in and consent screen on first use (`/mcp` → authenticate). Or use your **personal link** from Studio → Settings → Connect your AI as the URL — it needs no sign-in and covers one site. Edits then land in the same draft Studio shows, live. The Hub can't take screenshots yet; Claude uses rendered HTML and a preview link.

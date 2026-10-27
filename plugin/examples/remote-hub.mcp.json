@@ -2,7 +2,7 @@
   "mcpServers": {
     "openspace": {
       "type": "http",
-      "url": "https://hub.openspace.dev/mcp"
+      "url": "https://hub.openspace.host/mcp"
     }
   }
 }

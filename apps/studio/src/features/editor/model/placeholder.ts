@@ -11,7 +11,7 @@ export function placeholderDocument(): SiteDocument {
       siteId: "st_0000000000",
       schemaVersion: 1,
       template: { id: "starter", version: "1.0.0" },
-      hub: "https://hub.openspace.dev",
+      hub: "https://hub.openspace.host",
       deploy: { target: "github-pages", url: "https://example.github.io/site", customDomain: null },
       features: { forms: false, newsletter: false, analytics: false, search: false },
     },

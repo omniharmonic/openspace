@@ -28,7 +28,7 @@ Templates are the product: every one arrives looking finished, with real-feeling
 | **Inkwell** | Writers, authors and newsletters | Literary, warm, unhurried | EB Garamond / Inter |
 | **Folio** | Personal sites and résumés | Friendly, clear, personal | Space Grotesk / Inter |
 
-Browse them with previews at [openspace.dev/templates](https://openspace.dev/templates/) or in Studio's gallery.
+Browse them with previews at [openspace.host/templates](https://openspace.host/templates/) or in Studio's gallery.
 
 ## What every template includes
 

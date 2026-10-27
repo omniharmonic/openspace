@@ -31,7 +31,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Oat & Sage",
         "description": "Sage on oat paper with a clay accent, Fraunces headings and arched photographs.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.62 0.07 145)",
@@ -61,7 +61,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Clay & Linen",
         "description": "Sun-baked terracotta with DM Serif headings, rounded corners and outlined buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.6 0.11 45)",
@@ -83,7 +83,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Dusk",
         "description": "Soft lavender and cool greys with Libre Caslon, for an evening, restorative feel.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.7 0.1 300)",
@@ -155,7 +155,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Harbor Blue",
         "description": "Deep civic blue on warm paper with a signal-orange accent and Newsreader headings.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.42 0.12 255)",
@@ -185,7 +185,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Signal",
         "description": "A bright call-to-action orange with Zilla Slab headings and square corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.68 0.19 45)",
@@ -207,7 +207,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Riverside",
         "description": "Steady forest green with Merriweather and Open Sans, round buttons and a calmer pace.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.4 0.07 150)",
@@ -279,7 +279,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Monochrome",
         "description": "Ink and white with a single vermilion accent, Instrument Serif headings and square corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.25 0 0)",
@@ -309,7 +309,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Gallery Blue",
         "description": "Cool greys with a deep ultramarine accent, Bodoni headings and outlined buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.42 0.18 268)",
@@ -331,7 +331,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Darkroom",
         "description": "Warm, print-like neutrals and EB Garamond for an archival, darkroom feel.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.45 0.05 60)",
@@ -403,7 +403,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Ledger Green",
         "description": "Ink and ivory with a deep green accent, Source Serif headings and crisp square corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.42 0.08 160)",
@@ -425,7 +425,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Ink Blue",
         "description": "Fountain-pen blue with Libre Baskerville and Karla, for a quieter, literary tone.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.35 0.08 265)",
@@ -447,7 +447,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Modern",
         "description": "Space Grotesk and Inter on cool greys with a teal accent and rounded buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.5 0.09 200)",
@@ -515,7 +515,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Tomato",
         "description": "Ripe tomato red on cream with olive-green buttons and links, and Young Serif headings.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.6 0.2 30)",
@@ -545,7 +545,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Olive Grove",
         "description": "Olive and cream with Playfair Display, for a quieter, wine-bar mood.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.55 0.09 115)",
@@ -567,7 +567,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Bistro Noir",
         "description": "Deep wine red with Abril Fatface headings and sharp corners, for a late-night bistro.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.38 0.11 18)",
@@ -640,7 +640,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Electric",
         "description": "Near-black chrome with an electric violet accent and Bricolage Grotesque headings.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.55 0.25 285)",
@@ -662,7 +662,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Terminal",
         "description": "Near-black with a phosphor-green accent and IBM Plex Mono headings, for developer tools.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.6 0.17 150)",
@@ -684,7 +684,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Volt",
         "description": "Near-black with an electric cyan accent, Space Grotesk headings and pill buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.62 0.14 215)",
@@ -751,7 +751,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Highlighter",
         "description": "Paper and ink with highlighter-yellow washes and marks, and Literata for long reading.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.9 0.17 100)",
@@ -783,7 +783,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Ink",
         "description": "Fountain-pen blue with Crimson Pro and Figtree, quiet and serious.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.35 0.08 265)",
@@ -805,7 +805,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Almanac",
         "description": "Russet and parchment with Libre Caslon, like an old farm almanac.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.5 0.11 45)",
@@ -873,7 +873,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Night Plum",
         "description": "Dark plum with a vivid magenta edge and wide Syne headings.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.45 0.14 330)",
@@ -895,7 +895,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Afterglow",
         "description": "Hot coral on warm black with Unbounded headings and pill buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.65 0.2 25)",
@@ -917,7 +917,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Chrome",
         "description": "Monochrome with electric cyan and Archivo, for a colder, club-night feel.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.62 0.13 210)",
@@ -985,7 +985,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Charcoal & Clay",
         "description": "Fired clay against charcoal and bone, with Gloock headings and soft corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.52 0.08 50)",
@@ -1007,7 +1007,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Celadon",
         "description": "A pale celadon glaze green with Alegreya and rounded shapes.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.58 0.06 170)",
@@ -1029,7 +1029,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Workshop",
         "description": "Ink black and raw terracotta with Josefin Sans, crisp and graphic.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.55 0.13 40)",
@@ -1097,7 +1097,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Earth & Sky",
         "description": "Grounded greens under an open sky, with Spectral headings and soft corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.5 0.1 140)",
@@ -1129,7 +1129,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Forest",
         "description": "Old-growth green with Lora and Inter, calmer and more traditional.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.4 0.07 150)",
@@ -1151,7 +1151,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Assembly",
         "description": "A bold poster red with Archivo and sharp shapes, for campaigns and movements.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.55 0.19 28)",
@@ -1219,7 +1219,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Dusty Rose",
         "description": "Linen, ink and a muted rose, with Cormorant Garamond and airy spacing.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.68 0.07 10)",
@@ -1241,7 +1241,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Garden Party",
         "description": "Soft sage with Playfair Display, for an outdoor, summery celebration.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.6 0.06 140)",
@@ -1263,7 +1263,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Black Tie",
         "description": "Ink and champagne gold with Bodoni Moda, formal and elegant.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.7 0.08 85)",
@@ -1340,7 +1340,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Saffron",
         "description": "Golden saffron with Outfit throughout and round, friendly buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.78 0.15 80)",
@@ -1362,7 +1362,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Coral",
         "description": "Playful coral with Plus Jakarta Sans and soft corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.7 0.15 25)",
@@ -1384,7 +1384,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Lagoon",
         "description": "Clear teal with Sora and Inter, crisp outlined buttons and square corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.58 0.1 195)",
@@ -1437,7 +1437,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Gallery",
         "description": "White walls, ink-black type and EB Garamond — the work does the talking.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.32 0.02 260)",
@@ -1459,7 +1459,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Contact sheet",
         "description": "Grotesque type, tight spacing and a red grease-pencil accent.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.55 0.19 28)",
@@ -1481,7 +1481,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Golden hour",
         "description": "Warm paper, a saffron accent and Playfair headings with soft corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.62 0.12 65)",
@@ -1549,7 +1549,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Indigo",
         "description": "Clean white, an indigo accent and Plus Jakarta Sans throughout.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.52 0.2 275)",
@@ -1571,7 +1571,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Aurora",
         "description": "A teal accent, Sora headings and round, pill-shaped buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.6 0.13 185)",
@@ -1593,7 +1593,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Blueprint",
         "description": "Sharp corners, Space Grotesk and a signal-orange accent on cool greys.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.64 0.18 45)",
@@ -1666,7 +1666,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Canopy",
         "description": "Leaf green on warm paper with Libre Caslon headings.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.52 0.12 150)",
@@ -1688,7 +1688,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Sunrise",
         "description": "A bold coral accent, DM Serif headings and confident pill buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.63 0.17 35)",
@@ -1710,7 +1710,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Civic",
         "description": "Deep blue, Public Sans and square corners — sober and official.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.45 0.13 255)",
@@ -1788,7 +1788,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Workwear",
         "description": "Navy and safety orange with Archivo — sturdy and easy to read.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.62 0.18 45)",
@@ -1810,7 +1810,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Fresh",
         "description": "A clean teal, Plus Jakarta Sans and round pill buttons — for cleaners and salons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.58 0.12 190)",
@@ -1832,7 +1832,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Heritage",
         "description": "Forest green, Zilla Slab headings and square corners — an old-school family firm.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.45 0.09 160)",
@@ -1905,7 +1905,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Slate",
         "description": "Warm paper, a deep teal accent and Lora headings.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.45 0.08 200)",
@@ -1927,7 +1927,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Clay",
         "description": "A terracotta accent, Crimson Pro headings and round pill buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.58 0.12 40)",
@@ -1949,7 +1949,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Boardroom",
         "description": "Ink blue, Manrope throughout and crisp square corners.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.4 0.1 260)",
@@ -2022,7 +2022,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Marquee",
         "description": "A punchy magenta accent with Unbounded headings and pill buttons.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.55 0.22 350)",
@@ -2044,7 +2044,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Programme",
         "description": "Printed-programme feel: Libre Baskerville, a forest accent and sharp rules.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.45 0.1 155)",
@@ -2066,7 +2066,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Festival",
         "description": "Sunny saffron, Syne headings and soft corners for outdoor events.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.7 0.15 75)",
@@ -2149,7 +2149,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Paper",
         "description": "Cream paper, an oxblood accent and EB Garamond for long reading.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.45 0.13 25)",
@@ -2171,7 +2171,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Riverbank",
         "description": "A sage accent, Alegreya type and soft corners — a gentle, natural feel.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.55 0.07 150)",
@@ -2193,7 +2193,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Night edition",
         "description": "Ink blue, Libre Caslon headings and an underline button style.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.42 0.12 265)",
@@ -2266,7 +2266,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Studio",
         "description": "Off-white, a cobalt accent and Inter with Space Grotesk headings.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.5 0.18 260)",
@@ -2288,7 +2288,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Sketchbook",
         "description": "A warm coral accent, DM Serif headings and round, friendly shapes.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.62 0.15 30)",
@@ -2310,7 +2310,7 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "name": "Monospace",
         "description": "IBM Plex Mono headings, a green accent and sharp corners for engineers.",
         "styles": {
-          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "$schema": "https://schema.openspace.host/v1/styles.json",
           "choices": {
             "palette": {
               "brand": "oklch(0.52 0.13 150)",

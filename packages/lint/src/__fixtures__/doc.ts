@@ -106,7 +106,7 @@ export function siteWith(pages: Page[]): SiteDocument {
       siteId: "st_01jb3q8w2n",
       schemaVersion: 1,
       template: { id: "meadow", version: "1.0.0" },
-      hub: "https://hub.openspace.dev",
+      hub: "https://hub.openspace.host",
       deploy: { target: "github-pages", url: "https://juniper.github.io/site", customDomain: null },
       features: { forms: true, newsletter: true, analytics: false, search: false },
     },

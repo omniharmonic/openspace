@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "harbor",
   "name": "Harbor",
   "description": "A warm, trustworthy site for nonprofits and community groups, with an impact band, programs, events and a donate button that's always in reach.",

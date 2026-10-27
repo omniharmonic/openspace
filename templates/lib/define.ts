@@ -107,7 +107,7 @@ export interface Licenses {
 }
 
 export const TEMPLATE_VERSION = "1.0.0";
-export const DEMO_HUB = "https://hub.openspace.dev";
+export const DEMO_HUB = "https://hub.openspace.host";
 
 const UNSPLASH_RE = /^https:\/\/images\.unsplash\.com\/photo-([0-9]+-[0-9a-f]+)$/;
 
@@ -180,12 +180,12 @@ export function buildTemplate(spec: TemplateSpec): BuiltTemplate {
   const content = spec.build();
   const [look] = spec.looks;
   const styles: Styles = {
-    $schema: "https://schema.openspace.dev/v1/styles.json",
+    $schema: "https://schema.openspace.host/v1/styles.json",
     choices: look.choices,
     ...(look.overrides ? { overrides: look.overrides } : {}),
   };
   const config: SiteConfig = {
-    $schema: "https://schema.openspace.dev/v1/site-config.json",
+    $schema: "https://schema.openspace.host/v1/site-config.json",
     siteId: stableId("st", spec.id) as SiteConfig["siteId"],
     schemaVersion: CURRENT_SCHEMA_VERSION,
     template: { id: spec.id, version: TEMPLATE_VERSION },
@@ -206,7 +206,7 @@ export function buildTemplate(spec: TemplateSpec): BuiltTemplate {
   const pages: SiteDocument["pages"] = {};
   for (const p of content.pages) {
     if (pages[p.id]) throw new Error(`${spec.id}: duplicate page id ${p.id}`);
-    pages[p.id] = { $schema: "https://schema.openspace.dev/v1/page.json", ...p };
+    pages[p.id] = { $schema: "https://schema.openspace.host/v1/page.json", ...p };
   }
   const collections: SiteDocument["collections"] = {};
   for (const [name, items] of Object.entries(content.collections ?? {})) {
@@ -215,7 +215,7 @@ export function buildTemplate(spec: TemplateSpec): BuiltTemplate {
   }
   const raw: SiteDocument = {
     config,
-    site: { $schema: "https://schema.openspace.dev/v1/site.json", ...content.site },
+    site: { $schema: "https://schema.openspace.host/v1/site.json", ...content.site },
     styles,
     pages,
     collections,
@@ -236,7 +236,7 @@ export function buildTemplate(spec: TemplateSpec): BuiltTemplate {
       name: l.name,
       description: l.description,
       styles: {
-        $schema: "https://schema.openspace.dev/v1/styles.json",
+        $schema: "https://schema.openspace.host/v1/styles.json",
         choices: l.choices,
         ...(l.overrides ? { overrides: l.overrides } : {}),
       },

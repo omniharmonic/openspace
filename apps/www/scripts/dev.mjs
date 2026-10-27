@@ -1,4 +1,4 @@
-// Local preview of openspace.dev with live reload (programmatic, works on any Node 22).
+// Local preview of openspace.host with live reload (programmatic, works on any Node 22).
 import { dev } from "astro";
 
 const server = await dev({ root: process.cwd(), logLevel: "info" });

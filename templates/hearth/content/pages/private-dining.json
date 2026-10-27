@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "$schema": "https://schema.openspace.host/v1/page.json",
   "id": "pg_q3e0j2pp60",
   "title": "Private dining",
   "slug": "private-dining",

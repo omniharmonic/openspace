@@ -37,7 +37,7 @@ const paragraph = (text: string) => ({
 });
 
 const config: SiteConfig = {
-  $schema: "https://schema.openspace.dev/v1/site-config.json",
+  $schema: "https://schema.openspace.host/v1/site-config.json",
   siteId: IDS.site,
   schemaVersion: 1,
   template: { id: "basic", version: "1.0.0" },
@@ -47,7 +47,7 @@ const config: SiteConfig = {
 };
 
 const site: Site = {
-  $schema: "https://schema.openspace.dev/v1/site.json",
+  $schema: "https://schema.openspace.host/v1/site.json",
   title: "Basic",
   tagline: "A calm, simple home on the web.",
   nav: [{ type: "page", page: IDS.home, label: "Home" }],
@@ -71,7 +71,7 @@ const site: Site = {
 };
 
 const home: Page = {
-  $schema: "https://schema.openspace.dev/v1/page.json",
+  $schema: "https://schema.openspace.host/v1/page.json",
   id: IDS.home,
   title: "Home",
   slug: "",
@@ -194,7 +194,7 @@ const home: Page = {
 };
 
 const calm: Styles = {
-  $schema: "https://schema.openspace.dev/v1/styles.json",
+  $schema: "https://schema.openspace.host/v1/styles.json",
   choices: {
     palette: {
       brand: "oklch(0.62 0.09 145)",
@@ -211,7 +211,7 @@ const calm: Styles = {
   },
 };
 const bold: Styles = {
-  $schema: "https://schema.openspace.dev/v1/styles.json",
+  $schema: "https://schema.openspace.host/v1/styles.json",
   choices: {
     palette: { brand: "oklch(0.55 0.2 265)", neutral: "cool", contrast: "high", source: "curated" },
     pairing: "space-grotesk-inter",
@@ -223,7 +223,7 @@ const bold: Styles = {
   },
 };
 const warm: Styles = {
-  $schema: "https://schema.openspace.dev/v1/styles.json",
+  $schema: "https://schema.openspace.host/v1/styles.json",
   choices: {
     palette: {
       brand: "oklch(0.6 0.13 45)",

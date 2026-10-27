@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "fixwell",
   "name": "Fixwell",
   "description": "A phone-first site for local trades and services, with a call button on every page, trust points, published rates, a service-area map and a quote form.",

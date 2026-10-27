@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { WWW_ROOT, writeWww, wwwFiles } from "./generate";
 
 /**
- * openspace.dev is data in the repo, like a template: `pnpm --filter @omniharmonic/openspace-www generate`
+ * openspace.host is data in the repo, like a template: `pnpm --filter @omniharmonic/openspace-www generate`
  * (UPDATE_WWW=1) rewrites `openspace.json`, `content/` and `media/LICENSES.json` from `www.ts`;
  * otherwise this test fails when the committed files drift from the source.
  */

@@ -20,7 +20,7 @@ const CONFIG: SiteConfig = {
   siteId: "st_jvn1per000",
   schemaVersion: 1,
   template: { id: "starter", version: "1.0.0" },
-  hub: "https://hub.openspace.dev",
+  hub: "https://hub.openspace.host",
   deploy: { target: "github-pages", url: "https://example.github.io/juniper", customDomain: null },
   features: { forms: true, newsletter: false, analytics: false, search: true },
 };

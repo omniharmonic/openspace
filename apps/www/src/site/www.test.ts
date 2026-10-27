@@ -14,7 +14,7 @@ const pages = Object.values(doc.pages);
 const bySlug = (slug: string) => pages.find((p) => p.slug === slug);
 const text = (v: unknown) => JSON.stringify(v);
 
-describe("openspace.dev site document", () => {
+describe("openspace.host site document", () => {
   it("is a valid OpenSpace site", () => {
     expect(SiteDocumentSchema.safeParse(doc).success).toBe(true);
     expect(blocksRegistry().validateDocument(doc)).toEqual([]);

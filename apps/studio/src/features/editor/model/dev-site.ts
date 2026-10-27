@@ -284,7 +284,7 @@ export function devSiteDocument(options: DevSiteOptions = {}): SiteDocument {
       siteId: (options.siteId ?? "st_8m2kq0w4zd") as never,
       schemaVersion: 1,
       template: { id: "meadow", version: "1.0.0" },
-      hub: "https://hub.openspace.dev",
+      hub: "https://hub.openspace.host",
       deploy: {
         target: "github-pages",
         url: options.url ?? "https://sam-rivera.github.io/willow-street-yoga",

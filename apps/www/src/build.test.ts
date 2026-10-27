@@ -1,5 +1,5 @@
 /**
- * Real build: openspace.dev goes through site-kit's Astro integration exactly like any site
+ * Real build: openspace.host goes through site-kit's Astro integration exactly like any site
  * (programmatic `astro build`, which works on Node 22 versions the astro CLI refuses).
  */
 import { execFile } from "node:child_process";
@@ -24,7 +24,7 @@ async function files(dir: string): Promise<string[]> {
 }
 const html = (rel: string) => readFile(join(OUT, rel), "utf8");
 
-describe("openspace.dev build", () => {
+describe("openspace.host build", () => {
   let all: string[] = [];
   beforeAll(async () => {
     await rm(OUT, { recursive: true, force: true });

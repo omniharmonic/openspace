@@ -34,7 +34,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at conduct@openspace.dev. All complaints will be reviewed and investigated promptly and fairly, and all community leaders are obligated to respect the privacy and security of the reporter.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at conduct@openspace.host. All complaints will be reviewed and investigated promptly and fairly, and all community leaders are obligated to respect the privacy and security of the reporter.
 
 ## Attribution
 

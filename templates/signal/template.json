@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "signal",
   "name": "Signal",
   "description": "A bold, technical site for products, startups and launches, with feature grids, a logo strip, pricing, FAQ and a changelog.",

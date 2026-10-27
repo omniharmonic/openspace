@@ -65,10 +65,10 @@ Claude confirms you own the site, runs `npx -y @omniharmonic/openspace-cli impor
 Sites created in Studio live on the Hub; connect Claude Code to the Hub's remote MCP server instead of the local one:
 
 ```sh
-claude mcp add --transport http openspace https://hub.openspace.dev/mcp
+claude mcp add --transport http openspace https://hub.openspace.host/mcp
 ```
 
-On first use Claude Code opens the Hub's sign-in (GitHub) and a consent screen where you tick the sites Claude may edit and whether it may publish (off by default). Alternatively, paste the **personal link** from Studio → Settings → Connect your AI (`https://hub.openspace.dev/mcp/t/…`) as the URL — it needs no sign-in, covers one site, and should be kept private like a password. Revoke links and connections in the same Settings tab.
+On first use Claude Code opens the Hub's sign-in (GitHub) and a consent screen where you tick the sites Claude may edit and whether it may publish (off by default). Alternatively, paste the **personal link** from Studio → Settings → Connect your AI (`https://hub.openspace.host/mcp/t/…`) as the URL — it needs no sign-in, covers one site, and should be kept private like a password. Revoke links and connections in the same Settings tab.
 
 A ready-made entry is in [`examples/remote-hub.mcp.json`](examples/remote-hub.mcp.json); a self-hosted Hub uses its own `https://<your-hub>/mcp`. The Hub doesn't take screenshots yet, so Claude falls back to rendered HTML and a preview link there.
 

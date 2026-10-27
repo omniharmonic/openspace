@@ -7,7 +7,7 @@ import { allTokenVars, THEME_CLASSES, TOKEN_VARS } from "./vars";
 
 /** The doc 04 §2.1 example (Meadow). */
 const MEADOW: Styles = StylesSchema.parse({
-  $schema: "https://schema.openspace.dev/v1/styles.json",
+  $schema: "https://schema.openspace.host/v1/styles.json",
   choices: {
     palette: { brand: "oklch(0.62 0.09 145)", neutral: "warm", contrast: "standard" },
     pairing: "fraunces-hanken",

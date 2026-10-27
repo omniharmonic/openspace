@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "gather",
   "name": "Gather",
   "description": "A site for conferences, festivals and events, with a countdown hero, speakers, a day-by-day programme, ticket passes, venue and travel, and fringe events.",

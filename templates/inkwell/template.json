@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "inkwell",
   "name": "Inkwell",
   "description": "A reading-first site for writers and newsletters, with signup above the fold, essays, books with press, speaking and a simple way to write in.",

@@ -96,7 +96,7 @@ describe("plugin structure (plugin-validator checklist)", () => {
     };
     expect(remote.mcpServers.openspace).toEqual({
       type: "http",
-      url: "https://hub.openspace.dev/mcp",
+      url: "https://hub.openspace.host/mcp",
     });
     // The package and command the server entry runs really exist.
     const cli = JSON.parse(

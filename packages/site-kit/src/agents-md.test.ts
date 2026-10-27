@@ -22,7 +22,7 @@ describe("generateAgentsMd", () => {
     expect(md).toContain("content/styles.json");
     expect(md).toContain("npm run dev");
     expect(md).toContain("npx openspace mcp");
-    expect(md).toContain("https://schema.openspace.dev/v1/");
+    expect(md).toContain("https://schema.openspace.host/v1/");
   });
 
   it("is deterministic", () => {

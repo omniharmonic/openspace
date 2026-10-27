@@ -13,7 +13,7 @@ changes land on `main` (`.github/workflows/publish.yml`).
    and form (`frm_`) has a stable id. Keep ids when editing; new ids are the prefix plus 10
    lowercase Crockford base32 characters (no i, l, o, u).
 3. **Only valid block types and fields** (listed below; full JSON Schema at
-   https://schema.openspace.dev/v1/). Unknown fields fail the build.
+   https://schema.openspace.host/v1/). Unknown fields fail the build.
 4. **Styles change through tokens** in `content/styles.json` (palette, type pairing, density,
    shape…), never inline CSS. Sections pick one of five color themes.
 5. **Never put secrets in content** (API keys, tokens, passwords). `openspace check` fails on them.
@@ -28,7 +28,7 @@ changes land on `main` (`.github/workflows/publish.yml`).
 ## Layout
 
 ```
-openspace.json               site id, Hub URL, deploy target, features (https://schema.openspace.dev/v1/site-config.json)
+openspace.json               site id, Hub URL, deploy target, features (https://schema.openspace.host/v1/site-config.json)
 content/site.json            title, navigation, header, footer, SEO defaults, redirects
 content/styles.json          design tokens and Site Styles choices
 content/media.json           metadata for files in media/ (alt text, size, focal point, credit)

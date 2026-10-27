@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { safeNext } from "./SignInPage";
 
-const ORIGIN = "https://studio.openspace.dev";
+const ORIGIN = "https://studio.openspace.host";
 
 describe("safeNext", () => {
   it("keeps same-origin paths", () => {

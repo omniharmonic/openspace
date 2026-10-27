@@ -60,13 +60,13 @@ const NOW = Date.parse("2026-10-27T12:00:00Z");
 const claims = {
   sub: "mem_1",
   aud: "st_meadw00001",
-  iss: "https://hub.openspace.dev",
+  iss: "https://hub.openspace.host",
   exp: NOW / 1000 + 600,
   tier: "friend",
 };
 
 describe("Hub token verification", () => {
-  const expect_ = { issuer: "https://hub.openspace.dev", audience: "st_meadw00001", now: NOW };
+  const expect_ = { issuer: "https://hub.openspace.host", audience: "st_meadw00001", now: NOW };
   it("accepts a valid token", async () => {
     expect(await verifyHubToken(await token(claims), { keys: [jwk] }, expect_)).toMatchObject({
       sub: "mem_1",
@@ -203,7 +203,7 @@ describe("Worker handlers", () => {
     );
     expect(res.status).toBe(303);
     expect(res.headers.get("location")).toBe(
-      "https://hub.openspace.dev/m/st_meadw00001/login?return=%2Fmembers%2Flibrary%2F",
+      "https://hub.openspace.host/m/st_meadw00001/login?return=%2Fmembers%2Flibrary%2F",
     );
   });
 
@@ -450,7 +450,7 @@ describe("Worker handlers", () => {
     const free = await open(undefined);
     expect(free.status).toBe(303);
     expect(free.headers.get("location")).toBe(
-      "https://hub.openspace.dev/m/st_meadw00001/login?return=%2Fpatrons%2F%3Fos_reauth%3D1",
+      "https://hub.openspace.host/m/st_meadw00001/login?return=%2Fpatrons%2F%3Fos_reauth%3D1",
     );
     expect((await open("tier_friend", "?os_reauth=1")).status).toBe(403);
     expect((await open("tier_patron")).status).toBe(200);

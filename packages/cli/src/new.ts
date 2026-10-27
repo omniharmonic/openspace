@@ -237,7 +237,7 @@ async function scaffold(
       id: templateId === "starter" ? (tplConfig.template?.id ?? templateId) : templateId,
       version: tplVersion,
     },
-    hub: opts.hub ?? tplConfig.hub ?? "https://hub.openspace.dev",
+    hub: opts.hub ?? tplConfig.hub ?? "https://hub.openspace.host",
     deploy: { target: targetKind, url, customDomain: opts.domain ?? null },
     features: tplConfig.features ?? {
       forms: true,

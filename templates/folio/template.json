@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "$schema": "https://schema.openspace.host/v1/template.json",
   "id": "folio",
   "name": "Folio",
   "description": "A personal site and résumé: a friendly introduction, selected projects, experience as a timeline, skills, references, writing and a contact form.",
