@@ -466,7 +466,10 @@ export async function crawlWordPress(opts: WpCrawlOptions): Promise<SqSite> {
       title: "Home",
       seo: home?.seo ?? {},
       sections: postsOnFront || !home ? [] : home.sections,
-      ...(collections.length ? { homeOf: postsPath } : {}),
+      // A static front page (its own content) doesn't also list the posts.
+      ...(collections.length && (postsOnFront || !home?.sections.length)
+        ? { homeOf: postsPath }
+        : {}),
     });
   }
   if (builders.size)

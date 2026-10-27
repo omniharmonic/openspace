@@ -288,6 +288,8 @@ export function formFrom(el: Element): SqForm | undefined {
 export const stripTags = (html: string) =>
   html
     .replace(/<br\s*\/?>/gi, " ")
+    // Block boundaries are word boundaries ("DESCRIPTION</p><p>Lorem" → "DESCRIPTION Lorem").
+    .replace(/<\/(?:p|pre|h[1-6]|li|div|blockquote|dd|dt|tr|td|th)>/gi, " ")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
@@ -295,8 +297,16 @@ export const stripTags = (html: string) =>
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
+    // Numeric references, also when a CMS escaped them twice (`&amp;#8217;` → `’`).
+    .replace(/&#x([0-9a-f]{1,6});/gi, (_, h: string) => safeChar(Number.parseInt(h, 16)))
+    .replace(/&#(\d{1,7});/g, (_, n: string) => safeChar(Number(n)))
     .replace(/\s+/g, " ")
     .trim();
+
+const safeChar = (code: number) =>
+  code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff)
+    ? String.fromCodePoint(code)
+    : "";
 
 function firstHref(el: Element): string | undefined {
   const a = find(el, (e) => e.tagName === "a" && !!attr(e, "href"));

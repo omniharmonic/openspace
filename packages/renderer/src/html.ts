@@ -173,7 +173,7 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
   // body family, the pairing's web fonts aren't loaded at all.
   const customHeading = chosenCustomFont(doc.styles, doc.styles.choices.headingFont);
   const customBody = chosenCustomFont(doc.styles, doc.styles.choices.bodyFont);
-  const noWebFonts = Boolean(customHeading && customBody);
+  const noWebFonts = Boolean(customHeading && customBody && !styles.tokens.pairing.label);
   const inlineFonts = !noWebFonts && opts.fontCss ? opts.fontCss : "";
   const fonts =
     noWebFonts || inlineFonts

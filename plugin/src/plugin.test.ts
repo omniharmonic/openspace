@@ -31,7 +31,7 @@ import {
  * Tools only the local stdio server (`openspace mcp`) adds on top of the shared set: they fetch
  * the web, so the Hub never serves them. Each must really be defined in the CLI.
  */
-const LOCAL_TOOLS = ["import_site", "import_squarespace", "screenshot_url"];
+const LOCAL_TOOLS = ["import_site", "import_squarespace", "screenshot_url", "compare_fidelity"];
 const CLI_MCP = join(REPO_ROOT, "packages", "cli", "src", "mcp");
 /** Hub-only tools (the remote connector's account-level tools; defined in apps/hub). */
 const HUB_TOOLS = ["create_site", "list_templates", "import_status"];
@@ -234,7 +234,7 @@ describe("skills and commands match the real MCP server", () => {
 
 describe("the Squarespace migration skill and command", () => {
   it("local-only tools are defined in the CLI's MCP server and registered there", () => {
-    const sources = ["import-tool.ts", "reference-tool.ts"]
+    const sources = ["import-tool.ts", "reference-tool.ts", "fidelity-tool.ts"]
       .map((f) => readFileSync(join(CLI_MCP, f), "utf8"))
       .join("\n");
     for (const t of LOCAL_TOOLS) expect(sources).toContain(`name: "${t}"`);
@@ -242,6 +242,7 @@ describe("the Squarespace migration skill and command", () => {
     expect(index).toMatch(/importSiteTool\(/);
     expect(index).toMatch(/importSquarespaceTool\(/);
     expect(index).toMatch(/screenshotUrlTool\(/);
+    expect(index).toMatch(/compareFidelityTool\(/);
     for (const t of LOCAL_TOOLS)
       expect(
         ALL_TOOLS.some((x) => x.name === t),

@@ -93,6 +93,8 @@ export const TOKEN_VARS = {
   font: {
     heading: varName("font", "heading"),
     body: varName("font", "body"),
+    /** Eyebrows, buttons and navigation (the body font unless the site has a label font). */
+    label: varName("font", "label"),
     weightHeading: varName("font", "weight", "heading"),
     weightBody: varName("font", "weight", "body"),
     weightStrong: varName("font", "weight", "strong"),
@@ -116,6 +118,8 @@ export const TOKEN_VARS = {
     wide: varName("width", "wide"),
   },
   radius: record(RADIUS_NAMES, (r) => varName("radius", r)),
+  /** Eyebrow text color: the link color, or muted text (`choices.typography.eyebrowColor`). */
+  eyebrowColor: varName("eyebrow", "color"),
   shadow: record(SHADOW_NAMES, (s) => varName("shadow", s)),
   /** Buttons: `--os-button-<primary|secondary|tertiary>-<prop>`. */
   button: record<ButtonRole, Record<ButtonProp, string>>(BUTTON_ROLES, (role) =>

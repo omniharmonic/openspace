@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { MediaPathSchema, SlugSchema } from "./primitives";
 import { named } from "./registry";
-import { CssColorSchema, ImageTreatmentSchema } from "./tokens";
+import { CssColorSchema, ImageTreatmentSchema, TYPE_PRESETS } from "./tokens";
 
 /** W3C Design Tokens (DTCG) `$type` values. */
 export const DTCG_TYPES = [
@@ -93,6 +93,85 @@ export const BUTTON_STYLES = [
 ] as const;
 export const MOTION_LEVELS = ["none", "subtle", "expressive"] as const;
 
+/**
+ * Every typography preset a site can tune: the content presets plus UI-only `button`, `nav` and
+ * `wordmark` (the site title in the header).
+ */
+export const TYPE_SCALE_PRESETS = [...TYPE_PRESETS, "button", "nav", "wordmark"] as const;
+export type TypeScalePreset = (typeof TYPE_SCALE_PRESETS)[number];
+
+/** Font roles: headings, running text, and labels (eyebrows, buttons, navigation). */
+export const FONT_ROLES = ["heading", "body", "label"] as const;
+export type FontRole = (typeof FONT_ROLES)[number];
+
+export const TEXT_CASES = ["none", "uppercase", "lowercase", "capitalize"] as const;
+
+/**
+ * A Google Fonts family (SIL OFL / Apache) used instead of the pairing's: loaded like the
+ * pairing's own fonts (self-hosted at publish). Imports set it to the original site's font.
+ */
+export const WebFontSchema = named(
+  "WebFont",
+  "A Google Fonts family for a font role: family name, category, weights and whether italics load.",
+  z.strictObject({
+    family: z
+      .string()
+      .regex(/^[A-Za-z0-9][A-Za-z0-9 ]{0,59}$/, { message: "Use the family's Google Fonts name" }),
+    category: z.enum(["serif", "sans-serif", "monospace"]),
+    weights: z.array(z.int().min(100).max(900)).min(1).max(9).optional(),
+    italic: z.boolean().optional(),
+  }),
+);
+export type WebFont = z.infer<typeof WebFontSchema>;
+
+/** One typography preset tuned: sizes in px (desktop, phone), line height, tracking (em), case. */
+export const TypeStepSchema = named(
+  "TypeStep",
+  "A tuned typography preset: size (px at desktop and on phones), line height, letter spacing (em), case, weight, italic, font role.",
+  z.strictObject({
+    size: z.number().min(9).max(220).optional(),
+    sizeMobile: z.number().min(9).max(160).optional(),
+    lineHeight: z.number().min(0.7).max(3).optional(),
+    letterSpacing: z.number().min(-0.2).max(1).optional(),
+    case: z.enum(TEXT_CASES).optional(),
+    weight: z.int().min(100).max(900).optional(),
+    italic: z.boolean().optional(),
+    font: z.enum(FONT_ROLES).optional(),
+  }),
+);
+export type TypeStep = z.infer<typeof TypeStepSchema>;
+
+/** Fine typography (all optional; absent = the pairing's own scale). */
+export const TypographyChoicesSchema = named(
+  "TypographyChoices",
+  "Fine typography: Google Fonts per role (heading, body, label), a tuned type scale, eyebrow color.",
+  z.strictObject({
+    heading: WebFontSchema.optional(),
+    body: WebFontSchema.optional(),
+    /** Eyebrows, buttons and navigation (defaults to the body font). */
+    label: WebFontSchema.optional(),
+    scale: z.partialRecord(z.enum(TYPE_SCALE_PRESETS), TypeStepSchema).optional(),
+    /** Eyebrow color: the accent/link color (default) or the muted text color. */
+    eyebrowColor: z.enum(["accent", "muted"]).optional(),
+  }),
+);
+export type TypographyChoices = z.infer<typeof TypographyChoicesSchema>;
+
+/** Page rhythm (all optional; absent = the density's rhythm and the default widths). */
+export const LayoutChoicesSchema = named(
+  "LayoutChoices",
+  "Page rhythm: content width and narrow width (px), section padding (px at desktop and on phones), side gutter.",
+  z.strictObject({
+    contentWidth: z.int().min(480).max(2400).optional(),
+    narrowWidth: z.int().min(360).max(1600).optional(),
+    sectionPadding: z.int().min(0).max(320).optional(),
+    sectionPaddingMobile: z.int().min(0).max(240).optional(),
+    gutter: z.int().min(0).max(160).optional(),
+    gutterMobile: z.int().min(0).max(80).optional(),
+  }),
+);
+export type LayoutChoices = z.infer<typeof LayoutChoicesSchema>;
+
 /** Site Styles choices that owners edit; the theme compiler expands them into tokens. */
 export const StyleChoicesSchema = named(
   "StyleChoices",
@@ -115,6 +194,10 @@ export const StyleChoicesSchema = named(
     headingFont: z.string().max(60).optional(),
     /** An uploaded font family used for body text instead of the pairing's. */
     bodyFont: z.string().max(60).optional(),
+    /** Fine typography: Google Fonts per role and a tuned type scale (imports set it). */
+    typography: TypographyChoicesSchema.optional(),
+    /** Page rhythm: content width and section padding (imports set it). */
+    layout: LayoutChoicesSchema.optional(),
   }),
 );
 export type StyleChoices = z.infer<typeof StyleChoicesSchema>;

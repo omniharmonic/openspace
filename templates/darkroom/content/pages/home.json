@@ -260,6 +260,7 @@
             },
             "columns": "2",
             "showImage": true,
+            "imageAspect": "3:2",
             "showDate": false,
             "showExcerpt": false,
             "showMeta": false,

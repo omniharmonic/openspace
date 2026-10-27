@@ -43,7 +43,7 @@ export const headingBlock = defineBlock({
     size: f.select({ options: SIZES, default: "auto", label: "Visual size" }),
     subheading: f.text({ optional: true, multiline: true, maxLength: 280 }),
   },
-  variants: ["plain", "rule", "underline", "split"],
+  variants: ["plain", "rule", "underline", "split", "eyebrow-rule"],
   styleSlots: ["colorTheme", "padding", "align", "animation", "typography.heading"],
   defaults: {
     fields: {
@@ -55,7 +55,7 @@ export const headingBlock = defineBlock({
   ai: {
     purpose: "A section heading with optional eyebrow and supporting line.",
     whenToUse:
-      "To open a section or introduce a group of blocks. `rule` adds a short accent line above, `underline` a line below, `split` puts the subheading beside the heading on wide screens.",
+      "To open a section or introduce a group of blocks. `rule` adds a short accent line above, `eyebrow-rule` a short accent line between the eyebrow and the heading, `underline` a line below, `split` puts the subheading beside the heading on wide screens.",
     avoid:
       "Using headings for emphasis inside body copy (use text); skipping levels (h2 → h4); more than one Heading 1 per page.",
   },
@@ -206,7 +206,9 @@ export const dividerBlock = defineBlock({
 export const headingCss = `
 .os-heading{display:grid;gap:var(--os-space-xs)}
 .os-heading__main{display:grid;gap:var(--os-space-2xs)}
-.os-heading__eyebrow{color:var(--os-color-link);margin:0}
+.os-heading__eyebrow{color:var(--os-eyebrow-color,var(--os-color-link));margin:0}
+.os-heading--eyebrow-rule .os-heading__eyebrow::after{content:"";display:block;width:clamp(3rem,5vw,4rem);height:2px;background:var(--os-color-accent);margin-block:clamp(1.25rem,2vw,1.75rem) clamp(0.75rem,1.5vw,1.25rem)}
+.os-align-center .os-heading--eyebrow-rule .os-heading__eyebrow::after,.os-malign-center .os-heading--eyebrow-rule .os-heading__eyebrow::after{margin-inline:auto}
 .os-heading__text{margin:0;text-wrap:balance;color:var(--os-color-heading)}
 .os-heading__sub{margin:0;color:var(--os-color-text);max-inline-size:var(--os-measure);text-wrap:pretty}
 .os-heading--rule .os-heading__main::before{content:"";width:2.5rem;height:3px;border-radius:var(--os-radius-full);background:var(--os-color-accent);margin-bottom:var(--os-space-2xs)}

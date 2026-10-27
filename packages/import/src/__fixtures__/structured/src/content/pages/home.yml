@@ -42,6 +42,15 @@ sections:
         definition: Attention stays.
         body: It lets the thing change you.
     closing: Attention is a practice.
+  - type: pattern
+    ground: rust
+    id: pattern
+    kicker: THE PATTERN
+    headline: Hurry hides the field.
+    paragraphs:
+      - We cross the same meadow every day and see a green blur.
+      - Slowing down is not a luxury. It is how the meadow becomes many plants.
+    closing: Attention turns a place into a world.
   - type: numbered_measures
     ground: moss
     headline: Five small practices.

@@ -1,3 +1,5 @@
+import type { LayoutChoices, TypographyChoices } from "@omniharmonic/openspace-schema";
+import type { ProbeSection } from "./fidelity/probe";
 /**
  * What an importer reads from the site being moved, before any OpenSpace mapping: a plain,
  * source-agnostic model. The Squarespace importer fills it from page HTML, `?format=json` and a
@@ -47,6 +49,8 @@ export type SqBlock =
       html: string;
       /** The block has its own background panel (Squarespace "block background"). */
       panel?: boolean;
+      /** Paragraphs flow in side-by-side columns on wide screens (as they did). */
+      columns?: boolean;
     }
   | {
       kind: "image";
@@ -101,6 +105,8 @@ export type SqBlock =
       items: SqCard[];
       /** Image crop (`original` for icon strips, which must not be cropped). */
       aspect?: "original" | "1:1" | "4:5" | "3:2" | "16:9";
+      /** Cards per row on wide screens, when known (2–6). */
+      columns?: number;
     }
   | {
       kind: "heading";
@@ -109,6 +115,8 @@ export type SqBlock =
       eyebrow?: string;
       subheading?: string;
       align?: "center";
+      /** Shown at the display size (a hero's book or brand title). */
+      display?: boolean;
     }
   | { kind: "testimonial"; html: string; name?: string; role?: string; photo?: SqImage }
   | { kind: "table"; head?: string[]; rows: string[][]; caption?: string }
@@ -228,6 +236,8 @@ export interface SqPage {
   locked?: "password" | "members";
   /** The home page was a collection (blog/shop as home): its path. */
   homeOf?: string;
+  /** Where the collection's list sat among `sections` (sections after it stay after it). */
+  homeAt?: number;
 }
 
 export type SqCollectionKind = "blog" | "events" | "products" | "portfolio";
@@ -315,6 +325,21 @@ export interface SqTheme {
   headerTransparent?: boolean;
   /** Section theme name used by the header. */
   headerTheme?: string;
+  /** Eyebrows/labels font (when the site uses a third family for them). */
+  labelFont?: { family: string; weight?: number };
+  /**
+   * The measured look (a browser probe of the live site, or a design-token file): fonts per role,
+   * a tuned type scale and the page rhythm, in Site Styles' own shape. Fonts are only used once
+   * they are confirmed on Google Fonts (`googleFonts`).
+   */
+  typography?: TypographyChoices;
+  layout?: LayoutChoices;
+  /** Lower-cased families confirmed available on Google Fonts. */
+  googleFonts?: string[];
+  /** A short accent rule sits between eyebrows and headings. */
+  eyebrowRule?: boolean;
+  /** Where the measured look came from, for the report ("the live site in a browser"). */
+  lookSource?: string;
 }
 
 export interface SqNotice {
@@ -364,6 +389,8 @@ export interface SqSite {
   generator?: string;
   /** Extra old → new addresses the importer knows about (category archives, feeds…). */
   redirects?: { from: string; to: string }[];
+  /** The home page as a browser measured it (sections, columns, images), for layout hints. */
+  homeProbe?: { viewport: number; contentWidth?: number; sections: ProbeSection[] };
   /** How the content was read (for the report): `page HTML and the sitemap`, `the REST API`… */
   sources?: string[];
 }

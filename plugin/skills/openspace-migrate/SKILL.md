@@ -59,13 +59,16 @@ Then:
 
 Work through the pages in navigation order, home page first. For each page, run this loop (at most five passes per page; one intent per pass):
 
+0. **Measure first (once, then after each round).** When `compare_fidelity` is available (local server with Playwright), call it with the original address: it opens both sites in a browser and returns a 0–100 match per page with every difference — fonts for headings, text and labels, type sizes, letter spacing and capitals, content width, section spacing, backgrounds, columns, eyebrow rules, italic lines, image placement — and the `set_styles` setting that closes each one (e.g. `choices.typography.scale.h2.size = 60`). Apply the global ones first with `set_styles` (`choices.typography`, `choices.layout`), then work section by section below. Tell the owner the score in plain words ("it now matches your site closely: 92 out of 100").
+
 1. **Look at both.** `screenshot_url` of the original page (`device: "all"`, or desktop then mobile) and `screenshot` of the OpenSpace page (`device: "all"`). Without screenshot tools, use `render_page` with `fragment: true` and describe the original from its URL; say once how to enable screenshots (Playwright).
 2. **Name the three biggest differences**, in order of how much they change the impression: section order and rhythm, hero treatment, column structure, image crops, color themes, type scale, spacing, button style.
 3. **Fix with design tools only:**
    - rhythm and surfaces: `update_section` with `colorTheme`; photo backgrounds and overlays through `update_section` `style.background`;
    - structure: swap a section for a closer preset (`list_section_presets`, `insert_section`, move the imported blocks' content across with `update_block`, then `delete_section`), e.g. `hero/full-bleed-photo@1` for a full-width photo hero or `contact/form-split@1` for a contact page;
    - layout in grid sections: `place_in_grid`, then `auto_mobile_layout`;
-   - global look: `set_styles` (brand color, pairing, density, shape, buttons) — do this once, early, on the home page, then leave it alone.
+   - global look: `set_styles` (brand color, pairing, density, shape, buttons; `typography` for the original's own Google Fonts per role and its type sizes, tracking and capitals; `layout` for content width and section spacing) — do this once, early, on the home page, then leave it alone. Imports already carry these over when they could measure them; adjust rather than replace;
+   - a section's exact background: `update_section` `style.background = { type: "color", color: "#4a1c18" }`; a short accent line between eyebrow and heading: the heading block's `eyebrow-rule` variant; paragraphs side by side: the text block's `columns` variant.
 4. **Check:** `design_check` on the page; fix errors (`apply_fix` where offered). Imported pages often have several Heading 1s or skipped heading levels — fix the levels without changing the words.
 5. **Look again** at the same widths and judge: does a visitor get the same first impression, the same order of information and the same calls to action?
 

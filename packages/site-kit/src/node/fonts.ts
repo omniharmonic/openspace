@@ -51,7 +51,9 @@ export async function resolveFonts(
   const viaGoogle = async (missing: string[]): Promise<FontResolution> => {
     const google = options.google ?? process.env.OPENSPACE_GOOGLE_FONTS === "download";
     if (!google) return { missing };
-    const families = [...new Set([pairing.heading.family, pairing.body.family])];
+    const families = [
+      ...new Set([pairing.heading.family, pairing.body.family, pairing.label?.family]),
+    ].filter((f): f is string => !!f);
     const r = await googleFonts(googleFontsUrl(pairing), basePath, families, options.fetch);
     return r.plan
       ? { missing: [], plan: r.plan }

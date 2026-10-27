@@ -123,7 +123,7 @@ Shows a small set of numbers as a bar, column, line or pie chart. Use: Up to ~12
 Parallel content in columns: a feature trio, numbered steps, or short offers. Use: When 2–4 items share the same shape. `steps` numbers them for a process; `cards` puts each on a surface. Avoid: Uneven text lengths across columns; more than four columns; long paragraphs.
 
 - Variants: `plain`, `cards`, `steps`
-- Fields: `items: list of { image?: image { src, alt }, heading: text ≤ 80, body: richText, link?: link, linkLabel?: text ≤ 30 }`, `columns: "2" | "3" | "4"`, `aspect: "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`
+- Fields: `items: list of { image?: image { src, alt }, heading: text ≤ 80, body: richText, link?: link, linkLabel?: text ≤ 30 }`, `columns: "2" | "3" | "4" | "5" | "6"`, `aspect: "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`
 
 ### `contact-info` — Contact details
 
@@ -183,9 +183,9 @@ Several related photographs shown together. Use: Portfolios, spaces, events and 
 
 ### `heading` — Heading
 
-A section heading with optional eyebrow and supporting line. Use: To open a section or introduce a group of blocks. `rule` adds a short accent line above, `underline` a line below, `split` puts the subheading beside the heading on wide screens. Avoid: Using headings for emphasis inside body copy (use text); skipping levels (h2 → h4); more than one Heading 1 per page.
+A section heading with optional eyebrow and supporting line. Use: To open a section or introduce a group of blocks. `rule` adds a short accent line above, `eyebrow-rule` a short accent line between the eyebrow and the heading, `underline` a line below, `split` puts the subheading beside the heading on wide screens. Avoid: Using headings for emphasis inside body copy (use text); skipping levels (h2 → h4); more than one Heading 1 per page.
 
-- Variants: `plain`, `rule`, `underline`, `split`
+- Variants: `plain`, `rule`, `underline`, `split`, `eyebrow-rule`
 - Fields: `eyebrow?: text ≤ 60`, `text: text ≤ 160`, `level: "h1" | "h2" | "h3" | "h4"`, `size: "auto" | "display" | "h1" | "h2" | "h3" | "h4"`, `subheading?: text ≤ 280`
 
 ### `hours` — Opening hours
@@ -270,7 +270,7 @@ Compares plans, packages or tiers with prices and what each includes. Use: Prici
 Sells one product from the shop: image, price, options and an Add to cart button. Use: Featuring a single product on a landing page or inside a story. The price shown comes from the catalog; checkout always re-reads prices on the server. Avoid: Products that don't exist in the shop collection; writing prices by hand in text blocks.
 
 - Variants: `card`, `split`, `minimal`
-- Fields: `product: reference`, `showDescription: boolean`, `quantity: boolean`, `buttonLabel: text ≤ 30`, `detailsLabel: text ≤ 30`
+- Fields: `product: reference`, `showDescription: boolean`, `showTitle?: boolean`, `quantity: boolean`, `buttonLabel: text ≤ 30`, `detailsLabel: text ≤ 30`
 
 ### `quote` — Quote
 
@@ -347,7 +347,7 @@ Key figures that make a claim concrete (members, years, ratings, outcomes). Use:
 Lists items from a collection (blog posts, events, projects, episodes, products) as cards. Use: On the home page and landing pages to surface fresh content: the latest 3 posts, featured projects, upcoming events. `wall` is a masonry of images for portfolios; `carousel` saves space. Avoid: Using it as the main collection page (the collection's own list page does that); mixing unrelated filters; more than ~12 items.
 
 - Variants: `grid`, `list`, `carousel`, `wall`
-- Fields: `heading?: text ≤ 80`, `headingLevel: "h2" | "h3" | "h4"`, `source: reference`, `columns: "2" | "3" | "4"`, `showImage: boolean`, `showDate: boolean`, `showExcerpt: boolean`, `showMeta: boolean`, `linkLabel?: text ≤ 30`, `link?: link`, `emptyMessage: text ≤ 160`
+- Fields: `heading?: text ≤ 80`, `headingLevel: "h2" | "h3" | "h4"`, `source: reference`, `columns: "2" | "3" | "4"`, `showImage: boolean`, `imageAspect?: "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`, `showDate: boolean`, `showExcerpt: boolean`, `showMeta: boolean`, `linkLabel?: text ≤ 30`, `link?: link`, `emptyMessage: text ≤ 160`
 
 ### `table` — Comparison table
 

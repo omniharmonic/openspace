@@ -249,7 +249,9 @@ export function itemPage(
   const header: RichTextDoc["content"] = [];
   if (eyebrow.length) header.push(rt.p(eyebrow.join(" · "), "eyebrow"));
   header.push(rt.h(1, fm.title));
-  if (fm.excerpt) header.push(rt.p(fm.excerpt, "lead"));
+  // A product with a written description shows it in full below; no teaser above it.
+  if (fm.excerpt && !(item.kind === "products" && item.body.trim()))
+    header.push(rt.p(fm.excerpt, "lead"));
   if (author) header.push(rt.p(`By ${author}`, "small"));
 
   const headerBlocks: Block[] = [
@@ -295,11 +297,23 @@ export function itemPage(
       ([, m]) => m.kind === "reference",
     );
     if (productDef && ref) {
+      // On its own page the product isn't a card about itself: price, options and the cart
+      // button sit under the page title, without repeating the name, photo or a link to itself.
+      const fields = productDef.meta.fields;
       headerBlocks.push(
-        makeBlock(ctx, `${seed}#buy`, "product", {
-          ...requiredDefaults(productDef.meta.fields),
-          [ref[0]]: { collection, items: [item.slug] },
-        }),
+        makeBlock(
+          ctx,
+          `${seed}#buy`,
+          "product",
+          {
+            ...requiredDefaults(fields),
+            [ref[0]]: { collection, items: [item.slug] },
+            ...("showTitle" in fields ? { showTitle: false } : {}),
+            ...("showDescription" in fields ? { showDescription: false } : {}),
+            ...("detailsLabel" in fields ? { detailsLabel: "" } : {}),
+          },
+          productDef.variants.includes("minimal") ? "minimal" : undefined,
+        ),
       );
     } else {
       headerBlocks.push(makeBlock(ctx, `${seed}#price`, "text", { content: rt.doc(...extra) }));
@@ -426,6 +440,58 @@ export function itemPage(
       );
   }
 
+  // A product page reads like a shop's: photos on the left; name, price, options, the cart
+  // button and the description on the right (one section, stacked on phones).
+  if (item.kind === "products") {
+    const bodyId = stableId("sec", `${seed}#body`);
+    const bodyBlocks = sections.find((x) => x.id === bodyId)?.blocks ?? [];
+    const own = item.frontmatter.images ?? [];
+    const photos = own.length
+      ? own
+      : fm.image
+        ? [imageValue(fm.image, doc.media, fm.imageAlt)]
+        : [];
+    const left: Block[] = [];
+    if (photos[0])
+      left.push(
+        makeBlock(ctx, `${seed}#photo`, "image", {
+          image: photos[0],
+          aspect: "original",
+          lightbox: true,
+        }),
+      );
+    if (photos.length > 1)
+      left.push(
+        makeBlock(
+          ctx,
+          `${seed}#gallery-block`,
+          "gallery",
+          {
+            images: photos.slice(1).map((image) => ({ image })),
+            aspect: "1:1",
+            columns: "3",
+            lightbox: true,
+            showCaptions: false,
+          },
+          "grid",
+        ),
+      );
+    const right = [...headerBlocks, ...bodyBlocks];
+    const two = left.length > 0;
+    sections.splice(
+      0,
+      sections.length,
+      stackSection(
+        `${seed}#header`,
+        [
+          ...left.map((b) => ({ ...b, column: 0 })),
+          ...right.map((b) => ({ ...b, column: two ? 1 : 0 })),
+        ],
+        { width: "wide", columns: two ? [7, 5] : [12] },
+      ),
+    );
+  }
+
   // Footer of the article: taxonomy links and sharing.
   const tail: Block[] = [];
   const taxLinks: RichTextDoc["content"][number][] = [];
@@ -479,7 +545,13 @@ export function itemPage(
 
   if (related.length && cfg?.itemPage?.showRelated !== false) {
     sections.push(
-      ...cardRows(ctx, `${seed}#related`, related.slice(0, 3), collection, "Keep reading"),
+      ...cardRows(
+        ctx,
+        `${seed}#related`,
+        related.slice(0, 3),
+        collection,
+        item.kind === "products" ? "You might also like" : "Keep reading",
+      ),
     );
   }
 

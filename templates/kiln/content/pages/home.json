@@ -185,6 +185,7 @@
             },
             "columns": "3",
             "showImage": true,
+            "imageAspect": "3:2",
             "showDate": false,
             "showExcerpt": false,
             "showMeta": false,
@@ -516,6 +517,7 @@
               ]
             },
             "showDescription": true,
+            "showTitle": true,
             "quantity": true,
             "buttonLabel": "Add to cart",
             "detailsLabel": "See details"

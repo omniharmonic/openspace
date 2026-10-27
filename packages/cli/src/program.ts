@@ -5,6 +5,7 @@ import { renderAgentsMd, writeAgentsMd } from "./agents";
 import { type Budgets, formatReport, githubAnnotations, runCheck } from "./check";
 import { astroNodeProblem, runDev, type Spawner } from "./dev";
 import { EJECT_WARNING, runEject } from "./eject";
+import { compareSummary, runCompare } from "./fidelity";
 import { type GatedSyncDeps, runGatedSync } from "./gated-sync";
 import { importSummary, runImportSite } from "./import";
 import { CliError, colorEnabled, type Io, paint } from "./io";
@@ -173,6 +174,9 @@ export function createProgram(
     media?: boolean;
     render?: boolean;
     platform?: string;
+    measure?: boolean;
+    compare?: boolean;
+    compareOut?: string;
   };
   const commonImportOptions = (
     c: Command,
@@ -228,7 +232,16 @@ export function createProgram(
       .option("--hub <url>", "Hub address")
       .option("--max-pages <n>", "most pages and items to read (default 400)", Number)
       .option("--delay <ms>", "pause between requests to the site (default 300)", Number)
-      .option("--no-media", "don't download images and files (a quick structural preview)");
+      .option("--no-media", "don't download images and files (a quick structural preview)")
+      .option(
+        "--no-measure",
+        "don't measure the live site's fonts and spacing in a browser (Playwright, when installed)",
+      )
+      .option(
+        "--compare",
+        "afterwards, compare the import with the original in a browser: a per-section fidelity report and side-by-side images (needs Playwright)",
+      )
+      .option("--compare-out <dir>", "where --compare writes its report (default <dir>/.fidelity)");
   };
   const runImportCommand = async (
     url: string,
@@ -253,7 +266,7 @@ export function createProgram(
     io.err(
       `Importing ${url}${opts.owner ? " (owner mode: also reading ?format=json)" : ""}${opts.render ? " (rendering pages in a browser)" : ""}. Requests are paced and robots.txt is honoured.`,
     );
-    const { platform: _p, ...rest } = opts;
+    const { platform: _p, compare, compareOut, ...rest } = opts;
     const r = await runImportSite(io, url, dir, {
       ...rest,
       target: "github-pages",
@@ -261,6 +274,16 @@ export function createProgram(
       ...(deps.fetch ? { fetch: deps.fetch } : {}),
     });
     for (const line of importSummary(r)) io.out(line);
+    if (compare) {
+      io.err(`Comparing with ${r.result.liveUrl} in a browser…`);
+      const c = await runCompare(
+        r.result.liveUrl,
+        r.dir,
+        compareOut ? { out: resolve(io.cwd, compareOut) } : {},
+        (l) => io.err(`  ${l}`),
+      );
+      for (const line of compareSummary(c)) io.out(line);
+    }
     if (opts.intoExisting) {
       if (!r.check.ok) setExit(1);
       return;
@@ -271,7 +294,7 @@ export function createProgram(
     io.out(
       r.result.site.platform === "squarespace"
         ? "  claude   # then /openspace:import-squarespace to bring it to visual parity"
-        : `  claude   # then /openspace:migrate ${r.result.site.baseUrl} to bring it to visual parity`,
+        : `  claude   # then /openspace:migrate ${r.result.liveUrl} to bring it to visual parity`,
     );
     if (!r.check.ok) setExit(1);
   };
@@ -337,6 +360,38 @@ export function createProgram(
   ).action((url: string, dir: string | undefined, opts: ImportFlags) =>
     runImportCommand(url, dir, opts, "generic"),
   );
+
+  program
+    .command("compare")
+    .description(
+      "Compare an imported site with the original in a browser (Playwright): fonts, type sizes, spacing and every section, at desktop and phone widths. Writes FIDELITY-REPORT.md and side-by-side images.",
+    )
+    .argument("<original>", "the original site's address, e.g. https://www.example.com")
+    .argument("[dir]", "the OpenSpace site folder (default: the current folder)", ".")
+    .option("--page <path...>", "site paths to compare (default: up to 6 pages)")
+    .option("--out <dir>", "where to write the report and images (default <dir>/.fidelity)")
+    .option("--no-images", "only the report, no side-by-side images")
+    .option("--json", "print the report as JSON")
+    .action(
+      async (
+        original: string,
+        dir: string,
+        opts: { page?: string[]; out?: string; images?: boolean; json?: boolean },
+      ) => {
+        const r = await runCompare(
+          original,
+          resolve(io.cwd, dir),
+          {
+            ...(opts.page ? { pages: opts.page } : {}),
+            ...(opts.out ? { out: resolve(io.cwd, opts.out) } : {}),
+            ...(opts.images === false ? { images: false } : {}),
+          },
+          (l) => io.err(l),
+        );
+        if (opts.json) io.out(JSON.stringify(r.report, null, 2));
+        else for (const line of compareSummary(r)) io.out(line);
+      },
+    );
 
   program
     .command("eject")

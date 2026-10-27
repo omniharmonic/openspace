@@ -1,6 +1,9 @@
 import { fontStack, type TypePairing } from "./pairings";
 
-/** Every typography preset: the nine content presets plus the UI-only `button` and `nav`. */
+/**
+ * Every typography preset: the nine content presets plus the UI-only `button`, `nav` and
+ * `wordmark` (the site title in the header).
+ */
 export const TYPE_PRESET_NAMES = [
   "display",
   "h1",
@@ -13,6 +16,7 @@ export const TYPE_PRESET_NAMES = [
   "eyebrow",
   "button",
   "nav",
+  "wordmark",
 ] as const;
 export type TypePresetName = (typeof TYPE_PRESET_NAMES)[number];
 
@@ -40,6 +44,7 @@ const PRESET_STEP: Record<TypePresetName, number> = {
   eyebrow: -1,
   button: -0.5,
   nav: -0.5,
+  wordmark: 1,
 };
 
 const LINE_HEIGHT: Record<TypePresetName, number> = {
@@ -54,6 +59,7 @@ const LINE_HEIGHT: Record<TypePresetName, number> = {
   eyebrow: 1.3,
   button: 1.2,
   nav: 1.3,
+  wordmark: 1.1,
 };
 
 /** Smallest rendered size (px) for any preset — keeps captions and eyebrows legible. */
@@ -115,7 +121,8 @@ export function typeScale(p: TypePairing): Record<TypePresetName, TypePresetToke
     const sizes = stepSizes(PRESET_STEP[name]);
     const min = Math.max(MIN_FONT_SIZE_PX, sizes.min);
     const max = Math.max(MIN_FONT_SIZE_PX, sizes.max);
-    const heading = HEADINGS.has(name);
+    // The site title in the header is set like a small heading unless the site tunes it.
+    const heading = HEADINGS.has(name) || name === "wordmark";
     let letterSpacing = "0em";
     if (LARGE_HEADINGS.has(name)) letterSpacing = p.headingTracking;
     else if (heading) letterSpacing = halfTracking(p.headingTracking);
@@ -125,8 +132,13 @@ export function typeScale(p: TypePairing): Record<TypePresetName, TypePresetToke
     if (heading) weight = "var(--os-font-weight-heading)";
     else if (name === "eyebrow" || name === "button" || name === "nav")
       weight = "var(--os-font-weight-strong)";
+    const label = name === "eyebrow" || name === "button" || name === "nav";
     out[name] = {
-      "font-family": heading ? "var(--os-font-heading)" : "var(--os-font-body)",
+      "font-family": heading
+        ? "var(--os-font-heading)"
+        : label
+          ? "var(--os-font-label)"
+          : "var(--os-font-body)",
       "font-size": fluidClamp(min, max),
       "line-height": String(LINE_HEIGHT[name]),
       "letter-spacing": letterSpacing,
@@ -142,8 +154,41 @@ export function fontTokens(p: TypePairing): Record<string, string> {
   return {
     heading: fontStack(p.heading),
     body: fontStack(p.body),
+    // Eyebrows, buttons and navigation: a third family when the site has one, else the body's.
+    label: p.label ? fontStack(p.label) : "var(--os-font-body)",
     "weight-heading": String(p.headingWeight),
     "weight-body": String(p.bodyWeight),
     "weight-strong": String(p.strongWeight),
   };
+}
+
+/** Phone size (px) for a desktop size when the source gave none: the default scale's compression. */
+export function mobileSize(desktopPx: number): number {
+  const base = FLUID_TYPE.maxBase;
+  const px = desktopPx <= base ? desktopPx * 0.94 : FLUID_TYPE.minBase * (desktopPx / base) ** 0.75;
+  return Math.round(px * 10) / 10;
+}
+
+/** A tuned preset (`choices.typography.scale.<preset>`), as token values to merge over the scale. */
+export function tunedPreset(step: {
+  size?: number;
+  sizeMobile?: number;
+  lineHeight?: number;
+  letterSpacing?: number;
+  case?: string;
+  weight?: number;
+  font?: "heading" | "body" | "label";
+}): Partial<TypePresetTokens> {
+  const out: Partial<TypePresetTokens> = {};
+  if (step.size !== undefined) {
+    const max = step.size;
+    const min = step.sizeMobile ?? Math.min(max, mobileSize(max));
+    out["font-size"] = fluidClamp(min, max);
+  }
+  if (step.lineHeight !== undefined) out["line-height"] = String(r4(step.lineHeight));
+  if (step.letterSpacing !== undefined) out["letter-spacing"] = `${r4(step.letterSpacing)}em`;
+  if (step.case !== undefined) out["text-transform"] = step.case;
+  if (step.weight !== undefined) out["font-weight"] = String(step.weight);
+  if (step.font !== undefined) out["font-family"] = `var(--os-font-${step.font})`;
+  return out;
 }

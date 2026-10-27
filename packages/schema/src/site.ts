@@ -76,6 +76,11 @@ const NavPageSchema = z.strictObject({
   page: PageIdSchema,
   /** Defaults to the page title. */
   label: NavLabelSchema.optional(),
+  /** A section on that page (`#framework`): the entry scrolls to it. */
+  anchor: z
+    .string()
+    .regex(/^[A-Za-z][A-Za-z0-9_-]*$/)
+    .optional(),
   hidden: z.boolean().optional(),
 });
 const NavCollectionSchema = z.strictObject({

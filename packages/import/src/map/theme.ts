@@ -89,6 +89,69 @@ export function nearestPairing(fonts: SqTheme["fonts"]): { pairing: TypePairing;
   return { pairing: best, exact };
 }
 
+/**
+ * The site's own typography for Site Styles: each role's font when Google Fonts serves it (it then
+ * self-hosts at publish), the measured type scale, and the eyebrow color. Fonts Google doesn't
+ * serve are left to the curated pairing and reported.
+ */
+function siteTypography(
+  t: SqTheme,
+  notes: string[],
+  on: string,
+): Styles["choices"]["typography"] | undefined {
+  const src = t.typography;
+  if (!src) return undefined;
+  const ok = new Set(t.googleFonts ?? []);
+  const out: NonNullable<Styles["choices"]["typography"]> = {};
+  const used: string[] = [];
+  const missing: string[] = [];
+  for (const role of ["heading", "body", "label"] as const) {
+    const f = src[role];
+    if (!f) continue;
+    if (ok.has(f.family.toLowerCase())) {
+      out[role] = f;
+      if (!used.includes(f.family)) used.push(f.family);
+    } else if (!missing.includes(f.family)) missing.push(f.family);
+  }
+  if (src.scale && Object.keys(src.scale).length) {
+    // A role whose font couldn't be carried over falls back to the pairing's (label → body).
+    const scale = { ...src.scale };
+    for (const [k, step] of Object.entries(scale))
+      if (step?.font === "label" && !out.label)
+        scale[k as keyof typeof scale] = { ...step, font: "body" };
+    out.scale = scale;
+  }
+  if (src.eyebrowColor) out.eyebrowColor = src.eyebrowColor;
+  if (used.length)
+    notes.push(
+      `Fonts ${on} kept as they are (${used.join(", ")}): free on Google Fonts, self-hosted with the site.`,
+    );
+  if (missing.length)
+    notes.push(
+      `${missing.join(" and ")} ${missing.length > 1 ? "aren't" : "isn't"} on Google Fonts, so the closest curated pairing stands in; a licensed copy can be uploaded in Site Styles → Your fonts.`,
+    );
+  const s = out.scale;
+  if (s)
+    notes.push(
+      `Type scale ${on}${t.lookSource ? ` (${t.lookSource})` : ""} kept: ${(
+        [
+          ["display", "display"],
+          ["h1", "heading 1"],
+          ["h2", "heading 2"],
+          ["body", "body"],
+          ["eyebrow", "eyebrows"],
+        ] as const
+      )
+        .filter(([k]) => s[k]?.size)
+        .map(
+          ([k, label]) =>
+            `${label} ${s[k]?.size}px${s[k]?.sizeMobile ? `/${s[k]?.sizeMobile}px` : ""}${s[k]?.case === "uppercase" ? " caps" : ""}`,
+        )
+        .join(", ")}.`,
+    );
+  return Object.keys(out).length ? out : undefined;
+}
+
 /** The most characterful palette color: accent unless it is white/black/gray. */
 function pickBrand(theme: SqTheme): { brand: string; from: string } | undefined {
   const order: (keyof SqTheme["colors"])[] = ["accent", "darkAccent", "lightAccent", "black"];
@@ -182,6 +245,19 @@ export function mapTheme(site: SqSite): ThemeDecision {
       `Type scale ${on}: Heading 1 is ${ratio.toFixed(1)}× body text${ratio > 4 ? " (very large; OpenSpace's display preset is the nearest)" : ""}. Density "${density}" from the section heights.`,
     );
   }
+  const typography = siteTypography(t, notes, on);
+  const layout = t.layout && Object.keys(t.layout).length ? { ...t.layout } : undefined;
+  if (layout)
+    notes.push(
+      `Page rhythm ${on}${t.lookSource ? ` (${t.lookSource})` : ""}: ${[
+        layout.contentWidth ? `content ${layout.contentWidth}px wide` : "",
+        layout.sectionPadding
+          ? `sections padded ${layout.sectionPadding}px${layout.sectionPaddingMobile ? ` (${layout.sectionPaddingMobile}px on phones)` : ""}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join(", ")} — kept in Site Styles.`,
+    );
   const styles: Styles = {
     choices: {
       palette: { brand, neutral, contrast: "standard", source },
@@ -191,6 +267,8 @@ export function mapTheme(site: SqSite): ThemeDecision {
       buttons,
       motion: "subtle",
       imageTreatment: "none",
+      ...(typography ? { typography } : {}),
+      ...(layout ? { layout } : {}),
     },
   };
   // Run the contrast solver and say what it changed.

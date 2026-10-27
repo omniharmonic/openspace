@@ -10,6 +10,8 @@
  * is taken from the published page instead.
  */
 import type { SiteFetcher } from "../fetch";
+import { applyLook } from "../fidelity/look";
+import { lookFromTokens } from "../fidelity/tokens";
 import { parseHtmlPage } from "../html/extract";
 import { themeFromCss } from "../html/theme";
 import { socialNetwork } from "../squarespace/crawl";
@@ -186,6 +188,8 @@ export interface StructuredContext {
   icon: (name: string) => string | undefined;
   /** Section background name/color → Squarespace-style theme name the mapper knows. */
   theme: (v: string) => string;
+  /** Section background name/color → its exact color (`#rrggbb`), when known. */
+  groundColor?: (v: string) => string | undefined;
   notices: SqNotice[];
   where: string;
   placeholders: Set<string>;
@@ -412,6 +416,10 @@ export function mapStructuredSection(
       kind: "heading",
       text: plain(heading.v),
       level,
+      // A hero's title (a book or brand name) is set at the display size.
+      ...(level === 1 && /hero/i.test(type) && plain(heading.v).length <= 40
+        ? { display: true }
+        : {}),
       ...(eyebrow ? { eyebrow: plain(eyebrow.v) } : {}),
       ...(sub ? { subheading: plain(sub.v) } : {}),
       ...(o.align === "center" ? { align: "center" as const } : {}),
@@ -427,17 +435,22 @@ export function mapStructuredSection(
     const v = used.has(k) ? undefined : filled(o[k]);
     if (!v) continue;
     used.add(k);
+    // A lead line reads larger than the running text (the lead preset), as it did.
     texts.push(
-      k === "lead" || k === "intro" || k === "lede"
-        ? `<p><strong>${inlineMd(v)}</strong></p>`
+      (k === "lead" || k === "lede") && !/\n\s*\n/.test(v)
+        ? `<p class="os-lead">${inlineMd(v)}</p>`
         : para(v),
     );
   }
+  if (texts.length) main.push({ kind: "text", html: texts.join("") });
   if (Array.isArray(o.paragraphs)) {
     used.add("paragraphs");
-    for (const p of o.paragraphs) if (filled(p)) texts.push(para(filled(p) as string));
+    const ps = o.paragraphs.map(filled).filter((p): p is string => !!p);
+    // Two to four short paragraphs sit side by side (a section's grid of columns).
+    const columns = ps.length >= 2 && ps.length <= 4 && ps.every((p) => p.length <= 700);
+    if (ps.length)
+      main.push({ kind: "text", html: ps.map(para).join(""), ...(columns ? { columns } : {}) });
   }
-  if (texts.length) main.push({ kind: "text", html: texts.join("") });
   // Quote.
   const quote = filled(o.quote);
   if (quote) {
@@ -569,7 +582,10 @@ export function mapStructuredSection(
     after.push(
       k === "helper" || k === "note" || k === "footnote"
         ? `<p><em>${inlineMd(v)}</em></p>`
-        : para(v),
+        : // A closing line: the section's one italic pull line, at the lead size.
+          (k === "closing" || k === "outro") && !/\n\s*\n/.test(v)
+          ? `<p class="os-lead"><em>${inlineMd(v)}</em></p>`
+          : para(v),
     );
   }
   // The helper line under a form stays with the form.
@@ -609,15 +625,21 @@ export function mapStructuredSection(
   // A features preset suits card grids, not lists or prose.
   if (role === "features" && !main.some((b) => b.kind === "cards")) role = undefined;
   const bg = bgName;
+  // A lone image beside the words (a book cover, a portrait) takes a narrower column.
+  const imageOnly = side.length === 1 && side[0]?.kind === "image";
   const columns =
     side.length && main.length
       ? [
-          { span: 7, blocks: main },
-          { span: 5, blocks: side },
+          { span: imageOnly ? 8 : 7, blocks: main },
+          { span: imageOnly ? 4 : 5, blocks: side },
         ]
       : [{ span: 12, blocks: [...main, ...side] }];
   return {
     theme: bg ? ctx.theme(bg) : "",
+    // The ground's exact color, so a section looks as it did (not just its nearest theme).
+    ...(bg && ctx.groundColor?.(bg)
+      ? { background: { color: ctx.groundColor(bg) as string } }
+      : {}),
     layout: { mode: "classic", rows: [{ columns }] },
     ...((str(o.id) ?? str(o.anchor)) ? { id: (str(o.id) ?? str(o.anchor)) as string } : {}),
     ...(o.align === "center" ? { align: "center" as const } : {}),
@@ -753,6 +775,14 @@ export async function crawlStructured(
   );
   if (brand) theme.colors.accent = brand;
   if (siteBg) theme.siteBackground = siteBg;
+  // The design tokens' typography and rhythm (fonts per role, type scale, widths, padding).
+  if (tokenFile)
+    try {
+      const look = lookFromTokens(JSON.parse((await read(tokenFile)) ?? "{}") as Obj);
+      if (look) applyLook(theme, look, `the design tokens (${tokenFile})`);
+    } catch {
+      // not JSON
+    }
   const sectionTheme = (v: string): string => {
     const hex = /^#[0-9a-f]{6}$/i.test(v) ? v : colors.get(v.toLowerCase());
     if (!hex)
@@ -824,6 +854,7 @@ export async function crawlStructured(
       origin,
       icon: (n) => iconByName.get(n.toLowerCase()),
       theme: sectionTheme,
+      groundColor: (v: string) => (/^#[0-9a-f]{6}$/i.test(v) ? v : colors.get(v.toLowerCase())),
       notices,
       where: path,
       placeholders,
