@@ -1,0 +1,457 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_1zw7q5scxj",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "June Okafor writes essays about attention, place and the slow work of noticing. Read Slow Light, her free fortnightly newsletter."
+  },
+  "sections": [
+    {
+      "id": "sec_eqrjathkyy",
+      "preset": "hero/editorial-type@1",
+      "label": "Editorial type",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            9,
+            3
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_qxw9bp43gv",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "On walking the same mile for a year",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Slow Light · Essay 112"
+          },
+          "column": 0,
+          "variant": "rule"
+        },
+        {
+          "id": "blk_20cbceyvrz",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Essays about attention, place and the small, stubborn work of noticing. A new one every other Thursday."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_jppfaxnptj",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Read the essays",
+            "link": {
+              "type": "url",
+              "url": "/essays/"
+            },
+            "role": "tertiary",
+            "secondaryLabel": "About June",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_7s4s483qqy"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_kf18v3sw2x",
+      "preset": "newsletter/centered-dark@1",
+      "label": "Centred on dark",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_4eh7tswc6v",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A letter worth opening, every other Thursday",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Slow Light",
+            "subheading": "One essay, three things I loved and a photograph. Free, and read by 14,000 people."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_qg4jwxdhj0",
+          "type": "newsletter",
+          "v": 1,
+          "fields": {
+            "askName": false,
+            "placeholder": "you@example.com",
+            "buttonLabel": "Subscribe free",
+            "successMessage": "Welcome! Your first letter arrives on Thursday.",
+            "note": "No ads, no tracking, unsubscribe in one click."
+          },
+          "variant": "inline",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_br58axs6yj",
+      "preset": "blog/two-up-large@1",
+      "label": "Two large posts",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_p4qn6eq7np",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "heading": "Recent essays",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "essays",
+              "sort": "date-desc",
+              "limit": 2
+            },
+            "columns": "2",
+            "showImage": true,
+            "showDate": true,
+            "showExcerpt": true,
+            "showMeta": false,
+            "linkLabel": "Every essay",
+            "link": {
+              "type": "url",
+              "url": "/essays/"
+            },
+            "emptyMessage": "The next essay is on its way."
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_w8x08fkt41",
+      "preset": "features/feature-with-review@1",
+      "label": "Feature with review",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_z77d41s3jv",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1558009250-d3d2229fdf28?w=2080&q=80",
+              "alt": "A pale blue typewriter with a blank sheet of paper",
+              "width": 2080,
+              "height": 1387
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_6n7gzsz0v8",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The Mile, out in March",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The new book"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xh5drk1md5",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A year of walking one mile of riverbank every morning, and everything it taught me about paying attention. Published by Saltmarsh Press."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_069tjqbjtt",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A quiet, luminous book that made me want to go outside and look at everything again."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Dana Whitlock",
+            "role": "Author of Small Hours",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Portrait of a woman with long brown hair in a striped shirt",
+              "width": 320,
+              "height": 479
+            }
+          },
+          "column": 1,
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_wwkpxhj1hr",
+      "preset": "testimonials/press-quotes@1",
+      "label": "Press quotes",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            4,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_2jw5thbw1a",
+          "type": "quote",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Okafor writes about noticing like no one else."
+                    }
+                  ]
+                }
+              ]
+            },
+            "source": "The Evening Ledger"
+          },
+          "column": 0,
+          "variant": "classic"
+        },
+        {
+          "id": "blk_ds6qbvrrt0",
+          "type": "quote",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The newsletter I actually look forward to."
+                    }
+                  ]
+                }
+              ]
+            },
+            "source": "Inbox Review"
+          },
+          "column": 1,
+          "variant": "classic"
+        },
+        {
+          "id": "blk_k914rtxhrx",
+          "type": "quote",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Patient, funny and exact."
+                    }
+                  ]
+                }
+              ]
+            },
+            "source": "Northern Books Quarterly"
+          },
+          "column": 2,
+          "variant": "classic"
+        }
+      ]
+    },
+    {
+      "id": "sec_hqf7r2y68p",
+      "preset": "cta/minimal-link@1",
+      "label": "Minimal next step",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "md"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_9qtdbzrstg",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Taking talk and workshop invitations for autumn.",
+            "level": "h2",
+            "size": "h2"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_mhk9sqg35z",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Speaking",
+            "link": {
+              "type": "page",
+              "page": "pg_2j99byhsdz"
+            },
+            "role": "tertiary"
+          },
+          "variant": "default"
+        }
+      ]
+    }
+  ]
+}

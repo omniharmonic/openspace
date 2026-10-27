@@ -1,0 +1,636 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_mdnn4w8hvq",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Mara Quill photographs people and places in natural light. Portraits, editorial commissions and small weddings, based in Brooklyn."
+  },
+  "sections": [
+    {
+      "id": "sec_q42y5vzh6r",
+      "preset": "hero/gallery-strip@1",
+      "label": "Headline over photo strip",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 29,
+          "m": 38
+        },
+        "items": {
+          "blk_m1dyp9mdj6": {
+            "d": {
+              "x": 4,
+              "y": 1,
+              "w": 18,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_bt8vxt7pa3": {
+            "d": {
+              "x": 4,
+              "y": 12,
+              "w": 18,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 14,
+              "w": 8,
+              "h": 3
+            }
+          },
+          "blk_57hehks24p": {
+            "d": {
+              "x": 1,
+              "y": 16,
+              "w": 6,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 18,
+              "w": 4,
+              "h": 10
+            }
+          },
+          "blk_mw17war9xn": {
+            "d": {
+              "x": 7,
+              "y": 18,
+              "w": 6,
+              "h": 12
+            },
+            "m": {
+              "x": 5,
+              "y": 18,
+              "w": 4,
+              "h": 10
+            }
+          },
+          "blk_gw3zmv9wth": {
+            "d": {
+              "x": 13,
+              "y": 16,
+              "w": 6,
+              "h": 12
+            },
+            "m": {
+              "x": 1,
+              "y": 29,
+              "w": 4,
+              "h": 10
+            }
+          },
+          "blk_dzs30f9atc": {
+            "d": {
+              "x": 19,
+              "y": 18,
+              "w": 6,
+              "h": 12
+            },
+            "m": {
+              "x": 5,
+              "y": 29,
+              "w": 4,
+              "h": 10
+            }
+          }
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_m1dyp9mdj6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Quiet portraits of people at work and at home",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Portrait & editorial photographer · Brooklyn",
+            "subheading": "Natural light, no props and plenty of time. I photograph people for magazines, books and their own walls."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_bt8vxt7pa3",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "See sessions & prices",
+            "link": {
+              "type": "page",
+              "page": "pg_7dmpqcv4k7"
+            },
+            "role": "primary",
+            "secondaryLabel": "Get in touch",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_qp79g004am"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_57hehks24p",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1667053508464-eb11b394df83?w=680&q=80",
+              "alt": "Studio portrait from Faces of the Guild",
+              "width": 680,
+              "height": 850
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_mw17war9xn",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1703088066010-af61bb552da4?w=680&q=80",
+              "alt": "A lantern-lit street at night, from After Hours",
+              "width": 680,
+              "height": 1020
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_gw3zmv9wth",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1620122303020-87ec826cf70d?w=680&q=80",
+              "alt": "Black-and-white portrait from Faces of the Guild",
+              "width": 680,
+              "height": 1020
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_dzs30f9atc",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1542401886-65d6c61db217?w=1240&q=80",
+              "alt": "Sand dunes at dawn, from Dry Season",
+              "width": 1240,
+              "height": 827
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_g6s4513zq0",
+      "preset": "portfolio/project-grid@1",
+      "label": "Selected work grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_6arjgzwtna",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "heading": "Recent projects",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "work",
+              "sort": "date-desc",
+              "limit": 4
+            },
+            "columns": "2",
+            "showImage": true,
+            "showDate": false,
+            "showExcerpt": false,
+            "showMeta": false,
+            "linkLabel": "Every project",
+            "link": {
+              "type": "url",
+              "url": "/work/"
+            },
+            "emptyMessage": "New projects are on their way."
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_06a84z717t",
+      "preset": "services/horizontal-cards@1",
+      "label": "Service rows",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_6gcrepc73p",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Three ways to work together",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Commissions"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_heq95phnca",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=720&q=80",
+              "alt": "A smiling man photographed outdoors",
+              "width": 720,
+              "height": 480
+            },
+            "aspect": "3:2",
+            "heading": "Portrait sessions",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Two unhurried hours at your home, studio or a place that matters to you."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_7dmpqcv4k7",
+              "anchor": "portraits"
+            },
+            "linkLabel": "Sessions and prices"
+          },
+          "variant": "horizontal"
+        },
+        {
+          "id": "blk_07gbm98ka9",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1493863641943-9b68992a8d07?w=720&q=80",
+              "alt": "Mara photographing on a city street",
+              "width": 720,
+              "height": 487
+            },
+            "aspect": "3:2",
+            "heading": "Editorial and books",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Portraits and stories for magazines, annual reports and publishers."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_7dmpqcv4k7",
+              "anchor": "editorial"
+            },
+            "linkLabel": "How it works"
+          },
+          "variant": "horizontal"
+        },
+        {
+          "id": "blk_4z09g8vztr",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1715285977619-6d9357168f46?w=720&q=80",
+              "alt": "A couple embracing in a misty field",
+              "width": 720,
+              "height": 1080
+            },
+            "aspect": "3:2",
+            "heading": "Small weddings",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Elopements and weddings under fifty guests, shot on film and digital."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_7dmpqcv4k7",
+              "anchor": "weddings"
+            },
+            "linkLabel": "Wedding coverage"
+          },
+          "variant": "horizontal"
+        }
+      ]
+    },
+    {
+      "id": "sec_6n72pvja6b",
+      "preset": "testimonials/dark-trio@1",
+      "label": "Three quotes on dark",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 14,
+          "m": 32
+        },
+        "items": {
+          "blk_57790hgtev": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_z3md91dsta": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_3rw8xfz76e": {
+            "d": {
+              "x": 9,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 16,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_edm1b13acf": {
+            "d": {
+              "x": 17,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 25,
+              "w": 8,
+              "h": 8
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_57790hgtev",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What people say afterwards",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Clients"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_z3md91dsta",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I've never liked a photo of myself until these. She made the morning feel like a conversation."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Hana Okafor",
+            "role": "Portrait session",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=320&q=80",
+              "alt": "Portrait of a woman in a red sweater, laughing",
+              "width": 320,
+              "height": 480
+            }
+          },
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_3rw8xfz76e",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Mara delivered forty portraits on time and every one of them had a story in it."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Theo Grant",
+            "role": "Editor, Brooklyn Makers Guild",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=320&q=80",
+              "alt": "Portrait of a young man in a black hat, smiling",
+              "width": 320,
+              "height": 480
+            }
+          },
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_edm1b13acf",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Our wedding photos look like the day felt: relaxed, a bit foggy and full of laughing."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Iris Lund",
+            "role": "Wedding, October",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=320&q=80",
+              "alt": "Portrait of a woman in a black top against a soft violet wall",
+              "width": 320,
+              "height": 400
+            }
+          },
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_tmrh1gytma",
+      "preset": "cta/minimal-link@1",
+      "label": "Minimal next step",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "md"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_smr684z9ae",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Now booking portrait sessions for spring.",
+            "level": "h2",
+            "size": "h2"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_kc2fxjak9n",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Check my availability",
+            "link": {
+              "type": "page",
+              "page": "pg_qp79g004am"
+            },
+            "role": "tertiary"
+          },
+          "variant": "default"
+        }
+      ]
+    }
+  ]
+}

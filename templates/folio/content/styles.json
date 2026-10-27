@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.5 0.18 260)",
+      "neutral": "cool",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "space-grotesk-inter",
+    "density": "comfortable",
+    "shape": "soft",
+    "buttons": "solid",
+    "motion": "subtle",
+    "imageTreatment": "rounded"
+  }
+}

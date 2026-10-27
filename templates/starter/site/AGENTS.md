@@ -109,7 +109,7 @@ A clear call to action linking to a page, booking tool, email or file. Use: Once
 One self-contained item — a service, offer, event or article teaser — with an optional link. Use: Place 2–4 cards side by side in stack columns for services or offers. `overlay` sets text on the photo; `horizontal` suits wide columns. Avoid: Long body text (keep under ~40 words); different aspect ratios across cards in a row.
 
 - Variants: `stacked`, `horizontal`, `overlay`, `minimal`
-- Fields: `image?: image { src, alt }`, `aspect: "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`, `icon?: "check" | "star" | "heart" | "leaf" | "sprout" | "flower" | "sun" | "moon" | "sparkles" | "mountain" | "waves" | "map-pin" | "phone" | "mail" | "message-circle" | "clock" | "calendar" | "coffee" | "utensils" | "music" | "camera" | "palette" | "brush" | "book-open" | "graduation-cap" | "user" | "users" | "heart-handshake" | "home" | "shield-check" | "lock" | "award" | "target" | "lightbulb" | "zap" | "rocket" | "gift" | "shopping-bag" | "package" | "truck" | "recycle" | "globe" | "wifi" | "car" | "bike" | "dumbbell" | "accessibility" | "baby" | "dog" | "paw-print" | "scissors" | "wrench" | "arrow-right"`, `eyebrow?: text ≤ 40`, `heading: text ≤ 90`, `body: richText`, `link?: link`, `linkLabel?: text ≤ 30`
+- Fields: `image?: image { src, alt }`, `aspect: "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`, `icon?: "check" | "star" | "heart" | "leaf" | "sprout" | "flower" | "sun" | "moon" | "sparkles" | "mountain" | "waves" | "map-pin" | "phone" | "mail" | "message-circle" | "clock" | "calendar" | "coffee" | "utensils" | "music" | "camera" | "palette" | "brush" | "book-open" | "graduation-cap" | "user" | "users" | "heart-handshake" | "home" | "shield-check" | "lock" | "award" | "target" | "lightbulb" | "zap" | "rocket" | "gift" | "shopping-bag" | "package" | "truck" | "recycle" | "globe" | "wifi" | "car" | "bike" | "dumbbell" | "accessibility" | "baby" | "dog" | "paw-print" | "scissors" | "wrench" | "arrow-right" | "minus" | "x" | "trending-up" | "layers" | "code" | "plug" | "headphones" | "briefcase" | "droplet" | "hammer" | "flame" | "ticket" | "mic" | "pen-tool" | "feather" | "chart-bar" | "timer" | "hand-heart" | "plane" | "bed" | "building" | "ruler" | "search" | "smartphone" | "cloud" | "repeat" | "percent" | "handshake" | "stethoscope" | "gauge" | "workflow" | "puzzle" | "wine" | "cake" | "tent" | "eye" | "image" | "file-text" | "video" | "key-round"`, `eyebrow?: text ≤ 40`, `heading: text ≤ 90`, `body: richText`, `link?: link`, `linkLabel?: text ≤ 30`
 
 ### `chart` — Chart
 
@@ -200,7 +200,7 @@ When a place is open, day by day. Use: Contact, visit and footer areas of shops,
 A scannable list of features, amenities, benefits or what's included. Use: Services and pricing pages, 'what to expect' sections. 3–8 items. Avoid: Using icons that don't match the meaning; paragraphs instead of one-line points.
 
 - Variants: `list`, `tiles`, `checklist`
-- Fields: `items: list of { icon: "check" | "star" | "heart" | "leaf" | "sprout" | "flower" | "sun" | "moon" | "sparkles" | "mountain" | "waves" | "map-pin" | "phone" | "mail" | "message-circle" | "clock" | "calendar" | "coffee" | "utensils" | "music" | "camera" | "palette" | "brush" | "book-open" | "graduation-cap" | "user" | "users" | "heart-handshake" | "home" | "shield-check" | "lock" | "award" | "target" | "lightbulb" | "zap" | "rocket" | "gift" | "shopping-bag" | "package" | "truck" | "recycle" | "globe" | "wifi" | "car" | "bike" | "dumbbell" | "accessibility" | "baby" | "dog" | "paw-print" | "scissors" | "wrench" | "arrow-right", title: text ≤ 60, text?: text ≤ 200 }`, `columns: "1" | "2" | "3" | "4"`
+- Fields: `items: list of { icon: "check" | "star" | "heart" | "leaf" | "sprout" | "flower" | "sun" | "moon" | "sparkles" | "mountain" | "waves" | "map-pin" | "phone" | "mail" | "message-circle" | "clock" | "calendar" | "coffee" | "utensils" | "music" | "camera" | "palette" | "brush" | "book-open" | "graduation-cap" | "user" | "users" | "heart-handshake" | "home" | "shield-check" | "lock" | "award" | "target" | "lightbulb" | "zap" | "rocket" | "gift" | "shopping-bag" | "package" | "truck" | "recycle" | "globe" | "wifi" | "car" | "bike" | "dumbbell" | "accessibility" | "baby" | "dog" | "paw-print" | "scissors" | "wrench" | "arrow-right" | "minus" | "x" | "trending-up" | "layers" | "code" | "plug" | "headphones" | "briefcase" | "droplet" | "hammer" | "flame" | "ticket" | "mic" | "pen-tool" | "feather" | "chart-bar" | "timer" | "hand-heart" | "plane" | "bed" | "building" | "ruler" | "search" | "smartphone" | "cloud" | "repeat" | "percent" | "handshake" | "stethoscope" | "gauge" | "workflow" | "puzzle" | "wine" | "cake" | "tent" | "eye" | "image" | "file-text" | "video" | "key-round", title: text ≤ 60, text?: text ≤ 200 }`, `columns: "1" | "2" | "3" | "4"`
 
 ### `image` — Image
 
@@ -221,7 +221,7 @@ A visual divider between pieces of content. Use: To separate groups inside a sec
 A link-in-bio list: a few large, tappable links under a photo and one-line bio. Use: On a dedicated links page shared from social profiles, or a compact 'start here' list. Put the most important link first and highlight at most one. Avoid: More than ~8 links; vague labels like 'Click here'; duplicating the main navigation.
 
 - Variants: `stacked`, `outline`, `cards`
-- Fields: `photo?: image { src, alt }`, `name?: text ≤ 60`, `bio?: text ≤ 200`, `links: list of { label: text ≤ 60, link: link, icon?: "check" | "star" | "heart" | "leaf" | "sprout" | "flower" | "sun" | "moon" | "sparkles" | "mountain" | "waves" | "map-pin" | "phone" | "mail" | "message-circle" | "clock" | "calendar" | "coffee" | "utensils" | "music" | "camera" | "palette" | "brush" | "book-open" | "graduation-cap" | "user" | "users" | "heart-handshake" | "home" | "shield-check" | "lock" | "award" | "target" | "lightbulb" | "zap" | "rocket" | "gift" | "shopping-bag" | "package" | "truck" | "recycle" | "globe" | "wifi" | "car" | "bike" | "dumbbell" | "accessibility" | "baby" | "dog" | "paw-print" | "scissors" | "wrench" | "arrow-right", highlight: boolean }`, `showSocial: boolean`
+- Fields: `photo?: image { src, alt }`, `name?: text ≤ 60`, `bio?: text ≤ 200`, `links: list of { label: text ≤ 60, link: link, icon?: "check" | "star" | "heart" | "leaf" | "sprout" | "flower" | "sun" | "moon" | "sparkles" | "mountain" | "waves" | "map-pin" | "phone" | "mail" | "message-circle" | "clock" | "calendar" | "coffee" | "utensils" | "music" | "camera" | "palette" | "brush" | "book-open" | "graduation-cap" | "user" | "users" | "heart-handshake" | "home" | "shield-check" | "lock" | "award" | "target" | "lightbulb" | "zap" | "rocket" | "gift" | "shopping-bag" | "package" | "truck" | "recycle" | "globe" | "wifi" | "car" | "bike" | "dumbbell" | "accessibility" | "baby" | "dog" | "paw-print" | "scissors" | "wrench" | "arrow-right" | "minus" | "x" | "trending-up" | "layers" | "code" | "plug" | "headphones" | "briefcase" | "droplet" | "hammer" | "flame" | "ticket" | "mic" | "pen-tool" | "feather" | "chart-bar" | "timer" | "hand-heart" | "plane" | "bed" | "building" | "ruler" | "search" | "smartphone" | "cloud" | "repeat" | "percent" | "handshake" | "stethoscope" | "gauge" | "workflow" | "puzzle" | "wine" | "cake" | "tent" | "eye" | "image" | "file-text" | "video" | "key-round", highlight: boolean }`, `showSocial: boolean`
 
 ### `logo-strip` — Logo strip
 
@@ -263,7 +263,7 @@ Collects email subscribers (double opt-in) for the owner's newsletter. Use: Foot
 Compares plans, packages or tiers with prices and what each includes. Use: Pricing, membership and service-package pages. 2–4 plans; mark at most one as featured. Keep inclusions parallel across plans. Avoid: Prices the owner hasn't confirmed; hidden fees; more than ~6 inclusions per plan; using it for a single product (use the product block).
 
 - Variants: `cards`, `columns`, `compact`
-- Fields: `plans: list of { name: text ≤ 60, price: text ≤ 24, period?: text ≤ 30, description?: text ≤ 200, features: list of { text: text ≤ 120 }, buttonLabel?: text ≤ 30, link?: link, featured: boolean, badge?: text ≤ 24 }`, `note?: text ≤ 200`
+- Fields: `plans: list of { name: text ≤ 60, price: text ≤ 24, period?: text ≤ 30, description?: text ≤ 200, features: list of { text: text ≤ 120 }, buttonLabel?: text ≤ 30, link?: link, featured: boolean, badge?: text ≤ 24, altPrice?: text ≤ 24, altPeriod?: text ≤ 30 }`, `note?: text ≤ 200`, `periodLabel?: text ≤ 20`, `altPeriodLabel?: text ≤ 20`, `altNote?: text ≤ 24`
 
 ### `product` — Product
 
@@ -348,6 +348,13 @@ Lists items from a collection (blog posts, events, projects, episodes, products)
 
 - Variants: `grid`, `list`, `carousel`, `wall`
 - Fields: `heading?: text ≤ 80`, `headingLevel: "h2" | "h3" | "h4"`, `source: reference`, `columns: "2" | "3" | "4"`, `showImage: boolean`, `showDate: boolean`, `showExcerpt: boolean`, `showMeta: boolean`, `linkLabel?: text ≤ 30`, `link?: link`, `emptyMessage: text ≤ 160`
+
+### `table` — Comparison table
+
+Compares plans, packages, products or options feature by feature in a real, accessible table. Use: Under a pricing section (full plan comparison), for specs, or 'us vs. the usual way'. 2–4 columns and 4–12 rows read best; use 'yes'/'no' for checks and dashes, group rows to break long lists. Avoid: Layout tables; more than five columns (phones scroll sideways); claims about competitors the owner can't back up; comparisons with named rival brands.
+
+- Variants: `lines`, `striped`, `boxed`
+- Fields: `caption?: text ≤ 120`, `corner?: text ≤ 40`, `columns: list of { label: text ≤ 40, detail?: text ≤ 40, highlight: boolean }`, `rows: list of { label: text ≤ 80, group: boolean, cells: list of { value: text ≤ 60 } }`, `note?: text ≤ 200`
 
 ### `tabs` — Tabs
 

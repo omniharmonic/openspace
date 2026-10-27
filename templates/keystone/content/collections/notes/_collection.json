@@ -1,0 +1,21 @@
+{
+  "kind": "blog",
+  "label": "Notes",
+  "itemLabel": "Note",
+  "list": {
+    "layout": "list",
+    "pageSize": 20,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": false,
+    "showRelated": true
+  },
+  "feed": {
+    "enabled": true,
+    "title": "Notes by Nadia Brooks",
+    "description": "Short essays on leading small teams."
+  }
+}

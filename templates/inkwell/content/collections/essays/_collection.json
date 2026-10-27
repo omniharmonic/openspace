@@ -1,0 +1,21 @@
+{
+  "kind": "blog",
+  "label": "Essays",
+  "itemLabel": "Essay",
+  "list": {
+    "layout": "list",
+    "pageSize": 20,
+    "sort": "date-desc"
+  },
+  "itemPage": {
+    "layout": "article",
+    "showDate": true,
+    "showAuthor": false,
+    "showRelated": true
+  },
+  "feed": {
+    "enabled": true,
+    "title": "Slow Light",
+    "description": "Essays by June Okafor."
+  }
+}

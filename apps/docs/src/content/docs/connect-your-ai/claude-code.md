@@ -25,7 +25,7 @@ You need Node.js 22 or newer. Screenshots need the `playwright` package in your 
 | **Skill: site setup** | Creating a site from a template, connecting Claude, publishing, connecting a domain. |
 | **Skill: content** | Blog posts, events, products, projects and podcast episodes. |
 | **Skill: migrate** | Moving a Squarespace site: the import, a side-by-side screenshot loop to match the original, redirects and the domain move. |
-| `/openspace:new-site` | Create a site from one of the twelve templates. |
+| `/openspace:new-site` | Create a site from one of the twenty templates. |
 | `/openspace:iterate` | Rapid design iteration on one page, with screenshots after every change. |
 | `/openspace:design-check` | A design and SEO review of a page or the whole site. |
 | `/openspace:restyle` | Change the whole look to a mood, through looks and Site Styles. |

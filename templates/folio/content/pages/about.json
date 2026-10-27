@@ -1,0 +1,366 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_5ftpyf62n1",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "About Priya Raman: how she works, what she believes about designing with data, and what she does when she isn't at a screen."
+  },
+  "sections": [
+    {
+      "id": "sec_r6yzpfj8ad",
+      "preset": "hero/split-image@1",
+      "label": "Split with portrait image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_fs4n2f98y5",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Designer, chart nerd, slow runner",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About",
+            "subheading": "I grew up in Chennai, studied in Pittsburgh and stayed for the rivers. I design tools for people whose jobs are too important for confusing software."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_wmbeybsbeq",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "My experience",
+            "link": {
+              "type": "page",
+              "page": "pg_g9675xv106"
+            },
+            "role": "primary",
+            "secondaryLabel": "Say hello",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_2vmpjzd641"
+            },
+            "note": "Usually replies within a day."
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_mxrv5eh4rc",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1629317337307-e37f95ebc372?w=3440&q=80",
+              "alt": "Priya's desk with a monitor and headphones",
+              "width": 3440,
+              "height": 1549
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_3knxvxsewx",
+      "preset": "about/beliefs@1",
+      "label": "What we believe",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_54mtre89b7",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Principles I design by",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "How I work"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_b2t3375s5h",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "Start with the decision",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Every chart exists to help someone decide something. Find out what."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Fewer, truer numbers",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "One honest number beats ten impressive ones."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Test with real data",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Tidy sample charts lie. Prototype with the messy real thing."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Design is a team sport",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "The best ideas usually come from engineers and users."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "2",
+            "aspect": "3:2"
+          },
+          "column": 1,
+          "variant": "steps"
+        }
+      ]
+    },
+    {
+      "id": "sec_wmm2fpd8za",
+      "preset": "gallery/staggered-three@1",
+      "label": "Staggered three",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 25,
+          "m": 30
+        },
+        "items": {
+          "blk_h58cezwkk4": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 9,
+              "h": 22
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_p04xr0rvpa": {
+            "d": {
+              "x": 11,
+              "y": 6,
+              "w": 6,
+              "h": 14
+            },
+            "m": {
+              "x": 1,
+              "y": 14,
+              "w": 4,
+              "h": 10
+            }
+          },
+          "blk_1tczp8hbrx": {
+            "d": {
+              "x": 18,
+              "y": 3,
+              "w": 7,
+              "h": 18
+            },
+            "m": {
+              "x": 5,
+              "y": 14,
+              "w": 4,
+              "h": 10
+            }
+          },
+          "blk_hwz6ytvra7": {
+            "d": {
+              "x": 11,
+              "y": 21,
+              "w": 14,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 25,
+              "w": 8,
+              "h": 6
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_h58cezwkk4",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1040&q=80",
+              "alt": "Morning light through tall forest trees",
+              "width": 1040,
+              "height": 693
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_p04xr0rvpa",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1582079768381-0e81b88db423?w=840&q=80",
+              "alt": "Reading at a cafe table",
+              "width": 840,
+              "height": 560
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_1tczp8hbrx",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1677462679593-97b817fb118a?w=1040&q=80",
+              "alt": "A colourful wall of books",
+              "width": 1040,
+              "height": 1560
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_hwz6ytvra7",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Away from the screen"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Trail running, too many library books and a weekly cafe sketchbook habit."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    }
+  ]
+}

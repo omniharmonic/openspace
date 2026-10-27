@@ -41,6 +41,7 @@ import { restaurantMenuBlock } from "./blocks/restaurant-menu";
 import { searchBlock } from "./blocks/search";
 import { shareButtonsBlock, socialLinksBlock } from "./blocks/social";
 import { socialFeedBlock } from "./blocks/social-feed";
+import { tableBlock } from "./blocks/table";
 import { tabsBlock } from "./blocks/tabs";
 import { teamBlock } from "./blocks/team";
 import { textBlock } from "./blocks/text";
@@ -109,6 +110,7 @@ export { DIETARY, restaurantMenuBlock } from "./blocks/restaurant-menu";
 export { searchBlock, siteSearchFallback } from "./blocks/search";
 export { shareButtonsBlock, socialLinksBlock } from "./blocks/social";
 export { profileUrl, socialFeedBlock } from "./blocks/social-feed";
+export { tableBlock } from "./blocks/table";
 export { tabsBlock } from "./blocks/tabs";
 export { teamBlock } from "./blocks/team";
 export { textBlock } from "./blocks/text";
@@ -152,6 +154,7 @@ export const allBlocks: readonly AnyBlockDefinition[] = [
   chartBlock,
   countdownBlock,
   pricingBlock,
+  tableBlock,
   teamBlock,
   restaurantMenuBlock,
   hoursBlock,

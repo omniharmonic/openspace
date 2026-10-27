@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "inkwell",
+  "name": "Inkwell",
+  "description": "A reading-first site for writers and newsletters, with signup above the fold, essays, books with press, speaking and a simple way to write in.",
+  "persona": "Writers, authors & newsletters",
+  "mood": "Literary, warm, unhurried",
+  "version": "1.0.0",
+  "tags": [
+    "writer",
+    "newsletter",
+    "author",
+    "essays",
+    "books",
+    "speaking"
+  ],
+  "sample": {
+    "name": "June Okafor",
+    "tagline": "Essays on attention, place and noticing."
+  },
+  "thumbnailPage": "pg_1zw7q5scxj",
+  "looks": [
+    {
+      "id": "paper",
+      "name": "Paper",
+      "description": "Cream paper, an oxblood accent and EB Garamond for long reading.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.45 0.13 25)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "eb-garamond-inter",
+        "density": "airy",
+        "shape": "sharp",
+        "buttons": "text-arrow",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "riverbank",
+      "name": "Riverbank",
+      "description": "A sage accent, Alegreya type and soft corners — a gentle, natural feel.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.55 0.07 150)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "alegreya",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "pill-outline",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "night-edition",
+      "name": "Night edition",
+      "description": "Ink blue, Libre Caslon headings and an underline button style.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.42 0.12 265)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "libre-caslon-nunito-sans",
+        "density": "comfortable",
+        "shape": "sharp",
+        "buttons": "underline",
+        "motion": "none",
+        "imageTreatment": "grain"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_1zw7q5scxj",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_7s4s483qqy",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_jrse89j7zr",
+      "title": "Books",
+      "slug": "books"
+    },
+    {
+      "id": "pg_2j99byhsdz",
+      "title": "Speaking",
+      "slug": "speaking"
+    },
+    {
+      "id": "pg_4vcke76yez",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

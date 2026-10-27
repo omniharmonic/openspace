@@ -1,0 +1,185 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_qp79g004am",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Book a portrait session, send an editorial brief or ask about wedding dates. Mara Quill replies within two working days."
+  },
+  "sections": [
+    {
+      "id": "sec_556mnvjk19",
+      "preset": "contact/photo-form@1",
+      "label": "Form over photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1429292394373-ddbcc6bb7468?w=3840&q=80",
+          "focal": [
+            0.5,
+            0.5
+          ],
+          "overlay": {
+            "color": "background",
+            "opacity": 0.82
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_f43rf93qfw",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Tell me what you have in mind",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact",
+            "subheading": "A few details help me reply with dates and a quote. I answer within two working days."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_nyj6rw6jkx",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_zq3wjw0sh5",
+              "name": "Session enquiry",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "select",
+                  "name": "kind",
+                  "label": "What kind of photographs?",
+                  "required": true,
+                  "width": "full",
+                  "options": [
+                    "Portrait session",
+                    "Editorial or book",
+                    "Small wedding",
+                    "Something else"
+                  ]
+                },
+                {
+                  "type": "textarea",
+                  "name": "message",
+                  "label": "Tell me a little more",
+                  "required": true,
+                  "maxLength": 3000
+                }
+              ],
+              "submitLabel": "Send enquiry",
+              "success": {
+                "type": "message",
+                "message": "Thank you — I'll reply within two working days."
+              },
+              "notifyOwner": true
+            }
+          },
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_rbwf43es1p",
+      "preset": "contact/cards-row@1",
+      "label": "Contact options",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            4,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_vtfspzhhde",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Email",
+            "headingLevel": "h2",
+            "directions": false,
+            "note": "The quickest way to reach me",
+            "email": "studio@maraquill.example"
+          },
+          "column": 0,
+          "variant": "card"
+        },
+        {
+          "id": "blk_2anv810cqd",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Phone",
+            "headingLevel": "h2",
+            "directions": false,
+            "note": "Weekdays, 10am–5pm",
+            "phone": "+1 (718) 555-0164"
+          },
+          "column": 1,
+          "variant": "card"
+        },
+        {
+          "id": "blk_jjgtxw8v9a",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Studio",
+            "headingLevel": "h2",
+            "address": "88 Dobbin Street, Studio 3\nBrooklyn, NY 11222",
+            "directions": true,
+            "note": "Visits by appointment"
+          },
+          "column": 2,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

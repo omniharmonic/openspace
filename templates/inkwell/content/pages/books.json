@@ -1,0 +1,459 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_jrse89j7zr",
+  "title": "Books",
+  "slug": "books",
+  "seo": {
+    "description": "Books by June Okafor: The Mile, a year of walking one riverbank, and the essay collection Small Weather. Where to buy and what critics said."
+  },
+  "sections": [
+    {
+      "id": "sec_d78r8yfa0d",
+      "preset": "hero/centered@1",
+      "label": "Centered statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        }
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_1aae941x0m",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Two books about paying attention",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Books",
+            "subheading": "Available from independent bookshops, libraries and the usual places online."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_4gap1nk1zf",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Pre-order The Mile",
+            "link": {
+              "type": "url",
+              "url": "https://saltmarshpress.example/the-mile"
+            },
+            "role": "primary",
+            "secondaryLabel": "Ask about events",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_4vcke76yez"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_0k9hpfrfy6",
+      "preset": "portfolio/alternating-projects@1",
+      "label": "Alternating projects",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 44,
+          "m": 47
+        },
+        "items": {
+          "blk_9frwxgze8d": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 12,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 4
+            }
+          },
+          "blk_1pz9xb7x4e": {
+            "d": {
+              "x": 1,
+              "y": 6,
+              "w": 15,
+              "h": 18
+            },
+            "m": {
+              "x": 1,
+              "y": 6,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_v09thq0f7k": {
+            "d": {
+              "x": 17,
+              "y": 16,
+              "w": 8,
+              "h": 6
+            },
+            "m": {
+              "x": 1,
+              "y": 18,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_f0t5hghtpq": {
+            "d": {
+              "x": 17,
+              "y": 22,
+              "w": 8,
+              "h": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 24,
+              "w": 8,
+              "h": 2
+            }
+          },
+          "blk_wpd6vhk7s3": {
+            "d": {
+              "x": 10,
+              "y": 27,
+              "w": 15,
+              "h": 18
+            },
+            "m": {
+              "x": 1,
+              "y": 28,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_2pxbqecqpf": {
+            "d": {
+              "x": 1,
+              "y": 37,
+              "w": 8,
+              "h": 6
+            },
+            "m": {
+              "x": 1,
+              "y": 40,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_5k0x9y20pf": {
+            "d": {
+              "x": 1,
+              "y": 43,
+              "w": 8,
+              "h": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 46,
+              "w": 8,
+              "h": 2
+            }
+          }
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_9frwxgze8d",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The books",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Books"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_1pz9xb7x4e",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1494809610410-160faaed4de0?w=1760&q=80",
+              "alt": "A reader reaching for a book in the library stacks",
+              "width": 1760,
+              "height": 2637
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_v09thq0f7k",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The Mile (2027)"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A year of walking the same mile of river every morning, season by season."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_f0t5hghtpq",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Pre-order",
+            "link": {
+              "type": "url",
+              "url": "https://saltmarshpress.example/the-mile"
+            },
+            "role": "tertiary"
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_wpd6vhk7s3",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1677462679593-97b817fb118a?w=1760&q=80",
+              "alt": "A colourful wall of books on wooden shelves",
+              "width": 1760,
+              "height": 2640
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_2pxbqecqpf",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Small Weather (2023)"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Twenty-four essays on rain, kitchens, buses and the joy of being slightly lost."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_5k0x9y20pf",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Buy the paperback",
+            "link": {
+              "type": "url",
+              "url": "https://saltmarshpress.example/small-weather"
+            },
+            "role": "tertiary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_yx1vskrvx7",
+      "preset": "testimonials/spotlight-photo@1",
+      "label": "Spotlight over photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "3xl",
+          "m": "2xl"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1582079768381-0e81b88db423?w=3840&q=80",
+          "focal": [
+            0.5,
+            0.5
+          ],
+          "overlay": {
+            "color": "background",
+            "opacity": 0.8
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_djh0y0sg2t",
+          "type": "quote",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Small Weather is the kind of book you press into a friend's hands and then ask for back."
+                    }
+                  ]
+                }
+              ]
+            },
+            "attribution": "Northern Books Quarterly",
+            "source": "Review of Small Weather"
+          },
+          "variant": "large"
+        }
+      ]
+    },
+    {
+      "id": "sec_f40hp22n0d",
+      "preset": "cta/banner@1",
+      "label": "Centred banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_4prbw6gk9m",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Book clubs welcome",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "I join one book club a month by video. Write and tell me about yours."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_rpefx0hd37",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Invite June",
+            "link": {
+              "type": "page",
+              "page": "pg_4vcke76yez"
+            },
+            "role": "primary",
+            "secondaryLabel": "Talks and workshops",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_2j99byhsdz"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

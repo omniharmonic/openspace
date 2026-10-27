@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/styles.json",
+  "choices": {
+    "palette": {
+      "brand": "oklch(0.52 0.12 150)",
+      "neutral": "warm",
+      "contrast": "standard",
+      "source": "curated"
+    },
+    "pairing": "libre-caslon-nunito-sans",
+    "density": "comfortable",
+    "shape": "soft",
+    "buttons": "pill-solid",
+    "motion": "subtle",
+    "imageTreatment": "rounded"
+  }
+}

@@ -511,7 +511,7 @@ function features() {
             item(
               "sparkles",
               "Templates and sections",
-              "Twelve templates in three looks, and a growing library of designed section presets in your site's style.",
+              "Twenty templates in three looks, and 277 designed section presets that take on your site's style.",
             ),
             item(
               "brush",
@@ -613,7 +613,7 @@ const SHOWCASE = [
 function showcase() {
   return section(
     [
-      heading("Twelve templates, three looks each", {
+      heading("Twenty templates, three looks each", {
         sub: "Each one arrives finished, with real-feeling pages and a type pairing chosen for its subject. Switch looks any time without touching your content.",
       }),
       block(
@@ -814,7 +814,7 @@ function templates() {
         edit: {
           heading: {
             eyebrow: "Template gallery",
-            text: "Twelve templates, three looks each",
+            text: "Twenty templates, three looks each",
             subheading:
               "Every template arrives finished: real-feeling pages, photography and a type pairing chosen for its purpose. Switch looks any time without touching your content.",
           },
@@ -884,7 +884,7 @@ function pricing() {
           },
           "icon-list": {
             items: [
-              { icon: "check", title: "All twelve templates and every section preset" },
+              { icon: "check", title: "All twenty templates and every section preset" },
               { icon: "check", title: "Forms, newsletter, campaigns and analytics" },
               { icon: "check", title: "Blog, events, portfolio and podcast" },
               { icon: "check", title: "Store and members on your own Cloudflare" },

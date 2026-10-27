@@ -64,7 +64,7 @@ describe("preset catalog", () => {
   it("has at least 90 section presets covering every doc 04 §6 category", () => {
     expect(sectionPresets.length).toBeGreaterThanOrEqual(90);
     for (const c of PRESET_CATEGORIES) expect(presetsIn(c).length, c).toBeGreaterThan(0);
-    expect(headerPresets.length).toBe(8);
+    expect(headerPresets.length).toBeGreaterThanOrEqual(12);
   });
 
   it("meets the MVP count in every category", () => {

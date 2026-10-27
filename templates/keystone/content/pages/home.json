@@ -1,0 +1,815 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_ryz88vw8tt",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Nadia Brooks coaches first-time founders through hiring, growth and the hard conversations. One-to-one coaching, cohorts and team days."
+  },
+  "sections": [
+    {
+      "id": "sec_68v9yg0545",
+      "preset": "hero/big-type@1",
+      "label": "Big type with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_w80r2wt1fp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Lead well. Sleep fine.",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Leadership coaching for founders"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_qsvmka9yds",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I help first-time founders of five-to-fifty-person companies build the habits, team and calm that growth demands — without losing what made the company good."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_w6t2s1tky8",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a discovery call",
+            "link": {
+              "type": "page",
+              "page": "pg_we99b7t8j0"
+            },
+            "role": "primary",
+            "secondaryLabel": "Client results",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_qdg648vcs6"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_7jbdsqrrsz",
+      "preset": "logos/press-band@1",
+      "label": "Press band on dark",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "md",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_v7rdef0apk",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "label": "As heard on",
+            "logos": [
+              {
+                "name": "Founders at Dusk"
+              },
+              {
+                "name": "The Small Giants Show"
+              },
+              {
+                "name": "Seed to Series A"
+              },
+              {
+                "name": "Calm Company Radio"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_8ryemgd7ce",
+      "preset": "services/index-list@1",
+      "label": "Numbered service list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_d16jx86k6g",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Three ways in",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Work with me"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_1e4zjtk69d",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "01 — One-to-one coaching"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Fortnightly sessions for founders facing a season of growth or change. Three or six months."
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "02 — Founder cohorts"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Eight founders, six evenings, one honest room. Peer coaching with structure."
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "03 — Leadership team days"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A facilitated day to agree priorities, roles and how your team makes decisions."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Prices and details",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "/work-with-me/"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_2kyphkadsw",
+      "preset": "testimonials/result-cards@1",
+      "label": "Results with quotes",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 17,
+          "m": 38
+        },
+        "items": {
+          "blk_jw0k44yvfn": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_xydkx2anxg": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_crsg21qbxq": {
+            "d": {
+              "x": 9,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 18,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_1nhr8v0ws4": {
+            "d": {
+              "x": 17,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 29,
+              "w": 8,
+              "h": 10
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_jw0k44yvfn",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What changes for clients",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Outcomes"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xydkx2anxg",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h1"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "First VP hired"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "“Hired our first VP with a scorecard instead of a hunch.”"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Ellis, fintech founder"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_crsg21qbxq",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h1"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Ten hours back"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "“I stopped being the bottleneck and got ten hours a week back.”"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Priya, climate software"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_1nhr8v0ws4",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h1"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "No more 2am emails"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "“The team started deciding without me — and decided well.”"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Tom, design agency"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_2tfdc91wyp",
+      "preset": "features/feature-with-review@1",
+      "label": "Feature with review",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_yf8xprn6er",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=2080&q=80",
+              "alt": "Nadia in a coaching conversation at a small table",
+              "width": 2080,
+              "height": 1387
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_n3f8e4g2me",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Practical, candid, on your side",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "How I work"
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_qxy6q7jyp9",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Sessions end with one decision and one experiment. Between them I'm a message away, and I remember what you said three months ago."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_exbej18vt2",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Nadia asks the question everyone else is too polite to ask, then helps you answer it."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Ellis Moreno",
+            "role": "Founder, Brightledger",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=320&q=80",
+              "alt": "A smiling man in a grey t-shirt outdoors",
+              "width": 320,
+              "height": 213
+            }
+          },
+          "column": 1,
+          "variant": "minimal"
+        }
+      ]
+    },
+    {
+      "id": "sec_e552x7j3n8",
+      "preset": "blog/intro-and-list@1",
+      "label": "Author intro with posts",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_mepv0mmabt",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Short essays for busy founders",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Notes"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_e965ep0w2e",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "One idea every fortnight about leading small teams. Five-minute reads."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_yh03jckwgw",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h2",
+            "source": {
+              "collection": "notes",
+              "sort": "date-desc",
+              "limit": 5
+            },
+            "columns": "3",
+            "showImage": false,
+            "showDate": true,
+            "showExcerpt": true,
+            "showMeta": false,
+            "linkLabel": "All notes",
+            "link": {
+              "type": "url",
+              "url": "/notes/"
+            },
+            "emptyMessage": "The next note is being written."
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_ew6tejknmf",
+      "preset": "cta/with-testimonial@1",
+      "label": "Action with review",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_m2vzqb0rqp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Ready to lead with less strain?",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Discovery calls are free, thirty minutes and pressure-free."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_hw6qk9xndv",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Book a discovery call",
+            "link": {
+              "type": "page",
+              "page": "pg_we99b7t8j0"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_xdyz8cmd3k",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The most useful hour of my fortnight, every fortnight, for a year."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Priya Natarajan",
+            "role": "CEO, Saltmarsh Climate",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=320&q=80",
+              "alt": "Portrait of a woman with dark hair pinned up, smiling",
+              "width": 320,
+              "height": 403
+            },
+            "rating": 5
+          },
+          "column": 1,
+          "variant": "card",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -41,6 +41,7 @@ describe("block library", () => {
       "divider",
       "heading",
       "quote-carousel",
+      "table",
     ])
       expect(types).toContain(t);
   });
@@ -253,6 +254,7 @@ describe("BLOCKS_CSS", () => {
       "os-chart",
       "os-countdown",
       "os-pricing",
+      "os-table",
       "os-team",
       "os-menu-card",
       "os-hours",

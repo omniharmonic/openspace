@@ -158,6 +158,8 @@ Presets are pre-composed sections (layout + blocks + style slots) that render in
 | Footer | 3 | 6 |
 | **Total** | **~45** | **~120** |
 
+*Shipped (templates v2): 277 presets in 23 categories — the table above plus Process & timeline, Portfolio & case studies, Menus and Impact & donations. See [TEMPLATE-RESEARCH](../design/TEMPLATE-RESEARCH.md).*
+
 Each preset declares: purpose, recommended copy lengths (e.g., hero headline 3–9 words), image aspect ratios, which color themes it's designed for, and AI guidance (§9).
 
 ---
@@ -180,6 +182,8 @@ Twelve templates spanning the personas in the PRD. Six ship in the MVP (★); si
 | **Commons** | Coalitions, cooperatives, movements | Grounded, collective | Spectral / Epilogue | Earth greens, sky | Partner directory, map block, events, join form |
 | **Vow** | Weddings and celebrations | Romantic, refined | Cormorant Garamond / Jost | Linen, ink, dusty rose | Day timeline, RSVP form, travel info, registry links |
 | **Link** | Link-in-bio, single page | Mobile-first, punchy | Outfit / Outfit | Bold palette presets | Stacked link buttons, embeds, newsletter, socials |
+
+Templates v2 added eight more: **Darkroom** (photographers), **Orbit** (SaaS launches), **Beacon** (nonprofit campaigns), **Fixwell** (local trades), **Keystone** (consultants & coaches), **Gather** (events & conferences), **Inkwell** (writers & newsletters) and **Folio** (personal sites & résumés) — see [TEMPLATE-RESEARCH](../design/TEMPLATE-RESEARCH.md).
 
 ### 7.1 What every template includes
 

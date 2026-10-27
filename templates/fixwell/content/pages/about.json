@@ -1,0 +1,508 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_c5jh5gv7m7",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Fixwell is a family-run plumbing and electrical firm in north Denver since 1998. Meet the crew, see our licences and read reviews."
+  },
+  "sections": [
+    {
+      "id": "sec_62h9cqsmp9",
+      "preset": "hero/split-image@1",
+      "label": "Split with portrait image",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_mpnjerrrdz",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A family firm that answers its own phone",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About Fixwell",
+            "subheading": "Jo Kowalski's dad started Fixwell with one van in 1998. Today there are nine of us, and we still turn up when we say we will."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_9d628p1wd9",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get a quote",
+            "link": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            },
+            "role": "primary",
+            "secondaryLabel": "Our services",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_q2sbvhb6fq"
+            },
+            "note": "Licensed in Colorado since 1998."
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_84y524j6by",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1660330589693-99889d60181e?w=2720&q=80",
+              "alt": "A Fixwell electrician wiring a cabinet",
+              "width": 2720,
+              "height": 1530
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_5668n2x5b1",
+      "preset": "team/hiring@1",
+      "label": "Team with hiring card",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            9,
+            3
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_dzz1gtm81b",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Who'll turn up at your door",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "The crew"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_8c4kar9aph",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Jo Kowalski",
+                "role": "Owner and master plumber",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=720&q=80",
+                  "alt": "Portrait of a woman with long brown hair in a striped shirt",
+                  "width": 720,
+                  "height": 1079
+                }
+              },
+              {
+                "name": "Marcus Hale",
+                "role": "Lead electrician",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=720&q=80",
+                  "alt": "Portrait of a man in a dark suit and glasses",
+                  "width": 720,
+                  "height": 1080
+                }
+              },
+              {
+                "name": "Sam Ortiz",
+                "role": "Plumber",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=720&q=80",
+                  "alt": "Portrait of a smiling man in a white t-shirt",
+                  "width": 720,
+                  "height": 1080
+                }
+              }
+            ],
+            "columns": "3"
+          },
+          "column": 0,
+          "variant": "grid"
+        },
+        {
+          "id": "blk_bstytcg8h9",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Open role",
+            "heading": "We're hiring an apprentice",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Paid training towards your plumbing licence, a van and a four-day week."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            },
+            "linkLabel": "Get in touch",
+            "icon": "hammer"
+          },
+          "column": 1,
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_eptyy31t9x",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Join the crew",
+            "link": {
+              "type": "page",
+              "page": "pg_g5v67q4hd6"
+            },
+            "role": "tertiary"
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_769dtpaj91",
+      "preset": "about/recognition@1",
+      "label": "Awards and recognition",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_2jsxw7yaja",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Licensed, insured, recommended",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Credentials"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xybbfnq7ks",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Copies of every licence and certificate are available on request."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_7vrn8m2ch4",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "shield-check",
+                "title": "Colorado master plumber licence",
+                "text": "Number MP.0041177."
+              },
+              {
+                "icon": "zap",
+                "title": "Licensed master electrician",
+                "text": "Number ME.0029930."
+              },
+              {
+                "icon": "award",
+                "title": "Neighbourhood Business of the Year, 2025",
+                "text": "North Denver Chamber."
+              },
+              {
+                "icon": "star",
+                "title": "4.9 stars from 640 reviews",
+                "text": "On the major review sites."
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 1,
+          "variant": "list",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_ee9rw3fjtg",
+      "preset": "testimonials/three-cards@1",
+      "label": "Three testimonial cards",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 15,
+          "m": 41
+        },
+        "items": {
+          "blk_6781b4h45a": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_jh43237p9b": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_rvk5y4h9vq": {
+            "d": {
+              "x": 9,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_w36pc88rbx": {
+            "d": {
+              "x": 17,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 31,
+              "w": 8,
+              "h": 11
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_6781b4h45a",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What neighbours say",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Reviews"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_jh43237p9b",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "They found the leak without tearing up the floor. Fair price, lovely people."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Grace Liu",
+            "role": "Highland",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=320&q=80",
+              "alt": "Portrait of a woman in a black top against a soft violet wall",
+              "width": 320,
+              "height": 400
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_rvk5y4h9vq",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Our water heater died on Christmas Eve. Fixwell had a new one in by lunchtime."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Daniel Okoro",
+            "role": "Sunnyside",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=320&q=80",
+              "alt": "Portrait of a man in a grey sweater, smiling softly",
+              "width": 320,
+              "height": 480
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_w36pc88rbx",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Quoted, booked and finished our bathroom on schedule. Highly recommended."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Maya Chen",
+            "role": "Wheat Ridge",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=320&q=80",
+              "alt": "Portrait of a woman with dark hair pinned up, smiling",
+              "width": 320,
+              "height": 403
+            },
+            "rating": 5
+          },
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

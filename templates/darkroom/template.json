@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "darkroom",
+  "name": "Darkroom",
+  "description": "An editorial, image-first portfolio for photographers and visual artists, with project pages, session packages and an enquiry form.",
+  "persona": "Photographers & creative portfolios",
+  "mood": "Editorial, quiet, image-first",
+  "version": "1.0.0",
+  "tags": [
+    "photography",
+    "portfolio",
+    "creative",
+    "projects",
+    "packages",
+    "weddings"
+  ],
+  "sample": {
+    "name": "Mara Quill",
+    "tagline": "Portrait and editorial photographer in Brooklyn."
+  },
+  "thumbnailPage": "pg_mdnn4w8hvq",
+  "looks": [
+    {
+      "id": "gallery",
+      "name": "Gallery",
+      "description": "White walls, ink-black type and EB Garamond — the work does the talking.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.32 0.02 260)",
+          "neutral": "pure",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "eb-garamond-inter",
+        "density": "airy",
+        "shape": "sharp",
+        "buttons": "underline",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "contact-sheet",
+      "name": "Contact sheet",
+      "description": "Grotesque type, tight spacing and a red grease-pencil accent.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.55 0.19 28)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "archivo",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "none",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "golden-hour",
+      "name": "Golden hour",
+      "description": "Warm paper, a saffron accent and Playfair headings with soft corners.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.62 0.12 65)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "playfair-source-sans",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "pill-outline",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_mdnn4w8hvq",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_2rv4hb1aae",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_7dmpqcv4k7",
+      "title": "Sessions & prices",
+      "slug": "services"
+    },
+    {
+      "id": "pg_qp79g004am",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

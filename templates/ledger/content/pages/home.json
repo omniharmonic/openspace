@@ -315,6 +315,68 @@
       ]
     },
     {
+      "id": "sec_p1ms79zh57",
+      "preset": "process/phases-horizontal@1",
+      "label": "Project phases",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_vpq1j54tzq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Twelve weeks from chaos to calm",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "How it works",
+            "subheading": "Every operations reset follows the same rhythm, so your team always knows what's coming and what I need from them."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_mc2c8cdcwk",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "Weeks 1–2",
+                "title": "Listen",
+                "text": "Interviews with the team and a look at how work really flows."
+              },
+              {
+                "date": "Weeks 3–6",
+                "title": "Untangle",
+                "text": "Fix the three bottlenecks that cost the most time."
+              },
+              {
+                "date": "Weeks 7–10",
+                "title": "Install",
+                "text": "Weekly rituals, dashboards and clear owners."
+              },
+              {
+                "date": "Weeks 11–12",
+                "title": "Hand over",
+                "text": "Written playbooks and a check-in at three months."
+              }
+            ]
+          },
+          "variant": "horizontal"
+        }
+      ]
+    },
+    {
       "id": "sec_77q7w7t028",
       "preset": "stats/cards@1",
       "label": "Numbers on cards",

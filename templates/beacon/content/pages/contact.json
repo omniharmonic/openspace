@@ -1,0 +1,260 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_tz56z4ahvt",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Contact Shade Street Trust about volunteering, donations, tree requests for your block or school gardens. Office hours and address."
+  },
+  "sections": [
+    {
+      "id": "sec_gx47p2nhsq",
+      "preset": "contact/map-wide@1",
+      "label": "Wide map with details",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 23,
+          "m": 37
+        },
+        "items": {
+          "blk_3cg9ysvr0t": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 4
+            }
+          },
+          "blk_5s6tnb3b5f": {
+            "d": {
+              "x": 1,
+              "y": 6,
+              "w": 16,
+              "h": 18
+            },
+            "m": {
+              "x": 1,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_4g9y79aedf": {
+            "d": {
+              "x": 17,
+              "y": 6,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 17,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_y39g333g7v": {
+            "d": {
+              "x": 17,
+              "y": 15,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 27,
+              "w": 8,
+              "h": 11
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_3cg9ysvr0t",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Find the tree yard",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Contact"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_5s6tnb3b5f",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Shade Street Trust",
+            "address": "41 Mill Street, Eastport, ME 04631",
+            "latitude": 44.9062,
+            "longitude": -66.9898,
+            "zoom": 15,
+            "linkLabel": "Get directions",
+            "aspect": "16:9"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_4g9y79aedf",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h2",
+            "address": "41 Mill Street\nEastport, ME 04631",
+            "phone": "+1 (207) 555-0136",
+            "email": "hello@shadestreet.example",
+            "directions": true
+          },
+          "variant": "list",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_y39g333g7v",
+          "type": "hours",
+          "v": 1,
+          "fields": {
+            "heading": "Office hours",
+            "headingLevel": "h2",
+            "rows": [
+              {
+                "day": "mon",
+                "opens": "10:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "tue",
+                "opens": "10:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "wed",
+                "opens": "10:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "thu",
+                "opens": "10:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "fri",
+                "opens": "10:00",
+                "closes": "19:00",
+                "closed": false
+              },
+              {
+                "day": "sat",
+                "opens": "09:00",
+                "closes": "16:00",
+                "closed": false
+              },
+              {
+                "day": "sun",
+                "closed": true
+              }
+            ]
+          },
+          "variant": "compact",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_21arp1hfpe",
+      "preset": "contact/cards-row@1",
+      "label": "Contact options",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            4,
+            4
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_s94nsbewqx",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Request a tree",
+            "headingLevel": "h2",
+            "directions": false,
+            "note": "For your block or school",
+            "email": "trees@shadestreet.example"
+          },
+          "column": 0,
+          "variant": "card"
+        },
+        {
+          "id": "blk_beww6aa1de",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Donations",
+            "headingLevel": "h2",
+            "email": "giving@shadestreet.example",
+            "directions": false,
+            "note": "Receipts and gifts in memory"
+          },
+          "column": 1,
+          "variant": "card"
+        },
+        {
+          "id": "blk_12ygy20487",
+          "type": "contact-info",
+          "v": 1,
+          "fields": {
+            "heading": "Press",
+            "headingLevel": "h2",
+            "directions": true,
+            "note": "Photos and interviews",
+            "email": "press@shadestreet.example"
+          },
+          "column": 2,
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

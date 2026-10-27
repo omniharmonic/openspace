@@ -1,0 +1,363 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Shade Street Trust",
+  "tagline": "Street trees for the hottest blocks in Eastport.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_zxh6325yyt",
+      "label": "Our work"
+    },
+    {
+      "type": "page",
+      "page": "pg_rpwvmy6qxn",
+      "label": "Get involved"
+    },
+    {
+      "type": "collection",
+      "collection": "news",
+      "label": "News"
+    },
+    {
+      "type": "page",
+      "page": "pg_96z8gajatg",
+      "label": "About"
+    },
+    {
+      "type": "button",
+      "label": "Donate",
+      "link": {
+        "type": "page",
+        "page": "pg_aa79ztc7zb"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-left",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_6z7tsc7zb4",
+    "preset": "footer/sitemap@1",
+    "label": "Sitemap footer",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "m": [
+          6,
+          6
+        ]
+      },
+      "gap": "lg"
+    },
+    "style": {
+      "colorTheme": "dark-accent",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_c6v4ma6cx4",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Shade Street Trust"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Neighbours planting shade on Eastport's hottest streets."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_t1zj5ht0pt",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": []
+        },
+        "column": 0,
+        "variant": "icons"
+      },
+      {
+        "id": "blk_xzwfhn2hvx",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Our work"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Programmes",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/our-work/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "News",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/news/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Planting days",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/events/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 1,
+        "variant": "default"
+      },
+      {
+        "id": "blk_jvra0ba88n",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Help"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Donate",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/donate/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Get involved",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/get-involved/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 2,
+        "variant": "default"
+      },
+      {
+        "id": "blk_psrj3855j4",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "The trust"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "About",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/about/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Contact",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/contact/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 3,
+        "variant": "default"
+      },
+      {
+        "id": "blk_hhec2wpnxf",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Shade Street Trust. Charity no. 1203417"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/shadestreet.example"
+    },
+    {
+      "network": "facebook",
+      "url": "https://facebook.com/shadestreet.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Shade Street Trust",
+    "description": "Street trees for the hottest blocks in Eastport.",
+    "image": "https://images.unsplash.com/photo-1544928938-6852c1925194?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

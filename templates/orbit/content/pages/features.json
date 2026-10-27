@@ -1,0 +1,603 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_frdb7psmx0",
+  "title": "Features",
+  "slug": "features",
+  "seo": {
+    "description": "Shared inbox, live chat, rules, saved replies, reports and a help centre on your own domain. Everything in Relay, feature by feature."
+  },
+  "sections": [
+    {
+      "id": "sec_mv0722ptee",
+      "preset": "hero/video-feature@1",
+      "label": "Headline with video",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_k6zt1a1hsp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Everything a small support team needs",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Features",
+            "subheading": "Watch a two-minute tour, or start a free workspace and invite your team."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_v78ar6t9qk",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start free",
+            "link": {
+              "type": "url",
+              "url": "https://app.relay.example/signup"
+            },
+            "role": "primary",
+            "secondaryLabel": "Book a demo",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_gk5sprgha6"
+            },
+            "note": "Set up in about five minutes."
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_5cx1wzfmxd",
+          "type": "video",
+          "v": 1,
+          "fields": {
+            "source": "embed",
+            "title": "Relay product tour (sample video: Big Buck Bunny by the Blender Foundation)",
+            "aspect": "16:9",
+            "background": false,
+            "url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+            "caption": "A sample video stands in here until you add your own product tour.",
+            "poster": {
+              "src": "https://images.unsplash.com/photo-1582005450386-52b25f82d9bb?w=2400&q=80",
+              "alt": "People working on laptops in a bright office",
+              "width": 2400,
+              "height": 1600
+            }
+          },
+          "variant": "framed"
+        }
+      ]
+    },
+    {
+      "id": "sec_xxgjt4dw5t",
+      "preset": "features/tabbed@1",
+      "label": "Features in tabs",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_8phbrqqyaq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "From first message to solved",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Workflow",
+            "subheading": "Relay keeps every conversation moving without anyone babysitting the queue."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_s8km85mwr8",
+          "type": "tabs",
+          "v": 1,
+          "fields": {
+            "label": "Workflow features",
+            "items": [
+              {
+                "label": "Routing",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "The right person, automatically"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Route by keyword, customer plan or time of day, and balance load across the team."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Replies",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Saved replies that sound like you"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Personalise templates with the customer's name, order and last message."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "SLAs",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Never miss a promise"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Set reply targets per plan and get nudged before a conversation runs late."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "underline"
+        }
+      ]
+    },
+    {
+      "id": "sec_e2a6eg0eyt",
+      "preset": "features/tile-grid@1",
+      "label": "Feature tiles",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_dx0nkgt26s",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "And all the small things",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Included",
+            "subheading": "The details that make a support tool pleasant to use every single day."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_cry0c0ssmy",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "mail",
+                "title": "Shared email inbox"
+              },
+              {
+                "icon": "message-circle",
+                "title": "Live chat widget"
+              },
+              {
+                "icon": "book-open",
+                "title": "Help centre"
+              },
+              {
+                "icon": "users",
+                "title": "Internal notes"
+              },
+              {
+                "icon": "clock",
+                "title": "Snooze and reminders"
+              },
+              {
+                "icon": "search",
+                "title": "Instant search"
+              },
+              {
+                "icon": "chart-bar",
+                "title": "Weekly reports"
+              },
+              {
+                "icon": "lock",
+                "title": "Two-factor sign-in"
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "tiles"
+        }
+      ]
+    },
+    {
+      "id": "sec_xyt8rkzzks",
+      "preset": "features/integrations@1",
+      "label": "Works with your tools",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_j3t0yztxv1",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Plays well with your stack",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Integrations"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_3f843ea33a",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "See orders, subscriptions and bug reports right beside each conversation."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_8848c8vkgg",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Ask about an integration",
+            "link": {
+              "type": "page",
+              "page": "pg_gk5sprgha6"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_dbqjn19qmj",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "logos": [
+              {
+                "name": "Your store"
+              },
+              {
+                "name": "Billing"
+              },
+              {
+                "name": "Issue tracker"
+              },
+              {
+                "name": "Team chat"
+              },
+              {
+                "name": "CRM"
+              },
+              {
+                "name": "Webhooks"
+              }
+            ],
+            "monochrome": true
+          },
+          "column": 1,
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_kc46ew8kwt",
+      "preset": "features/comparison-table@1",
+      "label": "Comparison table",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_ych9hh2n9d",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Relay, or a shared mailbox?",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Compare",
+            "subheading": "What changes when a team moves support out of a shared email account."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_dzdhc5ps00",
+          "type": "table",
+          "v": 1,
+          "fields": {
+            "caption": "A shared mailbox compared with Relay",
+            "columns": [
+              {
+                "label": "Shared mailbox",
+                "highlight": false
+              },
+              {
+                "label": "Relay",
+                "detail": "From $0",
+                "highlight": true
+              }
+            ],
+            "rows": [
+              {
+                "label": "See who's replying",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Assign conversations",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "Forwarding"
+                  },
+                  {
+                    "value": "One click"
+                  }
+                ]
+              },
+              {
+                "label": "Reply time reports",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Help centre",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              },
+              {
+                "label": "Customer history in one place",
+                "group": false,
+                "cells": [
+                  {
+                    "value": "no"
+                  },
+                  {
+                    "value": "yes"
+                  }
+                ]
+              }
+            ]
+          },
+          "variant": "lines"
+        }
+      ]
+    },
+    {
+      "id": "sec_cb031x9m82",
+      "preset": "cta/big-type@1",
+      "label": "Big type call to action",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            9,
+            3
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_945a7xfzx0",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Try it with your own inbox today.",
+            "level": "h2",
+            "size": "display"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_hep2wdrgzs",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start free",
+            "link": {
+              "type": "url",
+              "url": "https://app.relay.example/signup"
+            },
+            "role": "primary"
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

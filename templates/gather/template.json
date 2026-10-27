@@ -1,0 +1,118 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "gather",
+  "name": "Gather",
+  "description": "A site for conferences, festivals and events, with a countdown hero, speakers, a day-by-day programme, ticket passes, venue and travel, and fringe events.",
+  "persona": "Events, festivals & conferences",
+  "mood": "Energetic, clear, welcoming",
+  "version": "1.0.0",
+  "tags": [
+    "event",
+    "conference",
+    "festival",
+    "tickets",
+    "speakers",
+    "programme"
+  ],
+  "sample": {
+    "name": "Open Field 2027",
+    "tagline": "Design for public services · 10–11 June 2027, Minneapolis."
+  },
+  "thumbnailPage": "pg_xzesny8yta",
+  "looks": [
+    {
+      "id": "marquee",
+      "name": "Marquee",
+      "description": "A punchy magenta accent with Unbounded headings and pill buttons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.55 0.22 350)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "unbounded-figtree",
+        "density": "comfortable",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "expressive",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "programme",
+      "name": "Programme",
+      "description": "Printed-programme feel: Libre Baskerville, a forest accent and sharp rules.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.45 0.1 155)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "libre-baskerville-karla",
+        "density": "comfortable",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    },
+    {
+      "id": "festival",
+      "name": "Festival",
+      "description": "Sunny saffron, Syne headings and soft corners for outdoor events.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.7 0.15 75)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "syne-dm-sans",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "expressive",
+        "imageTreatment": "rounded"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_xzesny8yta",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_7h5fkz85td",
+      "title": "Programme",
+      "slug": "programme"
+    },
+    {
+      "id": "pg_k1ec9wgctm",
+      "title": "Speakers",
+      "slug": "speakers"
+    },
+    {
+      "id": "pg_wrwn9f0tjc",
+      "title": "Tickets",
+      "slug": "tickets"
+    },
+    {
+      "id": "pg_fc0xa2rkda",
+      "title": "Venue & travel",
+      "slug": "venue"
+    },
+    {
+      "id": "pg_9hjnx0n2tv",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_w0dp3gv618",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

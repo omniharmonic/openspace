@@ -1,0 +1,449 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_7h5fkz85td",
+  "title": "Programme",
+  "slug": "programme",
+  "seo": {
+    "description": "The Open Field 2027 programme: two days of talks and workshops on public service design, plus fringe events across Minneapolis."
+  },
+  "sections": [
+    {
+      "id": "sec_271ajh7cak",
+      "preset": "hero/editorial-type@1",
+      "label": "Editorial type",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            9,
+            3
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_rs3k7chwk2",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Two days, hour by hour",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Programme · draft 2"
+          },
+          "column": 0,
+          "variant": "rule"
+        },
+        {
+          "id": "blk_b31akv2je3",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Times may shift a little until May. Every main-stage talk is captioned and recorded."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_m5tfdts6tv",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get tickets",
+            "link": {
+              "type": "page",
+              "page": "pg_wrwn9f0tjc"
+            },
+            "role": "tertiary",
+            "secondaryLabel": "Speakers",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_k1ec9wgctm"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_t90c0ssqtn",
+      "preset": "events/programme-tabs@1",
+      "label": "Programme by day",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_s8d3ny1cab",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Talks and workshops",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Main hall",
+            "subheading": "Workshops run in the two side rooms; sign up on the day."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_h7hgk7at40",
+          "type": "tabs",
+          "v": 1,
+          "fields": {
+            "label": "Conference days",
+            "items": [
+              {
+                "label": "Thu 10 June",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "9:00 · Registration and breakfast"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Coffee from Twin Oaks, pastries from Little Ember."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "10:00 · Forms people can finish"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Lena Brandt on rewriting a benefits application from scratch."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "14:00 · Workshops"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Plain language clinic, research with small budgets, and accessible PDFs."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Fri 11 June",
+                "content": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "10:00 · Small teams, public money"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Jonah Ellis on shipping weekly inside city government."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "13:30 · Panel: trust in public spaces"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Libraries, clinics and the digital front door."
+                        }
+                      ]
+                    },
+                    {
+                      "type": "heading",
+                      "attrs": {
+                        "level": 3,
+                        "preset": "h4"
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "16:30 · Closing and drinks"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "On the terrace, rain or shine."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "variant": "underline"
+        }
+      ]
+    },
+    {
+      "id": "sec_cz80wv9n20",
+      "preset": "events/upcoming-split@1",
+      "label": "Upcoming events with intro",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_k8pzsxhyxp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Around the conference",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Fringe"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xaep2v8cy7",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Free evening events hosted by local teams. Conference badge not needed."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_ge0y82be6h",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "All fringe events",
+            "link": {
+              "type": "url",
+              "url": "/fringe/"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_gn2g5mg6wk",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h2",
+            "source": {
+              "collection": "fringe",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 4
+            },
+            "showImage": false,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "Save a place",
+            "emptyMessage": "Fringe events are announced in April.",
+            "structuredData": true
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_a7h6yswmmj",
+      "preset": "cta/banner@1",
+      "label": "Centred banner",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_0ghpwmc7t6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Bring your whole team",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Groups of five or more save 15%, and we'll seat you together at lunch."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_yr55pwacqt",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Team tickets",
+            "link": {
+              "type": "page",
+              "page": "pg_wrwn9f0tjc"
+            },
+            "role": "primary",
+            "secondaryLabel": "Ask a question",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_w0dp3gv618"
+            }
+          },
+          "variant": "large",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

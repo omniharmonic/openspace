@@ -31,6 +31,12 @@ export const pricingBlock = defineBlock({
         link: f.link({ optional: true }),
         featured: f.boolean({ default: false, help: "Highlight this plan" }),
         badge: f.text({ optional: true, maxLength: 24, help: "e.g. 'Most popular'" }),
+        altPrice: f.text({
+          optional: true,
+          maxLength: 24,
+          help: "Price for the second billing period (shown when the toggle is switched)",
+        }),
+        altPeriod: f.text({ optional: true, maxLength: 30, help: "e.g. '/ month, billed yearly'" }),
       },
       default: [
         {
@@ -75,6 +81,21 @@ export const pricingBlock = defineBlock({
       maxLength: 200,
       default: "Students, seniors and teachers save 20% — just ask at the desk.",
     }),
+    periodLabel: f.text({
+      optional: true,
+      maxLength: 20,
+      help: "Billing toggle: name of the main prices, e.g. 'Monthly'",
+    }),
+    altPeriodLabel: f.text({
+      optional: true,
+      maxLength: 20,
+      help: "Billing toggle: name of the second prices, e.g. 'Yearly'. Plans need a second price.",
+    }),
+    altNote: f.text({
+      optional: true,
+      maxLength: 24,
+      help: "Short note beside the second option, e.g. 'Save 20%'",
+    }),
   },
   variants: ["cards", "columns", "compact"],
   styleSlots: ["colorTheme", "padding", "radius", "shadow", "animation", "typography.price"],
@@ -85,49 +106,92 @@ export const pricingBlock = defineBlock({
     avoid:
       "Prices the owner hasn't confirmed; hidden fees; more than ~6 inclusions per plan; using it for a single product (use the product block).",
   },
-  render: ({ fields, variant, style }) => (
-    <div className={cx("os-pricing", `os-pricing--${variant}`)}>
-      <ul className="os-pricing__plans" style={planColumns(fields.plans.length)}>
-        {fields.plans.map((plan, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
-          <li key={i} className={cx("os-pricing__plan", plan.featured && "is-featured")}>
-            <div className="os-pricing__head">
-              <h3 className="os-pricing__name os-type-h4">{plan.name}</h3>
-              {plan.badge ? <p className="os-pricing__badge">{plan.badge}</p> : null}
-            </div>
-            <p className="os-pricing__price">
-              <span className={cx("os-pricing__amount", typo(style, "price", "h1"))}>
-                {plan.price}
-              </span>
-              {plan.period ? <span className="os-pricing__period">{plan.period}</span> : null}
-            </p>
-            {plan.description ? <p className="os-pricing__desc">{plan.description}</p> : null}
-            {plan.features.length ? (
-              <ul className="os-pricing__features">
-                {plan.features.map((feat, j) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
-                  <li key={j}>
-                    <Icon name="check" size={18} />
-                    <span>{feat.text}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            {plan.buttonLabel && plan.link ? (
-              <Button
-                to={plan.link as LinkValue}
-                role={plan.featured ? "primary" : "secondary"}
-                className="os-pricing__button"
+  render: ({ id, fields, variant, style }) => {
+    const toggle =
+      !!fields.periodLabel && !!fields.altPeriodLabel && fields.plans.some((p) => p.altPrice);
+    return (
+      <div className={cx("os-pricing", `os-pricing--${variant}`, toggle && "has-toggle")}>
+        {toggle ? (
+          <fieldset className="os-pricing__toggle">
+            <legend className="os-visually-hidden">Billing period</legend>
+            <input
+              type="radio"
+              className="os-pricing__radio is-main"
+              id={`${id}-main`}
+              name={`${id}-billing`}
+              defaultChecked
+            />
+            <label htmlFor={`${id}-main`}>{fields.periodLabel}</label>
+            <input
+              type="radio"
+              className="os-pricing__radio is-alt"
+              id={`${id}-alt`}
+              name={`${id}-billing`}
+            />
+            <label htmlFor={`${id}-alt`}>
+              {fields.altPeriodLabel}
+              {fields.altNote ? <span className="os-pricing__save">{fields.altNote}</span> : null}
+            </label>
+          </fieldset>
+        ) : null}
+        <ul className="os-pricing__plans" style={planColumns(fields.plans.length)}>
+          {fields.plans.map((plan, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
+            <li key={i} className={cx("os-pricing__plan", plan.featured && "is-featured")}>
+              <div className="os-pricing__head">
+                <h3 className="os-pricing__name os-type-h4">{plan.name}</h3>
+                {plan.badge ? <p className="os-pricing__badge">{plan.badge}</p> : null}
+              </div>
+              <p
+                className={cx(
+                  "os-pricing__price",
+                  toggle && "is-main",
+                  toggle && plan.altPrice && "has-alt",
+                )}
               >
-                {plan.buttonLabel}
-              </Button>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-      {fields.note ? <p className="os-pricing__note">{fields.note}</p> : null}
-    </div>
-  ),
+                <span className={cx("os-pricing__amount", typo(style, "price", "h1"))}>
+                  {plan.price}
+                </span>
+                {plan.period ? <span className="os-pricing__period">{plan.period}</span> : null}
+              </p>
+              {toggle && plan.altPrice ? (
+                <p className="os-pricing__price is-alt">
+                  <span className={cx("os-pricing__amount", typo(style, "price", "h1"))}>
+                    {plan.altPrice}
+                  </span>
+                  {plan.altPeriod ? (
+                    <span className="os-pricing__period">{plan.altPeriod}</span>
+                  ) : null}
+                </p>
+              ) : null}
+              {plan.description ? <p className="os-pricing__desc">{plan.description}</p> : null}
+              {plan.features.length ? (
+                <ul className="os-pricing__features">
+                  {plan.features.map((feat, j) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: list items have no ids
+                    <li key={j}>
+                      <Icon name="check" size={18} />
+                      <span>{feat.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {plan.buttonLabel && plan.link ? (
+                <Button
+                  to={plan.link as LinkValue}
+                  role={plan.featured ? "primary" : "secondary"}
+                  className="os-pricing__button"
+                >
+                  {plan.buttonLabel}
+                </Button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+        {fields.note ? <p className="os-pricing__note">{fields.note}</p> : null}
+      </div>
+    );
+  },
 });
 
 export const pricingCss = `
@@ -149,6 +213,15 @@ export const pricingCss = `
 .os-pricing__features .os-icon{flex:none;margin-top:0.15em;color:var(--os-color-accent)}
 .os-pricing__button{margin-top:auto;align-self:stretch;justify-content:center}
 .os-pricing__features+.os-pricing__button,.os-pricing__desc+.os-pricing__button{margin-top:auto}
+.os-pricing__toggle{display:inline-flex;justify-self:center;margin:0 0 var(--os-space-xs);padding:4px;border:1px solid var(--os-color-border);border-radius:var(--os-radius-full);background:var(--os-color-surface);min-width:0}
+.os-pricing__radio{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.os-pricing__toggle label{display:inline-flex;align-items:center;gap:0.5em;min-height:44px;padding:0.4em 1.1em;border-radius:var(--os-radius-full);color:var(--os-color-text);font-weight:var(--os-font-weight-strong);cursor:pointer}
+.os-pricing__radio:checked+label{background:var(--os-color-surface-raised);color:var(--os-color-heading);box-shadow:var(--os-shadow-sm)}
+.os-pricing__radio:focus-visible+label{outline:2px solid var(--os-color-focus);outline-offset:2px}
+.os-pricing__save{padding:0.1em 0.6em;border-radius:var(--os-radius-full);background:var(--os-color-accent);color:var(--os-color-accent-text);font-size:var(--os-type-small-font-size)}
+.os-pricing__price.is-alt{display:none}
+.os-pricing:has(.os-pricing__radio.is-alt:checked) .os-pricing__price.is-alt{display:flex}
+.os-pricing:has(.os-pricing__radio.is-alt:checked) .os-pricing__price.has-alt{display:none}
 .os-pricing__note{margin:0;font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted);text-align:center}
 .os-pricing--cards .os-pricing__plan{background:var(--os-color-surface)}
 .os-pricing--cards .os-pricing__plan.is-featured{background:var(--os-color-surface-raised);box-shadow:var(--os-shadow-md);outline:2px solid var(--os-color-accent);outline-offset:-2px}

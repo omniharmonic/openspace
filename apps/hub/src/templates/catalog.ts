@@ -1415,6 +1415,947 @@ export const TEMPLATE_CATALOG: readonly TemplateMeta[] = [
         "slug": ""
       }
     ]
+  },
+  {
+    "id": "darkroom",
+    "name": "Darkroom",
+    "description": "An editorial, image-first portfolio for photographers and visual artists, with project pages, session packages and an enquiry form.",
+    "persona": "Photographers & creative portfolios",
+    "mood": "Editorial, quiet, image-first",
+    "version": "1.0.0",
+    "tags": [
+      "photography",
+      "portfolio",
+      "creative",
+      "projects",
+      "packages",
+      "weddings"
+    ],
+    "looks": [
+      {
+        "id": "gallery",
+        "name": "Gallery",
+        "description": "White walls, ink-black type and EB Garamond — the work does the talking.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.32 0.02 260)",
+              "neutral": "pure",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "eb-garamond-inter",
+            "density": "airy",
+            "shape": "sharp",
+            "buttons": "underline",
+            "motion": "subtle",
+            "imageTreatment": "none"
+          }
+        }
+      },
+      {
+        "id": "contact-sheet",
+        "name": "Contact sheet",
+        "description": "Grotesque type, tight spacing and a red grease-pencil accent.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.55 0.19 28)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "brand"
+            },
+            "pairing": "archivo",
+            "density": "compact",
+            "shape": "sharp",
+            "buttons": "solid",
+            "motion": "none",
+            "imageTreatment": "none"
+          }
+        }
+      },
+      {
+        "id": "golden-hour",
+        "name": "Golden hour",
+        "description": "Warm paper, a saffron accent and Playfair headings with soft corners.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.62 0.12 65)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "playfair-source-sans",
+            "density": "comfortable",
+            "shape": "soft",
+            "buttons": "pill-outline",
+            "motion": "subtle",
+            "imageTreatment": "rounded"
+          }
+        }
+      }
+    ],
+    "thumbnailPage": "pg_mdnn4w8hvq",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1667053508464-eb11b394df83?w=680&q=80",
+    "sample": {
+      "name": "Mara Quill",
+      "tagline": "Portrait and editorial photographer in Brooklyn."
+    },
+    "pages": [
+      {
+        "id": "pg_mdnn4w8hvq",
+        "title": "Home",
+        "slug": ""
+      },
+      {
+        "id": "pg_2rv4hb1aae",
+        "title": "About",
+        "slug": "about"
+      },
+      {
+        "id": "pg_7dmpqcv4k7",
+        "title": "Sessions & prices",
+        "slug": "services"
+      },
+      {
+        "id": "pg_qp79g004am",
+        "title": "Contact",
+        "slug": "contact"
+      }
+    ]
+  },
+  {
+    "id": "orbit",
+    "name": "Orbit",
+    "description": "A crisp launch site for software products, with a screenshot hero, bento features, plans with a yearly switch, a full comparison and a changelog.",
+    "persona": "SaaS, apps & product launches",
+    "mood": "Crisp, confident, modern",
+    "version": "1.0.0",
+    "tags": [
+      "saas",
+      "startup",
+      "product",
+      "pricing",
+      "changelog",
+      "launch"
+    ],
+    "looks": [
+      {
+        "id": "indigo",
+        "name": "Indigo",
+        "description": "Clean white, an indigo accent and Plus Jakarta Sans throughout.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.52 0.2 275)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "plus-jakarta",
+            "density": "comfortable",
+            "shape": "soft",
+            "buttons": "solid",
+            "motion": "subtle",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "aurora",
+        "name": "Aurora",
+        "description": "A teal accent, Sora headings and round, pill-shaped buttons.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.6 0.13 185)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "brand"
+            },
+            "pairing": "sora-inter",
+            "density": "comfortable",
+            "shape": "round",
+            "buttons": "pill-solid",
+            "motion": "expressive",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "blueprint",
+        "name": "Blueprint",
+        "description": "Sharp corners, Space Grotesk and a signal-orange accent on cool greys.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.64 0.18 45)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "brand"
+            },
+            "pairing": "space-grotesk-inter",
+            "density": "compact",
+            "shape": "sharp",
+            "buttons": "solid",
+            "motion": "subtle",
+            "imageTreatment": "none"
+          }
+        }
+      }
+    ],
+    "thumbnailPage": "pg_c69tkhv0yb",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1800&q=80",
+    "sample": {
+      "name": "Relay",
+      "tagline": "The shared inbox for small support teams."
+    },
+    "pages": [
+      {
+        "id": "pg_c69tkhv0yb",
+        "title": "Home",
+        "slug": ""
+      },
+      {
+        "id": "pg_frdb7psmx0",
+        "title": "Features",
+        "slug": "features"
+      },
+      {
+        "id": "pg_scxghk4vxy",
+        "title": "Pricing",
+        "slug": "pricing"
+      },
+      {
+        "id": "pg_e6gc55hpzq",
+        "title": "About",
+        "slug": "about"
+      },
+      {
+        "id": "pg_gk5sprgha6",
+        "title": "Contact",
+        "slug": "contact"
+      }
+    ]
+  },
+  {
+    "id": "beacon",
+    "name": "Beacon",
+    "description": "A mission-first site for nonprofits and campaigns, with donate buttons throughout, monthly giving, a campaign goal, impact numbers and volunteer days.",
+    "persona": "Nonprofits, charities & campaigns",
+    "mood": "Hopeful, clear, trustworthy",
+    "version": "1.0.0",
+    "tags": [
+      "nonprofit",
+      "charity",
+      "donate",
+      "campaign",
+      "volunteer",
+      "impact"
+    ],
+    "looks": [
+      {
+        "id": "canopy",
+        "name": "Canopy",
+        "description": "Leaf green on warm paper with Libre Caslon headings.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.52 0.12 150)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "libre-caslon-nunito-sans",
+            "density": "comfortable",
+            "shape": "soft",
+            "buttons": "pill-solid",
+            "motion": "subtle",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "sunrise",
+        "name": "Sunrise",
+        "description": "A bold coral accent, DM Serif headings and confident pill buttons.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.63 0.17 35)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "dm-serif-dm-sans",
+            "density": "comfortable",
+            "shape": "round",
+            "buttons": "pill-solid",
+            "motion": "expressive",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "civic",
+        "name": "Civic",
+        "description": "Deep blue, Public Sans and square corners — sober and official.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.45 0.13 255)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "brand"
+            },
+            "pairing": "newsreader-public-sans",
+            "density": "compact",
+            "shape": "sharp",
+            "buttons": "solid",
+            "motion": "none",
+            "imageTreatment": "none"
+          }
+        }
+      }
+    ],
+    "thumbnailPage": "pg_nq67de47fc",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1544928938-6852c1925194?w=1040&q=80",
+    "sample": {
+      "name": "Shade Street Trust",
+      "tagline": "Street trees for the hottest blocks in Eastport."
+    },
+    "pages": [
+      {
+        "id": "pg_nq67de47fc",
+        "title": "Home",
+        "slug": ""
+      },
+      {
+        "id": "pg_96z8gajatg",
+        "title": "About",
+        "slug": "about"
+      },
+      {
+        "id": "pg_zxh6325yyt",
+        "title": "Our work",
+        "slug": "our-work"
+      },
+      {
+        "id": "pg_rpwvmy6qxn",
+        "title": "Get involved",
+        "slug": "get-involved"
+      },
+      {
+        "id": "pg_aa79ztc7zb",
+        "title": "Donate",
+        "slug": "donate"
+      },
+      {
+        "id": "pg_tz56z4ahvt",
+        "title": "Contact",
+        "slug": "contact"
+      }
+    ]
+  },
+  {
+    "id": "fixwell",
+    "name": "Fixwell",
+    "description": "A phone-first site for local trades and services, with a call button on every page, trust points, published rates, a service-area map and a quote form.",
+    "persona": "Local services: trades, cleaners, salons",
+    "mood": "Dependable, direct, local",
+    "version": "1.0.0",
+    "tags": [
+      "local",
+      "trades",
+      "plumber",
+      "electrician",
+      "services",
+      "quotes"
+    ],
+    "looks": [
+      {
+        "id": "workwear",
+        "name": "Workwear",
+        "description": "Navy and safety orange with Archivo — sturdy and easy to read.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.62 0.18 45)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "archivo",
+            "density": "comfortable",
+            "shape": "soft",
+            "buttons": "solid",
+            "motion": "subtle",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "fresh",
+        "name": "Fresh",
+        "description": "A clean teal, Plus Jakarta Sans and round pill buttons — for cleaners and salons.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.58 0.12 190)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "plus-jakarta",
+            "density": "comfortable",
+            "shape": "round",
+            "buttons": "pill-solid",
+            "motion": "subtle",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "heritage",
+        "name": "Heritage",
+        "description": "Forest green, Zilla Slab headings and square corners — an old-school family firm.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.45 0.09 160)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "brand"
+            },
+            "pairing": "zilla-slab-inter",
+            "density": "compact",
+            "shape": "sharp",
+            "buttons": "solid",
+            "motion": "none",
+            "imageTreatment": "none"
+          }
+        }
+      }
+    ],
+    "thumbnailPage": "pg_363jnd89a1",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1920&q=80",
+    "sample": {
+      "name": "Fixwell Plumbing & Electric",
+      "tagline": "Licensed plumbers and electricians in north Denver."
+    },
+    "pages": [
+      {
+        "id": "pg_363jnd89a1",
+        "title": "Home",
+        "slug": ""
+      },
+      {
+        "id": "pg_q2sbvhb6fq",
+        "title": "Services",
+        "slug": "services"
+      },
+      {
+        "id": "pg_k52zrsks9g",
+        "title": "Prices",
+        "slug": "pricing"
+      },
+      {
+        "id": "pg_c5jh5gv7m7",
+        "title": "About",
+        "slug": "about"
+      },
+      {
+        "id": "pg_g5v67q4hd6",
+        "title": "Contact",
+        "slug": "contact"
+      }
+    ]
+  },
+  {
+    "id": "keystone",
+    "name": "Keystone",
+    "description": "A calm, type-led site for consultants and coaches, with ways to work together and prices, client results, short essays and a discovery-call form.",
+    "persona": "Consultants & coaches",
+    "mood": "Calm, candid, assured",
+    "version": "1.0.0",
+    "tags": [
+      "coach",
+      "consultant",
+      "personal-brand",
+      "services",
+      "case-studies",
+      "booking"
+    ],
+    "looks": [
+      {
+        "id": "slate",
+        "name": "Slate",
+        "description": "Warm paper, a deep teal accent and Lora headings.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.45 0.08 200)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "lora-inter",
+            "density": "airy",
+            "shape": "soft",
+            "buttons": "solid",
+            "motion": "subtle",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "clay",
+        "name": "Clay",
+        "description": "A terracotta accent, Crimson Pro headings and round pill buttons.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.58 0.12 40)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "crimson-figtree",
+            "density": "comfortable",
+            "shape": "round",
+            "buttons": "pill-solid",
+            "motion": "subtle",
+            "imageTreatment": "circle"
+          }
+        }
+      },
+      {
+        "id": "boardroom",
+        "name": "Boardroom",
+        "description": "Ink blue, Manrope throughout and crisp square corners.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.4 0.1 260)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "brand"
+            },
+            "pairing": "manrope",
+            "density": "comfortable",
+            "shape": "sharp",
+            "buttons": "outline",
+            "motion": "none",
+            "imageTreatment": "none"
+          }
+        }
+      }
+    ],
+    "thumbnailPage": "pg_ryz88vw8tt",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=2080&q=80",
+    "sample": {
+      "name": "Nadia Brooks",
+      "tagline": "Leadership coaching for first-time founders."
+    },
+    "pages": [
+      {
+        "id": "pg_ryz88vw8tt",
+        "title": "Home",
+        "slug": ""
+      },
+      {
+        "id": "pg_jharvnhbcs",
+        "title": "Work with me",
+        "slug": "work-with-me"
+      },
+      {
+        "id": "pg_qdg648vcs6",
+        "title": "Results",
+        "slug": "results"
+      },
+      {
+        "id": "pg_ef4c6yegp8",
+        "title": "About",
+        "slug": "about"
+      },
+      {
+        "id": "pg_we99b7t8j0",
+        "title": "Contact",
+        "slug": "contact"
+      }
+    ]
+  },
+  {
+    "id": "gather",
+    "name": "Gather",
+    "description": "A site for conferences, festivals and events, with a countdown hero, speakers, a day-by-day programme, ticket passes, venue and travel, and fringe events.",
+    "persona": "Events, festivals & conferences",
+    "mood": "Energetic, clear, welcoming",
+    "version": "1.0.0",
+    "tags": [
+      "event",
+      "conference",
+      "festival",
+      "tickets",
+      "speakers",
+      "programme"
+    ],
+    "looks": [
+      {
+        "id": "marquee",
+        "name": "Marquee",
+        "description": "A punchy magenta accent with Unbounded headings and pill buttons.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.55 0.22 350)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "unbounded-figtree",
+            "density": "comfortable",
+            "shape": "round",
+            "buttons": "pill-solid",
+            "motion": "expressive",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "programme",
+        "name": "Programme",
+        "description": "Printed-programme feel: Libre Baskerville, a forest accent and sharp rules.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.45 0.1 155)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "libre-baskerville-karla",
+            "density": "comfortable",
+            "shape": "sharp",
+            "buttons": "solid",
+            "motion": "subtle",
+            "imageTreatment": "none"
+          }
+        }
+      },
+      {
+        "id": "festival",
+        "name": "Festival",
+        "description": "Sunny saffron, Syne headings and soft corners for outdoor events.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.7 0.15 75)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "syne-dm-sans",
+            "density": "comfortable",
+            "shape": "soft",
+            "buttons": "solid",
+            "motion": "expressive",
+            "imageTreatment": "rounded"
+          }
+        }
+      }
+    ],
+    "thumbnailPage": "pg_xzesny8yta",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1773828755374-0ee802d9f44b?w=3840&q=80",
+    "sample": {
+      "name": "Open Field 2027",
+      "tagline": "Design for public services · 10–11 June 2027, Minneapolis."
+    },
+    "pages": [
+      {
+        "id": "pg_xzesny8yta",
+        "title": "Home",
+        "slug": ""
+      },
+      {
+        "id": "pg_7h5fkz85td",
+        "title": "Programme",
+        "slug": "programme"
+      },
+      {
+        "id": "pg_k1ec9wgctm",
+        "title": "Speakers",
+        "slug": "speakers"
+      },
+      {
+        "id": "pg_wrwn9f0tjc",
+        "title": "Tickets",
+        "slug": "tickets"
+      },
+      {
+        "id": "pg_fc0xa2rkda",
+        "title": "Venue & travel",
+        "slug": "venue"
+      },
+      {
+        "id": "pg_9hjnx0n2tv",
+        "title": "About",
+        "slug": "about"
+      },
+      {
+        "id": "pg_w0dp3gv618",
+        "title": "Contact",
+        "slug": "contact"
+      }
+    ]
+  },
+  {
+    "id": "inkwell",
+    "name": "Inkwell",
+    "description": "A reading-first site for writers and newsletters, with signup above the fold, essays, books with press, speaking and a simple way to write in.",
+    "persona": "Writers, authors & newsletters",
+    "mood": "Literary, warm, unhurried",
+    "version": "1.0.0",
+    "tags": [
+      "writer",
+      "newsletter",
+      "author",
+      "essays",
+      "books",
+      "speaking"
+    ],
+    "looks": [
+      {
+        "id": "paper",
+        "name": "Paper",
+        "description": "Cream paper, an oxblood accent and EB Garamond for long reading.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.45 0.13 25)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "eb-garamond-inter",
+            "density": "airy",
+            "shape": "sharp",
+            "buttons": "text-arrow",
+            "motion": "subtle",
+            "imageTreatment": "none"
+          }
+        }
+      },
+      {
+        "id": "riverbank",
+        "name": "Riverbank",
+        "description": "A sage accent, Alegreya type and soft corners — a gentle, natural feel.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.55 0.07 150)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "alegreya",
+            "density": "comfortable",
+            "shape": "soft",
+            "buttons": "pill-outline",
+            "motion": "subtle",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "night-edition",
+        "name": "Night edition",
+        "description": "Ink blue, Libre Caslon headings and an underline button style.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.42 0.12 265)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "brand"
+            },
+            "pairing": "libre-caslon-nunito-sans",
+            "density": "comfortable",
+            "shape": "sharp",
+            "buttons": "underline",
+            "motion": "none",
+            "imageTreatment": "grain"
+          }
+        }
+      }
+    ],
+    "thumbnailPage": "pg_1zw7q5scxj",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1558009250-d3d2229fdf28?w=2080&q=80",
+    "sample": {
+      "name": "June Okafor",
+      "tagline": "Essays on attention, place and noticing."
+    },
+    "pages": [
+      {
+        "id": "pg_1zw7q5scxj",
+        "title": "Home",
+        "slug": ""
+      },
+      {
+        "id": "pg_7s4s483qqy",
+        "title": "About",
+        "slug": "about"
+      },
+      {
+        "id": "pg_jrse89j7zr",
+        "title": "Books",
+        "slug": "books"
+      },
+      {
+        "id": "pg_2j99byhsdz",
+        "title": "Speaking",
+        "slug": "speaking"
+      },
+      {
+        "id": "pg_4vcke76yez",
+        "title": "Contact",
+        "slug": "contact"
+      }
+    ]
+  },
+  {
+    "id": "folio",
+    "name": "Folio",
+    "description": "A personal site and résumé: a friendly introduction, selected projects, experience as a timeline, skills, references, writing and a contact form.",
+    "persona": "Personal sites, résumés & freelancers",
+    "mood": "Friendly, clear, personal",
+    "version": "1.0.0",
+    "tags": [
+      "personal",
+      "resume",
+      "cv",
+      "portfolio",
+      "freelancer",
+      "writing"
+    ],
+    "looks": [
+      {
+        "id": "studio",
+        "name": "Studio",
+        "description": "Off-white, a cobalt accent and Inter with Space Grotesk headings.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.5 0.18 260)",
+              "neutral": "cool",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "space-grotesk-inter",
+            "density": "comfortable",
+            "shape": "soft",
+            "buttons": "solid",
+            "motion": "subtle",
+            "imageTreatment": "rounded"
+          }
+        }
+      },
+      {
+        "id": "sketchbook",
+        "name": "Sketchbook",
+        "description": "A warm coral accent, DM Serif headings and round, friendly shapes.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.62 0.15 30)",
+              "neutral": "warm",
+              "contrast": "standard",
+              "source": "curated"
+            },
+            "pairing": "dm-serif-dm-sans",
+            "density": "airy",
+            "shape": "round",
+            "buttons": "pill-outline",
+            "motion": "subtle",
+            "imageTreatment": "circle"
+          }
+        }
+      },
+      {
+        "id": "monospace",
+        "name": "Monospace",
+        "description": "IBM Plex Mono headings, a green accent and sharp corners for engineers.",
+        "styles": {
+          "$schema": "https://schema.openspace.dev/v1/styles.json",
+          "choices": {
+            "palette": {
+              "brand": "oklch(0.52 0.13 150)",
+              "neutral": "pure",
+              "contrast": "standard",
+              "source": "brand"
+            },
+            "pairing": "plex-mono-plex-sans",
+            "density": "compact",
+            "shape": "sharp",
+            "buttons": "outline",
+            "motion": "none",
+            "imageTreatment": "none"
+          }
+        }
+      }
+    ],
+    "thumbnailPage": "pg_69rkgd3jmk",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=1240&q=80",
+    "sample": {
+      "name": "Priya Raman",
+      "tagline": "Product designer making data feel obvious."
+    },
+    "pages": [
+      {
+        "id": "pg_69rkgd3jmk",
+        "title": "Home",
+        "slug": ""
+      },
+      {
+        "id": "pg_g9675xv106",
+        "title": "Experience",
+        "slug": "experience"
+      },
+      {
+        "id": "pg_5ftpyf62n1",
+        "title": "About",
+        "slug": "about"
+      },
+      {
+        "id": "pg_2vmpjzd641",
+        "title": "Contact",
+        "slug": "contact"
+      }
+    ]
   }
 ];
 
@@ -1992,6 +2933,390 @@ export const LOOK_PREVIEWS: Readonly<Record<string, LookPreview>> = {
     "fonts": {
       "heading": "\"Sora\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
       "body": "\"Inter\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "darkroom/gallery": {
+    "colors": {
+      "background": "#fafafa",
+      "surface": "#f2f2f2",
+      "text": "#202020",
+      "muted": "#636363",
+      "accent": "#2d333d",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"EB Garamond\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Inter\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "darkroom/contact-sheet": {
+    "colors": {
+      "background": "#fbf9ff",
+      "surface": "#f3f1f8",
+      "text": "#211f28",
+      "muted": "#64616c",
+      "accent": "#c93029",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Archivo\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Archivo\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "darkroom/golden-hour": {
+    "colors": {
+      "background": "#fdf9f6",
+      "surface": "#f6f2ed",
+      "text": "#251f19",
+      "muted": "#69625b",
+      "accent": "#b7752b",
+      "onAccent": "#17120c"
+    },
+    "fonts": {
+      "heading": "\"Playfair Display\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Source Sans 3\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "rect"
+  },
+  "orbit/indigo": {
+    "colors": {
+      "background": "#f7faff",
+      "surface": "#eef3f9",
+      "text": "#1b2129",
+      "muted": "#5d646d",
+      "accent": "#4d53d9",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Plus Jakarta Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Plus Jakarta Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 8,
+    "imageShape": "rect"
+  },
+  "orbit/aurora": {
+    "colors": {
+      "background": "#f6fbfd",
+      "surface": "#eef3f6",
+      "text": "#1a2225",
+      "muted": "#5c6569",
+      "accent": "#009488",
+      "onAccent": "#0d1417"
+    },
+    "fonts": {
+      "heading": "\"Sora\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Inter\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "rect"
+  },
+  "orbit/blueprint": {
+    "colors": {
+      "background": "#fbf9ff",
+      "surface": "#f4f1f8",
+      "text": "#221e28",
+      "muted": "#65616b",
+      "accent": "#e15f0a",
+      "onAccent": "#141119"
+    },
+    "fonts": {
+      "heading": "\"Space Grotesk\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Inter\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "beacon/canopy": {
+    "colors": {
+      "background": "#fbfaf5",
+      "surface": "#f4f3ed",
+      "text": "#222119",
+      "muted": "#65635b",
+      "accent": "#287c42",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Libre Caslon Text\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Nunito Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "rect"
+  },
+  "beacon/sunrise": {
+    "colors": {
+      "background": "#fff9f5",
+      "surface": "#f8f1ec",
+      "text": "#271e18",
+      "muted": "#6b615a",
+      "accent": "#dc5a3a",
+      "onAccent": "#19110b"
+    },
+    "fonts": {
+      "heading": "\"DM Serif Display\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"DM Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "rect"
+  },
+  "beacon/civic": {
+    "colors": {
+      "background": "#f7fbff",
+      "surface": "#eef3f8",
+      "text": "#1b2128",
+      "muted": "#5d646c",
+      "accent": "#17559b",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Newsreader\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Public Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "fixwell/workwear": {
+    "colors": {
+      "background": "#fbf9ff",
+      "surface": "#f4f1f8",
+      "text": "#221e28",
+      "muted": "#65616b",
+      "accent": "#d85900",
+      "onAccent": "#141119"
+    },
+    "fonts": {
+      "heading": "\"Archivo\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Archivo\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 8,
+    "imageShape": "rect"
+  },
+  "fixwell/fresh": {
+    "colors": {
+      "background": "#f7fbfd",
+      "surface": "#eef3f6",
+      "text": "#1b2225",
+      "muted": "#5d6568",
+      "accent": "#008d87",
+      "onAccent": "#0d1417"
+    },
+    "fonts": {
+      "heading": "\"Plus Jakarta Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Plus Jakarta Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "rect"
+  },
+  "fixwell/heritage": {
+    "colors": {
+      "background": "#fbfaf7",
+      "surface": "#f3f3ee",
+      "text": "#21211b",
+      "muted": "#64635d",
+      "accent": "#1a6444",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Zilla Slab\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Inter\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "keystone/slate": {
+    "colors": {
+      "background": "#fafaf7",
+      "surface": "#f2f3ef",
+      "text": "#20211c",
+      "muted": "#63645e",
+      "accent": "#006266",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Lora\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Inter\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 8,
+    "imageShape": "rect"
+  },
+  "keystone/clay": {
+    "colors": {
+      "background": "#fef9f6",
+      "surface": "#f7f1ed",
+      "text": "#261f1a",
+      "muted": "#69625c",
+      "accent": "#b55f40",
+      "onAccent": "#050505"
+    },
+    "fonts": {
+      "heading": "\"Crimson Pro\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Figtree\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "circle"
+  },
+  "keystone/boardroom": {
+    "colors": {
+      "background": "#f8fafe",
+      "surface": "#eff3f7",
+      "text": "#1d2126",
+      "muted": "#5f646a",
+      "accent": "#25467d",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Manrope\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Manrope\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "gather/marquee": {
+    "colors": {
+      "background": "#f9f9ff",
+      "surface": "#f1f2f9",
+      "text": "#1f1f29",
+      "muted": "#62626d",
+      "accent": "#c61583",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Unbounded\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Figtree\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "rect"
+  },
+  "gather/programme": {
+    "colors": {
+      "background": "#fbfaf6",
+      "surface": "#f3f3ee",
+      "text": "#22211a",
+      "muted": "#65635c",
+      "accent": "#17653c",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Libre Baskerville\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Karla\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "gather/festival": {
+    "colors": {
+      "background": "#fef9f4",
+      "surface": "#f7f2ec",
+      "text": "#261f17",
+      "muted": "#696259",
+      "accent": "#bd7f00",
+      "onAccent": "#18110a"
+    },
+    "fonts": {
+      "heading": "\"Syne\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"DM Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 8,
+    "imageShape": "rect"
+  },
+  "inkwell/paper": {
+    "colors": {
+      "background": "#fef9f6",
+      "surface": "#f7f1ed",
+      "text": "#271f19",
+      "muted": "#6a615b",
+      "accent": "#90302e",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"EB Garamond\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Inter\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "inkwell/riverbank": {
+    "colors": {
+      "background": "#fbfaf7",
+      "surface": "#f3f2ef",
+      "text": "#21211c",
+      "muted": "#64635e",
+      "accent": "#537d5c",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Alegreya\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Alegreya Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "rect"
+  },
+  "inkwell/night-edition": {
+    "colors": {
+      "background": "#f7faff",
+      "surface": "#eff3f8",
+      "text": "#1c2127",
+      "muted": "#5e646b",
+      "accent": "#2c488e",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Libre Caslon Text\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"Nunito Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 0,
+    "imageShape": "rect"
+  },
+  "folio/studio": {
+    "colors": {
+      "background": "#f7faff",
+      "surface": "#eef3f9",
+      "text": "#1a2129",
+      "muted": "#5d646d",
+      "accent": "#195cc7",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"Space Grotesk\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "body": "\"Inter\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 8,
+    "imageShape": "rect"
+  },
+  "folio/sketchbook": {
+    "colors": {
+      "background": "#fff9f5",
+      "surface": "#f8f1ec",
+      "text": "#271e18",
+      "muted": "#6b615a",
+      "accent": "#d15d4d",
+      "onAccent": "#19110b"
+    },
+    "fonts": {
+      "heading": "\"DM Serif Display\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif",
+      "body": "\"DM Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "radius": 999,
+    "imageShape": "circle"
+  },
+  "folio/monospace": {
+    "colors": {
+      "background": "#fafafa",
+      "surface": "#f2f2f2",
+      "text": "#202020",
+      "muted": "#636363",
+      "accent": "#1d7d3e",
+      "onAccent": "#ffffff"
+    },
+    "fonts": {
+      "heading": "\"IBM Plex Mono\", ui-monospace, SFMono-Regular, Menlo, Consolas, \"Liberation Mono\", monospace",
+      "body": "\"IBM Plex Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
     },
     "radius": 0,
     "imageShape": "rect"

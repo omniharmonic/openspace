@@ -1,0 +1,264 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Mara Quill",
+  "tagline": "Portrait and editorial photographer in Brooklyn.",
+  "nav": [
+    {
+      "type": "collection",
+      "collection": "work",
+      "label": "Work"
+    },
+    {
+      "type": "page",
+      "page": "pg_7dmpqcv4k7",
+      "label": "Sessions"
+    },
+    {
+      "type": "page",
+      "page": "pg_2rv4hb1aae",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_qp79g004am",
+      "label": "Contact"
+    }
+  ],
+  "header": {
+    "variant": "minimal-burger",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "fullscreen",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_ym0aj8z15w",
+    "preset": "footer/giant-wordmark@1",
+    "label": "Giant wordmark",
+    "layout": {
+      "mode": "grid",
+      "rows": {
+        "d": 14,
+        "m": 15
+      },
+      "items": {
+        "blk_5rfbg1stt5": {
+          "d": {
+            "x": 1,
+            "y": 1,
+            "w": 8,
+            "h": 4
+          },
+          "m": {
+            "x": 1,
+            "y": 1,
+            "w": 8,
+            "h": 4
+          }
+        },
+        "blk_7a5rrk05js": {
+          "d": {
+            "x": 13,
+            "y": 1,
+            "w": 6,
+            "h": 4
+          },
+          "m": {
+            "x": 1,
+            "y": 6,
+            "w": 4,
+            "h": 4
+          }
+        },
+        "blk_6v78nas3eh": {
+          "d": {
+            "x": 19,
+            "y": 1,
+            "w": 6,
+            "h": 4
+          },
+          "m": {
+            "x": 5,
+            "y": 6,
+            "w": 4,
+            "h": 4
+          }
+        },
+        "blk_mk62agb3n2": {
+          "d": {
+            "x": 1,
+            "y": 7,
+            "w": 24,
+            "h": 8
+          },
+          "m": {
+            "x": 1,
+            "y": 11,
+            "w": 8,
+            "h": 5
+          }
+        }
+      }
+    },
+    "style": {
+      "colorTheme": "light",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_5rfbg1stt5",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Portraits and editorial photography. Brooklyn, New York."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default"
+      },
+      {
+        "id": "blk_7a5rrk05js",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Work",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/work/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Sessions",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/services/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default"
+      },
+      {
+        "id": "blk_6v78nas3eh",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "About",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/about/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Contact",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/contact/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "variant": "default"
+      },
+      {
+        "id": "blk_mk62agb3n2",
+        "type": "heading",
+        "v": 1,
+        "fields": {
+          "text": "Mara Quill",
+          "level": "h2",
+          "size": "display"
+        },
+        "variant": "plain"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/maraquill.example"
+    },
+    {
+      "network": "pinterest",
+      "url": "https://pinterest.com/maraquill.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Mara Quill",
+    "description": "Portrait and editorial photographer in Brooklyn.",
+    "image": "https://images.unsplash.com/photo-1667053508464-eb11b394df83?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

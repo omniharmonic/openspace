@@ -1,0 +1,163 @@
+{
+  "$comment": "Licenses for the demo media in the Beacon template. Replace the demo photos with your own; this file can be deleted once none of them are used.",
+  "design": {
+    "license": "CC-BY-4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "media": [
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735",
+      "title": "Young seedlings sprouting in a dark tray of soil",
+      "author": "Markus Spiske",
+      "authorUrl": "https://unsplash.com/@markusspiske",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/selective-focus-photo-of-plant-spouts-vrbZVyX2k4I",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+      "title": "Portrait of a man in a grey sweater, smiling softly",
+      "author": "Jurica Koletić",
+      "authorUrl": "https://unsplash.com/@juricakoletic",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/man-wearing-henley-top-portrait-7YVZYZeITc8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6",
+      "title": "A smiling man in a grey t-shirt outdoors",
+      "author": "Elizeu Dias",
+      "authorUrl": "https://unsplash.com/@elishavision",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/selective-focus-of-man-smiling-during-daytime-2EGNqazbAMk",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1524247108137-732e0f642303",
+      "title": "A volunteer planting flowers in a garden bed",
+      "author": "Quilia",
+      "authorUrl": "https://unsplash.com/@heyquilia",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/three-people-planting-flowers-qo6_mo9dsYg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      "title": "Portrait of a woman in a black top against a soft violet wall",
+      "author": "Aiony Haust",
+      "authorUrl": "https://unsplash.com/@aiony",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-wearing-black-crew-neck-shirt-3TLl_97HNJo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      "title": "Portrait of a woman with long brown hair in a striped shirt",
+      "author": "Štefan Štefančík",
+      "authorUrl": "https://unsplash.com/@cikstefan",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/smiling-woman-wearing-white-and-black-pinstriped-collared-top-QXevDflbl8A",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1544928938-6852c1925194",
+      "title": "Two smiling volunteers holding shovels at a tree planting",
+      "author": "victoria gonzales",
+      "authorUrl": "https://unsplash.com/@victxri",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/two-women-holding-shovels-2obBFGDL9xM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e",
+      "title": "A smiling woman with curly hair in a bright office",
+      "author": "Christina @ wocintechchat.com M",
+      "authorUrl": "https://unsplash.com/@wocintechchat",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-on-focus-photography-SJvDxw0azqw",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956",
+      "title": "Portrait of a woman with dark hair pinned up, smiling",
+      "author": "Jake Nackos",
+      "authorUrl": "https://unsplash.com/@jakenackos",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1614436201459-156d322d38c6",
+      "title": "A smiling woman with a shoulder-length bob by the water",
+      "author": "Halil Ibrahim Cetinkaya",
+      "authorUrl": "https://unsplash.com/@hicetinkaya",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-brown-scarf-and-brown-scarf-WzGC8xSyqfg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1631195414013-85b70ff2c180",
+      "title": "A community garden of raised flower beds between houses",
+      "author": "Steve Adams",
+      "authorUrl": "https://unsplash.com/@sradams57",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/yellow-flowers-on-the-garden-bY_q4VodUc0",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1777150895644-2ca253ee1c93",
+      "title": "Hands cupping a young seedling in dark soil",
+      "author": "Hammilton Ojijo",
+      "authorUrl": "https://unsplash.com/@ojijohammilton",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/two-pairs-of-hands-planting-a-small-green-seedling-OQC1dP2fL80",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1780387477222-730504564368",
+      "title": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+      "author": "Centre for Ageing Better",
+      "authorUrl": "https://unsplash.com/@ageing_better",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/woman-in-beige-jumpsuit-smiling-sitting-on-a-stool-IxacjtwPdGM",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "kind": "image",
+      "src": "https://images.unsplash.com/photo-1782386963665-b83ce1d6752e",
+      "title": "Gloved hands planting seedlings in a garden bed",
+      "author": "Erwin Bosman",
+      "authorUrl": "https://unsplash.com/@erwinbosman",
+      "source": "Unsplash",
+      "sourceUrl": "https://unsplash.com/photos/hands-in-gloves-planting-small-seedlings-in-dark-soil-6xMClJG5dW8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

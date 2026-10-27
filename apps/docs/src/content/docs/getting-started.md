@@ -7,7 +7,7 @@ OpenSpace gets you from nothing to a live, good-looking website in about three m
 
 ## 1. Pick a template
 
-Open **Studio** (the OpenSpace editor) at [studio.openspace.dev](https://studio.openspace.dev/templates) and browse the gallery. You don't need an account to look around or preview. There are [twelve templates](/templates/), each with three looks. Pick the one closest to what you do — you can change the look later without losing anything.
+Open **Studio** (the OpenSpace editor) at [studio.openspace.dev](https://studio.openspace.dev/templates) and browse the gallery. You don't need an account to look around or preview. There are [twenty templates](/templates/), each with three looks. Pick the one closest to what you do — you can change the look later without losing anything.
 
 Optionally type your site's name and one line about what you do. They're written into the template for you.
 

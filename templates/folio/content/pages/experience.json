@@ -1,0 +1,552 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_g9675xv106",
+  "title": "Experience",
+  "slug": "experience",
+  "seo": {
+    "description": "Priya Raman's experience: product design roles at Harbour Health, Kitebase and Civic Design Lab, skills, education and references."
+  },
+  "sections": [
+    {
+      "id": "sec_11qpeycnd6",
+      "preset": "hero/minimal-line@1",
+      "label": "One line",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "3xl",
+          "m": "2xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_kv8pt0p24e",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Nine years of making complicated things clear.",
+            "level": "h1",
+            "size": "display"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_gf0k7petr7",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Download my CV (PDF)",
+            "link": {
+              "type": "url",
+              "url": "https://priyaraman.example/priya-raman-cv.pdf"
+            },
+            "role": "tertiary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_eemth61t8f",
+      "preset": "process/sticky-steps@1",
+      "label": "Steps beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_h0zfg26hme",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Where I've worked",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Experience"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_mmxxjggnzb",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Mostly small teams inside larger organisations, where design has to earn its seat by shipping."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_91k96qn3qy",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "References on request",
+            "link": {
+              "type": "page",
+              "page": "pg_2vmpjzd641"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_58wze68m7n",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "2023 – now",
+                "title": "Lead product designer, Harbour Health",
+                "text": "Leading a team of four designing clinical dashboards for 40 hospitals."
+              },
+              {
+                "date": "2020 – 2023",
+                "title": "Senior designer, Kitebase",
+                "text": "Analytics product for logistics companies; redesigned reporting end to end."
+              },
+              {
+                "date": "2017 – 2020",
+                "title": "Designer, Civic Design Lab",
+                "text": "Budget, transit and housing tools for three city governments."
+              },
+              {
+                "date": "2015 – 2017",
+                "title": "Junior designer, Orchard Pay",
+                "text": "Onboarding and payments flows for a small fintech."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "vertical"
+        }
+      ]
+    },
+    {
+      "id": "sec_w4qh2s2426",
+      "preset": "features/split-list@1",
+      "label": "Heading with feature list",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_cfx8qm8pjr",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What I'm good at",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Skills"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_w74284pzs0",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I'm happiest between research and engineering: understanding what people need, then prototyping until the data makes sense."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_188fnef6gq",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Talk about a role",
+            "link": {
+              "type": "page",
+              "page": "pg_2vmpjzd641"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_qezrqc16ve",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "chart-bar",
+                "title": "Data visualisation",
+                "text": "Charts, maps and dashboards."
+              },
+              {
+                "icon": "users",
+                "title": "Research",
+                "text": "Interviews, diary studies, testing."
+              },
+              {
+                "icon": "layers",
+                "title": "Design systems",
+                "text": "Built and maintained two."
+              },
+              {
+                "icon": "code",
+                "title": "Prototyping",
+                "text": "HTML, CSS and a little D3."
+              },
+              {
+                "icon": "accessibility",
+                "title": "Accessibility",
+                "text": "WCAG audits and fixes."
+              },
+              {
+                "icon": "target",
+                "title": "Leading teams",
+                "text": "Hiring, critique and mentoring."
+              }
+            ],
+            "columns": "2"
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_pq4e9sgyyb",
+      "preset": "about/recognition@1",
+      "label": "Awards and recognition",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_csf6hdbw86",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Background",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Education & awards"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_tj4nkf2d5d",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Trained in information design; still learning every day."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_sswn87pvsc",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "graduation-cap",
+                "title": "MDes, Information Design",
+                "text": "Carnegie Mellon University, 2015."
+              },
+              {
+                "icon": "award",
+                "title": "Civic Design Award, 2024",
+                "text": "For the Lakewood open budget."
+              },
+              {
+                "icon": "mic",
+                "title": "Speaker, Open Field 2025",
+                "text": "Dashboards people can trust."
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 1,
+          "variant": "list",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_7g10kjqzs8",
+      "preset": "testimonials/dark-trio@1",
+      "label": "Three quotes on dark",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 14,
+          "m": 32
+        },
+        "items": {
+          "blk_w1w10w8yge": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_xekax457ts": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_768578kr8b": {
+            "d": {
+              "x": 9,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 16,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_e4n8m92e5s": {
+            "d": {
+              "x": 17,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 25,
+              "w": 8,
+              "h": 8
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_w1w10w8yge",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "People I've worked with",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "References"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xekax457ts",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Priya turned a wall of numbers into something our nurses check every shift."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Maya Chen",
+            "role": "Chief nursing officer, Harbour Health",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=320&q=80",
+              "alt": "Portrait of a woman with dark hair pinned up, smiling",
+              "width": 320,
+              "height": 403
+            }
+          },
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_768578kr8b",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The best designer I've hired, and a generous mentor to the team."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Owen Price",
+            "role": "VP Product, Kitebase",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1780387477222-730504564368?w=320&q=80",
+              "alt": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+              "width": 320,
+              "height": 480
+            }
+          },
+          "variant": "minimal"
+        },
+        {
+          "id": "blk_e4n8m92e5s",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "She made a city budget readable. Residents noticed."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Clara Moss",
+            "role": "Director, Civic Design Lab",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Portrait of a woman with long brown hair in a striped shirt",
+              "width": 320,
+              "height": 479
+            }
+          },
+          "variant": "minimal"
+        }
+      ]
+    }
+  ]
+}

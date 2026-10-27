@@ -9,11 +9,18 @@
  */
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { atelier } from "./atelier/src/build";
+import { beacon } from "./beacon/src/build";
 import { commons } from "./commons/src/build";
+import { darkroom } from "./darkroom/src/build";
 import { encore } from "./encore/src/build";
 import { fieldNotes } from "./field-notes/src/build";
+import { fixwell } from "./fixwell/src/build";
+import { folio } from "./folio/src/build";
+import { gather } from "./gather/src/build";
 import { harbor } from "./harbor/src/build";
 import { hearth } from "./hearth/src/build";
+import { inkwell } from "./inkwell/src/build";
+import { keystone } from "./keystone/src/build";
 import { kiln } from "./kiln/src/build";
 import { ledger } from "./ledger/src/build";
 import {
@@ -26,6 +33,7 @@ import {
 import { documentFiles, formatJson } from "./lib/files";
 import { link } from "./link/src/build";
 import { meadow } from "./meadow/src/build";
+import { orbit } from "./orbit/src/build";
 import { signal } from "./signal/src/build";
 import { vow } from "./vow/src/build";
 
@@ -55,6 +63,14 @@ export const templateSpecs: readonly TemplateSpec[] = [
   commons,
   vow,
   link,
+  darkroom,
+  orbit,
+  beacon,
+  fixwell,
+  keystone,
+  gather,
+  inkwell,
+  folio,
 ];
 
 export const TEMPLATE_IDS: readonly string[] = templateSpecs.map((s) => s.id);

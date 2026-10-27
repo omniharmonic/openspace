@@ -1,0 +1,293 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Fixwell Plumbing & Electric",
+  "tagline": "Licensed plumbers and electricians in north Denver.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_q2sbvhb6fq",
+      "label": "Services"
+    },
+    {
+      "type": "page",
+      "page": "pg_k52zrsks9g",
+      "label": "Prices"
+    },
+    {
+      "type": "page",
+      "page": "pg_c5jh5gv7m7",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_g5v67q4hd6",
+      "label": "Contact"
+    },
+    {
+      "type": "button",
+      "label": "Call now",
+      "link": {
+        "type": "phone",
+        "phone": "+13035550148"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-left",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "slide",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_dvr93anbt4",
+    "preset": "footer/hours-footer@1",
+    "label": "Footer with hours",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          4,
+          4,
+          4
+        ],
+        "m": [
+          12
+        ]
+      },
+      "gap": "lg"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_pnq1cmnabn",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Fixwell Plumbing & Electric"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "2150 W 32nd Ave, Denver"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "(303) 555‑0148",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "tel:+13035550148"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_tetfphkaak",
+        "type": "hours",
+        "v": 1,
+        "fields": {
+          "heading": "Office hours",
+          "headingLevel": "h3",
+          "rows": [
+            {
+              "day": "mon",
+              "opens": "07:00",
+              "closes": "19:00",
+              "closed": false
+            },
+            {
+              "day": "tue",
+              "opens": "07:00",
+              "closes": "19:00",
+              "closed": false
+            },
+            {
+              "day": "wed",
+              "opens": "07:00",
+              "closes": "19:00",
+              "closed": false
+            },
+            {
+              "day": "thu",
+              "opens": "07:00",
+              "closes": "19:00",
+              "closed": false
+            },
+            {
+              "day": "fri",
+              "opens": "07:00",
+              "closes": "19:00",
+              "closed": false
+            },
+            {
+              "day": "sat",
+              "opens": "08:00",
+              "closes": "16:00",
+              "closed": false
+            },
+            {
+              "day": "sun",
+              "closed": true
+            }
+          ]
+        },
+        "column": 1,
+        "variant": "compact"
+      },
+      {
+        "id": "blk_4hsbgjxd98",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "eyebrow"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "More"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Services",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/services/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Prices",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/pricing/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Fixwell Plumbing & Electric LLC"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 2,
+        "variant": "default"
+      },
+      {
+        "id": "blk_kyckpzdnzf",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": [
+            {
+              "network": "instagram",
+              "url": "https://instagram.com/juniperyoga"
+            },
+            {
+              "network": "youtube",
+              "url": "https://youtube.com/@juniperyoga"
+            },
+            {
+              "network": "email",
+              "url": "mailto:hello@juniperyoga.com"
+            }
+          ]
+        },
+        "column": 2,
+        "variant": "icons"
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "facebook",
+      "url": "https://facebook.com/fixwell.example"
+    },
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/fixwell.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Fixwell",
+    "description": "Licensed plumbers and electricians in north Denver.",
+    "image": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

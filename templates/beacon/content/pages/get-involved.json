@@ -1,0 +1,412 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_rpwvmy6qxn",
+  "title": "Get involved",
+  "slug": "get-involved",
+  "seo": {
+    "description": "Volunteer at a planting day, become a tree keeper, fundraise or spread the word. Every way to help Shade Street Trust, with dates."
+  },
+  "sections": [
+    {
+      "id": "sec_acakeqb34k",
+      "preset": "impact/ways-to-give@1",
+      "label": "Ways to help",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_9yg99ymzev",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Four ways to help this season",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Get involved"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_q0zqbkcqc8",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "heart",
+                "title": "Give",
+                "text": "Sixty dollars plants and waters a tree for three years."
+              },
+              {
+                "icon": "users",
+                "title": "Volunteer",
+                "text": "Planting days run every other Saturday, October to April."
+              },
+              {
+                "icon": "droplet",
+                "title": "Keep a tree",
+                "text": "Water the tree outside your door through its first summers."
+              },
+              {
+                "icon": "rocket",
+                "title": "Fundraise",
+                "text": "Birthday, bake sale or marathon — we'll send a kit."
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "tiles"
+        },
+        {
+          "id": "blk_tkzkrdw5ap",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Donate now",
+            "link": {
+              "type": "page",
+              "page": "pg_aa79ztc7zb"
+            },
+            "role": "primary"
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_gk1kvhgnqr",
+      "preset": "process/sticky-steps@1",
+      "label": "Steps beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_vyccc210jc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Becoming a keeper",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Tree keepers"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_fxptrdnngf",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Keepers are the reason nine in ten of our trees survive. It takes about twenty minutes a week in summer."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_1qrctmm4bd",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Sign up as a keeper",
+            "link": {
+              "type": "page",
+              "page": "pg_tz56z4ahvt"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_bacf382c40",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "Step 1",
+                "title": "Sign up for your block",
+                "text": "Tell us which tree you'd like to look after."
+              },
+              {
+                "date": "Step 2",
+                "title": "A one-hour training",
+                "text": "Online or in the park, with a free watering kit."
+              },
+              {
+                "date": "Step 3",
+                "title": "Water and report",
+                "text": "A quick photo each month helps us spot problems early."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "vertical"
+        }
+      ]
+    },
+    {
+      "id": "sec_97afdsk8kn",
+      "preset": "events/upcoming-split@1",
+      "label": "Upcoming events with intro",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_q7d581jndq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Upcoming planting days",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Dates"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_m483m7ghbn",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Bring gloves if you have them. Children are welcome with an adult."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_50h3pjgv7m",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "All dates",
+            "link": {
+              "type": "url",
+              "url": "/events/"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_t68e8gsprc",
+          "type": "events",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h2",
+            "source": {
+              "collection": "events",
+              "filter": {
+                "upcoming": true
+              },
+              "limit": 4
+            },
+            "showImage": false,
+            "showLocation": true,
+            "showExcerpt": true,
+            "registerLabel": "Sign up",
+            "emptyMessage": "Next season's dates are announced in September.",
+            "structuredData": true
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_k9xa19ee81",
+      "preset": "faq/centered@1",
+      "label": "Centred questions",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_yeew65zqa3",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Before your first planting day",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Volunteering"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_js44ww9jpj",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Do I need any experience?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "None at all. A team leader shows every group what to do."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What should I wear?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Clothes and shoes you don't mind getting muddy. We provide gloves."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I bring my children?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes — children over six are welcome with an adult."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "What if it rains?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "We plant in light rain. We'll text you if a day is cancelled."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "minimal"
+        }
+      ]
+    }
+  ]
+}

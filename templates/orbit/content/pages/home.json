@@ -1,0 +1,1273 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_c69tkhv0yb",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Relay is the shared inbox and help centre for small support teams. Answer every customer from one calm place. Free for two seats."
+  },
+  "sections": [
+    {
+      "id": "sec_wtq8sqe4sk",
+      "preset": "hero/product-screenshot@1",
+      "label": "Product with screenshot",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 24,
+          "m": 32
+        },
+        "items": {
+          "blk_26e3bsa66c": {
+            "d": {
+              "x": 1,
+              "y": 4,
+              "w": 10,
+              "h": 11
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 14
+            }
+          },
+          "blk_xvjdg27sbs": {
+            "d": {
+              "x": 1,
+              "y": 15,
+              "w": 10,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 15,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_s7kffnd26h": {
+            "d": {
+              "x": 12,
+              "y": 1,
+              "w": 13,
+              "h": 24,
+              "bleed": "right"
+            },
+            "m": {
+              "x": 1,
+              "y": 21,
+              "w": 8,
+              "h": 12,
+              "bleed": "right"
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_26e3bsa66c",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Every customer, one calm inbox",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Customer support for small teams",
+            "subheading": "Relay brings email, chat and your help centre together, so nothing slips and nobody answers the same question twice."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xvjdg27sbs",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start free",
+            "link": {
+              "type": "url",
+              "url": "https://app.relay.example/signup"
+            },
+            "role": "primary",
+            "secondaryLabel": "See pricing",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_scxghk4vxy"
+            },
+            "note": "Free for two seats. No card needed."
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_s7kffnd26h",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1800&q=80",
+              "alt": "The Relay inbox showing conversations and charts",
+              "width": 1800,
+              "height": 1282
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default",
+          "style": {
+            "radius": "lg",
+            "shadow": "lg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_64pxbdk0na",
+      "preset": "logos/split-heading@1",
+      "label": "Logos beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_cja47z7jj6",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Support teams who reply in minutes",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Customers"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_k4aph390bc",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "logos": [
+              {
+                "name": "Parcelly"
+              },
+              {
+                "name": "Fieldhouse Coffee"
+              },
+              {
+                "name": "Kinfold"
+              },
+              {
+                "name": "Orchard Pay"
+              },
+              {
+                "name": "Saltmarsh Press"
+              },
+              {
+                "name": "Tandem"
+              }
+            ],
+            "monochrome": true
+          },
+          "column": 1,
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_yermpzgakt",
+      "preset": "features/bento-stats@1",
+      "label": "Bento with numbers",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 25,
+          "m": 48
+        },
+        "items": {
+          "blk_y33ky8anvn": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 10,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_6h2nw0kcmx": {
+            "d": {
+              "x": 11,
+              "y": 1,
+              "w": 14,
+              "h": 14
+            },
+            "m": {
+              "x": 1,
+              "y": 10,
+              "w": 8,
+              "h": 11
+            }
+          },
+          "blk_1awd9xesqz": {
+            "d": {
+              "x": 1,
+              "y": 12,
+              "w": 10,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 22,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_3gbprrhgtg": {
+            "d": {
+              "x": 11,
+              "y": 16,
+              "w": 7,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 32,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_wmsqvbsn4s": {
+            "d": {
+              "x": 18,
+              "y": 16,
+              "w": 7,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 42,
+              "w": 8,
+              "h": 7
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_y33ky8anvn",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Why teams switch"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Less tab-switching, faster answers"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Everything a customer has ever asked, in one thread with their order history."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_6h2nw0kcmx",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1758873268695-1b55590e507a?w=1120&q=80",
+              "alt": "A support team laughing over a shared screen",
+              "width": 1120,
+              "height": 630
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_1awd9xesqz",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Assign without asking",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Rules route billing, bugs and VIPs to the right person automatically."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "workflow"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "dark",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_3gbprrhgtg",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "heading": "Answers that write themselves",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Saved replies and help articles suggested as you type."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "sparkles"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_wmsqvbsn4s",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "4 min",
+                "label": "Median first reply on Relay"
+              }
+            ]
+          },
+          "variant": "large",
+          "style": {
+            "colorTheme": "brand",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_nqwpadrpjy",
+      "preset": "features/alternating-rows@1",
+      "label": "Alternating feature rows",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 59,
+          "m": 71
+        },
+        "items": {
+          "blk_jt3b1at9gc": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 6
+            }
+          },
+          "blk_cjcmdy3s8x": {
+            "d": {
+              "x": 1,
+              "y": 8,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 8,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_gs8vnyxqxd": {
+            "d": {
+              "x": 15,
+              "y": 12,
+              "w": 10,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 19,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_hp8xea7wxn": {
+            "d": {
+              "x": 13,
+              "y": 26,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 30,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_fh3raqh8jp": {
+            "d": {
+              "x": 1,
+              "y": 30,
+              "w": 10,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 41,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_3b4r7f9hg3": {
+            "d": {
+              "x": 1,
+              "y": 44,
+              "w": 12,
+              "h": 16
+            },
+            "m": {
+              "x": 1,
+              "y": 52,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_xzd3brdc44": {
+            "d": {
+              "x": 15,
+              "y": 48,
+              "w": 10,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 63,
+              "w": 8,
+              "h": 9
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_jt3b1at9gc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Built for the way support really works",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Product"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_cjcmdy3s8x",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1583508915901-b5f84c1dcde1?w=1280&q=80",
+              "alt": "A support engineer working across two monitors",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_gs8vnyxqxd",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Inbox"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "One queue for email and chat"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Collision alerts stop two people answering the same customer, and snoozes bring threads back exactly when you need them."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_hp8xea7wxn",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1280&q=80",
+              "alt": "Charts of response times on a laptop",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_fh3raqh8jp",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Reports"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Know what customers ask most"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Weekly reports show busy hours, slow replies and the questions that deserve a help article."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_3b4r7f9hg3",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1589362281138-e3f7ebe47f1a?w=1280&q=80",
+              "alt": "A tidy desk with a laptop and a plant",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_xzd3brdc44",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Help centre"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h3"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Customers help themselves"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Publish answers to a help centre on your own domain, searchable and readable on any phone."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_wknp2agb67",
+      "preset": "testimonials/wall@1",
+      "label": "Review wall",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 22,
+          "m": 55
+        },
+        "items": {
+          "blk_3ny8y8e77v": {
+            "d": {
+              "x": 5,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_k0kkfa0h9b": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_49ehtn2xta": {
+            "d": {
+              "x": 9,
+              "y": 7,
+              "w": 8,
+              "h": 6
+            },
+            "m": {
+              "x": 1,
+              "y": 16,
+              "w": 8,
+              "h": 7
+            }
+          },
+          "blk_r5y3ybr44s": {
+            "d": {
+              "x": 17,
+              "y": 7,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 24,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_r1tfz7c8xx": {
+            "d": {
+              "x": 1,
+              "y": 16,
+              "w": 8,
+              "h": 7
+            },
+            "m": {
+              "x": 1,
+              "y": 33,
+              "w": 8,
+              "h": 7
+            }
+          },
+          "blk_73cvrsp8ny": {
+            "d": {
+              "x": 9,
+              "y": 14,
+              "w": 8,
+              "h": 9
+            },
+            "m": {
+              "x": 1,
+              "y": 41,
+              "w": 8,
+              "h": 8
+            }
+          },
+          "blk_dhaep42ng2": {
+            "d": {
+              "x": 17,
+              "y": 17,
+              "w": 8,
+              "h": 6
+            },
+            "m": {
+              "x": 1,
+              "y": 50,
+              "w": 8,
+              "h": 6
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_3ny8y8e77v",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Loved by small support teams",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Reviews"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_k0kkfa0h9b",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "We moved from three tools to Relay in an afternoon and never looked back."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Jo M.",
+            "role": "Head of support, Parcelly",
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_49ehtn2xta",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Collision alerts alone saved us from so many double replies."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Ravi P.",
+            "role": "Support lead",
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_r5y3ybr44s",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Our first reply time went from four hours to eleven minutes."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Emma L.",
+            "role": "Founder, Kinfold",
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_r1tfz7c8xx",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Calm, fast and the pricing is honest."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Sam K.",
+            "role": "Operations",
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_73cvrsp8ny",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The help centre cut our ticket volume by a third in a month."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Noor A.",
+            "role": "Customer success",
+            "rating": 5
+          },
+          "variant": "card"
+        },
+        {
+          "id": "blk_dhaep42ng2",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Feels like it was built by people who've done support."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Will T.",
+            "role": "Support engineer",
+            "rating": 5
+          },
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_7pd06y28by",
+      "preset": "pricing/billing-toggle@1",
+      "label": "Plans with billing toggle",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_5r96jn7sn0",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Pay per seat, nothing else",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Pricing",
+            "subheading": "Unlimited conversations and customers on every plan. Change or cancel whenever you like."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_fxnt0dmd9s",
+          "type": "pricing",
+          "v": 1,
+          "fields": {
+            "plans": [
+              {
+                "name": "Starter",
+                "price": "$0",
+                "period": "for 2 seats",
+                "altPrice": "$0",
+                "altPeriod": "for 2 seats",
+                "description": "For founders answering their own email.",
+                "features": [
+                  {
+                    "text": "Shared inbox"
+                  },
+                  {
+                    "text": "Saved replies"
+                  },
+                  {
+                    "text": "Email and chat"
+                  }
+                ],
+                "buttonLabel": "Start free",
+                "link": {
+                  "type": "url",
+                  "url": "https://app.relay.example/signup"
+                },
+                "featured": false
+              },
+              {
+                "name": "Team",
+                "price": "$15",
+                "period": "per seat / month",
+                "altPrice": "$12",
+                "altPeriod": "per seat / month, yearly",
+                "description": "For support teams of three to thirty.",
+                "features": [
+                  {
+                    "text": "Everything in Starter"
+                  },
+                  {
+                    "text": "Help centre on your domain"
+                  },
+                  {
+                    "text": "Rules, tags and SLAs"
+                  },
+                  {
+                    "text": "Reports"
+                  }
+                ],
+                "buttonLabel": "Try Team free",
+                "link": {
+                  "type": "url",
+                  "url": "https://app.relay.example/signup"
+                },
+                "featured": true,
+                "badge": "Most teams"
+              },
+              {
+                "name": "Business",
+                "price": "$29",
+                "period": "per seat / month",
+                "altPrice": "$24",
+                "altPeriod": "per seat / month, yearly",
+                "description": "For larger teams with security reviews.",
+                "features": [
+                  {
+                    "text": "Everything in Team"
+                  },
+                  {
+                    "text": "SSO and audit log"
+                  },
+                  {
+                    "text": "Named success manager"
+                  }
+                ],
+                "buttonLabel": "Talk to sales",
+                "link": {
+                  "type": "url",
+                  "url": "/contact/"
+                },
+                "featured": false
+              }
+            ],
+            "periodLabel": "Monthly",
+            "altPeriodLabel": "Yearly",
+            "altNote": "Save 20%"
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_pa17y5mckh",
+      "preset": "cta/card-centered@1",
+      "label": "Card on tinted band",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_0y7s7c4hq3",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 2,
+                    "preset": "h2"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Your inbox, calmer by Friday"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Connect your support address in five minutes. We'll import your history for free."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            },
+            "colorTheme": "light",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            },
+            "radius": "md",
+            "border": "subtle"
+          }
+        },
+        {
+          "id": "blk_j8xdwxh395",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start free",
+            "link": {
+              "type": "url",
+              "url": "https://app.relay.example/signup"
+            },
+            "role": "primary",
+            "secondaryLabel": "Book a demo",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_gk5sprgha6"
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

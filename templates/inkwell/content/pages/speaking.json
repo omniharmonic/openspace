@@ -1,0 +1,522 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_2j99byhsdz",
+  "title": "Speaking",
+  "slug": "speaking",
+  "seo": {
+    "description": "June Okafor gives talks, readings and writing workshops for festivals, schools and libraries. Formats, past hosts and how to book."
+  },
+  "sections": [
+    {
+      "id": "sec_wp5qf8bgsw",
+      "preset": "hero/big-type@1",
+      "label": "Big type with details",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            7,
+            5
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_m5614xwjdk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Come and notice things with me.",
+            "level": "h1",
+            "size": "display",
+            "eyebrow": "Talks & workshops"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_ecxt8pcdpk",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Readings, conversations and practical writing workshops for festivals, libraries, schools and teams."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_8eha6nqsjb",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Invite June",
+            "link": {
+              "type": "page",
+              "page": "pg_4vcke76yez"
+            },
+            "role": "primary",
+            "secondaryLabel": "Read first",
+            "secondaryLink": {
+              "type": "url",
+              "url": "/essays/"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_n4xsvcv9x3",
+      "preset": "services/horizontal-cards@1",
+      "label": "Service rows",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_4x36w9svmy",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Ways I can join you",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Formats"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_v44057wdt1",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1582079768381-0e81b88db423?w=720&q=80",
+              "alt": "A reader with a book at a cafe table",
+              "width": 720,
+              "height": 480
+            },
+            "aspect": "3:2",
+            "heading": "Readings and conversations",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Forty minutes of reading and an open conversation, for festivals and bookshops."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_4vcke76yez"
+            },
+            "linkLabel": "Ask about dates"
+          },
+          "variant": "horizontal"
+        },
+        {
+          "id": "blk_2gbw96d2cw",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=720&q=80",
+              "alt": "A notebook and pen on a wooden table",
+              "width": 720,
+              "height": 480
+            },
+            "aspect": "3:2",
+            "heading": "Writing workshops",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Two hours of noticing exercises and short writing, for twelve to twenty people."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_4vcke76yez"
+            },
+            "linkLabel": "Workshop details"
+          },
+          "variant": "horizontal"
+        },
+        {
+          "id": "blk_qdv4ykdgbn",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1505682634904-d7c8d95cdc50?w=720&q=80",
+              "alt": "An old typewriter on a dark wooden desk",
+              "width": 720,
+              "height": 480
+            },
+            "aspect": "3:2",
+            "heading": "Talks for teams",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A talk on attention at work, with a short walk for anyone who wants one."
+                    }
+                  ]
+                }
+              ]
+            },
+            "link": {
+              "type": "page",
+              "page": "pg_4vcke76yez"
+            },
+            "linkLabel": "Book a talk"
+          },
+          "variant": "horizontal"
+        }
+      ]
+    },
+    {
+      "id": "sec_bf2vq00skq",
+      "preset": "testimonials/logo-quotes@1",
+      "label": "Quotes from clients",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 22,
+          "m": 39
+        },
+        "items": {
+          "blk_8bpc81fybq": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_mbaac4fbm9": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 12,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_x640e2wpt7": {
+            "d": {
+              "x": 13,
+              "y": 7,
+              "w": 12,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 20,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_4t17z1e7sz": {
+            "d": {
+              "x": 1,
+              "y": 19,
+              "w": 24,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 33,
+              "w": 8,
+              "h": 7
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_8bpc81fybq",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What hosts say",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Hosts"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_mbaac4fbm9",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Our sold-out audience stayed for an hour of questions. June is a natural."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Owen Price",
+            "role": "Director, Riverside Book Festival",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1780387477222-730504564368?w=320&q=80",
+              "alt": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+              "width": 320,
+              "height": 480
+            }
+          },
+          "variant": "card",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_x640e2wpt7",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Her workshop got our most reluctant writers filling notebooks."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Maya Chen",
+            "role": "Librarian, Northland Libraries",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=320&q=80",
+              "alt": "Portrait of a woman with dark hair pinned up, smiling",
+              "width": 320,
+              "height": 403
+            }
+          },
+          "variant": "card",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_4t17z1e7sz",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "logos": [
+              {
+                "name": "Riverside Book Festival"
+              },
+              {
+                "name": "Northland Libraries"
+              },
+              {
+                "name": "Saltmarsh Press"
+              },
+              {
+                "name": "Field & Atlas Live"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_w1dwa13ne6",
+      "preset": "faq/centered@1",
+      "label": "Centred questions",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_hnxzj9tt5x",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Practical questions",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Booking"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_2qhca3jd8q",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "What do you charge?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Readings from $400, workshops from $650. Reduced fees for libraries and schools."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Do you travel?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes, within the UK by train, and abroad for festivals with some notice."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can you sign books?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Always. Your local bookshop can supply copies for the event."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": false,
+            "faqSchema": true
+          },
+          "variant": "minimal"
+        }
+      ]
+    }
+  ]
+}

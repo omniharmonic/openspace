@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "fixwell",
+  "name": "Fixwell",
+  "description": "A phone-first site for local trades and services, with a call button on every page, trust points, published rates, a service-area map and a quote form.",
+  "persona": "Local services: trades, cleaners, salons",
+  "mood": "Dependable, direct, local",
+  "version": "1.0.0",
+  "tags": [
+    "local",
+    "trades",
+    "plumber",
+    "electrician",
+    "services",
+    "quotes"
+  ],
+  "sample": {
+    "name": "Fixwell Plumbing & Electric",
+    "tagline": "Licensed plumbers and electricians in north Denver."
+  },
+  "thumbnailPage": "pg_363jnd89a1",
+  "looks": [
+    {
+      "id": "workwear",
+      "name": "Workwear",
+      "description": "Navy and safety orange with Archivo — sturdy and easy to read.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.62 0.18 45)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "archivo",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "fresh",
+      "name": "Fresh",
+      "description": "A clean teal, Plus Jakarta Sans and round pill buttons — for cleaners and salons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.58 0.12 190)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "plus-jakarta",
+        "density": "comfortable",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "heritage",
+      "name": "Heritage",
+      "description": "Forest green, Zilla Slab headings and square corners — an old-school family firm.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.45 0.09 160)",
+          "neutral": "warm",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "zilla-slab-inter",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "none",
+        "imageTreatment": "none"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_363jnd89a1",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_q2sbvhb6fq",
+      "title": "Services",
+      "slug": "services"
+    },
+    {
+      "id": "pg_k52zrsks9g",
+      "title": "Prices",
+      "slug": "pricing"
+    },
+    {
+      "id": "pg_c5jh5gv7m7",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_g5v67q4hd6",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

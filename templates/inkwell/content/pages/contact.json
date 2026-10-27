@@ -1,0 +1,201 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_4vcke76yez",
+  "title": "Contact",
+  "slug": "contact",
+  "seo": {
+    "description": "Write to June Okafor about talks, workshops, book clubs or the Slow Light newsletter. She replies to every letter, slowly but surely."
+  },
+  "sections": [
+    {
+      "id": "sec_6rd3c4k1mk",
+      "preset": "contact/simple-centered@1",
+      "label": "Email and phone, centred",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "md"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_dh2x8qhx84",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Write to me",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Contact"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_skdt0gnh7n",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "june@juneokafor.example",
+                      "marks": [
+                        {
+                          "type": "link",
+                          "attrs": {
+                            "href": "mailto:june@juneokafor.example"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I read everything and reply within a week or two."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_5crrvrhg7h",
+      "preset": "contact/photo-form@1",
+      "label": "Form over photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        },
+        "background": {
+          "type": "image",
+          "src": "https://images.unsplash.com/photo-1505682634904-d7c8d95cdc50?w=3840&q=80",
+          "focal": [
+            0.5,
+            0.5
+          ],
+          "overlay": {
+            "color": "background",
+            "opacity": 0.82
+          }
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_cbrkz7y5yk",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Talks, workshops and book clubs",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Invitations",
+            "subheading": "Tell me a little about the event and I'll reply with dates and a fee."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_0xgn18k9qh",
+          "type": "form",
+          "v": 1,
+          "fields": {
+            "form": {
+              "id": "frm_5x0nbsjxyt",
+              "name": "Event invitation",
+              "fields": [
+                {
+                  "type": "text",
+                  "name": "name",
+                  "label": "Your name",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "email",
+                  "name": "email",
+                  "label": "Email",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "text",
+                  "name": "event",
+                  "label": "Event or organisation",
+                  "required": true,
+                  "width": "half"
+                },
+                {
+                  "type": "date",
+                  "name": "date",
+                  "label": "Possible date",
+                  "required": false,
+                  "width": "half"
+                }
+              ],
+              "submitLabel": "Send invitation",
+              "success": {
+                "type": "message",
+                "message": "Thank you — I'll reply with dates within a week."
+              },
+              "notifyOwner": true
+            }
+          },
+          "variant": "card"
+        }
+      ]
+    }
+  ]
+}

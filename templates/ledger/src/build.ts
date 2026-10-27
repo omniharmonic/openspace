@@ -131,6 +131,24 @@ function home() {
           },
         },
       }),
+      fromPreset("process/phases-horizontal@1", {
+        edit: {
+          heading: {
+            eyebrow: "How it works",
+            text: "Twelve weeks from chaos to calm",
+            subheading:
+              "Every operations reset follows the same rhythm, so your team always knows what's coming and what I need from them.",
+          },
+          timeline: {
+            items: [
+              { date: "Weeks 1–2", title: "Listen", text: "Interviews with the team and a look at how work really flows." },
+              { date: "Weeks 3–6", title: "Untangle", text: "Fix the three bottlenecks that cost the most time." },
+              { date: "Weeks 7–10", title: "Install", text: "Weekly rituals, dashboards and clear owners." },
+              { date: "Weeks 11–12", title: "Hand over", text: "Written playbooks and a check-in at three months." },
+            ],
+          },
+        },
+      }),
       fromPreset("stats/cards@1", {
         theme: "light-accent",
         edit: {

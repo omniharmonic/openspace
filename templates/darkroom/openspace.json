@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site-config.json",
+  "siteId": "st_j70fsabma3",
+  "schemaVersion": 1,
+  "template": {
+    "id": "darkroom",
+    "version": "1.0.0"
+  },
+  "hub": "https://hub.openspace.dev",
+  "deploy": {
+    "target": "github-pages",
+    "url": "https://example.github.io/darkroom",
+    "customDomain": null
+  },
+  "features": {
+    "forms": true,
+    "newsletter": false,
+    "analytics": true,
+    "search": false
+  }
+}

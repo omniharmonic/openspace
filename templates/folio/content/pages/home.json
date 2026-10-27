@@ -1,0 +1,410 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_69rkgd3jmk",
+  "title": "Home",
+  "slug": "",
+  "seo": {
+    "description": "Priya Raman is a product designer who makes data tools clear for nurses, planners and scientists. Projects, experience and writing."
+  },
+  "sections": [
+    {
+      "id": "sec_d76kxd80mf",
+      "preset": "hero/personal-intro@1",
+      "label": "Personal introduction",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            0,
+            1
+          ],
+          "t": [
+            0,
+            1
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_5ydcdz5z42",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=1240&q=80",
+              "alt": "Priya Raman",
+              "width": 1240,
+              "height": 827
+            },
+            "aspect": "1:1",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default",
+          "style": {
+            "imageTreatment": "circle"
+          }
+        },
+        {
+          "id": "blk_v0ztdtgvxw",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Hi, I'm Priya. I make data feel obvious.",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Product designer · Pittsburgh",
+            "subheading": "Nine years designing dashboards, maps and tools for nurses, city planners and field scientists. Open to senior and lead roles."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_a3k8jwpqhj",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Selected projects",
+            "link": {
+              "type": "url",
+              "url": "/projects/"
+            },
+            "role": "primary",
+            "secondaryLabel": "Get in touch",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_2vmpjzd641"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_qfrkeaaq05",
+      "preset": "stats/inline-strip@1",
+      "label": "Compact number strip",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light-accent",
+        "padding": {
+          "d": "md",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_zdf7zkqn17",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "9 yrs",
+                "label": "Designing products"
+              },
+              {
+                "value": "30+",
+                "label": "Tools shipped"
+              },
+              {
+                "value": "3",
+                "label": "Design teams led"
+              },
+              {
+                "value": "2",
+                "label": "Design awards"
+              }
+            ]
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_twzcq32bsv",
+      "preset": "portfolio/project-grid@1",
+      "label": "Selected work grid",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_txakpyz779",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "heading": "Selected projects",
+            "headingLevel": "h2",
+            "source": {
+              "collection": "projects",
+              "sort": "date-desc",
+              "limit": 4
+            },
+            "columns": "2",
+            "showImage": true,
+            "showDate": false,
+            "showExcerpt": false,
+            "showMeta": false,
+            "linkLabel": "All projects",
+            "link": {
+              "type": "url",
+              "url": "/projects/"
+            },
+            "emptyMessage": "Case studies are on their way."
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_cy61bym1f3",
+      "preset": "logos/split-heading@1",
+      "label": "Logos beside heading",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_9f8nr1x8x8",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "I've designed for",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Experience"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_bxret3cnh3",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "logos": [
+              {
+                "name": "Harbour Health"
+              },
+              {
+                "name": "City of Lakewood"
+              },
+              {
+                "name": "Northland Conservation"
+              },
+              {
+                "name": "Kitebase"
+              },
+              {
+                "name": "Orchard Pay"
+              },
+              {
+                "name": "Civic Design Lab"
+              }
+            ],
+            "monochrome": true
+          },
+          "column": 1,
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_ja6wm0nnp0",
+      "preset": "blog/intro-and-list@1",
+      "label": "Author intro with posts",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_7bnkznn03z",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Notes on design",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Writing"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_mnd3t8pprk",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Occasional essays about charts, research and designing for people under pressure."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_56snh3qd37",
+          "type": "summary",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h2",
+            "source": {
+              "collection": "writing",
+              "sort": "date-desc",
+              "limit": 5
+            },
+            "columns": "3",
+            "showImage": false,
+            "showDate": true,
+            "showExcerpt": true,
+            "showMeta": false,
+            "linkLabel": "All writing",
+            "link": {
+              "type": "url",
+              "url": "/writing/"
+            },
+            "emptyMessage": "A new note is being written."
+          },
+          "column": 1,
+          "variant": "list"
+        }
+      ]
+    },
+    {
+      "id": "sec_0gtkbdv07p",
+      "preset": "cta/big-type@1",
+      "label": "Big type call to action",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            9,
+            3
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "end",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_4g1d32xhq3",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Hiring a designer? Let's talk.",
+            "level": "h2",
+            "size": "display"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_0rvaqkab4g",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Email Priya",
+            "link": {
+              "type": "page",
+              "page": "pg_2vmpjzd641"
+            },
+            "role": "primary"
+          },
+          "column": 1,
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "end",
+              "m": "start"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

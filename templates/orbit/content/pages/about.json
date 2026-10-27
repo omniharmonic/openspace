@@ -1,0 +1,396 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_e6gc55hpzq",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Relay is a small, independent company building calm software for support teams. Meet the team and see where we're hiring."
+  },
+  "sections": [
+    {
+      "id": "sec_n76y06k18w",
+      "preset": "about/statement@1",
+      "label": "Mission statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_s1e4h6ne7v",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "We think good support is the best marketing a company can do.",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Our mission"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_2rcgm59ns3",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "So we build tools that make it easier, and nothing else."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_72n8tvhg9a",
+      "preset": "about/team-photo-wide@1",
+      "label": "Team photo with three columns",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "wide",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_ztacszh2q4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Eleven people, fully remote, still small on purpose",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Who we are"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7myawv67gd",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1582005450386-52b25f82d9bb?w=2880&q=80",
+              "alt": "The Relay team working together at a meet-up",
+              "width": 2880,
+              "height": 1920
+            },
+            "aspect": "21:9",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_0s3yze2zeq",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "Profitable",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Funded by customers, not investors, since our second year."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Support first",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Everyone, including engineers, answers customers each week."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "Calm hours",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "No on-call heroics; we ship carefully and sleep well."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "3",
+            "aspect": "3:2"
+          },
+          "variant": "plain"
+        }
+      ]
+    },
+    {
+      "id": "sec_021g05czmg",
+      "preset": "team/four-up@1",
+      "label": "Team of four",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_jbm2ccfh8c",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "The founders and first hires",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Team",
+            "subheading": "Former support agents, engineers and one librarian."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_zwgmjkbvge",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Lena Brandt",
+                "role": "Co-founder, product",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1614436201459-156d322d38c6?w=720&q=80",
+                  "alt": "A smiling woman with a shoulder-length bob by the water",
+                  "width": 720,
+                  "height": 1080
+                }
+              },
+              {
+                "name": "Jonah Ellis",
+                "role": "Co-founder, engineering",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=1320&q=80",
+                  "alt": "A smiling man in a grey t-shirt outdoors",
+                  "width": 1320,
+                  "height": 880
+                }
+              },
+              {
+                "name": "Maya Chen",
+                "role": "Head of support",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=720&q=80",
+                  "alt": "Portrait of a woman with dark hair pinned up, smiling",
+                  "width": 720,
+                  "height": 906
+                }
+              },
+              {
+                "name": "Rafael Costa",
+                "role": "Design",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1639747280804-dd2d6b3d88ac?w=720&q=80",
+                  "alt": "A smiling man in a green shirt standing outdoors",
+                  "width": 720,
+                  "height": 1080
+                }
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "grid"
+        }
+      ]
+    },
+    {
+      "id": "sec_d0cpybg1xf",
+      "preset": "stats/brand-band@1",
+      "label": "Numbers on a brand band",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "brand",
+        "padding": {
+          "d": "lg",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_ec2vhh1chv",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "3,200",
+                "label": "Teams on Relay"
+              },
+              {
+                "value": "4 min",
+                "label": "Median first reply"
+              },
+              {
+                "value": "11",
+                "label": "People on the team"
+              },
+              {
+                "value": "2019",
+                "label": "Founded"
+              }
+            ]
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_1f8rwkmefv",
+      "preset": "cta/split-photo@1",
+      "label": "Action beside photo",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_22qv9z4h9b",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "We're hiring a support engineer",
+            "level": "h2",
+            "size": "auto",
+            "subheading": "Remote within three hours of UTC. Four-day weeks, good tea budget."
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_24x5t37t42",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Ask about the role",
+            "link": {
+              "type": "page",
+              "page": "pg_gk5sprgha6"
+            },
+            "role": "primary"
+          },
+          "column": 0,
+          "variant": "large"
+        },
+        {
+          "id": "blk_8az25avb49",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1675716921224-e087a0cca69a?w=1280&q=80",
+              "alt": "Two colleagues talking at a team meet-up",
+              "width": 1280,
+              "height": 853
+            },
+            "aspect": "3:2",
+            "lightbox": false
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    }
+  ]
+}

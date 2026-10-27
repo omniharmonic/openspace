@@ -1,0 +1,572 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_96z8gajatg",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "Shade Street Trust was founded by neighbours in 2015. Meet our board and partners, and see exactly how every donated dollar is spent."
+  },
+  "sections": [
+    {
+      "id": "sec_ys7pey6xnf",
+      "preset": "about/statement@1",
+      "label": "Mission statement",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "dark-accent",
+        "padding": {
+          "d": "2xl",
+          "m": "xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_mr24tpzmeb",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Every child in Eastport should grow up within a short walk of shade.",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "Our mission"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_38qyqdjwnb",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Trees are the cheapest way to cool a city. We plant them where people need them most."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_zm3wjd7qhd",
+      "preset": "process/history-timeline@1",
+      "label": "History timeline",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_2jhm87qqqc",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Ten years of planting",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Our story"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_wab3fa6r81",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1777150895644-2ca253ee1c93?w=1480&q=80",
+              "alt": "A sapling held in cupped hands",
+              "width": 1480,
+              "height": 1184
+            },
+            "aspect": "4:5",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_hhz0rch2e1",
+          "type": "timeline",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "date": "2015",
+                "title": "Forty trees and a borrowed truck",
+                "text": "Neighbours on Linden Avenue plant their own block."
+              },
+              {
+                "date": "2018",
+                "title": "Registered as a charity",
+                "text": "And the first paid coordinator joins."
+              },
+              {
+                "date": "2021",
+                "title": "The heat map",
+                "text": "We start planting the hottest blocks first."
+              },
+              {
+                "date": "2025",
+                "title": "Twelve school gardens",
+                "text": "Harvest lunches become part of the timetable."
+              }
+            ]
+          },
+          "column": 1,
+          "variant": "vertical"
+        }
+      ]
+    },
+    {
+      "id": "sec_va0s3nqhk7",
+      "preset": "team/circles-centered@1",
+      "label": "Round portraits",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_1hwdwvymtn",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Our board of trustees",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Governance"
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_k9ny4pedwp",
+          "type": "team",
+          "v": 1,
+          "fields": {
+            "people": [
+              {
+                "name": "Grace Liu",
+                "role": "Chair",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=480&q=80",
+                  "alt": "Portrait of a woman in a black top against a soft violet wall",
+                  "width": 480,
+                  "height": 600
+                }
+              },
+              {
+                "name": "Owen Price",
+                "role": "Treasurer",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1780387477222-730504564368?w=480&q=80",
+                  "alt": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+                  "width": 480,
+                  "height": 720
+                }
+              },
+              {
+                "name": "Maya Chen",
+                "role": "Secretary",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=480&q=80",
+                  "alt": "Portrait of a woman with dark hair pinned up, smiling",
+                  "width": 480,
+                  "height": 604
+                }
+              },
+              {
+                "name": "Jonah Ellis",
+                "role": "Trustee",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=720&q=80",
+                  "alt": "A smiling man in a grey t-shirt outdoors",
+                  "width": 720,
+                  "height": 480
+                }
+              },
+              {
+                "name": "Lena Brandt",
+                "role": "Trustee",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1614436201459-156d322d38c6?w=480&q=80",
+                  "alt": "A smiling woman with a shoulder-length bob by the water",
+                  "width": 480,
+                  "height": 720
+                }
+              },
+              {
+                "name": "Daniel Okoro",
+                "role": "Trustee",
+                "photo": {
+                  "src": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=480&q=80",
+                  "alt": "Portrait of a man in a grey sweater, smiling softly",
+                  "width": 480,
+                  "height": 720
+                }
+              }
+            ],
+            "columns": "3"
+          },
+          "variant": "circles",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_t3q4scd7se",
+      "preset": "logos/partners-cards@1",
+      "label": "Partners with descriptions",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 15,
+          "m": 34
+        },
+        "items": {
+          "blk_ws21tyv94s": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 4
+            }
+          },
+          "blk_heexy66va0": {
+            "d": {
+              "x": 1,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 6,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_mgjxgxedr7": {
+            "d": {
+              "x": 9,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 16,
+              "w": 8,
+              "h": 9
+            }
+          },
+          "blk_sdrg37h7t1": {
+            "d": {
+              "x": 17,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 26,
+              "w": 8,
+              "h": 9
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_ws21tyv94s",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "We plant with",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Partners"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_heexy66va0",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Education",
+            "heading": "Eastport Schools",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Twelve schools host our gardens and teach with them every week."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "graduation-cap"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_mgjxgxedr7",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "City partner",
+            "heading": "Eastport Parks",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "The city supplies young trees at cost and shares its heat maps."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "leaf"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_sdrg37h7t1",
+          "type": "card",
+          "v": 1,
+          "fields": {
+            "aspect": "4:5",
+            "eyebrow": "Funder",
+            "heading": "Harbour Community Fund",
+            "body": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Funds keeper training and watering kits for every new block."
+                    }
+                  ]
+                }
+              ]
+            },
+            "icon": "heart-handshake"
+          },
+          "variant": "stacked",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sec_27dta82jz6",
+      "preset": "impact/where-money-goes@1",
+      "label": "Where your money goes",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_rrc1eph2ba",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "How your gift is spent",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Transparency"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_1rsnsdwpnp",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Our accounts are independently examined each year. Four in every five dollars go straight to planting, watering and training."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_26hw2788c1",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Make a donation",
+            "link": {
+              "type": "page",
+              "page": "pg_aa79ztc7zb"
+            },
+            "role": "secondary"
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_n26rnkqpfa",
+          "type": "chart",
+          "v": 1,
+          "fields": {
+            "title": "Spending in 2025",
+            "description": "Share of total spending, from our examined accounts.",
+            "rows": [
+              {
+                "label": "Planting and watering",
+                "value": 79
+              },
+              {
+                "label": "Training keepers",
+                "value": 11
+              },
+              {
+                "label": "Fundraising",
+                "value": 6
+              },
+              {
+                "label": "Running costs",
+                "value": 4
+              }
+            ],
+            "suffix": "%",
+            "showValues": true,
+            "showTable": false
+          },
+          "column": 1,
+          "variant": "pie"
+        }
+      ]
+    }
+  ]
+}

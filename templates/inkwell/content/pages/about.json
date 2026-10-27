@@ -1,0 +1,281 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_7s4s483qqy",
+  "title": "About",
+  "slug": "about",
+  "seo": {
+    "description": "June Okafor is an essayist and the author of The Mile. She writes the Slow Light newsletter from a small flat by the river in Leeds."
+  },
+  "sections": [
+    {
+      "id": "sec_g3xverz36p",
+      "preset": "hero/personal-intro@1",
+      "label": "Personal introduction",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            4,
+            8
+          ],
+          "m": [
+            12
+          ]
+        },
+        "order": {
+          "m": [
+            0,
+            1
+          ],
+          "t": [
+            0,
+            1
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "xl",
+          "m": "lg"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_s7z7kcwcyt",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1667053508464-eb11b394df83?w=840&q=80",
+              "alt": "June Okafor",
+              "width": 840,
+              "height": 1050
+            },
+            "aspect": "1:1",
+            "lightbox": false
+          },
+          "column": 0,
+          "variant": "default",
+          "style": {
+            "imageTreatment": "circle"
+          }
+        },
+        {
+          "id": "blk_tnyhjzvyyr",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "I'm June. I write slowly.",
+            "level": "h1",
+            "size": "h1",
+            "eyebrow": "About",
+            "subheading": "Essayist, walker and reluctant gardener. My newsletter, Slow Light, has gone out every other Thursday since 2020."
+          },
+          "column": 1,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_a8m9q4rfhs",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Read the essays",
+            "link": {
+              "type": "url",
+              "url": "/essays/"
+            },
+            "role": "primary",
+            "secondaryLabel": "Say hello",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_4vcke76yez"
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_n054z28b8j",
+      "preset": "about/founder-letter@1",
+      "label": "Letter from the founder",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "narrow",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_p0h6xhe3cn",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "A short note on Slow Light",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Why I write"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_n742rj0zvc",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "I started the newsletter during a long winter when I couldn't go far, so I wrote about what was near: the river, the allotment, the man who feeds the swans."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "It turned out a lot of people wanted to read about small things carefully observed. Thank you for being one of them."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Slow Light is free and always will be. If you'd like to support it, buy a book from your local shop."
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "small"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "— June"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "drop-cap"
+        }
+      ]
+    },
+    {
+      "id": "sec_td9a111t9p",
+      "preset": "about/recognition@1",
+      "label": "Awards and recognition",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            5,
+            7
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_xwhrfny7qf",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Prizes and publications",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Recognition"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_2gpnmvh2p6",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A few of the places my writing has found a home."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_nhyrv5rs1w",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "award",
+                "title": "Nature Writing Prize, shortlist 2025",
+                "text": "For the essay Swan Season."
+              },
+              {
+                "icon": "book-open",
+                "title": "The Mile",
+                "text": "Saltmarsh Press, March 2027."
+              },
+              {
+                "icon": "feather",
+                "title": "Essays in print",
+                "text": "Field & Atlas, The Evening Ledger, Northern Review."
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 1,
+          "variant": "list",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,406 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_aa79ztc7zb",
+  "title": "Donate",
+  "slug": "donate",
+  "seo": {
+    "description": "Donate to Shade Street Trust. A monthly gift waters young trees all summer; sixty dollars plants and cares for a tree for three years."
+  },
+  "sections": [
+    {
+      "id": "sec_gzas1aydxh",
+      "preset": "impact/monthly-giving@1",
+      "label": "Monthly giving",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "align": "center",
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_e87e7xaqft",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Give shade, monthly or once",
+            "level": "h1",
+            "size": "auto",
+            "eyebrow": "Donate"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_xgg50ewwps",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "droplet",
+                "title": "$10 keeps a young tree watered"
+              },
+              {
+                "icon": "sprout",
+                "title": "$25 plants a tree where it's hottest"
+              },
+              {
+                "icon": "users",
+                "title": "$50 trains a new tree keeper"
+              }
+            ],
+            "columns": "1"
+          },
+          "column": 0,
+          "variant": "list"
+        },
+        {
+          "id": "blk_s7h3b24367",
+          "type": "donation",
+          "v": 1,
+          "fields": {
+            "headingLevel": "h3",
+            "mode": "checkout",
+            "currency": "USD",
+            "amounts": [
+              {
+                "amount": 10
+              },
+              {
+                "amount": 25
+              },
+              {
+                "amount": 50
+              }
+            ],
+            "allowCustom": true,
+            "frequency": "both",
+            "buttonLabel": "Donate",
+            "note": "Shade Street Trust is a registered charity. You'll get a receipt by email."
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_psvcrbahd9",
+      "preset": "stats/cards-detail@1",
+      "label": "Number cards with detail",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_x9yssyrrhm",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "What donations did last year",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Your gift at work",
+            "subheading": "From our 2025 accounts, independently examined."
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_7x6a4zg6t1",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "$60",
+                "label": "Plants one tree",
+                "detail": "Including three summers of watering."
+              },
+              {
+                "value": "79¢",
+                "label": "Of every dollar to planting",
+                "detail": "The rest runs the charity."
+              },
+              {
+                "value": "1,120",
+                "label": "Monthly donors",
+                "detail": "The steady base of our work."
+              }
+            ]
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_5bgr4tk08j",
+      "preset": "faq/with-contact-card@1",
+      "label": "Questions with contact card",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 22,
+          "m": 33
+        },
+        "items": {
+          "blk_yrmheb68dp": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 14,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 4
+            }
+          },
+          "blk_2z5g2pnmsz": {
+            "d": {
+              "x": 1,
+              "y": 6,
+              "w": 14,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 6,
+              "w": 8,
+              "h": 10
+            }
+          },
+          "blk_f7qa3enzr0": {
+            "d": {
+              "x": 17,
+              "y": 6,
+              "w": 3,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 17,
+              "w": 3,
+              "h": 5
+            }
+          },
+          "blk_gmxr0g2qy1": {
+            "d": {
+              "x": 17,
+              "y": 12,
+              "w": 8,
+              "h": 7
+            },
+            "m": {
+              "x": 1,
+              "y": 23,
+              "w": 8,
+              "h": 7
+            }
+          },
+          "blk_py8tx37tza": {
+            "d": {
+              "x": 17,
+              "y": 20,
+              "w": 8,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 31,
+              "w": 8,
+              "h": 3
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_yrmheb68dp",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Questions about donating",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Giving"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_2z5g2pnmsz",
+          "type": "accordion",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "question": "Is my donation tax-deductible?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes. Shade Street Trust is a registered charity and every gift gets a receipt."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can I give in memory of someone?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Yes — tell us their name and we'll plant a tree and send a card."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "Can my company match my gift?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Many employers do. Ask your HR team and we'll send what they need."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "question": "How do I cancel a monthly gift?",
+                "answer": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Use the link in any receipt, or email us and we'll do it the same day."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "exclusive": false,
+            "openFirst": true,
+            "faqSchema": true
+          },
+          "variant": "lines"
+        },
+        {
+          "id": "blk_f7qa3enzr0",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Rosa, our supporter care lead",
+              "width": 320,
+              "height": 479
+            },
+            "aspect": "1:1",
+            "lightbox": false
+          },
+          "variant": "default",
+          "style": {
+            "imageTreatment": "circle"
+          }
+        },
+        {
+          "id": "blk_gmxr0g2qy1",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h4"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Talk to Rosa"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Rosa looks after our donors. Call her weekdays between 9am and 5pm."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_py8tx37tza",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get in touch",
+            "link": {
+              "type": "page",
+              "page": "pg_tz56z4ahvt"
+            },
+            "role": "secondary"
+          },
+          "variant": "default"
+        }
+      ]
+    }
+  ]
+}

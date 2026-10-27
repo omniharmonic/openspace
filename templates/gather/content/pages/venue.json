@@ -1,0 +1,382 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_fc0xa2rkda",
+  "title": "Venue & travel",
+  "slug": "venue",
+  "seo": {
+    "description": "Open Field 2027 takes place at the Mill City Hall in Minneapolis. Getting there by train, bus and bike, accessibility and where to stay."
+  },
+  "sections": [
+    {
+      "id": "sec_rc3b0v4jhr",
+      "preset": "hero/frame-photo@1",
+      "label": "Framed photograph",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 29,
+          "m": 28
+        },
+        "items": {
+          "blk_37fxj3c5mk": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 24,
+              "h": 22
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 14
+            }
+          },
+          "blk_wvn8dqg0hz": {
+            "d": {
+              "x": 2,
+              "y": 15,
+              "w": 10,
+              "h": 12,
+              "z": 2
+            },
+            "m": {
+              "x": 1,
+              "y": 12,
+              "w": 8,
+              "h": 13,
+              "z": 2
+            }
+          },
+          "blk_ntrjdaz96a": {
+            "d": {
+              "x": 2,
+              "y": 27,
+              "w": 10,
+              "h": 3
+            },
+            "m": {
+              "x": 1,
+              "y": 26,
+              "w": 8,
+              "h": 3
+            }
+          }
+        },
+        "width": "wide"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "lg",
+          "m": "md"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_37fxj3c5mk",
+          "type": "image",
+          "v": 1,
+          "fields": {
+            "image": {
+              "src": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=2880&q=80",
+              "alt": "Rows of attendees in the Mill City Hall auditorium",
+              "width": 2880,
+              "height": 1920
+            },
+            "aspect": "original",
+            "lightbox": false
+          },
+          "variant": "default"
+        },
+        {
+          "id": "blk_wvn8dqg0hz",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "eyebrow"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Venue & travel"
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 1,
+                    "preset": "h1"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Mill City Hall, by the river"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "A restored flour mill with a 900-seat hall, two workshop rooms and a terrace over the Mississippi."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "variant": "default",
+          "style": {
+            "colorTheme": "light",
+            "padding": {
+              "d": "xl",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_ntrjdaz96a",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Get tickets",
+            "link": {
+              "type": "page",
+              "page": "pg_wrwn9f0tjc"
+            },
+            "role": "primary",
+            "secondaryLabel": "Access questions",
+            "secondaryLink": {
+              "type": "page",
+              "page": "pg_w0dp3gv618"
+            }
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_sqd18qm97b",
+      "preset": "events/venue-travel@1",
+      "label": "Venue and travel",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            6,
+            6
+          ],
+          "m": [
+            12
+          ]
+        },
+        "gap": "2xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_nhq30cd307",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Train, bus or bike",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Getting here"
+          },
+          "column": 0,
+          "variant": "plain"
+        },
+        {
+          "id": "blk_6vj68yxf94",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h4"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "By light rail"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Downtown East station is a seven-minute walk. Trains run every ten minutes from the airport."
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h4"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "By bus"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Routes 7 and 22 stop outside the main doors on Second Street."
+                    }
+                  ]
+                },
+                {
+                  "type": "heading",
+                  "attrs": {
+                    "level": 3,
+                    "preset": "h4"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "By bike"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Free valet bike parking by the terrace entrance, both days."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 0,
+          "variant": "default"
+        },
+        {
+          "id": "blk_z0fmwvx4fe",
+          "type": "map",
+          "v": 1,
+          "fields": {
+            "name": "Mill City Hall",
+            "address": "704 S 2nd St, Minneapolis, MN 55401",
+            "latitude": 44.9786,
+            "longitude": -93.2571,
+            "zoom": 13,
+            "details": "Main entrance on Second Street.",
+            "linkLabel": "Open in Maps",
+            "aspect": "4:3"
+          },
+          "column": 1,
+          "variant": "card"
+        }
+      ]
+    },
+    {
+      "id": "sec_mcx8683h0c",
+      "preset": "features/tile-grid@1",
+      "label": "Feature tiles",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_3f210e9xtr",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Designed so everyone can take part",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Access",
+            "subheading": "Tell us what you need when you book, or any time before the event."
+          },
+          "variant": "plain",
+          "style": {
+            "align": {
+              "d": "center"
+            }
+          }
+        },
+        {
+          "id": "blk_tmee2czx3t",
+          "type": "icon-list",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "icon": "accessibility",
+                "title": "Step-free throughout"
+              },
+              {
+                "icon": "file-text",
+                "title": "Live captions on stage"
+              },
+              {
+                "icon": "headphones",
+                "title": "Hearing loop in the hall"
+              },
+              {
+                "icon": "moon",
+                "title": "A quiet room"
+              },
+              {
+                "icon": "baby",
+                "title": "Parents' room"
+              },
+              {
+                "icon": "utensils",
+                "title": "Every diet catered"
+              },
+              {
+                "icon": "users",
+                "title": "Free carer tickets"
+              },
+              {
+                "icon": "map-pin",
+                "title": "Sighted guides on request"
+              }
+            ],
+            "columns": "4"
+          },
+          "variant": "tiles"
+        }
+      ]
+    }
+  ]
+}

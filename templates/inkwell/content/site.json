@@ -1,0 +1,222 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "June Okafor",
+  "tagline": "Essays on attention, place and noticing.",
+  "nav": [
+    {
+      "type": "collection",
+      "collection": "essays",
+      "label": "Essays"
+    },
+    {
+      "type": "page",
+      "page": "pg_jrse89j7zr",
+      "label": "Books"
+    },
+    {
+      "type": "page",
+      "page": "pg_2j99byhsdz",
+      "label": "Speaking"
+    },
+    {
+      "type": "page",
+      "page": "pg_7s4s483qqy",
+      "label": "About"
+    },
+    {
+      "type": "page",
+      "page": "pg_4vcke76yez",
+      "label": "Contact"
+    }
+  ],
+  "header": {
+    "variant": "logo-center-nav-below",
+    "sticky": false,
+    "transparentOnHero": false,
+    "mobileMenu": "fullscreen",
+    "colorTheme": "light",
+    "logoHeight": {
+      "d": 72,
+      "m": 44
+    }
+  },
+  "footer": {
+    "id": "sec_46m2qttec7",
+    "preset": "footer/signup-dark@1",
+    "label": "Footer with signup band",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          6,
+          6
+        ],
+        "m": [
+          12
+        ]
+      },
+      "gap": "xl"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_pyc15m7v1g",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "lead"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Slow Light"
+                  }
+                ]
+              },
+              {
+                "type": "paragraph",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Essays from June Okafor, every other Thursday."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_xc6z6jj9tn",
+        "type": "newsletter",
+        "v": 1,
+        "fields": {
+          "askName": false,
+          "placeholder": "you@example.com",
+          "buttonLabel": "Subscribe",
+          "successMessage": "Thank you — the next letter is on its way."
+        },
+        "column": 1,
+        "variant": "inline"
+      },
+      {
+        "id": "blk_c4vvqt1chf",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 June Okafor · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Essays",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/essays/"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Contact",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/contact/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_xs0nxsgm4m",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": [
+            {
+              "network": "instagram",
+              "url": "https://instagram.com/juniperyoga"
+            },
+            {
+              "network": "youtube",
+              "url": "https://youtube.com/@juniperyoga"
+            },
+            {
+              "network": "email",
+              "url": "mailto:hello@juniperyoga.com"
+            }
+          ]
+        },
+        "column": 1,
+        "variant": "icons",
+        "style": {
+          "align": {
+            "d": "end"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "bluesky",
+      "url": "https://bsky.app/profile/juneokafor.example"
+    },
+    {
+      "network": "instagram",
+      "url": "https://instagram.com/juneokafor.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · June Okafor",
+    "description": "Essays on attention, place and noticing, and the Slow Light newsletter.",
+    "image": "https://images.unsplash.com/photo-1558009250-d3d2229fdf28?w=1200&q=80"
+  },
+  "locale": "en-GB",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/template.json",
+  "id": "orbit",
+  "name": "Orbit",
+  "description": "A crisp launch site for software products, with a screenshot hero, bento features, plans with a yearly switch, a full comparison and a changelog.",
+  "persona": "SaaS, apps & product launches",
+  "mood": "Crisp, confident, modern",
+  "version": "1.0.0",
+  "tags": [
+    "saas",
+    "startup",
+    "product",
+    "pricing",
+    "changelog",
+    "launch"
+  ],
+  "sample": {
+    "name": "Relay",
+    "tagline": "The shared inbox for small support teams."
+  },
+  "thumbnailPage": "pg_c69tkhv0yb",
+  "looks": [
+    {
+      "id": "indigo",
+      "name": "Indigo",
+      "description": "Clean white, an indigo accent and Plus Jakarta Sans throughout.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.52 0.2 275)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "curated"
+        },
+        "pairing": "plus-jakarta",
+        "density": "comfortable",
+        "shape": "soft",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "aurora",
+      "name": "Aurora",
+      "description": "A teal accent, Sora headings and round, pill-shaped buttons.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.6 0.13 185)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "sora-inter",
+        "density": "comfortable",
+        "shape": "round",
+        "buttons": "pill-solid",
+        "motion": "expressive",
+        "imageTreatment": "rounded"
+      }
+    },
+    {
+      "id": "blueprint",
+      "name": "Blueprint",
+      "description": "Sharp corners, Space Grotesk and a signal-orange accent on cool greys.",
+      "choices": {
+        "palette": {
+          "brand": "oklch(0.64 0.18 45)",
+          "neutral": "cool",
+          "contrast": "standard",
+          "source": "brand"
+        },
+        "pairing": "space-grotesk-inter",
+        "density": "compact",
+        "shape": "sharp",
+        "buttons": "solid",
+        "motion": "subtle",
+        "imageTreatment": "none"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "id": "pg_c69tkhv0yb",
+      "title": "Home",
+      "slug": ""
+    },
+    {
+      "id": "pg_frdb7psmx0",
+      "title": "Features",
+      "slug": "features"
+    },
+    {
+      "id": "pg_scxghk4vxy",
+      "title": "Pricing",
+      "slug": "pricing"
+    },
+    {
+      "id": "pg_e6gc55hpzq",
+      "title": "About",
+      "slug": "about"
+    },
+    {
+      "id": "pg_gk5sprgha6",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ]
+}

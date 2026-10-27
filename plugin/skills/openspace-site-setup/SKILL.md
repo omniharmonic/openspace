@@ -1,6 +1,6 @@
 ---
 name: openspace-site-setup
-description: This skill should be used when the user asks to "create a new website", "start an OpenSpace site", "make a site from a template", "set up openspace", "connect my domain", "put my site online", "publish my site for the first time", "connect Claude to my OpenSpace site", or asks how to get an OpenSpace site running locally, on GitHub Pages or on Cloudflare. It covers creating a site from one of the twelve templates with the openspace CLI, running it, connecting the MCP server, publishing, and connecting a custom domain.
+description: This skill should be used when the user asks to "create a new website", "start an OpenSpace site", "make a site from a template", "set up openspace", "connect my domain", "put my site online", "publish my site for the first time", "connect Claude to my OpenSpace site", or asks how to get an OpenSpace site running locally, on GitHub Pages or on Cloudflare. It covers creating a site from one of the twenty templates with the openspace CLI, running it, connecting the MCP server, publishing, and connecting a custom domain.
 version: 0.1.0
 ---
 
@@ -31,6 +31,14 @@ The twelve launch templates (each with three looks):
 | `commons`     | Coalitions, cooperatives, movements | Grounded, collective        |
 | `vow`         | Weddings and celebrations           | Romantic, refined           |
 | `link`        | Link-in-bio, single page            | Mobile-first, punchy        |
+| `darkroom`    | Photographers, creative portfolios  | Editorial, image-first      |
+| `orbit`       | SaaS, apps, product launches        | Crisp, confident, modern    |
+| `beacon`      | Nonprofits, charities, campaigns    | Hopeful, clear, trustworthy |
+| `fixwell`     | Local trades, cleaners, salons      | Dependable, direct, local   |
+| `keystone`    | Consultants and coaches             | Calm, candid, assured       |
+| `gather`      | Events, festivals, conferences      | Energetic, clear, welcoming |
+| `inkwell`     | Writers, authors, newsletters       | Literary, warm, unhurried   |
+| `folio`       | Personal sites, résumés             | Friendly, clear, personal   |
 
 Choose by the person's purpose, not their favourite color — looks change color and type later in one call (`apply_template_look`).
 

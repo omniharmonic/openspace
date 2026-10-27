@@ -1,0 +1,224 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/site.json",
+  "title": "Nadia Brooks",
+  "tagline": "Leadership coaching for first-time founders.",
+  "nav": [
+    {
+      "type": "page",
+      "page": "pg_jharvnhbcs",
+      "label": "Work with me"
+    },
+    {
+      "type": "page",
+      "page": "pg_qdg648vcs6",
+      "label": "Results"
+    },
+    {
+      "type": "collection",
+      "collection": "notes",
+      "label": "Notes"
+    },
+    {
+      "type": "page",
+      "page": "pg_ef4c6yegp8",
+      "label": "About"
+    },
+    {
+      "type": "button",
+      "label": "Book a call",
+      "link": {
+        "type": "page",
+        "page": "pg_we99b7t8j0"
+      },
+      "style": "primary"
+    }
+  ],
+  "header": {
+    "variant": "classic-center",
+    "sticky": true,
+    "transparentOnHero": false,
+    "mobileMenu": "dropdown",
+    "colorTheme": "light"
+  },
+  "footer": {
+    "id": "sec_qfkgqjsj3d",
+    "preset": "footer/cta-footer@1",
+    "label": "Footer with call to action",
+    "layout": {
+      "mode": "stack",
+      "columns": {
+        "d": [
+          8,
+          4
+        ],
+        "m": [
+          12
+        ]
+      },
+      "align": "end",
+      "gap": "xl"
+    },
+    "style": {
+      "colorTheme": "dark",
+      "padding": {
+        "d": "xl",
+        "m": "lg"
+      }
+    },
+    "blocks": [
+      {
+        "id": "blk_ktq1kh1b47",
+        "type": "heading",
+        "v": 1,
+        "fields": {
+          "text": "Lead well. Sleep fine. Let's talk.",
+          "level": "h2",
+          "size": "h1"
+        },
+        "column": 0,
+        "variant": "plain"
+      },
+      {
+        "id": "blk_t0ajawhfp1",
+        "type": "button",
+        "v": 1,
+        "fields": {
+          "label": "Book a discovery call",
+          "link": {
+            "type": "page",
+            "page": "pg_we99b7t8j0"
+          },
+          "role": "primary"
+        },
+        "column": 1,
+        "variant": "default",
+        "style": {
+          "align": {
+            "d": "end",
+            "m": "start"
+          }
+        }
+      },
+      {
+        "id": "blk_myxjq0qwj3",
+        "type": "text",
+        "v": 1,
+        "fields": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "preset": "small"
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "© 2026 Nadia Brooks Coaching · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Work with me",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/work-with-me/"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Notes",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/notes/"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "text",
+                    "text": " · "
+                  },
+                  {
+                    "type": "text",
+                    "text": "Contact",
+                    "marks": [
+                      {
+                        "type": "link",
+                        "attrs": {
+                          "href": "/contact/"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "column": 0,
+        "variant": "default"
+      },
+      {
+        "id": "blk_gh76ypj48x",
+        "type": "social-links",
+        "v": 1,
+        "fields": {
+          "source": "site",
+          "profiles": [
+            {
+              "network": "instagram",
+              "url": "https://instagram.com/juniperyoga"
+            },
+            {
+              "network": "youtube",
+              "url": "https://youtube.com/@juniperyoga"
+            },
+            {
+              "network": "email",
+              "url": "mailto:hello@juniperyoga.com"
+            }
+          ]
+        },
+        "column": 1,
+        "variant": "icons",
+        "style": {
+          "align": {
+            "d": "end"
+          }
+        }
+      }
+    ]
+  },
+  "social": [
+    {
+      "network": "linkedin",
+      "url": "https://linkedin.com/in/nadiabrooks-example"
+    },
+    {
+      "network": "bluesky",
+      "url": "https://bsky.app/profile/nadiabrooks.example"
+    }
+  ],
+  "seo": {
+    "titleTemplate": "%s · Nadia Brooks",
+    "description": "Leadership coaching for first-time founders.",
+    "image": "https://images.unsplash.com/photo-1581065178047-8ee15951ede6?w=1200&q=80"
+  },
+  "locale": "en-US",
+  "integrations": {
+    "analytics": true,
+    "bookingUrl": null,
+    "stripeConnected": false
+  }
+}

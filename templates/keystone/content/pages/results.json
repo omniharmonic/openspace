@@ -1,0 +1,396 @@
+{
+  "$schema": "https://schema.openspace.dev/v1/page.json",
+  "id": "pg_qdg648vcs6",
+  "title": "Results",
+  "slug": "results",
+  "seo": {
+    "description": "Client results from Nadia Brooks's leadership coaching: case studies, survey numbers and what founders say about working together."
+  },
+  "sections": [
+    {
+      "id": "sec_fhz0zgs26f",
+      "preset": "hero/minimal-line@1",
+      "label": "One line",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "width": "content",
+        "gap": "lg"
+      },
+      "style": {
+        "colorTheme": "light",
+        "padding": {
+          "d": "3xl",
+          "m": "2xl"
+        }
+      },
+      "blocks": [
+        {
+          "id": "blk_fve9pq609h",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Founders who lead calmly build better companies.",
+            "level": "h1",
+            "size": "display"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_pxndg3nqz7",
+          "type": "button",
+          "v": 1,
+          "fields": {
+            "label": "Start with a call",
+            "link": {
+              "type": "page",
+              "page": "pg_we99b7t8j0"
+            },
+            "role": "tertiary"
+          },
+          "variant": "default"
+        }
+      ]
+    },
+    {
+      "id": "sec_70vhmr4qb1",
+      "preset": "portfolio/challenge-approach-outcome@1",
+      "label": "Challenge, approach, outcome",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_nawjvqy7a0",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "From founder-led to team-led",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Case study · Brightledger"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_cxgw6wj3b2",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "heading": "The challenge",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Forty people, every decision still routed through the founder, two senior hires leaving."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "The approach",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Six months of coaching, a decision framework and a new leadership team rhythm."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "heading": "The outcome",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Three strong hires, a founder with free afternoons and record retention."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "columns": "3",
+            "aspect": "3:2"
+          },
+          "variant": "cards"
+        }
+      ]
+    },
+    {
+      "id": "sec_890p9d4y77",
+      "preset": "portfolio/results-band@1",
+      "label": "Results band",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "dark"
+      },
+      "blocks": [
+        {
+          "id": "blk_b37gr6c8qm",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "After six months of coaching",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Client survey 2025"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_pycy4gx9mp",
+          "type": "stats",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "value": "91%",
+                "label": "Felt more confident leading",
+                "detail": "From 64 clients surveyed."
+              },
+              {
+                "value": "8 hrs",
+                "label": "Weekly time saved, median",
+                "detail": "Mostly fewer meetings."
+              },
+              {
+                "value": "4.9",
+                "label": "Average rating out of five",
+                "detail": "Anonymous survey."
+              }
+            ]
+          },
+          "variant": "row"
+        }
+      ]
+    },
+    {
+      "id": "sec_jcv35cwcxv",
+      "preset": "testimonials/logo-quotes@1",
+      "label": "Quotes from clients",
+      "layout": {
+        "mode": "grid",
+        "rows": {
+          "d": 22,
+          "m": 39
+        },
+        "items": {
+          "blk_cza2b9g91e": {
+            "d": {
+              "x": 1,
+              "y": 1,
+              "w": 16,
+              "h": 5
+            },
+            "m": {
+              "x": 1,
+              "y": 1,
+              "w": 8,
+              "h": 5
+            }
+          },
+          "blk_qbhknt5k1m": {
+            "d": {
+              "x": 1,
+              "y": 7,
+              "w": 12,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 7,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_kxq6p16fsc": {
+            "d": {
+              "x": 13,
+              "y": 7,
+              "w": 12,
+              "h": 10
+            },
+            "m": {
+              "x": 1,
+              "y": 20,
+              "w": 8,
+              "h": 12
+            }
+          },
+          "blk_m4vj9kz82k": {
+            "d": {
+              "x": 1,
+              "y": 19,
+              "w": 24,
+              "h": 4
+            },
+            "m": {
+              "x": 1,
+              "y": 33,
+              "w": 8,
+              "h": 7
+            }
+          }
+        }
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_cza2b9g91e",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "In their words",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Clients"
+          },
+          "variant": "plain"
+        },
+        {
+          "id": "blk_qbhknt5k1m",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "She helped me become the founder my team needed, not the one I was pretending to be."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Tom Becker",
+            "role": "Founder, Field Office Design",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1780387477222-730504564368?w=320&q=80",
+              "alt": "Portrait of a smiling grey-haired woman in a beige jumpsuit",
+              "width": 320,
+              "height": 480
+            }
+          },
+          "variant": "card",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_kxq6p16fsc",
+          "type": "testimonial",
+          "v": 1,
+          "fields": {
+            "quote": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Our leadership team finally makes decisions without me in the room, and makes them well."
+                    }
+                  ]
+                }
+              ]
+            },
+            "name": "Clara Moss",
+            "role": "CEO, Parcelly",
+            "photo": {
+              "src": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=320&q=80",
+              "alt": "Portrait of a woman with long brown hair in a striped shirt",
+              "width": 320,
+              "height": 479
+            }
+          },
+          "variant": "card",
+          "style": {
+            "colorTheme": "light-accent",
+            "padding": {
+              "d": "lg",
+              "m": "md"
+            },
+            "radius": "md"
+          }
+        },
+        {
+          "id": "blk_m4vj9kz82k",
+          "type": "logo-strip",
+          "v": 1,
+          "fields": {
+            "logos": [
+              {
+                "name": "Brightledger"
+              },
+              {
+                "name": "Parcelly"
+              },
+              {
+                "name": "Saltmarsh Climate"
+              },
+              {
+                "name": "Field Office"
+              }
+            ],
+            "monochrome": true
+          },
+          "variant": "row"
+        }
+      ]
+    }
+  ]
+}
