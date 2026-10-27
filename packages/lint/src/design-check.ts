@@ -32,6 +32,7 @@ import {
   type OutlineHeading,
 } from "./content";
 import { type CheckOptions, type Issue, issue, opMeta, sortIssues } from "./issue";
+import { linkIssues } from "./links";
 import { autoMobileLayout } from "./mobile";
 import { photoContrast } from "./photo-contrast";
 
@@ -40,7 +41,8 @@ import { photoContrast } from "./photo-contrast";
  * order, empty sections, oversized images, missing alt text, overlapping text in grid sections,
  * pages without a clear call to action, more than one primary action per section, section color
  * rhythm (more than three in a row; flipping every section), copy outside a preset's
- * recommended range, photo backgrounds without a scrim and mixed image shapes in a section.
+ * recommended range, photo backgrounds without a scrim, mixed image shapes in a section and
+ * internal links that lead nowhere (the same rule `openspace check` fails a publish on).
  *
  * With `pageId`, page-level checks run for that page only (site-wide checks — styles, the
  * footer — always run). Issues come back sorted errors → warnings → info.
@@ -58,6 +60,7 @@ export function designCheck(
   if (pageId && pages.length === 0) throw new Error(`Page ${pageId} not found`);
   for (const page of pages) ctx.page(page);
   ctx.container(FOOTER, [doc.site.footer], { footer: true });
+  ctx.issues.push(...linkIssues(doc, pageId, options, ctx.meta));
   return sortIssues(ctx.issues);
 }
 

@@ -1,6 +1,6 @@
 import { getPreset, type SectionPreset, sectionPresets } from "@omniharmonic/openspace-blocks";
 import { applyAll, validate } from "@omniharmonic/openspace-ops";
-import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
+import { type Page, resolveInternalLinks, type SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import {
   btn,
@@ -570,6 +570,11 @@ describe("pages assembled from presets", () => {
       for (const pr of sectionPresets)
         if (pr.target === "page" && pr.category !== "hero")
           pg.sections.push(pr.build({ colorTheme: theme }));
+      // Raw builds carry the presets' example links (/book, /retreats…): broken on this site.
+      expect(designCheck(siteWith([pg])).some((i) => i.rule === "broken-link")).toBe(true);
+      // Every insertion path points them at pages the site has first.
+      const empty = siteWith([{ ...pg, sections: [] }]);
+      pg.sections = pg.sections.map((s) => resolveInternalLinks(s, empty).value);
       const doc = siteWith([pg]);
       // Photo-background presets are designed for the dark themes only (their scrim is the
       // section background); text-over-photo contrast is checked in those themes below.

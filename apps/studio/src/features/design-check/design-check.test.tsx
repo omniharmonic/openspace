@@ -1,3 +1,4 @@
+import { getPreset, type SectionPreset } from "@omniharmonic/openspace-blocks";
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { loadTemplate } from "@omniharmonic/openspace-templates";
 import { act, render, screen, within } from "@testing-library/react";
@@ -108,6 +109,22 @@ describe("Design check: model", () => {
     expect(rules).not.toContain("seo-image-alt");
     expect(issues.find((i) => i.rule === "seo-noindex")?.kind).toBe("seo");
     expect(countIssues(issues)).toMatchObject({ error: 0, warning: 3, info: 2, attention: 3 });
+  });
+
+  it("reports a link to a page the site doesn't have as an error on its block, fixed one at a time", () => {
+    const doc = brokenSite();
+    const { home } = ids(doc);
+    const page = must(doc.pages[home as keyof typeof doc.pages]);
+    const hero = must(getPreset("hero/full-bleed-photo@1")) as SectionPreset;
+    page.sections.push(hero.build());
+    const links = runChecks(doc, 1).filter((i) => i.rule === "broken-link");
+    expect(links.map((i) => [i.severity, i.message])).toEqual([
+      ["error", `A button on ${page.title} links to /book, which isn't a page on your site.`],
+      ["error", `A button on ${page.title} links to /retreats, which isn't a page on your site.`],
+    ]);
+    expect(links[0]?.block).toBe(page.sections.at(-1)?.blocks[1]?.id);
+    expect(links[0]?.autofix?.label).toMatch(/^Link to .+ instead$/);
+    expect(isSafeFix(must(links[0]))).toBe(false);
   });
 
   it("groups by page (site-wide first) and section", () => {
