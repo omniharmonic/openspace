@@ -212,7 +212,7 @@ export const galleryCss = `
 @container block (max-width:24rem){.os-gallery--masonry .os-gallery__items{columns:1}}
 
 .os-gallery--strips .os-gallery__items{--row-h:6.5rem;display:flex;flex-wrap:wrap;gap:var(--os-space-2xs)}
-.os-gallery--strips .os-gallery__items::after{content:"";flex-grow:999}
+.os-gallery--strips .os-gallery__items::after{content:"";flex-grow:1.5}
 .os-gallery--strips .os-gallery__item{flex:var(--ar,1.5) 1 calc(var(--ar,1.5) * var(--row-h));min-width:0}
 .os-gallery--strips .os-img{aspect-ratio:var(--ar,1.5)}
 @container block (min-width:30rem){.os-gallery--strips .os-gallery__items{--row-h:10rem}}

@@ -59,7 +59,7 @@ export const heroMorePresets = [
         second: { label: "Book a design visit", link: c.secondary },
       });
       const a = image(photo("kitchen", 560));
-      const b = image(photo("stool", 360));
+      const b = image(photo("woodworker", 360));
       const proof = stats([["212", "Kitchens fitted"]], {
         variant: "large",
         style: panel("dark-accent"),

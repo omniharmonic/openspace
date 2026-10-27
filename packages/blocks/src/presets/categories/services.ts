@@ -78,7 +78,7 @@ export const servicesPresets = [
                 linkLabel: "About planting",
               },
               {
-                image: photo("porchHouse", 400, "4:5"),
+                image: photo("urbanGarden", 400, "4:5"),
                 heading: "Full garden builds",
                 body: rt.doc(
                   rt.p(

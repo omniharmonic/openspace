@@ -115,6 +115,6 @@ export const teamCss = `
 .os-team--list{grid-template-columns:minmax(0,1fr);gap:var(--os-space-md)}
 @container block (min-width:36rem){.os-team--list .os-team__person{grid-template-columns:minmax(0,12rem) minmax(0,1fr);gap:var(--os-space-md);align-items:start}}
 .os-team--list .os-team__person+.os-team__person{padding-top:var(--os-space-md);border-top:1px solid var(--os-color-border)}
-.os-team--circles{grid-template-columns:repeat(auto-fill,minmax(9rem,1fr));text-align:center}
+.os-team--circles{grid-template-columns:repeat(auto-fit,minmax(9rem,11rem));justify-content:center;text-align:center}
 .os-team--circles .os-team__photo{width:min(100%,9rem);margin-inline:auto}
 `;
