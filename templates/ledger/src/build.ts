@@ -141,10 +141,26 @@ function home() {
           },
           timeline: {
             items: [
-              { date: "Weeks 1–2", title: "Listen", text: "Interviews with the team and a look at how work really flows." },
-              { date: "Weeks 3–6", title: "Untangle", text: "Fix the three bottlenecks that cost the most time." },
-              { date: "Weeks 7–10", title: "Install", text: "Weekly rituals, dashboards and clear owners." },
-              { date: "Weeks 11–12", title: "Hand over", text: "Written playbooks and a check-in at three months." },
+              {
+                date: "Weeks 1–2",
+                title: "Listen",
+                text: "Interviews with the team and a look at how work really flows.",
+              },
+              {
+                date: "Weeks 3–6",
+                title: "Untangle",
+                text: "Fix the three bottlenecks that cost the most time.",
+              },
+              {
+                date: "Weeks 7–10",
+                title: "Install",
+                text: "Weekly rituals, dashboards and clear owners.",
+              },
+              {
+                date: "Weeks 11–12",
+                title: "Hand over",
+                text: "Written playbooks and a check-in at three months.",
+              },
             ],
           },
         },

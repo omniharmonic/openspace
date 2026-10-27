@@ -72,7 +72,8 @@ const projects = [
     title: "Bus times you can trust",
     year: 2023,
     client: "Kitebase",
-    excerpt: "Arrival predictions that admit uncertainty, so riders know when to run and when to wait.",
+    excerpt:
+      "Arrival predictions that admit uncertainty, so riders know when to run and when to wait.",
     cover: "city" as const,
     gallery: ["street", "developer", "deskMinimal"] as const,
   },

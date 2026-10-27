@@ -4,7 +4,7 @@
   "title": "Templates",
   "slug": "templates",
   "seo": {
-    "description": "Twelve OpenSpace templates for practices, nonprofits, artists, restaurants, shops and more, each with three looks. Free to use and change."
+    "description": "Twenty OpenSpace templates for practices, nonprofits, artists, restaurants, shops, products and more, each with three looks. Free to use and change."
   },
   "sections": [
     {
@@ -96,7 +96,7 @@
             "text": "Start here",
             "level": "h2",
             "size": "auto",
-            "eyebrow": "Practices, causes and businesses"
+            "eyebrow": "Practices, studios and local businesses"
           },
           "variant": "underline"
         },
@@ -245,34 +245,6 @@
                   "url": "https://studio.openspace.host/new/hearth"
                 },
                 "linkLabel": "Start with Hearth"
-              },
-              {
-                "image": {
-                  "src": "media/templates/signal-looks.png",
-                  "alt": "The Signal template's home page in its three looks: Electric, Terminal, Volt",
-                  "width": 1400,
-                  "height": 478
-                },
-                "heading": "Signal",
-                "body": {
-                  "type": "doc",
-                  "content": [
-                    {
-                      "type": "paragraph",
-                      "content": [
-                        {
-                          "type": "text",
-                          "text": "For products, startups, launches. Bold, modern, technical. Looks: Electric, Terminal, Volt."
-                        }
-                      ]
-                    }
-                  ]
-                },
-                "link": {
-                  "type": "url",
-                  "url": "https://studio.openspace.host/new/signal"
-                },
-                "linkLabel": "Start with Signal"
               }
             ],
             "columns": "2",
@@ -305,15 +277,199 @@
           "type": "heading",
           "v": 1,
           "fields": {
-            "text": "And six more",
+            "text": "Grow",
             "level": "h2",
             "size": "auto",
-            "eyebrow": "Writers, artists, shops and occasions"
+            "eyebrow": "Products, causes and professionals"
           },
           "variant": "underline"
         },
         {
           "id": "blk_ht1k3k8zgx",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
+              {
+                "image": {
+                  "src": "media/templates/signal-looks.png",
+                  "alt": "The Signal template's home page in its three looks: Electric, Terminal, Volt",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Signal",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For products, startups, launches. Bold, modern, technical. Looks: Electric, Terminal, Volt."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/signal"
+                },
+                "linkLabel": "Start with Signal"
+              },
+              {
+                "image": {
+                  "src": "media/templates/orbit-looks.png",
+                  "alt": "The Orbit template's home page in its three looks: Indigo, Aurora, Blueprint",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Orbit",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For saaS, apps & product launches. Crisp, confident, modern. Looks: Indigo, Aurora, Blueprint."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/orbit"
+                },
+                "linkLabel": "Start with Orbit"
+              },
+              {
+                "image": {
+                  "src": "media/templates/beacon-looks.png",
+                  "alt": "The Beacon template's home page in its three looks: Canopy, Sunrise, Civic",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Beacon",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For nonprofits, charities & campaigns. Hopeful, clear, trustworthy. Looks: Canopy, Sunrise, Civic."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/beacon"
+                },
+                "linkLabel": "Start with Beacon"
+              },
+              {
+                "image": {
+                  "src": "media/templates/fixwell-looks.png",
+                  "alt": "The Fixwell template's home page in its three looks: Workwear, Fresh, Heritage",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Fixwell",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For local services: trades, cleaners, salons. Dependable, direct, local. Looks: Workwear, Fresh, Heritage."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/fixwell"
+                },
+                "linkLabel": "Start with Fixwell"
+              },
+              {
+                "image": {
+                  "src": "media/templates/keystone-looks.png",
+                  "alt": "The Keystone template's home page in its three looks: Slate, Clay, Boardroom",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Keystone",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For consultants & coaches. Calm, candid, assured. Looks: Slate, Clay, Boardroom."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/keystone"
+                },
+                "linkLabel": "Start with Keystone"
+              }
+            ],
+            "columns": "2",
+            "aspect": "original"
+          },
+          "variant": "plain"
+        }
+      ],
+      "anchor": "grow"
+    },
+    {
+      "id": "sec_g9acf787we",
+      "preset": "gallery/project-cards@1",
+      "label": "Project index",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light"
+      },
+      "blocks": [
+        {
+          "id": "blk_04x8xa1d45",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Create",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Writers, venues, makers and communities"
+          },
+          "variant": "underline"
+        },
+        {
+          "id": "blk_wbn0q4kt1e",
           "type": "columns",
           "v": 1,
           "fields": {
@@ -457,7 +613,51 @@
                   "url": "https://studio.openspace.host/new/vow"
                 },
                 "linkLabel": "Start with Vow"
-              },
+              }
+            ],
+            "columns": "2",
+            "aspect": "original"
+          },
+          "variant": "plain"
+        }
+      ],
+      "anchor": "create"
+    },
+    {
+      "id": "sec_4xgxps2v6m",
+      "preset": "gallery/project-cards@1",
+      "label": "Project index",
+      "layout": {
+        "mode": "stack",
+        "columns": {
+          "d": [
+            12
+          ]
+        },
+        "gap": "xl"
+      },
+      "style": {
+        "colorTheme": "light-accent"
+      },
+      "blocks": [
+        {
+          "id": "blk_b0mkfh33m4",
+          "type": "heading",
+          "v": 1,
+          "fields": {
+            "text": "Show",
+            "level": "h2",
+            "size": "auto",
+            "eyebrow": "Portfolios, events and personal sites"
+          },
+          "variant": "underline"
+        },
+        {
+          "id": "blk_vjshhrr6qq",
+          "type": "columns",
+          "v": 1,
+          "fields": {
+            "items": [
               {
                 "image": {
                   "src": "media/templates/link-looks.png",
@@ -485,6 +685,118 @@
                   "url": "https://studio.openspace.host/new/link"
                 },
                 "linkLabel": "Start with Link"
+              },
+              {
+                "image": {
+                  "src": "media/templates/darkroom-looks.png",
+                  "alt": "The Darkroom template's home page in its three looks: Gallery, Contact sheet, Golden hour",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Darkroom",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For photographers & creative portfolios. Editorial, quiet, image-first. Looks: Gallery, Contact sheet, Golden hour."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/darkroom"
+                },
+                "linkLabel": "Start with Darkroom"
+              },
+              {
+                "image": {
+                  "src": "media/templates/gather-looks.png",
+                  "alt": "The Gather template's home page in its three looks: Marquee, Programme, Festival",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Gather",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For events, festivals & conferences. Energetic, clear, welcoming. Looks: Marquee, Programme, Festival."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/gather"
+                },
+                "linkLabel": "Start with Gather"
+              },
+              {
+                "image": {
+                  "src": "media/templates/inkwell-looks.png",
+                  "alt": "The Inkwell template's home page in its three looks: Paper, Riverbank, Night edition",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Inkwell",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For writers, authors & newsletters. Literary, warm, unhurried. Looks: Paper, Riverbank, Night edition."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/inkwell"
+                },
+                "linkLabel": "Start with Inkwell"
+              },
+              {
+                "image": {
+                  "src": "media/templates/folio-looks.png",
+                  "alt": "The Folio template's home page in its three looks: Studio, Sketchbook, Monospace",
+                  "width": 1400,
+                  "height": 478
+                },
+                "heading": "Folio",
+                "body": {
+                  "type": "doc",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "For personal sites, résumés & freelancers. Friendly, clear, personal. Looks: Studio, Sketchbook, Monospace."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "link": {
+                  "type": "url",
+                  "url": "https://studio.openspace.host/new/folio"
+                },
+                "linkLabel": "Start with Folio"
               }
             ],
             "columns": "2",
@@ -493,7 +805,7 @@
           "variant": "plain"
         }
       ],
-      "anchor": "more"
+      "anchor": "show"
     },
     {
       "id": "sec_5xdg1rfa89",

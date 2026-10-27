@@ -784,8 +784,10 @@ function home() {
 // --- other pages ----------------------------------------------------------------------------------
 
 /** The six MVP templates first, then the six that followed (doc 04 §7). */
-const FIRST = ["meadow", "harbor", "atelier", "ledger", "hearth", "signal"];
-const SECOND = ["field-notes", "encore", "kiln", "commons", "vow", "link"];
+const FIRST = ["meadow", "harbor", "atelier", "ledger", "hearth"];
+const SECOND = ["signal", "orbit", "beacon", "fixwell", "keystone"];
+const THIRD = ["field-notes", "encore", "kiln", "commons", "vow"];
+const FOURTH = ["link", "darkroom", "gather", "inkwell", "folio"];
 
 function templates() {
   const gallery = (
@@ -807,7 +809,7 @@ function templates() {
     P.templates,
     "Templates",
     "templates",
-    "Twelve OpenSpace templates for practices, nonprofits, artists, restaurants, shops and more, each with three looks. Free to use and change.",
+    "Twenty OpenSpace templates for practices, nonprofits, artists, restaurants, shops, products and more, each with three looks. Free to use and change.",
     [
       fromPreset("hero/centered@1", {
         theme: "brand",
@@ -826,14 +828,10 @@ function templates() {
           },
         },
       }),
-      gallery(FIRST, "light", "Practices, causes and businesses", "Start here", "first"),
-      gallery(
-        SECOND,
-        "light-accent",
-        "Writers, artists, shops and occasions",
-        "And six more",
-        "more",
-      ),
+      gallery(FIRST, "light", "Practices, studios and local businesses", "Start here", "first"),
+      gallery(SECOND, "light-accent", "Products, causes and professionals", "Grow", "grow"),
+      gallery(THIRD, "light", "Writers, venues, makers and communities", "Create", "create"),
+      gallery(FOURTH, "light-accent", "Portfolios, events and personal sites", "Show", "show"),
       fromPreset("cta/split@1", {
         theme: "dark",
         edit: {

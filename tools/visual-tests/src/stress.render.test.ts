@@ -67,60 +67,64 @@ function write(file: string, html: string) {
   writeFileSync(file, html);
 }
 
-it.skipIf(!OUT)("renders every section preset under stress, and long names in headers", () => {
-  const dir = OUT as string;
-  cpSync(join(ROOT, "packages/renderer/dist/behaviors"), join(dir, "_os/behaviors"), {
-    recursive: true,
-  });
-  const metas = new Map(
-    blocksRegistry()
-      .meta()
-      .map((m) => [m.type, m.fields as FieldMetas]),
-  );
-  const metaOf = (type: string) => metas.get(type);
-  const host = loadTemplate("meadow");
-  if (!host) throw new Error("meadow template missing");
-  const home = Object.values(host.doc.pages).find((p) => p.slug === "") as Page;
-  const only = process.env.OS_STRESS_PRESETS?.split(",");
-  const manifest: {
-    presets: { id: string; path: string; sections: { id: string; variant: string }[] }[];
-    headers: { id: string; path: string }[];
-  } = { presets: [], headers: [] };
-
-  for (const preset of sectionPresets.filter((p) => !only || only.includes(p.id))) {
-    const base = preset.build();
-    const sections: Section[] = [];
-    const listed: { id: string; variant: string }[] = [];
-    VARIATIONS.forEach(({ id, variation }, i) => {
-      if (variation.kind !== "base" && !changes(base, variation, metaOf)) return;
-      const s = reid(applyVariation(base, variation, metaOf), `v${i}`);
-      sections.push(s);
-      listed.push({ id: s.id, variant: id });
+it.skipIf(!OUT)(
+  "renders every section preset under stress, and long names in headers",
+  () => {
+    const dir = OUT as string;
+    cpSync(join(ROOT, "packages/renderer/dist/behaviors"), join(dir, "_os/behaviors"), {
+      recursive: true,
     });
-    const page = { ...home, sections } as Page;
-    const doc = { ...host.doc, pages: { ...host.doc.pages, [home.id]: page } } as SiteDocument;
-    const path = `presets/${preset.id}/`;
-    write(join(dir, path, "index.html"), render(doc, home.id));
-    manifest.presets.push({ id: preset.id, path, sections: listed });
-  }
+    const metas = new Map(
+      blocksRegistry()
+        .meta()
+        .map((m) => [m.type, m.fields as FieldMetas]),
+    );
+    const metaOf = (type: string) => metas.get(type);
+    const host = loadTemplate("meadow");
+    if (!host) throw new Error("meadow template missing");
+    const home = Object.values(host.doc.pages).find((p) => p.slug === "") as Page;
+    const only = process.env.OS_STRESS_PRESETS?.split(",");
+    const manifest: {
+      presets: { id: string; path: string; sections: { id: string; variant: string }[] }[];
+      headers: { id: string; path: string }[];
+    } = { presets: [], headers: [] };
 
-  if (!only)
-    for (const id of TEMPLATE_IDS) {
-      const t = loadTemplate(id);
-      if (!t) continue;
-      const tHome = Object.values(t.doc.pages).find((p) => p.slug === "") as Page;
-      const cases: Record<string, SiteDocument["site"]> = {
-        "long-name": { ...t.doc.site, title: LONG_SITE_NAME, logo: null },
-        "wide-logo": {
-          ...t.doc.site,
-          logo: { src: WIDE_LOGO, alt: "Riverside Collective", width: 1200, height: 120 },
-        },
-      };
-      for (const [name, site] of Object.entries(cases)) {
-        const path = `headers/${id}-${name}/`;
-        write(join(dir, path, "index.html"), render({ ...t.doc, site }, tHome.id));
-        manifest.headers.push({ id: `${id}-${name}`, path });
-      }
+    for (const preset of sectionPresets.filter((p) => !only || only.includes(p.id))) {
+      const base = preset.build();
+      const sections: Section[] = [];
+      const listed: { id: string; variant: string }[] = [];
+      VARIATIONS.forEach(({ id, variation }, i) => {
+        if (variation.kind !== "base" && !changes(base, variation, metaOf)) return;
+        const s = reid(applyVariation(base, variation, metaOf), `v${i}`);
+        sections.push(s);
+        listed.push({ id: s.id, variant: id });
+      });
+      const page = { ...home, sections } as Page;
+      const doc = { ...host.doc, pages: { ...host.doc.pages, [home.id]: page } } as SiteDocument;
+      const path = `presets/${preset.id}/`;
+      write(join(dir, path, "index.html"), render(doc, home.id));
+      manifest.presets.push({ id: preset.id, path, sections: listed });
     }
-  writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));
-}, 600_000);
+
+    if (!only)
+      for (const id of TEMPLATE_IDS) {
+        const t = loadTemplate(id);
+        if (!t) continue;
+        const tHome = Object.values(t.doc.pages).find((p) => p.slug === "") as Page;
+        const cases: Record<string, SiteDocument["site"]> = {
+          "long-name": { ...t.doc.site, title: LONG_SITE_NAME, logo: null },
+          "wide-logo": {
+            ...t.doc.site,
+            logo: { src: WIDE_LOGO, alt: "Riverside Collective", width: 1200, height: 120 },
+          },
+        };
+        for (const [name, site] of Object.entries(cases)) {
+          const path = `headers/${id}-${name}/`;
+          write(join(dir, path, "index.html"), render({ ...t.doc, site }, tHome.id));
+          manifest.headers.push({ id: `${id}-${name}`, path });
+        }
+      }
+    writeFileSync(join(dir, "manifest.json"), JSON.stringify(manifest, null, 2));
+  },
+  600_000,
+);
