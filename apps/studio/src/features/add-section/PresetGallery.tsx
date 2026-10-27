@@ -73,24 +73,23 @@ export const PresetThumb = memo(function PresetThumb({
 });
 
 /**
- * Search across a preset's name, description, tags, category and AI guidance (so "restaurant"
- * or "nonprofit" finds the presets written for them).
+ * How well a preset matches a search: 2 when every word is in its name, description, category or
+ * tags; 1 when some only appear in its AI guidance (so "restaurant" or "nonprofit" still finds
+ * the presets written for them, after the direct matches); 0 for no match.
  */
-export function matchesPreset(p: Preset, query: string): boolean {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-  const hay = [
-    p.label,
-    p.description,
-    p.category,
-    PRESET_CATEGORY_LABELS[p.category],
-    ...p.tags,
-    p.ai.purpose,
-    p.ai.whenToUse,
-  ]
+export function presetScore(p: Preset, query: string): number {
+  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return 2;
+  const main = [p.label, p.description, p.category, PRESET_CATEGORY_LABELS[p.category], ...p.tags]
     .join(" ")
     .toLowerCase();
-  return q.split(/\s+/).every((w) => hay.includes(w));
+  if (words.every((w) => main.includes(w))) return 2;
+  const all = `${main} ${p.ai.purpose} ${p.ai.whenToUse}`.toLowerCase();
+  return words.every((w) => all.includes(w)) ? 1 : 0;
+}
+
+export function matchesPreset(p: Preset, query: string): boolean {
+  return presetScore(p, query) > 0;
 }
 
 /** Quick filters on how a preset looks, derived from its metadata. */
@@ -179,14 +178,24 @@ export function PresetGallery({
   const cats = PRESET_CATEGORIES.filter((c) => allCounts.get(c));
   const width = layout === "dialog" ? 236 : 222;
 
+  // Direct matches first: within a category, and categories with a direct match before those
+  // found only through AI guidance.
   const groups = useMemo(() => {
-    const out: Array<[PresetCategory, Preset[]]> = [];
+    const score = (p: Preset) => presetScore(p, query);
+    const out: Array<[PresetCategory, Preset[], number]> = [];
     for (const c of PRESET_CATEGORIES) {
-      const list = presets.filter((p) => p.category === c);
-      if (list.length) out.push([c, list]);
+      const list = presets
+        .filter((p) => p.category === c)
+        .map((p, i) => [p, score(p), i] as const)
+        .sort((a, b) => b[1] - a[1] || a[2] - b[2])
+        .map(([p]) => p);
+      if (list.length) out.push([c, list, Math.max(...list.map(score))]);
     }
-    return out;
-  }, [presets]);
+    return out
+      .map((g, i) => [g, i] as const)
+      .sort((a, b) => b[0][2] - a[0][2] || a[1] - b[1])
+      .map(([[c, list]]) => [c, list] as [PresetCategory, Preset[]]);
+  }, [presets, query]);
 
   const search = (
     <Input

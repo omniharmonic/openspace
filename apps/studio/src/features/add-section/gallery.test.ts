@@ -29,6 +29,14 @@ describe("section gallery filters", () => {
     for (const t of PRESET_TRAITS) expect(filterPresets("", "all", t.id).length).toBeGreaterThan(0);
   });
 
+  it("ranks direct matches above matches found only in AI guidance", async () => {
+    const { presetScore } = await import("./PresetGallery");
+    const pricing = allPresets.filter((p) => p.category === "pricing");
+    expect(pricing.every((p) => presetScore(p, "pricing") === 2)).toBe(true);
+    const viaAi = allPresets.filter((p) => presetScore(p, "restaurant") === 1);
+    expect(viaAi.length).toBeGreaterThan(0);
+  });
+
   it("matches labels case-insensitively", () => {
     const p = allPresets.find((x) => x.id === "pricing/billing-toggle@1");
     if (!p) throw new Error("missing preset");
