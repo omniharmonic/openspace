@@ -4,6 +4,7 @@ import {
   type Preset,
   type SectionPreset,
 } from "@omniharmonic/openspace-blocks";
+import { CLOUDFLARE_BLOCKS, onGitHubPages } from "@omniharmonic/openspace-lint";
 import type { OpBody, Position } from "@omniharmonic/openspace-ops";
 import {
   type BlockCategory,
@@ -14,6 +15,7 @@ import {
   type Section,
   type SiteDocument,
 } from "@omniharmonic/openspace-schema";
+import { toast } from "../../ui";
 import { type Command, cloneBlock } from "../editor/model/actions";
 import { locate, type SelItem } from "../editor/model/selection";
 import type { BlockTarget } from "./blockMenuStore";
@@ -150,4 +152,31 @@ export function positionFromSelection(
   const item = selection.at(-1);
   const loc = item ? locate(doc, pageId, item) : undefined;
   return loc && loc.container !== "footer" ? { after: loc.section.id } : "end";
+}
+
+/**
+ * After adding blocks: on a GitHub Pages site, donations, products and member sign-in look fine
+ * in the editor but can't work for visitors — say so right away, not at publish.
+ */
+export function warnIfNeedsCloudflare(doc: SiteDocument, blockTypes: readonly string[]): void {
+  if (!onGitHubPages(doc)) return;
+  const what = [...new Set(blockTypes.map((t) => CLOUDFLARE_BLOCKS[t]).filter(Boolean))];
+  if (what.length === 0) return;
+  toast({
+    title: `${what.join(" and ")} won’t work on GitHub Pages`,
+    description:
+      "Your site is hosted on GitHub Pages, which only serves plain pages. Switch to Cloudflare hosting in Settings → Hosting before you publish this.",
+  });
+}
+
+/** Block types a command inserts (sections' blocks, or the block itself). */
+export function insertedBlockTypes(cmd: Command | null): string[] {
+  const out: string[] = [];
+  for (const b of cmd?.bodies ?? []) {
+    const body = b as { op: string; block?: { type: string }; section?: Section };
+    if (body.op === "block.insert" && body.block) out.push(body.block.type);
+    if (body.op === "section.insert" && body.section)
+      for (const blk of body.section.blocks) out.push(blk.type);
+  }
+  return out;
 }

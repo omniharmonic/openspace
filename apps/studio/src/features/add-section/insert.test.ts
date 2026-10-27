@@ -13,9 +13,11 @@ import { createEditorStore } from "../editor/model/store";
 import {
   defaultGridPlace,
   insertBlockCommand,
+  insertedBlockTypes,
   positionFromSelection,
   presetCommand,
   targetFromSelection,
+  warnIfNeedsCloudflare,
 } from "./insert";
 import { filterPresets, matchesPreset } from "./PresetGallery";
 
@@ -196,5 +198,35 @@ describe("block menu search", () => {
     expect(blockScore("Image image", "photo", ["A responsive photograph"])).toBeGreaterThan(0);
     expect(blockScore("Image image", "photo caption", ["A responsive photograph"])).toBe(0);
     expect(blockScore("Text text", "", [])).toBe(1);
+  });
+});
+
+describe("hosting warnings on insert", () => {
+  it("warns when a donation block goes onto a GitHub Pages site, and not on Cloudflare", async () => {
+    const { useToastStore } = await import("../../ui/toast-store");
+    useToastStore.getState().clear();
+    const doc = devSiteDocument();
+    const s = store();
+    const target = targetFromSelection(s.getState().doc, I.home, [
+      { kind: "block", id: I.heroImage },
+    ]);
+    if (!target) throw new Error("no target");
+    const cmd = insertBlockCommand(doc, I.home, "donation", target);
+    expect(insertedBlockTypes(cmd)).toEqual(["donation"]);
+    warnIfNeedsCloudflare(
+      { ...doc, config: { ...doc.config, deploy: { ...doc.config.deploy, target: "cloudflare" } } },
+      ["donation"],
+    );
+    expect(useToastStore.getState().toasts).toHaveLength(0);
+    warnIfNeedsCloudflare(
+      {
+        ...doc,
+        config: { ...doc.config, deploy: { ...doc.config.deploy, target: "github-pages" } },
+      },
+      ["donation", "text"],
+    );
+    expect(useToastStore.getState().toasts[0]?.title).toMatch(
+      /Donations won’t work on GitHub Pages/,
+    );
   });
 });

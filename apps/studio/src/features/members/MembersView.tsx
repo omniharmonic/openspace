@@ -26,6 +26,7 @@ import {
   toast,
 } from "../../ui";
 import { CURRENCIES } from "../collections/fields";
+import { ServiceRequirements } from "../commerce/ServiceRequirements";
 import { useDocStore } from "../editor/model/context";
 import { can, useManageUi } from "../site-mgmt/manage-ui";
 import { ago, date, money, moneyInput, number, parseMoney } from "../workspace/format";
@@ -37,7 +38,6 @@ import {
   useDebounced,
   WsHeader,
 } from "../workspace/ui";
-import { ServiceRequirements } from "../commerce/ServiceRequirements";
 import type { AreaProps } from "../workspace/WorkspaceView";
 
 const fail = (title: string) => (err: unknown) =>
