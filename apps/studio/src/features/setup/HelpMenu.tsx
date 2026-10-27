@@ -83,7 +83,12 @@ export function HelpMenu({ site, side = "right" }: { site: Site; side?: "right" 
         <h3>{now.title}</h3>
         <p>{now.body}</p>
         {now.action && (
-          <Button size="sm" variant="primary" onClick={now.action.run} icon={<RotateCcw />}>
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={now.action.run}
+            icon={site.status === "failed" ? <RotateCcw /> : undefined}
+          >
             {now.action.label}
           </Button>
         )}

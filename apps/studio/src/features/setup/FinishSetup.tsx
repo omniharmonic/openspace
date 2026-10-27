@@ -364,14 +364,16 @@ export function SetupWizard({
           <Step n={2} title="Get paid with Stripe">
             <PaymentsConnect site={site} />
           </Step>
-          <details className="st-setup-later">
-            <summary>
-              {w === "shop"
-                ? "Not ready yet? Send shoppers to your current shop meanwhile"
-                : "Not ready yet? Send supporters to your current donation page meanwhile"}
-            </summary>
-            <Elsewhere kind={w} />
-          </details>
+          {item?.status !== "done" && (
+            <details className="st-setup-later">
+              <summary>
+                {w === "shop"
+                  ? "Not ready yet? Send shoppers to your current shop meanwhile"
+                  : "Not ready yet? Send supporters to your current donation page meanwhile"}
+              </summary>
+              <Elsewhere kind={w} />
+            </details>
+          )}
         </>
       );
       break;
