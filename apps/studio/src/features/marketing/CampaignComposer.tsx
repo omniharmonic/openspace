@@ -6,6 +6,7 @@ import {
   type CampaignSegment,
   type CampaignView,
   useCampaignActions,
+  useCapabilities,
   useSegmentCount,
   useSenders,
 } from "../../api";
@@ -57,8 +58,13 @@ export function CampaignComposer({
   const senders = useSenders(site.id, designer);
   const sender = senders.data?.find((s) => s.id === campaign.senderId) ?? senders.data?.[0];
   // Say so before anyone writes and presses Send, not after the Hub refuses.
+  // (A dev Hub sends to its outbox without a sender.)
+  const devOutbox = useCapabilities().email.devOutbox;
   const noSender =
-    designer && senders.isSuccess && !senders.data.some((s) => s.status === "verified");
+    designer &&
+    !devOutbox &&
+    senders.isSuccess &&
+    !senders.data.some((s) => s.status === "verified");
   const [draft, setDraft] = useState<Draft>(() => toDraft(campaign));
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
