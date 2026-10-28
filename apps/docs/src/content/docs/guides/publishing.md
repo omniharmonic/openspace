@@ -9,7 +9,7 @@ Everything you change in Studio is saved to a **draft** — on your device insta
 
 ## Publish
 
-Press **Publish** in the top bar. The dialog summarizes what changed since the live version — "2 pages edited, 3 images added, changed accent color" — and publishes with one click. A progress pill shows *Publishing…*, then *Live* with a link, usually within about a minute.
+Press **Publish** in the top bar. The dialog summarizes what changed since the live version — "2 pages edited, 3 images added, changed accent color" — and publishes with one click. If anything on your pages doesn't work well on phones, the dialog says so and offers **Fix for phones** ([how phones are checked](/guides/phones/)). A progress pill shows *Publishing…*, then *Live* with a link, usually within about a minute.
 
 If there's nothing new, it says *Everything is already live*.
 

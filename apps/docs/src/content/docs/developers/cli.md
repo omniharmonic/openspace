@@ -60,13 +60,17 @@ npx -y @omniharmonic/openspace-cli import wordpress https://www.example.com my-s
 
 ## `openspace check [dir]`
 
-Validates the site before publishing: schemas (with file and field names), links (pages, items, navigation, redirects, links inside posts), images (referenced files exist and are in the media library), sizes (warns at 600 MB of media, fails at 900 MB; images over 2400 px), a **secret scan** (anything that looks like an API key fails), and pages that need Cloudflare hosting on GitHub Pages.
+Validates the site before publishing: schemas (with file and field names), links (pages, items, navigation, redirects, links inside posts), images (referenced files exist and are in the media library), sizes (warns at 600 MB of media, fails at 900 MB; images over 2400 px), a **secret scan** (anything that looks like an API key fails), and pages that need Cloudflare hosting on GitHub Pages. Phone problems that need no browser (sections not laid out for phones, squeezed columns, padding that empties a phone screen, heading words too long for a phone line, tall photo sections, fixed widths in custom CSS) are listed as warnings — they never fail a publish.
 
 ```sh
 npx openspace check          # human-readable report, exit 1 on errors
 npx openspace check --ci     # also GitHub Actions annotations (used by publish.yml)
 npx openspace check --json
+npx openspace check --phone        # also the Phone check in a real browser (Playwright) at 360 and 390 px
+npx openspace check --phone --fix  # fix everything for phones (phone-only settings; writes content/)
 ```
+
+The [Phone check](/guides/phones/) renders every page exactly as published, lays it out as a phone and measures it: sideways scrolling, cut-off or overlapping text, small text, tap targets under 44 px, text over photos, the main button below the first screen. It exits 1 on phone errors. Without Playwright (`npm i -D playwright && npx playwright install chromium`) only the rules that need no browser run.
 
 ## `openspace dev`
 
