@@ -364,7 +364,7 @@ function startWithClaude() {
   return section(
     [
       heading("Or start with Claude", {
-        sub: "Tell us what your site is for, who it's for and how it should feel. Bring your brand if you have one: a Claude design system, a Canva brand kit, your logo and photos, or a page Claude already made you. A good site goes live in minutes, then Claude designs it properly with you.",
+        sub: "Tell Claude about your idea. It asks a few good questions, designs your site with you and puts it online with OpenSpace, then hands you the link to edit it. Bring your brand if you have one: a logo, photos, colours, or a page Claude already made you.",
         col: 0,
       }),
       button("Start with Claude", START_CLAUDE, { col: 0, size: "large" }),
@@ -374,20 +374,20 @@ function startWithClaude() {
         {
           items: [
             step(
-              "Describe your idea",
-              "In your own words: what it's for, who comes, three words for how it should feel. No forms full of options.",
+              "Connect Claude once",
+              "Add OpenSpace to Claude on claude.ai or in the desktop app. About two minutes, nothing to install, and you choose what it may do.",
             ),
             step(
-              "Bring what you have",
-              "Your colours, fonts and sizes from a design-token file, your logo and photos, a brand guide. A page Claude made becomes the site itself, every word and picture editable.",
+              "Talk it through",
+              "Claude asks what the site is for, who comes and what they should do, how it should feel, and what you already have. No forms full of options.",
             ),
             step(
-              "Live straight away",
-              "The closest template, in your brand and checked for readability, goes online on free hosting in a couple of minutes. Nothing to install.",
+              "Claude designs it",
+              "A design made for you, not a template: your colours, type, words and photos, checked on phones. You see the direction before it builds.",
             ),
             step(
-              "Claude makes it yours",
-              "Connect Claude and it works like a designer: two or three directions to choose from, your design system, a page plan, bespoke sections, and a screenshot check at every step.",
+              "Live, and yours to edit",
+              "It goes online on free hosting in about a minute. Claude gives you the live link and the link to edit it in OpenSpace, and keeps refining with you.",
             ),
           ],
           columns: "2",
