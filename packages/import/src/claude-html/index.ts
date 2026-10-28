@@ -9,6 +9,7 @@
  *
  * Pure (no filesystem): the CLI reads files into a bundle, the Hub gets them uploaded.
  */
+
 import type { ImageResizer } from "@omniharmonic/openspace-mcp-tools";
 import {
   type ComponentDefinition,
@@ -41,6 +42,7 @@ import { formFromHtml, parseHtmlPage, sectionsFrom } from "../html/extract";
 import { themeFromCss } from "../html/theme";
 import { type BuildResult, buildSite } from "../map/site";
 import { MediaImporter } from "../media";
+import { phoneReady } from "../phone";
 import { renderReport } from "../report";
 import type { SqBlock, SqNavItem, SqNotice, SqPage, SqSection, SqSite } from "../types";
 import {
@@ -521,6 +523,13 @@ function siteHref(
 // --- the import -------------------------------------------------------------------------------------
 
 export async function importHtmlBundle(
+  bundle: HtmlBundle,
+  opts: HtmlImportOptions,
+): Promise<HtmlImportResult> {
+  return phoneReady(await importBundle(bundle, opts));
+}
+
+async function importBundle(
   bundle: HtmlBundle,
   opts: HtmlImportOptions,
 ): Promise<HtmlImportResult> {

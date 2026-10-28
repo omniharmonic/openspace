@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import { phoneCheck } from "@omniharmonic/openspace-lint";
 import {
   type Block,
   findBrokenLinks,
@@ -14,6 +15,7 @@ import { hiddenClassesFromCss, parseHtmlPage, unspace } from "./html/extract";
 import { bestRendition, focalFromObjectPosition, parseSrcset, wpOriginal } from "./html/image";
 import { googleFontFamilies, themeFromCss } from "./html/theme";
 import { detectPlatform, type ImportResult, importSite, parsePlatform } from "./index";
+import { phoneReady } from "./phone";
 import {
   FERNHILL_EXPORT,
   FERNHILL_URL,
@@ -245,6 +247,22 @@ describe("importing the Fernhill WordPress fixture (REST API + WXR export)", () 
       delayMs: 0,
       now: NOW,
     });
+  });
+
+  it("ends phone-ready: nothing left for the Phone check to fix automatically", () => {
+    expect(phoneCheck(r.doc).filter((i) => i.autofix)).toEqual([]);
+    // What phoneReady does when there is something to fix: phone-only, and reported.
+    const doc = structuredClone(r.doc);
+    const s = Object.values(doc.pages).flatMap((p) => p.sections)[0];
+    if (!s) throw new Error("section");
+    s.style.padding = { d: "3xl", m: "3xl" };
+    doc.styles.choices.density = "airy";
+    expect(phoneCheck(doc).some((i) => i.rule === "phone-padding")).toBe(true);
+    const fixed = phoneReady({ doc, report: "# Import report\n" });
+    expect(phoneCheck(fixed.doc).some((i) => i.rule === "phone-padding")).toBe(false);
+    expect(fixed.doc.pages).not.toBe(doc.pages);
+    expect(fixed.report).toMatch(/## Phones[\s\S]*desktop design is unchanged/);
+    expect(phoneReady({ doc: r.doc, report: "x" }).doc).toBe(r.doc);
   });
 
   it("detects WordPress and produces a valid document", () => {
