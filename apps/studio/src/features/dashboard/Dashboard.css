@@ -223,8 +223,14 @@
     align-items: stretch;
   }
 
+  /* Wave 4: on a 390 px phone the row ran 60 px off the edge and cut off "New site". */
   .st-dash__tools {
-    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .st-dash__tools > .st-button {
+    flex: 1 1 auto;
   }
 }
 
