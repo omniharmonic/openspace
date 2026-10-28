@@ -9,8 +9,14 @@ describe("How close it looks", () => {
         fidelity={{
           score: 75,
           pages: [
-            { path: "/contact", device: "phone", score: 44, differs: ["Section heights"] },
-            { path: "/", device: "desktop", score: 90 },
+            {
+              path: "/contact",
+              device: "phone",
+              score: 44,
+              image: null,
+              differs: ["Section heights"],
+            },
+            { path: "/", device: "desktop", score: 90, image: null },
           ],
         }}
       />,

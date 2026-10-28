@@ -88,7 +88,10 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
       </p>
       <ul className="st-fidelity__pages">
         {fidelity.pages.map((p) => (
-          <li key={`${p.path}-${p.device}`} className="st-fidelity__page">
+          <li
+            key={`${p.path}-${p.device}`}
+            className={cx("st-fidelity__page", p.device === "desktop" && "is-desktop")}
+          >
             {p.image ? (
               <a href={p.image} target="_blank" rel="noreferrer">
                 <img
