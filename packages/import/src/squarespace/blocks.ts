@@ -616,7 +616,22 @@ export function parseBlock(el: Element): SqBlock | undefined {
         const image = img ? imageFrom(img) : undefined;
         if (image) return { kind: "image", image, ...(href ? { href } : {}) };
       }
-      return { kind: "product", ...(href ? { path: href } : {}) };
+      // What the block shows (Squarespace's display settings): a shop-grid tile shows just the
+      // picture and the name, without the description or the buy controls.
+      const shows = (part: string) => {
+        const m = new RegExp(`--product-block-display-${part}\\s*:\\s*([a-z-]+)`).exec(styles);
+        return m ? m[1] !== "none" : undefined;
+      };
+      const show = {
+        ...(shows("price") === false ? { price: false as const } : {}),
+        ...(shows("excerpt") === false ? { excerpt: false as const } : {}),
+        ...(shows("purchase-controls") === false ? { buy: false as const } : {}),
+      };
+      return {
+        kind: "product",
+        ...(href ? { path: href } : {}),
+        ...(Object.keys(show).length ? { show } : {}),
+      };
     }
     case "shape":
       return undefined;

@@ -73,6 +73,13 @@ export interface TokenLook {
   metrics?: Record<string, FontMetrics>;
   /** Licensed web-font services the page loaded fonts from. */
   fontHosts?: string[];
+  /** The header logo's height on computer and phone (px). */
+  logoHeight?: { d: number; m?: number };
+  /** The footer's background color. */
+  footerBackground?: string;
+  /** Groups of words side by side on the footer's first line (2–4), and whether they're labels. */
+  footerColumns?: number;
+  footerLabels?: boolean;
   /** The page sits beside a full-height sidebar (left), with this background. */
   sidebar?: { side: "left" | "right"; background?: string };
 }

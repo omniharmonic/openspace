@@ -61,6 +61,8 @@ export type SqBlock =
       image: SqImage;
       caption?: string;
       href?: string;
+      /** Shown no wider than the picture itself (a book cover beside its blurb). */
+      natural?: boolean;
       /** Squarespace image-block layouts with text (card, overlap, stack, poster…). */
       card?: SqImageCard;
     }
@@ -68,6 +70,8 @@ export type SqBlock =
       kind: "gallery";
       images: (SqImage & { caption?: string; href?: string })[];
       layout: "grid" | "masonry" | "slideshow" | "carousel" | "strips";
+      /** Each photo shown whole inside the slideshow's frame. */
+      fit?: "contain";
     }
   | {
       kind: "button";
@@ -103,7 +107,12 @@ export type SqBlock =
   | { kind: "line" }
   | { kind: "social" }
   | { kind: "audio"; url: string; title?: string }
-  | { kind: "product"; path?: string }
+  | {
+      kind: "product";
+      path?: string;
+      /** Parts the block hides (Squarespace's product block display settings). */
+      show?: { price?: false; excerpt?: false; buy?: false };
+    }
   | {
       kind: "cards";
       items: SqCard[];
@@ -214,6 +223,11 @@ export interface SqSection {
   layout:
     | { mode: "classic"; rows: SqRow[] }
     | { mode: "fluid"; items: SqFluidItem[]; rows?: number; mobileRows?: number };
+  /**
+   * One visual band whose rows (of different column structures) belong together (a Squarespace
+   * 7.1 page section): kept as one section — a grid — instead of one section per row.
+   */
+  together?: boolean;
   /** Squarespace's own anchor/id, for in-page links. */
   id?: string;
   /** What the section is for (generic and WordPress importers): picks a section preset. */
@@ -327,6 +341,13 @@ export interface SqTheme {
   headerLayout?: string;
   /** The header's (or sidebar's) own background color, when measured. */
   headerBackground?: string;
+  /** The header logo's shown height (px, computer and phone), when measured. */
+  logoHeight?: { d: number; m?: number };
+  /** The footer's background color, when measured. */
+  footerBackground?: string;
+  /** Groups of words side by side on the footer's first line, and whether they're small labels. */
+  footerColumns?: number;
+  footerLabels?: boolean;
   headerFixed?: boolean;
   headerTransparent?: boolean;
   /** Section theme name used by the header. */

@@ -152,7 +152,11 @@ function stackSection(
     layout: {
       mode: "stack",
       columns: cols > 1 ? { d: spans, m: [12] } : { d: [12] },
-      ...(cols > 1 ? { align: "center" as const } : {}),
+      // Words beside a picture sit centred on it; columns of words start at the top together.
+      ...(cols > 1 &&
+      blocks.some(({ block }) => ["image", "gallery", "video", "map", "embed"].includes(block.type))
+        ? { align: "center" as const }
+        : {}),
       ...(width && width !== "content" ? { width } : {}),
     },
     style,
@@ -162,6 +166,96 @@ function stackSection(
   const isStarter = !style.background && !style.padding && !style.minHeight && !width;
   if (isStarter) section.preset = starterRef({ columns: spans, ...(align ? { align } : {}) });
   return section;
+}
+
+type Placed = { block: Block; column: number };
+type RichNode = { type: string; attrs?: { level?: number }; content?: unknown[] };
+
+const headingLevelOf = (b: Block): number | undefined =>
+  b.type === "heading" ? Number(String(b.fields.level ?? "h2").slice(1)) || 2 : undefined;
+const textOfNodes = (nodes: unknown): number => JSON.stringify(nodes ?? "").length;
+
+/**
+ * A long article in one column (an "about" page, a template's read-me) is a run of chapters, each
+ * opening with a heading; visitors and the original's own layout read them as separate bands. It
+ * becomes one section per chapter (split before each heading of the article's top level), so
+ * each chapter can be moved, restyled or hidden on its own. Short runs stay one section.
+ */
+export function splitAtHeadings(blocks: Placed[]): Placed[][] {
+  const count = (level: number) => {
+    let n = 0;
+    for (const { block } of blocks) {
+      if (headingLevelOf(block) === level) n++;
+      if (block.type === "text") {
+        const doc = block.fields.content as { content?: RichNode[] } | undefined;
+        for (const node of doc?.content ?? [])
+          if (node.type === "heading" && node.attrs?.level === level) n++;
+      }
+    }
+    return n;
+  };
+  const size = blocks.reduce(
+    (n, { block }) =>
+      n + (block.type === "text" ? textOfNodes(block.fields.content) : textOfNodes(block.fields)),
+    0,
+  );
+  // A list of media objects (cover, title, blurb) splits however short it is.
+  const media = blocks.filter(
+    ({ block }) => block.type === "image" && block.fields.size === "original",
+  ).length;
+  // Rules drawn between chapters (Squarespace line blocks) mark them however short they are.
+  const rules = blocks.filter(({ block }) => block.type === "line").length;
+  if (size < 2400 && media < 2 && rules < 1) return [blocks];
+  const level = count(2) >= 2 ? 2 : count(3) >= 3 ? 3 : undefined;
+  if (!level) return [blocks];
+  const out: Placed[][] = [[]];
+  const cur = () => out[out.length - 1] as Placed[];
+  const start = () => {
+    if (!cur().length) return;
+    // A media object's picture sits just above its heading: it moves with it.
+    const last = cur().at(-1) as Placed;
+    const carry = last.block.type === "image" && last.block.fields.size === "original";
+    if (!carry) out.push([]);
+    else if (cur().length > 1) {
+      cur().pop();
+      out.push([last]);
+    }
+  };
+  for (const p of blocks) {
+    if (headingLevelOf(p.block) === level) {
+      // An eyebrow-ish short text just above stays with its heading: only split on content.
+      start();
+      cur().push(p);
+      continue;
+    }
+    if (p.block.type !== "text") {
+      cur().push(p);
+      continue;
+    }
+    const doc = p.block.fields.content as { type: string; content?: RichNode[] };
+    const parts: RichNode[][] = [[]];
+    for (const node of doc.content ?? []) {
+      if (
+        node.type === "heading" &&
+        node.attrs?.level === level &&
+        (parts.at(-1) as RichNode[]).length
+      )
+        parts.push([]);
+      (parts.at(-1) as RichNode[]).push(node);
+    }
+    parts.forEach((nodes, i) => {
+      if (i > 0 || (nodes[0]?.type === "heading" && nodes[0].attrs?.level === level)) start();
+      cur().push({
+        ...p,
+        block: {
+          ...p.block,
+          ...(i > 0 ? { id: newId("blk") as Block["id"] } : {}),
+          fields: { ...p.block.fields, content: { ...doc, content: nodes } },
+        },
+      });
+    });
+  }
+  return out.filter((c) => c.length);
 }
 
 async function mapBlocks(ctx: SectionContext, blocks: SqBlock[], inGrid = false): Promise<Block[]> {
@@ -282,6 +376,17 @@ async function mapSectionParts(ctx: SectionContext, sq: SqSection): Promise<Sect
     return [section];
   }
 
+  // One band of rows with different column structures (a Squarespace 7.1 page section): one
+  // grid section, each row placed under the one before, its columns side by side.
+  if (sq.together && sq.layout.rows.length > 1) {
+    const filled = sq.layout.rows.map((r) => r.columns.filter((c) => c.blocks.length));
+    const multi = filled.some((cols) => cols.length > 1);
+    const shapes = new Set(filled.map((cols) => cols.map((c) => c.span).join("-")));
+    if (multi && shapes.size > 1) {
+      const grid = await rowsAsGrid(ctx, sq.layout.rows, style, width);
+      if (grid) return [grid];
+    }
+  }
   // Classic rows: consecutive rows with the same column structure share a section.
   const out: Section[] = [];
   let run: { blocks: { block: Block; column: number }[]; spans: number[] } | undefined;
@@ -295,22 +400,24 @@ async function mapSectionParts(ctx: SectionContext, sq: SqSection): Promise<Sect
       run = undefined;
       return;
     }
-    out.push(
-      stackSection(
-        run.blocks,
-        run.spans,
-        out.length
-          ? {
-              ...style,
-              // A photo stays with the first part; a plain color continues behind every part.
-              background: style.background?.type === "color" ? style.background : undefined,
-              minHeight: undefined,
-            }
-          : style,
-        width,
-        align,
-      ),
-    );
+    const parts = run.spans.length === 1 ? splitAtHeadings(run.blocks) : [run.blocks];
+    for (const part of parts)
+      out.push(
+        stackSection(
+          part,
+          run.spans,
+          out.length
+            ? {
+                ...style,
+                // A photo stays with the first part; a plain color continues behind every part.
+                background: style.background?.type === "color" ? style.background : undefined,
+                minHeight: undefined,
+              }
+            : style,
+          width,
+          align,
+        ),
+      );
     run = undefined;
   };
   for (const row of sq.layout.rows) {
@@ -340,6 +447,18 @@ async function mapSectionParts(ctx: SectionContext, sq: SqSection): Promise<Sect
   flush();
   if (!out.length && bg) out.push(stackSection([], [12], style, width, align));
   if (sq.role && out.length === 1) applyNearestPreset(out[0] as Section, sq.role, !sq.theme);
+  // A slideshow that shows whole photos sits in a narrower frame, as Squarespace draws it.
+  for (const s of out)
+    if (
+      s.layout.mode === "stack" &&
+      s.blocks.length === 1 &&
+      s.blocks[0]?.type === "gallery" &&
+      s.blocks[0].fields.fit === "contain" &&
+      (!s.layout.width || s.layout.width === "wide" || s.layout.width === "full")
+    ) {
+      s.layout.width = "narrow";
+      delete s.preset;
+    }
   // Only the first section keeps the background; strip `undefined`s.
   for (const s of out)
     for (const k of Object.keys(s.style) as (keyof SectionStyle)[])
@@ -515,4 +634,67 @@ export function applyNearestPreset(section: Section, role: SectionRole, themeUnk
     if (model.variant && (PRESET_VARIANTS.has(b.type) || !b.variant)) b.variant = model.variant;
     if (model.style?.align && !b.style?.align) b.style = { ...b.style, align: model.style.align };
   }
+}
+
+/** Rows of columns (spans of 12) → one grid section on the 24-column grid. */
+async function rowsAsGrid(
+  ctx: SectionContext,
+  rows: { columns: { span: number; blocks: SqBlock[] }[] }[],
+  style: SectionStyle,
+  width?: ContentWidth,
+): Promise<Section | undefined> {
+  const ROW_PX = 24;
+  const contentPx = width === "wide" || width === "full" ? 1440 : width === "narrow" ? 720 : 1280;
+  const blocks: Block[] = [];
+  const items: Record<string, GridItem> = {};
+  let y = 1;
+  for (const row of rows) {
+    const cols = row.columns.filter((c) => c.blocks.length);
+    if (!cols.length) continue;
+    const total = row.columns.reduce((n, c) => n + c.span, 0) || 12;
+    let x = 1;
+    let rowH = 1;
+    for (const col of row.columns) {
+      const w = Math.max(
+        1,
+        Math.min(DESKTOP_COLS - x + 1, Math.round((col.span / Math.max(12, total)) * DESKTOP_COLS)),
+      );
+      let cy = y;
+      for (const b of await mapBlocks(ctx, col.blocks, true)) {
+        // Pictures fill their cell: as many rows as their shape needs at that width.
+        const img =
+          b.type === "image" ? (b.fields.image as { width?: number; height?: number }) : undefined;
+        const ratio = img?.width && img?.height ? img.width / img.height : undefined;
+        const h =
+          b.type === "image"
+            ? Math.max(4, Math.round(((w / DESKTOP_COLS) * contentPx) / (ratio ?? 1.5) / ROW_PX))
+            : 1;
+        blocks.push(b);
+        items[b.id] = { d: { x, y: cy, w, h } };
+        cy += h;
+      }
+      rowH = Math.max(rowH, cy - y);
+      x = Math.min(DESKTOP_COLS, x + w);
+    }
+    y += rowH;
+  }
+  if (blocks.length < 2) return undefined;
+  const section: Section = {
+    id: newId("sec") as Section["id"],
+    layout: {
+      mode: "grid",
+      rows: { d: y - 1 },
+      items,
+      ...(width && width !== "content" ? { width } : {}),
+    },
+    style,
+    blocks,
+  };
+  const mobile = autoMobileLayout(section, { reset: true });
+  if (mobile && section.layout.mode === "grid") {
+    section.layout.items = mobile;
+    const mRows = Math.max(1, ...Object.values(mobile).map((i) => (i.m ? i.m.y + i.m.h - 1 : 1)));
+    section.layout.rows = { d: y - 1, m: mRows };
+  }
+  return section;
 }

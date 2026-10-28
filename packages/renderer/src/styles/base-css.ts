@@ -264,6 +264,8 @@ ${button("tertiary")}
 .os-header__brand--split,.os-nav,.os-header__tagline{display:none}
 .os-header__actions{display:none;align-items:center;gap:${v(T.space.xs)}}
 .os-header__actions .os-button{min-height:2.5rem;padding-block:0.5rem}
+/* A short label stays on one line beside narrow columns (it wraps on phones if it must). */
+@media (min-width:768px){.os-button{white-space:nowrap;flex-shrink:0}}
 .os-header__toggle,.os-header__cart,.os-menu__close{position:relative;display:inline-grid;place-items:center;width:2.75rem;height:2.75rem;padding:0;border:0;border-radius:${v(T.radius.full)};background:transparent;color:inherit}
 .os-header__toggle:hover,.os-header__cart:hover,.os-menu__close:hover{background:${v(c.surface)}}
 html:not(.os-js) .os-header__toggle{display:none}
@@ -333,7 +335,7 @@ html:not(.os-js) .os-header__toggle{display:none}
 .os-header.os-header--sidebar-left{position:fixed;inset-block:0;inset-inline-start:0;inline-size:var(--sidebar-w);overflow-y:auto;overscroll-behavior:contain}
 .os-header--sidebar-left .os-header__bar{flex-direction:column;align-items:flex-start;gap:${v(T.space.sm)};min-height:0;max-inline-size:none;margin:0;padding:clamp(2rem,4vw,4rem) clamp(1.5rem,3.5vw,3.5rem)}
 .os-header--sidebar-left .os-header__brand{flex-direction:column;align-items:flex-start;gap:0.75rem;margin:0}
-.os-header--sidebar-left .os-header__logo{height:auto;max-inline-size:min(100%,8rem)}
+.os-header--sidebar-left .os-header__logo{height:var(--logo-h,auto);max-block-size:var(--logo-h,8rem);max-inline-size:100%;width:auto}
 .os-header.os-header--sidebar-left .os-header__title{white-space:normal;max-inline-size:none}
 .os-header--sidebar-left .os-header__tagline{display:block;margin:0;font-size:${v(T.type.small["font-size"])};line-height:${v(T.type.small["line-height"])};color:${v(c["text-muted"])}}
 .os-header--sidebar-left .os-nav{inline-size:100%;margin-block-start:${v(T.space.sm)}}
@@ -365,6 +367,13 @@ html:not(.os-js) .os-header__toggle{display:none}
 .os-header__logo{height:var(--mlogo-h,2rem)}
 @media (min-width:768px){.os-header__logo{height:var(--tlogo-h,2.5rem)}}
 @media (min-width:1200px){.os-header__logo{height:var(--logo-h,2.5rem)}}
+
+/* A raised content card over the page background (Site Styles → layout.surface "card"). */
+.os-page.has-surface-card{background:var(--page-bg,${v(c.surface)})}
+@media (min-width:768px){
+.has-surface-card>.os-main{flex:none;margin:8.3333% 8.3333% 0;padding-block:8.3333% 0;background:${v(c.background)};box-shadow:0 0 1px rgb(0 0 0 / 0.15)}
+.has-surface-card>.os-footer{margin:8.3333% 8.3333% 8.3333%;box-shadow:0 0 1px rgb(0 0 0 / 0.15)}
+}
 
 /* Footer */
 .os-footer{margin-top:auto}

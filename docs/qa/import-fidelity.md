@@ -86,29 +86,59 @@ changes the differences point to, re-renders, measures again and **keeps a group
 score rises** (by more than 0.1, so measuring noise can't keep a bad change). Groups, in order:
 
 1. **type** — a preset's size (computer and phone), tracking and capitals, but only when the
-   original sets it consistently across pages (within 15%) and most pages differ;
-2. **fonts** — a font that came out unrelated gets the nearest open match;
-3. **rhythm** — content width (when the original's pages agree within 8%), section padding;
-4. **colors** — text and heading colors per section theme, when the original used one color
+   original sets it consistently across pages (within 15%) and most pages differ; one tracking
+   value serves computer and phone when the two are close (the value between them); headings set
+   in another role's font on the original (Bedford's capitalised proxima h2/h3) take that role.
+   For buttons, pages whose measured button is a content button speak for the site (a search or
+   cookie button in the chrome doesn't);
+2. **fonts** — a font that came out unrelated gets the nearest open match, and each label preset
+   (eyebrow, button, navigation, site title) takes the role whose font the original used for it;
+3. **rhythm** — content width (when the original's pages agree within 8%), section padding on a
+   computer; 4. **rhythm-phone** — section padding on phones (tried on its own);
+5. **widths** — per page, sections at the content width or the narrow width the original's
+   words used (a 600 px introduction column on a site whose pages are 1200 px wide);
+6. **colors** — text and heading colors per section theme, when the original used one color
    throughout that theme (Designer overrides `color.<theme>.<role>`; the contrast solver still
-   checks them);
-5. **buttons** — corner shape; the button fill per section theme (a clay button on a dark band);
-6. **layout** — per page: card columns, image columns and section backgrounds matched by heading;
-7. **backgrounds** — section backgrounds matched by position;
-8. **crops** — image crops;
-9. **phone images** — narrower images on phones where the original kept them narrow;
-10. **components** — a section still scoring below 60 is recreated as a **custom component**
-    (ADR custom-components §9): the probe's *blueprint* of the original section (every heading,
-    paragraph, picture, button and link with its box and text style) becomes a component that
-    places each part on a 24-column grid where it sat on a computer and stacks them in reading
-    order on phones, using the theme's font roles and colour roles (no fixed colours, never the
-    original's CSS) and Site Styles buttons. Every word, picture and link is an editable field. It
-    must pass `checkComponent`, the component lint gates and `openspace check`, its pictures come
-    into `media/`, and it's kept only if the score rises. The report gives the score with and
-    without components.
+   checks them); 7. **page-color** — the same for each theme's background;
+8. **buttons** — corner shape; the button fill per section theme (a clay button on a dark band);
+9. **layout** — per page: card columns, image columns and section backgrounds matched by heading;
+10. **headings** — a section heading sized unlike its level's preset (a smaller page title, a
+    heading set as a small tracked label) takes the preset whose measured size matches on
+    computer and phone (the heading block's size, a rich-text heading's preset, or a card's or
+    column's heading style);
+11. **heights** — a photo banner as tall as the original's: padding that fits its words and the
+    original's height as its minimum, on computer and phone;
+12. **backgrounds** — section backgrounds matched by position;
+13. **crops** — image crops;
+14. **phone images** — narrower images on phones where the original kept them narrow;
+15. **components** — tried **one page at a time** (with its own budget), for sections still
+    scoring below 75 once everything else has been tried: the section is recreated as a **custom
+    component** (ADR custom-components §9): the probe's *blueprint* of the original section
+    (every heading, paragraph, picture, button and link with its box and text style, plus accent
+    rules and panels — boxes with their own fill or border) becomes a component that places each
+    part on a 24-column grid where it sat on a computer and stacks them in reading order on
+    phones, using the theme's font roles and colour roles (no fixed colours, never the original's
+    CSS) and Site Styles buttons. Every word, picture and link is an editable field; a paragraph
+    with links, bold or italics is a **rich text field** (the site's own links become paths on the
+    new site), rules and panels are drawn on the theme's accent, border and surface colours. A
+    band whose words also live in another section isn't recreated (no words shown twice). It must
+    pass `checkComponent`, the component lint gates and `openspace check`, its pictures come into
+    `media/`, and it's kept only if the score rises. The report gives the score with and without
+    components.
 
-It is bounded: at most 3 passes and 2 + 3 × passes re-measurements. The report lists the score
-before tuning and every change kept.
+It is bounded: at most 3 passes, 2 + 5 × passes re-measurements for the groups and 2 + 2 × passes
+for components. The report lists the score before tuning and every change kept.
+
+### What the importer reads from the live site besides the type and rhythm
+
+The same probe (data that isn't scored) also gives the importer: the header logo's shown height,
+the footer's color and how many groups of words sit side by side on its first line (a footer
+set as one line "name · links · ©" becomes that many columns, in small labels when they were),
+the page's own background and whether its sections sit on a **raised content card** (a blog
+theme's white panel over a colored page: Site Styles `layout.surface: "card"` with
+`layout.pageBackground`, and the card's text measure as the content width), and a **display
+line** — the page's largest short text, well above its headings (a 7.0 banner title set in a
+paragraph) — for the display preset.
 
 ## Fonts and licences
 
@@ -118,7 +148,8 @@ before tuning and every change kept.
   browser, assumed for any family Google doesn't serve — are **never copied**. The nearest
   open-licence family stands in, chosen by the measured shape among 160+ open families measured
   the same way (`packages/import/scripts/font-metrics.mjs` regenerates the table), within the
-  same kind, with well-known equivalents as tie-breakers. The checklist gets **"Use your own
+  same kind, with well-known equivalents only breaking near ties (the measured nearest wins:
+  proxima-nova → Sofia Sans, whose shape is closer than Figtree's). The checklist gets **"Use your own
   font licence"**: with a web licence the owner uploads the real files in Site Styles → Your
   fonts (stored in `media/fonts/`).
 - **System fonts** (Georgia, Helvetica, Arial, Times…) get their metric-compatible open twins
@@ -134,19 +165,34 @@ before tuning and every change kept.
 
 ## Results
 
-Measured October 27, 2026, read-only against the live sites (nothing third-party committed).
-"Before" is the previous importer's output scored by this tool; "after" is this importer with
-auto-tuning. Desktop 1440 px and phone 390 px, up to six pages each.
+Measured October 27, 2026, read-only against the live sites (nothing third-party committed),
+same pages as before (Power With 4, Alameda 5, the others 6), computer 1440 px and phone 390 px.
+"Fidelity 2" is the previous importer with its auto-tuning (re-run today: identical, ±1);
+"fidelity 3" is this importer with auto-tuning. Same scorer, unchanged.
 
-| Site | Before | After tuning | Without components |
+| Site | Fidelity 2 | Fidelity 3 | Without components |
 |---|---|---|---|
-| Power With (GitHub Pages, structured content) | 83 | **87** | 86 (one FAQ section recreated as a component) |
-| Alameda (Squarespace 7.1 shop) | 72 | **77** | — (none tried) |
-| Bedford (Squarespace 7.0) | 50 | **68** | 68 (tried, not kept) |
-| WordPress Foundation (Twenty Fifteen) | 65 | **75** | — |
-| sive.rs (hand-made HTML) | 45 | **74** | 74 (tried, not kept) |
+| Power With (GitHub Pages, structured content) | 87 | **91** | 90 (one FAQ section recreated as a component) |
+| WordPress Foundation (Twenty Fifteen) | 75 | **89** | — (none needed) |
+| Alameda (Squarespace 7.1 shop) | 77 | **85** | — (none needed) |
+| Bedford (Squarespace 7.0) | 69 | **78** | 78 (tried per page, not kept) |
+| sive.rs (hand-made HTML) | 74 | **80** | 80 (tried per page, not kept) |
 
-Best pages: Power With home 93 (computer) / 90 (phone); Alameda about 91 on phones. None of the
-five sites reaches 90 overall yet — the remaining gaps are listed per page in each
-`FIDELITY-REPORT.md` (Squarespace 7.0 page layouts, Alameda's lookbook gallery and the
-"home-2" collection page, WordPress page headers and the white content card, sive.rs's book list).
+### Limits the score itself sets (evidence; the score is not changed)
+
+- **Licensed fonts cap a page.** sive.rs sets its headings in Valkyrie C4 (MB Type, licensed) and
+  its text in Georgia. The nearest open stand-ins get 50% and 85% credit, so even with every
+  other check passing and identical screenshots the site can't score above ~89.6. The owner's
+  own font licence (Site Styles → Your fonts) lifts this.
+- **Header links in a `brand`-themed header aren't seen as navigation**: the probe skips links
+  inside `[class*=brand]` (meant for logos), and OpenSpace's `os-theme-brand` matches it
+  (WordPress Foundation's blue sidebar: "Navigation: present" fails on every computer page,
+  ≈ −1.4 per page).
+- **A page without a content button is scored against a chrome button** (a sidebar search or
+  cookie "Accept" button), which a move rightly doesn't carry over.
+- **An image-only band on a phone can't match** the section that holds both the picture and its
+  words (Squarespace index rows that stack on phones), so it counts as missing (weight 4).
+- **Off-screen slides count as columns** in a scroll-snap slideshow (Alameda lookbook,
+  WordPress Foundation donate: "Columns 1 → 3/6").
+- **Image width is measured against the section's box**: OpenSpace sections are full-bleed,
+  hand-made pages' bands are the text column, so a 150 px cover reads 10% vs 22%.

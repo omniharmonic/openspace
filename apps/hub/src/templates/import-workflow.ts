@@ -17,7 +17,7 @@
  */
 
 /** The CLI release the workflow runs. Bump with each CLI release that changes the importer. */
-export const IMPORT_CLI_VERSION = "0.1.13";
+export const IMPORT_CLI_VERSION = "0.1.14";
 /** Image processing (resizing, SVG icons) for the importer, installed next to the CLI. */
 export const IMPORT_SHARP_VERSION = "0.34.5";
 /** The browser that measures the live site, renders script-built pages and compares the result. */

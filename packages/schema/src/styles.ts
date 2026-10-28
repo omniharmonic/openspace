@@ -160,7 +160,7 @@ export type TypographyChoices = z.infer<typeof TypographyChoicesSchema>;
 /** Page rhythm (all optional; absent = the density's rhythm and the default widths). */
 export const LayoutChoicesSchema = named(
   "LayoutChoices",
-  "Page rhythm: content width and narrow width (px), section padding (px at desktop and on phones), side gutter.",
+  "Page rhythm: content width and narrow width (px), section padding (px at desktop and on phones), side gutter, and an optional raised content card over a page background.",
   z.strictObject({
     contentWidth: z.int().min(480).max(2400).optional(),
     narrowWidth: z.int().min(360).max(1600).optional(),
@@ -168,6 +168,13 @@ export const LayoutChoicesSchema = named(
     sectionPaddingMobile: z.int().min(0).max(240).optional(),
     gutter: z.int().min(0).max(160).optional(),
     gutterMobile: z.int().min(0).max(80).optional(),
+    /**
+     * `card`: the page's sections sit on a raised panel over the page background (a blog
+     * theme's content card); absent or `none`: sections run edge to edge.
+     */
+    surface: z.enum(["none", "card"]).optional(),
+    /** The page background around a `card` surface (absent: the light theme's muted surface). */
+    pageBackground: CssColorSchema.optional(),
   }),
 );
 export type LayoutChoices = z.infer<typeof LayoutChoicesSchema>;

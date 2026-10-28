@@ -140,7 +140,7 @@ describe("importing the Juniper fixture (HTML and sitemap only)", () => {
       "video",
       "quote",
       "embed",
-      "spacer",
+      // That section's rows differ in shape: one grid section, where spacers are placement.
       "line",
       "text",
     ]);

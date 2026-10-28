@@ -89,7 +89,7 @@ export interface ParsedPage {
 export function parseLayout(layout: Element): SqRow[] {
   const rows: SqRow[] = [];
   for (const row of children(layout).filter((e) => hasClass(e, "sqs-row")))
-    rows.push(parseRow(row));
+    rows.push(...expandRow(row));
   // Some layouts (blog bodies from the JSON API) put blocks straight in the layout.
   const loose = children(layout).filter((e) => hasClass(e, "sqs-block"));
   if (loose.length) {
@@ -97,6 +97,43 @@ export function parseLayout(layout: Element): SqRow[] {
     if (blocks.length) rows.push({ columns: [{ span: 12, blocks }] });
   }
   return expandImageCards(rows.filter((r) => r.columns.some((c) => c.blocks.length)));
+}
+
+/**
+ * A full-width row whose column holds rows of its own (7.0 pages nest a "heading | text" row
+ * inside the page's single column): each nested row with several columns stays a row of its own
+ * — side by side, as visitors saw it — between runs of full-width blocks.
+ */
+function expandRow(row: Element): SqRow[] {
+  const cols = children(row).filter((e) => classes(e).some((c) => /^sqs-col-\d+$/.test(c)));
+  if (cols.length !== 1) return [parseRow(row)];
+  const span = Number(classValue(cols[0] as Element, "span-") ?? 12);
+  if (span < 12) return [parseRow(row)];
+  const out: SqRow[] = [];
+  let run: SqBlock[] = [];
+  let split = false;
+  const flush = () => {
+    if (run.length) out.push({ columns: [{ span: 12, blocks: run }] });
+    run = [];
+  };
+  const visit = (el: Element) => {
+    for (const c of children(el)) {
+      if (hasClass(c, "sqs-block")) {
+        const b = parseBlock(c);
+        if (b) run.push(b);
+      } else if (hasClass(c, "sqs-row")) {
+        const nested = expandRow(c);
+        if (nested.some((r) => r.columns.filter((x) => x.blocks.length).length > 1)) {
+          split = true;
+          flush();
+          out.push(...nested);
+        } else for (const r of nested) for (const x of r.columns) run.push(...x.blocks);
+      } else visit(c);
+    }
+  };
+  visit(cols[0] as Element);
+  flush();
+  return split ? out : [parseRow(row)];
 }
 
 function columnBlocks(col: Element): SqBlock[] {
@@ -187,12 +224,21 @@ function cardBlocks(card: NonNullable<Extract<SqBlock, { kind: "image" }>["card"
 function parseRow(row: Element): SqRow {
   const columns = children(row)
     .filter((e) => classes(e).some((c) => /^sqs-col-\d+$/.test(c)))
-    .map((col) => {
+    .flatMap((col) => {
       const span = Number(classValue(col, "span-") ?? classValue(col, "sqs-col-") ?? 12);
-      return {
-        span: Number.isFinite(span) && span > 0 ? Math.min(12, span) : 12,
-        blocks: columnBlocks(col),
-      };
+      // A column that only holds a row of its own (two products side by side in an 8-wide
+      // column): its columns join this row, at their own spans.
+      const inner = children(col).filter((c) => !/^(?:SCRIPT|STYLE)$/i.test(c.tagName));
+      if (inner.length === 1 && hasClass(inner[0] as Element, "sqs-row")) {
+        const nested = parseRow(inner[0] as Element).columns.filter((c) => c.blocks.length);
+        if (nested.length > 1) return nested;
+      }
+      return [
+        {
+          span: Number.isFinite(span) && span > 0 ? Math.min(12, span) : 12,
+          blocks: columnBlocks(col),
+        },
+      ];
     });
   if (!columns.length) return { columns: [{ span: 12, blocks: columnBlocks(row) }] };
   return { columns };
@@ -287,7 +333,10 @@ function gallerySectionBlock(section: Element): SqBlock | undefined {
         : /masonry/.test(cls)
           ? "masonry"
           : "grid";
-  return { kind: "gallery", images, layout };
+  // Squarespace's slideshow shows each photo whole inside its frame ("content-fit").
+  const contain =
+    layout === "slideshow" && !!find(section, (e) => classes(e).some((c) => c === "content-fit"));
+  return { kind: "gallery", images, layout, ...(contain ? { fit: "contain" as const } : {}) };
 }
 
 function listSectionBlocks(section: Element): SqBlock[] {
@@ -411,6 +460,8 @@ export function parseSection(section: Element): SqSection | undefined {
   const layouts = findAll(content, (e) => hasClass(e, "sqs-layout"), { deep: false });
   const rows = layouts.flatMap(parseLayout);
   out.layout = { mode: "classic", rows };
+  // A 7.1 page section is one band however its rows are laid out.
+  if (rows.length > 1) out.together = true;
   return rows.length || out.background ? out : undefined;
 }
 
@@ -535,14 +586,18 @@ export function parsePage(html: string): ParsedPage {
         headerEl,
         (e) =>
           e.tagName === "img" &&
-          !!closest(e, (p) =>
-            classes(p).some(
-              (c) =>
-                c === "header-title-logo" ||
-                c === "logo-image" ||
-                c === "site-logo" ||
-                c === "logo",
-            ),
+          !!closest(
+            e,
+            (p) =>
+              attr(p, "id") === "logoImage" ||
+              attr(p, "id") === "logo" ||
+              classes(p).some(
+                (c) =>
+                  c === "header-title-logo" ||
+                  c === "logo-image" ||
+                  c === "site-logo" ||
+                  c === "logo",
+              ),
           ),
       )
     : undefined;
@@ -833,6 +888,8 @@ function bannerSection(body: Element, skip: (e: Element) => boolean): SqSection 
           ? { subheading: after.map((p) => text(p)).join(" ") }
           : {}),
         align: "center",
+        // The banner's title is set larger than any heading (the display size).
+        display: true,
       });
     links.forEach((p, i) => {
       const a = p.tagName === "a" ? p : (find(p, byTag("a")) as Element);

@@ -36,6 +36,8 @@ type Browser = any;
 type Page = any;
 
 export const DESKTOP = 1440;
+/** Sections still scoring below this after the other groups are tried as custom components. */
+const COMPONENT_RETRY_BELOW = 75;
 export const PHONE = 390;
 
 async function launch(): Promise<Browser> {
@@ -411,15 +413,40 @@ export async function runCompare(
       let withoutComponents: number | undefined;
       let withComponents: number | undefined;
       // Each try re-renders and re-measures every page: bounded.
-      let budget = 2 + rounds * 3;
+      let budget = 2 + rounds * 5;
+      let componentBudget = 2 + rounds * 2;
       for (let pass = 0; pass < rounds && budget > 0; pass++) {
         let improved = false;
         // One group at a time (type, fonts, rhythm, buttons, sections): kept only if it helps.
+        // Components are tried one page at a time (a recreated section that helps on one page
+        // isn't undone by one that doesn't on another), for sections presets still cap below 75.
+        const attempts: { group: (typeof TUNE_GROUPS)[number]; paths?: string[] }[] = [];
         for (const group of TUNE_GROUPS) {
-          if (budget <= 0) break;
-          const t = tuneRound(bestDoc, best.measured, [group]);
+          if (group !== "components") {
+            attempts.push({ group });
+            continue;
+          }
+          const paths = [
+            ...new Set(
+              best.measured
+                .filter(
+                  (m) =>
+                    m.viewport >= 700 &&
+                    m.comparison.sections.some((x) => x.score < COMPONENT_RETRY_BELOW),
+                )
+                .map((m) => m.path),
+            ),
+          ];
+          for (const path of paths) attempts.push({ group, paths: [path] });
+        }
+        for (const { group, paths } of attempts) {
+          if (group === "components" ? componentBudget <= 0 : budget <= 0) continue;
+          const t = tuneRound(bestDoc, best.measured, [group], {
+            ...(paths ? { paths, threshold: COMPONENT_RETRY_BELOW } : {}),
+          });
           if (!t.changes.length) continue;
-          budget--;
+          if (group === "components") componentBudget--;
+          else budget--;
           log(
             `Tuning ${group}: ${t.changes.slice(0, 4).join("; ")}${t.changes.length > 4 ? "…" : ""}`,
           );

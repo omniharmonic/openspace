@@ -80,6 +80,14 @@ export interface ProbeSection {
    * embeds or more than 30 parts.
    */
   blueprint?: BlueprintItem[];
+  /** The section's box (page px), for inset panels. */
+  left?: number;
+  width?: number;
+  /** The section's own box draws a shadow or border (a raised content card). */
+  raised?: boolean;
+  /** Width and left edge of its widest paragraph (the measure). */
+  textWidth?: number;
+  textLeft?: number;
   /** Distance from the section top to its first text (px). */
   padTop?: number;
   /** Where the section's own content (text, images, forms) starts and ends (page px). */
@@ -93,7 +101,12 @@ export interface ProbeSection {
 }
 
 export interface BlueprintItem {
-  kind: "heading" | "text" | "image" | "button" | "link";
+  kind: "heading" | "text" | "image" | "button" | "link" | "rule" | "panel";
+  /** Rules and panels: their fill. */
+  color?: string;
+  /** Panels: their border, and corner radius (px). */
+  border?: { width: number; color?: string };
+  radius?: number;
   /** Heading level (1–6). */
   level?: number;
   text?: string;
@@ -104,6 +117,8 @@ export interface BlueprintItem {
   /** Page-pixel box. */
   box: { x: number; y: number; w: number; h: number };
   style?: ProbeText & { align?: string };
+  /** A paragraph's words with their inline links (absolute href), bold and italics. */
+  runs?: { t: string; href?: string; b?: 1; i?: 1 }[];
 }
 
 export interface LookProbe {
@@ -134,6 +149,8 @@ export interface LookProbe {
     paddingX: number;
     /** Which element was measured (for a closer look). */
     text?: string;
+    /** Measured outside the page's content (a search or cookie button in the chrome). */
+    chrome?: boolean;
     element?: string;
   };
   eyebrowRule?: boolean;
@@ -146,6 +163,15 @@ export interface LookProbe {
   fonts?: Record<string, FontMetrics>;
   /** Font files and font stylesheets the page loaded (to tell licensed services apart). */
   fontRequests?: string[];
+  /** The header logo's shown height (px). */
+  logoHeight?: number;
+  /** The footer's background color. */
+  footerBackground?: string;
+  /** How many groups of words sit side by side on the footer's first line, and their style. */
+  footerColumns?: number;
+  footerText?: ProbeText;
+  /** The page's own background behind every section (`body`). */
+  pageBackground?: string;
   /** A full-height column of identity and navigation beside the page (sidebar themes). */
   sidebar?: { side: "left" | "right"; width: number; background?: string };
 }
@@ -343,7 +369,15 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       const er = e.getBoundingClientRect();
       return visible(e) && er.width >= r.width * 0.9 && er.height >= r.height * 0.7;
     });
-    const res = { index, top: Math.round(r.top), height: Math.round(r.height), background: bgOf(sec.els ? sec.els[0] : sec), columns: 1, italicLines: 0, text: ownText(sec).slice(0, 120), words: ownText(sec).slice(0, 20000) };
+    const res = { index, top: Math.round(r.top), height: Math.round(r.height), left: Math.round(r.left), width: Math.round(r.width), background: bgOf(sec.els ? sec.els[0] : sec), columns: 1, italicLines: 0, text: ownText(sec).slice(0, 120), words: ownText(sec).slice(0, 20000) };
+    // A raised panel: the section's own box draws a shadow or a border (a theme's content card).
+    // (Its own box, or a panel around it narrower than the page: an article card around a band.)
+    for (let e = sec.els ? sec.els[0] : sec, k = 0; e && e !== document.body && k < 5; e = e.parentElement, k++) {
+      const st = cs(e);
+      const er = e.getBoundingClientRect();
+      if (k > 0 && er.width >= vw * 0.95) break;
+      if ((st.boxShadow && st.boxShadow !== "none") || (k === 0 && !sec.els && parseFloat(st.borderTopWidth) >= 1)) { res.raised = true; break; }
+    }
     if (bgEl || coverImg) res.backgroundImage = true;
     const h = [...sec.querySelectorAll(headSel)].find((e) => visible(e) && ownText(e).length > 1);
     if (h) {
@@ -402,6 +436,12 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       res.body = best.t;
       if (best.t.color) res.textColor = best.t.color;
     }
+    // How wide the running text is set (the measure), and where it starts.
+    const measures = paras.map((p) => rect(p)).filter((x) => x.width > 120);
+    if (measures.length) {
+      res.textWidth = Math.round(Math.max(...measures.map((x) => x.width)));
+      res.textLeft = Math.round(Math.min(...measures.map((x) => x.left)));
+    }
     // Columns: text items whose vertical spans overlap, at distinct left edges.
     const items = [...sec.querySelectorAll(textSel + ", h2, img")].filter((e) => visible(e) && (e.tagName === "IMG" ? e.getBoundingClientRect().width > 60 : ownText(e).length >= 12)).map(rect);
     for (const a of items) {
@@ -414,6 +454,24 @@ export const PROBE_SCRIPT = String.raw`(async () => {
     if (!sec.querySelector("form, input, textarea, select, iframe, video, canvas, embed, object")) {
       const parts = [];
       const inPart = (e) => parts.some((p) => p.el.contains(e));
+      // Inline links and emphasis inside a paragraph (kept as rich text when it's recreated).
+      const runsOf = (el) => {
+        const out = [];
+        const walk = (n, m) => {
+          for (const c of n.childNodes) {
+            if (c.nodeType === 3) { const t = (c.textContent || "").replace(/\s+/g, " "); if (t) out.push({ t, ...m }); }
+            else if (c.nodeType === 1 && cs(c).display !== "none") {
+              const mm = { ...m };
+              if (c.tagName === "A" && c.getAttribute("href")) mm.href = c.href;
+              if (/^(STRONG|B)$/.test(c.tagName)) mm.b = 1;
+              if (/^(EM|I)$/.test(c.tagName)) mm.i = 1;
+              if (c.tagName === "BR") out.push({ t: "\n" }); else walk(c, mm);
+            }
+          }
+        };
+        walk(el, {});
+        return out.length <= 80 && out.some((r) => r.href || r.b || r.i) ? out : undefined;
+      };
       const btnLike = (e) => { const st = cs(e); return (toHex(st.backgroundColor) || parseFloat(st.borderTopWidth) >= 1) && parseFloat(st.paddingLeft) >= 8; };
       const els = [...sec.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li, blockquote, img, a, button")].filter((e) => visible(e));
       for (const e of els) {
@@ -432,10 +490,34 @@ export const PROBE_SCRIPT = String.raw`(async () => {
           parts.push({ el: e, item: { kind: btnLike(e) ? "button" : "link", text: t, href: e.getAttribute("href") || "", box: at, style: { ...textOf(e), align: cs(e).textAlign } } });
         } else {
           if (!t || e.querySelector("p, li, h1, h2, h3, h4, h5, h6, img")) continue;
-          parts.push({ el: e, item: { kind: "text", text: t.slice(0, 1500), box: at, style: { ...textOf(e), align: cs(e).textAlign } } });
+          const runs = runsOf(e);
+          parts.push({ el: e, item: { kind: "text", text: t.slice(0, 1500), box: at, style: { ...textOf(e), align: cs(e).textAlign }, ...(runs ? { runs } : {}) } });
         }
       }
-      if (parts.length && parts.length <= 30) res.blueprint = parts.map((p) => p.item);
+      // Accent rules (thin bars, <hr>) and panels (boxes with their own fill or border) behind
+      // the words: recreated on theme colors.
+      const secBg = res.background;
+      let decor = 0;
+      for (const e of sec.querySelectorAll("hr, div, span, section, article, aside, figure, li")) {
+        if (decor >= 6 || !visible(e) || parts.some((p) => p.el === e)) continue;
+        const b = rect(e);
+        const st = cs(e);
+        const fill = toHex(st.backgroundColor);
+        const bw = parseFloat(st.borderTopWidth) || 0;
+        const line = e.tagName === "HR" || (b.height <= 4 && b.width >= 16 && (fill || bw >= 1));
+        if (line) {
+          parts.push({ el: e, item: { kind: "rule", box: { x: Math.round(b.left), y: Math.round(b.top), w: Math.round(b.width), h: Math.max(1, Math.round(e.tagName === "HR" ? bw || 1 : b.height)) }, color: fill || toHex(st.borderTopColor) } });
+          decor++;
+          continue;
+        }
+        const own = fill && fill !== secBg;
+        const framed = bw >= 1 && st.borderTopStyle !== "none" && parseFloat(st.borderLeftWidth) >= 1;
+        if ((own || framed) && b.width >= 120 && b.height >= 60 && b.width < r.width * 0.95 && !e.querySelector("img, video, iframe") && ownText(e)) {
+          parts.push({ el: e, item: { kind: "panel", box: { x: Math.round(b.left), y: Math.round(b.top), w: Math.round(b.width), h: Math.round(b.height) }, ...(own ? { color: fill } : {}), ...(framed ? { border: { width: Math.round(bw), color: toHex(st.borderTopColor) } } : {}), radius: parseFloat(st.borderTopLeftRadius) || 0 } });
+          decor++;
+        }
+      }
+      if (parts.length && parts.length <= 36) res.blueprint = parts.map((p) => p.item);
     }
     // Where the section's own content starts and ends (for the spacing between sections).
     const content = [...sec.querySelectorAll(textSel + ", h1, h2, img, picture, video, iframe, form, button, a")].filter((e) => visible(e) && (/^(IMG|PICTURE|VIDEO|IFRAME|FORM)$/.test(e.tagName) || ownText(e).length > 1)).map(rect);
@@ -469,6 +551,20 @@ export const PROBE_SCRIPT = String.raw`(async () => {
   if (h2) presets.h2 = h2;
   const h3 = median(styleOfAll("h3"));
   if (h3) presets.h3 = h3;
+  // A display line: the page's largest short text, well above its headings (a banner's title
+  // set in a paragraph). Read when importing; the comparison doesn't check it.
+  {
+    const ref = Math.max(presets.h1 ? presets.h1.size : 0, presets.h2 ? presets.h2.size : 0, 16);
+    let best;
+    for (const e of document.querySelectorAll("p, strong, b, span, h1, h2, h3, div")) {
+      if (!visible(e) || !inMain(e)) continue;
+      const t = ownText(e);
+      if (t.length < 3 || t.length > 60 || [...e.children].some((k) => ownText(k) === t && k.tagName !== "BR" && !/^(STRONG|B|EM|I|SPAN)$/.test(k.tagName))) continue;
+      const st = textOf(e);
+      if (st.size >= ref * 1.3 && (!best || st.size > best.size)) best = st;
+    }
+    if (best) presets.display = best;
+  }
   const tally = new Map();
   for (const { el, t } of all) {
     const k = t.family + "|" + t.size;
@@ -519,7 +615,7 @@ export const PROBE_SCRIPT = String.raw`(async () => {
   if (btn) {
     presets.button = textOf(btn);
     const s = cs(btn);
-    buttons = { radius: parseFloat(s.borderTopLeftRadius) || 0, background: toHex(s.backgroundColor), border: parseFloat(s.borderTopWidth) || 0, paddingX: parseFloat(s.paddingLeft) || 0, text: ownText(btn).slice(0, 40), element: btn.tagName.toLowerCase() + (btn.className && typeof btn.className === "string" ? "." + btn.className.trim().split(/\s+/).slice(0, 2).join(".") : "") };
+    buttons = { radius: parseFloat(s.borderTopLeftRadius) || 0, background: toHex(s.backgroundColor), border: parseFloat(s.borderTopWidth) || 0, paddingX: parseFloat(s.paddingLeft) || 0, text: ownText(btn).slice(0, 40), element: btn.tagName.toLowerCase() + (btn.className && typeof btn.className === "string" ? "." + btn.className.trim().split(/\s+/).slice(0, 2).join(".") : ""), ...(inMain(btn) ? {} : { chrome: true }) };
   }
 
   // --- layout ---------------------------------------------------------------------------------
@@ -612,6 +708,35 @@ export const PROBE_SCRIPT = String.raw`(async () => {
     height: doc.scrollHeight,
     fonts,
     fontRequests,
+    pageBackground: toHex(cs(document.body).backgroundColor) || toHex(cs(doc).backgroundColor) || "#ffffff",
+    ...(() => {
+      // The header's logo picture (its shown height) and the footer's own color.
+      const out = {};
+      const head = document.querySelector(".os-header, header, [role=banner], #header");
+      const logo = head && [...head.querySelectorAll("img, svg")].find((e) => visible(e) && e.getBoundingClientRect().height >= 16 && e.getBoundingClientRect().width >= 24);
+      if (logo) out.logoHeight = Math.round(logo.getBoundingClientRect().height);
+      const foot = [...document.querySelectorAll(".os-footer, footer, [role=contentinfo], #footer")].filter(visible).pop();
+      if (foot) {
+        const c = toHex(cs(foot).backgroundColor) || [...foot.querySelectorAll("*")].map((e) => toHex(cs(e).backgroundColor)).find(Boolean);
+        if (c) out.footerBackground = c;
+        // Its first line of words: how many groups sit side by side, and their style.
+        const leaves = [...foot.querySelectorAll("p, li, a, span, small, div, h2, h3, h4")].filter((e) => visible(e) && ownText(e) && ![...e.children].some((k) => ownText(k) && /^(P|DIV|UL|LI|H2|H3|H4)$/.test(k.tagName)));
+        const lines = leaves.map((e) => ({ e, r: rect(e) }));
+        if (lines.length) {
+          const top = Math.min(...lines.map((l) => l.r.top));
+          const row = lines.filter((l) => l.r.top <= top + 24);
+          const groups = [];
+          for (const l of row.sort((a, b) => a.r.left - b.r.left)) {
+            const g = groups[groups.length - 1];
+            if (g && l.r.left - g.right < 48) g.right = Math.max(g.right, l.r.right);
+            else groups.push({ left: l.r.left, right: l.r.right });
+          }
+          out.footerColumns = groups.length;
+          out.footerText = textOf(row[0].e);
+        }
+      }
+      return out;
+    })(),
     ...(sidebar ? { sidebar } : {}),
   };
 })()`;

@@ -191,7 +191,7 @@ Collects enquiries, bookings requests, RSVPs or applications into the owner's In
 Several related photographs shown together. Use: Portfolios, spaces, events and products. `grid` for tidy sets, `masonry` and `strips` for mixed orientations, `carousel` for many images in little space, `slideshow` for one large image at a time. Avoid: Mixing unrelated photos; fewer than three images (use the image block); captions that repeat alt text.
 
 - Variants: `grid`, `carousel`, `masonry`, `slideshow`, `strips`
-- Fields: `images: list of { image: image { src, alt }, caption?: text ≤ 160, link?: link }`, `aspect: "auto" | "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`, `columns: "2" | "3" | "4" | "5"`, `lightbox: boolean`, `showCaptions: boolean`
+- Fields: `images: list of { image: image { src, alt }, caption?: text ≤ 160, link?: link }`, `aspect: "auto" | "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`, `columns: "2" | "3" | "4" | "5"`, `fit?: "cover" | "contain"`, `lightbox: boolean`, `showCaptions: boolean`
 
 ### `heading` — Heading
 
@@ -219,7 +219,7 @@ A scannable list of features, amenities, benefits or what's included. Use: Servi
 A single photograph or illustration. Use: To show the place, the people, the work or the product. Keep aspect ratios consistent within a section. `caption-overlay` suits atmospheric shots; `inset` frames an image on a soft surface. Avoid: Stock photos that don't depict the business; text baked into images; missing alt text.
 
 - Variants: `default`, `caption-overlay`, `inset`
-- Fields: `image: image { src, alt }`, `aspect: "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`, `caption?: text ≤ 200`, `link?: link`, `lightbox: boolean`
+- Fields: `image: image { src, alt }`, `aspect: "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`, `caption?: text ≤ 200`, `link?: link`, `lightbox: boolean`, `size?: "fill" | "original"`
 
 ### `line` — Line
 
@@ -282,7 +282,7 @@ Compares plans, packages or tiers with prices and what each includes. Use: Prici
 Sells one product from the shop: image, price, options and an Add to cart button. Use: Featuring a single product on a landing page or inside a story. The price shown comes from the catalog; checkout always re-reads prices on the server. Avoid: Products that don't exist in the shop collection; writing prices by hand in text blocks.
 
 - Variants: `card`, `split`, `minimal`
-- Fields: `product: reference`, `showDescription: boolean`, `showTitle?: boolean`, `quantity: boolean`, `buttonLabel: text ≤ 30`, `detailsLabel: text ≤ 30`
+- Fields: `product: reference`, `showDescription: boolean`, `showTitle?: boolean`, `quantity: boolean`, `buttonLabel: text ≤ 30`, `detailsLabel: text ≤ 30`, `showPrice?: boolean`, `showBuy?: boolean`, `imageAspect?: "original" | "1:1" | "4:5" | "2:3" | "3:2" | "16:9" | "21:9"`
 
 ### `quote` — Quote
 

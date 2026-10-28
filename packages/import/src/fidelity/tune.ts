@@ -42,9 +42,15 @@ export const TUNE_GROUPS = [
   "type",
   "fonts",
   "rhythm",
+  "rhythm-phone",
+  "widths",
+  "chapters",
   "colors",
+  "page-color",
   "buttons",
   "layout",
+  "headings",
+  "heights",
   "backgrounds",
   "crops",
   "phone-images",
@@ -117,6 +123,12 @@ export function tuneRound(
   input: SiteDocument,
   measured: TuneInput[],
   groups: readonly TuneGroup[] = TUNE_GROUPS,
+  opts: {
+    /** Components: only these pages (the CLI tries one page at a time). */
+    paths?: string[];
+    /** Components: recreate sections scoring below this (default `COMPONENT_THRESHOLD`). */
+    threshold?: number;
+  } = {},
 ): TuneResult {
   const doc = structuredClone(input) as SiteDocument;
   const on = (g: TuneGroup) => groups.includes(g);
@@ -128,15 +140,25 @@ export function tuneRound(
   // --- type scale: sizes per preset (desktop and phone), tracking and case --------------------
   // A preset changes only when the original sets it consistently across pages (one size, within
   // 15%) and most pages that show it differ: a lead line on one page isn't the site's lead size.
+  // Buttons: pages whose measured button is a content button (not a search or cookie button in
+  // the chrome) speak for the site's button style, when there are any.
+  const forPreset = (preset: string, list: TuneInput[]) => {
+    if (preset !== "button") return list;
+    const content = list.filter((m) => !m.original.buttons?.chrome);
+    return content.length ? content : list;
+  };
   for (const preset of on("type") ? new Set(Object.values(PRESET_OF)) : []) {
     const label = Object.entries(PRESET_OF).find(([, p]) => p === preset)?.[0] as string;
     const step: TypeStep = { ...(scale[preset] ?? {}) };
     let touched = false;
     for (const phone of [false, true]) {
       if (phone && preset === "nav") continue;
-      const list = measured.filter(
-        (m) =>
-          m.viewport < 700 === phone && m.original.presets[preset] && m.imported.presets[preset],
+      const list = forPreset(
+        preset,
+        measured.filter(
+          (m) =>
+            m.viewport < 700 === phone && m.original.presets[preset] && m.imported.presets[preset],
+        ),
       );
       if (!list.length) continue;
       const sizes = list.map((m) => m.original.presets[preset]?.size as number);
@@ -153,14 +175,31 @@ export function tuneRound(
       touched = true;
     }
     if (["eyebrow", "button", "nav", "wordmark"].includes(preset)) {
-      const list = measured.filter(
-        (m) => m.viewport >= 700 && m.original.presets[preset] && m.imported.presets[preset],
+      const all = forPreset(
+        preset,
+        measured.filter((m) => m.original.presets[preset] && m.imported.presets[preset]),
       );
-      const failing = list.filter((m) =>
-        m.comparison.checks.some((c) => c.what === `${label} letter spacing and case` && !c.ok),
-      );
-      if (list.length && failing.length * 2 >= list.length) {
-        const ls = median(list.map((m) => m.original.presets[preset]?.letterSpacing as number));
+      const list = all.filter((m) => m.viewport >= 700);
+      const fails = (m: TuneInput) =>
+        m.comparison.checks.some((c) => c.what === `${label} letter spacing and case` && !c.ok);
+      const failing = list.filter(fails);
+      // Phones may track the same preset differently (one setting serves both): when they fail
+      // and the two medians are close, the value between them passes on both (within 0.04em).
+      const phones = all.filter((m) => m.viewport < 700);
+      const phoneFailing = phones.filter(fails);
+      if (
+        list.length &&
+        (failing.length * 2 >= list.length ||
+          (phones.length && phoneFailing.length * 2 >= phones.length))
+      ) {
+        const lsDesk = median(list.map((m) => m.original.presets[preset]?.letterSpacing as number));
+        const lsPhone = median(
+          phones.map((m) => m.original.presets[preset]?.letterSpacing as number),
+        );
+        const ls =
+          lsDesk !== undefined && lsPhone !== undefined && Math.abs(lsDesk - lsPhone) <= 0.075
+            ? (lsDesk + lsPhone) / 2
+            : lsDesk;
         const cases = list.map((m) => m.original.presets[preset]?.case);
         if (ls !== undefined && Math.abs((step.letterSpacing ?? -1) - ls) > 0.01) {
           step.letterSpacing = round(clamp(ls, -0.2, 1), 3);
@@ -203,7 +242,7 @@ export function tuneRound(
     for (const preset of ["h2", "h3"] as const) {
       const fams = origs.map((p) => p[preset]?.family).filter((f): f is string => !!f);
       const f = fams[0];
-      if (!f || fams.length < 2 || !fams.every((x) => norm(x) === norm(f))) continue;
+      if (!f || !fams.every((x) => norm(x) === norm(f))) continue;
       const role =
         norm(f) === norm(heading)
           ? undefined
@@ -238,6 +277,36 @@ export function tuneRound(
       changes.push(`${role} font: ${match.family} for ${c.original}`);
     }
   }
+  // --- each label preset in the role whose font the original used for it ---------------------
+  // (a site title set in the sans label font while buttons use the serif heading font): the
+  // preset's font role follows the family measured on the original, when a role has it.
+  if (on("fonts")) {
+    const roleFamily = (r: "heading" | "body" | "label") =>
+      norm(
+        typography[r]?.family ??
+          (r === "label" ? (typography.body?.family ?? undefined) : undefined),
+      );
+    for (const preset of ["eyebrow", "button", "nav", "wordmark"] as const) {
+      const fams = forPreset(
+        preset,
+        measured.filter((m) => m.viewport >= 700 && m.original.presets[preset]),
+      )
+        .map((m) => m.original.presets[preset]?.family)
+        .filter((f): f is string => !!f);
+      const f = fams[0];
+      if (!f || !fams.every((x) => norm(x) === norm(f))) continue;
+      const want = (["label", "heading", "body"] as const).find(
+        (r) => roleFamily(r) && roleFamily(r) === norm(f),
+      );
+      if (!want) continue;
+      const cur = scale[preset]?.font ?? "label";
+      const curFamily = roleFamily(cur);
+      if (cur === want || curFamily === norm(f)) continue;
+      scale[preset] = { ...(scale[preset] ?? {}), font: want };
+      changes.push(`${preset}: in the ${want} font (${f}), as on the original`);
+    }
+    if (Object.keys(scale).length) typography.scale = scale;
+  }
   choices.typography = typography;
 
   // --- page rhythm and buttons -----------------------------------------------------------------
@@ -264,6 +333,109 @@ export function tuneRound(
     layout.contentWidth = Math.round(cw / 8) * 8;
     changes.push(`content width ${layout.contentWidth}px`);
   }
+  // Per page: a page whose words sit in a narrower (or the site's) column than ours — its
+  // sections take the content width, or the narrow width set to the original's measure.
+  if (on("widths")) {
+    const content = layout.contentWidth;
+    for (const m of desk) {
+      const check = m.comparison.checks.find((c) => c.what === "Content width" && !c.ok);
+      const want = m.original.layout.contentWidth;
+      const have = m.imported.layout.contentWidth;
+      const page = pageOf(doc, m.path);
+      if (!check || !want || !have || !page || want >= have) continue;
+      let width: "content" | "narrow" | undefined;
+      if (content && Math.abs(content - want) / want <= 0.06) width = "content";
+      else if (want >= 360 && want <= 1600) {
+        layout.narrowWidth ??= Math.round(want / 8) * 8;
+        if (Math.abs(layout.narrowWidth - want) / want <= 0.06) width = "narrow";
+      }
+      if (!width) continue;
+      let n = 0;
+      for (const section of page.sections) {
+        if (section.layout.mode !== "stack" || section.layout.width === "full") continue;
+        if (
+          section.style.background?.type === "image" ||
+          section.style.background?.type === "video"
+        )
+          continue;
+        const cur = section.layout.width ?? "content";
+        if (cur === width) continue;
+        if (width === "content") delete section.layout.width;
+        else section.layout.width = width;
+        delete section.preset;
+        n++;
+      }
+      if (n) changes.push(`${m.path}: ${n} section(s) at the ${width} width, as on the original`);
+    }
+  }
+  // Per page: consecutive sections of ours whose words all sit in one band of the original (an
+  // article the import split into chapters, which the original shows as one panel) join again.
+  if (on("chapters")) {
+    const bag = (t: string) =>
+      new Set(
+        t
+          .toLowerCase()
+          .split(/[^a-z0-9]+/)
+          .filter((w) => w.length > 3),
+      );
+    for (const m of desk) {
+      const page = pageOf(doc, m.path);
+      if (!page || m.imported.sections.length !== page.sections.length) continue;
+      const keep = new Set(page.sections.map((_, j) => j));
+      for (const o of m.original.sections) {
+        const mine = bag(`${o.heading?.text ?? ""} ${o.words ?? o.text}`);
+        if (mine.size < 20) continue;
+        const inside = m.imported.sections
+          .map((x, j) => {
+            const theirs = bag(`${x.heading?.text ?? ""} ${x.words ?? x.text}`);
+            let n = 0;
+            for (const w of theirs) if (mine.has(w)) n++;
+            return theirs.size >= 3 && n / theirs.size >= 0.85 ? j : -1;
+          })
+          .filter((j) => j >= 0);
+        // Runs of neighbours that can join (plain one-column sections of one look).
+        let run: number[] = [];
+        const join = () => {
+          if (run.length >= 2) {
+            const [first, ...rest] = run.map((j) => page.sections[j] as Section);
+            for (const r of rest) {
+              first?.blocks.push(...r.blocks);
+              keep.delete(page.sections.indexOf(r));
+            }
+            changes.push(`${m.path}: ${run.length} sections joined into one, as on the original`);
+          }
+          run = [];
+        };
+        for (const j of inside) {
+          const a = page.sections[j] as Section;
+          const prev = run.length
+            ? (page.sections[run[run.length - 1] as number] as Section)
+            : undefined;
+          const plain =
+            a.layout.mode === "stack" &&
+            a.layout.columns.d.length === 1 &&
+            !a.anchor &&
+            a.style.background?.type !== "image" &&
+            a.style.background?.type !== "video";
+          const same =
+            prev &&
+            j === (run[run.length - 1] as number) + 1 &&
+            (prev.style.colorTheme ?? "light") === (a.style.colorTheme ?? "light") &&
+            prev.layout.mode === "stack" &&
+            (prev.layout.width ?? "content") ===
+              (a.layout.mode === "stack" ? (a.layout.width ?? "content") : "");
+          if (plain && (!run.length || same)) run.push(j);
+          else {
+            join();
+            if (plain) run.push(j);
+          }
+        }
+        join();
+      }
+      if (keep.size !== page.sections.length)
+        page.sections = page.sections.filter((_, j) => keep.has(j));
+    }
+  }
   const pad = (list: TuneInput[]) =>
     median(
       list
@@ -276,7 +448,7 @@ export function tuneRound(
         .filter((n) => n > 0),
     );
   const pd = on("rhythm") ? pad(desk) : undefined;
-  const pm = on("rhythm") ? pad(phone) : undefined;
+  const pm = on("rhythm-phone") ? pad(phone) : undefined;
   if (pd) {
     const base =
       layout.sectionPadding ??
@@ -311,8 +483,11 @@ export function tuneRound(
   }
 
   // --- text and heading colors per section theme (bone on obsidian, ink on paper) ---------------
-  const inks = new Map<string, { text: string[]; heading: string[] }>();
-  for (const m of on("colors") ? desk : []) {
+  // Every matched section's original and imported color per theme and role (not only the
+  // failing ones): the color chosen is the original's that the most sections would pass with.
+  type Pair = { o: string; i: string };
+  const inks = new Map<string, { text: Pair[]; heading: Pair[]; background: Pair[] }>();
+  for (const m of on("colors") || on("page-color") ? desk : []) {
     const page = pageOf(doc, m.path);
     if (!page || m.imported.sections.length !== page.sections.length) continue;
     for (const s of m.comparison.sections) {
@@ -322,26 +497,41 @@ export function tuneRound(
       const section = page.sections[s.importedIndex];
       if (!o || !i || !section || o.backgroundImage) continue;
       const theme = section.style.colorTheme ?? "light";
-      const e = inks.get(theme) ?? { text: [], heading: [] };
-      if (o.textColor && i.textColor && colorDistance(o.textColor, i.textColor) >= 16)
-        e.text.push(o.textColor);
-      if (
-        o.heading?.color &&
-        i.heading?.color &&
-        colorDistance(o.heading.color, i.heading.color) >= 16
-      )
-        e.heading.push(o.heading.color);
+      const e = inks.get(theme) ?? { text: [], heading: [], background: [] };
+      // The theme's own background (no section color of its own): the original's page color.
+      if (o.background && i.background && !section.style.background)
+        e.background.push({ o: o.background, i: i.background });
+      if (o.textColor && i.textColor) e.text.push({ o: o.textColor, i: i.textColor });
+      if (o.heading?.color && i.heading?.color)
+        e.heading.push({ o: o.heading.color, i: i.heading.color });
       inks.set(theme, e);
     }
   }
   for (const [theme, e] of inks)
-    for (const role of ["text", "heading"] as const) {
+    for (const role of [
+      ...(on("colors") ? (["text", "heading"] as const) : []),
+      ...(on("page-color") ? (["background"] as const) : []),
+    ]) {
       const list = e[role];
-      const first = list[0];
-      // Only a color the original used throughout that theme.
-      if (!first || list.length < 2 || !list.every((c) => colorDistance(c, first) < 12)) continue;
-      setRole(doc, theme, role, first);
-      changes.push(`${role} on ${theme} sections ${first}, as on the original`);
+      // The check's own tolerance (backgrounds 16, text 28; headings are judged like text).
+      const tol = role === "background" ? 16 : 28;
+      const passes = (c: (p: Pair) => string) =>
+        list.filter((p) => colorDistance(p.o, c(p)) < tol).length;
+      const now = passes((p) => p.i);
+      let best: string | undefined;
+      let bestN = now;
+      for (const cand of new Set(list.map((p) => p.o))) {
+        const n = passes(() => cand);
+        if (n > bestN) {
+          best = cand;
+          bestN = n;
+        }
+      }
+      if (!best || list.length < 2) continue;
+      if (!setRole(doc, theme, role, best)) continue;
+      changes.push(
+        `${role} on ${theme} sections ${best}, as on the original (${bestN} of ${list.length} sections)`,
+      );
     }
 
   // --- buttons per section theme: the original's own fill (a clay button on a dark band) --------
@@ -374,6 +564,165 @@ export function tuneRound(
     themes = compileStyles(doc.styles).tokens.themes as Record<string, { background?: string }>;
   } catch {
     themes = undefined;
+  }
+  // --- banners: a photo section as tall as the original's (padding that fits its words, and the
+  // original's height as the minimum, on computer and phone) -------------------------------------
+  if (on("heights")) {
+    const scaleOf = SPACE_SCALES[choices.density] ?? SPACE_SCALES.comfortable;
+    const tokens = Object.entries(scaleOf).sort((a, b) => a[1] - b[1]);
+    const fit = (o: ProbeSection, i: ProbeSection) => {
+      if (i.contentTop === undefined || i.contentBottom === undefined) return undefined;
+      const content = i.contentBottom - i.contentTop;
+      const room = (o.height - content) / 2;
+      const token = [...tokens].reverse().find(([, px]) => px <= room)?.[0] ?? "none";
+      return { token, height: Math.round(o.height) };
+    };
+    for (const m of desk) {
+      const page = pageOf(doc, m.path);
+      if (!page || m.imported.sections.length !== page.sections.length) continue;
+      const mp = phone.find((x) => x.path === m.path);
+      for (const s of m.comparison.sections) {
+        if (s.importedIndex === undefined) continue;
+        const h = s.checks.find((c) => c.what === "Height");
+        const o = m.original.sections[s.index];
+        const i = m.imported.sections[s.importedIndex];
+        const section = page.sections[s.importedIndex];
+        if (!h || h.ok || !o?.backgroundImage || !i || !section) continue;
+        if (
+          section.style.background?.type !== "image" &&
+          section.style.background?.type !== "video"
+        )
+          continue;
+        const d = fit(o, i);
+        if (!d) continue;
+        const ps = mp?.comparison.sections.find((x) => x.importedIndex === s.importedIndex);
+        const po = ps ? mp?.original.sections[ps.index] : undefined;
+        const pi = mp?.imported.sections[s.importedIndex];
+        const p = po?.backgroundImage && pi ? fit(po, pi) : undefined;
+        section.style.padding = { d: d.token as never, ...(p ? { m: p.token as never } : {}) };
+        section.style.minHeight = {
+          d: `${clamp(d.height, 10, 9999)}px` as never,
+          ...(p ? { m: `${clamp(p.height, 10, 9999)}px` as never } : {}),
+        };
+        changes.push(`${m.path}: section ${s.index + 1} ${d.height}px tall, as on the original`);
+      }
+    }
+  }
+
+  // --- per section: a heading sized (or set as a label) unlike the site's preset for its level --
+  // (a page title smaller than the home page's, "PRESS AND PODCASTS" set as a small tracked
+  // label): the heading block takes the preset whose measured size matches on computer and phone.
+  if (on("headings")) {
+    const presetSizes = (list: TuneInput[]) => {
+      const out = new Map<string, { size: number; family: string }>();
+      for (const k of ["display", "h1", "h2", "h3", "h4", "lead", "eyebrow"] as const) {
+        const xs = list
+          .map((m) => m.imported.presets[k])
+          .filter((t): t is NonNullable<typeof t> => !!t);
+        const size = median(xs.map((t) => t.size));
+        if (size && xs[0]) out.set(k, { size, family: xs[0].family });
+      }
+      return out;
+    };
+    const deskSizes = presetSizes(desk);
+    const phoneSizes = presetSizes(phone);
+    const fits = (a: number, b: number) => Math.abs(a - b) <= Math.max(1, a * 0.1);
+    for (const m of desk) {
+      const page = pageOf(doc, m.path);
+      if (!page || m.imported.sections.length !== page.sections.length) continue;
+      const mp = phone.find((x) => x.path === m.path);
+      for (const s of m.comparison.sections) {
+        if (s.importedIndex === undefined) continue;
+        const hc = s.checks.find((c) => c.what === "Heading");
+        if (!hc || hc.ok) continue;
+        const o = m.original.sections[s.index]?.heading;
+        const i = m.imported.sections[s.importedIndex]?.heading;
+        const section = page.sections[s.importedIndex];
+        if (!o || !i || !section || fits(o.size, i.size)) continue;
+        const po = mp?.original.sections.find((x) => norm(x.heading?.text) === norm(o.text))
+          ?.heading?.size;
+        const label = o.size < 18 && (o.case === "uppercase" || o.letterSpacing >= 0.05);
+        const pick = [...deskSizes]
+          .filter(([k, v]) => {
+            if (!fits(o.size, v.size)) return false;
+            if ((k === "eyebrow") !== label) return false;
+            const ph = phoneSizes.get(k);
+            return po === undefined || !ph || fits(po, ph.size);
+          })
+          .sort(([, a], [, b]) => Math.abs(a.size - o.size) - Math.abs(b.size - o.size))[0]?.[0];
+        if (!pick) continue;
+        const block = section.blocks.find(
+          (b: Block) => b.type === "heading" && norm(String(b.fields.text ?? "")) === norm(i.text),
+        );
+        // A card's or a column's heading (blocks with a heading style slot).
+        const holder = block
+          ? undefined
+          : section.blocks.find(
+              (b: Block) =>
+                (b.type === "card" && norm(String(b.fields.heading ?? "")) === norm(i.text)) ||
+                (b.type === "columns" &&
+                  Array.isArray(b.fields.items) &&
+                  (b.fields.items as { heading?: string }[]).some(
+                    (x) => norm(x.heading) === norm(i.text),
+                  )),
+            );
+        if (holder && pick !== "lead") {
+          const style = (holder.style ?? {}) as NonNullable<Block["style"]>;
+          if (style.typography?.heading === pick) continue;
+          holder.style = {
+            ...style,
+            typography: { ...(style.typography ?? {}), heading: pick },
+          } as Block["style"];
+          changes.push(
+            `${m.path}: "${o.text.slice(0, 40)}" set at the ${pick} size, as on the original`,
+          );
+          continue;
+        }
+        if (!block) {
+          // A heading inside rich text: the heading node's own preset (display, h1–h4, eyebrow).
+          let done = false;
+          for (const b of section.blocks) {
+            if (b.type !== "text" || done) continue;
+            const doc = b.fields.content as
+              | {
+                  content?: {
+                    type: string;
+                    attrs?: Record<string, unknown>;
+                    content?: { text?: string }[];
+                  }[];
+                }
+              | undefined;
+            for (const node of doc?.content ?? []) {
+              const words = (node.content ?? []).map((x) => x.text ?? "").join("");
+              if (node.type !== "heading" || norm(words) !== norm(i.text)) continue;
+              if (pick === "lead" || node.attrs?.preset === pick) break;
+              node.attrs = { ...(node.attrs ?? {}), preset: pick };
+              done = true;
+              break;
+            }
+          }
+          if (done)
+            changes.push(
+              `${m.path}: "${o.text.slice(0, 40)}" set at the ${pick} size, as on the original`,
+            );
+          continue;
+        }
+        if (["display", "h1", "h2", "h3", "h4"].includes(pick)) {
+          if (block.fields.size === pick) continue;
+          block.fields.size = pick;
+        } else {
+          const style = (block.style ?? {}) as NonNullable<Block["style"]>;
+          if (style.typography?.heading === pick) continue;
+          block.style = {
+            ...style,
+            typography: { ...(style.typography ?? {}), heading: pick },
+          } as Block["style"];
+        }
+        changes.push(
+          `${m.path}: "${o.text.slice(0, 40)}" set at the ${pick} size, as on the original`,
+        );
+      }
+    }
   }
   for (const m of on("layout") || on("backgrounds") || on("crops") ? desk : []) {
     const page = pageOf(doc, m.path);
@@ -492,12 +841,13 @@ export function tuneRound(
         if (u.protocol === "mailto:") return { type: "email", email: u.pathname } as Link;
         return u.protocol === "https:" ? ({ type: "url", url: u.toString() } as Link) : undefined;
       };
-    for (const m of desk) {
+    for (const m of desk.filter((x) => !opts.paths || opts.paths.includes(x.path))) {
       const page = pageOf(doc, m.path);
       if (!page || m.imported.sections.length !== page.sections.length) continue;
       const used = new Set<number>();
       for (const s of m.comparison.sections) {
-        if (s.importedIndex === undefined || s.score >= COMPONENT_THRESHOLD) continue;
+        if (s.importedIndex === undefined || s.score >= (opts.threshold ?? COMPONENT_THRESHOLD))
+          continue;
         if (used.has(s.importedIndex)) continue;
         const o = m.original.sections[s.index];
         const old = page.sections[s.importedIndex];
@@ -505,6 +855,25 @@ export function tuneRound(
         // One original section per imported section (an article split in parts isn't recreated).
         if (m.comparison.sections.filter((x) => x.importedIndex === s.importedIndex).length > 1)
           continue;
+        // Nor one whose words also live in another imported section (the original's band spans
+        // two of ours): recreating it would show those words twice.
+        const bag = (t: string) =>
+          new Set(
+            t
+              .toLowerCase()
+              .split(/[^a-z0-9]+/)
+              .filter((w) => w.length > 3),
+          );
+        const mine = bag(`${o.heading?.text ?? ""} ${o.words ?? o.text}`);
+        const shared = m.imported.sections.some((x, j) => {
+          if (j === s.importedIndex) return false;
+          const theirs = bag(x.words ?? x.text);
+          if (theirs.size < 4) return false;
+          let n = 0;
+          for (const w of theirs) if (mine.has(w)) n++;
+          return n / theirs.size >= 0.5;
+        });
+        if (shared) continue;
         const name = `imported-${(page.slug || "home").replace(/[^a-z0-9]+/g, "-")}-${s.index + 1}`
           .replace(/-+/g, "-")
           .slice(0, 40)
@@ -525,10 +894,14 @@ export function tuneRound(
                   "text-muted": theme["text-muted"],
                   accent: theme.accent,
                   link: theme.link,
+                  surface: theme.surface,
+                  border: theme.border,
+                  background: theme.background,
                 },
               }
             : {}),
           link: linkFor(m.original.url),
+          origin: new URL(m.original.url).origin,
         });
         if (!gen) continue;
         const check = checkComponent(gen.def);
