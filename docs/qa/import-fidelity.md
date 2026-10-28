@@ -208,6 +208,24 @@ same pages as before (Power With 4, Alameda 5, the others 6), computer 1440 px a
 | Bedford (Squarespace 7.0) | 69 | **78** | 78 (tried per page, not kept) |
 | sive.rs (hand-made HTML) | 74 | **80** | 80 (tried per page, not kept) |
 
+### Corrected and strict v3, side by side
+
+Re-run October 27, 2026 with the corrected scorer (same importer as fidelity 3, `openspace import
+… --compare`, 3 tuning rounds; the default pages, so WordPress Foundation and Bedford compared
+partly different pages than above). Both columns score the same final site.
+
+| Site | Fidelity 3 (reported) | Strict v3 (re-run) | Corrected (re-run) | What the corrections changed |
+|---|---|---|---|---|
+| Power With | 91 | 91 | **91** | nothing applies |
+| WordPress Foundation | 89 | 83 | **85** | navigation in the `os-theme-brand` sidebar is seen on every computer page (+2 to +10 a page; on the home page it also moves the Label font check onto the navigation, whose font matches, instead of the site title) |
+| Alameda (Squarespace 7.1) | 85 | 85 | **87** | lookbook slideshow is one column: 86 → 96 computer, 79 → 89 phone |
+| Bedford (Squarespace 7.0) | 78 | 75 | **77** | maps and slideshows as one column; one phone picture-only band found in its section |
+| sive.rs | 80 | 79 | **79** | nothing applies |
+
+One residual: on Bedford's phone pages a cover photo cropped inside its banner reads as one column
+with the banner's words on the original, while the new banner reads as two, so read-me on a phone
+is 86 corrected vs 87 strict. Reports: `sophia/loops-1-fidelity/<site>/`.
+
 ### Limits the score itself sets
 
 Three of these are corrected since (see "Two scores" above); the strict v3 score still has them.
