@@ -157,6 +157,10 @@
   white-space: nowrap;
 }
 
+.st-pm__path.is-broken {
+  color: var(--st-danger);
+}
+
 .st-pm__badges {
   display: inline-flex;
   gap: 2px;

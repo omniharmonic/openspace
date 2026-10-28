@@ -1,11 +1,19 @@
 import "fake-indexeddb/auto";
-import { PopupSchema, type SiteDocument } from "@omniharmonic/openspace-schema";
+import { designerComponent } from "@omniharmonic/openspace-blocks";
+import {
+  type ComponentDefinition,
+  componentSection,
+  findBrokenLinks,
+  PopupSchema,
+  type SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { demoSites } from "../../api/fixtures";
 import type { Site } from "../../api/types";
 import { renderStudio, SAM } from "../../test/render";
 import { useEditorUi } from "../editor/editor-store";
+import { devSiteDocument } from "../editor/model/dev-site";
 import type { EditorStore } from "../editor/model/store";
 import { type FakeImage, fakeCodec, fakePhoto } from "../media/testing";
 import { useUploads } from "../media/uploader";
@@ -17,8 +25,10 @@ const willow = sites[0] as Site;
 const store = () =>
   (window as unknown as { __osEditorStore: EditorStore }).__osEditorStore.getState();
 
-async function openEditor(panel?: "pages" | "media" | "chrome") {
-  const utils = renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
+async function openEditor(panel?: "pages" | "media" | "chrome", doc?: SiteDocument) {
+  const utils = renderStudio(`/sites/${willow.id}`, { user: SAM, sites }, undefined, (hub) => {
+    if (doc) hub.state.documents = { [willow.id]: doc };
+  });
   await screen.findByTitle("Page canvas");
   await waitFor(() => expect(store().doc.pages).toBeTruthy());
   if (panel) {
@@ -344,5 +354,96 @@ describe("pop-up validation messages", () => {
       "use between 0 and 365 days.",
     );
     expect(popupProblem({ path: ["image", "alt"], message: "x" })).toMatch(/image description/);
+  });
+});
+
+/**
+ * A site Claude made like Boulder Foodshed: designer sections (custom components) on the home
+ * page, a menu of entries that scroll to sections nobody named, and a header button to /#waitlist.
+ */
+function claudeOnePager(): SiteDocument {
+  const doc = devSiteDocument({ siteId: willow.id, name: willow.name, url: willow.url });
+  const home = Object.values(doc.pages).find((p) => p.slug === "");
+  if (!home) throw new Error("fixture");
+  const hero = designerComponent("editorial-hero") as ComponentDefinition;
+  doc.components = { [hero.name]: hero };
+  const designed = { ...componentSection(hero), label: "Foodshed hero" };
+  const [, second, third] = home.sections;
+  if (!second || !third) throw new Error("fixture");
+  second.label = "Basket sizes";
+  delete second.anchor;
+  third.label = "Common questions";
+  delete third.anchor;
+  home.sections.unshift(designed as never);
+  doc.site.nav = [
+    { type: "page", page: home.id, label: "Baskets", anchor: "baskets" },
+    { type: "page", page: home.id, label: "Questions", anchor: "questions" },
+    {
+      type: "button",
+      label: "Join the waitlist",
+      link: { type: "url", url: "/#waitlist" },
+      style: "primary",
+    },
+  ];
+  return doc;
+}
+
+describe("menu entries to sections (Boulder Foodshed: the header wasn't connected)", () => {
+  it("shows unconnected entries and connects one to its section in two clicks", async () => {
+    const { user } = await openEditor("pages", claudeOnePager());
+    const panel = await screen.findByRole("complementary", { name: "Pages" });
+    const list = within(panel).getByRole("list", { name: "Navigation" });
+    const row = within(list)
+      .getAllByRole("listitem")
+      .find((li) => li.querySelector(".st-pm__title")?.textContent === "Baskets") as HTMLElement;
+    expect(within(row).getByText("Not connected")).toBeInTheDocument();
+    await user.click(within(row).getByRole("button", { name: /Baskets/ }));
+    const dialog = await screen.findByRole("dialog", { name: "Edit menu link" });
+    // The section it most likely means is already chosen.
+    expect(within(dialog).getByRole("combobox", { name: "Section" })).toHaveTextContent(
+      "Basket sizes",
+    );
+    await user.click(within(dialog).getByRole("button", { name: "Save" }));
+    const home = Object.values(store().doc.pages).find((p) => p.slug === "");
+    expect(home?.sections.find((s) => s.label === "Basket sizes")?.anchor).toBe("baskets");
+    expect(within(row).getByText("Home › Basket sizes")).toBeInTheDocument();
+    expect(store().undoStack.at(-1)?.label).toBe("Edit menu link");
+
+    // A new entry to a section, from the add menu.
+    await user.click(within(panel).getByRole("button", { name: "Add" }));
+    await user.click(await screen.findByRole("menuitem", { name: "Section of a page…" }));
+    const add = await screen.findByRole("dialog", { name: "Add a link to a section" });
+    await user.type(within(add).getByLabelText("Label"), "Our story");
+    await user.click(within(add).getByRole("combobox", { name: "Section" }));
+    await user.click(await screen.findByRole("option", { name: "Foodshed hero" }));
+    await user.click(within(add).getByRole("button", { name: "Save" }));
+    expect(store().doc.site.nav.at(-1)).toMatchObject({
+      type: "page",
+      label: "Our story",
+      anchor: "our-story",
+    });
+    const anchors = findBrokenLinks(store().doc)
+      .filter((l) => l.kind === "anchor" && l.scope.kind === "site")
+      .map((l) => l.target);
+    expect(anchors).toEqual(["/#questions", "/#waitlist"]);
+  });
+
+  it("the header panel opens on Claude-made content and the button can go to a section", async () => {
+    const { user } = await openEditor("chrome", claudeOnePager());
+    const panel = await screen.findByRole("complementary", { name: "Header & footer" });
+    const goesTo = within(panel).getByRole("combobox", { name: "Link to" });
+    expect(goesTo).toHaveTextContent("Web address");
+    await user.click(goesTo);
+    await user.click(await screen.findByRole("option", { name: "Section" }));
+    await user.click(within(panel).getByRole("combobox", { name: "Section" }));
+    await user.click(await screen.findByRole("option", { name: "Common questions" }));
+    const home = Object.values(store().doc.pages).find((p) => p.slug === "");
+    const questions = home?.sections.find((s) => s.label === "Common questions");
+    expect(store().doc.site.nav.find((n) => n.type === "button")).toMatchObject({
+      link: { type: "anchor", section: questions?.id },
+    });
+    // The footer tab renders too.
+    await user.click(within(panel).getByRole("tab", { name: "Footer" }));
+    expect(within(panel).getByRole("tabpanel")).toBeInTheDocument();
   });
 });

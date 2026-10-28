@@ -28,6 +28,13 @@ import {
   updatePageSettings,
 } from "./pageOps";
 import { PAGE_TEMPLATES, pageTemplate } from "./pageTemplates";
+import {
+  entrySection,
+  entryTarget,
+  isSectionEntry,
+  type SectionEntry,
+  sectionEntry,
+} from "./sectionEntry";
 
 const P = (n: number) => `pg_${String(n).padStart(10, "0")}`;
 const page = (n: number): NavItem => ({ type: "page", page: P(n) as never });
@@ -330,5 +337,68 @@ describe("page commands (ops)", () => {
     expect(slugProblem(doc, "")).toMatch(/home page/);
     expect(slugify("Our Story & Team!")).toBe("our-story-and-team");
     expect(normalizeSlug("/Retreats/Spring 2027/")).toBe("retreats/spring-2027");
+  });
+});
+
+describe("menu entries to sections (Boulder Foodshed: the header wasn't connected)", () => {
+  /** A one-page site whose menu points at #baskets, which no section is called. */
+  function onePager() {
+    const doc = devSiteDocument({ siteId: "st_sect10ntst", name: "Foodshed" });
+    const home = Object.values(doc.pages).find((p) => p.slug === "");
+    if (!home) throw new Error("fixture");
+    const [first, second] = home.sections;
+    if (!first || !second) throw new Error("fixture");
+    second.label = "Basket sizes";
+    delete second.anchor;
+    first.anchor = "welcome" as never;
+    doc.site.nav = [{ type: "page", page: home.id, label: "Baskets", anchor: "baskets" }];
+    return { doc, home, first, second };
+  }
+
+  it("knows which entries are connected and which section an unconnected one means", () => {
+    const { doc, second } = onePager();
+    const entry = doc.site.nav[0] as SectionEntry;
+    expect(isSectionEntry(entry)).toBe(true);
+    expect(entryTarget(doc, entry)).toBeUndefined();
+    expect(entrySection(doc, entry)?.id).toBe(second.id);
+  });
+
+  it("connecting names the section after the entry, so every link to it works", () => {
+    const { doc, home, first, second } = onePager();
+    const r = sectionEntry(doc, {
+      label: "Baskets",
+      page: home.id,
+      section: second.id,
+      previous: "baskets",
+    });
+    expect(r?.item).toEqual({ type: "page", page: home.id, label: "Baskets", anchor: "baskets" });
+    expect(r?.bodies).toEqual([
+      { op: "section.update", page: home.id, section: second.id, set: { anchor: "baskets" } },
+    ]);
+    // A section that already has a name keeps it.
+    expect(sectionEntry(doc, { label: "Hi", page: home.id, section: first.id })).toEqual({
+      item: { type: "page", page: home.id, label: "Hi", anchor: "welcome" },
+      bodies: [],
+    });
+    // Applying it leaves no link pointing nowhere.
+    const s = createEditorStore({ doc, actor: "user:test" });
+    const res = s
+      .getState()
+      .commit([{ op: "nav.update", tree: [r?.item] } as never, ...((r?.bodies ?? []) as never[])], {
+        label: "Link to a section",
+      });
+    expect(res.ok).toBe(true);
+    expect(findBrokenLinks(s.getState().doc).filter((l) => l.kind === "anchor")).toEqual([]);
+  });
+
+  it("makes a free name from the label when the old one is taken", () => {
+    const { doc, home, second } = onePager();
+    const r = sectionEntry(doc, {
+      label: "Our baskets!",
+      page: home.id,
+      section: second.id,
+      previous: "welcome",
+    });
+    expect(r?.item.anchor).toBe("our-baskets");
   });
 });

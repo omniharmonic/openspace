@@ -26,6 +26,7 @@ import {
   FolderInput,
   FolderOutput,
   GripVertical,
+  Hash,
   House,
   Library,
   Link2,
@@ -67,6 +68,14 @@ import {
   withPage,
 } from "./navTree";
 import { deletePage, duplicatePage, setNav } from "./pageOps";
+import { SectionLinkDialog } from "./SectionLinkDialog";
+import {
+  entrySection,
+  entryTarget,
+  isSectionEntry,
+  sectionEntry,
+  sectionTitle,
+} from "./sectionEntry";
 import "./pages.css";
 
 const INDENT = 18;
@@ -81,6 +90,13 @@ function rowLabel(doc: SiteDocument, item: NavItem): string {
 }
 
 function rowPath(doc: SiteDocument, item: NavItem): string {
+  if (isSectionEntry(item)) {
+    const page = pageOf(doc, item.page);
+    const target = entryTarget(doc, item);
+    if (!page) return "";
+    if (!target) return "Not connected";
+    return `${page.title} › ${sectionTitle(page, target)}`;
+  }
   if (item.type === "page") {
     const p = pageOf(doc, item.page);
     return p ? `/${p.slug}` : "";
@@ -99,6 +115,7 @@ function rowPath(doc: SiteDocument, item: NavItem): string {
 
 function RowIcon({ doc, item }: { doc: SiteDocument; item: NavItem }) {
   if (item.type === "folder") return <Folder aria-hidden="true" />;
+  if (isSectionEntry(item)) return <Hash aria-hidden="true" />;
   if (item.type === "link") return <Link2 aria-hidden="true" />;
   if (item.type === "collection") return <Library aria-hidden="true" />;
   if (item.type === "button") return <MousePointerClick aria-hidden="true" />;
@@ -130,6 +147,7 @@ interface RowProps {
   onCommand: (label: string, tree: Nav) => void;
   onOpen: (pageId: string) => void;
   onRename: (row: NavRow) => void;
+  onEditSection: (row: NavRow) => void;
 }
 
 function SortableRow({
@@ -141,13 +159,16 @@ function SortableRow({
   onCommand,
   onOpen,
   onRename,
+  onEditSection,
 }: RowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: row.id,
   });
   const nav = doc.site.nav;
   const item = row.item;
-  const page = item.type === "page" ? pageOf(doc, item.page) : undefined;
+  const toSection = isSectionEntry(item);
+  const page = item.type === "page" && !toSection ? pageOf(doc, item.page) : undefined;
+  const unconnected = toSection && !entryTarget(doc, item);
   const depth = depthPreview ?? row.depth;
   const current = page && page.id === currentPage;
   const { openPageSettings } = useManageUi.getState();
@@ -166,7 +187,15 @@ function SortableRow({
             onSelect: () => onCommand("duplicate", nav),
           },
         ]
-      : [{ label: "Rename", icon: <Settings2 />, onSelect: () => onRename(row) }]),
+      : toSection
+        ? [
+            {
+              label: unconnected ? "Connect to a section…" : "Edit link…",
+              icon: <Hash />,
+              onSelect: () => onEditSection(row),
+            },
+          ]
+        : [{ label: "Rename", icon: <Settings2 />, onSelect: () => onRename(row) }]),
     { type: "separator" as const },
     {
       label: item.hidden ? "Show in navigation" : "Hide from navigation",
@@ -273,14 +302,17 @@ function SortableRow({
         onKeyDown={onKeyDown}
         onClick={() => {
           if (page) onOpen(page.id);
+          else if (toSection) onEditSection(row);
           else if (item.type === "folder" && item.page) onOpen(item.page);
           else onRename(row);
         }}
-        onDoubleClick={() => (page ? openPageSettings(page.id) : onRename(row))}
+        onDoubleClick={() =>
+          page ? openPageSettings(page.id) : toSection ? onEditSection(row) : onRename(row)
+        }
       >
         <RowIcon doc={doc} item={item} />
         <span className="st-pm__title">{rowLabel(doc, item)}</span>
-        <span className="st-pm__path">{rowPath(doc, item)}</span>
+        <span className={cx("st-pm__path", unconnected && "is-broken")}>{rowPath(doc, item)}</span>
         <PageBadges page={page} hiddenInNav={item.hidden} />
       </button>
       {page && (
@@ -432,6 +464,26 @@ export function PagesManager() {
     href?: string;
   } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Page | null>(null);
+  const [sectionDialog, setSectionDialog] = useState<{
+    rowId?: string;
+    label?: string;
+    page?: string;
+    section?: string;
+    previous?: string;
+    hidden?: boolean;
+  } | null>(null);
+  const editSection = (row: NavRow) => {
+    if (!isSectionEntry(row.item)) return;
+    const s = entrySection(api.getState().doc, row.item);
+    setSectionDialog({
+      rowId: row.id,
+      label: row.item.label ?? "",
+      page: row.item.page,
+      ...(s ? { section: s.id } : {}),
+      previous: row.item.anchor,
+      ...(row.item.hidden ? { hidden: true } : {}),
+    });
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -520,6 +572,11 @@ export function PagesManager() {
               onSelect: () => setLinkDialog({ kind: "folder", label: "" }),
             },
             {
+              label: "Section of a page…",
+              icon: <Hash />,
+              onSelect: () => setSectionDialog({}),
+            },
+            {
               label: "Link…",
               icon: <Link2 />,
               onSelect: () => setLinkDialog({ kind: "link", label: "" }),
@@ -550,6 +607,7 @@ export function PagesManager() {
                 folders={folders}
                 onCommand={onCommand(row)}
                 onOpen={(id) => api.getState().setPage(id)}
+                onEditSection={editSection}
                 onRename={(r) => {
                   if (r.item.type === "folder" || r.item.type === "link")
                     setLinkDialog({
@@ -666,6 +724,29 @@ export function PagesManager() {
         </Button>
       </div>
 
+      {sectionDialog && (
+        <SectionLinkDialog
+          doc={doc}
+          initial={sectionDialog}
+          editing={Boolean(sectionDialog.rowId)}
+          onClose={() => setSectionDialog(null)}
+          onSave={(v) => {
+            const cur = api.getState().doc;
+            const r = sectionEntry(cur, {
+              ...v,
+              ...(sectionDialog.previous ? { previous: sectionDialog.previous } : {}),
+              ...(sectionDialog.hidden ? { hidden: true } : {}),
+            });
+            if (!r) return;
+            const nav = cur.site.nav;
+            const tree = sectionDialog.rowId
+              ? updateItem(nav, sectionDialog.rowId, () => r.item)
+              : [...nav, r.item];
+            const label = sectionDialog.rowId ? "Edit menu link" : "Add a link to a section";
+            commit(label, [...setNav(tree, label).bodies, ...r.bodies]);
+          }}
+        />
+      )}
       {linkDialog && (
         <LinkDialog
           open

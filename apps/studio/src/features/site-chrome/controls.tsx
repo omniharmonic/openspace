@@ -100,15 +100,36 @@ export function ThemePicker({
   );
 }
 
-type LinkKind = "page" | "url" | "email" | "phone";
+type LinkKind = "page" | "section" | "url" | "email" | "phone";
 
 const kindOf = (v: Link | undefined): LinkKind =>
-  v?.type === "url" || v?.type === "email" || v?.type === "phone" ? v.type : "page";
+  v?.type === "url" || v?.type === "email" || v?.type === "phone"
+    ? v.type
+    : v?.type === "anchor" || (v?.type === "page" && v.anchor)
+      ? "section"
+      : "page";
+
+/** The page and section a section link points at (`{type:"anchor"}` or a page with an anchor). */
+function sectionOf(doc: SiteDocument, v: Link | undefined): { page?: string; section?: string } {
+  if (v?.type === "anchor") {
+    const page = Object.values(doc.pages).find((p) => p.sections.some((s) => s.id === v.section));
+    return { ...(page ? { page: page.id } : {}), section: v.section };
+  }
+  if (v?.type === "page") {
+    const page = doc.pages[v.page];
+    const s = v.anchor ? page?.sections.find((x) => (x.anchor ?? x.id) === v.anchor) : undefined;
+    return { page: v.page, ...(s ? { section: s.id } : {}) };
+  }
+  return {};
+}
 const textOf = (v: Link | undefined): string =>
   v?.type === "url" ? v.url : v?.type === "email" ? v.email : v?.type === "phone" ? v.phone : "";
 
 /** Turn typed text into a link of the given kind (null when it's empty). */
-export function linkFromText(kind: Exclude<LinkKind, "page">, raw: string): Link | null {
+export function linkFromText(
+  kind: Exclude<LinkKind, "page" | "section">,
+  raw: string,
+): Link | null {
   const v = raw.trim();
   if (!v) return null;
   if (kind === "url") return { type: "url", url: /^(https?:\/\/|\/)/.test(v) ? v : `https://${v}` };
@@ -136,8 +157,13 @@ export function LinkField({
     setText(textOf(value));
   }, [value]);
   const pages = Object.values(doc.pages);
+  const [sectionPage, setSectionPage] = useState<string | undefined>(
+    () => sectionOf(doc, value).page,
+  );
+  const target = sectionOf(doc, value);
+  const sPage = doc.pages[(sectionPage ?? target.page ?? "") as keyof SiteDocument["pages"]];
   const commitText = () => {
-    if (kind === "page") return;
+    if (kind === "page" || kind === "section") return;
     const link = linkFromText(kind, text);
     if (link) onChange(link);
   };
@@ -152,16 +178,50 @@ export function LinkField({
           if (k === "page") {
             const first = pages[0];
             if (first) onChange({ type: "page", page: first.id });
-          } else setText("");
+          } else if (k === "section")
+            setSectionPage((pages.find((p) => p.slug === "") ?? pages[0])?.id);
+          else setText("");
         }}
         options={[
           { value: "page", label: "Page" },
+          { value: "section", label: "Section" },
           { value: "url", label: "Web address" },
           { value: "email", label: "Email" },
           { value: "phone", label: "Phone" },
         ]}
       />
-      {kind === "page" ? (
+      {kind === "section" ? (
+        <>
+          <Select
+            aria-label="Page"
+            size="sm"
+            value={sPage?.id}
+            placeholder="Choose a page"
+            onValueChange={setSectionPage}
+            options={pages.map((p) => ({ value: p.id, label: p.title }))}
+          />
+          <Select
+            aria-label="Section"
+            size="sm"
+            value={target.page === sPage?.id ? target.section : undefined}
+            placeholder="Choose a section"
+            onValueChange={(id) => {
+              const s = sPage?.sections.find((x) => x.id === id);
+              if (!sPage || !s) return;
+              // A named section keeps a readable address (/#prices); else follow it by id.
+              onChange(
+                s.anchor
+                  ? { type: "page", page: sPage.id, anchor: s.anchor }
+                  : { type: "anchor", section: s.id },
+              );
+            }}
+            options={(sPage?.sections ?? []).map((s, i) => ({
+              value: s.id,
+              label: s.label ?? (s.anchor ? `#${s.anchor}` : `Section ${i + 1}`),
+            }))}
+          />
+        </>
+      ) : kind === "page" ? (
         <Select
           aria-label="Page"
           size="sm"
