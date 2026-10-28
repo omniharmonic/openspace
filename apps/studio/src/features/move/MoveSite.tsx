@@ -200,8 +200,8 @@ export function MoveSite() {
             <h1 className="st-move__title">Move your site to OpenSpace</h1>
             <p className="st-move__lede">
               Paste your site’s address. We’ll bring its pages, posts, pictures and look across, put
-              it online for free and open it for editing — usually in a few minutes. Your current
-              site stays exactly as it is.
+              it online for free and open it for editing — usually in 5 to 15 minutes, depending on
+              how many pages it has. Your current site stays exactly as it is.
             </p>
             <Field label="Your site’s address" error={error && !draft.url.trim() ? error : null}>
               <Input

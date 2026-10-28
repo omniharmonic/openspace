@@ -141,6 +141,68 @@ export interface ImportCounts {
   fidelity?: ImportFidelity;
 }
 
+/**
+ * How far the importer is while it runs, from the lines it prints (the workflow reports it at
+ * most every 10 s): pages read, pages made, pages compared with the old site (per tuning round).
+ */
+export interface ImportLive {
+  stage: "reading" | "mapping" | "comparing";
+  done: number;
+  total?: number;
+  round?: number;
+  /** When it was reported (ms). */
+  at: number;
+}
+
+/** The finished run's counts (null while it runs: the row then only holds its live progress). */
+function countsOf(row: Pick<ImportRow, "counts_json">): ImportCounts | null {
+  const c = parseJson<ImportCounts & { live?: unknown }>(row.counts_json);
+  return c && typeof c.pages === "number" ? c : null;
+}
+
+function liveOf(row: Pick<ImportRow, "counts_json">): ImportLive | null {
+  const c = parseJson<{ live?: ImportLive }>(row.counts_json);
+  return c?.live && typeof c.live.done === "number" ? c.live : null;
+}
+
+/** Validate a live report from the workflow. */
+export function parseLive(raw: unknown, now: number): ImportLive | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const r = raw as Record<string, unknown>;
+  const n = (v: unknown) =>
+    typeof v === "number" && Number.isFinite(v) && v >= 0
+      ? Math.min(10_000, Math.round(v))
+      : undefined;
+  const stage = r.stage;
+  const done = n(r.done);
+  if ((stage !== "reading" && stage !== "mapping" && stage !== "comparing") || done === undefined)
+    return undefined;
+  const total = n(r.total);
+  const round = n(r.round);
+  return {
+    stage,
+    done,
+    ...(total !== undefined && total >= done ? { total } : {}),
+    ...(round ? { round } : {}),
+    at: now,
+  };
+}
+
+/** Plain words for the live progress of "Bringing pages across". */
+export function liveWords(live: ImportLive): string {
+  const pl = (k: number, w: string) => `${k} ${w}${k === 1 ? "" : "s"}`;
+  switch (live.stage) {
+    case "reading":
+      return `${pl(live.done, "page")} read so far`;
+    case "mapping":
+      return live.total
+        ? `Making page ${Math.max(1, live.done)} of ${live.total}`
+        : `${pl(live.done, "page")} made so far`;
+    case "comparing":
+      return `${(live.round ?? 1) > 1 ? "Fine-tuning" : "Comparing with your old site"}: page ${Math.max(1, live.done)}${live.total ? ` of ${live.total}` : ""}${(live.round ?? 1) > 1 ? ` (pass ${live.round})` : ""}`;
+  }
+}
+
 /** How closely the moved site matches the original, page by page (saved by the workflow). */
 export interface ImportFidelity {
   /** 0–100 after auto-tuning, and before it. */
@@ -315,6 +377,7 @@ export function attentionFromReport(report: string | null): AttentionGroup[] {
 }
 
 function stepsFor(row: ImportRow, counts: ImportCounts | null): ImportStep[] {
+  const live = liveOf(row);
   const convert = row.kind === "convert";
   const order: ImportStep["id"][] = convert
     ? ["read", "pages", "check", "approve", "publish"]
@@ -362,6 +425,9 @@ function stepsFor(row: ImportRow, counts: ImportCounts | null): ImportStep[] {
   return order.map((id, i) => ({
     id,
     label: labels[id],
+    ...(id === "pages" && !counts && live && i === at && row.state === "running"
+      ? { detail: liveWords(live) }
+      : {}),
     ...(id === "pages" && counts
       ? {
           // "items": blog posts, products, events… (a shop's products aren't posts).
@@ -466,7 +532,7 @@ export function toImportView(
   row: ImportRow,
   site: Pick<SiteRow, "id" | "name" | "url" | "github_access">,
 ): ImportView {
-  const counts = parseJson<ImportCounts>(row.counts_json);
+  const counts = countsOf(row);
   const checklist =
     parseJson<{ items?: ImportView["checklist"] }>(row.checklist_json)?.items?.map((i) => ({
       id: i.id,
@@ -941,7 +1007,7 @@ const PHASES: ImportPhase[] = [
 export async function recordProgress(
   services: Services,
   importId: string,
-  report: { phase: string; counts?: Record<string, unknown>; sha?: string },
+  report: { phase: string; counts?: Record<string, unknown>; sha?: string; live?: ImportLive },
 ): Promise<ImportRow | null> {
   const row = await getImport(services.db, importId);
   if (!row || row.state === "ready" || row.state === "failed") return row;
@@ -965,7 +1031,11 @@ export async function recordProgress(
     {
       ...(row.state === "queued" || row.state === "running" ? { state: "running" as const } : {}),
       phase,
-      ...(counts ? { counts_json: JSON.stringify(counts) } : {}),
+      ...(counts
+        ? { counts_json: JSON.stringify(counts) }
+        : report.live && phase === "importing" && !countsOf(row)
+          ? { counts_json: JSON.stringify({ live: report.live }) }
+          : {}),
     },
     services.now(),
   );
@@ -1031,8 +1101,7 @@ async function finishedContent(
     gh.readFile(repo, "content/setup-checklist.json", head).catch(() => null),
     gh.readFile(repo, `${IMPORT_FIDELITY_DIR}/fidelity-summary.json`, head).catch(() => null),
   ]);
-  const counts: ImportCounts =
-    parseJson<ImportCounts>(row.counts_json) ?? (await countsFromTree(gh, repo, head));
+  const counts: ImportCounts = countsOf(row) ?? (await countsFromTree(gh, repo, head));
   const measured = parseFidelitySummary(fidelity);
   if (measured) counts.fidelity = measured;
   return {
@@ -1288,7 +1357,7 @@ export async function importFidelityImage(
   const row = await getImport(services.db, importId);
   if (!row) throw new HttpError(404, "not_found", "We couldn't find that move.");
   const site = await siteForUser(services, row.site_id, user);
-  const counts = parseJson<ImportCounts>(row.counts_json);
+  const counts = countsOf(row);
   if (!row.head_sha || !isFidelityThumb(counts, file))
     throw new HttpError(404, "not_found", "That picture isn't part of this move.");
   const gh = services.github({ site, user });

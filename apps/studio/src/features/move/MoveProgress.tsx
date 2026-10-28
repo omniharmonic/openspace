@@ -124,6 +124,21 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
   );
 }
 
+/**
+ * An honest time estimate (wave 4: "usually takes a few minutes" for 12 minutes): how long a
+ * move takes, and how long this one has been going.
+ */
+export function timeNote(createdAt: string, now: number): string {
+  const started = Date.parse(createdAt);
+  const minutes = Number.isFinite(started) ? Math.floor((now - started) / 60_000) : 0;
+  if (minutes < 2)
+    return "Moving a site usually takes 5 to 15 minutes, depending on how many pages it has.";
+  const ago = `Started ${minutes} minute${minutes === 1 ? "" : "s"} ago.`;
+  return minutes < 15
+    ? `${ago} Bigger sites can take up to 15 minutes — each step shows how far it is.`
+    : `${ago} This one is taking longer than most (big sites with many pictures do), but it’s still going.`;
+}
+
 /** What to set up after launch (shop, email, domain…), from the move. */
 export function FinishSetup({ items }: { items: ImportView["checklist"] }) {
   if (!items.length) return null;
@@ -345,8 +360,8 @@ export function MoveProgress() {
                 view.state !== "waiting" &&
                 view.state !== "publishing" && (
                   <p className="st-move__note">
-                    This usually takes a few minutes. You can leave this page — we’ll keep going and
-                    your site will be waiting in <Link to="/sites">your sites</Link>.
+                    {timeNote(view.createdAt, Date.now())} You can leave this page — we’ll keep
+                    going and your site will be waiting in <Link to="/sites">your sites</Link>.
                   </p>
                 )}
             </>

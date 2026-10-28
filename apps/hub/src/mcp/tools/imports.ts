@@ -55,7 +55,10 @@ function describe(view: ImportView, siteName: string): string {
         ...view.checklist.map((i) => `- ${i.title}: ${i.detail}`),
       );
   } else if (view.state === "failed") lines.push(`It didn't finish: ${view.error}`);
-  else lines.push("Moving a site takes a few minutes. Call import_status to follow it.");
+  else
+    lines.push(
+      "Moving a site usually takes 5 to 15 minutes, depending on how many pages it has. Call import_status to follow it.",
+    );
   return lines.join("\n");
 }
 
