@@ -27,6 +27,9 @@ test("Start with Claude: idea + design tokens → live site in their brand → h
   await page.goto("/templates");
   await page.getByRole("link", { name: /Start with Claude/ }).click();
   await expect(page.getByRole("heading", { name: "Start with Claude" })).toBeVisible();
+  // Start with Claude happens in Claude now; the quick form is one link away.
+  await page.getByRole("link", { name: "Prefer a quick form instead?" }).click();
+  await page.waitForURL(/\/start\/form/);
   const name = unique("Crumb and Kettle");
   await page.getByLabel("Site name").fill(name);
   await page.getByLabel("What is it for?").fill("A neighbourhood bakery and tea room in Leith.");
