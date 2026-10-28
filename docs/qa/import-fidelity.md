@@ -165,19 +165,34 @@ paragraph) — for the display preset.
 
 ## Results
 
-Measured October 27, 2026, read-only against the live sites (nothing third-party committed).
-"Before" is the previous importer's output scored by this tool; "after" is this importer with
-auto-tuning. Desktop 1440 px and phone 390 px, up to six pages each.
+Measured October 27, 2026, read-only against the live sites (nothing third-party committed),
+same pages as before (Power With 4, Alameda 5, the others 6), computer 1440 px and phone 390 px.
+"Fidelity 2" is the previous importer with its auto-tuning (re-run today: identical, ±1);
+"fidelity 3" is this importer with auto-tuning. Same scorer, unchanged.
 
-| Site | Before | After tuning | Without components |
+| Site | Fidelity 2 | Fidelity 3 | Without components |
 |---|---|---|---|
-| Power With (GitHub Pages, structured content) | 83 | **87** | 86 (one FAQ section recreated as a component) |
-| Alameda (Squarespace 7.1 shop) | 72 | **77** | — (none tried) |
-| Bedford (Squarespace 7.0) | 50 | **68** | 68 (tried, not kept) |
-| WordPress Foundation (Twenty Fifteen) | 65 | **75** | — |
-| sive.rs (hand-made HTML) | 45 | **74** | 74 (tried, not kept) |
+| Power With (GitHub Pages, structured content) | 87 | **91** | 90 (one FAQ section recreated as a component) |
+| WordPress Foundation (Twenty Fifteen) | 75 | **89** | — (none needed) |
+| Alameda (Squarespace 7.1 shop) | 77 | **85** | — (none needed) |
+| Bedford (Squarespace 7.0) | 69 | **78** | 78 (tried per page, not kept) |
+| sive.rs (hand-made HTML) | 74 | **80** | 80 (tried per page, not kept) |
 
-Best pages: Power With home 93 (computer) / 90 (phone); Alameda about 91 on phones. None of the
-five sites reaches 90 overall yet — the remaining gaps are listed per page in each
-`FIDELITY-REPORT.md` (Squarespace 7.0 page layouts, Alameda's lookbook gallery and the
-"home-2" collection page, WordPress page headers and the white content card, sive.rs's book list).
+### Limits the score itself sets (evidence; the score is not changed)
+
+- **Licensed fonts cap a page.** sive.rs sets its headings in Valkyrie C4 (MB Type, licensed) and
+  its text in Georgia. The nearest open stand-ins get 50% and 85% credit, so even with every
+  other check passing and identical screenshots the site can't score above ~89.6. The owner's
+  own font licence (Site Styles → Your fonts) lifts this.
+- **Header links in a `brand`-themed header aren't seen as navigation**: the probe skips links
+  inside `[class*=brand]` (meant for logos), and OpenSpace's `os-theme-brand` matches it
+  (WordPress Foundation's blue sidebar: "Navigation: present" fails on every computer page,
+  ≈ −1.4 per page).
+- **A page without a content button is scored against a chrome button** (a sidebar search or
+  cookie "Accept" button), which a move rightly doesn't carry over.
+- **An image-only band on a phone can't match** the section that holds both the picture and its
+  words (Squarespace index rows that stack on phones), so it counts as missing (weight 4).
+- **Off-screen slides count as columns** in a scroll-snap slideshow (Alameda lookbook,
+  WordPress Foundation donate: "Columns 1 → 3/6").
+- **Image width is measured against the section's box**: OpenSpace sections are full-bleed,
+  hand-made pages' bands are the text column, so a 150 px cover reads 10% vs 22%.
