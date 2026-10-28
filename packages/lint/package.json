@@ -1,6 +1,6 @@
 {
   "name": "@omniharmonic/openspace-lint",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "OpenSpace Design check, SEO check and mobile auto-layout.",
   "license": "MIT",
   "author": "The OpenSpace contributors",
