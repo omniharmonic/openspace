@@ -12,7 +12,7 @@ import {
   SwatchBook,
 } from "lucide-react";
 import { lazy, type ReactNode, Suspense, useEffect } from "react";
-import { Navigate, Outlet, type RouteObject, useNavigate } from "react-router";
+import { Navigate, Outlet, type RouteObject, useNavigate, useRouteError } from "react-router";
 import { useLogout, useSession } from "../api";
 import { InvitePage } from "../features/auth/InvitePage";
 import { SignInPage } from "../features/auth/SignInPage";
@@ -28,6 +28,7 @@ import { StartWithClaude } from "../features/start/StartWithClaude";
 import { TemplateGallery } from "../features/templates/TemplateGallery";
 import { Button, EmptyState, Spinner, useRegisterCommands } from "../ui";
 import { type StudioConfig, useConfig } from "./config";
+import { claimStaleReload, isStaleBuildError } from "./stale-build";
 import { useThemeStore } from "./theme";
 
 // Heavier screens load on demand.
@@ -196,10 +197,53 @@ function NotFound() {
   );
 }
 
+/** Any error a screen throws: plain words and a way on, never the router's developer page. */
+function RouteError() {
+  const error = useRouteError();
+  const stale = isStaleBuildError(error);
+  const reloading = stale && claimStaleReload(sessionStorageOrNull());
+  useEffect(() => {
+    if (reloading) window.location.reload();
+  }, [reloading]);
+  if (reloading)
+    return (
+      <main className="st-center">
+        <Spinner />
+      </main>
+    );
+  return (
+    <main className="st-center">
+      <EmptyState
+        level={1}
+        title={stale ? "Studio was just updated" : "Something went wrong on this screen"}
+        description={
+          stale
+            ? "Reload to get the new version. Your work is saved."
+            : "Your work is saved. Reload to try again — if it keeps happening, tell us what you were doing."
+        }
+        action={
+          <Button variant="primary" onClick={() => window.location.reload()}>
+            Reload
+          </Button>
+        }
+      />
+    </main>
+  );
+}
+
+function sessionStorageOrNull(): Storage | null {
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
 export function createRoutes(config: Pick<StudioConfig, "showKit">): RouteObject[] {
   return [
     {
       element: <RootLayout />,
+      errorElement: <RouteError />,
       children: [
         { index: true, element: <Home /> },
         { path: "templates", element: <TemplateGallery /> },
