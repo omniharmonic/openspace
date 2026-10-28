@@ -4,10 +4,13 @@ import {
   GRID_COLUMNS,
   type GridLayout,
   type GridRect,
+  phoneColumns,
+  phonePadding,
   type Responsive,
   resolve,
   type SectionStyle,
   type StackLayout,
+  withPhoneDefault,
 } from "@omniharmonic/openspace-schema";
 import { colorVar, TOKEN_VARS } from "@omniharmonic/openspace-theme";
 import type { CssVars } from "./cx";
@@ -39,18 +42,22 @@ const spaceVar = (token: string) =>
 
 /** Section-level vars: padding, min height. */
 export function sectionStyleVars(style: SectionStyle): CssVars {
+  const pad = style.padding;
   return {
-    ...responsiveVars("pad", style.padding, spaceVar),
+    ...responsiveVars("pad", pad && withPhoneDefault(pad, phonePadding(pad)), spaceVar),
     ...responsiveVars("minh", style.minHeight, (v) => v),
   };
 }
 
 const fr = (cols: readonly number[]) => cols.map((c) => `minmax(0, ${c}fr)`).join(" ");
 
-/** Stack-mode container vars: column templates per breakpoint. */
+/**
+ * Stack-mode container vars: column templates per breakpoint. Columns stack into one on phones
+ * unless the section sets its own phone columns (`columns.m`).
+ */
 export function stackVars(layout: StackLayout): CssVars {
   return {
-    ...responsiveVars("cols", layout.columns, fr),
+    ...responsiveVars("cols", withPhoneDefault(layout.columns, phoneColumns(layout.columns)), fr),
     ...(layout.gap ? { "--gap": spaceVar(layout.gap) } : {}),
   };
 }

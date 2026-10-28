@@ -219,6 +219,7 @@ export const mapCss = `
 .os-map__pin .os-icon{fill:var(--os-color-background)}
 .os-map__attribution{position:absolute;inset-inline-end:0;bottom:0;z-index:2;padding:0.15rem 0.45rem;font-size:0.6875rem;line-height:1.4;background:color-mix(in oklab,var(--os-color-neutral-50) 85%,transparent);color:var(--os-color-neutral-800);border-start-start-radius:var(--os-radius-sm)}
 .os-map__attribution a{color:inherit}
+@media (max-width:767.98px){.os-map__attribution{font-size:0.75rem;padding:0.3rem 0.6rem}.os-map__attribution a{display:inline-block;padding-block:0.15rem}}
 .os-map__info{display:grid;gap:var(--os-space-2xs);align-content:start}
 .os-map__address{display:grid;font-style:normal;color:var(--os-color-text)}
 .os-map__name{font-family:var(--os-font-heading);font-weight:var(--os-font-weight-heading);font-size:var(--os-type-h4-font-size);line-height:var(--os-type-h4-line-height);color:var(--os-color-heading);margin-bottom:0.15em}

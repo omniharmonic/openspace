@@ -505,6 +505,30 @@ html{scroll-behavior:auto}
 .os-marquee [data-os-clone],.os-marquee__toggle{display:none}
 }
 
+/* Phones (< 768px): readable, tappable and contained by default, whatever was designed on desktop.
+   Phone-only, so tablet and desktop rendering is unchanged; a site's custom CSS (unlayered) still wins. */
+@media (max-width:767.98px){
+@layer os.base {
+/* Long links and addresses wrap instead of widening the page. */
+:where(.os-rich) :where(a){overflow-wrap:anywhere}
+/* Labels and eyebrows never shrink below 12px. */
+.os-type-eyebrow{font-size:max(0.75rem,${v(T.type.eyebrow["font-size"])})}
+.os-type-small{font-size:max(0.75rem,${v(T.type.small["font-size"])})}
+/* Wide tables and code scroll inside their block instead of the page. */
+.os-rich :where(table){display:block;max-inline-size:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.os-rich :where(pre){max-inline-size:100%;overflow-x:auto}
+.os-rich :where(iframe,video,embed,object){max-inline-size:100%}
+}
+@layer os.components {
+/* Comfortable tap targets: the brand link and form controls are at least 44px tall. */
+.os-header__brand{min-height:2.75rem}
+/* 16px or larger, so phones don't zoom into a field when it's tapped. */
+.os-input,.os-textarea,.os-select{font-size:max(1rem,${v(T.type.body["font-size"])})}
+/* Very tall images are cropped to fit the screen (around their focal point). */
+.os-block--image .os-img:not(.is-fill,.is-contain){max-block-size:85svh}
+}
+}
+
 @media print{
 .os-header,.os-announcement,.os-popup,.os-skip-link{display:none!important}
 .os-section{padding-block:1.5rem;min-height:0}
