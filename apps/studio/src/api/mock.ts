@@ -688,6 +688,11 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       return `${site?.url ?? "https://example.org"}/?version=${sha.slice(0, 7)}`;
     },
 
+    draftPreviewUrl(id) {
+      const site = state.sites.find((s) => s.id === id);
+      return `${site?.url ?? "https://example.org"}/?draft`;
+    },
+
     async listSnapshots(id) {
       calls.push({ method: "listSnapshots", args: [id] });
       await wait();

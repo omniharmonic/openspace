@@ -253,6 +253,10 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
       return `${baseUrl}/s/${encodeURIComponent(id)}/?version=${encodeURIComponent(sha)}`;
     },
 
+    draftPreviewUrl(id) {
+      return `${baseUrl}/p/${encodeURIComponent(id)}/`;
+    },
+
     draftMediaBase(id) {
       return `${baseUrl}${site(id)}/`;
     },

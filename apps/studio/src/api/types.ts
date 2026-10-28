@@ -229,6 +229,8 @@ export interface HubApi extends ManageApi, GrowthApi, CatalogApi, ImportApi {
   rollback(id: string, sha: string): Promise<RollbackResult>;
   /** Where to look at a published version (opens in a new tab). */
   versionPreviewUrl(id: string, sha: string): string;
+  /** Where to look at the draft, unpublished changes included (`/p/:id/`, collaborators). */
+  draftPreviewUrl(id: string): string;
   /** URL prefix of the Hub's draft media proxy (`GET /api/sites/:id/media/*`, session cookie). */
   draftMediaBase?(id: string): string;
   listSnapshots(id: string): Promise<Snapshot[]>;

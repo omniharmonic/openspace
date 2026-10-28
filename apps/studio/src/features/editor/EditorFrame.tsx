@@ -6,7 +6,6 @@ import {
   Copy,
   CopyPlus,
   CornerLeftUp,
-  Eye,
   FileText,
   History,
   Image,
@@ -60,7 +59,7 @@ import { displayUrl } from "../onboarding/BuildingProgress";
 import { ConnectGitHub } from "../onboarding/ConnectGitHub";
 import { type DraftBootstrap, useDraftBootstrap } from "../sync/bootstrap";
 import { HistorySheet } from "../sync/HistoryPanel";
-import { PublishButton, PublishPill } from "../sync/PublishFlow";
+import { PreviewButton, PublishButton, PublishPill } from "../sync/PublishFlow";
 import { AgentActivity, PresenceAvatars, SyncBanners, SyncStatus } from "../sync/SyncChrome";
 import { SyncProvider, useRoomClient } from "../sync/SyncContext";
 import { Canvas } from "./canvas/Canvas";
@@ -771,18 +770,7 @@ function EditorChrome({ site }: { site: Site }) {
             active={showRight ? true : undefined}
             onClick={ui.toggleInspector}
           />
-          <Tooltip content="Open the live site in a new tab">
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<Eye />}
-              disabled={!live}
-              focusableWhenDisabled
-              onClick={() => window.open(site.url, "_blank", "noopener")}
-            >
-              <span className="st-ed-hide-narrow">Preview</span>
-            </Button>
-          </Tooltip>
+          <PreviewButton labelClassName="st-ed-hide-narrow" />
           <IconButton
             label="History"
             icon={<History />}

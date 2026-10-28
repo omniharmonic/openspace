@@ -54,7 +54,14 @@ describe("publishing", () => {
     await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "publishing"));
     expect(pill()).toHaveTextContent("Publishing…");
     await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "live"));
-    expect(within(pill() as HTMLElement).getByRole("link")).toHaveAttribute("href", willow.url);
+    // The live link names the published version, so no cached copy (GitHub Pages keeps pages ~10
+    // minutes) is shown — no hard refresh needed.
+    const href =
+      within(pill() as HTMLElement)
+        .getByRole("link")
+        .getAttribute("href") ?? "";
+    expect(href.startsWith(willow.url)).toBe(true);
+    expect(href).toMatch(/[?&]v=[0-9a-f]{7}$/);
     expect(hub.calls.filter((c) => c.method === "publish")).toHaveLength(1);
 
     // Nothing left to publish.
@@ -152,6 +159,23 @@ describe("publishing", () => {
       store().undo();
     });
     expect(label(store().doc).label).toBe("Throwaway");
+  });
+});
+
+describe("preview", () => {
+  beforeEach(() => useEditorUi.getState().reset());
+
+  it("opens the draft — unpublished changes included — not the live site", async () => {
+    const { user } = await openEditor();
+    await edit("Book a class");
+    const opened: string[] = [];
+    window.open = ((url: string) => {
+      opened.push(url);
+      return null;
+    }) as typeof window.open;
+    await user.click(screen.getByRole("button", { name: "Preview" }));
+    expect(opened).toHaveLength(1);
+    expect(opened[0]).toContain("draft");
   });
 });
 

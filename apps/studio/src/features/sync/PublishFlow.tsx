@@ -3,6 +3,7 @@ import {
   CalendarClock,
   CircleCheck,
   ExternalLink,
+  Eye,
   TriangleAlert,
   WandSparkles,
   X,
@@ -509,6 +510,37 @@ function usePublishReconcile() {
   }, [active, phase, hub, siteId, siteUrl, session, pollMs, timeoutMs, queryClient]);
 }
 
+/**
+ * Preview opens the draft — what's being edited, published or not. (It used to open the live
+ * site, which still shows the last published version: a site Claude had just designed looked
+ * like the starter template until it was published.)
+ */
+export function PreviewButton({ labelClassName }: { labelClassName?: string }) {
+  const { hub, site } = useSync();
+  return (
+    <Tooltip content="See your latest changes in a new tab, before they’re published">
+      <Button
+        variant="ghost"
+        size="sm"
+        icon={<Eye />}
+        disabled={site.status === "building"}
+        focusableWhenDisabled
+        onClick={() => window.open(hub.draftPreviewUrl(site.id), "_blank", "noopener")}
+      >
+        <span className={labelClassName}>Preview</span>
+      </Button>
+    </Tooltip>
+  );
+}
+
+/** The live address with the published version in the query, so no cached copy is shown. */
+export function freshLiveUrl(url: string, sha: string | null): string {
+  if (!sha) return url;
+  const u = new URL(url);
+  u.searchParams.set("v", sha.slice(0, 7));
+  return u.toString();
+}
+
 export function PublishPill() {
   const { hub, site, session } = useSync();
   const publish = useSyncSession((s) => s.publish);
@@ -566,7 +598,12 @@ export function PublishPill() {
           <CircleCheck aria-hidden="true" className="st-pill__icon" />
           <span className="st-pill__title">Live</span>
           {publish.url && (
-            <a className="st-pill__link" href={publish.url} target="_blank" rel="noreferrer">
+            <a
+              className="st-pill__link"
+              href={freshLiveUrl(publish.url, publish.sha)}
+              target="_blank"
+              rel="noreferrer"
+            >
               {publish.url.replace(/^https?:\/\//, "")}
               <ExternalLink aria-hidden="true" />
             </a>
