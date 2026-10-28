@@ -1,6 +1,7 @@
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
+import { beforeAll } from "vitest";
 import { createMockHub, type MockHubOptions } from "../api/mock";
 import type { User } from "../api/types";
 import type { StudioConfig } from "../app/config";
@@ -9,6 +10,17 @@ import { createRoutes } from "../app/routes";
 import { createMemoryDraftCache } from "../features/sync/cache";
 import { useCommandStore } from "../ui/command-store";
 import { useToastStore } from "../ui/toast-store";
+
+// The editor and the workspace load on demand (React.lazy). Load them before the file's first test
+// starts its clock: on a loaded machine transforming these modules alone can outlast a test's
+// waits, and that is set-up cost, not the behaviour under test. (Every file that renders the
+// Studio pays it anyway, in its first test.)
+beforeAll(async () => {
+  await Promise.all([
+    import("../features/editor/EditorFrame"),
+    import("../features/workspace/WorkspaceView"),
+  ]);
+}, 120_000);
 
 export const FAST: Partial<StudioConfig> = {
   timing: { stepMs: 5, settleMs: 5, pollMs: 10, failGraceMs: 30, createRetryMs: 5 },

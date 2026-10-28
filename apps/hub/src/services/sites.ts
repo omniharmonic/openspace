@@ -99,6 +99,11 @@ export interface SiteView {
   github: { access: GitHubAccessState; connectUrl: string | null };
   /** The site was moved in from another address ("Move my site"): its newest import. */
   import: { id: string; state: string; kind: string } | null;
+  /**
+   * The newest version OpenSpace put on the live branch (a commit sha), or null before the first.
+   * Changes with every publish, rollback or revert — a content key for site thumbnails.
+   */
+  publishedVersion: string | null;
 }
 
 export const CreateSiteSchema = z.strictObject({
@@ -202,6 +207,7 @@ export function toSiteView(
       row.import_id && row.import_state
         ? { id: row.import_id, state: row.import_state, kind: row.import_kind ?? "url" }
         : null,
+    publishedVersion: row.published_sha ?? null,
   };
 }
 

@@ -169,7 +169,7 @@ describe("publishing when status messages go missing", () => {
     await user.click(within(dialog).getByRole("button", { name: "Publish now" }));
     // The connection drops right after publishing: no build messages reach this editor.
     act(() => hub.room(willow.id).setDown(true));
-    await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "live"), { timeout: 2000 });
+    await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "live"));
     expect(screen.getByRole("button", { name: "Publish" })).not.toHaveAttribute("aria-disabled");
   });
 
@@ -182,7 +182,7 @@ describe("publishing when status messages go missing", () => {
     const dialog = await screen.findByRole("dialog", { name: "Publish changes" });
     await within(dialog).findByText("1 page edited");
     await user.click(within(dialog).getByRole("button", { name: "Publish now" }));
-    await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "slow"), { timeout: 2000 });
+    await waitFor(() => expect(pill()).toHaveAttribute("data-phase", "slow"));
     expect(pill()).toHaveTextContent("Still publishing");
     expect(screen.getByRole("button", { name: "Publish" })).not.toHaveAttribute("aria-disabled");
   });
@@ -198,7 +198,7 @@ describe("signed out while editing", () => {
       hub.room(willow.id).setDown(true);
     });
     act(() => hub.room(willow.id).setDown(false));
-    const banner = await screen.findByRole("alert", { name: "Signed out" }, { timeout: 3000 });
+    const banner = await screen.findByRole("alert", { name: "Signed out" });
     expect(banner).toHaveTextContent("Sign in again to keep saving.");
   });
 });
@@ -421,7 +421,7 @@ describe("live collaboration", () => {
     await user.keyboard("{Escape}");
 
     act(() => room.setDown(false));
-    await screen.findByText("Saved", undefined, { timeout: 2000 });
+    await screen.findByText("Saved");
     expect(screen.queryByRole("status", { name: "Offline" })).not.toBeInTheDocument();
     expect(label(room.doc).label).toBe("Typed offline");
   });

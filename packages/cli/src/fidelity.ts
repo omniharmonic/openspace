@@ -596,10 +596,17 @@ export function fidelitySummary(
   const before = new Map(
     (tuning?.before.pages ?? []).map((p) => [`${p.path}@${p.viewport}`, p.score]),
   );
+  const strictBefore = new Map(
+    (tuning?.before.pages ?? []).map((p) => [`${p.path}@${p.viewport}`, p.strict?.score]),
+  );
   return {
     version: 1,
     score: report.score,
+    // The same pages by the strict v3 scorer, side by side (additive: older readers ignore it).
+    ...(report.strict ? { strict: report.strict.score } : {}),
+    ...(report.scorer ? { scorer: report.scorer } : {}),
     ...(tuning ? { before: tuning.before.score, changes: tuning.changes.slice(0, 40) } : {}),
+    ...(tuning?.before.strict ? { strictBefore: tuning.before.strict.score } : {}),
     ...(tuning?.withoutComponents !== undefined
       ? {
           withoutComponents: tuning.withoutComponents,
@@ -614,11 +621,15 @@ export function fidelitySummary(
         .sort((x, y) => y.weight - x.weight)
         .slice(0, 3)
         .map((c) => c.what);
+      const sb = strictBefore.get(key);
       return {
         path: p.path,
         device: p.viewport < 700 ? "phone" : "desktop",
         score: p.score,
+        ...(p.strict ? { strict: p.strict.score } : {}),
+        ...(p.corrections?.length ? { corrections: p.corrections.slice(0, 6) } : {}),
         ...(b !== undefined ? { before: b } : {}),
+        ...(sb !== undefined ? { strictBefore: sb } : {}),
         ...(thumbs[key] ? { image: thumbs[key] } : {}),
         ...(worst.length ? { differs: worst } : {}),
       };
@@ -671,6 +682,7 @@ export async function addFidelityToSummary(file: string, r: CompareResult): Prom
     const summary = JSON.parse(await readFile(file, "utf8")) as Record<string, unknown>;
     summary.fidelity = {
       score: r.report.score,
+      ...(r.report.strict ? { strict: r.report.strict.score } : {}),
       ...(r.tuning ? { before: r.tuning.before.score } : {}),
     };
     await writeFile(file, `${JSON.stringify(summary, null, 2)}\n`);
@@ -681,10 +693,15 @@ export async function addFidelityToSummary(file: string, r: CompareResult): Prom
 
 /** Terminal lines for a comparison. */
 export function compareSummary(r: CompareResult): string[] {
+  const strict = r.report.strict
+    ? r.tuning?.before.strict
+      ? ` Strict v3 scorer: ${r.tuning.before.strict.score}/100 → ${r.report.strict.score}/100 (the corrected score reads three things v3 gets wrong; see FIDELITY-REPORT.md).`
+      : ` Strict v3 scorer: ${r.report.strict.score}/100 (the corrected score reads three things v3 gets wrong; see FIDELITY-REPORT.md).`
+    : "";
   const lines = [
     r.tuning
-      ? `Visual match with the original: ${r.tuning.before.score}/100 → ${r.report.score}/100 after ${r.tuning.rounds} tuning round(s)${r.tuning.withoutComponents !== undefined ? ` (${r.tuning.withoutComponents}/100 before recreating sections as custom components${r.tuning.withComponents !== undefined ? "" : "; none kept"})` : ""}.`
-      : `Visual match with the original: ${r.report.score}/100.`,
+      ? `Visual match with the original: ${r.tuning.before.score}/100 → ${r.report.score}/100 after ${r.tuning.rounds} tuning round(s)${r.tuning.withoutComponents !== undefined ? ` (${r.tuning.withoutComponents}/100 before recreating sections as custom components${r.tuning.withComponents !== undefined ? "" : "; none kept"})` : ""}.${strict}`
+      : `Visual match with the original: ${r.report.score}/100.${strict}`,
   ];
   for (const p of r.report.pages) {
     const off = [
@@ -694,7 +711,7 @@ export function compareSummary(r: CompareResult): string[] {
         .map((s) => `section ${s.index + 1}${s.heading ? ` "${s.heading.slice(0, 30)}"` : ""}`),
     ];
     lines.push(
-      `  ${p.path} ${p.viewport}px: ${p.score}/100${off.length ? ` — differs: ${off.slice(0, 6).join(", ")}${off.length > 6 ? "…" : ""}` : ""}`,
+      `  ${p.path} ${p.viewport}px: ${p.score}/100${p.strict && p.strict.score !== p.score ? ` (strict v3 ${p.strict.score})` : ""}${off.length ? ` — differs: ${off.slice(0, 6).join(", ")}${off.length > 6 ? "…" : ""}` : ""}`,
     );
   }
   lines.push(`  Report and side-by-side images: ${join(r.out, "FIDELITY-REPORT.md")}`);

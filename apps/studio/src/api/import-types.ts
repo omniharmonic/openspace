@@ -32,11 +32,22 @@ export interface ImportFidelity {
   /** 0–100 after auto-tuning, and before it. */
   score: number;
   before?: number;
+  /**
+   * The same comparison by the strict v3 scorer (after and before tuning), shown beside the
+   * corrected score for transparency. Absent from older moves.
+   */
+  strict?: number;
+  strictBefore?: number;
+  scorer?: string;
   pages: Array<{
     path: string;
     device: "desktop" | "phone";
     score: number;
     before?: number;
+    strict?: number;
+    strictBefore?: number;
+    /** Where the corrected score read the page differently from the strict one. */
+    corrections?: string[];
     /** Side-by-side thumbnail (old site left, new site right), served by the Hub. */
     image: string | null;
     /** The biggest differences still there. */

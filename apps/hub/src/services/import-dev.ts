@@ -48,10 +48,24 @@ const TINY_JPEG =
 const DEV_FIDELITY = {
   version: 1,
   score: 93,
+  strict: 91,
+  scorer: "v3.1-corrected",
   before: 81,
+  strictBefore: 80,
   changes: ["h2: 40px", "content width 1200px"],
   pages: [
-    { path: "/", device: "desktop", score: 93, before: 81, image: "thumb-home-d.jpg" },
+    {
+      path: "/",
+      device: "desktop",
+      score: 93,
+      strict: 91,
+      before: 81,
+      strictBefore: 80,
+      image: "thumb-home-d.jpg",
+      corrections: [
+        "Section 2: columns counted on screen only (3 → 1 counted as 1 → 1; off-screen slides aren't columns).",
+      ],
+    },
     { path: "/", device: "phone", score: 91, before: 84, differs: ["Image placement"] },
   ],
 };

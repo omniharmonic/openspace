@@ -86,6 +86,26 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
           ? " A few sections were rebuilt as custom designs so they look as they did — you can still change every word and picture."
           : ""}
       </p>
+      {fidelity.strict !== undefined && fidelity.strict !== fidelity.score ? (
+        <details className="st-fidelity__strict">
+          <summary>
+            Scored two ways, to be open about it: {fidelity.score}/100 with corrected measuring,{" "}
+            {fidelity.strict}/100 by the stricter earlier method.
+          </summary>
+          <p>
+            The earlier method misreads a few things — slideshow pictures waiting off screen counted
+            as columns, a menu in a coloured header missed, a phone photo shown apart from its words
+            counted as missing. Where that changed a page’s score:
+          </p>
+          <ul>
+            {[...new Set(fidelity.pages.flatMap((p) => p.corrections ?? []))]
+              .slice(0, 6)
+              .map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+          </ul>
+        </details>
+      ) : null}
       <ul className="st-fidelity__pages">
         {fidelity.pages.map((p) => (
           <li
@@ -109,6 +129,7 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
                 ? `${p.before} → ${p.score}`
                 : p.score}
               /100
+              {p.strict !== undefined && p.strict !== p.score ? ` (strict ${p.strict})` : ""}
             </span>
             {p.differs?.length ? (
               <span className="st-fidelity__differs">Still differs: {p.differs.join(", ")}</span>

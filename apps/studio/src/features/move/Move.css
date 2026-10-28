@@ -391,3 +391,18 @@
   color: var(--st-text-2);
   font-size: var(--st-fs-sm);
 }
+
+.st-fidelity__strict {
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  margin-block: 8px;
+}
+
+.st-fidelity__strict summary {
+  cursor: pointer;
+}
+
+.st-fidelity__strict ul {
+  margin: 4px 0 0;
+  padding-inline-start: 1.2em;
+}

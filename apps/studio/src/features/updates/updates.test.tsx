@@ -26,8 +26,11 @@ describe("update available", () => {
       /no live preview/,
     );
     await user.click(within(dialog).getByRole("button", { name: "Update now" }));
-    expect(await screen.findByText("Updated to OpenSpace 1.1.0")).toBeInTheDocument();
-    expect(screen.getByText(/being republished with the new version/)).toBeInTheDocument();
+    // Scope to the toast itself: Radix also mirrors toast text into a visually hidden live
+    // region for ~1s after the next frame, so a page-wide regex query is ambiguous whenever the
+    // machine is slow enough for that frame to land before the query runs.
+    const toast = (await screen.findByText("Updated to OpenSpace 1.1.0")).closest("li");
+    expect(toast).toHaveTextContent(/being republished with the new version/);
     await waitFor(() => expect(screen.queryByText("OpenSpace 1.1.0 is ready")).toBeNull());
     expect(hub.calls.some((c) => c.method === "applyUpdate")).toBe(true);
     expect(hub.state.sites.find((s) => s.id === willow.id)?.updateAvailable).toBe(false);

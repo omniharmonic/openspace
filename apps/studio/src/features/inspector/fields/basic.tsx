@@ -177,6 +177,7 @@ export function NumberControl({
 
 export function BooleanControl({
   id,
+  meta,
   value,
   onChange,
   disabled,
@@ -187,7 +188,8 @@ export function BooleanControl({
       <Toggle
         id={id}
         size="sm"
-        checked={value === true}
+        // Never set: show what the page does (the field's default), not "off".
+        checked={(value ?? meta.default) === true}
         disabled={disabled}
         aria-label={label}
         onCheckedChange={(c) => onChange(c)}

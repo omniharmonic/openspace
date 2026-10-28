@@ -65,9 +65,22 @@ const DEMO_THUMB = `data:image/svg+xml,${encodeURIComponent(
 const DEMO_FIDELITY = {
   score: 93,
   before: 84,
+  strict: 91,
+  strictBefore: 82,
+  scorer: "v3.1-corrected",
   changes: ["h2: 60px", "buttons on dark sections #b8714a, as on the original"],
   pages: [
-    { path: "/", device: "desktop" as const, score: 94, before: 85, image: DEMO_THUMB },
+    {
+      path: "/",
+      device: "desktop" as const,
+      score: 94,
+      before: 85,
+      strict: 92,
+      image: DEMO_THUMB,
+      corrections: [
+        "Section 2: columns counted on screen only (3 → 1 counted as 1 → 1; off-screen slides aren’t columns).",
+      ],
+    },
     { path: "/", device: "phone" as const, score: 91, before: 82, image: DEMO_THUMB },
     {
       path: "/about",

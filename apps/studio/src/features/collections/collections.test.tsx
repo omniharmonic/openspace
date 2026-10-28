@@ -4,9 +4,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useEditorUi } from "../editor/editor-store";
 import { editorStore, FORBIDDEN, openWorkspace, visibleCopy, WILLOW } from "../workspace/testing";
 
-// The editor and workspace screens load on demand; the first test in a busy run can be slow.
-vi.setConfig({ testTimeout: 20_000 });
-
 beforeEach(() => useEditorUi.getState().reset());
 
 const item = (collection: string, slug: string) =>
@@ -285,7 +282,11 @@ describe("contributors and approvals", () => {
     );
     expect(await screen.findByText("Sent for review")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "My submissions" }));
-    expect(await screen.findByText("Guest post")).toBeInTheDocument();
+    // Look in the submissions list itself: a page-wide "Guest post" also matches the post's own
+    // Title field, which is still on screen until the navigation commits — on a loaded machine
+    // that's after the query returns, and the element it found is gone.
+    const submissions = await screen.findByRole("list", { name: "Submissions" });
+    expect(await within(submissions).findByText("Guest post")).toBeInTheDocument();
   });
 
   it("reviews what changed and approves with the reviewed version", async () => {

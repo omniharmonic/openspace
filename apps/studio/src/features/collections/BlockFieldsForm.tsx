@@ -167,7 +167,7 @@ export function FieldControl({
         <SwitchRow
           label={text}
           hint={meta.help}
-          checked={Boolean(value)}
+          checked={(value ?? meta.default) === true}
           onCheckedChange={(v) => onChange(v)}
         />
       );

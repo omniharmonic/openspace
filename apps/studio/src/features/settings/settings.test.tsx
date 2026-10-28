@@ -187,7 +187,7 @@ describe("domains wizard", () => {
     await user.click(screen.getByRole("button", { name: /connect willowyoga\.test/ }));
     // Live checklist: waits, then www, then the main domain, then the certificate.
     expect(await screen.findByText("www.willowyoga.test points to GitHub")).toBeInTheDocument();
-    await screen.findByText("Connected", undefined, { timeout: 3000 });
+    await screen.findByText("Connected");
     expect(screen.getByText(/Secure and live/)).toBeInTheDocument();
     expect(screen.getByText(/www\.willowyoga\.test sends them there too/)).toBeInTheDocument();
     expect(hub.calls.filter((c) => c.method === "checkDomain").length).toBeGreaterThanOrEqual(3);
@@ -324,7 +324,8 @@ describe("connect your AI", () => {
 describe("people", () => {
   it("invites by email or GitHub username, changes roles and approves contributions", async () => {
     const { user, hub } = await openSettings("collaborators");
-    await screen.findByText("Jordan Lee");
+    // The people list (the top bar can show the same name as an avatar once it loads).
+    await screen.findByRole("combobox", { name: "Role for Jordan Lee" });
     const who = screen.getByLabelText("Email or GitHub username");
     await user.type(who, "alex@example.com");
     await user.click(screen.getByRole("button", { name: "Invite" }));
@@ -374,7 +375,8 @@ describe("people", () => {
       {},
       { capabilities: { email: { configured: false, devOutbox: false } } },
     );
-    await screen.findByText("Jordan Lee");
+    // The people list (the top bar can show the same name as an avatar once it loads).
+    await screen.findByRole("combobox", { name: "Role for Jordan Lee" });
     await user.type(screen.getByLabelText("Email or GitHub username"), "alex@example.com");
     await user.click(screen.getByRole("button", { name: "Invite" }));
     expect(await screen.findByText(/Email isn’t set up on this Hub/)).toBeInTheDocument();
@@ -389,7 +391,8 @@ describe("people", () => {
 
   it("locks sections for one person", async () => {
     const { user, hub } = await openSettings("collaborators");
-    await screen.findByText("Jordan Lee");
+    // The people list (the top bar can show the same name as an avatar once it loads).
+    await screen.findByRole("combobox", { name: "Role for Jordan Lee" });
     await user.click(screen.getByRole("button", { name: "Locks" }));
     const dialog = await screen.findByRole("dialog", { name: /Lock sections for Jordan Lee/ });
     const boxes = within(dialog).getAllByRole("checkbox");
