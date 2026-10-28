@@ -3,6 +3,7 @@
  * snapshots and media bytes live in maps; every edit is validated with `@omniharmonic/openspace-ops`.
  */
 import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { PhoneProbeResult } from "@omniharmonic/openspace-lint";
 import { diff, type Op, summarize, validateAll } from "@omniharmonic/openspace-ops";
 import type { BlockRegistry, MediaMeta, SiteDocument } from "@omniharmonic/openspace-schema";
 import { ToolError } from "./errors";
@@ -13,6 +14,7 @@ import type {
   ApplyResult,
   DraftDiff,
   ImageUploadInput,
+  PhoneMeasureRequest,
   PublishResult,
   Screenshot,
   ScreenshotRequest,
@@ -50,6 +52,8 @@ export interface MemorySiteStoreOptions {
   previewBaseUrl?: string;
   /** Screenshot provider (enables `capabilities.canScreenshot`). */
   screenshot?: (siteId: string, req: ScreenshotRequest) => Promise<Screenshot>;
+  /** Phone-check measurement provider (enables `capabilities.canMeasurePhone`). */
+  measurePhone?: (siteId: string, req: PhoneMeasureRequest) => Promise<PhoneProbeResult>;
   templates?: TemplateCatalog;
   now?: () => Date;
 }
@@ -65,6 +69,11 @@ function deepFreeze<T>(v: T): T {
 }
 
 export class MemorySiteStore implements SiteStore {
+  async measurePhone(siteId: string, req: PhoneMeasureRequest): Promise<PhoneProbeResult> {
+    if (!this.options.measurePhone) throw new Error("No phone measurement provider.");
+    return this.options.measurePhone(siteId, req);
+  }
+
   readonly capabilities: StoreCapabilities;
   readonly templates?: TemplateCatalog;
   private readonly sites = new Map<string, SiteState>();
@@ -77,6 +86,7 @@ export class MemorySiteStore implements SiteStore {
     this.capabilities = {
       canPublish: true,
       canScreenshot: Boolean(options.screenshot),
+      canMeasurePhone: Boolean(options.measurePhone),
       canRollback: true,
       publishNote: "In-memory site: publishing records a version.",
     };

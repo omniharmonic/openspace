@@ -11,6 +11,7 @@
  * Every mutation goes through `applyOps` with validated `@omniharmonic/openspace-ops` operations (Global
  * Constraint 5); stores never take raw page JSON.
  */
+import type { PhoneProbeResult } from "@omniharmonic/openspace-lint";
 import type { Op, OpIssue } from "@omniharmonic/openspace-ops";
 import type { MediaMeta, SiteDocument, StyleChoices } from "@omniharmonic/openspace-schema";
 
@@ -45,6 +46,8 @@ export interface StoreCapabilities {
   canScreenshot: boolean;
   /** Versions can be listed and rolled back to. */
   canRollback: boolean;
+  /** `measurePhone()` is available: the Phone check can measure pages in a real browser. */
+  canMeasurePhone?: boolean;
   /** Short note about how publishing works here, shown in `get_site` and tool results. */
   publishNote?: string;
 }
@@ -151,6 +154,15 @@ export interface Screenshot {
   note?: string;
 }
 
+/** Lay a draft page out as a phone and run the Phone check's probe (`PHONE_PROBE_SCRIPT`). */
+export interface PhoneMeasureRequest {
+  pageId: string;
+  /** Viewport width in CSS px (360 / 390). */
+  width: number;
+  /** The page rendered exactly as published (stores with their own preview server may ignore it). */
+  html: string;
+}
+
 /** A template "look": Site Styles choices that restyle existing content (doc 04 §7.2). */
 export interface TemplateLook {
   id: string;
@@ -203,6 +215,8 @@ export interface SiteStore {
   endSession(siteId: string, sessionId: string): Promise<void>;
   /** Capture a PNG (only when `capabilities.canScreenshot`). */
   screenshot?(siteId: string, request: ScreenshotRequest): Promise<Screenshot>;
+  /** Measure a page as a phone (only when `capabilities.canMeasurePhone`). */
+  measurePhone?(siteId: string, request: PhoneMeasureRequest): Promise<PhoneProbeResult>;
   /** Text of the site's AGENTS.md if the store has one (else it is generated). */
   agentsMd?(siteId: string): Promise<string | null>;
 }

@@ -14,6 +14,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { blocksRegistry } from "@omniharmonic/openspace-blocks";
+import type { PhoneProbeResult } from "@omniharmonic/openspace-lint";
 import {
   type AgentSession,
   type ApplyContext,
@@ -21,6 +22,7 @@ import {
   type DraftDiff,
   type ImageResizer,
   type ImageUploadInput,
+  type PhoneMeasureRequest,
   type PublishResult,
   prepareImage,
   type Screenshot,
@@ -89,6 +91,7 @@ export class FileSiteStore implements SiteStore {
       canPublish: store.hasGit,
       canRollback: store.hasGit,
       canScreenshot: Boolean(options.screenshotter),
+      canMeasurePhone: Boolean(options.screenshotter),
       publishNote: store.hasGit
         ? "Local site in git: publishing commits content/ and media/ on the current branch; push it to deploy."
         : "Local site without git: edits are saved to the files; there is no publish step.",
@@ -431,6 +434,17 @@ export class FileSiteStore implements SiteStore {
     }
     const url = await this.previewUrl(siteId, path);
     return this.options.screenshotter.capture(url as string, request);
+  }
+
+  async measurePhone(siteId: string, request: PhoneMeasureRequest): Promise<PhoneProbeResult> {
+    this.check(siteId);
+    if (!this.options.screenshotter)
+      throw new ToolError("The browser phone check is not available.", "unsupported");
+    const doc = await loadSiteDocument(this.root);
+    const page = doc.pages[request.pageId as never] as { slug: string } | undefined;
+    const path = page?.slug ? `/${page.slug}/` : "/";
+    const url = await this.previewUrl(siteId, `${path}?os_mode=production`);
+    return this.options.screenshotter.measure(url as string, request.width);
   }
 
   async agentsMd(): Promise<string | null> {

@@ -155,7 +155,9 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
       const s = cs(e);
       if (s.display === "none" || s.visibility === "hidden" || s.visibility === "collapse" || Number(s.opacity) === 0) return true;
       if (e.hasAttribute("hidden") || e.getAttribute("aria-hidden") === "true") return true;
-      if (e.classList && (e.classList.contains("os-visually-hidden") || e.classList.contains("os-skip-link") || e.classList.contains("os-hp"))) return true;
+      if (e.classList && (e.classList.contains("os-visually-hidden") || e.classList.contains("os-skip-link") || e.classList.contains("os-hp") || e.classList.contains("os-empty"))) return true;
+      // Editor-only notes and Studio's own canvas chrome are not part of the published page.
+      if (e.hasAttribute && e.hasAttribute("data-os-editor")) return true;
       if (e.tagName === "DIALOG" && !e.open) return true;
       if (e.tagName === "DETAILS" && !e.open && e !== el && !(el.closest("summary") && el.closest("summary").parentElement === e)) return true;
     }
