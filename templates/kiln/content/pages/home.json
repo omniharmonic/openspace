@@ -520,7 +520,9 @@
             "showTitle": true,
             "quantity": true,
             "buttonLabel": "Add to cart",
-            "detailsLabel": "See details"
+            "detailsLabel": "See details",
+            "showPrice": true,
+            "showBuy": true
           },
           "variant": "minimal"
         }
