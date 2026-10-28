@@ -46,7 +46,7 @@ export function RecordsTable({
   const host = (r: DnsRecord) => (r.host === "@" ? guide?.hostApex || "@" : r.host);
   return (
     <div className="st-records">
-      <table className="st-table">
+      <table className="st-mtable">
         <thead>
           <tr>
             <th scope="col">Type</th>

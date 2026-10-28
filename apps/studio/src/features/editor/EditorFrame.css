@@ -235,7 +235,7 @@
   inset: 0;
   overflow: auto;
   display: grid;
-  place-items: start center;
+  place-items: start safe center;
   padding: 48px 48px 96px;
   background-color: var(--st-canvas);
   background-image: radial-gradient(

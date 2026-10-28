@@ -688,10 +688,6 @@
   height: 15px;
 }
 
-.st-num {
-  font-variant-numeric: tabular-nums;
-}
-
 .st-sr-only {
   position: absolute;
   width: 1px;

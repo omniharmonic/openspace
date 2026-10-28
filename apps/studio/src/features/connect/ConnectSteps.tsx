@@ -85,23 +85,23 @@ export function when(iso: string | null): string {
 /** A drawn (unbranded) sketch of the step, standing in for a screenshot. */
 export function StepSketch({ kind }: { kind: "settings" | "add" | "allow" }) {
   return (
-    <span className={`st-sketch st-sketch--${kind}`} aria-hidden="true">
-      <span className="st-sketch__bar" />
+    <span className={`st-csketch st-csketch--${kind}`} aria-hidden="true">
+      <span className="st-csketch__bar" />
       {kind === "settings" && (
         <>
-          <span className="st-sketch__side">
+          <span className="st-csketch__side">
             <i />
             <i className="is-on" />
             <i />
           </span>
-          <span className="st-sketch__main">
+          <span className="st-csketch__main">
             <b>Connectors</b>
             <em>Add custom connector</em>
           </span>
         </>
       )}
       {kind === "add" && (
-        <span className="st-sketch__modal">
+        <span className="st-csketch__modal">
           <b>Add custom connector</b>
           <i>OpenSpace</i>
           <i className="is-url">https://…/mcp</i>
@@ -109,7 +109,7 @@ export function StepSketch({ kind }: { kind: "settings" | "add" | "allow" }) {
         </span>
       )}
       {kind === "allow" && (
-        <span className="st-sketch__modal">
+        <span className="st-csketch__modal">
           <b>Allow Claude</b>
           <i className="is-check">☑ Your site</i>
           <i className="is-check">☐ Allow publishing</i>

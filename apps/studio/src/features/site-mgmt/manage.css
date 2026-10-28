@@ -183,13 +183,13 @@
   font-size: var(--st-fs-sm);
 }
 
-.st-table {
+.st-mtable {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--st-fs-sm);
 }
 
-.st-table th {
+.st-mtable th {
   padding: 6px 8px;
   border-bottom: 1px solid var(--st-line);
   color: var(--st-text-3);
@@ -198,14 +198,14 @@
   text-align: start;
 }
 
-.st-table td {
+.st-mtable td {
   padding: 4px 8px;
   height: 36px;
   border-bottom: 1px solid var(--st-line);
   vertical-align: middle;
 }
 
-.st-table tr:last-child td {
+.st-mtable tr:last-child td {
   border-bottom: 0;
 }
 
@@ -287,12 +287,6 @@
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-}
-
-.st-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
 }
 
 /* Tall dialogs: start near the top so their whole body fits (the body scrolls). */

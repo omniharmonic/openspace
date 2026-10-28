@@ -55,7 +55,7 @@ export function RedirectsManager({ disabled }: { disabled?: boolean }) {
   return (
     <div className="st-redirects">
       {redirects.length > 0 && (
-        <table className="st-table">
+        <table className="st-mtable">
           <thead>
             <tr>
               <th scope="col">Old address</th>

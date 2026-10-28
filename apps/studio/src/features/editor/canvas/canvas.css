@@ -5,10 +5,6 @@
  * dimension readout below, the way a draughtsman labels a measured part.
  */
 
-.st-ed-canvas {
-  place-items: start safe center;
-}
-
 .st-ed-canvas.is-panning,
 .st-ed-canvas.is-panning * {
   cursor: grab;
