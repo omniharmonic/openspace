@@ -115,6 +115,7 @@ ${typeClasses}
 .os-stack.is-align-center{align-items:center}
 .os-stack.is-align-end{align-items:end}
 .os-stack.is-align-stretch{align-items:stretch}
+.os-stack.is-multi{row-gap:min(var(--gap,${v(T.section.blockGap)}),2.5rem)}
 .os-col{display:flex;flex-direction:column;gap:calc(${v(T.section.blockGap)} * 0.6);min-width:0;order:var(--mo,0)}
 .os-stack.is-align-center>.os-col{justify-content:center}
 
@@ -128,6 +129,7 @@ ${typeClasses}
 .os-page{--bar-h:calc(max(var(--tlogo-h,2.5rem),2.75rem) + 2rem)}
 .os-section{padding-block:var(--tpad,${v(T.section.padY)});min-height:var(--tminh,auto)}
 .os-stack{grid-template-columns:var(--tcols,minmax(0,1fr))}
+.os-stack.is-multi{row-gap:var(--gap,${v(T.section.blockGap)})}
 .os-col{order:var(--to,0)}
 .os-grid{--row-unit:1.5rem;grid-template-columns:[full-start] minmax(max(0px,calc(${v(T.section.gutter)} - var(--grid-gap))),1fr) [content-start] repeat(24,minmax(0,calc((var(--content-max) - 23 * var(--grid-gap)) / 24))) [content-end] minmax(max(0px,calc(${v(T.section.gutter)} - var(--grid-gap))),1fr) [full-end];grid-template-rows:repeat(var(--trows,1),minmax(var(--row-unit),auto))}
 .os-grid__item{grid-column:var(--tcs,calc(var(--tx) + 1))/var(--tce,calc(var(--tx) + 1 + var(--tw)));grid-row:var(--trs,var(--ty))/var(--tre,span var(--th));z-index:var(--tz,1)}

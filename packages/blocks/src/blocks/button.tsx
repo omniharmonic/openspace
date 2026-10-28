@@ -80,4 +80,5 @@ export const buttonCss = `
 .os-buttons--large .os-button{min-height:3.5rem;padding-inline:calc(var(--b-px) * 1.35);font-size:1.075em}
 .os-buttons--full-width .os-buttons__row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr))}
 .os-buttons--full-width .os-button{width:100%}
+@media (max-width:639.98px){.os-buttons__row:has(>.os-button+.os-button:not(.os-button--tertiary)){display:grid;grid-template-columns:minmax(0,1fr)}.os-buttons__row:has(>.os-button+.os-button:not(.os-button--tertiary))>.os-button{width:100%}}
 `;

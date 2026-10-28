@@ -346,25 +346,6 @@ code {
   }
 }
 
-/* a pair of actions on a phone: stacked, full width and the same size, never two ragged pills */
-@media (max-width: 639.98px) {
-  .os-buttons__row:has(> .os-button + .os-button:not(.os-button--tertiary)) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .os-buttons__row:has(> .os-button + .os-button:not(.os-button--tertiary)) > .os-button {
-    width: 100%;
-  }
-}
-
-/* on a phone, columns stack; the wide desktop gutter between them would read as a section break,
-   so the stacked gap stays well under the section padding */
-@media (max-width: 767.98px) {
-  .os-stack.is-multi {
-    row-gap: min(var(--gap, 2rem), 2.5rem);
-  }
-}
-
 /* features on a phone: the icon sits beside its title, so the index reads as a list */
 @media (max-width: 767.98px) {
   #features .os-iconlist--tiles {
