@@ -58,6 +58,15 @@ export const positionArg = z
   ])
   .describe('Where: an index, "start", "end", {"before": id} or {"after": id}.');
 
+/** A section's link name (`#baskets`): what menu entries and buttons jump to. */
+export const anchorArg = z
+  .string()
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase words joined by hyphens, like how-it-works.")
+  .max(60)
+  .describe(
+    'The section\'s link name, so menu entries and buttons can jump to it: lowercase words with hyphens, e.g. "how-it-works". Link to it with {type:"page", page, anchor}.',
+  );
+
 /** `confirm: true` required by destructive tools. */
 export const confirmArg = z
   .boolean()

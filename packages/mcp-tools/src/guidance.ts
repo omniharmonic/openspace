@@ -23,6 +23,7 @@ Design check flags (custom components too: invalid code, budgets, motion, fixed 
 - Styles come from Site Styles tokens (palette, pairing, density, shape, buttons, motion, image treatment). Never write inline CSS; restyle with set_styles or apply_template_look.
 - Section color themes: light, light-accent, dark, dark-accent, brand. The contrast solver keeps text readable in all five.
 - Rich text is Markdown: headings (#–####), **bold**, *italic*, [links](/contact), lists, > quotes; a trailing {.lead} sets a paragraph preset.
+- Menu entries and buttons that jump to a section (one-page sites: "How it works", "Prices", "Join"): give the section a link name (anchor: insert_section / insert_component, or update_section set {"anchor": "how-it-works"}), then link to it — menu entry {type:"page", page, label, anchor}, button or field link {type:"page", page, anchor}. The same entries serve the desktop menu and the phone menu. design_check warns about links to a section name nothing has.
 - Edits land in the draft. The owner publishes — call publish only when they ask, with confirm: true.
 `;
 

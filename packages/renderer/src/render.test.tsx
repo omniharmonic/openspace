@@ -670,3 +670,33 @@ describe("editor hooks: rich text and hidden blocks", () => {
     expect(html(<SectionView section={gridHidden} />)).not.toContain(`data-os-item="${first.id}"`);
   });
 });
+
+describe("menu entries to sections (Boulder Foodshed)", () => {
+  it("scroll to the named section in the desktop menu and the phone menu, under a base path", () => {
+    const site = {
+      ...doc.site,
+      nav: [
+        { type: "page" as const, page: IDS.home, label: "Welcome", anchor: "welcome" },
+        {
+          type: "button" as const,
+          label: "Join",
+          link: { type: "anchor" as const, section: IDS.hero },
+          style: "primary" as const,
+        },
+      ],
+    };
+    const out = html(
+      <Header site={site as never} page={home} />,
+      "production",
+      "/boulder-foodshed",
+    );
+    const desktop = out.slice(0, out.indexOf('id="os-menu"'));
+    const phone = out.slice(out.indexOf('id="os-menu"'));
+    for (const part of [desktop, phone])
+      expect(part).toContain('href="/boulder-foodshed/#welcome"');
+    // The button on the page itself jumps without reloading.
+    expect(out).toContain('href="#welcome"');
+    // …and the section answers to that name.
+    expect(html(<SectionView section={hero} />)).toContain('id="welcome"');
+  });
+});

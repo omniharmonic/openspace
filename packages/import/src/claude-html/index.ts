@@ -207,6 +207,32 @@ function sectionElements(main: Element, skip: Set<Element>): Element[] {
   return [];
 }
 
+/** Every fragment a link in the bundle points at (`#baskets`, `about.html#team`), as section names. */
+function linkedFragments(pages: readonly PageSource[]): Set<string> {
+  const out = new Set<string>();
+  for (const p of pages)
+    for (const a of findAll(p.root, (e) => e.tagName === "a")) {
+      const id = slugId(/#([^#?]+)$/.exec(attr(a, "href") ?? "")?.[1]);
+      if (id) out.add(id);
+    }
+  return out;
+}
+
+/**
+ * A section's link name: its own id when a link points at it; else the first id inside it a
+ * link points at (`<div class="wrap" id="how-it-works">`, `<h2 id="questions">` — ids inside
+ * aren't kept in the designed section, so the section answers to them instead); else its own id.
+ */
+function sectionAnchor(el: Element, linked: ReadonlySet<string>): string | undefined {
+  const own = slugId(attr(el, "id"));
+  if (own && linked.has(own)) return own;
+  const inner = find(el, (e) => {
+    const id = slugId(attr(e, "id"));
+    return !!id && linked.has(id);
+  });
+  return (inner ? slugId(attr(inner, "id")) : undefined) ?? own;
+}
+
 // --- CSS of the page -------------------------------------------------------------------------------
 
 const ROOT_SEL = /^(?::root|html|body|:root\s*,\s*html|html\s*,\s*body|:host)$/i;
@@ -734,8 +760,16 @@ async function importBundle(
 
   // Sections: components by default; forms and videos as blocks; failures as presets.
   type Seg =
-    | { kind: "component"; el: Element; marker: string; name: string; label: string }
-    | { kind: "preset"; marker: string; reason: string };
+    | {
+        kind: "component";
+        el: Element;
+        marker: string;
+        name: string;
+        label: string;
+        anchor?: string;
+      }
+    | { kind: "preset"; marker: string; reason: string; anchor?: string };
+  const linked = linkedFragments(pages);
   const segsByPage = new Map<string, Seg[]>();
   const sqPages: SqPage[] = [];
   const takenNames = new Set<string>();
@@ -767,6 +801,7 @@ async function importBundle(
     const segs: Seg[] = [];
     const sqSections: SqSection[] = [];
     for (const el of p.sections) {
+      const anchor = sectionAnchor(el, linked);
       const name = uniqueName(componentNameFor(el, p.sitePath), takenNames);
       const label = componentLabelFor(el);
       const dry = await new SectionConverter(el, dryCtx(p)).convert(name, label);
@@ -778,13 +813,13 @@ async function importBundle(
           if (i === 0) s.id = m;
           sqSections.push(s);
         });
-        segs.push({ kind: "preset", marker: m, reason: dry.error });
+        segs.push({ kind: "preset", marker: m, reason: dry.error, ...(anchor ? { anchor } : {}) });
         presets.push({ page: p.sitePath, reason: dry.error });
         continue;
       }
       takenNames.add(name);
       const m = marker();
-      segs.push({ kind: "component", el, marker: m, name, label });
+      segs.push({ kind: "component", el, marker: m, name, label, ...(anchor ? { anchor } : {}) });
       // Forms and videos inside the section follow it as blocks.
       const blocks: SqBlock[] = [];
       for (const f of dry.forms) {
@@ -1004,6 +1039,12 @@ async function importBundle(
         return rest as Section;
       });
       if (seg.kind === "preset") {
+        // The section's link name goes on the first section it became.
+        const first = group[0];
+        if (first && seg.anchor && !anchors.has(seg.anchor)) {
+          first.anchor = seg.anchor as never;
+          anchors.add(seg.anchor);
+        }
         out.push(...group);
         continue;
       }
@@ -1019,9 +1060,10 @@ async function importBundle(
       components[r.def.name] = r.def;
       const section = componentSection(r.def, { fields: r.fields, colorTheme: "light" });
       section.label = seg.label;
-      if (r.anchor && !anchors.has(r.anchor)) {
-        section.anchor = r.anchor;
-        anchors.add(r.anchor);
+      const anchor = seg.anchor ?? r.anchor;
+      if (anchor && !anchors.has(anchor)) {
+        section.anchor = anchor;
+        anchors.add(anchor);
       }
       section.style = { ...section.style, colorTheme: "light", padding: { d: "none" } };
       out.push(section);

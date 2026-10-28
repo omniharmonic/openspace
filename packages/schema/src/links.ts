@@ -20,9 +20,15 @@ const trimSlashes = (s: string) => s.replace(/^\/+|\/+$/g, "");
 export class LinkTargets {
   readonly slugs: Set<string>;
   readonly redirectFroms: Set<string>;
+  private readonly bySlug: Map<string, Page>;
   constructor(readonly doc: SiteDocument) {
-    this.slugs = new Set(Object.values(doc.pages).map((p) => p.slug));
+    this.bySlug = new Map(Object.values(doc.pages).map((p) => [p.slug, p]));
+    this.slugs = new Set(this.bySlug.keys());
     this.redirectFroms = new Set((doc.site.redirects ?? []).map((r) => trimSlashes(r.from)));
+  }
+  /** The page at a site-internal path (`/about/#team` → About), if it is one. */
+  pageAt(raw: string): Page | undefined {
+    return this.bySlug.get(trimSlashes(raw.split(/[?#]/)[0] ?? ""));
   }
   hasCollection(name: string): boolean {
     return name in this.doc.collections || name in (this.doc.collectionConfigs ?? {});
@@ -62,7 +68,9 @@ export type BrokenLinkKind =
   /** A link inside a Markdown body (collection items). */
   | "markdown"
   /** A link mark inside rich text. */
-  | "richtext";
+  | "richtext"
+  /** A link to a part of a page (`/#baskets`, a menu entry's anchor) no section there has. */
+  | "anchor";
 
 /** Where a broken link is: in `content/site.json`, a page, or a collection item. */
 export type LinkScope =
@@ -90,6 +98,8 @@ export interface BrokenLink {
   severity: "error" | "warning";
   /** The `openspace check` message. */
   message: string;
+  /** For `anchor` links: the page and the fragment nothing on it answers to. */
+  anchor?: { page: PageId; fragment: string };
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
@@ -100,6 +110,18 @@ export function findBrokenLinks(doc: SiteDocument): BrokenLink[] {
   const targets = new LinkTargets(doc);
   const out: BrokenLink[] = [];
   type Where = Pick<BrokenLink, "container" | "section" | "block" | "field">;
+  const fragments = new Map<string, Fragments>();
+  const fragmentsOf = (page: PageId) => {
+    let f = fragments.get(page);
+    if (!f) {
+      f = pageFragments(doc, page);
+      fragments.set(page, f);
+    }
+    return f;
+  };
+  const sectionIds = new Set(
+    Object.values(doc.pages).flatMap((p) => p.sections.map((s) => s.id as string)),
+  );
 
   const walk = (value: unknown, scope: LinkScope, path: (string | number)[], where: Where) => {
     const add = (
@@ -108,6 +130,21 @@ export function findBrokenLinks(doc: SiteDocument): BrokenLink[] {
       message: string,
       severity: BrokenLink["severity"] = "error",
     ) => out.push({ scope, path, ...where, kind, target, severity, message });
+    /** Links to a part of a page: warn (never block) when nothing there answers to it. */
+    const checkAnchor = (o: Record<string, unknown>) => {
+      const ref = anchorRef(o, targets, scope.kind === "page" ? scope.page : undefined);
+      if (!ref || fragmentsOf(ref.page.id).has(ref.fragment)) return;
+      out.push({
+        scope,
+        path,
+        ...where,
+        kind: "anchor",
+        target: ref.target,
+        severity: "warning",
+        message: `Link to ${ref.target}: no section on ${pageTitle(ref.page)} is called “${ref.fragment}”`,
+        anchor: { page: ref.page.id, fragment: ref.fragment },
+      });
+    };
     if (typeof value === "string") {
       if (path[path.length - 1] === "body")
         for (const m of value.matchAll(MARKDOWN_LINK_RE)) {
@@ -126,6 +163,10 @@ export function findBrokenLinks(doc: SiteDocument): BrokenLink[] {
     if (o.type === "page" && typeof o.page === "string") {
       if (!(o.page in doc.pages))
         add("page", o.page, `Link to page ${o.page} but no such page exists`);
+      else checkAnchor(o);
+    } else if (o.type === "anchor" && typeof o.section === "string") {
+      if (!sectionIds.has(o.section))
+        add("anchor", o.section, "Link to a section that no longer exists", "warning");
     } else if (
       o.type === "item" &&
       typeof o.collection === "string" &&
@@ -147,10 +188,12 @@ export function findBrokenLinks(doc: SiteDocument): BrokenLink[] {
     } else if (o.type === "url" && typeof o.url === "string" && isInternalPath(o.url)) {
       if (!targets.pathResolves(o.url))
         add("url", o.url, `Link to ${o.url} does not lead to any page`);
+      else checkAnchor(o);
     } else if (o.type === "link" && isObject(o.attrs) && typeof o.attrs.href === "string") {
       const href = o.attrs.href;
       if (isInternalPath(href) && !targets.pathResolves(href))
         add("richtext", href, `Text link to ${href} does not lead to any page`, "warning");
+      else checkAnchor(o);
     }
     for (const [k, v] of Object.entries(o)) walk(v, scope, [...path, k], where);
   };
@@ -343,4 +386,191 @@ export function withPages(doc: SiteDocument, pages: readonly Page[]): SiteDocume
   const all = { ...doc.pages };
   for (const p of pages) all[p.id] = p;
   return { ...doc, pages: all };
+}
+
+// --- in-page anchors ----------------------------------------------------------------------------
+
+const pageTitle = (p: Page) => p.title || (p.slug === "" ? "Home" : p.slug);
+
+/** What a page can always jump to: its main area and the top. */
+const LANDMARKS = ["main", "top"];
+/** Static ids in a component's template (`<div id='signup'>`). */
+const TEMPLATE_ID_RE = /\bid\s*=\s*["']([A-Za-z][\w-]*)["']/g;
+
+/** The fragments (`#…`) a page answers to. */
+export interface Fragments {
+  has(fragment: string): boolean;
+}
+
+/**
+ * What `#fragment` can point at on a page as published: each section's anchor (or its id when
+ * it has none — the renderer's `id`), the footer, block ids (and the ids blocks derive from
+ * theirs, like an accordion's `blk_…-q1`), static ids in the templates of the custom components
+ * used there, and the page's main area.
+ */
+export function pageFragments(doc: SiteDocument, pageId: PageId | string): Fragments {
+  const ids = new Set<string>(LANDMARKS);
+  const blocks = new Set<string>();
+  const page = doc.pages[pageId as PageId];
+  for (const s of [...(page?.sections ?? []), doc.site.footer]) {
+    ids.add(s.anchor ?? s.id);
+    for (const b of s.blocks) {
+      blocks.add(b.id);
+      const name = /^component\/(.+)$/.exec(b.type)?.[1];
+      const tpl = name ? doc.components?.[name]?.template : undefined;
+      if (tpl) for (const m of tpl.matchAll(TEMPLATE_ID_RE)) if (m[1]) ids.add(m[1]);
+    }
+  }
+  return {
+    has: (f) => ids.has(f) || blocks.has(f) || [...blocks].some((b) => f.startsWith(`${b}-`)),
+  };
+}
+
+interface AnchorRef {
+  page: Page;
+  fragment: string;
+  /** How the link reads: `/#baskets`, `/about/#team`, `#faq`. */
+  target: string;
+}
+
+/**
+ * The page and fragment a link value points at, when it points at a part of a page of this
+ * site: `{type:"page", page, anchor}` (menu entries too), `{type:"url", url:"/#x"}`, and rich-text
+ * link marks (`/about#team`, or `#team` on `currentPage`).
+ */
+function anchorRef(
+  o: Record<string, unknown>,
+  targets: LinkTargets,
+  currentPage?: string,
+): AnchorRef | undefined {
+  if (o.type === "page" && typeof o.page === "string" && typeof o.anchor === "string") {
+    const page = targets.doc.pages[o.page as PageId];
+    return page ? { page, fragment: o.anchor, target: `${pagePath(page)}#${o.anchor}` } : undefined;
+  }
+  const href =
+    o.type === "url" && typeof o.url === "string"
+      ? o.url
+      : o.type === "link" && isObject(o.attrs) && typeof o.attrs.href === "string"
+        ? o.attrs.href
+        : undefined;
+  if (!href) return undefined;
+  const hash = /#([^#?]+)$/.exec(href)?.[1];
+  if (!hash) return undefined;
+  if (href.startsWith("#")) {
+    if (o.type !== "link" || !currentPage) return undefined;
+    const page = targets.doc.pages[currentPage as PageId];
+    return page ? { page, fragment: hash, target: href } : undefined;
+  }
+  if (!isInternalPath(href)) return undefined;
+  const page = targets.pageAt(href);
+  return page ? { page, fragment: hash, target: href } : undefined;
+}
+
+/** Every string a visitor reads in a value (headings, text, labels) — not links or settings. */
+function readableStrings(value: unknown, out: string[] = []): string[] {
+  if (typeof value === "string") {
+    if (!/^(?:\/|#|https?:|mailto:|tel:|media\/|data:)/.test(value)) out.push(value);
+  } else if (Array.isArray(value)) for (const v of value) readableStrings(v, out);
+  else if (isObject(value))
+    for (const [k, v] of Object.entries(value))
+      if (!["type", "id", "src", "url", "href", "page", "variant", "level", "preset"].includes(k))
+        readableStrings(v, out);
+  return out;
+}
+
+/** Does `value` hold a link to `#fragment` on `pageId`? */
+function linksToAnchor(
+  value: unknown,
+  targets: LinkTargets,
+  pageId: string,
+  fragment: string,
+): boolean {
+  if (Array.isArray(value)) return value.some((v) => linksToAnchor(v, targets, pageId, fragment));
+  if (!isObject(value)) return false;
+  const ref = anchorRef(value, targets, pageId);
+  if (ref && ref.page.id === pageId && ref.fragment === fragment) return true;
+  return Object.values(value).some((v) => linksToAnchor(v, targets, pageId, fragment));
+}
+
+/**
+ * The section a link to `#fragment` on a page most likely means, by the words of the fragment
+ * (`how-it-works`, `baskets`) against each section's name, kind and the words on it — never a
+ * section that itself links there (the hero's "See how it works" button). Undefined when no
+ * section is a convincing match.
+ */
+export function suggestAnchorSection(
+  doc: SiteDocument,
+  pageId: PageId | string,
+  fragment: string,
+): Page["sections"][number] | undefined {
+  const page = doc.pages[pageId as PageId];
+  const wanted = words(fragment);
+  if (!page || !wanted.length) return undefined;
+  const targets = new LinkTargets(doc);
+  /** 2 when every word of the fragment is there, 1 when some are. */
+  const match = (s: string) => {
+    const own = words(s);
+    const hits = wanted.filter((w) => own.some((x) => related(w, x))).length;
+    return hits === wanted.length ? 2 : hits ? 1 : 0;
+  };
+  let best: Page["sections"][number] | undefined;
+  let bestScore = 0;
+  for (const s of page.sections) {
+    if (linksToAnchor(s.blocks, targets, page.id, fragment)) continue;
+    const name = [
+      s.label ?? "",
+      s.anchor ?? "",
+      (s.preset ?? "").replace(/@\d+$/, ""),
+      ...s.blocks.map((b) => b.type.replace(/^component\//, "")),
+    ].join(" ");
+    const text = readableStrings(s.blocks.map((b) => b.fields)).reduce((n, t) => n + match(t), 0);
+    // The section's own name and kind weigh most; words on it can't outvote them.
+    const score = match(name) * 4 + Math.min(text, 4);
+    if (score > bestScore) {
+      best = s;
+      bestScore = score;
+    }
+  }
+  return bestScore >= 2 ? best : undefined;
+}
+
+/**
+ * Point every link in `value` to `#from` on `pageId` at `#to` instead — or at the top of that
+ * page when `to` is undefined. `currentPage` is the page `value` sits on (for `#from` text
+ * links). Returns a copy and how many links changed.
+ */
+export function retargetAnchor<T>(
+  value: T,
+  doc: SiteDocument,
+  pageId: PageId | string,
+  from: string,
+  to: string | undefined,
+  currentPage?: PageId | string,
+): { value: T; changed: number } {
+  const targets = new LinkTargets(doc);
+  let changed = 0;
+  const swap = (href: string) => {
+    const base = href.slice(0, href.length - from.length - 1);
+    if (to) return `${base}#${to}`;
+    return base || "#top";
+  };
+  const fix = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(fix);
+    if (!isObject(v)) return v;
+    const ref = anchorRef(v, targets, currentPage);
+    if (ref && ref.page.id === pageId && ref.fragment === from) {
+      changed++;
+      if (v.type === "page") {
+        const { anchor: _a, ...rest } = v;
+        return to ? { ...rest, anchor: to } : rest;
+      }
+      if (v.type === "url") return { ...v, url: swap(v.url as string) };
+      const attrs = v.attrs as Record<string, unknown>;
+      return { ...v, attrs: { ...attrs, href: swap(attrs.href as string) } };
+    }
+    const out: Record<string, unknown> = {};
+    for (const [k, x] of Object.entries(v)) out[k] = fix(x);
+    return out;
+  };
+  return { value: fix(value) as T, changed };
 }

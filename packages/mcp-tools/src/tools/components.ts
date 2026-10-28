@@ -33,7 +33,8 @@ import { ToolError } from "../errors";
 import { fieldsFromAgent, valuesFromAgent } from "../markdown";
 import { renderPreviewHtml } from "../render";
 import type { Device, Screenshot } from "../store";
-import { defineTool, positionArg, siteArg, type ToolOutput } from "../tool";
+import { anchorArg, defineTool, positionArg, siteArg, type ToolOutput } from "../tool";
+import { takenAnchor } from "./edit";
 
 const nameArg = z
   .string()
@@ -374,13 +375,14 @@ export const insertComponent = defineTool({
   name: "insert_component",
   title: "Insert component",
   description:
-    "Add a section using a custom component to a page (a site component, or a Designer components library name — it is added to the site first). fields override the sample content (rich text as Markdown); replace sample copy and photos with the owner's real content. Returns the section and block ids (edit later with update_block).",
+    "Add a section using a custom component to a page (a site component, or a Designer components library name — it is added to the site first). fields override the sample content (rich text as Markdown); replace sample copy and photos with the owner's real content. Give it an anchor when the menu or a button should jump to it. Returns the section and block ids (edit later with update_block).",
   input: z.object({
     site: siteArg,
     page: z.string().describe("Page id/slug/title."),
     name: nameArg,
     fields: z.record(z.string(), z.unknown()).optional(),
     theme: z.enum(COLOR_THEMES).optional(),
+    anchor: anchorArg.optional(),
     at: positionArg.optional(),
   }),
   annotations: {},
@@ -408,6 +410,7 @@ export const insertComponent = defineTool({
     ).value;
     const block = section.blocks[0] as Block;
     block.fields = { ...block.fields, ...given };
+    if (input.anchor) section.anchor = takenAnchor(doc, page, input.anchor);
     bodies.push({ op: "section.insert", page, at: input.at ?? "end", section } as OpBody);
     const { doc: next } = await ctx.apply(siteId, bodies);
     const target = next.pages[page as keyof SiteDocument["pages"]];

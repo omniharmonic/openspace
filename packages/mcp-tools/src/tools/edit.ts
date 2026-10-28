@@ -21,7 +21,7 @@ import { z } from "zod";
 import { resolvePage, type ToolContext } from "../context";
 import { ToolError } from "../errors";
 import { blockPreview, fieldsFromAgent } from "../markdown";
-import { containerArg, defineTool, positionArg, siteArg } from "../tool";
+import { anchorArg, containerArg, defineTool, positionArg, siteArg } from "../tool";
 import { findPreset } from "./read";
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -136,6 +136,21 @@ export function makeSection(registry: BlockRegistry, raw: Record<string, unknown
   } as Section;
 }
 
+/** `anchor`, refused when another section on the page already answers to it. */
+export function takenAnchor(doc: SiteDocument, page: string, anchor: string): Section["anchor"] {
+  const other = doc.pages[page as keyof SiteDocument["pages"]]?.sections.find(
+    (s) => s.anchor === anchor,
+  );
+  if (other)
+    throw new ToolError(
+      `Another section on this page is already called “${anchor}” (${other.id}).`,
+      "invalid_arguments",
+      [],
+      "Pick another anchor, or link to that section.",
+    );
+  return anchor as Section["anchor"];
+}
+
 export const insertSection = defineTool({
   name: "insert_section",
   title: "Insert section",
@@ -168,6 +183,7 @@ export const insertSection = defineTool({
     secondaryLink: z.unknown().optional(),
     collection: z.string().optional().describe("Collection for summary/events/product presets."),
     label: z.string().max(80).optional().describe("Layers label for the section."),
+    anchor: anchorArg.optional(),
   }),
   annotations: {},
   async handler(ctx, input) {
@@ -213,6 +229,8 @@ export const insertSection = defineTool({
       }
       const { value: section, changes } = resolveInternalLinks(preset.build(opts) as Section, doc);
       if (input.label) section.label = input.label;
+      if (input.anchor && preset.target !== "footer" && input.page)
+        section.anchor = takenAnchor(doc, pageOnly(doc, input.page), input.anchor) as never;
       if (preset.target === "footer") {
         await ctx.apply(siteId, [{ op: "site.update", set: { footer: section } } as OpBody]);
         return {
@@ -246,6 +264,7 @@ export const insertSection = defineTool({
     if (input.colorTheme)
       section.style = { ...(section.style ?? {}), colorTheme: input.colorTheme };
     if (input.label) section.label = input.label;
+    if (input.anchor) section.anchor = takenAnchor(doc, page, input.anchor) as never;
     await ctx.apply(siteId, [
       { op: "section.insert", page, at: input.at ?? "end", section } as OpBody,
     ]);

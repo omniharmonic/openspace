@@ -5,8 +5,12 @@ import {
   findBrokenLinks,
   type Page,
   resolveInternalLinks,
+  retargetAnchor,
+  type Section,
   type SiteDocument,
   SiteDocumentSchema,
+  SlugSchema,
+  suggestAnchorSection,
   suggestLinkTarget,
   withComponents,
 } from "@omniharmonic/openspace-schema";
@@ -59,6 +63,11 @@ export function linkPlace(doc: SiteDocument, link: BrokenLink): string {
 /** One sentence: "A button on Home links to /book, which isn't a page on your site." */
 export function describeBrokenLink(doc: SiteDocument, link: BrokenLink): string {
   const where = linkPlace(doc, link);
+  if (link.kind === "anchor") {
+    const page = link.anchor ? doc.pages[link.anchor.page] : undefined;
+    if (!link.anchor || !page) return `${where} links to a section that no longer exists.`;
+    return `${where} links to “${link.anchor.fragment}” on ${titleOf(page)}, but no section there is called that.`;
+  }
   switch (link.kind) {
     case "page":
       return `${where} links to a page that no longer exists.`;
@@ -111,9 +120,96 @@ function linkFix(
   if (link.scope.kind === "site" && link.path[0] === "nav") {
     const { value, changes } = resolveInternalLinks(doc.site.nav, doc);
     if (!changes.length) return undefined;
-    return { label, ops: [{ op: "site.update", ...meta(), set: { nav: value } } as Op] };
+    return { label, ops: [{ op: "nav.update", ...meta(), tree: value } as Op] };
   }
   return undefined;
+}
+
+/** A section's name for people: its Layers label, else its first heading, else "that". */
+function sectionName(section: Section): string {
+  if (section.label) return section.label;
+  for (const b of section.blocks) {
+    const t = (b.fields as { text?: unknown }).text;
+    if (typeof t === "string" && t.trim()) return t.trim().slice(0, 60);
+  }
+  return "that";
+}
+
+/** Ops pointing the link `link` is at `#from` → `#to` (or the top of the page). */
+function retargetOps(
+  doc: SiteDocument,
+  link: BrokenLink,
+  from: string,
+  to: string | undefined,
+  meta: () => ReturnType<ReturnType<typeof opMeta>>,
+): Op[] | undefined {
+  const anchorPage = link.anchor?.page;
+  if (!anchorPage) return undefined;
+  if (link.block && link.field) {
+    const container =
+      link.container === "footer"
+        ? doc.site.footer
+        : doc.pages[link.container as Page["id"]]?.sections.find((x) => x.id === link.section);
+    const block = container?.blocks.find((b) => b.id === link.block);
+    if (!block) return undefined;
+    const current = link.container === "footer" ? undefined : link.container;
+    const r = retargetAnchor(block.fields[link.field], doc, anchorPage, from, to, current);
+    if (!r.changed) return undefined;
+    return [
+      {
+        op: "block.update",
+        ...meta(),
+        page: link.container as never,
+        block: block.id as never,
+        set: { [link.field]: r.value },
+      } as Op,
+    ];
+  }
+  if (link.scope.kind === "site" && link.path[0] === "nav") {
+    const r = retargetAnchor(doc.site.nav, doc, anchorPage, from, to);
+    if (!r.changed) return undefined;
+    return [{ op: "nav.update", ...meta(), tree: r.value } as Op];
+  }
+  return undefined;
+}
+
+/**
+ * The autofix for a link to a part of a page nothing answers to: name the section it most
+ * likely means after the link (one op, and every other link to that name starts working too);
+ * if that section already has a name, point the link at it; with no likely section, point the
+ * link at the top of the page.
+ */
+function anchorFix(
+  doc: SiteDocument,
+  link: BrokenLink,
+  meta: () => ReturnType<ReturnType<typeof opMeta>>,
+): Issue["autofix"] | undefined {
+  if (!link.anchor) return undefined;
+  const { page: pageId, fragment } = link.anchor;
+  const page = doc.pages[pageId];
+  if (!page) return undefined;
+  const section = suggestAnchorSection(doc, pageId, fragment);
+  if (!section) {
+    const ops = retargetOps(doc, link, fragment, undefined, meta);
+    return ops ? { label: `Link to the top of ${titleOf(page)} instead`, ops } : undefined;
+  }
+  const label = `Connect it to the “${sectionName(section)}” section`;
+  const taken = new Set(page.sections.map((s) => s.anchor).filter(Boolean));
+  if (!section.anchor && SlugSchema.safeParse(fragment).success && !taken.has(fragment))
+    return {
+      label,
+      ops: [
+        {
+          op: "section.update",
+          ...meta(),
+          page: pageId,
+          section: section.id,
+          set: { anchor: fragment },
+        } as Op,
+      ],
+    };
+  const ops = retargetOps(doc, link, fragment, section.anchor ?? section.id, meta);
+  return ops ? { label, ops } : undefined;
 }
 
 /**
@@ -132,7 +228,7 @@ export function linkIssues(
     if (pageId && s.kind === "page" && s.page !== pageId) continue;
     if (pageId && s.kind === "item") continue;
     const page = link.container ?? (s.kind === "page" ? s.page : undefined);
-    const autofix = linkFix(doc, link, meta);
+    const autofix = link.kind === "anchor" ? anchorFix(doc, link, meta) : linkFix(doc, link, meta);
     out.push(
       issue({
         rule: "broken-link",
@@ -143,9 +239,11 @@ export function linkIssues(
         key: `${s.kind === "item" ? `${s.collection}/${s.slug}:` : ""}${link.path.join(".")}`,
         message: describeBrokenLink(doc, link),
         fix:
-          link.severity === "error"
-            ? "Point the link at a page that exists, or add the missing page. The site can't be published until then."
-            : "Point the link at a page that exists, or add the missing page.",
+          link.kind === "anchor"
+            ? "Give the section that name (Section settings → Link name), or point the link at another section."
+            : link.severity === "error"
+              ? "Point the link at a page that exists, or add the missing page. The site can't be published until then."
+              : "Point the link at a page that exists, or add the missing page.",
         ...(autofix ? { autofix } : {}),
       }),
     );

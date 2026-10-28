@@ -222,6 +222,11 @@
   gap: 6px;
 }
 
+/* "Section": the section picker gets its own row under the page. */
+.st-linkfield > :nth-child(3) {
+  grid-column: 1 / -1;
+}
+
 /* social profiles */
 .st-social {
   display: grid;
