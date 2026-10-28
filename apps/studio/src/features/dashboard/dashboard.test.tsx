@@ -1,5 +1,5 @@
-import { screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { demoSites } from "../../api/fixtures";
 import type { Site } from "../../api/types";
 import { renderStudio, SAM } from "../../test/render";
@@ -202,5 +202,84 @@ describe("dashboard", () => {
     await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
     dialog = await open();
     expect(within(dialog).getByLabelText("New owner")).toHaveValue("");
+  });
+});
+
+/** jsdom has no IntersectionObserver: a stub that reports everything as in view. */
+class InViewObserver {
+  constructor(private cb: IntersectionObserverCallback) {}
+  observe(el: Element) {
+    queueMicrotask(() =>
+      this.cb(
+        [{ target: el, isIntersecting: true } as unknown as IntersectionObserverEntry],
+        this as unknown as IntersectionObserver,
+      ),
+    );
+  }
+  unobserve() {}
+  disconnect() {}
+}
+
+describe("site thumbnails", () => {
+  beforeEach(() => {
+    (globalThis as { IntersectionObserver?: unknown }).IntersectionObserver = InViewObserver;
+    // jsdom has no layout: give the card a width so the frame can be scaled into it.
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {
+      configurable: true,
+      get: () => 320,
+    });
+  });
+  afterEach(() => {
+    delete (globalThis as { IntersectionObserver?: unknown }).IntersectionObserver;
+    delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
+  });
+
+  /** The text of the card's live render, once it has drawn. */
+  async function thumbnailText(name: string): Promise<string> {
+    const card = await screen.findByRole("article", { name });
+    const frame = await waitFor(() => {
+      // The preview link is aria-hidden (the card's title link is the way in).
+      const f = within(card)
+        .getByRole("img", { name: `Preview of ${name}`, hidden: true })
+        .querySelector("iframe");
+      expect(f).toBeTruthy();
+      return f as HTMLIFrameElement;
+    });
+    await act(async () => {
+      frame.dispatchEvent(new Event("load"));
+    });
+    await waitFor(() =>
+      expect(frame.contentDocument?.querySelector("[data-os-page]")).toBeTruthy(),
+    );
+    return frame.contentDocument?.body.textContent ?? "";
+  }
+
+  it("shows the site's published home page and refreshes after a publish", async () => {
+    const willow = sites[0] as Site;
+    const { hub, queryClient } = renderStudio("/sites", { user: SAM, sites: [willow] });
+    const live = await hub.getDocument(willow.id, { ref: "published" });
+    const before = live.document.site.description || willow.tagline || "";
+    expect(before).not.toBe("");
+    await waitFor(async () => expect(await thumbnailText(willow.name)).toContain(before));
+
+    // The owner edits the home page's words and publishes.
+    const room = hub.room(willow.id);
+    const edited = JSON.parse(
+      JSON.stringify(room.doc).replaceAll(before, "Now open on Sundays"),
+    ) as typeof room.doc;
+    act(() => room.reloadAll(edited, "test edit"));
+    await hub.publish(willow.id);
+
+    // Back on the dashboard (the site list is read again): the card shows the new words.
+    await act(() => queryClient.invalidateQueries({ queryKey: ["sites"] }));
+    await waitFor(async () => {
+      const text = await thumbnailText(willow.name);
+      expect(text).toContain("Now open on Sundays");
+      expect(text).not.toContain(before);
+    });
+    // Read once per published version: the content key changed, not a timer.
+    expect(
+      hub.calls.filter((c) => c.method === "getDocument" && c.args[0] === willow.id).length,
+    ).toBeLessThanOrEqual(3);
   });
 });

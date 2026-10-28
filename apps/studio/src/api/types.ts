@@ -133,6 +133,13 @@ export interface Site {
   github?: { access: GitHubAccess; connectUrl: string | null };
   /** The site was moved in from another address ("Move my site"): its newest import. */
   import?: { id: string; state: string; kind: string } | null;
+  /**
+   * The commit OpenSpace last put on the live branch (publish, rollback, revert or setup); null
+   * before the first. Absent on older Hubs. Keys the dashboard thumbnail's content.
+   */
+  publishedVersion?: string | null;
+  /** When the site record last changed (older Hubs' stand-in for `publishedVersion`). */
+  updatedAt?: string;
 }
 
 export type GitHubAccess = "ok" | "install" | "repo_access" | "requested";

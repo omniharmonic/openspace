@@ -312,7 +312,10 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
         doc: clone(draftOf(site)),
       },
     ];
-    return state.versions[site.id] as MockVersion[];
+    const list = state.versions[site.id] as MockVersion[];
+    // Like the Hub's SiteView.publishedVersion: the commit now on the live branch.
+    site.publishedVersion = list.find((v) => v.current)?.sha ?? null;
+    return list;
   };
 
   const snapshotsOf = (site: Site): MockSnapshot[] => {
@@ -407,6 +410,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     for (const x of list) x.current = false;
     const version: MockVersion = { ...v, current: true, status: "queued", error: null };
     list.unshift(version);
+    site.publishedVersion = version.sha;
     runBuild(site, version);
     save();
     return version;
@@ -539,6 +543,8 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       await wait();
       requireUser();
       settle();
+      // Every site that has been set up has a first version (its content key for thumbnails).
+      for (const s of state.sites) if (s.status !== "building") versionsOf(s);
       save();
       return clone([...state.sites].sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
     },

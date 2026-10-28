@@ -34,6 +34,8 @@ export interface SiteWithRole extends SiteRow {
   import_id?: string | null;
   import_state?: string | null;
   import_kind?: string | null;
+  /** The newest commit OpenSpace put on main (publish, rollback, revert or setup), if any. */
+  published_sha?: string | null;
   role: Role;
   inbox_count: number;
   owner_login: string;
@@ -46,7 +48,8 @@ const WITH_ROLE = `SELECT s.*, r.role AS role, o.login AS owner_login, o.name AS
   (SELECT COUNT(*) FROM submissions sub WHERE sub.site_id = s.id AND sub.read_at IS NULL) AS inbox_count,
   (SELECT i.id FROM site_imports i WHERE i.site_id = s.id ORDER BY i.created_at DESC LIMIT 1) AS import_id,
   (SELECT i.state FROM site_imports i WHERE i.site_id = s.id ORDER BY i.created_at DESC LIMIT 1) AS import_state,
-  (SELECT i.kind FROM site_imports i WHERE i.site_id = s.id ORDER BY i.created_at DESC LIMIT 1) AS import_kind
+  (SELECT i.kind FROM site_imports i WHERE i.site_id = s.id ORDER BY i.created_at DESC LIMIT 1) AS import_kind,
+  (SELECT p.sha FROM publishes p WHERE p.site_id = s.id ORDER BY p.created_at DESC, p.rowid DESC LIMIT 1) AS published_sha
   FROM sites s JOIN site_roles r ON r.site_id = s.id JOIN users o ON o.id = s.owner_id`;
 
 export async function insertSite(

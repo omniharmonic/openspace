@@ -136,6 +136,35 @@ describe("publishing", () => {
     expect(versions.versions.at(-1)).toMatchObject({ kind: "setup" });
   });
 
+  it("reports the published version so dashboard thumbnails refresh when the content changes", async () => {
+    const { app, owner, site } = await setup();
+    const view = async () => {
+      const one = (await (await call(app, `/api/sites/${site.id}`, { cookie: owner })).json()) as {
+        publishedVersion?: string | null;
+      };
+      const list = (await (await call(app, "/api/sites", { cookie: owner })).json()) as {
+        sites: Array<{ id: string; publishedVersion?: string | null }>;
+      };
+      return { one: one.publishedVersion, listed: list.sites.find((s) => s.id === site.id) };
+    };
+    const before = await view();
+    await edit(app, site.id, owner, "A fresh headline");
+    const { body } = await publish(app, site.id, owner);
+    const main = (await gh().getRef(repo, "main")) as string;
+    // The publish answer, the site and the site list all carry the new commit on main.
+    expect(body.publishedVersion).toBe(main);
+    const after = await view();
+    expect(after.one).toBe(main);
+    expect(after.listed?.publishedVersion).toBe(main);
+    expect(after.one).not.toBe(before.one);
+    // …and the published document at that version has the new headline.
+    const doc = (await (
+      await call(app, `/api/sites/${site.id}/document?ref=published`, { cookie: owner })
+    ).json()) as { head: string; document: unknown };
+    expect(doc.head).toBe(main);
+    expect(JSON.stringify(doc.document)).toContain("A fresh headline");
+  });
+
   it("rolls back with a new commit carrying the old tree (no force push) and keeps unpublished work", async () => {
     const { app, owner, site } = await setup();
     const v1 = (await gh().getRef(repo, "main")) as string;
