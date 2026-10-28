@@ -14,6 +14,7 @@ import { LoadError } from "../../app/Connection";
 import { Wordmark } from "../../app/Wordmark";
 import { Button, cx, Spinner } from "../../ui";
 import { ClaudeAppSteps, CopyLine, copy, DOCS_URL, PLUGIN_COMMANDS } from "../connect/ConnectSteps";
+import { LetClaudeEdit } from "../connect/LetClaudeEdit";
 import { ConnectGitHub } from "../onboarding/ConnectGitHub";
 import { type Brief, claudeNewChatUrl, DESIGN_SKILL, designPrompt } from "./prompt";
 import "./Start.css";
@@ -109,6 +110,7 @@ export function StartHandoff() {
           <h2 id="handoff-title" className="st-start__subtitle">
             <Sparkles aria-hidden="true" /> Now let Claude design it with you
           </h2>
+          <LetClaudeEdit site={s} showDone />
           <p className="st-start__lede">
             Claude reads what you told us and your brand, then works through the design with you —
             the feel, the colours and type, each page — showing you the result as it goes. Your site

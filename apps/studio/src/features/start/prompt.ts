@@ -34,3 +34,12 @@ export function designPrompt(
 /** claude.ai with the message filled in (the person still presses send). */
 export const claudeNewChatUrl = (prompt: string) =>
   `https://claude.ai/new?q=${encodeURIComponent(prompt)}`;
+
+/**
+ * The first message for "Start with Claude" in Claude itself (no site yet): Claude leads from
+ * here — questions, a direction, the design, publishing — using the OpenSpace connector.
+ */
+export function startInClaudePrompt(idea?: string): string {
+  const about = idea?.trim() ? ` It's for ${idea.trim()}.` : "";
+  return `I'd like to make a new website with OpenSpace.${about} Please use the OpenSpace connector and guide me: ask me a few questions about it first, then design it, put it online and give me the link to edit it in OpenSpace.`;
+}

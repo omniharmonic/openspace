@@ -16,12 +16,14 @@ import { Navigate, Outlet, type RouteObject, useNavigate } from "react-router";
 import { useLogout, useSession } from "../api";
 import { InvitePage } from "../features/auth/InvitePage";
 import { SignInPage } from "../features/auth/SignInPage";
+import { AllowSitePage } from "../features/connect/AllowSitePage";
 import { ConnectAiPage } from "../features/connect/ConnectAiPage";
 import { Dashboard } from "../features/dashboard/Dashboard";
 import { MoveProgress } from "../features/move/MoveProgress";
 import { MoveSite } from "../features/move/MoveSite";
 import { NewSite } from "../features/onboarding/NewSite";
 import { StartHandoff } from "../features/start/StartHandoff";
+import { StartInClaude } from "../features/start/StartInClaude";
 import { StartWithClaude } from "../features/start/StartWithClaude";
 import { TemplateGallery } from "../features/templates/TemplateGallery";
 import { Button, EmptyState, Spinner, useRegisterCommands } from "../ui";
@@ -202,7 +204,10 @@ export function createRoutes(config: Pick<StudioConfig, "showKit">): RouteObject
         { index: true, element: <Home /> },
         { path: "templates", element: <TemplateGallery /> },
         { path: "new/:template", element: <NewSite /> },
-        { path: "start", element: <StartWithClaude /> },
+        // Start with Claude happens in Claude: connect once, then a ready first message.
+        { path: "start", element: <StartInClaude /> },
+        // The quick form (brief + brand files → a site), one link away.
+        { path: "start/form", element: <StartWithClaude /> },
         { path: "start/:siteId", element: <StartHandoff /> },
         { path: "move", element: <MoveSite /> },
         { path: "move/:importId", element: <MoveProgress /> },
@@ -210,6 +215,7 @@ export function createRoutes(config: Pick<StudioConfig, "showKit">): RouteObject
         { path: "invite/:token", element: <InvitePage /> },
         { path: "sites", element: <Dashboard /> },
         { path: "connect", element: <ConnectAiPage /> },
+        { path: "connect/allow", element: <AllowSitePage /> },
         {
           path: "sites/:id/*",
           element: (

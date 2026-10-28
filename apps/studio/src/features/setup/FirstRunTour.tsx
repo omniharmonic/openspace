@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router";
 import { useSetupInfo } from "../../api";
 import type { Site } from "../../api/types";
 import { Button, Dialog, toast } from "../../ui";
+import { LetClaudeEdit } from "../connect/LetClaudeEdit";
 import { displayUrl } from "../onboarding/BuildingProgress";
 import { formatDollars, yearlySaving } from "./savings";
 import "./setup.css";
@@ -162,6 +163,7 @@ export function FirstRunTour({ site }: { site: Site }) {
             , and every file of it lives in your own GitHub account — you can take it anywhere, any
             time.
           </p>
+          <LetClaudeEdit site={site} />
         </div>
       ) : (
         <p className="st-tour__body">{stop?.body}</p>

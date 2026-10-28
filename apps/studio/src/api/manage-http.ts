@@ -155,6 +155,24 @@ export function createManageHttp({
         "grant",
       );
     },
+    async updateMcpGrant(grantId, patch) {
+      return unwrap<McpGrant>(
+        await request("PATCH", `/api/mcp/grants/${enc(grantId)}`, patch),
+        "grant",
+      );
+    },
+    async allowMcpGrantSite(grantId, siteId) {
+      return unwrap<McpGrant>(
+        await request("POST", `/api/mcp/grants/${enc(grantId)}/sites`, { site: siteId }),
+        "grant",
+      );
+    },
+    async removeMcpGrantSite(grantId, siteId) {
+      return unwrap<McpGrant>(
+        await request("DELETE", `/api/mcp/grants/${enc(grantId)}/sites/${enc(siteId)}`),
+        "grant",
+      );
+    },
 
     async listCollaborators(siteId) {
       return request<CollaboratorList>("GET", `${site(siteId)}/collaborators`);

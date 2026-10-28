@@ -1,3 +1,14 @@
+.st-connect__title svg {
+  width: 20px;
+  height: 20px;
+  vertical-align: -3px;
+  margin-right: 6px;
+}
+.st-letclaude svg {
+  width: 14px;
+  height: 14px;
+  vertical-align: -2px;
+}
 .st-connect {
   max-width: 760px;
   margin: 0 auto;
@@ -39,4 +50,24 @@
 .st-connect .st-steps > li,
 .st-connect .st-card__head > * {
   min-width: 0;
+}
+.st-connect--narrow {
+  max-width: 560px;
+}
+.st-connect__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.st-letclaude {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.st-letclaude--done {
+  margin: 0;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
 }

@@ -148,11 +148,13 @@ export function ClaudeAppSteps({ siteName }: { siteName?: string }) {
           Choose <strong>Connect</strong>, sign in with GitHub, then{" "}
           {siteName ? (
             <>
-              tick <strong>{siteName}</strong>
+              tick <strong>{siteName}</strong> (or <strong>All my sites</strong>)
             </>
           ) : (
             <>
-              keep <strong>Create new sites</strong> ticked (and tick any sites you already have)
+              keep <strong>Create new sites</strong> ticked — and tick{" "}
+              <strong>All my sites, including ones I make later</strong> if you’d like Claude to
+              help with every site
             </>
           )}{" "}
           and choose <strong>Allow</strong>. Publishing stays off unless you turn it on.
@@ -251,13 +253,33 @@ export function AppsWithAccess() {
           <div className="st-grant__main">
             <strong>{g.clientName}</strong>
             <span className="st-muted-note">
-              {g.sites.length
-                ? g.sites.map((s) => s.name).join(", ")
-                : g.create
-                  ? "Can create new sites"
-                  : "Sites you choose"}{" "}
+              {g.allSites
+                ? "All your sites, including new ones"
+                : g.sites.length
+                  ? g.sites.map((s) => s.name).join(", ")
+                  : g.create
+                    ? "Sites it creates"
+                    : "Sites you choose"}{" "}
               · last used {when(g.lastUsedAt)}
             </span>
+          </div>
+          <div className="st-grant__publish">
+            <span>All my sites</span>
+            <Toggle
+              size="sm"
+              checked={Boolean(g.allSites)}
+              aria-label={`${g.clientName} can edit all my sites, including ones I make later`}
+              onCheckedChange={(allSites) => actions.setScope.mutate({ id: g.id, allSites })}
+            />
+          </div>
+          <div className="st-grant__publish">
+            <span>Can create sites</span>
+            <Toggle
+              size="sm"
+              checked={Boolean(g.create)}
+              aria-label={`${g.clientName} can create new sites`}
+              onCheckedChange={(create) => actions.setScope.mutate({ id: g.id, create })}
+            />
           </div>
           <div className="st-grant__publish">
             <span id={`grant-${g.id}`}>Can publish</span>

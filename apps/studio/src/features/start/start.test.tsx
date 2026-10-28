@@ -21,7 +21,7 @@ describe("Start with Claude", () => {
   });
 
   it("goes from an idea and a design-token file to a live site and the hand-off to Claude", async () => {
-    const { user, router, hub } = renderStudio("/start", { user: SAM });
+    const { user, router, hub } = renderStudio("/start/form", { user: SAM });
     await screen.findByRole("heading", { name: "Start with Claude" });
     await user.click(screen.getByRole("button", { name: "Continue" }));
     expect(screen.getByText(/Give your site a name/)).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe("Start with Claude", () => {
   });
 
   it("asks people who aren't signed in to sign in before they bring files", async () => {
-    const { user } = renderStudio("/start");
+    const { user } = renderStudio("/start/form");
     await user.type(await screen.findByLabelText("Site name"), "Still Water");
     await user.type(screen.getByLabelText("What is it for?"), "Yoga for beginners.");
     await user.click(screen.getByRole("button", { name: "Continue" }));

@@ -179,9 +179,8 @@ export function TemplateGallery() {
           <span className="st-gallery__move-text">
             <strong>Start with Claude</strong>
             <span>
-              Describe your idea and bring your brand — a design system, a Canva brand kit, your
-              logo and photos, or a page Claude made you. A site goes live in minutes, then Claude
-              designs it with you.
+              Make your site in a conversation with Claude: it asks about your idea, designs the
+              site with you and puts it online — then gives you the link to edit it here.
             </span>
           </span>
           <ArrowRight className="st-gallery__move-go" aria-hidden="true" />
