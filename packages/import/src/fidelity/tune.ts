@@ -883,7 +883,12 @@ export function tuneRound(
           | undefined;
         const gen = componentFromBlueprint({
           name,
-          label: `${s.heading ?? "Section"} (as on the original)`.slice(0, 60),
+          label: sectionLabel(
+            s.heading ?? o.heading?.text,
+            o.blueprint,
+            page.title || (page.slug ? page.slug : "Home"),
+            s.index + 1,
+          ),
           section: o,
           roles,
           ...(theme
@@ -948,4 +953,25 @@ function setRole(doc: SiteDocument, theme: string, role: string, value: string):
   overrides.color = color;
   doc.styles.overrides = overrides as SiteDocument["styles"]["overrides"];
   return true;
+}
+
+/**
+ * A recreated section's name in Studio (wave 4: every one was "Section (as on the original)"):
+ * its heading, else its first words, else "<Page> section <n>".
+ */
+export function sectionLabel(
+  heading: string | undefined,
+  blueprint: ReadonlyArray<{ kind: string; text?: string }> | undefined,
+  pageTitle: string,
+  n: number,
+): string {
+  const first =
+    heading?.trim() ||
+    blueprint?.find((i) => i.kind === "heading" && i.text?.trim())?.text ||
+    blueprint?.find((i) => i.kind === "text" && i.text?.trim())?.text;
+  const words = (first ?? "").replace(/\s+/g, " ").trim();
+  if (!words) return `${pageTitle} section ${n}`.slice(0, 60);
+  const short = words.length > 40 ? `${words.slice(0, 40).replace(/\s+\S*$/, "")}…` : words;
+  const cased = /[a-z]/.test(short) ? short : short.charAt(0) + short.slice(1).toLowerCase();
+  return cased.slice(0, 60);
 }

@@ -10,6 +10,7 @@ import {
 import { compileStyles } from "@omniharmonic/openspace-theme";
 import { describe, expect, it } from "vitest";
 import { bundleFromFiles, bundleFromHtml, bundleFromZip, importHtmlBundle } from "./claude-html";
+import { humanize } from "./claude-html/component";
 import { pngBytes } from "./testing";
 
 const FIX = join(__dirname, "__fixtures__", "claude-html");
@@ -151,5 +152,16 @@ describe("HTML import (a page Claude made)", () => {
     const zip = zipSync({ "site/index.html": strToU8("<h1>Hi</h1><p>There</p>") });
     expect(bundleFromZip(zip).entry).toBe("index.html");
     expect(() => bundleFromFiles({ "a.css": "body{}" })).toThrow(/no HTML page/);
+  });
+});
+
+describe("component field labels", () => {
+  it("spell out shorthand and split numbers (wave 4: “Cta 2label”)", () => {
+    expect(humanize("cta2Label")).toBe("Button 2 text");
+    expect(humanize("cta", "link")).toBe("Button goes to");
+    expect(humanize("ctaLabel")).toBe("Button text");
+    expect(humanize("title")).toBe("Title");
+    expect(humanize("kicker")).toBe("Small label");
+    expect(humanize("heroImg")).toBe("Hero picture");
   });
 });
