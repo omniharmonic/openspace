@@ -91,6 +91,27 @@ function regenerateMobile(b: OpBuilder, pageId: string, loc: Located, wasAuto: b
   }
 }
 
+/**
+ * After adding blocks on desktop: a grid whose phone layout is still automatic is laid out for
+ * phones again in reading order (the new block lands where it reads, not at the bottom); a
+ * hand-made phone layout is left alone (the new block goes last, where the person can move it).
+ */
+export function keepPhoneLayout(
+  b: OpBuilder,
+  pageId: string,
+  sectionId: string,
+  wasAuto: boolean,
+): void {
+  const loc = gridSectionOf(b.doc, pageId, { kind: "section", id: sectionId });
+  if (loc) regenerateMobile(b, pageId, loc, wasAuto);
+}
+
+/** Is this grid section's phone layout still the automatic one? */
+export function phoneLayoutIsAuto(doc: SiteDocument, pageId: string, sectionId: string): boolean {
+  const loc = gridSectionOf(doc, pageId, { kind: "section", id: sectionId });
+  return !!loc && isMobileAuto(loc.section);
+}
+
 /** Write new placements at `bp` for blocks of one grid section (move, resize, nudge). */
 export function placeCommand(
   doc: SiteDocument,

@@ -1,3 +1,4 @@
+import { sortIssues } from "@omniharmonic/openspace-lint";
 import type { OpBody } from "@omniharmonic/openspace-ops";
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import {
@@ -16,6 +17,8 @@ import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import type { EditorStore } from "../editor/model/store";
 import { useCanvasDocument } from "../inspector/canvasDoc";
 import { useInspectorRole } from "../inspector/env";
+import { measuredPhoneIssues, usePhoneCheck } from "../phone/model";
+import { applyPhoneFixes } from "../phone/PhoneCheckBar";
 import {
   bulkEligible,
   type CheckedIssue,
@@ -27,6 +30,7 @@ import {
   fixAllSafe,
   groupIssues,
   issueTarget,
+  kindOf,
 } from "./model";
 import { checkNow, useDesignCheck } from "./store";
 import "./design-check.css";
@@ -68,7 +72,9 @@ export function jumpToIssue(store: EditorStore, issue: CheckedIssue) {
 export function applyIssueFix(store: EditorStore, issue: CheckedIssue): boolean {
   const doc = store.getState().doc;
   const result = checkSite(doc);
-  const fresh = result.issues.find((i) => i.id === issue.id);
+  // What the phone preview measured isn't recomputed here: it is current for this document.
+  const measured = measuredPhoneIssues(doc).find((i) => i.id === issue.id);
+  const fresh = result.issues.find((i) => i.id === issue.id) ?? measured;
   if (!fresh && result.failures.length > 0) {
     // The check itself failed: the issue may still be there, so don't claim it's fixed.
     toast({
@@ -175,6 +181,7 @@ function IssueRow({
             </Button>
           )}
           {issue.kind === "seo" && <span className="st-dc__tag">SEO</span>}
+          {issue.kind === "phone" && <span className="st-dc__tag">Phones</span>}
         </div>
       </div>
     </li>
@@ -206,7 +213,17 @@ export function DesignCheckPanel({ onJump }: DesignCheckPanelProps) {
   const api = useDocStoreApi();
   const doc = useDocStore((s) => s.doc);
   const role = useInspectorRole();
-  const issues = useDesignCheck((s) => s.issues);
+  const staticIssues = useDesignCheck((s) => s.issues);
+  const measuredPages = usePhoneCheck((s) => s.pages);
+  // The Design check plus what the phone preview measured (while it's current).
+  const issues = useMemo(() => {
+    void measuredPages;
+    const measured = measuredPhoneIssues(doc).map((i) => ({ ...i, kind: kindOf(i) }));
+    return measured.length
+      ? (sortIssues([...staticIssues, ...measured]) as CheckedIssue[])
+      : staticIssues;
+  }, [staticIssues, measuredPages, doc]);
+  const phoneFixable = issues.some((i) => i.kind === "phone" && i.autofix && i.severity !== "info");
   const checked = useDesignCheck((s) => s.checked);
   const stale = useDesignCheck((s) => s.stale);
   const failures = useDesignCheck((s) => s.failures);
@@ -249,6 +266,7 @@ export function DesignCheckPanel({ onJump }: DesignCheckPanelProps) {
             { value: "all", label: "All" },
             { value: "design", label: "Design" },
             { value: "seo", label: "SEO" },
+            { value: "phone", label: "Phones" },
           ]}
         />
         <div className="st-dc__row">
@@ -258,15 +276,27 @@ export function DesignCheckPanel({ onJump }: DesignCheckPanelProps) {
           </label>
           {stale && <Spinner size={12} label="Checking again" />}
           <span className="st-dc__spacer" />
-          <Button
-            size="sm"
-            variant="primary"
-            icon={<WandSparkles />}
-            disabled={fixable === 0}
-            onClick={() => applyAllSafe(api, role, visible)}
-          >
-            Fix all safe{fixable ? ` (${fixable})` : ""}
-          </Button>
+          {kind === "phone" ? (
+            <Button
+              size="sm"
+              variant="primary"
+              icon={<WandSparkles />}
+              disabled={!phoneFixable}
+              onClick={() => applyPhoneFixes(api, role)}
+            >
+              Fix everything for phones
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="primary"
+              icon={<WandSparkles />}
+              disabled={fixable === 0}
+              onClick={() => applyAllSafe(api, role, visible)}
+            >
+              Fix all safe{fixable ? ` (${fixable})` : ""}
+            </Button>
+          )}
         </div>
       </div>
       {failures.length > 0 && <CheckFailures failures={failures} doc={doc} />}
@@ -278,7 +308,7 @@ export function DesignCheckPanel({ onJump }: DesignCheckPanelProps) {
           description={
             issues.length
               ? "Turn on suggestions or switch checks to see the rest."
-              : "No contrast, heading, image, call-to-action or search issues on any page."
+              : "No contrast, heading, image, call-to-action, phone or search issues on any page."
           }
         />
       ) : (

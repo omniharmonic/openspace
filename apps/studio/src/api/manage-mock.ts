@@ -777,6 +777,13 @@ export function createManageMock(ctx: ManageMockContext): {
       });
     },
 
+    async phoneCheck(siteId, pages) {
+      await call("phoneCheck", [siteId, pages]);
+      findSite(siteId);
+      // The demo has no browser: Studio measures its own phone preview instead.
+      return { rendered: false, issues: [], measured: 0, cached: 0 };
+    },
+
     async downloadExport(siteId, kind: ExportKind) {
       await call("downloadExport", [siteId, kind]);
       const site = findSite(siteId);

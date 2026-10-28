@@ -3,6 +3,8 @@ import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
 import {
   type Animation,
   CONTENT_WIDTHS,
+  phoneColumns,
+  phonePadding,
   type Responsive,
   type Section,
   type SectionBackground,
@@ -108,11 +110,14 @@ function StackLayoutControls({
   const commit = (bodies: OpBody[], label: string) => api.getState().commit(bodies, { label });
   const setLayout = (next: StackLayout, label: string) =>
     commit([sectionOp(container, section, { layout: next })], label);
+  // Phones stack into one column unless the section sets its own phone columns (the renderer's
+  // phone default), so that is what the phone view shows.
   const bpCols =
     bp === "d"
       ? layout.columns.d
-      : ((bp === "t" ? layout.columns.t : (layout.columns.m ?? layout.columns.t)) ??
-        layout.columns.d);
+      : bp === "t"
+        ? (layout.columns.t ?? layout.columns.d)
+        : phoneColumns(layout.columns);
   const stacked = bp !== "d" && bpCols.length === 1 && count > 1;
   const order =
     bp === "d" ? undefined : bp === "t" ? layout.order?.t : (layout.order?.m ?? layout.order?.t);
@@ -684,6 +689,7 @@ export function SectionDesign({
           bp={bp}
           base={SECTION_PAD_BASE}
           baseHint="Setting this also fixes desktop at 3XL, close to the site’s spacing."
+          phoneDefault={(v) => phonePadding(v)}
           disabled={disabled}
           onCommit={(v) =>
             setStyle(

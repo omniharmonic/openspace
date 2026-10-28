@@ -5,6 +5,7 @@
  * Routes marked "planned" are not in the Hub yet; the mock implements them and the shapes here
  * are the contract the Hub should honor (see the Task 24 report).
  */
+import type { Issue } from "@omniharmonic/openspace-lint";
 
 import type { SiteRole } from "./types";
 
@@ -265,6 +266,16 @@ export interface SetupInfo {
   imported: { from: string | null; items: ImportedSetupItem[] } | null;
 }
 
+/** `POST /api/sites/:id/phone-check`. Issues are the lint package's (plain JSON, fixes as ops). */
+export interface PhoneCheckInfo {
+  /** Measured in a real browser (Browser Rendering); false: only the static rules ran. */
+  rendered: boolean;
+  issues: Issue[];
+  measured: number;
+  cached: number;
+  note?: string;
+}
+
 /** One sealed secret for `PUT /api/sites/:id/hosting/secrets` (planned). */
 export interface SealedSecret {
   name: string;
@@ -339,6 +350,8 @@ export interface ManageApi {
   switchHosting(siteId: string, target: HostingTarget, url?: string): Promise<HostingInfo>;
   checkCloudflare(siteId: string, token: string, accountId?: string): Promise<CloudflareCheck>;
   getSetup(siteId: string): Promise<SetupInfo>;
+  /** The Phone check on the Hub: draft pages measured as a phone (cached by page content). */
+  phoneCheck(siteId: string, pages?: string[]): Promise<PhoneCheckInfo>;
 
   downloadExport(siteId: string, kind: ExportKind): Promise<DownloadedFile>;
 }

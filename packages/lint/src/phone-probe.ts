@@ -115,7 +115,9 @@ export const PHONE_HEIGHT = 780;
 export const PHONE_PROBE_SCRIPT = `(async () => {
   const L = ${JSON.stringify(PHONE_LIMITS)};
   const vw = document.documentElement.clientWidth || window.innerWidth;
-  const vh = window.innerHeight;
+  // The phone screen's height (an editor canvas may be as tall as the page: it says so here).
+  const vh = Number(window.__osPhoneScreenHeight) || window.innerHeight;
+  const viewH = window.innerHeight;
   const findings = [];
   const seen = new Set();
   const style = document.createElement("style");
@@ -419,9 +421,9 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
     const pts = [[r.left + Math.min(8, r.width / 2), r.top + sy + r.height / 2], [r.left + r.width / 2, r.top + sy + r.height / 2]];
     let worst = Infinity, photo = false;
     for (const [px, docY] of pts) {
-      if (docY < window.scrollY + 80 || docY > window.scrollY + vh - 20) window.scrollTo(0, Math.max(0, docY - vh / 2));
+      if (docY < window.scrollY + 80 || docY > window.scrollY + viewH - 20) window.scrollTo(0, Math.max(0, docY - viewH / 2));
       const py = docY - window.scrollY;
-      if (py < 0 || py > vh) continue;
+      if (py < 0 || py > viewH) continue;
       const hit = checkPoint(el, Math.max(0, Math.min(vw - 1, px)), py);
       if (!hit) continue;
       const bases = hit.photo ? [{ r: 0, g: 0, b: 0, a: 1 }, { r: 255, g: 255, b: 255, a: 1 }] : [hit.base];
@@ -492,7 +494,7 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
     const cta = Array.from(first.querySelectorAll(".os-button--primary")).find((b) => visible(b) && !b.closest("form,.os-form,.os-newsletter"));
     if (cta) {
       const top = cta.getBoundingClientRect().top + window.scrollY;
-      if (top + 20 > vh) add("cta-below-fold", cta, { value: top, limit: vh });
+      if (top + Math.min(44, cta.getBoundingClientRect().height) > vh) add("cta-below-fold", cta, { value: top, limit: vh });
     }
   }
   const footer = document.querySelector(".os-footer");

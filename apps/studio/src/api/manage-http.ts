@@ -16,6 +16,7 @@ import type {
   McpToken,
   MediaUploadResult,
   PagePasswordEntry,
+  PhoneCheckInfo,
   RegistrarGuide,
   SetupInfo,
 } from "./manage-types";
@@ -227,6 +228,12 @@ export function createManageHttp({
     },
     async getSetup(siteId) {
       return unwrap<SetupInfo>(await request("GET", `${site(siteId)}/setup`), "setup");
+    },
+    async phoneCheck(siteId, pages) {
+      return unwrap<PhoneCheckInfo>(
+        await request("POST", `${site(siteId)}/phone-check`, pages ? { pages } : {}),
+        "phone",
+      );
     },
 
     async downloadExport(siteId, kind): Promise<DownloadedFile> {

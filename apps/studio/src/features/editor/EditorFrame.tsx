@@ -92,6 +92,7 @@ const LookStage = lazy(() => import("../looks/LooksPanel").then((m) => ({ defaul
 import { DesignCheckBadge, DesignCheckPanel } from "../design-check/DesignCheckPanel";
 import { useDesignCheckRunner } from "../design-check/store";
 import { useLookTrial } from "../looks/trial";
+import { PhoneCheckBar } from "../phone/PhoneCheckBar";
 
 // Panels that aren't on screen when the editor opens load on demand (smaller first load).
 const MediaLibrary = lazy(() =>
@@ -862,6 +863,7 @@ function EditorChrome({ site }: { site: Site }) {
           <PublishPill />
           <SyncBanners />
           <UpdateBanner site={site} />
+          {site.status !== "building" && <PhoneCheckBar />}
         </div>
         {trying && (
           <Suspense fallback={null}>

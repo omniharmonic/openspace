@@ -1,7 +1,10 @@
 /// <reference types="vitest/config" />
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+// The Phone check's in-browser probe (a plain-JS string, no imports): Studio runs it inside its
+// phone preview. Served as a same-origin script because Studio's CSP allows no eval.
+import { PHONE_PROBE_SCRIPT } from "../../packages/lint/src/phone-probe";
 import { STUDIO_MANIFEST } from "./src/pwa/manifest";
 
 const YEAR = 60 * 60 * 24 * 365;
@@ -10,9 +13,29 @@ const YEAR = 60 * 60 * 24 * 365;
 // worker then replaces a stale (e.g. redirected) cached copy instead of keeping it.
 process.env.VITE_BUILD_ID ??= new Date().toISOString();
 
+const PROBE_FILE = "os-phone-probe.js";
+const PROBE_JS = `window.__osPhoneProbe = function () { return ${PHONE_PROBE_SCRIPT}; };\n`;
+
+/** `/os-phone-probe.js`: served in dev, emitted at build. */
+function phoneProbe(): Plugin {
+  return {
+    name: "openspace-phone-probe",
+    configureServer(server) {
+      server.middlewares.use(`/${PROBE_FILE}`, (_req, res) => {
+        res.setHeader("Content-Type", "text/javascript; charset=utf-8");
+        res.end(PROBE_JS);
+      });
+    },
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: PROBE_FILE, source: PROBE_JS });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
+    phoneProbe(),
     // Installable Studio that opens offline (PRD §5.1): the app shell is precached; fonts,
     // template data and photos are cached as they are used. Drafts live in IndexedDB.
     VitePWA({
