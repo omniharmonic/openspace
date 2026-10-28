@@ -158,8 +158,8 @@ describe("phoneCheck (static)", () => {
     expect(issue?.message).toContain("Incomprehensibilities");
     const fixed = fix(doc, issue);
     const b = Object.values(fixed.pages)[0]?.sections[0]?.blocks[0];
-    expect((b?.fields as { size: string }).size).toBe("display");
-    expect((b?.fields as { phoneSize?: string }).phoneSize).toBeDefined();
+    expect((b?.fields as { size?: string } | undefined)?.size).toBe("display");
+    expect((b?.fields as { phoneSize?: string } | undefined)?.phoneSize).toBeDefined();
     expect(only(phoneCheck(fixed), "phone-long-word")).toEqual([]);
   });
 

@@ -524,11 +524,9 @@ function locate(doc: SiteDocument, pageId: string, f: PhoneFinding): Located {
 
 /** Ops that fix a rendered finding, where an edit can (re-stack, overlay, panel, sizes, padding). */
 function fixFor(
-  doc: SiteDocument,
   at: Located,
   f: PhoneFinding,
   meta: ReturnType<typeof opMeta>,
-  options: CheckOptions,
 ): { label: string; ops: Op[] } | undefined {
   const { section, block, page } = at;
   if (!section) return undefined;
@@ -701,7 +699,7 @@ export function phoneIssuesFromProbe(
       // Same finding at another width: keep the first (narrowest).
       const id = `${i.rule}:${i.page}:${i.section ?? ""}:${key}`;
       if (out.has(id)) continue;
-      const autofix = fixFor(doc, at, f, meta, options);
+      const autofix = fixFor(at, f, meta);
       out.set(id, { ...i, id: id.replace(/:+$/, ""), ...(autofix ? { autofix } : {}) });
     }
   return sortIssues([...out.values()]);
@@ -736,10 +734,14 @@ export function fixForPhones(
   } = {},
 ): FixForPhonesResult {
   let registry: ReturnType<typeof blocksRegistry> | undefined;
+  const getRegistry = () => {
+    registry ??= blocksRegistry();
+    return registry;
+  };
   const apply =
     opts.validateOp ??
     ((d: SiteDocument, op: Op) => {
-      const r = validate(d, op, { trusted: true, registry: (registry ??= blocksRegistry()) });
+      const r = validate(d, op, { trusted: true, registry: getRegistry() });
       return r.ok ? r.doc : null;
     });
   let cur = doc;
