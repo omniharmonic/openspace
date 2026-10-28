@@ -42,6 +42,7 @@ import { hostingWarnings } from "./hosting";
 import { type CheckOptions, type Issue, issue, opMeta, sortIssues } from "./issue";
 import { linkIssues } from "./links";
 import { autoMobileLayout } from "./mobile";
+import { phoneCheck } from "./phone";
 import { photoContrast } from "./photo-contrast";
 
 /**
@@ -72,6 +73,8 @@ export function designCheck(
   ctx.container(FOOTER, [doc.site.footer], { footer: true });
   ctx.issues.push(...linkIssues(doc, pageId, options, ctx.meta));
   ctx.issues.push(...componentIssues(doc, pageId));
+  // The Phone check's static rules: what a desktop design does on a phone.
+  ctx.issues.push(...phoneCheck(doc, pageId, options));
   for (const w of hostingWarnings(doc, pageId))
     ctx.issues.push(
       issue({

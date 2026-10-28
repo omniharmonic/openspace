@@ -54,6 +54,27 @@ export {
   readingOrder,
 } from "./mobile";
 export {
+  type FixForPhonesResult,
+  fixForPhones,
+  isPhoneIssue,
+  isPhoneRule,
+  PHONE_RULE_PREFIX,
+  phoneCheck,
+  phoneIssuesFromProbe,
+  phonePx,
+  wideRules,
+} from "./phone";
+export {
+  PHONE_HEIGHT,
+  PHONE_LIMITS,
+  PHONE_PREPARE_SCRIPT,
+  PHONE_PROBE_SCRIPT,
+  PHONE_WIDTHS,
+  type PhoneFinding,
+  type PhoneFindingKind,
+  type PhoneProbeResult,
+} from "./phone-probe";
+export {
   blendOver,
   type PhotoContrastFailure,
   type PhotoTextCheck,
