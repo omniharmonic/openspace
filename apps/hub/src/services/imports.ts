@@ -474,10 +474,11 @@ function headlineFor(row: ImportRow, counts: ImportCounts | null, siteName: stri
           ? counts
             ? `${counts.pages} pages and ${counts.media} images came across. Checking everything…`
             : "Checking everything…"
-          : row.phase === "saving" || row.phase === "saved"
-            ? "Saving your site…"
+          : // One wording per step, in order (wave 4: "Saving" came twice, in a different order).
+            row.phase === "saving" || row.phase === "saved"
+            ? "Saving your pages and pictures in your own GitHub account…"
             : row.phase === "publishing"
-              ? "Publishing…"
+              ? "Publishing your new site…"
               : "Reading your site…";
     case "review":
       return "Your site is ready to switch over. Approve the change on GitHub to finish.";

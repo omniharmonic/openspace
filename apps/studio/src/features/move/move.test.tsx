@@ -138,7 +138,8 @@ describe("Move my site (hosted import)", () => {
 
 describe("publishing a moved site", () => {
   it("tells what's happening during the slow publish, with an honest time", () => {
-    expect(publishStory(0)).toContain("Saving your pages");
+    // Saving was the step before: the story doesn't go back to it (wave 4).
+    expect(publishStory(0)).toContain("Building your site");
     expect(publishStory(45)).toContain("Building your site");
     expect(publishStory(120)).toContain("Putting it online");
     expect(publishStory(400)).toContain("within 5 minutes");

@@ -192,9 +192,9 @@ function Steps({ view }: { view: ImportView }) {
  * minutes of waiting never looks stuck.
  */
 export const PUBLISH_STORY: Array<{ after: number; text: string }> = [
-  { after: 0, text: "Saving your pages and pictures in your own GitHub account…" },
+  // The pages are already saved by now ("Saving your pages and pictures…" was the step before).
   {
-    after: 30,
+    after: 0,
     text: "Building your site: turning every page into a fast, ready-to-serve web page…",
   },
   {
