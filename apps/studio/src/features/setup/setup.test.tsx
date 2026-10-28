@@ -60,6 +60,10 @@ describe("buildChecklist", () => {
     ]);
     expect(items[1]).toMatchObject({ count: 3, where: ["/shop"], minutes: 10, wizard: "shop" });
     expect(items.every((i) => i.why.length > 20)).toBe(true);
+    // A template site's products are the template's samples, not "your products".
+    expect(items[1]?.why).toMatch(/sample products/);
+    expect(items[1]?.why).not.toMatch(/Your products are already/);
+    expect(items[0]?.why).toMatch(/sample business/);
   });
 
   it("donations that link elsewhere need nothing; nothing Cloudflare starts before the site is live", () => {

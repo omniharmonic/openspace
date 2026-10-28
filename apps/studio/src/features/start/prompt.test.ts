@@ -14,4 +14,10 @@ describe("the message for Claude", () => {
     expect(p).not.toMatch(/\b(?:MCP|repo|workflow|DNS)\b/);
     expect(claudeNewChatUrl(p)).toMatch(/^https:\/\/claude\.ai\/new\?q=Please%20design/);
   });
+
+  it("doesn't call a page they brought 'a simple starting design'", () => {
+    const p = designPrompt({ id: "st_abc123defg", name: "Fern Hollow" }, {}, "html");
+    expect(p).not.toMatch(/simple starting design/);
+    expect(p).toContain("my own page");
+  });
 });

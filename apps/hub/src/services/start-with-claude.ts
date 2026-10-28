@@ -579,7 +579,29 @@ function dataUrlBytes(dataUrl: string): { mime: string; bytes: Uint8Array } {
 export interface StartResult {
   site: SiteView;
   /** How the site was started, in plain words. */
-  startedFrom: { kind: "template" | "html"; template?: string; look?: string; why?: string };
+  startedFrom: {
+    kind: "template" | "html";
+    template?: string;
+    look?: string;
+    why?: string;
+    /** What's still the template's sample content, in plain words (template route). */
+    note?: string;
+  };
+}
+
+/** Plain words for what a template start still carries from the template's sample business. */
+export function sampleNote(template: TemplateMeta): string {
+  const shop = ((template as { tags?: string[] }).tags ?? []).some((t) =>
+    /^(?:shop|store|products)$/i.test(t),
+  );
+  return [
+    "Some words, pictures, contact details and events are still the template’s samples — “Finish setting up” shows what to swap for yours.",
+    shop
+      ? "The sample products are there to show the layout: your shop says “opening soon” to visitors until you add your own products and turn on payments."
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 /**
@@ -723,7 +745,7 @@ export async function createStartSite(
     const setup: SiteSetup & { start: StartSetup } = {
       template: picked?.template.id ?? "html",
       look: picked?.look.id ?? "",
-      tagline: input.about ? firstSentence(input.about) : null,
+      ...heroCopy(input.about),
       brandColor: null,
       deployUrl:
         gh.kind === "dev"
@@ -771,7 +793,13 @@ export async function createStartSite(
   if (!row)
     throw new HttpError(409, "name_taken", "That name was just taken. Try again or pick another.");
   const startedFrom: StartResult["startedFrom"] = picked
-    ? { kind: "template", template: picked.template.name, look: picked.look.name, why: picked.why }
+    ? {
+        kind: "template",
+        template: picked.template.name,
+        look: picked.look.name,
+        why: picked.why,
+        note: sampleNote(picked.template),
+      }
     : { kind: "html" };
   await audit(services.db, {
     siteId,
@@ -798,9 +826,100 @@ export async function createStartSite(
   return { site: await getSiteView(services, siteId, user, opts.log), startedFrom };
 }
 
-function firstSentence(s: string): string {
-  const t = s.trim().split(/(?<=[.!?])\s/)[0] ?? s;
-  return t.slice(0, 200);
+// --- headline and intro from "What is it for?" ---------------------------------------------------
+
+/** Hero headlines are designed for 3–9 words (the Design check's copy range); aim under that. */
+export const HEADLINE_MAX_WORDS = 8;
+/** The heading block's subheading holds up to 280 characters; hero intros read best ≤ 40 words. */
+const INTRO_MAX_CHARS = 280;
+const INTRO_MAX_WORDS = 40;
+
+/** Words a headline shouldn't end on. */
+const DANGLING =
+  /^(?:a|an|the|and|or|but|of|in|on|at|to|for|with|from|by|our|my|your|their|its|that|which|who|where|selling|offering|running|making|plus|&)$/i;
+/** Good places to end a headline early: before a clause or a list of extras. */
+const BREAK_BEFORE =
+  /^(?:selling|offering|running|making|teaching|providing|serving|that|which|who|where|while|with|and|plus|since|because|so)$/i;
+
+const sentencesOf = (s: string) =>
+  s
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/(?<=[.!?])\s+/)
+    .filter(Boolean);
+
+/**
+ * A short, punchy hero headline from what the person said the site is for: the first clause of
+ * the first sentence, without a leading name ("Teal House Pottery: …", "We are …"), cut at a
+ * natural break to at most {@link HEADLINE_MAX_WORDS} words — so the Design check never flags it.
+ * "Teal House Pottery: a small ceramics studio in Portland selling handmade mugs…" →
+ * "A small ceramics studio in Portland".
+ */
+export function headlineFrom(about: string): string | null {
+  let t = (sentencesOf(about)[0] ?? "").replace(/[.!?…]+$/, "");
+  if (!t) return null;
+  // "Name: what it is" / "Name — what it is": keep what it is.
+  const sep = /\s*(?::|\s[—–-]\s)\s*/.exec(t);
+  if (sep && sep.index > 0) {
+    const before = t.slice(0, sep.index).split(" ").length;
+    const after = t.slice(sep.index + sep[0].length);
+    if (before <= 5 && after.split(" ").length >= 2) t = after;
+  }
+  // "We are a …", "I'm a …", "Crumb is a …": keep "a …".
+  t = t.replace(
+    /^(?:we(?:'re| are)|i(?:'m| am)|(?:[\w&'’.-]+\s){0,4}?[\w&'’.-]+\s(?:is|are))\s+(?=(?:a|an|the)\s)/i,
+    "",
+  );
+  // The first clause.
+  t = t.split(/\s*(?:[,;(]|\s[—–-]\s)\s*/)[0] ?? t;
+  let ws = t.split(" ").filter(Boolean);
+  // A whole clause of nine words still fits the layout (3–9); longer ones are cut to eight.
+  if (ws.length > HEADLINE_MAX_WORDS + 1) {
+    let cut = -1;
+    for (let i = Math.min(HEADLINE_MAX_WORDS, ws.length - 1); i >= 3; i--)
+      if (BREAK_BEFORE.test(ws[i] as string)) {
+        cut = i;
+        break;
+      }
+    ws = ws.slice(0, cut > 0 ? cut : HEADLINE_MAX_WORDS);
+  }
+  while (ws.length > 1 && DANGLING.test(ws[ws.length - 1] as string)) ws.pop();
+  const out = ws.join(" ").replace(/[,:;—–-]+$/, "");
+  if (!out) return null;
+  return out.charAt(0).toUpperCase() + out.slice(1);
+}
+
+/**
+ * The hero's headline and supporting line from "What is it for?". The intro is dropped (the
+ * template's sample line is removed) when it would only repeat the headline.
+ */
+export function heroCopy(about: string | undefined): { tagline: string | null; intro?: string } {
+  const tagline = about ? headlineFrom(about) : null;
+  if (!about || !tagline) return { tagline };
+  const intro = introFrom(about);
+  const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
+  return { tagline, intro: words(intro) <= words(tagline) + 2 ? "" : intro };
+}
+
+/** The hero's supporting line: what they said, whole sentences while they fit (≤ 280 chars). */
+export function introFrom(about: string): string {
+  const out: string[] = [];
+  let words = 0;
+  for (const s of sentencesOf(about)) {
+    const n = s.split(" ").length;
+    const next = [...out, s].join(" ");
+    if (out.length && (words + n > INTRO_MAX_WORDS || next.length > INTRO_MAX_CHARS)) break;
+    out.push(s);
+    words += n;
+  }
+  let text = out.join(" ");
+  if (text.length > INTRO_MAX_CHARS || words > INTRO_MAX_WORDS) {
+    const ws = text.split(" ").slice(0, INTRO_MAX_WORDS);
+    while (ws.join(" ").length > INTRO_MAX_CHARS - 1) ws.pop();
+    while (ws.length > 1 && DANGLING.test(ws[ws.length - 1] as string)) ws.pop();
+    text = `${ws.join(" ").replace(/[,:;—–-]+$/, "")}…`;
+  }
+  return text;
 }
 
 export type { StartSetup as StartSetupRecord };

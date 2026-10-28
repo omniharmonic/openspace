@@ -1,8 +1,15 @@
 import { env } from "cloudflare:test";
+import { designCheck } from "@omniharmonic/openspace-lint";
+import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import { bytesToBase64 } from "../src/lib/crypto";
-import { pickTemplate } from "../src/services/start-with-claude";
+import {
+  HEADLINE_MAX_WORDS,
+  headlineFrom,
+  heroCopy,
+  pickTemplate,
+} from "../src/services/start-with-claude";
 import { call, cookieFrom } from "./helpers";
 import { HUB, McpTestClient, oauthConnect, PNG_1PX, toolText } from "./mcp-helpers";
 
@@ -161,6 +168,76 @@ describe("Start with Claude", () => {
     expect(photo).toMatch(/^media\/.*loaves/);
     expect(d.media[photo]).toBeTruthy();
     expect(JSON.stringify(d.pages)).toContain(photo);
+  });
+
+  it("derives a short hero headline from what the site is for (never the whole answer)", () => {
+    const cases: Array<[string, string]> = [
+      [
+        "Teal House Pottery: a small ceramics studio in Portland selling handmade mugs and bowls, and running evening wheel-throwing classes.",
+        "A small ceramics studio in Portland",
+      ],
+      [
+        "A neighbourhood bakery and tea room in Leith.",
+        "A neighbourhood bakery and tea room in Leith",
+      ],
+      [
+        "We are a choir for people who think they can't sing.",
+        "A choir for people who think they can't sing",
+      ],
+      ["Crumb is a family bakery. We bake every morning.", "A family bakery"],
+      [
+        "Small yoga classes for beginners in a converted chapel",
+        "Small yoga classes for beginners in a converted chapel",
+      ],
+    ];
+    for (const [about, want] of cases) expect(headlineFrom(about), about).toBe(want);
+    const long =
+      "Helping first-time founders across rural Scotland understand grants loans equity crowdfunding and everything in between";
+    const h = headlineFrom(long) as string;
+    expect(h.split(" ").length).toBeLessThanOrEqual(HEADLINE_MAX_WORDS);
+    expect(h).not.toMatch(/\b(?:and|the|of)$/);
+    // A one-line answer becomes the headline alone (no repeated supporting line).
+    expect(heroCopy("Handmade pottery in Portland")).toEqual({
+      tagline: "Handmade pottery in Portland",
+      intro: "",
+    });
+  });
+
+  it("a long 'What is it for?' -> short headline, the answer as the intro, no sample place or brand (wave 4 P1/P2)", async () => {
+    const app = createApp();
+    const cookie = await devLogin(app, "Teal Potter");
+    const about =
+      "Teal House Pottery: a small ceramics studio in Portland selling handmade mugs and bowls, and running evening wheel-throwing classes.";
+    const res = await call(app, "/api/start", {
+      method: "POST",
+      cookie,
+      json: { name: "Teal House Pottery", about, feeling: ["calm"] },
+    });
+    expect(res.status, await res.clone().text()).toBe(201);
+    const body = (await res.json()) as {
+      site: { id: string };
+      startedFrom: { template: string; note?: string };
+    };
+    expect(body.startedFrom.template).toBe("Kiln");
+    const d = (
+      (await (await call(app, `/api/sites/${body.site.id}/document`, { cookie })).json()) as {
+        document: SiteDocument;
+      }
+    ).document;
+    const home = Object.values(d.pages).find((p) => p.slug === "");
+    const h1 = home?.sections
+      .flatMap((s) => s.blocks)
+      .find((b) => b.type === "heading" && b.fields.level === "h1");
+    expect(h1?.fields.text).toBe("A small ceramics studio in Portland");
+    expect(h1?.fields.subheading).toBe(about);
+    expect(h1?.fields.eyebrow).toBeUndefined();
+    const copy = designCheck(d, home?.id).filter(
+      (i) => i.rule === "copy-length" && i.severity === "warning",
+    );
+    expect(copy.map((i) => i.message)).toEqual([]);
+    expect(JSON.stringify(d.pages)).not.toContain("Saltmarsh Pottery");
+    expect(JSON.stringify(d.collections)).not.toContain("Saltmarsh Pottery");
+    expect(body.startedFrom.note).toMatch(/sample/);
   });
 
   it("refuses token files without tokens, in plain words", async () => {
