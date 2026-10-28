@@ -5,6 +5,7 @@
  * same steps are repeated in `start_site`'s description for clients that only read tools.
  */
 import { type PromptDefinition, SERVER_INSTRUCTIONS } from "@omniharmonic/openspace-mcp-tools";
+import { FINISH_MOVE_FLOW } from "./move-guide";
 
 export const START_FLOW = `Making a new website with someone (they have no site yet, or ask for a new one):
 1. Lead the conversation warmly, in plain words, one or two questions at a time — never a form. Learn: what the site is for; who visits and what they should do there (book, buy, sign up, get in touch, read); how it should feel (three words); what they already have (logo, photos, colours, wording, an old site, sites they love); which pages they need. Ask to see their logo or photos if they mention them.
@@ -15,10 +16,12 @@ export const START_FLOW = `Making a new website with someone (they have no site 
 Permissions: a site you made is always yours to edit. If a site exists that you can't edit, the tool's answer has an "Allow" link for the person — give it to them; you can never grant yourself access. If you're not allowed to create sites, say how to turn it on (the answer says where).
 Speak plainly: no jargon (repository, MCP, deploy, DNS) unless explained in one friendly sentence. Celebrate when it's live.`;
 
-/** Hub server instructions: the editing basics plus the start flow. */
+/** Hub server instructions: the editing basics plus the start and finish-a-move flows. */
 export const HUB_INSTRUCTIONS = `${SERVER_INSTRUCTIONS}
 
-Start with list_sites. ${START_FLOW}`;
+Start with list_sites. ${START_FLOW}
+
+${FINISH_MOVE_FLOW}`;
 
 export const START_PROMPT: PromptDefinition = {
   name: "start-a-site",

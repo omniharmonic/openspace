@@ -88,7 +88,7 @@ Screenshots on the Hub are limited to about forty every ten minutes per person, 
 
 ## Prompts
 
-`design-a-page`, `restyle-site`, `write-blog-post` and `iterate-design`. The Hub adds `start-a-site` ("Make a new website with me"): Claude asks about your site, designs it, puts it online and gives you the edit link. The Hub also sends the same steps as its server instructions, so Claude follows them even in apps that don't show prompts.
+`design-a-page`, `restyle-site`, `write-blog-post` and `iterate-design`. The Hub adds `start-a-site` ("Make a new website with me"): Claude asks about your site, designs it, puts it online and gives you the edit link — and `finish-a-move` ("Finish moving my site"): Claude compares a moved site with the original page by page, rebuilds what didn't come across and asks before publishing. The Hub also sends the same steps as its server instructions, so Claude follows them even in apps that don't show prompts.
 
 ## Resources
 

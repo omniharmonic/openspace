@@ -21,9 +21,18 @@ import {
 } from "../../services/imports";
 import { createStartSite } from "../../services/start-with-claude";
 import type { HubToolContext } from "../hub-tools";
+import { CLOSE_ENOUGH } from "../move-guide";
 import { MCP_CREATE_RATE } from "./account";
 import { grantOnCreate } from "./site-status";
 import { PageFilesArg, pageUpload } from "./start";
+
+/** A finished move that's worth finishing by hand: below ~90, or with differences listed. */
+export function needsFinishing(view: ImportView): boolean {
+  const f = view.fidelity;
+  if (f && f.score < CLOSE_ENOUGH) return true;
+  if (f?.pages.some((p) => p.differs?.length)) return true;
+  return view.attention.some((g) => g.items.length > 0);
+}
 
 function describe(view: ImportView, siteName: string): string {
   const lines = [view.headline];
@@ -41,10 +50,21 @@ function describe(view: ImportView, siteName: string): string {
     );
   if (view.state === "ready") {
     lines.push(`${siteName} is live at ${view.siteUrl}. Open it in Studio: ${view.studioUrl}`);
-    if (view.fidelity)
+    lines.push(`Moved from: ${view.source}`);
+    if (view.fidelity) {
       lines.push(
         `How close it looks to the original: ${view.fidelity.score}/100${view.fidelity.strict !== undefined ? ` (strict v3 scorer: ${view.fidelity.strict}/100 — the corrected score reads three things v3 measures wrong)` : ""}.`,
       );
+      const pages = [...view.fidelity.pages].sort((a, b) => a.score - b.score);
+      if (pages.length)
+        lines.push(
+          "Page by page (lowest first):",
+          ...pages.map(
+            (p) =>
+              `- ${p.path} on a ${p.device === "phone" ? "phone" : "computer"}: ${p.score}/100${p.differs?.length ? ` — still differs: ${p.differs.join(", ")}` : ""}`,
+          ),
+        );
+    }
     if (view.attention.length)
       lines.push(
         "What needs attention:",
@@ -57,6 +77,10 @@ function describe(view: ImportView, siteName: string): string {
       lines.push(
         "Finish setting up (after launch, in Studio):",
         ...view.checklist.map((i) => `- ${i.title}: ${i.detail}`),
+      );
+    if (needsFinishing(view))
+      lines.push(
+        `Not a near-perfect match yet. To bring it closer, follow "Finishing a move" in your instructions (also the finish-a-move prompt): screenshot_url the original (${view.source}) and screenshot the new site page by page, lowest score first; rebuild what didn't come across with the site's designs or a custom component (create_component, fields for every word and picture); design_check and phone_check; publish only with the person's OK.`,
       );
   } else if (view.state === "failed") lines.push(`It didn't finish: ${view.error}`);
   else
@@ -202,7 +226,7 @@ export function importTools(hub: HubToolContext) {
     name: "import_status",
     title: "How a site move is going",
     description:
-      "Progress of a site move started with import_site (or in Studio): the steps, how many pages and images came across, what needs attention, the 'Finish setting up' list, and the live address when it's done. Pass the site id (or the import id).",
+      "Progress of a site move started with import_site (or in Studio): the steps, how many pages and images came across, what needs attention, the 'Finish setting up' list, and the live address when it's done. Once it's done it also gives the old address and how close each page came (0–100) with what still differs — read it first when the person asks you to finish a move or make it closer to their old site. Pass the site id (or the import id).",
     input: z.object({
       site: z.string().optional().describe("Site id (st_…)."),
       import: z.string().optional().describe("Import id (imp_…)."),

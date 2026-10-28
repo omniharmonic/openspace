@@ -6,6 +6,7 @@ import { getImport } from "../src/db/imports";
 import { readConfig } from "../src/env";
 import { DevGitHubAccess } from "../src/github/dev";
 import { DRAFT_BRANCH } from "../src/github/types";
+import { needsFinishing } from "../src/mcp/tools/imports";
 import { createServices } from "../src/services";
 import { guessSiteName, parseImportSource, placeholderDocument } from "../src/services/import-site";
 import { plainWords } from "../src/services/import-words";
@@ -722,10 +723,37 @@ describe("remote MCP: import_site", () => {
       "How close it looks to the original: 93/100 (strict v3 scorer: 91/100",
     );
     expect(toolText(status)).toContain("Finish setting up");
+    // Enough for Claude to take the move further: the old address, each page and what differs.
+    expect(toolText(status)).toContain("Moved from: https://clara.example.com");
+    expect(toolText(status)).toContain("/ on a phone: 91/100 — still differs: Image placement");
+    expect(toolText(status)).toContain("finish-a-move");
     // The moved site is now part of this connection.
     const sites = await mcp.tool("list_sites");
     expect(
       ((sites.result?.structuredContent?.sites ?? []) as Array<{ id: string }>).map((s) => s.id),
     ).toEqual([data.site.id]);
+  });
+});
+
+describe("when import_status suggests finishing a move by hand", () => {
+  const view = (fidelity: ImportView["fidelity"], attention: ImportView["attention"] = []) =>
+    ({ fidelity, attention }) as ImportView;
+  it("below 90, with listed differences, or with things that didn't come across", () => {
+    expect(needsFinishing(view({ score: 84, pages: [] }))).toBe(true);
+    expect(
+      needsFinishing(
+        view({ score: 95, pages: [{ path: "/", device: "phone", score: 95, image: null }] }),
+      ),
+    ).toBe(false);
+    expect(
+      needsFinishing(
+        view({
+          score: 93,
+          pages: [{ path: "/", device: "phone", score: 91, image: null, differs: ["Fonts"] }],
+        }),
+      ),
+    ).toBe(true);
+    expect(needsFinishing(view(null, [{ title: "Embeds", items: ["A widget"] }]))).toBe(true);
+    expect(needsFinishing(view(null))).toBe(false);
   });
 });

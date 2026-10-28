@@ -474,4 +474,31 @@ describe("Claude leads the conversation", () => {
     const empty = await mcp.tool("list_sites");
     expect(toolText(empty)).toContain("start_site");
   });
+
+  it("knows how to finish a move: instructions and the finish-a-move prompt", async () => {
+    const app = createApp();
+    const { cookie } = await login(app, "Mover Mo");
+    const { accessToken } = await oauthConnect(app, cookie, { sites: [], create: true });
+    const mcp = new McpTestClient(app, `${HUB}/mcp`, accessToken);
+    const init = (await mcp.initialize()) as { instructions?: string };
+    expect(init.instructions).toContain("Finishing a move");
+    expect(init.instructions).toContain("import_status");
+    expect(init.instructions).toContain("create_component");
+    expect(init.instructions).toContain("never grant yourself access");
+    const prompts = await mcp.request("prompts/list");
+    const names = ((prompts.result?.prompts ?? []) as Array<{ name: string }>).map((p) => p.name);
+    expect(names).toEqual(expect.arrayContaining(["start-a-site", "finish-a-move"]));
+    const got = await mcp.request("prompts/get", {
+      name: "finish-a-move",
+      arguments: { site: "st_maya", from: "https://www.maya-yoga.com" },
+    });
+    const text = ((got.result?.messages ?? []) as Array<{ content: { text: string } }>)[0]?.content
+      .text;
+    expect(text).toContain(
+      "finish moving my site https://www.maya-yoga.com to OpenSpace (site st_maya)",
+    );
+    expect(text).toContain("screenshot_url");
+    expect(text).toContain("phone_check");
+    expect(text).toContain("ask me before you publish");
+  });
 });

@@ -1,7 +1,7 @@
 ---
 name: openspace-migrate
 description: This skill should be used when the user asks to "move my site to OpenSpace", "migrate my website", "import my WordPress / Squarespace / Wix / Webflow / Carrd / Framer site", "switch from Squarespace (or WordPress, Wix, Webflow) to OpenSpace", "copy my website into OpenSpace", "make my OpenSpace site look like my old site", or gives the address of an existing website and wants the same site in OpenSpace. It detects the platform, runs the importer, iterates page by page to visual parity with side-by-side screenshots, and finishes with redirects, publishing, the domain move and an honest summary of what differs.
-version: 0.3.0
+version: 0.4.0
 ---
 
 # Moving a website to OpenSpace (from anywhere)
@@ -22,7 +22,8 @@ The import is a strong first draft, not a pixel copy. The second half of the job
 Ground rules for the whole migration:
 
 - **Only for sites the person owns** or is moving on the owner's behalf. Ask before starting if it is not clear.
-- **Recreate the look, never copy it.** Never paste the old site's template code, CSS, HTML or scripts into custom code or embeds. Match the look with presets, section color themes, grid placement and Site Styles tokens.
+- **Recreate the look, never copy it.** Never paste the old site's template code, CSS, HTML or scripts into custom code or embeds. Match the look with presets, section color themes, grid placement and Site Styles tokens. When those can't express a section, animation or element, rebuild it as a custom component (`create_component`, fields for every word and picture) so it stays editable.
+- **Finishing a move that already happened** ("finish moving my site …", "Improve it with Claude" from Studio's move screen): skip the import. With the hosted OpenSpace connector, `import_status` (site id) gives the old address, each page's 0–100 match and what still differs — start there; then section 2 below, page by page, lowest score first, and publish only with their OK.
 - **Keep the owner's words.** Imported copy is theirs; don't rewrite it unless asked. Never invent content to fill gaps.
 - **The old site stays up** until the new one is live on the domain and verified.
 - **It has to just work.** Most people moving a site are not technical. Talk in plain words ("your site", "put it live", "your free address"); don't say repository, branch, commit, workflow, Actions, deploy, MCP, target or DNS unless they do, or explain the word in one friendly sentence. Make the technical decisions yourself with the defaults below; ask only what only they can answer (the address, whether it's theirs).

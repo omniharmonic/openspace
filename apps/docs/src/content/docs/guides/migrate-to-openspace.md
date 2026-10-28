@@ -24,6 +24,10 @@ Upload it: **Move my site → Upload a page** (an HTML file or a zip). Every sec
 
 Behind the scenes OpenSpace creates your new site, runs the same importer described below inside your site's own GitHub space, checks the result and publishes it. Every move lands on free GitHub Pages hosting first, even when your old site had a shop: selling, members and password pages are set up afterwards, so the first version always goes live.
 
+### Want it closer? Let Claude finish the job
+
+The automatic move brings across everything it recognises. When the match is below about 90/100, or some things didn't come across, Studio offers **Improve it with Claude** — on the move's results and in **Finish setting up**. It connects Claude once (if it isn't yet), lets it work on this site with one click, and opens Claude with a ready message naming your old address and your new site. Claude then compares the two page by page, rebuilds what's missing — custom sections, animations, missing pieces — as parts you can still edit, checks it on phones, and asks you before anything goes live. In apps that show prompts, the OpenSpace connector's **Finish moving my site** prompt (`finish-a-move`) does the same.
+
 You can do the same from the Claude app: connect OpenSpace (`https://hub.openspace.host/mcp`) and say *"Move my site www.example.com to OpenSpace"* — Claude uses the `import_site` tool and follows its progress with `import_status`.
 
 ### Sites on GitHub Pages

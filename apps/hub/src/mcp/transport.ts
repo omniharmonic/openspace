@@ -32,6 +32,7 @@ import {
   touchMcpSession,
 } from "./db";
 import { hubTools } from "./hub-tools";
+import { FINISH_MOVE_PROMPT } from "./move-guide";
 import { draftScreenshots } from "./screenshots";
 import { endSession, MCP_IDLE_MS } from "./sessions";
 import { HUB_INSTRUCTIONS, START_PROMPT } from "./start-guide";
@@ -325,7 +326,7 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
         log,
       }),
       instructions: HUB_INSTRUCTIONS,
-      prompts: [START_PROMPT],
+      prompts: [START_PROMPT, FINISH_MOVE_PROMPT],
       assumeInitialized: !init,
       onError: (err, where) => log.error("mcp tool failed", { where, err }),
     },

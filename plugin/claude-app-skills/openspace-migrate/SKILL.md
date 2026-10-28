@@ -1,9 +1,9 @@
 ---
 name: openspace-migrate
-description: Move an existing website (Squarespace, GitHub Pages, WordPress, Wix, any site) into OpenSpace with no installs, using the OpenSpace connector, then match the old look page by page with screenshots.
+description: Move a website (Squarespace, GitHub Pages, WordPress, Wix, any) into OpenSpace with no installs, or finish a move - compare with the original page by page and rebuild what didn't come across.
 license: MIT
 metadata:
-  version: "0.5.0"
+  version: "0.6.0"
   for: claude.ai and Claude Desktop with the OpenSpace connector (https://hub.openspace.host/mcp)
 ---
 
@@ -20,7 +20,7 @@ Everything runs through the **OpenSpace connector** (`https://hub.openspace.host
 - **Keep them posted in one short line** at each stage ("Copying your pages and photos now — this takes a few minutes").
 - **Never ask them to open a terminal** or install anything (Node, npm, Playwright…). This path needs only a browser and Claude.
 - **Never invent content.** Their words and photos are theirs; don't rewrite unless asked. Ask before filling a gap.
-- **Recreate the look, never copy it.** Never paste the old site's code, CSS or scripts into embeds. Match the look with OpenSpace's designs and Site Styles.
+- **Recreate the look, never copy it.** Never paste the old site's code, CSS or scripts into embeds. Match the look with OpenSpace's designs and Site Styles — and when they can't express something (a custom layout, a slideshow, an animation), rebuild it as a custom component with fields for every word and picture, so it stays editable.
 - **Their old site keeps running** until they decide to move their web address — which is optional and comes at the very end.
 
 ## Defaults (decide, don't ask)
@@ -39,6 +39,18 @@ Call `list_sites`. If the OpenSpace tools are missing, walk them through it, one
 1. Open https://studio.openspace.host and **Sign in with GitHub** (free; it's where their site's files are kept). When asked, allow OpenSpace on their GitHub account.
 2. In Claude: **Settings → Connectors → Add custom connector**, name **OpenSpace**, address `https://hub.openspace.host/mcp`. Sign in when it opens, tick their sites (if any) and press **Allow**.
 3. In this chat, turn the OpenSpace connector on in the tools menu.
+
+## Finishing a move that already happened
+
+Often the site was already moved automatically — with **Move your site** in Studio, or `import_site` earlier — and the person comes back with a message like "Please finish moving my site https://www.example.com to OpenSpace (site "Example", id st_…)". The site exists and is live; your job is to bring it closer to the original. Skip steps 1–2 and:
+
+1. **Find the site.** `list_sites`; the message names its id. If you can't reach it, the answer includes an **Allow** link — give it to them (in Studio it's one click: "Let Claude edit this site") and wait. Never try to grant yourself access.
+2. **Read the move report.** `import_status` with the site id gives the old address, how close the move came (0–100, page by page, lowest first), what still differs on each page, and what needs attention. Work from the lowest pages and the listed differences.
+3. **Compare page by page** exactly as in step 3 below: `screenshot_url` of the original and `screenshot` of the new site, desktop then mobile. Tell them in two or three plain sentences what you'll fix ("Your home page is missing the slideshow at the top and the three coloured cards; I'll rebuild those").
+4. **Rebuild what didn't come across.** First with the site's own designs (`set_styles`, `update_section`, a closer preset, `place_in_grid`). For anything they can't express — a custom section layout, an animation, a distinctive element — make a custom component: `create_component` with the original's look recreated in its own template and CSS (a little `js` only for motion, honouring reduced motion) and a field for every word, picture and link; then `insert_component`, `preview_component`, and remove the section it replaces. Their content stays theirs: never invent words or pictures that weren't there — ask.
+5. **Check and publish with their OK**, as in step 4 below (`design_check`, `phone_check` / `fix_for_phones`, `get_draft_diff`, then ask before `publish`). Show them before and after.
+
+The "finish-a-move" prompt in the OpenSpace connector holds the same steps.
 
 ## 1. Look first
 
