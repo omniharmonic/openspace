@@ -66,10 +66,9 @@ export const productBlock = defineBlock({
     quantity: f.boolean({ default: true, label: "Quantity picker" }),
     buttonLabel: f.text({ maxLength: 30, default: "Add to cart" }),
     detailsLabel: f.text({ maxLength: 30, default: "View details" }),
-    showPrice: f.boolean({ optional: true, default: true, label: "Show the price" }),
+    showPrice: f.boolean({ optional: true, label: "Show the price", help: "On unless turned off" }),
     showBuy: f.boolean({
       optional: true,
-      default: true,
       label: "Show Add to cart",
       help: "Off: just the picture and name, linking to the product's page (a shop grid)",
     }),
