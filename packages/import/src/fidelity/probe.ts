@@ -470,7 +470,8 @@ export const PROBE_SCRIPT = String.raw`(async () => {
     // Corrected score only (the strict v3 count above is kept): columns a visitor can see.
     // A box that clips content running sideways out of it (a scroll-snap slideshow, a map's
     // tiles) is one picture on screen, however many slides or tiles it holds; anything else
-    // counts when at least half of it is inside the viewport. (A clearfix row with
+    // counts when at least half of it (or half the viewport's width) is inside the viewport.
+    // (A clearfix row with
     // overflow: hidden doesn't overflow sideways, so its columns stay columns.)
     const clipBox = (el) => {
       for (let e = el.parentElement; e && e !== document.body && e !== doc; e = e.parentElement) {
@@ -493,7 +494,8 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       }
       const r = el.getBoundingClientRect();
       const L = Math.max(0, r.left), R = Math.min(vw, r.right);
-      if (R - L >= r.width * 0.5) shownRects.push(rect(el));
+      // Half of it on screen — or half the screen (a wide cover photo cropped at both sides).
+      if (R - L >= Math.min(r.width, vw) * 0.5) shownRects.push(rect(el));
     }
     const shown = columnsOf(shownRects);
     if (shown !== res.columns) res.columnsOnScreen = shown;

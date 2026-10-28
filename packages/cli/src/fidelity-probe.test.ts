@@ -79,6 +79,20 @@ describe("look probe: corrected measurements", () => {
     expect(grid?.columnsOnScreen).toBeUndefined();
   }, 60_000);
 
+  it("keeps a wide cover photo cropped at both sides on screen", async (t) => {
+    const px = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+    const p = await probeHtml(
+      t,
+      `<main><section style="height:500px;position:relative"><h2>Sustainability starts with you</h2>
+        <img src="${px}" style="position:absolute;left:-214px;top:0;width:818px;height:545px">
+        <p style="position:relative">Words over the photo, long enough to count as a line of text.</p>
+      </section><section style="height:400px"><h2>Next</h2><p>More words in another section of the page.</p></section></main>`,
+      390,
+    );
+    if (!p) return;
+    expect(p.sections[0]?.columnsOnScreen).toBeUndefined();
+  }, 60_000);
+
   it("counts a map's tiles as one picture, and keeps a clearfix row's columns", async (t) => {
     const px = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
     const tile = (x: number) =>

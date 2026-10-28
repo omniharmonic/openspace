@@ -652,7 +652,7 @@ function comparePage(
         const now = [columnsOf(s, mode), columnsOf(other, mode)];
         if ((was[0] !== was[1]) !== (now[0] !== now[1]))
           notes.push(
-            `Section ${k + 1}: columns counted on screen only (${was[0]} → ${was[1]} counted as ${now[0]} → ${now[1]}; off-screen slides aren't columns).`,
+            `Section ${k + 1}: columns counted on screen only (${was[0]} → ${was[1]} counted as ${now[0]} → ${now[1]}; what's off screen or inside one slideshow or map isn't a column).`,
           );
       }
     } else if (mode === "corrected" && phone && pictureOnly(s)) {
