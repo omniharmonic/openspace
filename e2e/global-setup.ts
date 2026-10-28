@@ -23,7 +23,9 @@ export default async function globalSetup(_config: FullConfig) {
     `/sites/${site.id}/orders`,
     `/sites/${site.id}/settings/general`,
   ]) {
-    await page.goto(path);
+    // A cold Vite transforms each chunk on first visit; on a busy machine that alone can take
+    // longer than the 30 s navigation default, so the warm-up gets the same 2 minutes as below.
+    await page.goto(path, { timeout: 120_000 });
     await page.waitForLoadState("networkidle", { timeout: 120_000 }).catch(() => undefined);
   }
   await browser.close();
