@@ -113,6 +113,13 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
           </li>
         ))}
       </ul>
+      {fidelity.pages.some((p) => p.score < 75) ? (
+        <p className="st-attention__lede">
+          A lower score means that page looks different on that screen — nothing is lost: every word
+          and picture came across. Open the page in the editor to adjust it, or ask Claude to
+          compare it with your old site and fix what differs.
+        </p>
+      ) : null}
     </section>
   );
 }

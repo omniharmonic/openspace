@@ -198,10 +198,7 @@ export function parseFidelitySummary(text: string | null): ImportFidelity | unde
     const before = num(q.before);
     const image = str(q.image, 100);
     const differs = Array.isArray(q.differs)
-      ? q.differs
-          .map((d) => str(d, 80))
-          .filter((d): d is string => !!d)
-          .slice(0, 3)
+      ? differsWords(q.differs.map((d) => str(d, 80)).filter((d): d is string => !!d))
       : [];
     pages.push({
       path,
@@ -425,6 +422,43 @@ function headlineFor(row: ImportRow, counts: ImportCounts | null, siteName: stri
     default:
       return row.error ?? "The move didn't finish.";
   }
+}
+
+/** The comparison's check names → what an owner understands (wave 4: "Present, Present"). */
+const DIFFERS_WORDS: Array<[RegExp, string | ((m: RegExpMatchArray) => string)]> = [
+  [/^present$/i, "a section that didn’t come across"],
+  [/^(.+?): present$/i, (m) => `${lower(m[1] as string)} style`],
+  [/^height$/i, "section heights"],
+  [/^columns$/i, "columns"],
+  [/^italic lines$/i, "italic text"],
+  [/^text$/i, "wording"],
+  [/^(.+?) letter spacing and case$/i, (m) => `${lower(m[1] as string)} lettering`],
+  [/^buttons size$/i, "button size"],
+  [/^buttons\b/i, (m) => `button${(m.input ?? "").slice(7).toLowerCase()}`],
+];
+
+const lower = (s: string) =>
+  s.replace(/^Buttons\b/, "button").replace(/^\w/, (c) => c.toLowerCase());
+
+/**
+ * "Still differs" for one page: plain words, each said once, at most three, sentence-cased
+ * ("Height, Height, Height" → "Section heights").
+ */
+export function differsWords(raw: readonly string[]): string[] {
+  const out: string[] = [];
+  for (const d of raw) {
+    let w = d.trim();
+    for (const [re, to] of DIFFERS_WORDS) {
+      const m = w.match(re);
+      if (m) {
+        w = typeof to === "string" ? to : to(m);
+        break;
+      }
+    }
+    w = w.toLowerCase().replace(/\bh(\d)\b/g, "heading $1");
+    if (w && !out.includes(w)) out.push(w);
+  }
+  return out.slice(0, 3).map((w, i) => (i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w));
 }
 
 export function toImportView(

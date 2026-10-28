@@ -10,6 +10,7 @@ import { guessSiteName, parseImportSource, placeholderDocument } from "../src/se
 import { plainWords } from "../src/services/import-words";
 import {
   attentionFromReport,
+  differsWords,
   failureMessage,
   type ImportView,
   parseFidelitySummary,
@@ -209,6 +210,16 @@ describe("the import workflow", () => {
         { path: "/about", device: "phone", score: 100 },
       ],
     });
+    // Each difference once, in plain words (wave 4: "Present, Present", "Height, Height, Height").
+    expect(differsWords(["Height", "Height", "Height"])).toEqual(["Section heights"]);
+    expect(differsWords(["Present", "Present", "Columns"])).toEqual([
+      "A section that didn’t come across",
+      "columns",
+    ]);
+    expect(differsWords(["Label font", "Buttons size", "Buttons letter spacing and case"])).toEqual(
+      ["Label font", "button size", "button lettering"],
+    );
+    expect(differsWords(["Heading 2: present"])).toEqual(["Heading 2 style"]);
   });
 
   it("explains failed runs without blaming the person's site for our problems", () => {
