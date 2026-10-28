@@ -203,7 +203,9 @@ export function splitAtHeadings(blocks: Placed[]): Placed[][] {
   const media = blocks.filter(
     ({ block }) => block.type === "image" && block.fields.size === "original",
   ).length;
-  if (size < 2400 && media < 2) return [blocks];
+  // Rules drawn between chapters (Squarespace line blocks) mark them however short they are.
+  const rules = blocks.filter(({ block }) => block.type === "line").length;
+  if (size < 2400 && media < 2 && rules < 1) return [blocks];
   const level = count(2) >= 2 ? 2 : count(3) >= 3 ? 3 : undefined;
   if (!level) return [blocks];
   const out: Placed[][] = [[]];

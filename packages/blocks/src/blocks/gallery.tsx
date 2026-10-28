@@ -217,7 +217,7 @@ export const galleryCss = `
 .os-gallery--grid .os-gallery__items{display:grid;gap:var(--os-space-xs);grid-template-columns:repeat(2,minmax(0,1fr))}
 @container block (min-width:44rem){.os-gallery--grid .os-gallery__items{grid-template-columns:repeat(var(--g-tcols,3),minmax(0,1fr));gap:var(--os-space-sm)}}
 @container block (min-width:64rem){.os-gallery--grid .os-gallery__items{grid-template-columns:repeat(var(--g-cols,3),minmax(0,1fr))}}
-@container block (max-width:24rem){.os-gallery--grid .os-gallery__items{grid-template-columns:minmax(0,1fr)}}
+@container block (max-width:20rem){.os-gallery--grid .os-gallery__items{grid-template-columns:minmax(0,1fr)}}
 
 .os-gallery--masonry .os-gallery__items{columns:2;column-gap:var(--os-space-xs)}
 .os-gallery--masonry .os-gallery__item{break-inside:avoid;margin-bottom:var(--os-space-xs)}

@@ -44,6 +44,7 @@ export const TUNE_GROUPS = [
   "rhythm",
   "rhythm-phone",
   "widths",
+  "chapters",
   "colors",
   "page-color",
   "buttons",
@@ -367,6 +368,74 @@ export function tuneRound(
       if (n) changes.push(`${m.path}: ${n} section(s) at the ${width} width, as on the original`);
     }
   }
+  // Per page: consecutive sections of ours whose words all sit in one band of the original (an
+  // article the import split into chapters, which the original shows as one panel) join again.
+  if (on("chapters")) {
+    const bag = (t: string) =>
+      new Set(
+        t
+          .toLowerCase()
+          .split(/[^a-z0-9]+/)
+          .filter((w) => w.length > 3),
+      );
+    for (const m of desk) {
+      const page = pageOf(doc, m.path);
+      if (!page || m.imported.sections.length !== page.sections.length) continue;
+      const keep = new Set(page.sections.map((_, j) => j));
+      for (const o of m.original.sections) {
+        const mine = bag(`${o.heading?.text ?? ""} ${o.words ?? o.text}`);
+        if (mine.size < 20) continue;
+        const inside = m.imported.sections
+          .map((x, j) => {
+            const theirs = bag(`${x.heading?.text ?? ""} ${x.words ?? x.text}`);
+            let n = 0;
+            for (const w of theirs) if (mine.has(w)) n++;
+            return theirs.size >= 3 && n / theirs.size >= 0.85 ? j : -1;
+          })
+          .filter((j) => j >= 0);
+        // Runs of neighbours that can join (plain one-column sections of one look).
+        let run: number[] = [];
+        const join = () => {
+          if (run.length >= 2) {
+            const [first, ...rest] = run.map((j) => page.sections[j] as Section);
+            for (const r of rest) {
+              first?.blocks.push(...r.blocks);
+              keep.delete(page.sections.indexOf(r));
+            }
+            changes.push(`${m.path}: ${run.length} sections joined into one, as on the original`);
+          }
+          run = [];
+        };
+        for (const j of inside) {
+          const a = page.sections[j] as Section;
+          const prev = run.length
+            ? (page.sections[run[run.length - 1] as number] as Section)
+            : undefined;
+          const plain =
+            a.layout.mode === "stack" &&
+            a.layout.columns.d.length === 1 &&
+            !a.anchor &&
+            a.style.background?.type !== "image" &&
+            a.style.background?.type !== "video";
+          const same =
+            prev &&
+            j === (run[run.length - 1] as number) + 1 &&
+            (prev.style.colorTheme ?? "light") === (a.style.colorTheme ?? "light") &&
+            prev.layout.mode === "stack" &&
+            (prev.layout.width ?? "content") ===
+              (a.layout.mode === "stack" ? (a.layout.width ?? "content") : "");
+          if (plain && (!run.length || same)) run.push(j);
+          else {
+            join();
+            if (plain) run.push(j);
+          }
+        }
+        join();
+      }
+      if (keep.size !== page.sections.length)
+        page.sections = page.sections.filter((_, j) => keep.has(j));
+    }
+  }
   const pad = (list: TuneInput[]) =>
     median(
       list
@@ -414,7 +483,10 @@ export function tuneRound(
   }
 
   // --- text and heading colors per section theme (bone on obsidian, ink on paper) ---------------
-  const inks = new Map<string, { text: string[]; heading: string[]; background: string[] }>();
+  // Every matched section's original and imported color per theme and role (not only the
+  // failing ones): the color chosen is the original's that the most sections would pass with.
+  type Pair = { o: string; i: string };
+  const inks = new Map<string, { text: Pair[]; heading: Pair[]; background: Pair[] }>();
   for (const m of on("colors") || on("page-color") ? desk : []) {
     const page = pageOf(doc, m.path);
     if (!page || m.imported.sections.length !== page.sections.length) continue;
@@ -427,21 +499,11 @@ export function tuneRound(
       const theme = section.style.colorTheme ?? "light";
       const e = inks.get(theme) ?? { text: [], heading: [], background: [] };
       // The theme's own background (no section color of its own): the original's page color.
-      if (
-        o.background &&
-        i.background &&
-        !section.style.background &&
-        colorDistance(o.background, i.background) >= 8
-      )
-        e.background.push(o.background);
-      if (o.textColor && i.textColor && colorDistance(o.textColor, i.textColor) >= 16)
-        e.text.push(o.textColor);
-      if (
-        o.heading?.color &&
-        i.heading?.color &&
-        colorDistance(o.heading.color, i.heading.color) >= 16
-      )
-        e.heading.push(o.heading.color);
+      if (o.background && i.background && !section.style.background)
+        e.background.push({ o: o.background, i: i.background });
+      if (o.textColor && i.textColor) e.text.push({ o: o.textColor, i: i.textColor });
+      if (o.heading?.color && i.heading?.color)
+        e.heading.push({ o: o.heading.color, i: i.heading.color });
       inks.set(theme, e);
     }
   }
@@ -451,11 +513,25 @@ export function tuneRound(
       ...(on("page-color") ? (["background"] as const) : []),
     ]) {
       const list = e[role];
-      const first = list[0];
-      // Only a color the original used throughout that theme.
-      if (!first || list.length < 2 || !list.every((c) => colorDistance(c, first) < 12)) continue;
-      setRole(doc, theme, role, first);
-      changes.push(`${role} on ${theme} sections ${first}, as on the original`);
+      // The check's own tolerance (backgrounds 16, text 28; headings are judged like text).
+      const tol = role === "background" ? 16 : 28;
+      const passes = (c: (p: Pair) => string) =>
+        list.filter((p) => colorDistance(p.o, c(p)) < tol).length;
+      const now = passes((p) => p.i);
+      let best: string | undefined;
+      let bestN = now;
+      for (const cand of new Set(list.map((p) => p.o))) {
+        const n = passes(() => cand);
+        if (n > bestN) {
+          best = cand;
+          bestN = n;
+        }
+      }
+      if (!best || list.length < 2) continue;
+      if (!setRole(doc, theme, role, best)) continue;
+      changes.push(
+        `${role} on ${theme} sections ${best}, as on the original (${bestN} of ${list.length} sections)`,
+      );
     }
 
   // --- buttons per section theme: the original's own fill (a clay button on a dark band) --------
