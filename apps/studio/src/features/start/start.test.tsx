@@ -99,4 +99,47 @@ describe("Start with Claude", () => {
     });
     expect(await screen.findByText(/Your page is now a real site/)).toBeInTheDocument();
   });
+
+  // A page chosen right after the screen opens, before Studio knows who is signed in, used to
+  // send a signed-in person to "Sign in to move your site" and drop the page.
+  it("Move my site: a page chosen while the session is still loading waits for it, then uploads", async () => {
+    let answer: () => void = () => {};
+    const { user, router, hub } = renderStudio("/move", { user: SAM }, undefined, (h) => {
+      const real = h.getSession.bind(h);
+      h.getSession = () =>
+        new Promise((resolve) => {
+          answer = () => resolve(real());
+        });
+    });
+    await screen.findByRole("heading", { name: "Move your site to OpenSpace" });
+    await user.click(screen.getByLabelText("This is my site, or I’m moving it for its owner."));
+    const page = new File(["<!doctype html><h1>Hello</h1>"], "lantern.html", { type: "text/html" });
+    await user.upload(document.querySelector('input[type="file"]') as HTMLInputElement, page);
+    expect(await screen.findByText("Starting the move…")).toBeInTheDocument();
+    answer();
+    await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/start\/st_/));
+    expect(screen.queryByRole("heading", { name: "Sign in to move your site" })).toBeNull();
+    expect(hub.calls.find((c) => c.method === "uploadPage")?.args[0]).toMatchObject({
+      html: { name: "lantern.html" },
+    });
+  });
+
+  it("Move my site: a page chosen while signed out is brought in once they sign in", async () => {
+    const { user, router, hub } = renderStudio("/move");
+    await screen.findByRole("heading", { name: "Move your site to OpenSpace" });
+    await user.click(screen.getByLabelText("This is my site, or I’m moving it for its owner."));
+    const page = new File(["<!doctype html><h1>Hello</h1>"], "lantern.html", { type: "text/html" });
+    await user.upload(document.querySelector('input[type="file"]') as HTMLInputElement, page);
+    expect(
+      await screen.findByRole("heading", { name: "Sign in to move your site" }),
+    ).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Your name"), "Sam Rivera");
+    await user.click(screen.getByRole("button", { name: "Sign in" }));
+    await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/start\/st_/));
+    expect(hub.calls.find((c) => c.method === "uploadPage")?.args[0]).toMatchObject({
+      confirmOwnership: true,
+      html: { name: "lantern.html" },
+    });
+    expect(hub.calls.some((c) => c.method === "createImport")).toBe(false);
+  });
 });

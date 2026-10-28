@@ -23,6 +23,7 @@ import { type StartInput, useSession, useStartSite } from "../../api";
 import { Wordmark } from "../../app/Wordmark";
 import { Button, cx, Field, IconButton, Input, Spinner, TextArea, toast } from "../../ui";
 import { SignInPanel } from "../auth/SignInPanel";
+import { useWhenSignedIn } from "../auth/useWhenSignedIn";
 import "./Start.css";
 
 const DRAFT_KEY = "openspace.startDraft";
@@ -124,6 +125,7 @@ type Step = "idea" | "signin" | "brand";
 export function StartWithClaude() {
   const session = useSession();
   const user = session.data?.user ?? null;
+  const { whenSignedIn } = useWhenSignedIn();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [draft, setDraft] = useState<Draft>(() => ({ ...EMPTY, ...loadDraft() }));
@@ -162,7 +164,10 @@ export function StartWithClaude() {
       return setError("Say a few words about what it's for — Claude starts from this.");
     setError(null);
     saveDraft(draft);
-    setStep(user ? "brand" : "signin");
+    whenSignedIn(
+      () => setStep("brand"),
+      () => setStep("signin"),
+    );
   };
 
   const addFiles = async (files: FileList | null) => {

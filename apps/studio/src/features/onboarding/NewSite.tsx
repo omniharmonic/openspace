@@ -22,6 +22,7 @@ import {
 } from "../../ui";
 import { normalizeHex } from "../../ui/color";
 import { SignInPanel } from "../auth/SignInPanel";
+import { useWhenSignedIn } from "../auth/useWhenSignedIn";
 import { LookPicker } from "../templates/LookPicker";
 import { TemplatePreview } from "../templates/TemplatePreview";
 import { BuildingProgress } from "./BuildingProgress";
@@ -178,6 +179,7 @@ function LogoField({
 function NewSiteFlow({ template }: { template: TemplateSummary }) {
   const session = useSession();
   const user = session.data?.user ?? null;
+  const { whenSignedIn, waiting } = useWhenSignedIn();
   const [params, setParams] = useSearchParams();
   const { timing } = useConfig();
   const create = useCreateSite({ retryBaseMs: timing.createRetryMs });
@@ -273,7 +275,7 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
     );
   }
 
-  if (create.isPending || (resume && user)) {
+  if (create.isPending || waiting || (resume && user)) {
     return (
       <div className="st-center st-new__starting">
         <Spinner size={18} label="Starting your site" />
@@ -294,8 +296,11 @@ function NewSiteFlow({ template }: { template: TemplateSummary }) {
     }
     setNameError(null);
     saveDraft(draft);
-    if (user) startCreate(draft);
-    else setStep("signin");
+    const d = draft;
+    whenSignedIn(
+      () => startCreate(d),
+      () => setStep("signin"),
+    );
     // (startCreate ignores the submit while a create is already running.)
   };
 

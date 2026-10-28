@@ -95,6 +95,12 @@ test("Start with Claude: idea + design tokens → live site in their brand → h
 // section is a designer component whose words are fields in Studio's inspector.
 test("Upload a page Claude made → a live site whose sections are editable", async ({ page }) => {
   await devLogin(page.context().request, unique("Page Owner"));
+  // The page is chosen before Studio has heard back who is signed in (a slow `/api/me`, as on a
+  // busy machine or a phone): it must wait for the session, not ask a signed-in person to sign in.
+  await page.route(`${HUB_URL}/api/me`, async (route) => {
+    await new Promise((done) => setTimeout(done, 1_500));
+    await route.continue();
+  });
   await page.goto("/move");
   await page.getByLabel("This is my site, or I’m moving it for its owner.").check();
   await page.getByLabel("Name for your new site").fill(unique("Crumb Page"));

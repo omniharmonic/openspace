@@ -18,9 +18,19 @@ import {
 import { Wordmark } from "../../app/Wordmark";
 import { Button, cx, Field, Input, Spinner, toast } from "../../ui";
 import { SignInPanel } from "../auth/SignInPanel";
+import { useWhenSignedIn } from "../auth/useWhenSignedIn";
 import "./Move.css";
 
 const DRAFT_KEY = "openspace.moveDraft";
+/** A page chosen before signing in, kept across the GitHub round trip when it fits. */
+const PAGE_KEY = "openspace.movePage";
+const PAGE_KEEP_MAX = 4_000_000;
+
+interface PageUpload {
+  name: string;
+  /** The file as a data URL. */
+  data: string;
+}
 
 interface MoveDraft {
   url: string;
@@ -50,8 +60,30 @@ function saveDraft(d: MoveDraft) {
 function clearDraft() {
   try {
     sessionStorage.removeItem(DRAFT_KEY);
+    sessionStorage.removeItem(PAGE_KEY);
   } catch {
     // ignore
+  }
+}
+function savePage(page: PageUpload | null) {
+  try {
+    if (page && page.data.length <= PAGE_KEEP_MAX)
+      sessionStorage.setItem(PAGE_KEY, JSON.stringify(page));
+    else sessionStorage.removeItem(PAGE_KEY);
+  } catch {
+    // too big for this browser's storage: they choose it again after signing in
+  }
+}
+function takePage(): PageUpload | null {
+  try {
+    const raw = sessionStorage.getItem(PAGE_KEY);
+    sessionStorage.removeItem(PAGE_KEY);
+    const page = raw ? (JSON.parse(raw) as Partial<PageUpload>) : null;
+    return page && typeof page.name === "string" && typeof page.data === "string"
+      ? { name: page.name, data: page.data }
+      : null;
+  } catch {
+    return null;
   }
 }
 
@@ -76,6 +108,9 @@ export function MoveSite() {
   const create = useCreateImport();
   const convert = useConvertRepo();
   const upload = useUploadPage();
+  const { whenSignedIn, waiting } = useWhenSignedIn();
+  /** A page chosen while signed out: brought in as soon as they've signed in. */
+  const pendingPage = useRef<PageUpload | null>(null);
   const inFlight = useRef(false);
   const gh = githubAddress(draft.url);
   const update = (patch: Partial<MoveDraft>) => setDraft((d) => ({ ...d, ...patch }));
@@ -115,19 +150,58 @@ export function MoveSite() {
     [convert, create, navigate, setParams],
   );
 
+  /** "Upload a page": send it; the Hub makes it an editable site and puts it online. */
+  const sendPage = useCallback(
+    (page: PageUpload, name: string) => {
+      pendingPage.current = null;
+      upload.mutate(
+        {
+          confirmOwnership: true,
+          html: page,
+          ...(name.trim() ? { name: name.trim() } : {}),
+        },
+        {
+          onSuccess: (r) => {
+            clearDraft();
+            navigate(`/start/${r.site.id}`, {
+              replace: true,
+              state: { startedFrom: r.startedFrom },
+            });
+          },
+          onError: (err) => {
+            setStep("details");
+            setParams({}, { replace: true });
+            toast({
+              tone: "danger",
+              title: "Your page wasn’t brought in",
+              description: err.message,
+            });
+          },
+        },
+      );
+    },
+    [upload, navigate, setParams],
+  );
+
   // Back from GitHub sign-in: carry on.
   const resumed = useRef(false);
   useEffect(() => {
     if (resume && user && !resumed.current) {
       resumed.current = true;
       const saved = loadDraft();
-      if (saved?.url && saved.mine) start(saved);
+      const page = takePage();
+      if (page && saved?.mine) sendPage(page, saved.name);
+      else if (saved?.url && saved.mine) start(saved);
       else setParams({}, { replace: true });
     }
-  }, [resume, user, start, setParams]);
+  }, [resume, user, start, sendPage, setParams]);
 
   const busy =
-    create.isPending || convert.isPending || upload.isPending || (resume && Boolean(user));
+    create.isPending ||
+    convert.isPending ||
+    upload.isPending ||
+    waiting ||
+    (resume && Boolean(user));
 
   /** "Upload a page": an HTML file or zip (a page Claude made) → an editable site, live at once. */
   const onPage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -138,30 +212,20 @@ export function MoveSite() {
       return setError("Choose an .html file, or a .zip of your page and its pictures.");
     if (file.size > 30 * 1024 * 1024) return setError("That file is over 30 MB.");
     if (!draft.mine) return setError("Tick the box to confirm this is your site.");
-    if (!user) return setStep("signin");
     setError(null);
+    const d = draft;
     const reader = new FileReader();
-    reader.onload = () =>
-      upload.mutate(
-        {
-          confirmOwnership: true,
-          html: { name: file.name, data: String(reader.result) },
-          ...(draft.name.trim() ? { name: draft.name.trim() } : {}),
-        },
-        {
-          onSuccess: (r) =>
-            navigate(`/start/${r.site.id}`, {
-              replace: true,
-              state: { startedFrom: r.startedFrom },
-            }),
-          onError: (err) =>
-            toast({
-              tone: "danger",
-              title: "Your page wasn’t brought in",
-              description: err.message,
-            }),
+    reader.onload = () => {
+      const page = { name: file.name, data: String(reader.result) };
+      whenSignedIn(
+        () => sendPage(page, d.name),
+        () => {
+          pendingPage.current = page;
+          saveDraft(d);
+          setStep("signin");
         },
       );
+    };
     reader.readAsDataURL(file);
   };
 
@@ -170,9 +234,13 @@ export function MoveSite() {
     if (!draft.url.trim()) return setError("Paste your site’s address, like www.example.com.");
     if (!draft.mine) return setError("Tick the box to confirm this is your site.");
     setError(null);
+    pendingPage.current = null;
     saveDraft(draft);
-    if (user) start(draft);
-    else setStep("signin");
+    const d = draft;
+    whenSignedIn(
+      () => start(d),
+      () => setStep("signin"),
+    );
   };
 
   if (busy)
@@ -337,14 +405,28 @@ export function MoveSite() {
           </form>
         ) : (
           <div className="st-move__form">
-            <button type="button" className="st-move__back" onClick={() => setStep("details")}>
+            <button
+              type="button"
+              className="st-move__back"
+              onClick={() => {
+                pendingPage.current = null;
+                setStep("details");
+              }}
+            >
               <ArrowLeft aria-hidden="true" /> Back
             </button>
             <h1 className="st-move__title">Sign in to move your site</h1>
             <SignInPanel
               github={{ returnTo: "/move?resume=1" }}
-              beforeRedirect={() => saveDraft(draft)}
-              onSignedIn={() => start(draft)}
+              beforeRedirect={() => {
+                saveDraft(draft);
+                savePage(pendingPage.current);
+              }}
+              onSignedIn={() => {
+                const page = pendingPage.current;
+                if (page) sendPage(page, draft.name);
+                else start(draft);
+              }}
             />
           </div>
         )}
