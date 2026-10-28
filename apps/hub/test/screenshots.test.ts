@@ -35,6 +35,14 @@ function recordingBackend(): BrowserBackend & { seen: ShotTarget[] } {
   return {
     kind: "browser",
     seen,
+    async measure(targets) {
+      return targets.map((t) => ({
+        width: t.width,
+        height: 780,
+        scrollWidth: t.width,
+        findings: [],
+      }));
+    },
     async capture(targets) {
       seen.push(...targets);
       return targets.map((t) => ({

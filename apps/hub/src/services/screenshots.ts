@@ -12,6 +12,12 @@
  * Draft pages are reached through a short-lived, site-bound signed token on `/p/:siteId/…`
  * (`os_shot`), never with the person's own session.
  */
+import {
+  PHONE_HEIGHT,
+  PHONE_PREPARE_SCRIPT,
+  PHONE_PROBE_SCRIPT,
+  type PhoneProbeResult,
+} from "@omniharmonic/openspace-lint";
 import { ToolError } from "@omniharmonic/openspace-mcp-tools";
 import { zlibSync } from "fflate";
 import type { HubBindings, HubConfig } from "../env";
@@ -53,6 +59,17 @@ export interface BrowserBackend {
   readonly kind: "browser" | "stub";
   /** Capture each target in order (one browser for the whole call). */
   capture(targets: ShotTarget[]): Promise<ShotResult[]>;
+  /**
+   * The Phone check: lay each page out as a phone (touch, mobile viewport) and run the probe
+   * (`PHONE_PROBE_SCRIPT`). The dev placeholder measures nothing (empty findings).
+   */
+  measure(targets: PhoneTarget[]): Promise<PhoneProbeResult[]>;
+}
+
+export interface PhoneTarget {
+  url: string;
+  /** Phone width in CSS px (360 / 390). */
+  width: number;
 }
 
 // --- limits ---------------------------------------------------------------------------------------
@@ -280,6 +297,14 @@ export function placeholderPng(width: number, height: number): Uint8Array {
 export function stubBrowser(): BrowserBackend {
   return {
     kind: "stub",
+    async measure(targets) {
+      return targets.map((t) => ({
+        width: t.width,
+        height: PHONE_HEIGHT,
+        scrollWidth: t.width,
+        findings: [],
+      }));
+    },
     async capture(targets) {
       return targets.map((t) => {
         const cssHeight = t.sectionId ? 600 : t.fullPage ? 2400 : 900;
@@ -520,8 +545,56 @@ export function cloudflareBrowser(
     }
   }
 
+  async function measureOne(browser: Any, t: PhoneTarget): Promise<PhoneProbeResult> {
+    const page = await browser.newPage();
+    try {
+      await page.setViewport({
+        width: t.width,
+        height: PHONE_HEIGHT,
+        deviceScaleFactor: 2,
+        isMobile: true,
+        hasTouch: true,
+      });
+      await page.emulateMediaFeatures?.([{ name: "prefers-reduced-motion", value: "reduce" }]);
+      await page.setRequestInterception(true);
+      page.on("request", (req: Any) => {
+        if (req.isInterceptResolutionHandled?.()) return;
+        if (browserMayLoad(req.url(), allowed)) void req.continue();
+        else void req.abort("blockedbyclient");
+      });
+      try {
+        await page.goto(t.url, { waitUntil: "load", timeout: NAV_TIMEOUT_MS });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message.split("\n")[0] : String(e);
+        throw new ToolError(`Couldn't open ${t.url}: ${msg}`, "fetch_failed");
+      }
+      await page.waitForNetworkIdle?.({ idleTime: 500, timeout: 5000 }).catch(() => undefined);
+      await page.evaluate(PHONE_PREPARE_SCRIPT).catch(() => undefined);
+      return (await page.evaluate(PHONE_PROBE_SCRIPT)) as PhoneProbeResult;
+    } finally {
+      await page.close().catch(() => undefined);
+    }
+  }
+
   return {
     kind: "browser",
+    async measure(targets) {
+      const puppeteer = await load();
+      const browser = await acquire(puppeteer);
+      try {
+        return await withTimeout(
+          (async () => {
+            const out: PhoneProbeResult[] = [];
+            for (const t of targets) out.push(await measureOne(browser, t));
+            return out;
+          })(),
+          CAPTURE_TIMEOUT_MS,
+          "Measuring the pages as a phone took too long. Try one page at a time.",
+        );
+      } finally {
+        await Promise.resolve(browser.disconnect?.()).catch(() => undefined);
+      }
+    },
     async capture(targets) {
       const puppeteer = await load();
       const browser = await acquire(puppeteer);

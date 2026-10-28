@@ -4,6 +4,8 @@
  * reads come from the room, publishing / rollback / snapshots run inside the room, and images go
  * through the server-side pipeline (SSRF-guarded fetch, size cap, metadata strip) into the repo.
  */
+
+import type { PhoneProbeResult } from "@omniharmonic/openspace-lint";
 import {
   type AgentSession,
   type ApplyContext,
@@ -12,6 +14,7 @@ import {
   type ImageResizer,
   type ImageUploadInput,
   imageSize,
+  type PhoneMeasureRequest,
   type PublishResult,
   pagePathOf,
   prepareImage,
@@ -35,6 +38,7 @@ import { requireHmacKey } from "../public-env";
 import { roomStub, unwrapRoom } from "../room";
 import type { Services } from "../services";
 import { gatedContext, readOpenedDocumentFiles } from "../services/gated-content";
+import { measurePagePhone } from "../services/phone-check";
 import { listVersions, ROLLBACK_ROLE } from "../services/publishing";
 import { consumeQuota, quotaExceeded, siteQuotaLimits } from "../services/quotas";
 import { loadSiteDocument } from "../services/site-files";
@@ -127,6 +131,7 @@ export class HubSiteStore implements SiteStore {
     this.capabilities = {
       canPublish: true,
       canScreenshot: Boolean(options.screenshots),
+      canMeasurePhone: Boolean(options.screenshots),
       canRollback: true,
       publishNote:
         "Publishing updates the live site; it is usually visible within a minute or two. Studio shows the progress.",
@@ -426,6 +431,27 @@ export class HubSiteStore implements SiteStore {
     const doc = await this.getDocument(siteId);
     const page = doc.pages[request.pageId as keyof typeof doc.pages];
     return wrap(() => shots.capture(siteId, page ? pagePathOf(page) : "/", request));
+  }
+
+  /** The Phone check's browser half: Browser Rendering, cached by the page's HTML. */
+  async measurePhone(siteId: string, request: PhoneMeasureRequest): Promise<PhoneProbeResult> {
+    this.site(siteId);
+    const { services } = this.o;
+    if (!services.screenshots)
+      throw new ToolError("The browser phone check isn't available on this Hub.", "unsupported");
+    const doc = await this.getDocument(siteId);
+    const page = doc.pages[request.pageId as keyof typeof doc.pages];
+    const r = await wrap(() =>
+      measurePagePhone(services, {
+        siteId,
+        userId: this.o.userId,
+        pagePath: page ? pagePathOf(page) : "/",
+        html: request.html,
+      }),
+    );
+    const hit = r.results.find((x) => x.width === request.width) ?? r.results[0];
+    if (!hit) throw new ToolError("The phone check came back empty. Try again.", "capture_failed");
+    return hit;
   }
 
   async agentsMd(siteId: string): Promise<string | null> {
