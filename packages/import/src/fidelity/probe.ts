@@ -467,23 +467,35 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       return n;
     };
     res.columns = columnsOf(itemEls.map(rect));
-    // Corrected score only (the strict v3 count above is kept): columns a visitor can see — at
-    // least half on screen and not clipped away by a scrolling or overflow-hidden box (the
-    // off-screen slides of a scroll-snap slideshow aren't columns).
-    const onScreen = (el) => {
-      const r = el.getBoundingClientRect();
-      let L = Math.max(0, r.left), R = Math.min(vw, r.right);
-      for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
+    // Corrected score only (the strict v3 count above is kept): columns a visitor can see.
+    // A box that clips content running sideways out of it (a scroll-snap slideshow, a map's
+    // tiles) is one picture on screen, however many slides or tiles it holds; anything else
+    // counts when at least half of it is inside the viewport. (A clearfix row with
+    // overflow: hidden doesn't overflow sideways, so its columns stay columns.)
+    const clipBox = (el) => {
+      for (let e = el.parentElement; e && e !== document.body && e !== doc; e = e.parentElement) {
         const st = cs(e);
-        if (st.overflowX !== "visible" || st.overflow !== "visible") {
-          const pr = e.getBoundingClientRect();
-          L = Math.max(L, pr.left);
-          R = Math.min(R, pr.right);
-        }
+        if ((st.overflowX !== "visible" || st.overflow !== "visible") && e.scrollWidth > e.clientWidth + 2) return e;
       }
-      return R - L >= r.width * 0.5;
+      return null;
     };
-    const shown = columnsOf(itemEls.filter(onScreen).map(rect));
+    const shownRects = [];
+    const boxes = new Set();
+    for (const el of itemEls) {
+      const box = clipBox(el);
+      if (box) {
+        if (boxes.has(box)) continue;
+        boxes.add(box);
+        const br = rect(box);
+        const L = Math.max(0, br.left), R = Math.min(vw, br.right);
+        if (R - L > 2) shownRects.push({ ...br, left: L, right: R, width: R - L });
+        continue;
+      }
+      const r = el.getBoundingClientRect();
+      const L = Math.max(0, r.left), R = Math.min(vw, r.right);
+      if (R - L >= r.width * 0.5) shownRects.push(rect(el));
+    }
+    const shown = columnsOf(shownRects);
     if (shown !== res.columns) res.columnsOnScreen = shown;
     // The section's parts and where they sit (to recreate it as a component when needed).
     if (!sec.querySelector("form, input, textarea, select, iframe, video, canvas, embed, object")) {

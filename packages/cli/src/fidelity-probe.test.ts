@@ -78,4 +78,24 @@ describe("look probe: corrected measurements", () => {
     expect(grid?.columns).toBe(3);
     expect(grid?.columnsOnScreen).toBeUndefined();
   }, 60_000);
+
+  it("counts a map's tiles as one picture, and keeps a clearfix row's columns", async (t) => {
+    const px = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+    const tile = (x: number) =>
+      `<img src="${px}" style="position:absolute;left:${x}px;top:0;width:256px;height:256px">`;
+    const p = await probeHtml(
+      t,
+      `<main><section style="height:400px"><h2>Call or visit</h2>
+        <div style="position:relative;overflow:hidden;width:600px;height:300px">${tile(-100)}${tile(156)}${tile(412)}${tile(668)}</div>
+      </section><section style="height:400px"><h2>Three columns</h2><div style="overflow:hidden">
+        <p style="float:left;width:30%">A first column of words, long enough.</p><p style="float:left;width:30%">A second column of words, long enough.</p><p style="float:left;width:30%">A third column of words, long enough.</p>
+      </div></section></main>`,
+    );
+    if (!p) return;
+    const [map, row] = p.sections;
+    expect(map?.columns).toBeGreaterThan(1);
+    expect(map?.columnsOnScreen).toBe(1);
+    expect(row?.columns).toBe(3);
+    expect(row?.columnsOnScreen).toBeUndefined();
+  }, 60_000);
 });
