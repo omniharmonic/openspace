@@ -67,6 +67,8 @@ export async function insertSite(
     github_access?: string | null;
     status_detail?: string | null;
   },
+  /** Statements that must land with the site or not at all (e.g. an AI app's grant to it). */
+  extra: D1PreparedStatement[] = [],
 ): Promise<void> {
   await db.batch([
     db
@@ -102,6 +104,7 @@ export async function insertSite(
         "INSERT INTO site_roles (site_id, user_id, role, created_at) VALUES (?, ?, 'owner', ?)",
       )
       .bind(site.id, site.owner_id, site.created_at),
+    ...extra,
   ]);
 }
 

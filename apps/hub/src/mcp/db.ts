@@ -16,6 +16,8 @@ export interface ConnectionRow {
   can_publish: number;
   /** May create new sites (remote MCP first run; migration 0490). */
   can_create?: number;
+  /** Reaches every site the person edits, including ones made later (migration 0520). */
+  all_sites?: number;
   token_hash: string | null;
   token_hint: string | null;
   created_at: number;
@@ -44,6 +46,8 @@ export async function createConnection(
     canPublish: boolean;
     /** Allowed to create new sites (granted to this connection as they are made). */
     canCreate?: boolean;
+    /** Reaches all the person's sites, including future ones. */
+    allSites?: boolean;
     tokenHash?: string | null;
     tokenHint?: string | null;
     sites: Array<{ id: string; role: Role }>;
@@ -54,8 +58,8 @@ export async function createConnection(
   const stmts = [
     db
       .prepare(
-        `INSERT INTO mcp_connections (id, user_id, kind, client_id, client_name, can_publish, token_hash, token_hint, created_at, can_create)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO mcp_connections (id, user_id, kind, client_id, client_name, can_publish, token_hash, token_hint, created_at, can_create, all_sites)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         id,
@@ -68,6 +72,7 @@ export async function createConnection(
         input.tokenHint ?? null,
         input.now,
         input.canCreate ? 1 : 0,
+        input.allSites ? 1 : 0,
       ),
     ...input.sites.map((s) =>
       db
@@ -93,17 +98,23 @@ export async function createConnection(
   return id;
 }
 
-/** Add a site to a connection's grant (a site the connection just created). */
-export async function grantSiteToConnection(
+type GrantConnection = Pick<
+  ConnectionRow,
+  "id" | "user_id" | "client_id" | "kind" | "client_name" | "can_publish"
+>;
+
+/**
+ * The statement that adds a site to a connection's grant. Site creation runs it in the same
+ * batch as the site row, so a site an AI app creates is always reachable by that app — even if
+ * the app gave up waiting for the answer.
+ */
+export function grantSiteStatement(
   db: D1Database,
-  conn: Pick<
-    ConnectionRow,
-    "id" | "user_id" | "client_id" | "kind" | "client_name" | "can_publish"
-  >,
+  conn: GrantConnection,
   site: { id: string; role: Role },
   now: number,
-): Promise<void> {
-  await db
+): D1PreparedStatement {
+  return db
     .prepare(
       `INSERT INTO mcp_grants (id, user_id, site_id, client_id, client_name, scopes, can_publish, created_at, connection_id, role)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -119,7 +130,37 @@ export async function grantSiteToConnection(
       now,
       conn.id,
       site.role,
+    );
+}
+
+/** Add a site to a connection's grant (once: an existing live grant is kept). */
+export async function grantSiteToConnection(
+  db: D1Database,
+  conn: GrantConnection,
+  site: { id: string; role: Role },
+  now: number,
+): Promise<void> {
+  const existing = await db
+    .prepare(
+      "SELECT 1 AS x FROM mcp_grants WHERE connection_id = ? AND site_id = ? AND revoked_at IS NULL",
     )
+    .bind(conn.id, site.id)
+    .first();
+  if (!existing) await grantSiteStatement(db, conn, site, now).run();
+}
+
+/** Take one site out of a connection's grant. */
+export async function revokeSiteFromConnection(
+  db: D1Database,
+  connectionId: string,
+  siteId: string,
+  now: number,
+): Promise<void> {
+  await db
+    .prepare(
+      "UPDATE mcp_grants SET revoked_at = ? WHERE connection_id = ? AND site_id = ? AND revoked_at IS NULL",
+    )
+    .bind(now, connectionId, siteId)
     .run();
 }
 
@@ -137,18 +178,28 @@ export async function connectionByTokenHash(
     .first<ConnectionRow>();
 }
 
-/** Sites a connection reaches now: granted, not archived, and the person still edits there. */
-export async function grantSites(db: D1Database, connectionId: string): Promise<GrantSite[]> {
+/**
+ * Sites a connection reaches now: granted (or every site, for an "all my sites" connection), not
+ * archived, and the person still edits there with a role an AI may act for.
+ */
+export async function grantSites(
+  db: D1Database,
+  conn: Pick<ConnectionRow, "id" | "user_id" | "all_sites">,
+): Promise<GrantSite[]> {
   const res = await db
     .prepare(
       `SELECT s.id AS id, s.name AS name, s.url AS url, r.role AS role
-       FROM mcp_grants g
-       JOIN sites s ON s.id = g.site_id AND s.archived_at IS NULL
-       JOIN site_roles r ON r.site_id = g.site_id AND r.user_id = g.user_id
-       WHERE g.connection_id = ? AND g.revoked_at IS NULL
+       FROM sites s
+       JOIN site_roles r ON r.site_id = s.id AND r.user_id = ?
+       WHERE s.archived_at IS NULL AND (
+         ? = 1 OR EXISTS (
+           SELECT 1 FROM mcp_grants g
+           WHERE g.connection_id = ? AND g.site_id = s.id AND g.revoked_at IS NULL
+         )
+       )
        ORDER BY s.name`,
     )
-    .bind(connectionId)
+    .bind(conn.user_id, conn.all_sites === 1 ? 1 : 0, conn.id)
     .all<GrantSite>();
   return res.results.filter((s) => AGENT_ROLES.includes(s.role));
 }
@@ -220,6 +271,30 @@ export async function revokeConnection(db: D1Database, id: string, now: number):
       )
       .bind(now, id),
   ]);
+}
+
+/** "All my sites, including ones I make later" on or off (Studio; the person's own choice). */
+export async function setConnectionAllSites(
+  db: D1Database,
+  id: string,
+  allSites: boolean,
+): Promise<void> {
+  await db
+    .prepare("UPDATE mcp_connections SET all_sites = ? WHERE id = ?")
+    .bind(allSites ? 1 : 0, id)
+    .run();
+}
+
+/** "Create new sites" on or off (Studio; the person's own choice). */
+export async function setConnectionCreate(
+  db: D1Database,
+  id: string,
+  create: boolean,
+): Promise<void> {
+  await db
+    .prepare("UPDATE mcp_connections SET can_create = ? WHERE id = ?")
+    .bind(create ? 1 : 0, id)
+    .run();
 }
 
 export async function setConnectionPublish(

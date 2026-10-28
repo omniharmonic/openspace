@@ -42,6 +42,7 @@ import { measurePagePhone } from "../services/phone-check";
 import { listVersions, ROLLBACK_ROLE } from "../services/publishing";
 import { consumeQuota, quotaExceeded, siteQuotaLimits } from "../services/quotas";
 import { loadSiteDocument } from "../services/site-files";
+import { setupError } from "./access";
 import { type AgentSessionRef, type GrantSite, recordAgentSession } from "./db";
 import { guardedFetch } from "./ssrf";
 
@@ -62,6 +63,8 @@ export interface HubSiteStoreOptions {
   /** Server-side image resizer (Cloudflare Images binding when configured). */
   resize?: ImageResizer;
   screenshots?: ScreenshotProvider | null;
+  /** Explains a site this connection can't reach (see access.ts). */
+  explain?: (ref: string | undefined) => Promise<ToolError | null>;
 }
 
 /** Turn a Hub error (from the room or a service) into an error the agent can act on. */
@@ -81,14 +84,6 @@ function toToolError(err: unknown): never {
     throw new ToolError(err.message, code);
   }
   throw err;
-}
-
-async function wrap<T>(fn: () => Promise<T>): Promise<T> {
-  try {
-    return await fn();
-  } catch (err) {
-    return toToolError(err);
-  }
 }
 
 /**
@@ -138,6 +133,29 @@ export class HubSiteStore implements SiteStore {
     };
   }
 
+  explainUnreachable(ref: string | undefined): Promise<ToolError | null> {
+    return this.o.explain ? this.o.explain(ref) : Promise.resolve(null);
+  }
+
+  /**
+   * Run site work; when it fails because the site is still being set up (or waits for the
+   * person), answer that plainly with when to try again — never "not found".
+   */
+  private async guard<T>(siteId: string, fn: () => Promise<T>): Promise<T> {
+    try {
+      return await fn();
+    } catch (err) {
+      if (!(err instanceof ToolError) || err.code === "not_found" || err.code === "not_ready") {
+        const why = await setupError(
+          this.o.services,
+          await getSiteForUser(this.o.services.db, siteId, this.o.userId),
+        ).catch(() => null);
+        if (why) throw why;
+      }
+      return toToolError(err);
+    }
+  }
+
   private room(siteId: string) {
     return roomStub(this.o.env, siteId);
   }
@@ -171,7 +189,10 @@ export class HubSiteStore implements SiteStore {
 
   async getDocument(siteId: string): Promise<SiteDocument> {
     this.site(siteId);
-    return wrap(async () => (await unwrapRoom(this.room(siteId).getDocument(siteId))).doc);
+    return this.guard(
+      siteId,
+      async () => (await unwrapRoom(this.room(siteId).getDocument(siteId))).doc,
+    );
   }
 
   async applyOps(siteId: string, ops: Op[], ctx: ApplyContext): Promise<ApplyResult> {
@@ -183,7 +204,7 @@ export class HubSiteStore implements SiteStore {
   /** Submit ops as the connection's agent session (the caller counted the operation). */
   private async submitAsAgent(siteId: string, ops: Op[], ctx: ApplyContext): Promise<ApplyResult> {
     if (!ctx.session) throw new ToolError("Edits need an agent session.", "invalid_session");
-    return wrap(async () => {
+    return this.guard(siteId, async () => {
       const r = await unwrapRoom(
         this.room(siteId).submit(siteId, {
           ops,
@@ -231,7 +252,7 @@ export class HubSiteStore implements SiteStore {
 
   async getDraftDiff(siteId: string): Promise<DraftDiff> {
     this.site(siteId);
-    return wrap(async () => {
+    return this.guard(siteId, async () => {
       const [draft, live] = await Promise.all([this.getDocument(siteId), this.published(siteId)]);
       const ops = diff(live, draft, { actor: "diff" });
       if (!ops.length) return { hasChanges: false, summary: "No unpublished changes." };
@@ -242,7 +263,7 @@ export class HubSiteStore implements SiteStore {
   async publish(siteId: string, opts: { message?: string; actor: string }): Promise<PublishResult> {
     this.site(siteId);
     await this.countOperation(siteId);
-    return wrap(async () => {
+    return this.guard(siteId, async () => {
       const agentSession = sessionOf(opts.actor);
       const r = await unwrapRoom(
         this.room(siteId).publish(siteId, {
@@ -265,7 +286,7 @@ export class HubSiteStore implements SiteStore {
   async discardDraft(siteId: string, ctx: ApplyContext): Promise<DraftDiff> {
     this.site(siteId);
     await this.countOperation(siteId);
-    return wrap(async () => {
+    return this.guard(siteId, async () => {
       const before = await this.getDraftDiff(siteId);
       if (!before.hasChanges) return before;
       await unwrapRoom(
@@ -287,7 +308,7 @@ export class HubSiteStore implements SiteStore {
         "forbidden",
       );
     await this.countOperation(siteId);
-    return wrap(async () => {
+    return this.guard(siteId, async () => {
       const r = await unwrapRoom(
         this.room(siteId).rollback(siteId, {
           userId: this.o.userId,
@@ -308,7 +329,7 @@ export class HubSiteStore implements SiteStore {
 
   async listVersions(siteId: string, opts: { limit?: number } = {}): Promise<VersionInfo[]> {
     this.site(siteId);
-    return wrap(async () => {
+    return this.guard(siteId, async () => {
       const { services } = this.o;
       const site = await getSiteForUser(services.db, siteId, this.o.userId);
       if (!site) throw new ToolError("We couldn't find that site.", "not_found");
@@ -352,7 +373,7 @@ export class HubSiteStore implements SiteStore {
       ...(this.o.resize ? { resize: this.o.resize } : {}),
       now: new Date(services.now()),
     });
-    await wrap(() =>
+    await this.guard(siteId, () =>
       unwrapRoom(
         this.room(siteId).storeMedia(siteId, {
           userId: this.o.userId,
@@ -381,7 +402,10 @@ export class HubSiteStore implements SiteStore {
   async snapshot(siteId: string, name: string): Promise<string | null> {
     this.site(siteId);
     await this.countOperation(siteId);
-    return wrap(async () => (await unwrapRoom(this.room(siteId).snapshot(siteId, name))).tag);
+    return this.guard(
+      siteId,
+      async () => (await unwrapRoom(this.room(siteId).snapshot(siteId, name))).tag,
+    );
   }
 
   async startSession(
@@ -391,7 +415,7 @@ export class HubSiteStore implements SiteStore {
     this.site(siteId);
     const known = this.o.agentSessions[siteId];
     if (known) return known;
-    return wrap(async () => {
+    return this.guard(siteId, async () => {
       const r = await unwrapRoom(
         this.room(siteId).startAgentSession(siteId, {
           userId: this.o.userId,
@@ -416,7 +440,7 @@ export class HubSiteStore implements SiteStore {
 
   async endSession(siteId: string, sessionId: string): Promise<void> {
     this.site(siteId);
-    await wrap(() =>
+    await this.guard(siteId, () =>
       unwrapRoom(this.room(siteId).endAgentSession(siteId, { userId: this.o.userId, sessionId })),
     );
   }
@@ -427,10 +451,11 @@ export class HubSiteStore implements SiteStore {
       throw new ToolError("Screenshots aren't available on this Hub.", "unsupported");
     const shots = this.o.screenshots;
     // A preview path (e.g. a custom component on its own) wins over the page's path.
-    if (request.path) return wrap(() => shots.capture(siteId, request.path as string, request));
+    if (request.path)
+      return this.guard(siteId, () => shots.capture(siteId, request.path as string, request));
     const doc = await this.getDocument(siteId);
     const page = doc.pages[request.pageId as keyof typeof doc.pages];
-    return wrap(() => shots.capture(siteId, page ? pagePathOf(page) : "/", request));
+    return this.guard(siteId, () => shots.capture(siteId, page ? pagePathOf(page) : "/", request));
   }
 
   /** The Phone check's browser half: Browser Rendering, cached by the page's HTML. */
@@ -441,7 +466,7 @@ export class HubSiteStore implements SiteStore {
       throw new ToolError("The browser phone check isn't available on this Hub.", "unsupported");
     const doc = await this.getDocument(siteId);
     const page = doc.pages[request.pageId as keyof typeof doc.pages];
-    const r = await wrap(() =>
+    const r = await this.guard(siteId, () =>
       measurePagePhone(services, {
         siteId,
         userId: this.o.userId,

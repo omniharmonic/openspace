@@ -112,22 +112,24 @@ export function consentPage(input: {
         }><span>${esc(s.name)}<small>You're ${esc(s.role === "owner" ? "the owner" : `a ${s.role}`)}</small></span></label>`,
     )
     .join("");
-  // First run: nothing to edit yet, so creating a site is the point (checked by default).
-  const create = `<label class="row"><input type="checkbox" name="create" value="1"${none ? " checked" : ""}><span>Create new sites for you<small>From an OpenSpace template, or by moving a site you already have. Each new site is yours, and ${esc(input.clientName)} can edit it.</small></span></label>`;
+  // Always on by default: an app can always edit the sites it creates, so the permissions can't
+  // get out of sequence when it makes the person's first site.
+  const create = `<label class="row"><input type="checkbox" name="create" value="1" checked><span>Create new sites and edit the sites it creates<small>Each new site is yours — in your own GitHub account — and you see it in OpenSpace Studio.</small></span></label>`;
+  const all = `<label class="row"><input type="checkbox" name="all" value="1"><span>All my sites, including ones I make later<small>${esc(input.clientName)} can edit every site you work on${none ? "" : " (the ones below too)"}, and new ones as you make them. You can turn this off in Studio any time.</small></span></label>`;
   return page(
     `Allow ${input.clientName}?`,
-    `<h1>${none ? `Allow ${esc(input.clientName)} to make your website?` : `Allow ${esc(input.clientName)} to edit your sites?`}</h1>
+    `<h1>${none ? `Allow ${esc(input.clientName)} to make your website?` : `Allow ${esc(input.clientName)} to work on your sites?`}</h1>
      <p class="muted">Signed in as ${esc(input.userName)}. ${
        none
-         ? "You don't have a site yet — that's fine. Claude can start one for you from a template or move your existing site, and you'll see it in OpenSpace Studio."
+         ? "You don't have a site yet — that's fine. Claude will ask you about it, design it and put it online, and you'll see it in OpenSpace Studio."
          : "Its changes go to your draft, where you can see them live in Studio and undo them. It can't change your site's code."
      }</p>
      <p class="muted">After you allow it, you'll return to <strong>${esc(input.redirectHost)}</strong>.</p>
      ${input.redirectIsLoopback ? '<p class="warn">This returns to an app on this computer. Only continue if you just started connecting it.</p>' : ""}
      <form method="post" action="/authorize">
        <input type="hidden" name="handle" value="${esc(input.handle)}">
-       ${none ? "" : `<fieldset><legend>Sites it can edit</legend>${sites}</fieldset>`}
-       <fieldset><legend>New sites</legend>${create}</fieldset>
+       <fieldset><legend>What it can do</legend>${create}${all}</fieldset>
+       ${none ? "" : `<fieldset><legend>Or pick the sites it can edit now</legend>${sites}</fieldset>`}
        <fieldset><legend>Publishing</legend>
          <label class="row"><input type="checkbox" name="publish" value="1"><span>Allow publishing<small>It still has to ask you first each time. Off by default — you can change this later in Studio.</small></span></label>
        </fieldset>

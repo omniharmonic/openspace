@@ -112,7 +112,7 @@ describe("OAuth authorization server", () => {
     expect(evil.status).toBe(400);
 
     const consent = await (await call(app, `${HUB}/authorize?${q}`, { cookie: owner })).text();
-    expect(consent).toContain("Allow Claude to edit your sites?");
+    expect(consent).toContain("Allow Claude to work on your sites?");
     expect(consent).toContain("Maya Yoga");
     expect(consent).toContain("Riverbend Collective");
     expect(consent).toContain(`value="${site.id}"`);
@@ -196,7 +196,10 @@ describe("OAuth authorization server", () => {
     await mcp.initialize();
     const sites = await mcp.tool("list_sites");
     expect(toolText(sites)).toContain(site.id);
-    expect(toolText(sites)).not.toContain(other.id);
+    const reachable = (sites.result?.structuredContent?.sites ?? []) as Array<{ id: string }>;
+    expect(reachable.map((s) => s.id)).not.toContain(other.id);
+    // The other site is named with a one-click way to share it — not silently hidden.
+    expect(sites.result?.structuredContent?.notShared).toMatchObject([{ id: other.id }]);
     const denied = await mcp.tool("get_site", { site: other.id });
     expect(denied.result?.isError).toBe(true);
 

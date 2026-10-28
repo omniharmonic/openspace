@@ -16,7 +16,10 @@
  *
  * Studio (session cookie):
  * - `GET    /api/mcp/grants`                 AI apps allowed to edit your sites
- * - `PATCH  /api/mcp/grants/:id {publish}`   allow / stop publishing
+ * - `PATCH  /api/mcp/grants/:id {publish?, allSites?, create?}`  publishing, "all my sites",
+ *                                             "create new sites" on / off
+ * - `POST   /api/mcp/grants/:id/sites {site}` "Allow <app> to edit <site>" (one click)
+ * - `DELETE /api/mcp/grants/:id/sites/:siteId` stop it editing one site
  * - `DELETE /api/mcp/grants/:id`             disconnect (tokens revoked, sessions ended)
  * - `GET    /api/sites/:id/mcp/tokens`       personal connector links for a site
  * - `POST   /api/sites/:id/mcp/tokens {label, publish?}`  new link (the URL is shown once;
@@ -46,9 +49,13 @@ import {
   createConnection,
   getConnection,
   grantedSiteNames,
+  grantSiteToConnection,
   listConnections,
   listSiteTokens,
   revokeConnection,
+  revokeSiteFromConnection,
+  setConnectionAllSites,
+  setConnectionCreate,
   setConnectionPublish,
 } from "../mcp/db";
 import {
@@ -303,7 +310,8 @@ mcpRoutes.post("/authorize", async (c) => {
   );
   const sites = (await connectableSites(c, user)).filter((s) => picked.has(s.id));
   const canCreate = form.create === "1";
-  if (!sites.length && !canCreate)
+  const allSites = form.all === "1";
+  if (!sites.length && !canCreate && !allSites)
     return html(
       errorPage(
         "Choose what it can do",
@@ -326,6 +334,9 @@ mcpRoutes.post("/authorize", async (c) => {
     clientName: row.client_name,
     canPublish,
     canCreate,
+    allSites,
+    // "All my sites" covers every site through the flag; picked sites also get their own grant,
+    // so turning "all" off later keeps what the person picked.
     sites,
     now,
   });
@@ -337,18 +348,18 @@ mcpRoutes.post("/authorize", async (c) => {
     scope: [MCP_SCOPE],
     props: { userId: user.id, connectionId } satisfies McpTokenProps,
   });
-  for (const s of sites)
+  for (const s of allSites ? await connectableSites(c, user) : sites)
     await audit(db, {
       siteId: s.id,
       actor: user.id,
       action: "mcp.connect",
-      meta: { connectionId, client: row.client_name, publish: canPublish },
+      meta: { connectionId, client: row.client_name, publish: canPublish, allSites },
     });
   if (!sites.length)
     await audit(db, {
       actor: user.id,
       action: "mcp.connect",
-      meta: { connectionId, client: row.client_name, create: canCreate },
+      meta: { connectionId, client: row.client_name, create: canCreate, allSites },
     });
   return c.redirect(redirectTo, 302);
 });
@@ -395,6 +406,7 @@ async function grantViews(c: Context<AppEnv>, rows: ConnectionRow[]) {
     sites: names.get(r.id) ?? [],
     publish: r.can_publish === 1,
     create: r.can_create === 1,
+    allSites: r.all_sites === 1,
     createdAt: new Date(r.created_at).toISOString(),
     lastUsedAt: iso(r.last_used_at),
   }));
@@ -432,20 +444,96 @@ mcpGrantRoutes.get("/grants", async (c) => {
   return c.json({ grants: await grantViews(c, rows) });
 });
 
+const GrantPatchSchema = z
+  .strictObject({
+    publish: z.boolean().optional(),
+    /** "All my sites, including ones I make later". */
+    allSites: z.boolean().optional(),
+    /** "Create new sites and edit the sites it creates". */
+    create: z.boolean().optional(),
+  })
+  .refine((v) => v.publish !== undefined || v.allSites !== undefined || v.create !== undefined, {
+    message: "Nothing to change.",
+  });
+
 mcpGrantRoutes.patch("/grants/:id", async (c) => {
   const user = requireUser(c);
-  const { publish } = await readJson(c, z.strictObject({ publish: z.boolean() }));
+  const input = await readJson(c, GrantPatchSchema);
   const conn = await ownConnection(c, user);
-  await setConnectionPublish(c.var.services.db, conn.id, publish);
-  const updated = (await getConnection(c.var.services.db, conn.id)) as ConnectionRow;
+  const db = c.var.services.db;
+  if (input.publish !== undefined) await setConnectionPublish(db, conn.id, input.publish);
+  if (input.allSites !== undefined) await setConnectionAllSites(db, conn.id, input.allSites);
+  if (input.create !== undefined) await setConnectionCreate(db, conn.id, input.create);
+  const updated = (await getConnection(db, conn.id)) as ConnectionRow;
   const [view] = await grantViews(c, [updated]);
-  for (const s of view?.sites ?? [])
-    await audit(c.var.services.db, {
-      siteId: s.id,
+  if (input.publish !== undefined)
+    for (const s of view?.sites ?? [])
+      await audit(db, {
+        siteId: s.id,
+        actor: user.id,
+        action: "mcp.publish",
+        meta: { connectionId: conn.id, publish: input.publish },
+      });
+  if (input.allSites !== undefined || input.create !== undefined)
+    await audit(db, {
       actor: user.id,
-      action: "mcp.publish",
-      meta: { connectionId: conn.id, publish },
+      action: "mcp.scope",
+      meta: { connectionId: conn.id, allSites: input.allSites, create: input.create },
     });
+  return c.json({ grant: view });
+});
+
+const AllowSiteSchema = z.strictObject({ site: z.string().min(1).max(64) });
+
+/**
+ * "Allow Claude to edit <site>" — the one-click answer to a tool's "not shared yet" link. Only
+ * the connection's own person, signed in (JSON + the Studio origin check: no cross-site form
+ * can post here), for a site where they may connect an AI (editor or above). An AI app can never
+ * reach this with its own credentials: it takes the Studio session.
+ */
+mcpGrantRoutes.post("/grants/:id/sites", async (c) => {
+  const user = requireUser(c);
+  // A cross-site form can't send JSON (that needs a CORS preflight the Hub refuses).
+  if (!(c.req.header("content-type") ?? "").toLowerCase().includes("application/json"))
+    throw new HttpError(415, "unsupported_media_type", "Send JSON.");
+  const { site: siteId } = await readJson(c, AllowSiteSchema);
+  const conn = await ownConnection(c, user);
+  const site = await siteForUser(c.var.services, siteId, user);
+  if (!AGENT_ROLES.includes(site.role))
+    throw new HttpError(
+      403,
+      "forbidden",
+      "AI apps can only edit sites where you're an editor, designer or owner.",
+    );
+  await grantSiteToConnection(
+    c.var.services.db,
+    conn,
+    { id: site.id, role: site.role },
+    c.var.services.now(),
+  );
+  await audit(c.var.services.db, {
+    siteId: site.id,
+    actor: user.id,
+    action: "mcp.connect",
+    meta: { connectionId: conn.id, client: conn.client_name, publish: conn.can_publish === 1 },
+  });
+  const [view] = await grantViews(c, [conn]);
+  return c.json({ grant: view }, 201);
+});
+
+/** Stop one connection editing one site (the rest of its access stays). */
+mcpGrantRoutes.delete("/grants/:id/sites/:siteId", async (c) => {
+  const user = requireUser(c);
+  const conn = await ownConnection(c, user);
+  const siteId = c.req.param("siteId");
+  await revokeSiteFromConnection(c.var.services.db, conn.id, siteId, c.var.services.now());
+  await audit(c.var.services.db, {
+    siteId,
+    actor: user.id,
+    action: "mcp.disconnect",
+    meta: { connectionId: conn.id, site: siteId },
+  });
+  const [view] = await grantViews(c, [conn]);
   return c.json({ grant: view });
 });
 
