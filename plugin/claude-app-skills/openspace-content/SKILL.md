@@ -13,7 +13,7 @@ Long-form content lives in **collections**: blog posts, events, portfolio projec
 
 ## Before starting
 
-Use the OpenSpace connector's tools (`get_site`, `list_posts`, `create_post`…). If they are missing, explain how to connect in plain words: in Claude, **Settings → Connectors → Add custom connector**, name it OpenSpace, address `https://hub.openspace.host/mcp`, sign in and tick the site; then turn the connector on in this chat. Nothing needs installing. Edits land in the draft; the owner sees them in OpenSpace Studio and publishes from there (or asks you to).
+Use the OpenSpace connector's tools (`get_site`, `list_posts`, `create_post`…). If they are missing, explain how to connect in plain words: in Claude, **Settings → Connectors → Add custom connector**, name it OpenSpace, address `https://hub.openspace.host/mcp`, sign in and tick the site (or **All my sites**); then turn the connector on in this chat. Nothing needs installing. Edits land in the draft; the owner sees them in OpenSpace Studio and publishes from there (or asks you to).
 
 ## Find the collections
 

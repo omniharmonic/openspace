@@ -636,7 +636,12 @@ export async function createSite(
   services: Services,
   user: User,
   input: CreateSiteInput,
-  opts: { log?: Logger; installationId?: number | null } = {},
+  opts: {
+    log?: Logger;
+    installationId?: number | null;
+    /** Statements committed together with the site row (an AI app's grant to the new site). */
+    alsoInsert?: (siteId: string) => D1PreparedStatement[];
+  } = {},
 ): Promise<SiteView> {
   const template = await services.templates.load(input.template);
   if (!template) throw new HttpError(404, "template_not_found", "That template doesn't exist.");
@@ -725,7 +730,7 @@ export async function createSite(
       updated_at: now,
     };
     try {
-      await insertSite(services.db, candidate);
+      await insertSite(services.db, candidate, opts.alsoInsert?.(siteId) ?? []);
       row = (await getSite(services.db, siteId)) as SiteRow;
     } catch (err) {
       if (!/UNIQUE constraint failed/i.test(String((err as Error).message))) throw err;

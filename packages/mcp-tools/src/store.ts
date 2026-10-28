@@ -14,6 +14,7 @@
 import type { PhoneProbeResult } from "@omniharmonic/openspace-lint";
 import type { Op, OpIssue } from "@omniharmonic/openspace-ops";
 import type { MediaMeta, SiteDocument, StyleChoices } from "@omniharmonic/openspace-schema";
+import type { ToolError } from "./errors";
 
 /** What a connected agent may do. Hub grants are per site and revocable (arch §10.1). */
 export interface Grant {
@@ -193,6 +194,12 @@ export interface SiteStore {
   readonly templates?: TemplateCatalog;
 
   listSites(): Promise<SiteSummary[]>;
+  /**
+   * Optional: why a site the agent asked for (an id or a name; undefined = "no site given and
+   * none reachable") isn't reachable, as an error the person can act on — e.g. a link where they
+   * can let this connection edit it. Return null for the generic answer.
+   */
+  explainUnreachable?(ref: string | undefined): Promise<ToolError | null>;
   /** The current draft document. */
   getDocument(siteId: string): Promise<SiteDocument>;
   /** Validate and apply ops atomically (all or nothing) to the draft. */

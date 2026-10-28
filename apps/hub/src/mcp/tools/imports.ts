@@ -20,9 +20,9 @@ import {
   siteImportView,
 } from "../../services/imports";
 import { createStartSite } from "../../services/start-with-claude";
-import { grantSiteToConnection } from "../db";
 import type { HubToolContext } from "../hub-tools";
 import { MCP_CREATE_RATE } from "./account";
+import { grantOnCreate } from "./site-status";
 import { PageFilesArg, pageUpload } from "./start";
 
 function describe(view: ImportView, siteName: string): string {
@@ -133,18 +133,12 @@ export function importTools(hub: HubToolContext) {
             services,
             user,
             { name: (input.name ?? "My site").slice(0, 80), html: upload },
-            { log },
+            { log, alsoInsert: grantOnCreate(hub) },
           );
         } catch (err) {
           if (err instanceof HttpError) throw new ToolError(err.message, err.code);
           throw err;
         }
-        await grantSiteToConnection(
-          services.db,
-          connection,
-          { id: r.site.id, role: "owner" },
-          services.now(),
-        );
         const studioUrl = `${studio}/sites/${r.site.id}?welcome=1`;
         return {
           text: r.site.github.connectUrl
@@ -168,7 +162,10 @@ export function importTools(hub: HubToolContext) {
               parsed.error.issues.map((i) => i.message).join("; "),
               "invalid_arguments",
             );
-          result = await convertRepo(services, env, user, parsed.data, { log });
+          result = await convertRepo(services, env, user, parsed.data, {
+            log,
+            alsoInsert: grantOnCreate(hub),
+          });
         } else {
           const parsed = ImportInputSchema.safeParse({
             url,
@@ -182,18 +179,15 @@ export function importTools(hub: HubToolContext) {
               parsed.error.issues.map((i) => i.message).join("; "),
               "invalid_arguments",
             );
-          result = await createImportSite(services, env, user, parsed.data, { log });
+          result = await createImportSite(services, env, user, parsed.data, {
+            log,
+            alsoInsert: grantOnCreate(hub),
+          });
         }
       } catch (err) {
         if (err instanceof HttpError) throw new ToolError(err.message, err.code);
         throw err;
       }
-      await grantSiteToConnection(
-        services.db,
-        connection,
-        { id: result.site.id, role: "owner" },
-        services.now(),
-      );
       return {
         text: `Started moving ${url} into "${result.site.name}" (${result.site.id}).\n${describe(result.import, result.site.name)}`,
         data: {

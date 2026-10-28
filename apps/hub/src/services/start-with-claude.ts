@@ -613,7 +613,11 @@ export async function createStartSite(
   services: Services,
   user: User,
   input: StartInput,
-  opts: { log?: Logger } = {},
+  opts: {
+    log?: Logger;
+    /** Statements committed together with the site row (an AI app's grant to the new site). */
+    alsoInsert?: (siteId: string) => D1PreparedStatement[];
+  } = {},
 ): Promise<StartResult> {
   // Validate brand material up front (plain-language errors before anything is created).
   if (input.tokens) {
@@ -765,26 +769,30 @@ export async function createStartSite(
       );
     }
     try {
-      await insertSite(services.db, {
-        id: siteId,
-        owner_id: user.id,
-        name,
-        tagline: setup.tagline,
-        repo: `${owner}/${repoName}`,
-        installation_id: installationId,
-        deploy_target: "github-pages",
-        domain: null,
-        url: setup.deployUrl,
-        template_id: picked?.template.id ?? "html",
-        template_version: picked?.template.version ?? "1.0.0",
-        look: picked?.look.id ?? null,
-        status: need ? "failed" : "building",
-        status_detail: need ? GITHUB_ACCESS_DETAIL[need] : null,
-        github_access: need,
-        setup_json: JSON.stringify(setup),
-        created_at: now,
-        updated_at: now,
-      });
+      await insertSite(
+        services.db,
+        {
+          id: siteId,
+          owner_id: user.id,
+          name,
+          tagline: setup.tagline,
+          repo: `${owner}/${repoName}`,
+          installation_id: installationId,
+          deploy_target: "github-pages",
+          domain: null,
+          url: setup.deployUrl,
+          template_id: picked?.template.id ?? "html",
+          template_version: picked?.template.version ?? "1.0.0",
+          look: picked?.look.id ?? null,
+          status: need ? "failed" : "building",
+          status_detail: need ? GITHUB_ACCESS_DETAIL[need] : null,
+          github_access: need,
+          setup_json: JSON.stringify(setup),
+          created_at: now,
+          updated_at: now,
+        },
+        opts.alsoInsert?.(siteId) ?? [],
+      );
       row = await getSite(services.db, siteId);
     } catch (err) {
       if (!/UNIQUE constraint failed/i.test(String((err as Error).message))) throw err;

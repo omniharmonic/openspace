@@ -587,6 +587,29 @@ export function createManageMock(ctx: ManageMockContext): {
       g.publish = publish;
       return clone(g);
     },
+    async updateMcpGrant(grantId, patch) {
+      await call("updateMcpGrant", [grantId, patch]);
+      const g = state.grants?.find((x) => x.id === grantId);
+      if (!g) throw new HubError(404, "not_found", "That connection was already removed.");
+      if (patch.allSites !== undefined) g.allSites = patch.allSites;
+      if (patch.create !== undefined) g.create = patch.create;
+      return clone(g);
+    },
+    async allowMcpGrantSite(grantId, siteId) {
+      await call("allowMcpGrantSite", [grantId, siteId]);
+      const g = state.grants?.find((x) => x.id === grantId);
+      if (!g) throw new HubError(404, "not_found", "That connection was already removed.");
+      const site = findSite(siteId);
+      if (!g.sites.some((s) => s.id === siteId)) g.sites.push({ id: site.id, name: site.name });
+      return clone(g);
+    },
+    async removeMcpGrantSite(grantId, siteId) {
+      await call("removeMcpGrantSite", [grantId, siteId]);
+      const g = state.grants?.find((x) => x.id === grantId);
+      if (!g) throw new HubError(404, "not_found", "That connection was already removed.");
+      g.sites = g.sites.filter((s) => s.id !== siteId);
+      return clone(g);
+    },
 
     async listCollaborators(siteId) {
       const user = await call("listCollaborators", [siteId]);

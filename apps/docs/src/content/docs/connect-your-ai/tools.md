@@ -9,9 +9,10 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 
 | Tool | What it does |
 |---|---|
-| `list_sites` | Sites this connection can edit. With none yet, Claude offers to create one or move your existing site. |
+| `list_sites` | Sites this connection can edit — and your other sites it can't see yet, each with an **Allow** link. With none yet, Claude offers to make one with you or move your existing site. |
 | `create_site` | Hub only: create a new site from a template and look (needs **Create new sites** on the consent screen). The first time, it gives you a Studio link to approve OpenSpace on GitHub. |
-| `start_site` | Hub only: Start with Claude — a new site from the person's idea (what it's for, who it's for, how it should feel) and brand material (a design-token file, colours, fonts) or a page Claude made (`html`). It goes live at once. See [Start with Claude](/guides/start-with-claude/). |
+| `start_site` | Hub only: Start with Claude — the last step of a conversation. After asking about the site and agreeing a direction, Claude passes the page(s) it designed (`html`, or several `files`) and the brief; every section becomes editable and the first version is published at once. Without a page it starts from the closest template in the person's brand. Answers with the edit link (works straight away), the live address and a status. See [Start with Claude](/guides/start-with-claude/). |
+| `site_status` | Hub only: where a site is between created and live — setting up (seconds), publishing (about a minute; editing already works), live, or a step for the person with its link. Waits briefly while publishing. With a site's name, it also gives the **Allow** link for a site Claude can't edit yet. |
 | `get_site` | Settings, navigation, header and footer, Site Styles summary, pages and collections. |
 | `get_page` | A page's sections and blocks with their ids — `outline` or `full` detail. |
 | `list_blocks` / `get_block_schema` | The block catalog, with each block's fields and AI guidance. |
@@ -87,7 +88,7 @@ Screenshots on the Hub are limited to about forty every ten minutes per person, 
 
 ## Prompts
 
-`design-a-page`, `restyle-site`, `write-blog-post` and `iterate-design`.
+`design-a-page`, `restyle-site`, `write-blog-post` and `iterate-design`. The Hub adds `start-a-site` ("Make a new website with me"): Claude asks about your site, designs it, puts it online and gives you the edit link. The Hub also sends the same steps as its server instructions, so Claude follows them even in apps that don't show prompts.
 
 ## Resources
 

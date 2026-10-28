@@ -630,7 +630,11 @@ export async function createImportSite(
   env: HubBindings,
   user: User,
   input: ImportInput,
-  opts: { log?: Logger } = {},
+  opts: {
+    log?: Logger;
+    /** Statements committed together with the site row (an AI app's grant to the new site). */
+    alsoInsert?: (siteId: string) => D1PreparedStatement[];
+  } = {},
 ): Promise<{ site: SiteView; import: ImportView }> {
   const src = sourceOf(input);
   const platform =
@@ -681,26 +685,30 @@ export async function createImportSite(
       logo: null,
     };
     try {
-      await insertSite(services.db, {
-        id: siteId,
-        owner_id: user.id,
-        name,
-        tagline: null,
-        repo: `${owner}/${repoName}`,
-        installation_id: installationId,
-        deploy_target: "github-pages",
-        domain: null,
-        url: deployUrl,
-        template_id: "import",
-        template_version: "1.0.0",
-        look: null,
-        status: need ? "failed" : "building",
-        status_detail: need ? GITHUB_ACCESS_DETAIL[need] : null,
-        github_access: need,
-        setup_json: JSON.stringify(setup),
-        created_at: now,
-        updated_at: now,
-      });
+      await insertSite(
+        services.db,
+        {
+          id: siteId,
+          owner_id: user.id,
+          name,
+          tagline: null,
+          repo: `${owner}/${repoName}`,
+          installation_id: installationId,
+          deploy_target: "github-pages",
+          domain: null,
+          url: deployUrl,
+          template_id: "import",
+          template_version: "1.0.0",
+          look: null,
+          status: need ? "failed" : "building",
+          status_detail: need ? GITHUB_ACCESS_DETAIL[need] : null,
+          github_access: need,
+          setup_json: JSON.stringify(setup),
+          created_at: now,
+          updated_at: now,
+        },
+        opts.alsoInsert?.(siteId) ?? [],
+      );
       row = await getSite(services.db, siteId);
     } catch (err) {
       if (!/UNIQUE constraint failed/i.test(String((err as Error).message))) throw err;
@@ -840,7 +848,11 @@ export async function convertRepo(
   env: HubBindings,
   user: User,
   input: z.infer<typeof ConvertInputSchema>,
-  opts: { log?: Logger } = {},
+  opts: {
+    log?: Logger;
+    /** Statements committed together with the site row (an AI app's grant to the new site). */
+    alsoInsert?: (siteId: string) => D1PreparedStatement[];
+  } = {},
 ): Promise<{ site: SiteView; import: ImportView }> {
   const src = sourceOf({ url: input.repo });
   if (!src.github)
@@ -967,26 +979,30 @@ export async function convertRepo(
     createdAt: now,
     logo: null,
   };
-  await insertSite(services.db, {
-    id: siteId,
-    owner_id: user.id,
-    name,
-    tagline: null,
-    repo: fullName,
-    installation_id: check.installation.id,
-    deploy_target: "github-pages",
-    domain,
-    url: deployUrl,
-    template_id: "import",
-    template_version: "1.0.0",
-    look: null,
-    status: "building",
-    status_detail: null,
-    github_access: null,
-    setup_json: JSON.stringify(setup),
-    created_at: now,
-    updated_at: now,
-  });
+  await insertSite(
+    services.db,
+    {
+      id: siteId,
+      owner_id: user.id,
+      name,
+      tagline: null,
+      repo: fullName,
+      installation_id: check.installation.id,
+      deploy_target: "github-pages",
+      domain,
+      url: deployUrl,
+      template_id: "import",
+      template_version: "1.0.0",
+      look: null,
+      status: "building",
+      status_detail: null,
+      github_access: null,
+      setup_json: JSON.stringify(setup),
+      created_at: now,
+      updated_at: now,
+    },
+    opts.alsoInsert?.(siteId) ?? [],
+  );
   await insertImport(services.db, {
     id: importId,
     site_id: siteId,

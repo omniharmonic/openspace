@@ -19,6 +19,7 @@ import type { Context } from "hono";
 import type { User } from "../db/users";
 import type { HubConfig } from "../env";
 import type { AppEnv } from "../types";
+import { explainUnreachable } from "./access";
 import {
   agentSessionsOf,
   type ConnectionRow,
@@ -33,6 +34,7 @@ import {
 import { hubTools } from "./hub-tools";
 import { draftScreenshots } from "./screenshots";
 import { endSession, MCP_IDLE_MS } from "./sessions";
+import { HUB_INSTRUCTIONS, START_PROMPT } from "./start-guide";
 import { HubSiteStore, imagesResizer } from "./store";
 
 /** Operations (tool calls) per connection per day (arch §8.4). */
@@ -279,7 +281,7 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
     );
 
   // --- grant (re-read every request) --------------------------------------------------------
-  const sites = await grantSites(db, auth.connection.id);
+  const sites = await grantSites(db, auth.connection);
   const roles: Record<string, Role> = {};
   for (const s of sites) roles[s.id] = s.role;
   const lowest = sites.reduce<Role | undefined>(
@@ -298,6 +300,7 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
     screenshots: services.screenshots
       ? draftScreenshots(services.screenshots, services, auth.user.id)
       : null,
+    explain: (ref) => explainUnreachable(services, auth.connection, sites, ref, label),
   });
   const server = createMcpServer(
     store,
@@ -321,6 +324,8 @@ export async function handleMcp(c: Context<AppEnv>, auth: McpAuth): Promise<Resp
         sites,
         log,
       }),
+      instructions: HUB_INSTRUCTIONS,
+      prompts: [START_PROMPT],
       assumeInitialized: !init,
       onError: (err, where) => log.error("mcp tool failed", { where, err }),
     },

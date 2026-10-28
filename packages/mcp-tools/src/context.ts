@@ -85,13 +85,25 @@ export class ToolContext {
     const allowed = await this.allowedSites();
     if (input) {
       if (allowed.includes(input)) return input;
+      // A site's name works too ("Mo's Bakery"), when it names exactly one reachable site.
+      const wanted = input.trim().toLowerCase();
+      const named = (await this.store.listSites()).filter(
+        (s) => allowed.includes(s.id) && s.title.trim().toLowerCase() === wanted,
+      );
+      if (named.length === 1 && named[0]) return named[0].id;
+      const explained = await this.store.explainUnreachable?.(input);
+      if (explained) throw explained;
       throw new ToolError(
         `This connection can't reach site "${input}". Sites available: ${allowed.join(", ") || "none"}.`,
         "forbidden",
       );
     }
     if (allowed.length === 1) return allowed[0] as string;
-    if (!allowed.length) throw new ToolError("This connection has no sites.", "forbidden");
+    if (!allowed.length) {
+      const explained = await this.store.explainUnreachable?.(undefined);
+      if (explained) throw explained;
+      throw new ToolError("This connection has no sites.", "forbidden");
+    }
     throw new ToolError(
       `Several sites are available; pass "site" (one of: ${allowed.join(", ")}).`,
       "invalid_arguments",

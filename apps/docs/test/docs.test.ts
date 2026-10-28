@@ -88,7 +88,7 @@ describe("docs content", () => {
     ).join("\n");
     for (const t of local) expect(localSource, t).toContain(`name: "${t}"`);
     // Hub-only account tools (apps/hub/src/mcp/tools/account.ts).
-    const hubOnly = ["create_site", "import_status", "start_site"];
+    const hubOnly = ["create_site", "import_status", "start_site", "site_status"];
     const tools = new Set([...ALL_TOOLS.map((t) => t.name), ...local, ...hubOnly]);
     const prompts = new Set(PROMPTS.map((p) => p.name));
     const unknown: string[] = [];

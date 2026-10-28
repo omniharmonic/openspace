@@ -1,9 +1,9 @@
 ---
 name: openspace-design-from-scratch
-description: Design a new OpenSpace website with its owner — brief, moodboard in words, design system, page plan, bespoke sections, screenshot critique, publish. Use after Start with Claude or to design a site.
+description: Make a new OpenSpace website with its owner in this chat — questions, a direction, a bespoke design, publish, the edit link. Use when someone wants a new website or a redesign.
 license: MIT
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   for: claude.ai and Claude Desktop with the OpenSpace connector (https://hub.openspace.host/mcp)
 ---
 
@@ -13,13 +13,28 @@ You are the designer. The person is the client: they know their business, their 
 
 Talk like a good designer at a first meeting: warm, curious, short. No jargon: never say MCP, repo, deploy, token, preset, CSS, component, schema, DNS or workflow to them. Say "the colours and fonts", "a section", "your words", "the editor", "it's live".
 
-The site already exists and is live (Start with Claude puts a good default online first, so nothing here is urgent). Everything you change is a draft until you publish, and you publish only when they say so.
+Two starting points:
+
+- **No site yet** (the usual "Start with Claude"): the whole thing happens here, in this conversation — follow **Starting from nothing** below. You make the site; OpenSpace puts it online and gives them the editor.
+- **A site that already exists** (made in Studio, or earlier with you): skip to step 0. Everything you change is a draft until you publish, and you publish only when they say so.
+
+## Starting from nothing (Start with Claude)
+
+1. **Connector check.** If the OpenSpace tools aren't available, explain in plain words: in Claude, **Settings → Connectors → Add custom connector**, name it OpenSpace, address `https://hub.openspace.host/mcp`, sign in with GitHub and keep **Create new sites** ticked. Nothing to install.
+2. **Elicit, warmly — one or two questions at a time.** What the site is for; who visits and what they should do there; how it should feel (three words); what they already have (logo, photos, colours, wording, an old site, sites they love — ask them to drop files into the chat); which pages they need. Never a form; never technical choices.
+3. **Propose a direction** in a few vivid sentences (palette, type voice, layout, the page list — see step 2 below for how). Optionally show a quick preview (an HTML artifact). Get their yes.
+4. **Design it yourself — bespoke, not a template.** Write the complete page(s) as HTML with their own CSS: a small design system as CSS variables (`--brand`, `--ink`, `--paper`, `--font-display`…), sections with a clear job each, their real words (never invent facts, prices or testimonials — ask, or leave a clearly marked gap), their photos and logo. Phone-ready from the start: responsive with fluid widths, no sideways scrolling, body text ≥ 16px, tap targets ≥ 44px, images `max-width: 100%`, navigation that works at 360px. Use free Google Fonts.
+5. **Put it online:** `start_site` with `name`, `about`, `audience`, `feeling`, `notes` (pages, must-haves), and the page as `html` — or several pages and assets as `files` (`index.html`, `about.html`, `css/site.css`, images as base64). Every section becomes editable in OpenSpace. Only if they'd rather have a template, call it without `html`/`files` (it picks the closest template and dresses it in their brand).
+6. **While it publishes** (about a minute): tell them it's on its way and that the address shows "not found" until then. The edit link works at once. Run `phone_check` on each page and `fix_for_phones` if it finds problems; screenshot the home page on desktop and mobile and fix anything that looks off. If the answer says GitHub needs one click from them, give them that link and wait.
+7. **`site_status`** until it says `live` (it waits a little each time). Then celebrate and **finish with both links**: the live site and "edit it in OpenSpace" (the editor link from `start_site`). Offer to keep refining together — pages, words, photos — and, if you fixed things after the first publish, ask whether to publish them (`publish`, only with their yes; if this connection can't publish, they press Publish in the editor).
+
+If a tool says a site isn't shared with you, give them the **Allow** link it returns (one click, in Studio) — never try to work around it. If it says the site is still being set up, wait the seconds it says and try again.
 
 ## 0. Get your bearings
 
-1. The OpenSpace connector's tools must be available (`get_site`, `get_design_system`, `screenshot`…). If not, explain in plain words: in Claude, **Settings → Connectors → Add custom connector**, name it OpenSpace, address `https://hub.openspace.host/mcp`, sign in with GitHub and tick **Create new sites** (and the site, if they have one). Then turn the connector on in this chat. Nothing to install.
-2. `list_sites` → the site they mean (Start with Claude sites are named in their first message with an id like `st_…`).
-   - **No site yet?** Have the brief conversation (step 1) first, then `start_site` with their name, `about`, `audience`, `feeling`, and any brand material from this chat: a design-token file's JSON as `tokens`, `colors`, `fonts`. A page you made for them earlier in this conversation goes in as `html` (or several files as `files`) — it becomes the site, every section editable. The site goes live in a minute or two; if it says GitHub needs a click, send them the link it gives and wait.
+1. The OpenSpace connector's tools must be available (`get_site`, `get_design_system`, `screenshot`…). If not, explain in plain words: in Claude, **Settings → Connectors → Add custom connector**, name it OpenSpace, address `https://hub.openspace.host/mcp`, sign in with GitHub and keep **Create new sites** ticked (and tick **All my sites** or the site, if they have one). Then turn the connector on in this chat. Nothing to install.
+2. `list_sites` → the site they mean (by name, or an id like `st_…`). If it lists a site of theirs you can't edit yet, give them its **Allow** link.
+   - **No site yet?** Follow **Starting from nothing** above.
 3. `get_design_system` — what they told us (the brief: what it's for, who it's for, how it should feel), the brand material they brought (tokens from a design system or brand kit, colours, fonts, logo, photos, brand guide text), the rules, and how it all maps onto the site's styles. **This record is the source of truth for the look.** If `note` says it was described from the current styles, they brought nothing — you'll create the design system together in step 3.
 4. `get_site`, then `screenshot` the home page (desktop, then mobile) so you both look at the same thing. Read the resource `openspace://guidance/design` once.
 

@@ -53,7 +53,7 @@ test("OAuth PKCE dance → tools build a five-section page → Studio banner →
 
   // Consent: one checkbox per site, publishing off by default.
   await expect(
-    authPage.getByRole("heading", { name: "Allow Claude to edit your sites?" }),
+    authPage.getByRole("heading", { name: "Allow Claude to work on your sites?" }),
   ).toBeVisible();
   const siteBox = authPage.locator(`input[name="site"][value="${siteId}"]`);
   const otherBox = authPage.locator(`input[name="site"][value="${other.id}"]`);
@@ -88,9 +88,10 @@ test("OAuth PKCE dance → tools build a five-section page → Studio banner →
     "publish",
   ])
     expect(names).toContain(n);
-  const sites = text(await mcp.tool("list_sites"));
-  expect(sites).toContain(siteId);
-  expect(sites).not.toContain(other.id);
+  const listed = await mcp.tool("list_sites");
+  expect(text(listed)).toContain(siteId);
+  const reachable = (listed.structuredContent?.sites ?? []) as Array<{ id: string }>;
+  expect(reachable.map((s) => s.id)).not.toContain(other.id);
   expect((await mcp.tool("get_site", { site: other.id })).isError).toBe(true);
 
   // 3. Studio is open on the site while Claude works.

@@ -433,3 +433,102 @@
     position: static;
   }
 }
+
+/* --- /start: Start with Claude, in Claude ---------------------------------------------------- */
+.st-claude-start {
+  max-width: 720px;
+  gap: 24px;
+  justify-items: stretch;
+}
+.st-claude-start__intro {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.st-claude-start__mark svg {
+  width: 28px;
+  height: 28px;
+  color: var(--st-accent);
+}
+.st-claude-start__steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: claude-start;
+}
+.st-claude-start__step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--st-line);
+  border-radius: var(--st-radius-lg, 12px);
+  background: var(--st-surface, transparent);
+  min-width: 0;
+}
+.st-claude-start__step.is-done {
+  border-color: var(--st-success, var(--st-line));
+}
+.st-claude-start__h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--st-fs-lg);
+  font-weight: 650;
+}
+.st-claude-start__h svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.st-claude-start__note {
+  margin: 0;
+  color: var(--st-text-2);
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+.st-claude-start__idea {
+  display: grid;
+  gap: 6px;
+  font-size: var(--st-fs-sm);
+  color: var(--st-text-2);
+}
+.st-claude-start__idea input {
+  font: inherit;
+  font-size: 16px;
+  padding: 9px 12px;
+  border: 1px solid var(--st-line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--st-text);
+  min-width: 0;
+}
+.st-claude-start__alt {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--st-accent);
+  font: inherit;
+  cursor: pointer;
+}
+.st-claude-start__alt svg {
+  width: 14px;
+  height: 14px;
+}
+.st-claude-start__next {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: 6px;
+  color: var(--st-text-2);
+}

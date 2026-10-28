@@ -71,7 +71,8 @@ describe("remote MCP first run (no sites yet)", () => {
       needsGitHub: boolean;
     };
     expect(data.needsGitHub).toBe(false);
-    expect(data.site.studioUrl).toBe(`http://localhost:5173/sites/${data.site.id}`);
+    // The editor link opens the first-run tour; it works straight away.
+    expect(data.site.studioUrl).toBe(`http://localhost:5173/sites/${data.site.id}?welcome=1`);
 
     // The new site is now part of this connection.
     const after = await mcp.tool("list_sites");

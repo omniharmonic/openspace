@@ -112,11 +112,15 @@ Do at most five passes, and after each pass say in one line what you changed and
   },
 ];
 
-export function getPrompt(name: string, args: Record<string, string> = {}) {
-  const p = PROMPTS.find((x) => x.name === name);
+export function getPrompt(
+  name: string,
+  args: Record<string, string> = {},
+  prompts: readonly PromptDefinition[] = PROMPTS,
+) {
+  const p = prompts.find((x) => x.name === name);
   if (!p)
     throw new ToolError(
-      `Unknown prompt "${name}". Prompts: ${PROMPTS.map((x) => x.name).join(", ")}.`,
+      `Unknown prompt "${name}". Prompts: ${prompts.map((x) => x.name).join(", ")}.`,
       "not_found",
     );
   const missing = p.arguments.filter((x) => x.required && !args[x.name]?.trim()).map((x) => x.name);

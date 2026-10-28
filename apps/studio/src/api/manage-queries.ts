@@ -133,9 +133,13 @@ export function useMcpTokens(siteId: string) {
   });
 }
 
-export function useMcpGrants() {
+export function useMcpGrants(enabled = true) {
   const hub = useHub();
-  return useQuery({ queryKey: manageKeys.mcpGrants, queryFn: () => hub.listMcpGrants() });
+  return useQuery({
+    queryKey: manageKeys.mcpGrants,
+    queryFn: () => hub.listMcpGrants(),
+    enabled,
+  });
 }
 
 export function useMcpActions(siteId: string) {
@@ -143,6 +147,10 @@ export function useMcpActions(siteId: string) {
   const qc = useQueryClient();
   const tokens = () => qc.invalidateQueries({ queryKey: manageKeys.mcpTokens(siteId) });
   const grants = () => qc.invalidateQueries({ queryKey: manageKeys.mcpGrants });
+  const replaceGrant = (g: McpGrant) =>
+    qc.setQueryData<McpGrant[]>(manageKeys.mcpGrants, (list) =>
+      list?.map((x) => (x.id === g.id ? g : x)),
+    );
   return {
     createToken: useMutation({
       mutationFn: (label: string) => hub.createMcpToken(siteId, label),
@@ -164,10 +172,22 @@ export function useMcpActions(siteId: string) {
     setPublish: useMutation({
       mutationFn: ({ id, publish }: { id: string; publish: boolean }) =>
         hub.setMcpGrantPublish(id, publish),
-      onSuccess: (g) =>
-        qc.setQueryData<McpGrant[]>(manageKeys.mcpGrants, (list) =>
-          list?.map((x) => (x.id === g.id ? g : x)),
-        ),
+      onSuccess: replaceGrant,
+    }),
+    setScope: useMutation({
+      mutationFn: ({ id, ...patch }: { id: string; allSites?: boolean; create?: boolean }) =>
+        hub.updateMcpGrant(id, patch),
+      onSuccess: replaceGrant,
+    }),
+    allowSite: useMutation({
+      mutationFn: ({ id, siteId: site }: { id: string; siteId: string }) =>
+        hub.allowMcpGrantSite(id, site),
+      onSuccess: replaceGrant,
+    }),
+    removeSite: useMutation({
+      mutationFn: ({ id, siteId: site }: { id: string; siteId: string }) =>
+        hub.removeMcpGrantSite(id, site),
+      onSuccess: replaceGrant,
     }),
   };
 }

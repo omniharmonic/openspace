@@ -11,39 +11,59 @@ import { defineTool, ToolError } from "@omniharmonic/openspace-mcp-tools";
 import { z } from "zod";
 import { HttpError } from "../../lib/errors";
 import { CreateSiteSchema, createSite } from "../../services/sites";
-import { grantSiteToConnection } from "../db";
+import { allowUrl, unsharedSites } from "../access";
 import type { HubToolContext } from "../hub-tools";
+import { grantOnCreate, newSiteAnswer } from "./site-status";
 
 /** New sites per connection per hour (each one is a GitHub repository). */
 export const MCP_CREATE_RATE = { name: "mcp-create", limit: 5, windowSec: 3600 };
 
 const EMPTY_HINT =
-  "You don't have a site yet — I can create one from a template (list_templates, then create_site) or move your existing site.";
+  "You don't have a site yet — I can make one with you: tell me what it's for and who it's for, and I'll design it and put it online (start_site). I can also move a site you already have (import_site).";
 
 export function accountTools(hub: HubToolContext) {
   const { services, user, connection, log } = hub;
   const studio = services.config.studioOrigin;
   const canCreate = connection.can_create === 1;
+  const allSites = connection.all_sites === 1;
 
   const listSites = defineTool({
     name: "list_sites",
     title: "List sites",
     description:
-      "Sites this connection can edit, with their titles and live addresses. Start here. With no sites yet, offer to create one (list_templates → create_site) or to move the person's existing site.",
+      "Sites this connection can edit, with their titles and live addresses — and the person's other sites it can't see yet, with a link that lets them share one in a click. Start here. With no sites yet, start a new one with the person (ask about it first, then start_site) or move their existing site (import_site).",
     input: z.object({}),
     annotations: { readOnlyHint: true },
     async handler(ctx) {
       const allowed = new Set(await ctx.allowedSites());
       const sites = (await ctx.store.listSites()).filter((s) => allowed.has(s.id));
+      // The person's other sites (e.g. made in Studio after connecting): named, with an "Allow" link.
+      const others = allSites ? [] : await unsharedSites(services, user.id, hub.sites);
+      const notShared = others.map((s) => ({
+        id: s.id,
+        name: s.name,
+        allowUrl:
+          connection.kind === "oauth" ? allowUrl(studio, connection.id, s.id) : `${studio}/connect`,
+      }));
       const data = {
         sites,
         canPublish: ctx.grant.publish && ctx.store.capabilities.canPublish,
         canCreateSites: canCreate,
+        allSites,
+        notShared,
       };
-      if (sites.length) return { data };
-      const text = canCreate
-        ? EMPTY_HINT
-        : `${EMPTY_HINT} This connection wasn't allowed to create sites: reconnect OpenSpace in your Claude app (Settings → Connectors) and tick "Create new sites", or start one at ${studio}/templates.`;
+      const otherText = notShared.length
+        ? `\nThe person has ${notShared.length === 1 ? "another site" : `${notShared.length} other sites`} this connection can't edit yet: ${notShared.map((s) => `"${s.name}" (to share it, they open ${s.allowUrl} and choose Allow)`).join("; ")}. Or they can allow all their sites, including future ones, at ${studio}/connect.`
+        : "";
+      if (sites.length)
+        return otherText
+          ? { text: `${JSON.stringify(data, null, 2)}${otherText}`, data }
+          : { data };
+      const text = notShared.length
+        ? `No sites are shared with this connection yet.${otherText}`
+        : canCreate
+          ? EMPTY_HINT
+          : `${EMPTY_HINT} This connection wasn't allowed to create sites: the person can turn on "Create new sites" for this app at ${studio}/connect (Apps with access).`;
       return { text, data: { ...data, next: text } };
     },
   });
@@ -94,7 +114,7 @@ export function accountTools(hub: HubToolContext) {
     async handler(_ctx, input) {
       if (!canCreate)
         throw new ToolError(
-          `This connection can't create sites. Reconnect OpenSpace in your Claude app and tick "Create new sites", or create one at ${studio}/templates.`,
+          `This connection can't create sites yet. The person can turn on "Create new sites" for this app at ${studio}/connect (Apps with access), then try again — or create one at ${studio}/templates.`,
           "forbidden",
         );
       const parsed = CreateSiteSchema.safeParse({
@@ -117,37 +137,34 @@ export function accountTools(hub: HubToolContext) {
         );
       let site: Awaited<ReturnType<typeof createSite>>;
       try {
-        site = await createSite(services, user, parsed.data, { log });
+        // The grant lands with the site row: this app can always reach the site it made.
+        site = await createSite(services, user, parsed.data, {
+          log,
+          alsoInsert: grantOnCreate(hub),
+        });
       } catch (err) {
         if (err instanceof HttpError) throw new ToolError(err.message, err.code);
         throw err;
       }
-      await grantSiteToConnection(
-        services.db,
-        connection,
-        { id: site.id, role: "owner" },
-        services.now(),
-      );
-      const studioUrl = `${studio}/sites/${site.id}`;
+      const answer = await newSiteAnswer(services, site, `Created ${site.name} (${site.id}).`);
       const summary = {
         id: site.id,
         name: site.name,
-        status: site.status,
+        status: answer.state.phase,
         url: site.url,
-        studioUrl,
+        studioUrl: answer.studioUrl,
       };
-      if (site.github.access !== "ok") {
-        const text = `One more step for ${site.name}: OpenSpace needs permission on GitHub to create the site's repository. Ask the person to open ${studioUrl} and choose "Connect GitHub" (about a minute, nothing to install). When they're back, call get_site for ${site.id} and carry on.`;
-        return {
-          text,
-          data: { site: summary, needsGitHub: true, actionUrl: studioUrl, next: text },
-        };
-      }
-      const text =
-        site.status === "failed"
-          ? `${site.name} was created but its first publish didn't finish: ${site.statusDetail ?? "try again in a moment"}. The person can choose Try again at ${studioUrl}.`
-          : `Created ${site.name} (${site.id}). It goes live at ${site.url} in about a minute. You can start editing now: get_site with site "${site.id}". The person can watch at ${studioUrl}.`;
-      return { text, data: { site: summary, needsGitHub: false, next: text } };
+      const needsGitHub = answer.state.phase === "needs_github";
+      return {
+        text: answer.text,
+        data: {
+          site: summary,
+          needsGitHub,
+          editorReady: answer.state.editorReady,
+          ...(answer.state.actionUrl ? { actionUrl: answer.state.actionUrl } : {}),
+          next: answer.text,
+        },
+      };
     },
   });
 

@@ -13,7 +13,7 @@ This is the easiest way to work with OpenSpace: nothing to download or install, 
 2. Name it **OpenSpace** and paste the address from Studio → Settings → Connect your AI:
    - `https://hub.openspace.host/mcp` to **sign in** and choose sites, or
    - your **personal link** (`https://hub.openspace.host/mcp/t/…`) for one site without signing in.
-3. If you used the sign-in address, Claude opens OpenSpace: sign in with GitHub, tick the sites Claude may edit — or, with no site yet, keep **Create new sites** ticked — and decide whether to **Allow publishing** (off by default). Press **Allow**. A personal link skips this step: there's no sign-in, and it edits the draft only unless the site owner allows that link to publish.
+3. If you used the sign-in address, Claude opens OpenSpace: sign in with GitHub, keep **Create new sites and edit the sites it creates** ticked, tick **All my sites, including ones I make later** or the sites Claude may edit, and decide whether to **Allow publishing** (off by default). Press **Allow**. A personal link skips this step: there's no sign-in, and it edits the draft only unless the site owner allows that link to publish.
 4. In a new chat, make sure the OpenSpace connector is turned on in the tools menu.
 
 Claude Desktop uses the same Settings → Connectors screen, and connectors you add on the web appear there too.
@@ -55,5 +55,5 @@ The connector offers ready-made prompts in Claude's prompt menu:
 
 - **"Not allowed to publish"** — publish from Studio, or, for a sign-in connection, turn on **Can publish** for Claude in Studio → Settings → Connect your AI → Apps with access. A personal link is draft-only unless the site owner turns on **Allow this link to publish** on that link.
 - **An edit was rejected** — Claude sees exactly why (for example a field that's too long) and usually corrects itself. Nothing changes on a rejected edit.
-- **Claude can't see a site** — the connection only covers the sites you ticked; reconnect to change them. Contributors can't connect an AI.
+- **Claude can't see a site** — the connection only covers the sites you allowed (or all of them, with **All my sites**). Claude gives you an **Allow** link for a site it can't edit; or turn on **All my sites** in Studio → Settings → Connect your AI → Apps with access. Contributors can't connect an AI.
 - **Screenshots** — Claude takes screenshots of your draft (`screenshot`) and of any public page, such as your old site (`screenshot_url`), in the cloud. If it says screenshots aren't available, your Hub's operator hasn't turned them on; Claude falls back to reading the rendered page.

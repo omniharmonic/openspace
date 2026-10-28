@@ -395,7 +395,7 @@ export function StartWithClaude() {
               Your site will belong to you — saved in your own free GitHub account.
             </p>
             <SignInPanel
-              github={{ returnTo: "/start?resume=1" }}
+              github={{ returnTo: "/start/form?resume=1" }}
               beforeRedirect={() => saveDraft(draft)}
               onSignedIn={() => setStep("brand")}
             />

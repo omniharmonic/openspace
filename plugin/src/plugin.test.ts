@@ -34,7 +34,7 @@ import {
 const LOCAL_TOOLS = ["import_site", "import_squarespace", "screenshot_url", "compare_fidelity"];
 const CLI_MCP = join(REPO_ROOT, "packages", "cli", "src", "mcp");
 /** Hub-only tools (the remote connector's account-level tools; defined in apps/hub). */
-const HUB_TOOLS = ["create_site", "list_templates", "import_status", "start_site"];
+const HUB_TOOLS = ["create_site", "list_templates", "import_status", "start_site", "site_status"];
 const TOOL_NAMES = new Set([...ALL_TOOLS.map((t) => t.name), ...LOCAL_TOOLS, ...HUB_TOOLS]);
 const read = (rel: string) => readFileSync(join(PLUGIN_ROOT, rel), "utf8");
 

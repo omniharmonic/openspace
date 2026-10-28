@@ -578,7 +578,7 @@
             "level": "h2",
             "size": "auto",
             "text": "Or start with Claude",
-            "subheading": "Tell us what your site is for, who it's for and how it should feel. Bring your brand if you have one: a Claude design system, a Canva brand kit, your logo and photos, or a page Claude already made you. A good site goes live in minutes, then Claude designs it properly with you."
+            "subheading": "Tell Claude about your idea. It asks a few good questions, designs your site with you and puts it online with OpenSpace, then hands you the link to edit it. Bring your brand if you have one: a logo, photos, colours, or a page Claude already made you."
           },
           "variant": "plain",
           "column": 0
@@ -622,7 +622,7 @@
             "aspect": "original",
             "items": [
               {
-                "heading": "Describe your idea",
+                "heading": "Connect Claude once",
                 "body": {
                   "type": "doc",
                   "content": [
@@ -631,7 +631,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "In your own words: what it's for, who comes, three words for how it should feel. No forms full of options."
+                          "text": "Add OpenSpace to Claude on claude.ai or in the desktop app. About two minutes, nothing to install, and you choose what it may do."
                         }
                       ]
                     }
@@ -639,7 +639,7 @@
                 }
               },
               {
-                "heading": "Bring what you have",
+                "heading": "Talk it through",
                 "body": {
                   "type": "doc",
                   "content": [
@@ -648,7 +648,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Your colours, fonts and sizes from a design-token file, your logo and photos, a brand guide. A page Claude made becomes the site itself, every word and picture editable."
+                          "text": "Claude asks what the site is for, who comes and what they should do, how it should feel, and what you already have. No forms full of options."
                         }
                       ]
                     }
@@ -656,7 +656,7 @@
                 }
               },
               {
-                "heading": "Live straight away",
+                "heading": "Claude designs it",
                 "body": {
                   "type": "doc",
                   "content": [
@@ -665,7 +665,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "The closest template, in your brand and checked for readability, goes online on free hosting in a couple of minutes. Nothing to install."
+                          "text": "A design made for you, not a template: your colours, type, words and photos, checked on phones. You see the direction before it builds."
                         }
                       ]
                     }
@@ -673,7 +673,7 @@
                 }
               },
               {
-                "heading": "Claude makes it yours",
+                "heading": "Live, and yours to edit",
                 "body": {
                   "type": "doc",
                   "content": [
@@ -682,7 +682,7 @@
                       "content": [
                         {
                           "type": "text",
-                          "text": "Connect Claude and it works like a designer: two or three directions to choose from, your design system, a page plan, bespoke sections, and a screenshot check at every step."
+                          "text": "It goes online on free hosting in about a minute. Claude gives you the live link and the link to edit it in OpenSpace, and keeps refining with you."
                         }
                       ]
                     }

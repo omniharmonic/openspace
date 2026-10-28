@@ -23,6 +23,7 @@ const WEB_TOOLS = [
   "create_site",
   "list_templates",
   "start_site",
+  "site_status",
 ];
 const TOOLS = new Set([...ALL_TOOLS.map((t) => t.name), ...WEB_TOOLS]);
 const SPEC_KEYS = new Set([

@@ -19,7 +19,7 @@ import type { BlockRegistry } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
 import { ToolContext } from "./context";
 import { errorText, invalidInput, ToolError } from "./errors";
-import { getPrompt, PROMPTS } from "./prompts";
+import { getPrompt, PROMPTS, type PromptDefinition } from "./prompts";
 import { listResources, RESOURCE_TEMPLATES, readResource } from "./resources";
 import type { Grant, SiteStore } from "./store";
 import type { ToolDefinition, ToolOutput } from "./tool";
@@ -40,6 +40,10 @@ export interface McpServerOptions {
   label?: string;
   /** Extra/override tools (e.g. a Hub-only tool); same name replaces a built-in. */
   tools?: readonly ToolDefinition[];
+  /** Extra/override prompts (e.g. the Hub's "start-a-site"); same name replaces a built-in. */
+  prompts?: readonly PromptDefinition[];
+  /** Server instructions sent in `initialize` (default {@link SERVER_INSTRUCTIONS}). */
+  instructions?: string;
   /**
    * Called with unexpected (non-ToolError) failures; their details never reach the client.
    * Default: `console.error`.
@@ -91,6 +95,7 @@ function inputJsonSchema(schema: z.ZodType): Json {
 export class OpenSpaceMcpServer {
   readonly ctx: ToolContext;
   private readonly tools = new Map<string, ToolDefinition>();
+  private readonly prompts: PromptDefinition[];
   private clientName: string | undefined;
   private initialized: boolean;
   private protocolVersion: string | undefined;
@@ -107,6 +112,13 @@ export class OpenSpaceMcpServer {
     this.initialized = Boolean(options.assumeInitialized);
     for (const t of ALL_TOOLS) this.tools.set(t.name, t);
     for (const t of options.tools ?? []) this.tools.set(t.name, t);
+    const extra = options.prompts ?? [];
+    this.prompts = [...PROMPTS.filter((p) => !extra.some((e) => e.name === p.name)), ...extra];
+  }
+
+  /** Prompts served by this instance. */
+  promptList(): PromptDefinition[] {
+    return [...this.prompts];
   }
 
   /** Tool definitions served by this instance. */
@@ -239,7 +251,7 @@ export class OpenSpaceMcpServer {
       }
       case "prompts/list":
         return {
-          prompts: PROMPTS.map((p) => ({
+          prompts: this.prompts.map((p) => ({
             name: p.name,
             title: p.title,
             description: p.description,
@@ -252,7 +264,7 @@ export class OpenSpaceMcpServer {
         const args = isRecord(params.arguments)
           ? Object.fromEntries(Object.entries(params.arguments).map(([k, v]) => [k, String(v)]))
           : {};
-        return getPrompt(params.name, args);
+        return getPrompt(params.name, args, this.prompts);
       }
       case "completion/complete":
         return { completion: { values: [], hasMore: false } };
@@ -284,7 +296,7 @@ export class OpenSpaceMcpServer {
         logging: {},
       },
       serverInfo: { name: SERVER_NAME, title: "OpenSpace", version: SERVER_VERSION },
-      instructions: SERVER_INSTRUCTIONS,
+      instructions: this.options.instructions ?? SERVER_INSTRUCTIONS,
     };
   }
 

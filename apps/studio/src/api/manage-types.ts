@@ -119,8 +119,10 @@ export interface McpGrant {
   sites: Array<{ id: string; name: string }>;
   /** May the app publish (still with explicit confirmation per publish)? */
   publish: boolean;
-  /** May the app create new sites (first run from Claude)? */
+  /** May the app create new sites (and edit the sites it creates)? */
   create?: boolean;
+  /** "All my sites, including ones I make later". */
+  allSites?: boolean;
   createdAt: string;
   lastUsedAt: string | null;
 }
@@ -319,6 +321,15 @@ export interface ManageApi {
   listMcpGrants(): Promise<McpGrant[]>;
   revokeMcpGrant(grantId: string): Promise<void>;
   setMcpGrantPublish(grantId: string, publish: boolean): Promise<McpGrant>;
+  /** Turn "all my sites" / "create new sites" on or off for one AI app. */
+  updateMcpGrant(
+    grantId: string,
+    patch: { allSites?: boolean; create?: boolean },
+  ): Promise<McpGrant>;
+  /** "Allow <app> to edit <site>" (one click, the signed-in person only). */
+  allowMcpGrantSite(grantId: string, siteId: string): Promise<McpGrant>;
+  /** Stop one AI app editing one site. */
+  removeMcpGrantSite(grantId: string, siteId: string): Promise<McpGrant>;
 
   listCollaborators(siteId: string): Promise<CollaboratorList>;
   /** The invitation behind an invitation link (`GET /api/invitations/:token`). */

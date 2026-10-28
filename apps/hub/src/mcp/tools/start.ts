@@ -1,11 +1,11 @@
 /**
  * Remote MCP: "Start with Claude" from the Claude app, nothing to install.
  *
- * - `start_site` — a new site from the person's own words (what it's for, who it's for, how it
- *   should feel) and any brand material Claude has from the conversation (a design-token file,
- *   colours, fonts), or from a page Claude made (`html`, or `files` for several). It goes live
- *   at once (their page made editable, or the closest template in their brand) and carries the
- *   design-system record that the design-from-scratch skill then builds on.
+ * - `start_site` — the last step of a conversation in which Claude asked what the site is for,
+ *   who visits, how it should feel and what material exists, proposed a direction and designed
+ *   the site itself: its page(s) (`html`, or `files` for several) become an editable site that
+ *   goes live at once. Without a page it falls back to the closest template in their brand.
+ *   The new site is granted to this connection atomically with its creation.
  */
 import { defineTool, ToolError } from "@omniharmonic/openspace-mcp-tools";
 import { strToU8, zipSync } from "fflate";
@@ -17,9 +17,9 @@ import {
   type StartInput,
   StartInputSchema,
 } from "../../services/start-with-claude";
-import { grantSiteToConnection } from "../db";
 import type { HubToolContext } from "../hub-tools";
 import { MCP_CREATE_RATE } from "./account";
+import { grantOnCreate, newSiteAnswer } from "./site-status";
 
 export const PageFilesArg = z
   .array(
@@ -64,6 +64,16 @@ export function pageUpload(input: {
   return undefined;
 }
 
+/** What start_site asks of Claude before it is called (also in the server instructions). */
+export const START_SITE_DESCRIPTION = [
+  "Make the person's new website and put it online with OpenSpace (free hosting, theirs to keep). This is the LAST step of a conversation, not the first:",
+  "1) Ask a few warm questions, one or two at a time, in plain words: what the site is for; who visits and what they should do there; how it should feel (three words); what they already have (logo, photos, colours, wording, an old site); which pages they need.",
+  "2) Propose a direction in a few sentences (palette, type, layout, page list) — optionally show a quick preview — and get their yes.",
+  "3) Design it yourself, bespoke — not a template: write the complete page(s) as HTML with their own CSS (a small design system as CSS variables: colours, fonts, spacing), real copy from their words (no lorem ipsum, no invented facts), phone-ready (responsive, no sideways scrolling, body text ≥ 16px, tap targets ≥ 44px, images that shrink). Pass one page as `html`, or several as `files` (index.html, about.html, css/site.css, images as base64). Every section becomes editable in OpenSpace.",
+  "Leave out html/files only if the person would rather start from a template: then it picks the closest OpenSpace template and dresses it in their brand (colors, fonts, tokens).",
+  "After it returns: give the person the edit link (works at once) and the live address, say the first version is being published (about a minute), run phone_check (and fix_for_phones if it finds problems), then call site_status until it's live. Finish with both links and offer to keep refining it together.",
+].join("\n");
+
 export function startTools(hub: HubToolContext) {
   const { services, user, connection, log } = hub;
   const studio = services.config.studioOrigin;
@@ -71,13 +81,12 @@ export function startTools(hub: HubToolContext) {
 
   const startSite = defineTool({
     name: "start_site",
-    title: "Start a new site with Claude",
-    description:
-      "Create the person's new site from a conversation, with nothing to install. Ask them in plain words what the site is for (about), who it's for (audience) and how it should feel (feeling: a few words), and whether they have brand material — pass a design-token file's JSON as `tokens` (a Claude Design System, Canva brand kit, Figma/Tokens Studio export), brand `colors` (hex) and `fonts`, or a page you made for them earlier as `html` (or several files as `files`). The site goes live right away on free hosting: their page made editable, or the closest template wearing their brand (contrast-checked). It carries a design-system record (get_design_system) for the design that follows: use the openspace-design-from-scratch skill to make it bespoke. Returns the new site and its Studio link.",
+    title: "Make and publish a new site",
+    description: START_SITE_DESCRIPTION,
     input: z.object({
       name: z.string().describe("The site's name."),
       about: z.string().optional().describe("What the business or project is, in their words."),
-      audience: z.string().optional().describe("Who the site is for."),
+      audience: z.string().optional().describe("Who visits and what they should do there."),
       feeling: z
         .array(z.string())
         .optional()
@@ -85,22 +94,27 @@ export function startTools(hub: HubToolContext) {
       notes: z
         .string()
         .optional()
-        .describe("Anything else they said (must-haves, sites they love)."),
+        .describe("Anything else they said (pages, must-haves, sites they love)."),
       tokens: z.string().optional().describe("A design-token file's JSON text."),
       colors: z
         .array(z.string())
         .optional()
         .describe("Brand colours as #rrggbb, the main one first."),
       fonts: z.object({ heading: z.string().optional(), body: z.string().optional() }).optional(),
-      html: z.string().optional().describe("The full HTML of a page you made for them."),
-      files: PageFilesArg.optional().describe("Several files of a page (HTML, CSS, images)."),
+      html: z
+        .string()
+        .optional()
+        .describe("The full HTML of the page you designed (with its CSS in a <style>)."),
+      files: PageFilesArg.optional().describe(
+        "Several files of the site you designed (HTML pages, CSS, images).",
+      ),
       owner: z.string().optional().describe("GitHub organization to own it (default: theirs)."),
     }),
     annotations: { openWorldHint: true, destructiveHint: false, idempotentHint: false },
     async handler(_ctx, input) {
       if (!canCreate)
         throw new ToolError(
-          `This connection can't create sites. Reconnect OpenSpace in your Claude app and tick "Create new sites", or start at ${studio}/start.`,
+          `This connection can't create sites yet. The person can turn on "Create new sites" for this app in OpenSpace (${studio}/connect, under Apps with access) — then call start_site again. Or reconnect OpenSpace in the Claude app and keep "Create new sites" ticked.`,
           "forbidden",
         );
       const rate = await services.pub.rateLimit.hit(`mcp-create|${connection.id}`, MCP_CREATE_RATE);
@@ -129,34 +143,41 @@ export function startTools(hub: HubToolContext) {
         );
       let r: Awaited<ReturnType<typeof createStartSite>>;
       try {
-        r = await createStartSite(services, user, parsed.data, { log });
+        // The grant lands with the site row: this app can always reach the site it made.
+        r = await createStartSite(services, user, parsed.data, {
+          log,
+          alsoInsert: grantOnCreate(hub),
+        });
       } catch (err) {
         if (err instanceof HttpError) throw new ToolError(err.message, err.code);
         throw err;
       }
-      await grantSiteToConnection(
-        services.db,
-        connection,
-        { id: r.site.id, role: "owner" },
-        services.now(),
-      );
-      const studioUrl = `${studio}/sites/${r.site.id}?welcome=1`;
       const from =
         r.startedFrom.kind === "html"
-          ? "their page, made editable section by section"
+          ? "the design you made, every section editable"
           : `the ${r.startedFrom.template} template (${r.startedFrom.look} look) in their brand — ${r.startedFrom.why}`;
-      const waiting = r.site.github.connectUrl;
+      const answer = await newSiteAnswer(
+        services,
+        r.site,
+        `Created "${r.site.name}" (${r.site.id}) from ${from}.`,
+      );
       return {
-        text: [
-          `Created "${r.site.name}" (${r.site.id}) from ${from}.`,
-          waiting
-            ? `One step for the person: open ${studioUrl} and choose "Connect GitHub" (about a minute). The site goes live right after.`
-            : `It's going live at ${r.site.url} (a minute or two). Studio: ${studioUrl}`,
-          "Next: get_design_system, then design it properly with them (openspace-design-from-scratch): brief → mood in words → design tokens → page plan → sections → screenshots → publish.",
-        ].join("\n"),
+        text: answer.text,
         data: {
-          site: { id: r.site.id, name: r.site.name, url: r.site.url, studioUrl },
+          site: {
+            id: r.site.id,
+            name: r.site.name,
+            url: r.site.url,
+            studioUrl: answer.studioUrl,
+          },
+          status: answer.state.phase,
+          editorReady: answer.state.editorReady,
+          ...(answer.state.retryAfterSeconds
+            ? { retryAfterSeconds: answer.state.retryAfterSeconds }
+            : {}),
+          ...(answer.state.actionUrl ? { actionUrl: answer.state.actionUrl } : {}),
           startedFrom: r.startedFrom,
+          next: "phone_check, then site_status until live; finish with the live link and the edit link.",
         },
       };
     },
