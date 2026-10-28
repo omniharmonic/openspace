@@ -514,7 +514,7 @@ html{scroll-behavior:auto}
 /* Reading sizes for a phone: body text at most 20px and lead text at most 22px (a big desktop
    intro paragraph stays an intro, not a wall of 34px text); labels, eyebrows and small text never
    shrink below 13–14px. */
-body{font-size:min(${v(T.type.body["font-size"])},1.25rem)}
+body{font-size:clamp(1rem,${v(T.type.body["font-size"])},1.25rem)}
 .os-type-lead{font-size:min(${v(T.type.lead["font-size"])},1.375rem)}
 .os-type-eyebrow{font-size:max(0.8125rem,${v(T.type.eyebrow["font-size"])})}
 .os-type-small{font-size:max(0.875rem,${v(T.type.small["font-size"])})}
@@ -530,6 +530,7 @@ body{font-size:min(${v(T.type.body["font-size"])},1.25rem)}
 /* Text links get a 44px-tall tap area; inline padding doesn't move the text around them. */
 .os-rich a:not(.os-button),.os-announcement__link{padding-block:max(0.875rem,calc((2.75rem - 1em) / 2))}
 .os-social__link{width:2.75rem;height:2.75rem}
+:where(summary){min-height:2.75rem;align-content:center}
 .os-footer :where(li,p)>a:only-child,.os-footer .os-nav__link{display:inline-flex;align-items:center;min-height:2.75rem}
 .os-footer .os-rich li+li{margin-block-start:0}
 /* Button labels stay readable (14px or more). */

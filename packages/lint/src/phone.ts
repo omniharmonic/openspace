@@ -489,8 +489,10 @@ const MESSAGE: Record<PhoneFindingKind, (f: PhoneFinding, where: string) => [str
     "Use a smaller heading size on phones, or a shorter heading.",
   ],
   "small-text": (f, w) => [
-    `On phones the text${w} is ${f.value}px — too small to read comfortably (16px is the minimum for reading text).`,
-    "Use the body text style for paragraphs instead of the small style.",
+    `On phones the text${w} is ${f.value}px — too small to read comfortably (${f.limit === 14 ? "14px is the minimum for small print" : "16px is the minimum for reading text"}).`,
+    f.limit === 14
+      ? "Use the body text style for it, or shorten it to a note."
+      : "Use the body text style for paragraphs instead of the small style.",
   ],
   "tiny-text": (f, w) => [
     `On phones the label “${f.text ?? ""}”${w} is only ${f.value}px tall, too small to read.`,

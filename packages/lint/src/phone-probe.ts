@@ -278,14 +278,25 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
 
   // --- text size, narrow columns, edges ------------------------------------------------------
   const READING = new Set(["P","LI","DD","BLOCKQUOTE","TD","FIGCAPTION"]);
+  // The site's small-print size (notes, captions), measured once.
+  const smallProbe = document.createElement("span");
+  smallProbe.className = "os-type-small";
+  smallProbe.textContent = "x";
+  smallProbe.style.cssText = "position:absolute;visibility:hidden";
+  (document.querySelector("main") || document.body).appendChild(smallProbe);
+  const smallPx = parseFloat(cs(smallProbe).fontSize) || 14;
+  smallProbe.remove();
   for (const el of leaves) {
     if (decorative(el) && !el.closest(".os-img figcaption")) continue;
     const s = cs(el);
     const size = parseFloat(s.fontSize);
     const t = ownText(el);
-    const reading = READING.has(el.tagName) || (!!el.closest(".os-rich") && !el.closest("h1,h2,h3,h4,h5,h6,.os-type-eyebrow,small,label,button,.os-button"));
-    // Paragraph-length text must be 16px; short notes may be a little smaller (never under 14px).
-    if (reading && ((t.length >= 120 && size < L.bodyText - 0.5) || (t.length >= 40 && size < 13.5))) add("small-text", el, { value: size, limit: L.bodyText });
+    // Reading text: block-level paragraphs and list items (inline code or links are part of them).
+    const inline = s.display.startsWith("inline");
+    const reading = !inline && (READING.has(el.tagName) || (!!el.closest(".os-rich") && !el.closest("h1,h2,h3,h4,h5,h6,.os-type-eyebrow,small,label,button,.os-button")));
+    // Body text must be 16px. Text styled as small print (notes, captions) may be 14px.
+    const smallPrint = !!el.closest(".os-type-small,small,figcaption,.os-muted") || Math.abs(size - smallPx) < 0.5;
+    if (reading && t.length >= 60 && (smallPrint ? size < 13.5 : size < L.bodyText - 0.5)) add("small-text", el, { value: size, limit: smallPrint ? 14 : L.bodyText });
     else if (size < L.anyText - 0.5 && t.length > 1) add("tiny-text", el, { value: size, limit: L.anyText });
     const r = el.getBoundingClientRect();
     if (!el.closest("h1,h2,h3,h4,h5,h6") && (t.match(/[A-Za-z\\u00C0-\\uFFFF]{2,}/g) || []).length >= 6 && r.width < L.narrowColumn && !inScroller(el)) add("narrow-text", el, { value: r.width, limit: L.narrowColumn });
@@ -310,6 +321,13 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
     return el.getBoundingClientRect();
   };
   const rects = targets.map(hitRect);
+  // What a neighbour visibly occupies (its padding is tap area, not something to collide with).
+  const inner = targets.map((el, i) => {
+    const r = rects[i], st = cs(el), b = el.getBoundingClientRect();
+    if (Math.abs(r.width - b.width) > 0.5 || Math.abs(r.height - b.height) > 0.5) return r; // a stretched link
+    const pt = parseFloat(st.paddingTop) || 0, pb = parseFloat(st.paddingBottom) || 0;
+    return { left: r.left, right: r.right, top: r.top + pt, bottom: r.bottom - pb };
+  });
   targets.forEach((el, i) => {
     if (proseLink(el)) return;
     if (el.type === "checkbox" || el.type === "radio") { const lab = el.closest("label"); if (lab) return; }
@@ -323,7 +341,7 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
     let crowded = false;
     targets.forEach((o, j) => {
       if (j === i || crowded || o.contains(el) || el.contains(o)) return;
-      const q = rects[j];
+      const q = inner[j];
       if (q.left < zone.right && q.right > zone.left && q.top < zone.bottom && q.bottom > zone.top) crowded = true;
     });
     if (tiny || crowded) add("tap-target", el, { value: Math.min(r.width, r.height), limit: L.tapTarget, key: txt(el).slice(0, 20) || el.getAttribute("aria-label") || String(i) });
