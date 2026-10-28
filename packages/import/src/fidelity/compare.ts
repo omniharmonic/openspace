@@ -66,15 +66,36 @@ export interface PageComparison {
   exact?: number;
   checks: FidelityCheck[];
   sections: SectionComparison[];
+  /**
+   * The same page scored by the strict v3 scorer, without the corrections (see `corrections`),
+   * reported side by side for transparency. `checks` is its check score before rounding.
+   */
+  strict?: { score: number; exact: number; structure: number; checks: number };
+  /** What the corrected scorer read differently from strict v3 on this page (plain words). */
+  corrections?: string[];
 }
 
 export interface FidelityReport {
-  /** 0–100, weighted over every page and viewport. */
+  /** 0–100, weighted over every page and viewport (the corrected scorer). */
   score: number;
   /** The same before rounding. */
   exact?: number;
+  /** The strict v3 score of the same pages (no corrections), for comparison. */
+  strict?: { score: number; exact: number };
+  /** Which scorer `score` comes from. Absent on reports made before the corrections. */
+  scorer?: typeof SCORER;
   pages: PageComparison[];
 }
+
+/**
+ * The scorer `score` comes from: v3 with three documented miscalibrations corrected (navigation
+ * in a header whose colour theme is named "brand", off-screen slides counted as columns, a
+ * picture-only band on a phone that can't match the section holding it with its words). The
+ * strict v3 score is reported beside it. See docs/qa/import-fidelity.md.
+ */
+export const SCORER = "v3.1-corrected" as const;
+
+export type ScoreMode = "corrected" | "strict";
 
 export interface CompareOptions {
   /** Relative size difference still counted as the same (default 0.12). */
@@ -141,7 +162,19 @@ const ROLE_OF: Record<string, "heading" | "body" | "label"> = {
   wordmark: "label",
 };
 
-function typeChecks(o: LookProbe, i: LookProbe, tol: number): FidelityCheck[] {
+/** A preset as the given scorer reads it (the corrected one also sees `corrections.nav`). */
+function presetOf(p: LookProbe, k: keyof LookProbe["presets"], mode: ScoreMode) {
+  const v = p.presets[k];
+  if (v || mode === "strict" || k !== "nav") return v;
+  return p.corrections?.nav;
+}
+
+function typeChecks(
+  o: LookProbe,
+  i: LookProbe,
+  tol: number,
+  mode: ScoreMode = "corrected",
+): FidelityCheck[] {
   const out: FidelityCheck[] = [];
   const mobile = o.viewport < 700;
   const sizeKey = mobile ? "sizeMobile" : "size";
@@ -157,8 +190,8 @@ function typeChecks(o: LookProbe, i: LookProbe, tol: number): FidelityCheck[] {
     "nav",
     "wordmark",
   ] as const) {
-    const a = o.presets[k];
-    const b = i.presets[k];
+    const a = presetOf(o, k, mode);
+    const b = presetOf(i, k, mode);
     if (!a) continue;
     // Phones show the menu, not the navigation bar; h3s set as small caps labels aren't headings.
     if (k === "nav" && mobile) continue;
@@ -359,13 +392,20 @@ export function matchSections(o: ProbeSection[], i: ProbeSection[]): (number | u
   return out;
 }
 
+/** Columns as the given scorer counts them (the corrected one: only what's on screen). */
+const columnsOf = (s: ProbeSection, mode: ScoreMode) =>
+  mode === "corrected" ? (s.columnsOnScreen ?? s.columns) : s.columns;
+
 function sectionChecks(
-  a: ProbeSection,
-  b: ProbeSection,
+  a0: ProbeSection,
+  b0: ProbeSection,
   tol: number,
   o?: LookProbe,
   i?: LookProbe,
+  mode: ScoreMode = "corrected",
 ): FidelityCheck[] {
+  const a = { ...a0, columns: columnsOf(a0, mode) };
+  const b = { ...b0, columns: columnsOf(b0, mode) };
   const out: FidelityCheck[] = [];
   const add = (c: Omit<FidelityCheck, "area">) => out.push({ area: "section", ...c });
   if (a.background && b.background && !a.backgroundImage) {
@@ -523,16 +563,163 @@ export function withVisual(p: PageComparison, visual: number): PageComparison {
   const base = p.exact ?? structure;
   const v = Math.max(0, Math.min(1, visual));
   const exact = (1 - VISUAL_WEIGHT) * base + VISUAL_WEIGHT * 100 * v;
+  const strictExact = p.strict
+    ? (1 - VISUAL_WEIGHT) * p.strict.checks + VISUAL_WEIGHT * 100 * v
+    : undefined;
   return {
     ...p,
     structure,
     visual: Math.round(v * 1000) / 1000,
     exact,
     score: Math.round(exact),
+    ...(p.strict && strictExact !== undefined
+      ? { strict: { ...p.strict, exact: strictExact, score: Math.round(strictExact) } }
+      : {}),
   };
 }
 
-/** Compare one page's original and imported probes (same viewport). */
+/** A section made of a picture alone: no heading and (next to) no words. */
+const pictureOnly = (s: ProbeSection) =>
+  !s.heading &&
+  (s.text ?? "").replace(/\s+/g, "").length < 3 &&
+  Boolean(s.image || s.backgroundImage);
+
+/**
+ * Corrected scorer only: on a phone, a picture-only band of the original (a Squarespace index row
+ * whose photo stacks above its words) has no section of its own on the new page — the picture
+ * sits in the section that holds it with its words. Find that section: between the imported
+ * matches of the band's matched neighbours (inclusive), one with a picture, nearest in position.
+ */
+function pictureHost(
+  k: number,
+  match: (number | undefined)[],
+  o: LookProbe,
+  i: LookProbe,
+): number | undefined {
+  let pk = k - 1;
+  while (pk >= 0 && match[pk] === undefined) pk--;
+  let nk = k + 1;
+  while (nk < match.length && match[nk] === undefined) nk++;
+  const lo = pk >= 0 ? (match[pk] as number) : 0;
+  const hi = nk < match.length ? (match[nk] as number) : i.sections.length - 1;
+  const at = (o.sections[k]?.top ?? 0) / Math.max(1, o.height);
+  let best: number | undefined;
+  let gap = Number.POSITIVE_INFINITY;
+  for (let n = Math.min(lo, hi); n <= Math.max(lo, hi); n++) {
+    const t = i.sections[n];
+    if (!t || !(t.image || t.backgroundImage)) continue;
+    const d = Math.abs(t.top / Math.max(1, i.height) - at);
+    if (d < gap) {
+      gap = d;
+      best = n;
+    }
+  }
+  return best;
+}
+
+function comparePage(
+  original: LookProbe,
+  imported: LookProbe,
+  tol: number,
+  mode: ScoreMode,
+  notes?: string[],
+): { checks: FidelityCheck[]; sections: SectionComparison[]; exact: number } {
+  const checks = [
+    ...typeChecks(original, imported, tol, mode),
+    ...layoutChecks(original, imported),
+  ];
+  if (
+    notes &&
+    original.viewport >= 700 &&
+    !original.presets.nav !== !presetOf(original, "nav", mode)
+  )
+    notes.push('The original\'s navigation sits in a header themed "brand": read as navigation.');
+  if (notes && !imported.presets.nav && presetOf(imported, "nav", mode) && original.viewport >= 700)
+    notes.push(
+      'The new site\'s navigation sits in a header themed "brand" (os-theme-brand): read as navigation, not as a logo.',
+    );
+  const match = matchSections(original.sections, imported.sections);
+  const phone = original.viewport < 700;
+  const sections: SectionComparison[] = original.sections.map((s, k) => {
+    const j = match[k];
+    const other = j === undefined ? undefined : imported.sections[j];
+    let c: FidelityCheck[];
+    let shared: number | undefined;
+    if (other) {
+      c = sectionChecks(s, other, tol, original, imported, mode);
+      if (notes && mode === "corrected") {
+        const was = [s.columns, other.columns];
+        const now = [columnsOf(s, mode), columnsOf(other, mode)];
+        if ((was[0] !== was[1]) !== (now[0] !== now[1]))
+          notes.push(
+            `Section ${k + 1}: columns counted on screen only (${was[0]} → ${was[1]} counted as ${now[0]} → ${now[1]}; off-screen slides aren't columns).`,
+          );
+      }
+    } else if (mode === "corrected" && phone && pictureOnly(s)) {
+      shared = pictureHost(k, match, original, imported);
+      c = [];
+    } else c = [];
+    if (shared !== undefined) {
+      const host = imported.sections[shared] as ProbeSection;
+      notes?.push(
+        `Section ${k + 1} (a picture alone on a phone) is the picture of section ${shared + 1}, which holds it with its words.`,
+      );
+      c = [
+        {
+          area: "section",
+          what: "Present",
+          original: "(a picture)",
+          imported: `with its words in section ${shared + 1}`,
+          ok: true,
+          weight: 4,
+        },
+      ];
+      const sa = s.image?.aspect;
+      const sb = host.image?.aspect;
+      if (sa && sb) {
+        const r = sb / sa;
+        const same = r > 0.85 && r < 1.18;
+        c.push({
+          area: "section",
+          what: "Image crop",
+          original: `${sa}:1`,
+          imported: `${sb}:1`,
+          ok: same,
+          ...(same
+            ? {}
+            : { fix: "Use the original's image proportions (the block's aspect ratio)." }),
+          weight: 1,
+        });
+      }
+    } else if (!other)
+      c = [
+        {
+          area: "section" as const,
+          what: "Present",
+          original: s.heading?.text ?? s.text.slice(0, 40),
+          imported: "no matching section",
+          ok: false,
+          fix: "Bring this section across (or check it was merged into another).",
+          weight: 4,
+        },
+      ];
+    const at = j ?? shared;
+    return {
+      index: k,
+      ...(s.heading ? { heading: s.heading.text } : {}),
+      ...(at !== undefined ? { importedIndex: at } : {}),
+      checks: c,
+      score: scoreOf(c),
+    };
+  });
+  const all = [...checks, ...sections.flatMap((s) => s.checks)];
+  return { checks, sections, exact: exactScore(all) };
+}
+
+/**
+ * Compare one page's original and imported probes (same viewport). `score` is the corrected
+ * scorer's; `strict` is the strict v3 score of the same measurements, reported beside it.
+ */
 export function compareLooks(
   original: LookProbe,
   imported: LookProbe,
@@ -540,51 +727,41 @@ export function compareLooks(
   opts: CompareOptions = {},
 ): PageComparison {
   const tol = opts.sizeTolerance ?? 0.12;
-  const checks = [...typeChecks(original, imported, tol), ...layoutChecks(original, imported)];
-  const match = matchSections(original.sections, imported.sections);
-  const sections: SectionComparison[] = original.sections.map((s, k) => {
-    const j = match[k];
-    const other = j === undefined ? undefined : imported.sections[j];
-    const c = other
-      ? sectionChecks(s, other, tol, original, imported)
-      : [
-          {
-            area: "section" as const,
-            what: "Present",
-            original: s.heading?.text ?? s.text.slice(0, 40),
-            imported: "no matching section",
-            ok: false,
-            fix: "Bring this section across (or check it was merged into another).",
-            weight: 4,
-          },
-        ];
-    return {
-      index: k,
-      ...(s.heading ? { heading: s.heading.text } : {}),
-      ...(j !== undefined ? { importedIndex: j } : {}),
-      checks: c,
-      score: scoreOf(c),
-    };
-  });
-  const all = [...checks, ...sections.flatMap((s) => s.checks)];
+  const notes: string[] = [];
+  const page = comparePage(original, imported, tol, "corrected", notes);
+  const strict = comparePage(original, imported, tol, "strict");
   return {
     path,
     original: original.url,
     imported: imported.url,
     viewport: original.viewport,
-    score: scoreOf(all),
-    structure: scoreOf(all),
-    exact: exactScore(all),
-    checks,
-    sections,
+    score: Math.round(page.exact),
+    structure: Math.round(page.exact),
+    exact: page.exact,
+    checks: page.checks,
+    sections: page.sections,
+    strict: {
+      score: Math.round(strict.exact),
+      exact: strict.exact,
+      structure: Math.round(strict.exact),
+      checks: strict.exact,
+    },
+    ...(notes.length ? { corrections: notes } : {}),
   };
 }
 
 export function fidelityReport(pages: PageComparison[]): FidelityReport {
-  const exact = pages.length
-    ? pages.reduce((n, p) => n + (p.exact ?? p.score), 0) / pages.length
-    : 100;
-  return { score: Math.round(exact), exact: Math.round(exact * 100) / 100, pages };
+  const mean = (f: (p: PageComparison) => number) =>
+    pages.length ? pages.reduce((n, p) => n + f(p), 0) / pages.length : 100;
+  const exact = mean((p) => p.exact ?? p.score);
+  const strict = mean((p) => p.strict?.exact ?? p.exact ?? p.score);
+  return {
+    score: Math.round(exact),
+    exact: Math.round(exact * 100) / 100,
+    strict: { score: Math.round(strict), exact: Math.round(strict * 100) / 100 },
+    scorer: SCORER,
+    pages,
+  };
 }
 
 const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
@@ -607,6 +784,12 @@ export function fidelityMarkdown(
     "",
     `Overall match: **${report.score}/100** — fonts, type sizes, spacing and each section measured in a browser on both sites (75%), and how alike the pages look as pictures (25%). How it's scored: docs/qa/import-fidelity.md.`,
     "",
+    ...(report.strict
+      ? [
+          `Scored two ways, side by side: **${report.score}/100 corrected**, ${report.strict.score}/100 by the strict v3 scorer. The corrected score reads three things the strict one gets wrong (navigation in a header themed "brand", off-screen slides counted as columns, a picture-only band on a phone); the pages below list where it did.`,
+          "",
+        ]
+      : []),
   ];
   if (opts.tuning) {
     lines.push(
@@ -625,7 +808,12 @@ export function fidelityMarkdown(
     );
   }
   for (const p of report.pages) {
-    lines.push(`## ${p.path} at ${p.viewport}px — ${p.score}/100`, "");
+    lines.push(
+      `## ${p.path} at ${p.viewport}px — ${p.score}/100${p.strict && p.strict.score !== p.score ? ` (strict v3: ${p.strict.score}/100)` : ""}`,
+      "",
+    );
+    if (p.corrections?.length)
+      lines.push("Corrected scoring on this page:", "", ...p.corrections.map((c) => `- ${c}`), "");
     if (p.visual !== undefined)
       lines.push(
         `Checks ${p.structure ?? p.score}/100 · looks alike ${Math.round(p.visual * 100)}/100 (screenshots compared).`,

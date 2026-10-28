@@ -143,14 +143,26 @@ export interface ImportCounts {
 
 /** How closely the moved site matches the original, page by page (saved by the workflow). */
 export interface ImportFidelity {
-  /** 0–100 after auto-tuning, and before it. */
+  /** 0–100 after auto-tuning, and before it (the corrected scorer). */
   score: number;
   before?: number;
+  /**
+   * The same comparison by the strict v3 scorer, after and before tuning, reported beside the
+   * corrected score for transparency; `scorer` names the scorer `score` comes from. Absent in
+   * summaries written by CLIs before 0.1.15.
+   */
+  strict?: number;
+  strictBefore?: number;
+  scorer?: string;
   pages: Array<{
     path: string;
     device: "desktop" | "phone";
     score: number;
     before?: number;
+    strict?: number;
+    strictBefore?: number;
+    /** Where the corrected scorer read the page differently from strict v3 (plain words). */
+    corrections?: string[];
     /** Thumbnail file in the fidelity folder (original left, new site right). */
     image?: string;
     /** The biggest differences still there. */
@@ -196,6 +208,8 @@ export function parseFidelitySummary(text: string | null): ImportFidelity | unde
     const pageScore = num(q.score);
     if (!path?.startsWith("/") || pageScore === undefined) continue;
     const before = num(q.before);
+    const strict = num(q.strict);
+    const strictBefore = num(q.strictBefore);
     const image = str(q.image, 100);
     const differs = Array.isArray(q.differs)
       ? q.differs
@@ -203,11 +217,20 @@ export function parseFidelitySummary(text: string | null): ImportFidelity | unde
           .filter((d): d is string => !!d)
           .slice(0, 3)
       : [];
+    const corrections = Array.isArray(q.corrections)
+      ? q.corrections
+          .map((d) => str(d, 240))
+          .filter((d): d is string => !!d)
+          .slice(0, 6)
+      : [];
     pages.push({
       path,
       device: q.device === "phone" ? "phone" : "desktop",
       score: pageScore,
       ...(before !== undefined ? { before } : {}),
+      ...(strict !== undefined ? { strict } : {}),
+      ...(strictBefore !== undefined ? { strictBefore } : {}),
+      ...(corrections.length ? { corrections } : {}),
       ...(image && THUMB_FILE.test(image) ? { image } : {}),
       ...(differs.length ? { differs } : {}),
     });
@@ -221,9 +244,15 @@ export function parseFidelitySummary(text: string | null): ImportFidelity | unde
     : [];
   const without = num(r.withoutComponents);
   const withC = num(r.withComponents);
+  const strict = num(r.strict);
+  const strictBefore = num(r.strictBefore);
+  const scorer = str(r.scorer, 40);
   return {
     score,
+    ...(strict !== undefined ? { strict } : {}),
+    ...(scorer ? { scorer } : {}),
     ...(before !== undefined ? { before } : {}),
+    ...(strictBefore !== undefined ? { strictBefore } : {}),
     pages,
     ...(changes.length ? { changes } : {}),
     ...(without !== undefined ? { withoutComponents: without } : {}),

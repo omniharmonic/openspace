@@ -79,6 +79,36 @@ deliberately strict, so it can't be gamed by matching only the numbers above.
 
 **Overall** = the mean of every page × device score.
 
+## Two scores: corrected, and strict v3 beside it
+
+Fidelity 3 found three places where the scorer (v3) measured wrong. They're corrected, and for
+transparency **every report gives both numbers side by side**: the corrected score (`score`, what
+auto-tuning optimises and what Studio shows first) and the **strict v3** score of the very same
+measurements (`strict`). On a page where none of the three applies, the two are equal.
+
+| Miscalibration (strict v3) | Corrected scorer |
+|---|---|
+| **Navigation in a header themed "brand" goes unseen.** The probe skips links inside `[class*=brand]` (meant for logo boxes), which also matches a header's colour theme, OpenSpace's `os-theme-brand` (WordPress Foundation's blue sidebar header: "Navigation: present" failed on every computer page). | A class *naming a colour theme* (`…theme-brand`) isn't a logo box. When the strict probe finds no navigation, the probe looks again without it and records the result as `corrections.nav`; only the corrected score reads it. Real logo boxes (`navbar-brand`, `site-brand`) still don't count as navigation. |
+| **Off-screen slides count as columns.** A scroll-snap slideshow's slides sit side by side, mostly off screen, and were counted as 3–6 columns (Alameda lookbook, WordPress Foundation donate). | Per section the probe also counts columns using only what's on screen — at least half inside the viewport and not clipped by a scrolling or `overflow: hidden` box — and records it as `columnsOnScreen` when it differs. The corrected Columns check uses it on both sides. |
+| **A picture-only band on a phone can't match.** Squarespace index rows stack on phones: the photo becomes a band of its own with no words, while the new site keeps the photo in the section with its words, so the band counted as missing (weight 4). | On a phone, an unmatched original section with no heading and no words but a picture is looked for in the new site's section that holds the picture with its words: between the matches of its matched neighbours, one with a picture, nearest in page position. Found, it's "present" and its crop is compared; not found, it's still missing. On a computer nothing changes. |
+
+Where they're reported:
+
+- **CLI** (`openspace import … --compare`, `openspace compare`): the first line gives the strict
+  v3 score after the corrected one (before → after tuning), and each page line adds
+  `(strict v3 N)` where they differ.
+- **`FIDELITY-REPORT.md`**: "Scored two ways, side by side: **X/100 corrected**, Y/100 by the
+  strict v3 scorer", each page heading adds `(strict v3: N/100)`, and a page lists what the
+  corrected scorer read differently ("Corrected scoring on this page: …").
+- **`fidelity.json`**: `strict: {score, exact}` and `scorer: "v3.1-corrected"` on the report;
+  `strict: {score, exact, structure, checks}` and `corrections: [...]` on each page.
+- **`fidelity-summary.json`** (version 1, additive): `strict`, `strictBefore`, `scorer`, and per
+  page `strict`, `strictBefore`, `corrections`. Older readers ignore them; older summaries
+  without them read as before.
+- **Hub** (`GET /api/imports/:id` → `fidelity`, and the remote MCP's `import_status` text) and
+  **Studio** ("How close it looks": "Scored two ways, to be open about it: X/100 with corrected
+  measuring, Y/100 by the stricter earlier method", and `(strict N)` per page).
+
 ## Auto-tuning
 
 After the import, the comparison runs and the importer tries, **one group at a time**, the
@@ -178,21 +208,23 @@ same pages as before (Power With 4, Alameda 5, the others 6), computer 1440 px a
 | Bedford (Squarespace 7.0) | 69 | **78** | 78 (tried per page, not kept) |
 | sive.rs (hand-made HTML) | 74 | **80** | 80 (tried per page, not kept) |
 
-### Limits the score itself sets (evidence; the score is not changed)
+### Limits the score itself sets
+
+Three of these are corrected since (see "Two scores" above); the strict v3 score still has them.
 
 - **Licensed fonts cap a page.** sive.rs sets its headings in Valkyrie C4 (MB Type, licensed) and
   its text in Georgia. The nearest open stand-ins get 50% and 85% credit, so even with every
   other check passing and identical screenshots the site can't score above ~89.6. The owner's
   own font licence (Site Styles → Your fonts) lifts this.
-- **Header links in a `brand`-themed header aren't seen as navigation**: the probe skips links
+- *(Corrected; strict v3 only)* **Header links in a `brand`-themed header aren't seen as navigation**: the probe skips links
   inside `[class*=brand]` (meant for logos), and OpenSpace's `os-theme-brand` matches it
   (WordPress Foundation's blue sidebar: "Navigation: present" fails on every computer page,
   ≈ −1.4 per page).
 - **A page without a content button is scored against a chrome button** (a sidebar search or
   cookie "Accept" button), which a move rightly doesn't carry over.
-- **An image-only band on a phone can't match** the section that holds both the picture and its
+- *(Corrected; strict v3 only)* **An image-only band on a phone can't match** the section that holds both the picture and its
   words (Squarespace index rows that stack on phones), so it counts as missing (weight 4).
-- **Off-screen slides count as columns** in a scroll-snap slideshow (Alameda lookbook,
+- *(Corrected; strict v3 only)* **Off-screen slides count as columns** in a scroll-snap slideshow (Alameda lookbook,
   WordPress Foundation donate: "Columns 1 → 3/6").
 - **Image width is measured against the section's box**: OpenSpace sections are full-bleed,
   hand-made pages' bands are the text column, so a 150 px cover reads 10% vs 22%.

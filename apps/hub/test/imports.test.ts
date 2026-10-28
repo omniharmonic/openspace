@@ -211,6 +211,53 @@ describe("the import workflow", () => {
     });
   });
 
+  it("keeps the strict v3 score beside the corrected one (and stays readable without it)", () => {
+    const f = parseFidelitySummary(
+      JSON.stringify({
+        version: 1,
+        score: 91,
+        strict: 88.4,
+        scorer: "v3.1-corrected",
+        before: 80,
+        strictBefore: 77,
+        pages: [
+          {
+            path: "/",
+            device: "desktop",
+            score: 93,
+            strict: 90,
+            before: 79,
+            strictBefore: 76,
+            corrections: ["Section 3: columns counted on screen only.", 5, "x".repeat(400)],
+          },
+        ],
+      }),
+    );
+    expect(f).toEqual({
+      score: 91,
+      strict: 88,
+      scorer: "v3.1-corrected",
+      before: 80,
+      strictBefore: 77,
+      pages: [
+        {
+          path: "/",
+          device: "desktop",
+          score: 93,
+          strict: 90,
+          before: 79,
+          strictBefore: 76,
+          corrections: ["Section 3: columns counted on screen only.", "x".repeat(240)],
+        },
+      ],
+    });
+    // An older summary (no strict score) reads as before.
+    expect(parseFidelitySummary(JSON.stringify({ score: 70, pages: [] }))).toEqual({
+      score: 70,
+      pages: [],
+    });
+  });
+
   it("explains failed runs without blaming the person's site for our problems", () => {
     const row = { kind: "url" } as Parameters<typeof failureMessage>[0];
     const ours = failureMessage(
@@ -301,7 +348,7 @@ describe("Move my site (hosted import, dev emulation)", () => {
     expect(view.checklist.map((i) => i.kind)).toEqual(["newsletter"]);
     expect(view.siteUrl).toMatch(/\/s\/st_/);
     // The comparison with the old site: before → after tuning, with side-by-side thumbnails.
-    expect(view.fidelity).toMatchObject({ score: 93, before: 81 });
+    expect(view.fidelity).toMatchObject({ score: 93, before: 81, strict: 91, strictBefore: 80 });
     const thumb = view.fidelity?.pages[0]?.image as string;
     expect(thumb).toMatch(
       new RegExp(`/api/imports/${created.import.id}/fidelity/thumb-home-d\\.jpg$`),
@@ -594,6 +641,9 @@ describe("remote MCP: import_site", () => {
     expect(data.import.studioUrl).toBe(`http://localhost:5173/sites/${data.site.id}`);
     const status = await mcp.tool("import_status", { site: data.site.id });
     expect(toolText(status)).toContain("is live at");
+    expect(toolText(status)).toContain(
+      "How close it looks to the original: 93/100 (strict v3 scorer: 91/100",
+    );
     expect(toolText(status)).toContain("Finish setting up");
     // The moved site is now part of this connection.
     const sites = await mcp.tool("list_sites");

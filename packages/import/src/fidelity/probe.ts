@@ -57,6 +57,12 @@ export interface ProbeSection {
   body?: ProbeText;
   /** Most text items side by side. */
   columns: number;
+  /**
+   * The same count with only what's on screen (at least half inside the viewport and not clipped
+   * by an overflow box): set when it differs from `columns` — a scroll-snap slideshow's
+   * off-screen slides. Only the corrected score reads it.
+   */
+  columnsOnScreen?: number;
   /** Italic lines (closing lines, pull quotes). */
   italicLines: number;
   /** The largest image: where it sits and how wide it is (share of the section). */
@@ -156,6 +162,12 @@ export interface LookProbe {
   eyebrowRule?: boolean;
   /** Content width (from the text's left edge, centred), that left edge, and section padding. */
   layout: { contentWidth?: number; left?: number; sectionPadding?: number };
+  /**
+   * Measurements only the corrected score uses (the strict v3 score ignores them):
+   * `nav` — the navigation's style when the strict probe found none because the header's colour
+   * theme class contains "brand" (`os-theme-brand`), which the strict probe takes for a logo box.
+   */
+  corrections?: { nav?: ProbeText };
   sections: ProbeSection[];
   /** Total page height (px). */
   height: number;
@@ -443,13 +455,36 @@ export const PROBE_SCRIPT = String.raw`(async () => {
       res.textLeft = Math.round(Math.min(...measures.map((x) => x.left)));
     }
     // Columns: text items whose vertical spans overlap, at distinct left edges.
-    const items = [...sec.querySelectorAll(textSel + ", h2, img")].filter((e) => visible(e) && (e.tagName === "IMG" ? e.getBoundingClientRect().width > 60 : ownText(e).length >= 12)).map(rect);
-    for (const a of items) {
-      const mid = a.top + Math.min(a.height, 40) / 2;
-      const lefts = [];
-      for (const b of items) if (b.top <= mid && b.bottom >= mid && !lefts.some((l) => Math.abs(l - b.left) < 40)) lefts.push(b.left);
-      res.columns = Math.max(res.columns, Math.min(6, lefts.length));
-    }
+    const itemEls = [...sec.querySelectorAll(textSel + ", h2, img")].filter((e) => visible(e) && (e.tagName === "IMG" ? e.getBoundingClientRect().width > 60 : ownText(e).length >= 12));
+    const columnsOf = (items) => {
+      let n = 1;
+      for (const a of items) {
+        const mid = a.top + Math.min(a.height, 40) / 2;
+        const lefts = [];
+        for (const b of items) if (b.top <= mid && b.bottom >= mid && !lefts.some((l) => Math.abs(l - b.left) < 40)) lefts.push(b.left);
+        n = Math.max(n, Math.min(6, lefts.length));
+      }
+      return n;
+    };
+    res.columns = columnsOf(itemEls.map(rect));
+    // Corrected score only (the strict v3 count above is kept): columns a visitor can see — at
+    // least half on screen and not clipped away by a scrolling or overflow-hidden box (the
+    // off-screen slides of a scroll-snap slideshow aren't columns).
+    const onScreen = (el) => {
+      const r = el.getBoundingClientRect();
+      let L = Math.max(0, r.left), R = Math.min(vw, r.right);
+      for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
+        const st = cs(e);
+        if (st.overflowX !== "visible" || st.overflow !== "visible") {
+          const pr = e.getBoundingClientRect();
+          L = Math.max(L, pr.left);
+          R = Math.min(R, pr.right);
+        }
+      }
+      return R - L >= r.width * 0.5;
+    };
+    const shown = columnsOf(itemEls.filter(onScreen).map(rect));
+    if (shown !== res.columns) res.columnsOnScreen = shown;
     // The section's parts and where they sit (to recreate it as a component when needed).
     if (!sec.querySelector("form, input, textarea, select, iframe, video, canvas, embed, object")) {
       const parts = [];
@@ -545,6 +580,8 @@ export const PROBE_SCRIPT = String.raw`(async () => {
   const inMain = (el) => !chrome(el) && !el.closest("footer, .os-footer");
   const styleOfAll = (sel) => [...document.querySelectorAll(sel)].filter((e) => visible(e) && inMain(e) && ownText(e).length > 1).map(textOf);
   const presets = {};
+  // Measurements only the corrected score uses (the strict v3 ones above stay as they were).
+  const corrections = {};
   const h1s = styleOfAll("h1");
   if (h1s.length) presets.h1 = h1s.sort((a, b) => b.size - a.size)[0];
   const h2 = median(styleOfAll("h2"));
@@ -595,6 +632,21 @@ export const PROBE_SCRIPT = String.raw`(async () => {
     if (!links.length) links = [...header.querySelectorAll("a")].filter(linkOk);
     const mid = links[Math.floor(links.length / 2)];
     if (mid) presets.nav = textOf(mid);
+    else {
+      // Corrected score only: "[class*=brand]" above is meant for logo boxes, but it also
+      // matches a header's colour theme (OpenSpace's "os-theme-brand" sidebar). A class naming a
+      // theme isn't a logo box: look again without it.
+      const logoBox = (a) => {
+        for (let e = a; e && e.nodeType === 1; e = e.parentElement)
+          if ([...e.classList].some((c) => /brand/i.test(c) && !/theme[-_]?brand/i.test(c))) return true;
+        return false;
+      };
+      const linkOk2 = (a) => visible(a) && ownText(a).length > 1 && ownText(a).length < 30 && toHex(cs(a).backgroundColor) === undefined && !a.matches(".os-header__brand, .os-button, [rel=home]") && !a.closest(".os-header__brand, [class*=site-title]") && !logoBox(a) && !homeLink(a);
+      let again = navEl ? [...navEl.querySelectorAll("a")].filter(linkOk2) : [];
+      if (!again.length) again = [...header.querySelectorAll("a")].filter(linkOk2);
+      const mid2 = again[Math.floor(again.length / 2)];
+      if (mid2) corrections.nav = textOf(mid2);
+    }
     // The site title set as text (a wordmark), not a logo image.
     // The innermost element holding the title text (an OpenSpace title span, not its link).
     const brandOk = (e) => visible(e) && ownText(e).length > 1 && ownText(e).length <= 40 && !e.querySelector("img, svg");
@@ -704,6 +756,7 @@ export const PROBE_SCRIPT = String.raw`(async () => {
     ...(buttons ? { buttons } : {}),
     ...(eyebrows.length ? { eyebrowRule: out.filter((s) => s.rule).length >= Math.max(1, eyebrows.length / 2) } : {}),
     layout,
+    ...(Object.keys(corrections).length ? { corrections } : {}),
     sections: out,
     height: doc.scrollHeight,
     fonts,

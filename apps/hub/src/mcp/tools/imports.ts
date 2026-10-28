@@ -41,6 +41,10 @@ function describe(view: ImportView, siteName: string): string {
     );
   if (view.state === "ready") {
     lines.push(`${siteName} is live at ${view.siteUrl}. Open it in Studio: ${view.studioUrl}`);
+    if (view.fidelity)
+      lines.push(
+        `How close it looks to the original: ${view.fidelity.score}/100${view.fidelity.strict !== undefined ? ` (strict v3 scorer: ${view.fidelity.strict}/100 — the corrected score reads three things v3 measures wrong)` : ""}.`,
+      );
     if (view.attention.length)
       lines.push(
         "What needs attention:",

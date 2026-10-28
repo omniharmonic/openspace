@@ -51,6 +51,8 @@ export {
   fontCredit,
   matchSections,
   type PageComparison,
+  SCORER,
+  type ScoreMode,
   type SectionComparison,
   VISUAL_WEIGHT,
   withVisual,

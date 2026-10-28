@@ -58,6 +58,12 @@ describe("Move my site (hosted import)", () => {
     ).toBeInTheDocument();
     expect(within(fidelity).getByText(/85 → 94/)).toBeInTheDocument();
     expect(within(fidelity).getByText("Still differs: Image placement")).toBeInTheDocument();
+    // Scored two ways, side by side: the corrected score and the strict v3 one.
+    expect(within(fidelity).getByText(/93\/100 with corrected measuring/)).toHaveTextContent(
+      "91/100 by the stricter earlier method",
+    );
+    expect(within(fidelity).getByText(/85 → 94/)).toHaveTextContent("strict 92");
+    expect(within(fidelity).getByText(/off-screen slides aren’t columns/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Finish setting up/ })).toBeInTheDocument();
     expect(screen.getByText("Use your own web address")).toBeInTheDocument();
 

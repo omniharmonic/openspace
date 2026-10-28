@@ -14,7 +14,7 @@ import {
 import { createMcpServer } from "@omniharmonic/openspace-mcp-tools";
 import { afterAll, describe, expect, it } from "vitest";
 import { runCheck } from "./check";
-import { addFidelityToSummary, fidelitySummary, originalUrl } from "./fidelity";
+import { addFidelityToSummary, compareSummary, fidelitySummary, originalUrl } from "./fidelity";
 import { defaultFolder } from "./import";
 import { captureIo } from "./io";
 import { compareFidelityTool } from "./mcp/fidelity-tool";
@@ -523,6 +523,73 @@ describe("compare_fidelity (local MCP tool)", () => {
     expect(JSON.parse(await readFile(file, "utf8"))).toEqual({
       pages: 3,
       fidelity: { score: 91, before: 80 },
+    });
+  });
+});
+
+describe("fidelity scored two ways", () => {
+  it("reports the corrected and the strict v3 score side by side (summary JSON and terminal)", async () => {
+    const page = (viewport: number, score: number, strict: number, corrections?: string[]) => ({
+      path: "/",
+      original: "",
+      imported: "",
+      viewport,
+      score,
+      strict: { score: strict, exact: strict, structure: strict, checks: strict },
+      ...(corrections ? { corrections } : {}),
+      checks: [],
+      sections: [],
+    });
+    const before = {
+      score: 80,
+      strict: { score: 77, exact: 77 },
+      scorer: "v3.1-corrected" as const,
+      pages: [page(1440, 79, 76), page(390, 81, 78)],
+    };
+    const after = {
+      score: 91,
+      strict: { score: 88, exact: 88 },
+      scorer: "v3.1-corrected" as const,
+      pages: [page(1440, 93, 90, ["Section 3: columns counted on screen only"]), page(390, 89, 86)],
+    };
+    const tuning = { before, changes: [], rounds: 1 };
+    const s = fidelitySummary(after, tuning, {});
+    expect(s).toMatchObject({
+      version: 1,
+      score: 91,
+      strict: 88,
+      scorer: "v3.1-corrected",
+      before: 80,
+      strictBefore: 77,
+      pages: [
+        {
+          score: 93,
+          strict: 90,
+          before: 79,
+          strictBefore: 76,
+          corrections: ["Section 3: columns counted on screen only"],
+        },
+        { score: 89, strict: 86, before: 81, strictBefore: 78 },
+      ],
+    });
+    const lines = compareSummary({
+      report: after,
+      markdown: "",
+      out: "/tmp/x",
+      images: [],
+      tuning,
+    });
+    expect(lines[0]).toContain("80/100 → 91/100");
+    expect(lines[0]).toContain("Strict v3 scorer: 77/100 → 88/100");
+    expect(lines[1]).toContain("93/100 (strict v3 90)");
+    const dir = await tmpDir();
+    const file = join(dir, "summary.json");
+    await writeFile(file, "{}");
+    await addFidelityToSummary(file, { report: after, markdown: "", out: dir, images: [], tuning });
+    expect(JSON.parse(await readFile(file, "utf8")).fidelity).toEqual({
+      score: 91,
+      strict: 88,
+      before: 80,
     });
   });
 });
