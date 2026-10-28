@@ -4,9 +4,6 @@ import { useCommandStore } from "../../ui/command-store";
 import { useEditorUi } from "../editor/editor-store";
 import { FORBIDDEN, openWorkspace, visibleCopy, WILLOW } from "./testing";
 
-// The editor and workspace screens load on demand; the first test in a busy run can be slow.
-vi.setConfig({ testTimeout: 20_000 });
-
 beforeEach(() => useEditorUi.getState().reset());
 
 describe("workspace shell", () => {
