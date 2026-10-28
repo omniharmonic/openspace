@@ -282,6 +282,7 @@ export const businessCss = `
 .os-contact__item a{color:var(--os-color-link);overflow-wrap:anywhere}
 .os-contact__name{font-weight:var(--os-font-weight-strong);color:var(--os-color-heading)}
 .os-contact__directions{font-size:var(--os-type-small-font-size);font-weight:var(--os-font-weight-strong);margin-top:0.2em}
+@media (max-width:767.98px){.os-contact__item a,.os-contact__directions{display:inline-flex;align-items:center;min-height:2.75rem}}
 .os-contact--list .os-contact__item{padding-bottom:var(--os-space-sm);border-bottom:1px solid var(--os-color-border)}
 @container block (min-width:48rem){.os-contact--columns .os-contact__items{grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:var(--os-space-md)}}
 `;

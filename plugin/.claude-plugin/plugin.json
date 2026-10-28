@@ -1,6 +1,6 @@
 {
   "name": "openspace",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Design and edit OpenSpace websites with Claude: a local MCP server for your site folder, a web-design skill with a fast inspect → design check → edit → screenshot loop, and commands to create, restyle, review and publish sites.",
   "author": {
     "name": "Benjamin Life",

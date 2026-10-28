@@ -198,7 +198,7 @@ Several related photographs shown together. Use: Portfolios, spaces, events and 
 A section heading with optional eyebrow and supporting line. Use: To open a section or introduce a group of blocks. `rule` adds a short accent line above, `eyebrow-rule` a short accent line between the eyebrow and the heading, `underline` a line below, `split` puts the subheading beside the heading on wide screens. Avoid: Using headings for emphasis inside body copy (use text); skipping levels (h2 → h4); more than one Heading 1 per page.
 
 - Variants: `plain`, `rule`, `underline`, `split`, `eyebrow-rule`
-- Fields: `eyebrow?: text ≤ 60`, `text: text ≤ 160`, `level: "h1" | "h2" | "h3" | "h4"`, `size: "auto" | "display" | "h1" | "h2" | "h3" | "h4"`, `subheading?: text ≤ 280`
+- Fields: `eyebrow?: text ≤ 60`, `text: text ≤ 160`, `level: "h1" | "h2" | "h3" | "h4"`, `size: "auto" | "display" | "h1" | "h2" | "h3" | "h4"`, `phoneSize?: "auto" | "display" | "h1" | "h2" | "h3" | "h4"`, `subheading?: text ≤ 280`
 
 ### `hours` — Opening hours
 

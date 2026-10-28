@@ -13,7 +13,8 @@ import {
   type SiteDocument,
 } from "@omniharmonic/openspace-schema";
 import { toast } from "../../ui";
-import { type Command, cloneBlock } from "../editor/model/actions";
+import { keepPhoneLayout, phoneLayoutIsAuto } from "../editor/grid/commands";
+import { type Command, cloneBlock, OpBuilder } from "../editor/model/actions";
 import { studioRegistry } from "../editor/model/registry";
 import { locate, type SelItem } from "../editor/model/selection";
 import type { BlockTarget } from "./blockMenuStore";
@@ -94,6 +95,15 @@ export function insertBlockCommand(
       block,
       place,
     } as OpBody;
+    // Phones follow along: an automatic phone layout is redone in reading order.
+    const wasAuto = phoneLayoutIsAuto(doc, pageId, section.id);
+    const b = new OpBuilder(doc).push(body);
+    keepPhoneLayout(b, pageId, section.id, wasAuto);
+    return {
+      bodies: b.bodies,
+      select: [{ kind: "block", id: block.id }],
+      label: `Add ${def.label.toLowerCase()}`,
+    };
   }
   return {
     bodies: [body],

@@ -136,7 +136,11 @@ export async function startPreviewServer(
           page = Object.values(view.pages).find((p) => p.slug === slug);
         }
         if (page) {
-          const html = renderPreviewHtml(view, page.id, { behaviorsUrl: "/_os/behaviors" });
+          const html = renderPreviewHtml(view, page.id, {
+            behaviorsUrl: "/_os/behaviors",
+            // `?os_mode=production`: exactly as published (the Phone check measures this).
+            production: url.searchParams.get("os_mode") === "production",
+          });
           res.writeHead(200, {
             "content-type": "text/html; charset=utf-8",
             "cache-control": "no-store",

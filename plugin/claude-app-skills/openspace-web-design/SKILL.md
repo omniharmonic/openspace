@@ -54,7 +54,7 @@ Keep each pass small — one intent per pass — and look at the result every ti
 | 4. Look    | `screenshot` (`device: "desktop"`, then `"mobile"`; or `"all"`), `render_page`                                                                                   | Screenshot the section that changed (`section: "sec_…"`) for speed; the whole page after structural changes. Without screenshots, read `render_page` with `fragment: true`. |
 | 5. Judge   | —                                                                                                                                                                | Apply the craft checklist below. If anything fails, go back to step 2.                                                                                                      |
 
-Finish with `design_check` showing **zero errors**, then `get_draft_diff` to summarise the work for the owner, and offer `preview` so they can look themselves.
+Finish with `design_check` showing **zero errors** and `phone_check` showing **zero phone errors and warnings** (`fix_for_phones` first), then `get_draft_diff` to summarise the work for the owner, and offer `preview` so they can look themselves.
 
 Shortcuts that save round-trips:
 
@@ -65,6 +65,16 @@ Shortcuts that save round-trips:
 - Before a risky restyle, `create_snapshot` with a name such as `before-warmer-look`.
 
 Screenshots on claude.ai and Claude Desktop are taken by OpenSpace in the cloud — nothing to install. A tall page comes back as several images, top to bottom; very tall pages are cut, so look at the rest with `section` shots. They are rate-limited (about forty every ten minutes per person), so prefer one section at one width while iterating, and `device: "all"` only for a final check. If `screenshot` says screenshots aren't available on this Hub, carry on with `render_page` (with `fragment: true`) and `preview`, and say so once.
+
+## Phones (every page, before every publish)
+
+Most visitors use a phone. OpenSpace makes desktop designs work on phones by default; the **Phone check** finds what defaults can't:
+
+1. `phone_check` (whole site or a `page`) — phone layouts, squeezed columns, long heading words, tall photo sections and, with a browser, a real phone layout at 360 and 390 px (sideways scrolling, overlaps, small text, small tap targets, text over photos, the main button below the first screen).
+2. `fix_for_phones` — fixes everything it can in one change, with phone-only settings (desktop stays exactly as designed), then measures again.
+3. Edit whatever is left as each issue says, `screenshot` with `device: "mobile"`, and repeat until **zero phone errors and warnings**.
+
+The rubric and what each fix changes: `references/phone-rubric.md`. Never say a page "works on mobile" without running `phone_check` in this session.
 
 ## Craft checklist (judge every screenshot)
 
@@ -88,7 +98,7 @@ More detailed heuristics (hero formulas, section-by-section guidance, restyle mo
 - For a new mood, try a **template look** first: `list_templates`, then `apply_template_look` (`resetOverrides: true` for a clean switch). Content and layout stay; only Site Styles change.
 - For finer changes, `set_styles` with `choices` (pairing, density, shape, buttons, motion, imageTreatment) or a curated `palette` id from `get_styles` options. A brand color goes in `choices.palette.brand`.
 - Use `overrides` (exact DTCG token values) only for an exact brand requirement. Contrast is enforced: failing overrides move to the nearest accessible shade (`onContrast: "adjust"`), or are refused with `"reject"`.
-- After a restyle, screenshot the home page at desktop and mobile and one inner page; re-run `design_check`.
+- After a restyle, screenshot the home page at desktop and mobile and one inner page; re-run `design_check` and `phone_check` (a new type scale or density can change how pages fit a phone).
 
 ## Custom components (bespoke moments)
 
@@ -117,6 +127,7 @@ Grid sections are Fluid-Engine-style: 24 columns on desktop/tablet, 8 on mobile,
 ## Additional resources
 
 - **`references/tool-reference.md`** — every MCP tool with its arguments, grouped by job, plus prompts and resources.
+- **`references/phone-rubric.md`** — what “great on a phone” means, the Phone check loop and what every phone fix changes.
 - **`references/craft-heuristics.md`** — detailed design heuristics: hero formulas, section guidance, theme rhythms, mood → Site Styles mappings, image direction, mobile review.
 - **`references/page-recipes.md`** — preset sequences for common pages and site types, with themes.
 - **`references/custom-components.md`** — the custom component format, template language, CSS/JS rules and quality gates.

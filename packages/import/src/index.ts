@@ -8,6 +8,7 @@
  * mapped by the shared mapper (blocks, sections and presets, media, theme, redirects, report).
  * Bundled into the CLI (`openspace import …`) and its local MCP server.
  */
+
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { ImageResizer } from "@omniharmonic/openspace-mcp-tools";
@@ -24,6 +25,7 @@ import { parseGitHubTarget } from "./github/target";
 import { type BuildResult, buildSite } from "./map/site";
 import { fontCategory } from "./map/theme";
 import { MediaImporter } from "./media";
+import { phoneReady } from "./phone";
 import { type Detection, detectPlatform, platformInfo, platformLabel } from "./platform";
 import { renderReport } from "./report";
 import { crawlSquarespace } from "./squarespace/crawl";
@@ -453,6 +455,10 @@ export async function detectSite(
  * importer — Squarespace, WordPress, or the generic importer for everything else.
  */
 export async function importSite(opts: ImportOptions): Promise<ImportResult> {
+  return phoneReady(await importAnySite(opts));
+}
+
+async function importAnySite(opts: ImportOptions): Promise<ImportResult> {
   let detection: Detection | undefined;
   let platform: Platform;
   // A GitHub repository or a github.io site: read it from its source.

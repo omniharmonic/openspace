@@ -13,5 +13,5 @@ Use the `openspace` MCP tools and the `openspace-web-design` skill (see its `ref
 4. Try the closest **template look** first: `list_templates`, then `apply_template_look` with `resetOverrides: true`. If no look fits, use `set_styles` with `choices` (pairing, palette brand/neutral, density, shape, buttons, motion, imageTreatment) or a curated `palette` id. Use exact `overrides` only for a specific brand color the user gave.
 5. Read the tool's contrast explanation, if any.
 6. Screenshot the home page at desktop and mobile, and one inner page. Compare with the "before". If it misses the mood, adjust one choice at a time and look again (at most three rounds before checking in with the user).
-7. Run `design_check` and fix any errors.
+7. Run `design_check` and fix any errors; run `phone_check` and `fix_for_phones` (a new type scale or density can change how pages fit a phone).
 8. Summarise what changed (the choices, in plain words) and how to undo it (`discard_draft`, or the `before-restyle` snapshot). Don't publish unless asked.

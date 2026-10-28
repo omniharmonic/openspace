@@ -505,6 +505,43 @@ html{scroll-behavior:auto}
 .os-marquee [data-os-clone],.os-marquee__toggle{display:none}
 }
 
+/* Phones (< 768px): readable, tappable and contained by default, whatever was designed on desktop.
+   Phone-only, so tablet and desktop rendering is unchanged; a site's custom CSS (unlayered) still wins. */
+@media (max-width:767.98px){
+@layer os.base {
+/* Long links and addresses wrap instead of widening the page. */
+:where(.os-rich) :where(a){overflow-wrap:anywhere}
+/* Reading sizes for a phone: body text at most 20px and lead text at most 22px (a big desktop
+   intro paragraph stays an intro, not a wall of 34px text); labels, eyebrows and small text never
+   shrink below 13–14px. */
+body{font-size:clamp(1rem,${v(T.type.body["font-size"])},1.25rem)}
+.os-type-lead{font-size:min(${v(T.type.lead["font-size"])},1.375rem)}
+.os-type-eyebrow{font-size:max(0.8125rem,${v(T.type.eyebrow["font-size"])})}
+.os-type-small{font-size:max(0.875rem,${v(T.type.small["font-size"])})}
+/* Wide tables and code scroll inside their block instead of the page. */
+.os-rich :where(table){display:block;max-inline-size:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.os-rich :where(pre){max-inline-size:100%;overflow-x:auto}
+.os-rich :where(iframe,video,embed,object){max-inline-size:100%}
+}
+@layer os.components {
+/* Comfortable tap targets: the brand link, social icons and footer links are at least 44px. */
+.os-header__brand{min-height:2.75rem}
+.os-announcement__close{width:2.75rem;height:2.75rem}
+/* Text links get a 44px-tall tap area; inline padding doesn't move the text around them. */
+.os-rich a:not(.os-button),.os-announcement__link{padding-block:max(0.875rem,calc((2.75rem - 1em) / 2))}
+.os-social__link{width:2.75rem;height:2.75rem}
+:where(summary){min-height:2.75rem;align-content:center}
+.os-footer :where(li,p)>a:only-child,.os-footer .os-nav__link{display:inline-flex;align-items:center;min-height:2.75rem}
+.os-footer .os-rich li+li{margin-block-start:0}
+/* Button labels stay readable (14px or more). */
+.os-button{font-size:max(0.875rem,${v(T.type.button["font-size"])})}
+/* 16px or larger, so phones don't zoom into a field when it's tapped. */
+.os-input,.os-textarea,.os-select{font-size:max(1rem,${v(T.type.body["font-size"])})}
+/* Very tall images are cropped to fit the screen (around their focal point). */
+.os-block--image .os-img:not(.is-fill,.is-contain){max-block-size:75svh}
+}
+}
+
 @media print{
 .os-header,.os-announcement,.os-popup,.os-skip-link{display:none!important}
 .os-section{padding-block:1.5rem;min-height:0}

@@ -227,7 +227,7 @@ describe("skills and commands match the real MCP server", () => {
     const agent = readMarkdown(join(PLUGIN_ROOT, "agents", "openspace-designer.md"));
     const readOnly = agent.body.split("## Process")[0]?.split("Never call")[0] ?? "";
     for (const t of mentionedTools(readOnly))
-      expect(t).toMatch(/^(get_|list_|design_check|screenshot|render_page|preview)/);
+      expect(t).toMatch(/^(get_|list_|design_check|phone_check|screenshot|render_page|preview)/);
     expect(agent.body).toContain("`design_check`");
     expect(agent.body).toContain("`screenshot`");
     expect(agent.body).toContain("`render_page`");

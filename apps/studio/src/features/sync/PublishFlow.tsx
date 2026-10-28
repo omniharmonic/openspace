@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { usePhoneCheckQuery } from "../../api/manage-queries";
 import type { PublishSchedule } from "../../api/types";
 import { useConfig } from "../../app/config";
 import {
@@ -23,7 +24,9 @@ import {
 } from "../../ui";
 import { PublishGate } from "../design-check/PublishGate";
 import { useEditorUi } from "../editor/editor-store";
-import { useDocStore } from "../editor/model/context";
+import { useDocStore, useDocStoreApi } from "../editor/model/context";
+import { docVersion, recordHubPhoneCheck } from "../phone/model";
+import { applyPhoneFixes } from "../phone/PhoneCheckBar";
 import { describeChanges } from "./changes";
 import { asBody, plainError, useRoomState, useSync, useSyncSession } from "./SyncContext";
 import { IDLE_PUBLISH } from "./session";
@@ -72,6 +75,12 @@ function PublishDialog({
   const queryClient = useQueryClient();
   const role = useRole();
   const draft = useDocStore((s) => s.doc);
+  const docApi = useDocStoreApi();
+  // Before publishing: every page measured as a phone on the Hub (unchanged pages are cached).
+  const hubPhone = usePhoneCheckQuery(site.id, docVersion(draft), open);
+  useEffect(() => {
+    if (hubPhone.data?.rendered) recordHubPhoneCheck(draft, hubPhone.data.issues);
+  }, [hubPhone.data, draft]);
   const status = useRoomState((s) => s.status);
   const [mode, setMode] = useState<"now" | "later">("now");
   const [slot, setSlot] = useState(defaultSlot);
@@ -299,6 +308,8 @@ function PublishDialog({
           {!empty && (
             <PublishGate
               doc={draft}
+              phoneChecking={hubPhone.isFetching}
+              onFixPhones={() => applyPhoneFixes(docApi, role)}
               onReview={() => {
                 close();
                 useEditorUi.getState().showLeftPanel("check");

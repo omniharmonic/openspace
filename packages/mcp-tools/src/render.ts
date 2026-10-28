@@ -18,6 +18,8 @@ export interface PreviewOptions {
   basePath?: string;
   /** Behaviors URL; previews without a server can't run behaviors (static markup only). */
   behaviorsUrl?: string;
+  /** Render exactly as published (no editor-only notes), e.g. for the Phone check. */
+  production?: boolean;
 }
 
 export function renderPreviewHtml(
@@ -44,7 +46,7 @@ export function renderPreviewHtml(
   const html = renderPageHtml({
     doc,
     pageId: target,
-    mode: "preview",
+    mode: opts.production ? "production" : "preview",
     basePath: opts.basePath ?? "",
     behaviorsUrl: opts.behaviorsUrl,
     extraHead: blocksStyleTag(),

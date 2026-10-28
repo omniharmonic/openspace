@@ -12,3 +12,8 @@ export function useHub(): HubApi {
   if (!hub) throw new Error("useHub must be used inside <HubProvider>");
   return hub;
 }
+
+/** The Hub client when there is one (components that also render outside the app shell). */
+export function useOptionalHub(): HubApi | null {
+  return useContext(HubContext);
+}

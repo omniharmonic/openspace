@@ -275,7 +275,7 @@ function books() {
             type: "image",
             src: photo("readingCafe", 1920).src,
             focal: [0.5, 0.5],
-            overlay: { color: "background", opacity: 0.8 },
+            overlay: { color: "background", opacity: 0.86 },
           },
         },
         edit: {

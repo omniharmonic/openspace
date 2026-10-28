@@ -37,6 +37,7 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 | `get_styles` / `set_styles` | Read or change Site Styles; every change is contrast-checked. |
 | `list_templates` / `apply_template_look` | Template looks, applied without touching content. |
 | `design_check` / `apply_fix` | Studio's Design check and SEO check, with one-step fixes. |
+| `phone_check` / `fix_for_phones` | The [Phone check](/guides/phones/): every page measured as a phone (360 and 390 px, where a browser is available), and every phone fix applied in one change without touching desktop. Claude runs it before every publish. |
 | `render_page` | The page as HTML from the real renderer. |
 | `screenshot` | An image of a draft page or one section at desktop, tablet or phone width. On the Hub it is taken in the cloud (nothing to install); tall pages come back as several images. |
 | `preview` | A preview link to share with you. |

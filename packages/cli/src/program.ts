@@ -13,6 +13,7 @@ import { CliError, colorEnabled, type Io, paint } from "./io";
 import { runMcp } from "./mcp";
 import { runMigrate } from "./migrate";
 import { runNew } from "./new";
+import { formatPhoneReport, runPhoneCheck } from "./phone";
 import { assertGitHubPagesStart } from "./wow-first";
 
 export const VERSION = "0.1.0";
@@ -45,6 +46,8 @@ export function createProgram(
     .option("--json", "print the report as JSON")
     .option("--media-warn-mb <n>", "media folder warning threshold in MB", Number)
     .option("--media-fail-mb <n>", "media folder failure threshold in MB", Number)
+    .option("--phone", "also run the Phone check in a real browser (Playwright) at 360 and 390 px")
+    .option("--fix", "with --phone: fix everything for phones (writes the content files)")
     .action(
       async (
         dir: string | undefined,
@@ -53,14 +56,25 @@ export function createProgram(
           json?: boolean;
           mediaWarnMb?: number;
           mediaFailMb?: number;
+          phone?: boolean;
+          fix?: boolean;
         },
       ) => {
+        let phone: Awaited<ReturnType<typeof runPhoneCheck>> | undefined;
+        if (opts.phone || opts.fix) {
+          phone = await runPhoneCheck(resolve(io.cwd, dir ?? "."), { fix: opts.fix });
+          if (!opts.json) {
+            io.out(formatPhoneReport(phone, (code, s) => paint(colorEnabled(io), code, s)));
+            io.out("");
+          }
+          if (phone.counts.error) setExit(1);
+        }
         const budgets: Partial<Budgets> = {};
         if (opts.mediaWarnMb !== undefined) budgets.mediaWarnBytes = opts.mediaWarnMb * 1024 * 1024;
         if (opts.mediaFailMb !== undefined) budgets.mediaFailBytes = opts.mediaFailMb * 1024 * 1024;
         const report = await runCheck(resolve(io.cwd, dir ?? "."), { budgets });
         if (opts.json) {
-          io.out(JSON.stringify(report, null, 2));
+          io.out(JSON.stringify(phone ? { ...report, phone } : report, null, 2));
         } else {
           if (opts.ci) for (const line of githubAnnotations(report)) io.out(line);
           const color = colorEnabled(io);

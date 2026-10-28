@@ -5,7 +5,12 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { blocksRegistry } from "@omniharmonic/openspace-blocks";
-import { componentIssues, componentsKitGate, usesComponents } from "@omniharmonic/openspace-lint";
+import {
+  componentIssues,
+  componentsKitGate,
+  phoneCheck,
+  usesComponents,
+} from "@omniharmonic/openspace-lint";
 import {
   findBrokenLinks,
   isMediaPath,
@@ -42,7 +47,8 @@ export type CheckRule =
   | "secret"
   | "gating"
   | "component"
-  | "kit";
+  | "kit"
+  | "phone";
 
 export interface Finding {
   severity: Severity;
@@ -267,6 +273,28 @@ export async function runCheck(root: string, options: CheckOptions = {}): Promis
           file: "package.json",
           message: gate.message as string,
         });
+    }
+  }
+
+  // --- the Phone check's static rules: warnings (a publish never fails on them) ----------------
+  if (doc) {
+    try {
+      for (const i of phoneCheck(doc)) {
+        if (i.severity === "info") continue;
+        add({
+          severity: "warning",
+          rule: "phone",
+          file:
+            i.page && i.page !== "footer"
+              ? (pageFiles[i.page] ?? PAGES_DIR)
+              : i.page === "footer"
+                ? SITE_FILE
+                : SITE_FILE,
+          message: `${i.message} ${i.autofix ? `Fix: \`openspace check --phone --fix\` (${i.autofix.label.toLowerCase()}).` : i.fix}`,
+        });
+      }
+    } catch {
+      // A document the schema rejected is reported above; the phone rules need a valid one.
     }
   }
 

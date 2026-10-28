@@ -184,7 +184,7 @@ export const heroMorePresets = [
       avoid: `${AI_AVOID} Third-person bios on a personal site; job-title soup.`,
     },
     make: (c) => ({
-      layout: stack({ cols: [4, 8], align: "center", gap: "2xl", order: [0, 1] }),
+      layout: stack({ cols: [4, 8], align: "center", gap: "2xl", order: [0, 1], mOrder: [1, 0] }),
       padding: { d: "xl", m: "lg" },
       blocks: [
         image(photo("portraitLena", 420, "1:1"), {
@@ -279,12 +279,12 @@ export const heroMorePresets = [
     make: (c) => ({
       layout: stack({ width: "content", gap: "lg" }),
       padding: { d: "3xl", m: "2xl" },
-      minHeight: { d: "90vh", m: "85svh" },
+      minHeight: { d: "90vh", m: "72svh" },
       background: {
         type: "image",
         src: photo("festivalSunset", 1920).src,
         focal: [0.5, 0.45],
-        overlay: scrim(0.78),
+        overlay: scrim(0.86),
       },
       blocks: [
         heading("Riverbend Folk Weekend", {

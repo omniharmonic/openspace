@@ -24,6 +24,7 @@ export * from "./links";
 export * from "./media";
 export * from "./migrations";
 export * from "./page";
+export * from "./phone";
 export * from "./primitives";
 export { contentRegistry, type SchemaMeta } from "./registry";
 export * from "./responsive";

@@ -103,7 +103,7 @@ export const testimonialsMorePresets = [
         type: "image",
         src: photo("lake", 1920).src,
         focal: [0.5, 0.5],
-        overlay: scrim(0.8),
+        overlay: scrim(0.86),
       },
       blocks: [
         pullQuote(

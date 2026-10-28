@@ -1,8 +1,9 @@
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
-import { CircleAlert, TriangleAlert } from "lucide-react";
+import { CircleAlert, Smartphone, TriangleAlert, WandSparkles } from "lucide-react";
 import { useMemo } from "react";
 import { Button, cx } from "../../ui";
-import { checkSite, failureWhere } from "./model";
+import { measuredPhoneIssues, usePhoneCheck } from "../phone/model";
+import { checkSite, failureWhere, kindOf } from "./model";
 import { useDesignCheck } from "./store";
 
 /**
@@ -11,15 +12,33 @@ import { useDesignCheck } from "./store";
  * that don't exist: the Hub refuses those (they would fail the site's publish run), so they are
  * listed first and called out.
  */
-export function PublishGate({ doc, onReview }: { doc: SiteDocument; onReview: () => void }) {
+export function PublishGate({
+  doc,
+  onReview,
+  phoneChecking,
+  onFixPhones,
+}: {
+  doc: SiteDocument;
+  onReview: () => void;
+  /** The Hub is measuring every page as a phone right now. */
+  phoneChecking?: boolean;
+  /** "Fix for phones" (the editor applies every phone fix as one change). */
+  onFixPhones?: () => void;
+}) {
   const checked = useDesignCheck((s) => s.checked);
   const latest = useDesignCheck((s) => s.issues);
   const latestFailures = useDesignCheck((s) => s.failures);
+  const phonePages = usePhoneCheck((s) => s.pages);
   // The dialog can open right after an edit: make sure the results are for this document.
-  const { issues, failures } = useMemo(
-    () => (checked === doc ? { issues: latest, failures: latestFailures } : checkSite(doc)),
-    [checked, latest, latestFailures, doc],
-  );
+  const { issues, failures } = useMemo(() => {
+    void phonePages;
+    const base = checked === doc ? { issues: latest, failures: latestFailures } : checkSite(doc);
+    const measured = measuredPhoneIssues(doc).map((i) => ({ ...i, kind: kindOf(i) }));
+    const known = new Set(base.issues.map((i) => i.id));
+    return { ...base, issues: [...base.issues, ...measured.filter((i) => !known.has(i.id))] };
+  }, [checked, latest, latestFailures, doc, phonePages]);
+  const phone = issues.filter((i) => i.kind === "phone" && i.severity !== "info");
+  const phoneFixable = phone.some((i) => i.autofix);
   const blockers = issues.filter((i) => i.rule === "broken-link" && i.severity === "error");
   const attention = [
     ...blockers,
@@ -58,6 +77,23 @@ export function PublishGate({ doc, onReview }: { doc: SiteDocument; onReview: ()
           from a design — people, quotes, prices or details that aren’t about your site. Replace{" "}
           {sample === 1 ? "it" : "them"} before publishing.
         </p>
+      )}
+      {phone.length > 0 && (
+        <div className="st-dc-gate__note st-dc-gate__phone">
+          <p>
+            <Smartphone aria-hidden="true" />{" "}
+            {phone.length === 1
+              ? "1 thing doesn’t work well on phones"
+              : `${phone.length} things don’t work well on phones`}
+            {phoneChecking ? " (checking every page on a phone…)" : "."} Most visitors will see your
+            site on a phone.
+          </p>
+          {phoneFixable && onFixPhones && (
+            <Button size="sm" variant="secondary" icon={<WandSparkles />} onClick={onFixPhones}>
+              Fix for phones
+            </Button>
+          )}
+        </div>
       )}
       {failures.length > 0 && (
         <p className="st-dc-gate__note">

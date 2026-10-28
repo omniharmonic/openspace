@@ -70,6 +70,12 @@ export function photoTextChecks(block: Block, buttons: StyleChoices["buttons"]):
       if (f.note) out.push({ role: "text-muted", label: "Button note", min: 4.5 });
       break;
     }
+    case "quote":
+    case "countdown":
+      // Both also draw muted text: a quote's source, a countdown's date line.
+      out.push({ role: "text", label: "Text", min: 4.5 });
+      out.push({ role: "text-muted", label: "Secondary text", min: 4.5 });
+      break;
     default:
       out.push({ role: "text", label: "Text", min: 4.5 });
   }

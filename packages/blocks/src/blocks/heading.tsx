@@ -41,6 +41,12 @@ export const headingBlock = defineBlock({
       help: "Use one Heading 1 per page; it tells search engines what the page is about",
     }),
     size: f.select({ options: SIZES, default: "auto", label: "Visual size" }),
+    phoneSize: f.select({
+      options: SIZES,
+      optional: true,
+      label: "Size on phones",
+      help: "Only on phones: a smaller size keeps long words from breaking (Fix for phones sets it)",
+    }),
     subheading: f.text({ optional: true, multiline: true, maxLength: 280 }),
   },
   variants: ["plain", "rule", "underline", "split", "eyebrow-rule"],
@@ -68,7 +74,17 @@ export const headingBlock = defineBlock({
           {fields.eyebrow ? (
             <p className="os-heading__eyebrow os-type-eyebrow">{fields.eyebrow}</p>
           ) : null}
-          <Tag className={cx("os-heading__text", typo(style, "heading", size))}>{fields.text}</Tag>
+          <Tag
+            className={cx(
+              "os-heading__text",
+              typo(style, "heading", size),
+              fields.phoneSize &&
+                fields.phoneSize !== "auto" &&
+                `os-heading__text--m-${fields.phoneSize}`,
+            )}
+          >
+            {fields.text}
+          </Tag>
         </div>
         {fields.subheading ? (
           <p className="os-heading__sub os-type-lead">{fields.subheading}</p>
@@ -210,6 +226,7 @@ export const headingCss = `
 .os-heading--eyebrow-rule .os-heading__eyebrow::after{content:"";display:block;width:clamp(3rem,5vw,4rem);height:2px;background:var(--os-color-accent);margin-block:clamp(1.25rem,2vw,1.75rem) clamp(0.75rem,1.5vw,1.25rem)}
 .os-align-center .os-heading--eyebrow-rule .os-heading__eyebrow::after,.os-malign-center .os-heading--eyebrow-rule .os-heading__eyebrow::after{margin-inline:auto}
 .os-heading__text{margin:0;text-wrap:balance;color:var(--os-color-heading)}
+@media (max-width:767.98px){.os-heading__text--m-display{font-size:var(--os-type-display-font-size);line-height:var(--os-type-display-line-height);letter-spacing:var(--os-type-display-letter-spacing)}.os-heading__text--m-h1{font-size:var(--os-type-h1-font-size);line-height:var(--os-type-h1-line-height);letter-spacing:var(--os-type-h1-letter-spacing)}.os-heading__text--m-h2{font-size:var(--os-type-h2-font-size);line-height:var(--os-type-h2-line-height);letter-spacing:var(--os-type-h2-letter-spacing)}.os-heading__text--m-h3{font-size:var(--os-type-h3-font-size);line-height:var(--os-type-h3-line-height);letter-spacing:var(--os-type-h3-letter-spacing)}.os-heading__text--m-h4{font-size:var(--os-type-h4-font-size);line-height:var(--os-type-h4-line-height);letter-spacing:var(--os-type-h4-letter-spacing)}}
 .os-heading__sub{margin:0;color:var(--os-color-text);max-inline-size:var(--os-measure);text-wrap:pretty}
 .os-heading--rule .os-heading__main::before{content:"";width:2.5rem;height:3px;border-radius:var(--os-radius-full);background:var(--os-color-accent);margin-bottom:var(--os-space-2xs)}
 .os-heading--underline .os-heading__main{padding-bottom:var(--os-space-xs);border-bottom:1px solid var(--os-color-border)}

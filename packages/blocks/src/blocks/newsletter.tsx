@@ -153,6 +153,7 @@ export const newsletterCss = `
 .os-newsletter__note{font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}
 .os-newsletter--stacked .os-newsletter__row,.os-newsletter--card .os-newsletter__row{display:grid}
 .os-newsletter--stacked .os-newsletter__submit,.os-newsletter--card .os-newsletter__submit{justify-self:start}
+@media (max-width:767.98px){.os-newsletter__row{display:grid}.os-newsletter__field{flex:none}.os-newsletter .os-newsletter__submit{justify-self:stretch;width:100%}}
 .os-newsletter--card{padding:var(--os-space-md);background:var(--os-color-surface);border-radius:var(--os-radius-card)}
 .os-block.has-radius .os-newsletter--card{border-radius:var(--radius)}
 .os-block.os-themed .os-newsletter--card{background:transparent;padding:0}

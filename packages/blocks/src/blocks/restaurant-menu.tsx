@@ -214,6 +214,7 @@ export const restaurantMenuCss = `
 .os-menu-card__name{font-weight:var(--os-font-weight-strong);color:var(--os-color-heading)}
 .os-menu-card__diet{display:inline-flex;gap:0.25em}
 .os-menu-card__diet abbr{font-size:0.7em;font-weight:var(--os-font-weight-strong);letter-spacing:0.04em;text-decoration:none;color:var(--os-color-link);border:1px solid currentColor;border-radius:var(--os-radius-full);padding:0.05em 0.45em;cursor:help}
+@media (max-width:767.98px){.os-menu-card__diet abbr{font-size:max(0.7em,0.75rem)}}
 .os-menu-card__leader{flex:1;min-width:1rem;border-bottom:1.5px dotted var(--os-color-text-muted);translate:0 -0.3em}
 .os-menu-card__price{font-variant-numeric:lining-nums tabular-nums;color:var(--os-color-heading);white-space:nowrap}
 .os-menu-card__desc{margin:0;color:var(--os-color-text);max-inline-size:var(--os-measure);font-size:var(--os-type-small-font-size);line-height:var(--os-type-small-line-height)}

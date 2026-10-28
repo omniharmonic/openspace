@@ -19,8 +19,8 @@ const DEFAULTS: Record<CollectionKind, FeedFormat[]> = {
 };
 
 const FILE: Record<FeedFormat, { file: string; label: string; mime: string }> = {
-  rss: { file: "rss.xml", label: "RSS", mime: "application/rss+xml" },
-  atom: { file: "atom.xml", label: "Atom", mime: "application/atom+xml" },
+  rss: { file: "rss.xml", label: "RSS feed", mime: "application/rss+xml" },
+  atom: { file: "atom.xml", label: "Atom feed", mime: "application/atom+xml" },
   ical: { file: "calendar.ics", label: "Add to calendar (iCal)", mime: "text/calendar" },
   podcast: { file: "podcast.xml", label: "Podcast feed", mime: "application/rss+xml" },
 };

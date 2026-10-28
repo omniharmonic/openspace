@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useHub } from "./context";
+import { useHub, useOptionalHub } from "./context";
 import type {
   Approval,
   CollaboratorRole,
@@ -23,6 +23,7 @@ export const manageKeys = {
   approvals: (id: string) => ["approvals", id] as const,
   hosting: (id: string) => ["hosting", id] as const,
   setup: (id: string) => ["setup", id] as const,
+  phone: (id: string, version: number) => ["phone-check", id, version] as const,
 };
 
 export function useRenameSite(siteId: string) {
@@ -298,4 +299,19 @@ export function useHostingActions(siteId: string) {
         hub.checkCloudflare(siteId, input.token, input.accountId),
     }),
   };
+}
+
+/**
+ * The Hub's Phone check for the publish dialog (draft pages measured as a phone; unchanged pages
+ * come from the Hub's cache). `version` changes with the document so an edit measures again.
+ */
+export function usePhoneCheckQuery(siteId: string | undefined, version: number, enabled = true) {
+  const hub = useOptionalHub();
+  return useQuery({
+    queryKey: manageKeys.phone(siteId ?? "", version),
+    queryFn: () => (hub as NonNullable<typeof hub>).phoneCheck(siteId as string),
+    enabled: enabled && !!siteId && !!hub,
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
 }

@@ -16,7 +16,7 @@ import type { Page, SiteDocument } from "@omniharmonic/openspace-schema";
  * like any other edit (validated, undoable, synced).
  */
 
-export type CheckKind = "design" | "seo";
+export type CheckKind = "design" | "seo" | "phone";
 
 /** An op without its id/actor/ts, to commit again as a fresh local edit. */
 function asBody(op: Op): OpBody {
@@ -29,7 +29,7 @@ export interface CheckedIssue extends Issue {
 }
 
 export const kindOf = (issue: Issue): CheckKind =>
-  issue.rule.startsWith("seo-") ? "seo" : "design";
+  issue.rule.startsWith("seo-") ? "seo" : issue.rule.startsWith("phone-") ? "phone" : "design";
 
 /** A check that couldn't run (a rule threw on this document). */
 export interface CheckFailure {

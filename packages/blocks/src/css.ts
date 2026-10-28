@@ -46,6 +46,8 @@ import { videoCss } from "./blocks/video";
 export const BLOCKS_CSS = `/* OpenSpace block library (@omniharmonic/openspace-blocks). Tokens: --os-* from @omniharmonic/openspace-theme. */
 @layer os.reset, os.base, os.layout, os.components, os.behaviors, os.blocks, os.utilities;
 @layer os.blocks {
+/* Phones: small standalone links inside blocks get a 44px-tall tap area. */
+@media (max-width:767.98px){:where(.os-audio__link,.os-booking__fallback,.os-product__details,.os-events__register,.os-product__link){display:inline-flex;align-items:center;min-height:2.75rem}}
 ${[
   textCss,
   imageCss,

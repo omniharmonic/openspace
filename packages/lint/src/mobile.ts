@@ -26,6 +26,11 @@ export const MOBILE_WIDTH = 350;
 export interface AutoMobileOptions {
   /** Regenerate every placement, discarding stored `m` rects (default: keep them). */
   reset?: boolean;
+  /**
+   * Words first: stack text and buttons before photos (each photo keeps whatever is layered on
+   * it), so a hero's headline and main button are on the first phone screen.
+   */
+  textFirst?: boolean;
 }
 
 /** Share of `a`'s area covered by `b`. */
@@ -214,7 +219,15 @@ export function autoMobileLayout(
   // Stack the items that aren't layered on anything in reading order, each followed by its layers.
   // Reading order is computed over the items that stack, so a panel layered across two columns
   // doesn't merge them.
-  for (const { id, rect: d } of readingOrder(pending.filter((it) => !hostOf.has(it.id)))) {
+  let stacking = readingOrder(pending.filter((it) => !hostOf.has(it.id)));
+  if (options.textFirst) {
+    const isText = (id: string) => {
+      const b = blocks.get(id);
+      return !!b && isTextBlock(b);
+    };
+    stacking = [...stacking.filter((i) => isText(i.id)), ...stacking.filter((i) => !isText(i.id))];
+  }
+  for (const { id, rect: d } of stacking) {
     if (placedById.has(id)) continue;
     const block = blocks.get(id);
     const m: GridRect = { x: 1, y: cursor, w: cols, h: mobileHeight(block, d, width) };

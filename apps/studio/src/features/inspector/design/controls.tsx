@@ -20,6 +20,7 @@ export function ResponsiveField<T extends string>({
   render,
   allowUnset = true,
   baseHint,
+  phoneDefault,
 }: {
   label: string;
   value: Responsive<T> | undefined;
@@ -32,8 +33,13 @@ export function ResponsiveField<T extends string>({
   allowUnset?: boolean;
   /** Shown before the first tablet/phone value when it also sets desktop to `base`. */
   baseHint?: string;
+  /** What phones get automatically when there is no phone value (e.g. lighter padding). */
+  phoneDefault?: (value: Responsive<T>) => T;
 }) {
-  const r = readAt(value, bp);
+  const read = readAt(value, bp);
+  const auto =
+    bp === "m" && !read.overridden && value && phoneDefault ? phoneDefault(value) : undefined;
+  const r = auto !== undefined && auto !== read.value ? { ...read, value: auto } : read;
   const dots = overriddenBps(value);
   const set = (v: T | undefined) => {
     if (v === undefined) {
@@ -61,7 +67,9 @@ export function ResponsiveField<T extends string>({
         linked
           ? value === undefined && baseHint
             ? baseHint
-            : `Same as ${BP_LABEL[r.inheritedFrom ?? "d"].toLowerCase()}`
+            : r !== read
+              ? "Automatic for phones (a little less than desktop)"
+              : `Same as ${BP_LABEL[r.inheritedFrom ?? "d"].toLowerCase()}`
           : undefined
       }
     >

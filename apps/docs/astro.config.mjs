@@ -30,6 +30,7 @@ export default defineConfig({
           items: [
             { label: "Editing", slug: "guides/editing" },
             { label: "Site Styles", slug: "guides/site-styles" },
+            { label: "Great on phones", slug: "guides/phones" },
             { label: "Pages & navigation", slug: "guides/pages-and-navigation" },
             { label: "Media", slug: "guides/media" },
             { label: "Publishing, history & rollback", slug: "guides/publishing" },

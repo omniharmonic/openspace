@@ -1,7 +1,7 @@
 ---
 name: openspace-design-from-scratch
 description: This skill should be used when the user wants Claude to design (or redesign) their OpenSpace website properly from their idea and brand — after "Start with Claude", "design my site", "make it feel like us", "use my design system / brand kit", "turn my idea into a website", or when they bring a page Claude made. It gives a full design process in plain language with the owner — brief, moodboard in words, design-system tokens, page plan, presets plus bespoke components, a screenshot critique loop, then publish — with the exact openspace MCP tools.
-version: 0.1.0
+version: 0.2.0
 license: MIT
 ---
 
@@ -74,11 +74,11 @@ After each section: `screenshot` that section (desktop), then the page on mobile
 5. Mobile at 390px: headline breaks well, buttons tappable, nothing overflows.
 6. Truth: no sample content left (`design_check` flags `sample-content` and `placeholder-text`).
 
-Fix, screenshot again. Then `design_check` for the page and fix every error (`apply_fix` where offered). Show them the screenshot and ask for their reaction in plain words ("Does this feel like a 7am bakery window?"). Small, frequent check-ins beat a big reveal.
+Fix, screenshot again (desktop **and** `device: "mobile"`). Then `design_check` for the page and fix every error (`apply_fix` where offered), and `phone_check` → `fix_for_phones` until the page has no phone errors or warnings (rubric: `references/phone-rubric.md`). Show them the screenshot and ask for their reaction in plain words ("Does this feel like a 7am bakery window?"). Small, frequent check-ins beat a big reveal.
 
 ## 7. Publish
 
-When every page they care about is done and `design_check` shows no errors: summarise what changed (`get_draft_diff`, in plain words), offer `preview`, and **publish only when they say so** (`publish`). Celebrate: "It's live — and it's yours." Mention what's next in one line (their own web address, a shop or newsletter are in the editor under *Finish setting up*).
+When every page they care about is done, `design_check` shows no errors and `phone_check` shows no phone errors or warnings (run `fix_for_phones` first): summarise what changed (`get_draft_diff`, in plain words), offer `preview`, and **publish only when they say so** (`publish`). Celebrate: "It's live — and it's yours." Mention what's next in one line (their own web address, a shop or newsletter are in the editor under *Finish setting up*).
 
 ## When they brought a page Claude made
 

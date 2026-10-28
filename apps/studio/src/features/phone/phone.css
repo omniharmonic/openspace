@@ -1,0 +1,29 @@
+/* The phone check strip under the canvas top banners, shown in the phone preview. */
+.st-phone-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 8px 6px 12px;
+  border-radius: 999px;
+  background: var(--st-panel);
+  color: var(--st-text);
+  box-shadow: var(--st-shadow-card);
+  font-size: 13px;
+}
+.st-phone-bar > svg {
+  width: 16px;
+  height: 16px;
+  color: var(--st-text-2);
+}
+.st-phone-bar__msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.st-phone-bar__ok {
+  width: 14px;
+  height: 14px;
+  color: var(--st-live);
+}

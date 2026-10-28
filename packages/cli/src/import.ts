@@ -26,6 +26,7 @@ import { CliError, type Io } from "./io";
 import { loadResizer } from "./mcp";
 import { loadPlaywright } from "./mcp/screenshot";
 import { deployUrlFor, isEmptyDir, slugify, writeShell } from "./new";
+import { runPhoneCheck } from "./phone";
 import { assertGitHubPagesStart } from "./wow-first";
 
 export interface ImportSiteOptions {
@@ -286,6 +287,7 @@ export async function runImportSite(
       await writeShell(dir, existing.deploy?.target ?? "github-pages", slug);
     await writeImport(dir, result);
     await writeAgentsMd(dir, result.doc.site.title);
+    await phoneFixRendered(dir, opts, io);
     const check = await runCheck(dir);
     const r = { dir, result, check };
     if (opts.summary) await writeSummary(resolve(io.cwd, opts.summary), r);
@@ -303,10 +305,29 @@ export async function runImportSite(
         await rm(join(dir, entry), { recursive: true, force: true });
     throw e;
   }
+  await phoneFixRendered(dir, opts, io);
   const check = await runCheck(dir);
   const r = { dir, result, check };
   if (opts.summary) await writeSummary(resolve(io.cwd, opts.summary), r);
   return r;
+}
+
+/**
+ * With a browser (`--render`), the imported pages are also measured as a phone and everything
+ * that can be fixed for phones is (the importer already applied the fixes that need no browser).
+ */
+async function phoneFixRendered(
+  dir: string,
+  opts: { render?: boolean },
+  io: { err(s: string): void },
+): Promise<void> {
+  if (!opts.render) return;
+  try {
+    const r = await runPhoneCheck(dir, { fix: true });
+    if (r.fixed.length) io.err(`  Fixed ${r.fixed.length} thing(s) for phones.`);
+  } catch (e) {
+    io.err(`  Couldn't check the pages on a phone: ${(e as Error).message.split("\n")[0]}`);
+  }
 }
 
 /** Counts for the hosted import's progress ("12 pages, 48 images"). */

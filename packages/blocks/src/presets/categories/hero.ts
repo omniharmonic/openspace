@@ -184,7 +184,7 @@ export const heroPresets = [
     make: (c) => ({
       layout: stack({ width: "narrow" }),
       padding: { d: "3xl", m: "2xl" },
-      minHeight: { d: "88vh", m: "80svh" },
+      minHeight: { d: "88vh", m: "70svh" },
       background: {
         type: "image",
         src: photo("cliffs", 1920).src,
@@ -225,7 +225,7 @@ export const heroPresets = [
     make: (c) => ({
       layout: stack({ cols: [7, 5], align: "end" }),
       padding: { d: "2xl", m: "xl" },
-      minHeight: { d: "92vh", m: "85svh" },
+      minHeight: { d: "92vh", m: "72svh" },
       background: {
         type: "image",
         src: photo("modernHouse", 1920).src,
@@ -321,10 +321,11 @@ export const heroPresets = [
       return {
         padding: { d: "xl", m: "lg" },
         ...grid([
-          [big, r(1, 1, 11, 22), r(1, 1, 6, 14)],
-          [small, r(8, 12, 7, 13, { z: 2 }), r(5, 10, 4, 8, { z: 2 })],
-          [words, r(15, 4, 10, 14), r(1, 19, 8, 10)],
-          [cta, r(15, 18, 10, 4), r(1, 29, 8, 3)],
+          // Phones: the words and button first, the collage after them.
+          [big, r(1, 1, 11, 22), r(1, 15, 6, 14)],
+          [small, r(8, 12, 7, 13, { z: 2 }), r(5, 24, 4, 8, { z: 2 })],
+          [words, r(15, 4, 10, 14), r(1, 1, 8, 10)],
+          [cta, r(15, 18, 10, 4), r(1, 11, 8, 3)],
         ]),
       };
     },
@@ -444,11 +445,12 @@ export const heroPresets = [
       return {
         padding: { d: "xl", m: "lg" },
         ...grid([
-          [a, r(1, 1, 8, 24), r(1, 1, 5, 12)],
-          [b, r(10, 4, 6, 16), r(6, 5, 3, 9)],
-          [d, r(17, 1, 8, 13), r(1, 14, 8, 9)],
-          [words, r(14, 11, 11, 11, { z: 2 }), r(1, 21, 8, 11, { z: 2 })],
-          [cta, r(15, 23, 10, 3), r(1, 33, 8, 3)],
+          // Phones: the words and button first, the photos after them.
+          [a, r(1, 1, 8, 24), r(1, 16, 5, 12)],
+          [b, r(10, 4, 6, 16), r(6, 20, 3, 9)],
+          [d, r(17, 1, 8, 13), r(1, 29, 8, 9)],
+          [words, r(14, 11, 11, 11, { z: 2 }), r(1, 1, 8, 11, { z: 2 })],
+          [cta, r(15, 23, 10, 3), r(1, 12, 8, 3)],
         ]),
       };
     },

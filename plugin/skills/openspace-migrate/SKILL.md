@@ -1,7 +1,7 @@
 ---
 name: openspace-migrate
 description: This skill should be used when the user asks to "move my site to OpenSpace", "migrate my website", "import my WordPress / Squarespace / Wix / Webflow / Carrd / Framer site", "switch from Squarespace (or WordPress, Wix, Webflow) to OpenSpace", "copy my website into OpenSpace", "make my OpenSpace site look like my old site", or gives the address of an existing website and wants the same site in OpenSpace. It detects the platform, runs the importer, iterates page by page to visual parity with side-by-side screenshots, and finishes with redirects, publishing, the domain move and an honest summary of what differs.
-version: 0.2.0
+version: 0.3.0
 ---
 
 # Moving a website to OpenSpace (from anywhere)
@@ -69,7 +69,7 @@ Work through the pages in navigation order, home page first. For each page, run 
    - layout in grid sections: `place_in_grid`, then `auto_mobile_layout`;
    - global look: `set_styles` (brand color, pairing, density, shape, buttons; `typography` for the original's own Google Fonts per role and its type sizes, tracking and capitals; `layout` for content width and section spacing) — do this once, early, on the home page, then leave it alone. Imports already carry these over when they could measure them; adjust rather than replace;
    - a section's exact background: `update_section` `style.background = { type: "color", color: "#4a1c18" }`; a short accent line between eyebrow and heading: the heading block's `eyebrow-rule` variant; paragraphs side by side: the text block's `columns` variant.
-4. **Check:** `design_check` on the page; fix errors (`apply_fix` where offered). Imported pages often have several Heading 1s or skipped heading levels — fix the levels without changing the words.
+4. **Check:** `design_check` on the page; fix errors (`apply_fix` where offered). Then `phone_check` and `fix_for_phones`: the importer already applied the phone fixes that need no browser, but the old site's phone version is part of parity too (compare `screenshot_url`/`screenshot` at `device: "mobile"`; rubric in `references/phone-rubric.md`). Imported pages often have several Heading 1s or skipped heading levels — fix the levels without changing the words.
 5. **Look again** at the same widths and judge: does a visitor get the same first impression, the same order of information and the same calls to action?
 
 Stop when the remaining differences are details the owner wouldn't notice, or are listed below as limits. Note each page's outcome for the final summary.
@@ -94,7 +94,7 @@ Never invent replacements for content that didn't import — ask.
 ## 4. Redirects, publishing and the domain
 
 - Redirects for every changed address are in `content/site.json` → `redirects`: WordPress permalinks (`/2024/03/title/`) and category/tag archives point at the journal, Squarespace blog and product URLs at their new homes, renamed pages at their new slugs. Keep them; add any the owner knows about (old campaign links).
-- Run `npx openspace check` (zero errors) and a final `design_check` on every page, then `get_draft_diff`. Then ask one simple question — "Ready for me to put your new site live at its free address? Your current site isn't touched." — and publish when they say yes (`publish` with `confirm: true`, then push). The first live version comes before any shop, members, email or domain work.
+- Run `npx openspace check` (zero errors) and a final `design_check` and `phone_check` on every page (zero phone errors and warnings — `fix_for_phones` first), then `get_draft_diff`. Then ask one simple question — "Ready for me to put your new site live at its free address? Your current site isn't touched." — and publish when they say yes (`publish` with `confirm: true`, then push). The first live version comes before any shop, members, email or domain work.
 - Domain move (only when they're ready — it's an item on the "when you're ready" list, not a step of the move), in this order, after the new site is live on its temporary address and checked: (1) add the custom domain to the OpenSpace site (`deploy.customDomain` in `openspace.json`, or the Hub); (2) at the DNS provider — the old platform's domain service or the registrar — change the records as the domain guide says (GitHub Pages: `A` records and a `CNAME`; Cloudflare: the Pages project's records); (3) wait until the domain serves the new site over HTTPS and a few old URLs redirect correctly; (4) only then cancel the old plan or hosting — for Squarespace, only then cancel the Squarespace site plan. Transferring the domain registration is optional and can wait.
 
 ## 5. Celebrate, then an honest summary

@@ -3,6 +3,12 @@
  * loaded from the local preview server so media and fonts resolve, and a section capture is an
  * element screenshot of `[data-os-id="sec_…"]` in the real page.
  */
+import {
+  PHONE_HEIGHT,
+  PHONE_PREPARE_SCRIPT,
+  PHONE_PROBE_SCRIPT,
+  type PhoneProbeResult,
+} from "@omniharmonic/openspace-lint";
 import type { Screenshot, ScreenshotRequest } from "@omniharmonic/openspace-mcp-tools";
 
 // biome-ignore lint/suspicious/noExplicitAny: Playwright is optional and untyped here
@@ -10,6 +16,8 @@ type Browser = any;
 
 export interface Screenshotter {
   capture(url: string, req: ScreenshotRequest): Promise<Screenshot>;
+  /** Lay the page out as a phone (touch, mobile viewport) and run the Phone check's probe. */
+  measure(url: string, width: number): Promise<PhoneProbeResult>;
   close(): Promise<void>;
 }
 
@@ -123,6 +131,32 @@ export function createScreenshotter(chromium: {
         };
       } finally {
         await page.close().catch(() => undefined);
+      }
+    },
+    async measure(url, width) {
+      browser ??= launch();
+      let b: Browser;
+      try {
+        b = await browser;
+      } catch (e) {
+        browser = undefined;
+        throw e;
+      }
+      const context = await b.newContext({
+        viewport: { width, height: PHONE_HEIGHT },
+        deviceScaleFactor: 2,
+        isMobile: true,
+        hasTouch: true,
+        reducedMotion: "reduce",
+      });
+      const page = await context.newPage();
+      try {
+        await page.goto(url, { waitUntil: "load", timeout: 30_000 });
+        await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
+        await page.evaluate(PHONE_PREPARE_SCRIPT).catch(() => undefined);
+        return (await page.evaluate(PHONE_PROBE_SCRIPT)) as PhoneProbeResult;
+      } finally {
+        await context.close().catch(() => undefined);
       }
     },
     async close() {
