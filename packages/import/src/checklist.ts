@@ -7,7 +7,7 @@
  */
 import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import type { BuildResult } from "./map/site";
-import { platformLabel } from "./platform";
+import { platformLabel, subscribersAdvice } from "./platform";
 import type { SqSite } from "./types";
 
 export const CHECKLIST_FILE = "content/setup-checklist.json";
@@ -136,7 +136,7 @@ export function setupChecklist(sq: SqSite, build: BuildResult): SetupChecklist {
       id: "newsletter",
       kind: "newsletter",
       title: "Bring your newsletter subscribers",
-      detail: `Sign-up forms came across, but subscribers stay with ${from}. Export them there and import them here.`,
+      detail: subscribersAdvice(sq.platform),
       where: newsletter.where,
       status: "todo",
     });

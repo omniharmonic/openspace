@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import cliPackage from "../../../packages/cli/package.json";
 import { createApp } from "../src/app";
+import { getImport } from "../src/db/imports";
 import { readConfig } from "../src/env";
 import { DevGitHubAccess } from "../src/github/dev";
 import { DRAFT_BRANCH } from "../src/github/types";
@@ -10,10 +11,14 @@ import { guessSiteName, parseImportSource, placeholderDocument } from "../src/se
 import { plainWords } from "../src/services/import-words";
 import {
   attentionFromReport,
+  differsWords,
   failureMessage,
   type ImportView,
+  liveWords,
   parseFidelitySummary,
+  parseLive,
   recordProgress,
+  toImportView,
 } from "../src/services/imports";
 import { loadSiteDocument, siteDocumentToFiles } from "../src/services/site-files";
 import {
@@ -138,6 +143,9 @@ describe("the import workflow", () => {
     expect(IMPORT_WORKFLOW_YML).not.toMatch(/run: .*\$\{\{ inputs\./);
     expect(IMPORT_HELPER_MJS).toContain('"--into-existing"');
     expect(IMPORT_HELPER_MJS).toContain("/ci/sites/");
+    // Progress from the importer's own lines while it runs (pages read / made / compared).
+    expect(IMPORT_HELPER_MJS).toContain("runWithProgress(");
+    expect(IMPORT_HELPER_MJS).toContain('progress("importing", { live: live() })');
     expect(IMPORT_HELPER_MJS).toContain('"workflow", "run", "publish.yml"');
     // --owner/--render are only passed for website addresses: CLI 0.1.8's `import github`
     // rejected --owner, so every GitHub Pages move failed (wave 3 P0).
@@ -209,6 +217,16 @@ describe("the import workflow", () => {
         { path: "/about", device: "phone", score: 100 },
       ],
     });
+    // Each difference once, in plain words (wave 4: "Present, Present", "Height, Height, Height").
+    expect(differsWords(["Height", "Height", "Height"])).toEqual(["Section heights"]);
+    expect(differsWords(["Present", "Present", "Columns"])).toEqual([
+      "A section that didn’t come across",
+      "columns",
+    ]);
+    expect(differsWords(["Label font", "Buttons size", "Buttons letter spacing and case"])).toEqual(
+      ["Label font", "button size", "button lettering"],
+    );
+    expect(differsWords(["Heading 2: present"])).toEqual(["Heading 2 style"]);
   });
 
   it("explains failed runs without blaming the person's site for our problems", () => {
@@ -262,6 +280,22 @@ describe("the import workflow", () => {
     expect(all[1]).toContain("Inbox → Subscribers → Import");
     expect(all[2]).toContain("main title");
     expect(plainWords("1 form(s) came across.")).toBe("1 form came across.");
+    // GitHub Pages never kept subscribers: no "export them there" (wave 4).
+    const pages = plainWords(
+      "Sign-up forms came across, but subscribers stay with GitHub Pages. Export them there and import them here.",
+    );
+    expect(pages).not.toMatch(/GitHub Pages|Export them there/);
+    expect(pages).toMatch(/didn’t keep a subscriber list/);
+    expect(
+      plainWords(
+        "Newsletter signup recreated. Subscribers are not moved: export your list from Jekyll (GitHub Pages) (or your email service) and import it in the Hub.",
+      ),
+    ).toMatch(/didn’t keep a subscriber list/);
+    expect(
+      plainWords(
+        "Sign-up forms came across, but subscribers stay with Squarespace. Export them there and import them here.",
+      ),
+    ).toContain("download it from Squarespace");
     expect(
       plainWords("Selling needs the Cloudflare target and Stripe connected in the Hub."),
     ).not.toMatch(/Cloudflare|Hub/);
@@ -431,6 +465,49 @@ describe("Move my site (hosted import, dev emulation)", () => {
       .bind(created.import.id)
       .first<{ phase: string }>();
     expect(row?.phase).toBe("importing");
+
+    // Live progress while pages come across (wave 4: one step sat still for 8 minutes).
+    await recordProgress(services, created.import.id, {
+      phase: "importing",
+      live: parseLive({ stage: "comparing", done: 3, total: 8, round: 1 }, 1) as never,
+    });
+    const liveRow = await getImport(env.HUB_DB, created.import.id);
+    const view = toImportView(
+      services,
+      liveRow as never,
+      {
+        id: created.site.id,
+        name: created.site.name,
+        url: null,
+        github_access: null,
+      } as never,
+    );
+    expect(view.steps.find((st) => st.id === "pages")).toMatchObject({
+      state: "active",
+      detail: "Comparing with your old site: page 3 of 8",
+    });
+    expect(view.counts).toBeNull();
+    expect(parseLive({ stage: "nope", done: 1 }, 1)).toBeUndefined();
+    expect(liveWords({ stage: "reading", done: 1, at: 0 })).toBe("1 page read so far");
+    expect(liveWords({ stage: "comparing", done: 2, total: 8, round: 2, at: 0 })).toBe(
+      "Fine-tuning: page 2 of 8 (pass 2)",
+    );
+    // The finished run's counts replace the live progress.
+    await recordProgress(services, created.import.id, {
+      phase: "imported",
+      counts: { pages: 8, items: 0, media: 3, redirects: 0 },
+    });
+    const done = toImportView(
+      services,
+      (await getImport(env.HUB_DB, created.import.id)) as never,
+      {
+        id: created.site.id,
+        name: created.site.name,
+        url: null,
+        github_access: null,
+      } as never,
+    );
+    expect(done.counts?.pages).toBe(8);
 
     // A failed move can still be deleted (clean-up of test or abandoned sites).
     await env.HUB_DB.prepare("UPDATE site_imports SET state = 'failed' WHERE id = ?")

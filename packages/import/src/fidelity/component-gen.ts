@@ -76,6 +76,8 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
     ".gx__img picture, .gx__img img { display: block; width: 100%; height: 100%; object-fit: cover; }",
   ];
   const phone: string[] = [];
+  /** Each editable part's role and words, to name its fields once all are known. */
+  const named: Array<{ role: PartRole; text: string; keys: string[] }> = [];
   let headingSeen = false;
   const role = (family: string | undefined): "heading" | "body" | "label" => {
     if (norm(family) && norm(family) === norm(input.roles.label)) return "label";
@@ -145,6 +147,7 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
       const key = `image${n}`;
       fields[key] = { kind: "image", label: `Picture ${n}` };
       values[key] = { src: it.src, alt: (it.alt ?? "").slice(0, 300) };
+      named.push({ role: "picture", text: it.alt ?? "", keys: [key] });
       parts.push(
         `<div class="${cls} gx__img">{{image ${key} sizes="(max-width: 767px) 100vw, ${Math.max(10, Math.round((it.box.w / 1440) * 100))}vw"}}</div>`,
       );
@@ -163,6 +166,7 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
       };
       values[label] = (it.text ?? "").slice(0, 60);
       if (!target) {
+        named.push({ role: it.kind, text: it.text ?? "", keys: [label] });
         parts.push(`<p class="${cls}">{{${label}}}</p>`);
       } else {
         const lk = `link${n}`;
@@ -171,6 +175,7 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
           label: `${it.kind === "button" ? "Button" : "Link"} ${n} goes to`,
         };
         values[lk] = target;
+        named.push({ role: it.kind, text: it.text ?? "", keys: [label, lk] });
         parts.push(
           it.kind === "button"
             ? `<div class="${cls}">{{button ${lk} label=${label} variant="primary"}}</div>`
@@ -195,6 +200,7 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
         maxLength: 3000,
       };
       values[key] = doc;
+      named.push({ role: textRole(it), text: it.text ?? "", keys: [key] });
       parts.push(`<div class="${cls}">{{rich ${key}}}</div>`);
       css.push(`.gx__i${n} { ${place}; ${typeCss(it.style, false)}; }`);
       phone.push(`.gx__i${n} { ${typeCss(it.style, true)}; }`);
@@ -208,6 +214,7 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
       ...(it.kind === "text" ? { multiline: true } : {}),
     };
     values[key] = text;
+    named.push({ role: it.kind === "heading" ? "heading" : textRole(it), text, keys: [key] });
     // Headings: h2 for the section's first, h3 after it (the page keeps its own h1).
     const tag = it.kind === "heading" ? (headingSeen ? "h3" : "h2") : "p";
     if (it.kind === "heading") headingSeen = true;
@@ -216,6 +223,14 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
     phone.push(`.gx__i${n} { ${typeCss(it.style, true)}; }`);
   });
   if (!parts.length) return undefined;
+  for (const [i, label] of partLabels(named).entries()) {
+    const part = named[i] as (typeof named)[number];
+    const [first, second] = part.keys as [string, string | undefined];
+    const f = fields[first];
+    if (f) fields[first] = { ...f, label };
+    const l = second ? fields[second] : undefined;
+    if (second && l) fields[second] = { ...l, label: `${label} goes to` };
+  }
   css.push(
     `@media (max-width: 767px) {\n  .gx { display: flex; flex-direction: column; gap: var(--os-space-sm); }\n  ${phone.join("\n  ")}\n}`,
   );
@@ -233,6 +248,66 @@ export function componentFromBlueprint(input: ComponentGenInput): GeneratedCompo
     section: { width: "wide" },
   };
   return { def, fields: values };
+}
+
+type PartRole = "heading" | "small" | "paragraph" | "picture" | "button" | "link";
+
+/** Words: a short all-caps or small line above a heading is a "small label" (an eyebrow). */
+function textRole(it: BlueprintItem): PartRole {
+  const words = (it.text ?? "").trim().split(/\s+/).filter(Boolean).length;
+  const caps = it.style?.case === "uppercase" || /^[^a-z]*[A-Z][^a-z]*$/.test(it.text ?? "");
+  return words <= 5 && (caps || (it.style?.size ?? 16) <= 14) ? "small" : "paragraph";
+}
+
+const ROLE_LABEL: Record<PartRole, string> = {
+  heading: "Heading",
+  small: "Small label",
+  paragraph: "Paragraph",
+  picture: "Picture",
+  button: "Button",
+  link: "Link",
+};
+
+/** The first words of a part, to tell several of the same kind apart (“About”, “Read more”). */
+function snippet(text: string): string {
+  const words = text.replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+  let out = "";
+  for (const w of words) {
+    if (`${out} ${w}`.trim().length > 24) break;
+    out = `${out} ${w}`.trim();
+  }
+  if (!out && words[0]) out = words[0].slice(0, 22);
+  if (!out) return "";
+  const cased = /[a-z]/.test(out) ? out : out.charAt(0) + out.slice(1).toLowerCase();
+  return `${cased}${out.length < text.trim().length ? "…" : ""}`;
+}
+
+/**
+ * Field labels a non-technical owner understands (wave 4: "Text 2", "Button 4 text"): the part's
+ * role ("Small label", "Paragraph", "Button"); when a section has several of one kind, the main
+ * button is "Main button" and the others are told apart by their first words.
+ */
+export function partLabels(parts: ReadonlyArray<{ role: PartRole; text: string }>): string[] {
+  const counts = new Map<PartRole, number>();
+  for (const p of parts) counts.set(p.role, (counts.get(p.role) ?? 0) + 1);
+  const used = new Set<string>();
+  const seen = new Map<PartRole, number>();
+  return parts.map((p) => {
+    const nth = (seen.get(p.role) ?? 0) + 1;
+    seen.set(p.role, nth);
+    const base = ROLE_LABEL[p.role];
+    let label: string;
+    if ((counts.get(p.role) ?? 0) === 1) label = base;
+    else if (p.role === "button" && nth === 1) label = "Main button";
+    else {
+      const words = p.role === "picture" ? "" : snippet(p.text);
+      label = words ? `${base} “${words}”` : `${base} ${nth}`;
+    }
+    let unique = label;
+    for (let k = 2; used.has(unique); k++) unique = `${label} ${k}`;
+    used.add(unique);
+    return unique.slice(0, 60);
+  });
 }
 
 /** A paragraph's runs (words with links, bold, italics) → a one-paragraph rich text document. */

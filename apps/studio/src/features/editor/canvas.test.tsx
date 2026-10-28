@@ -244,20 +244,28 @@ describe("canvas", () => {
     expect(el.textContent).toBe("Reserve");
     expect(store().editing).toBeNull();
 
-    // Esc throws an edit away.
+    // Esc leaves the field and keeps the words (wave 4: they stayed on screen but were lost),
+    // even when typing changed React's own text node in place, as browsers do.
     act(() => store().setEditing(I.heroButton, { path: "label", kind: "plain" }));
     const label = await waitFor(() => {
       const found = q(I.heroButton).querySelector<HTMLElement>("[data-os-plain-editing]");
       expect(found).toBeTruthy();
       return found as HTMLElement;
     });
-    label.textContent = "Nope";
+    const node = [...label.childNodes].find((n) => n.nodeType === 3) as Text;
+    node.data = "Book a class";
     act(() => {
       label.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
       );
     });
-    expect(label.textContent).toBe("See the schedule");
+    await waitFor(() => expect(label.hasAttribute("contenteditable")).toBe(false));
+    expect(label.textContent).toBe("Book a class");
+    const hero = store().doc.pages[I.home as never]?.sections[0]?.blocks[1]?.fields as {
+      label: string;
+    };
+    expect(hero.label).toBe("Book a class");
+    expect(store().editing).toBeNull();
   });
 
   it("adds a section from the preset gallery and switches pages", async () => {

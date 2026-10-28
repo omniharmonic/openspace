@@ -15,7 +15,7 @@ import { parseRepo } from "../github/types";
 import { HttpError } from "../lib/errors";
 import { OidcError, verifyActionsToken } from "../services/actions-oidc";
 import { gatedBundle, gatedContext } from "../services/gated-content";
-import { openImportForSite, recordProgress, refreshImport } from "../services/imports";
+import { openImportForSite, parseLive, recordProgress, refreshImport } from "../services/imports";
 import {
   adoptRepoIdentity,
   liveRepoIdentity,
@@ -138,6 +138,7 @@ ciRoutes.post("/sites/:id/import", async (c) => {
     id?: unknown;
     phase?: unknown;
     counts?: unknown;
+    live?: unknown;
   };
   const open = await openImportForSite(services, site.id);
   if (!open || (typeof body.id === "string" && body.id !== open.id))
@@ -146,9 +147,11 @@ ciRoutes.post("/sites/:id/import", async (c) => {
     body.counts && typeof body.counts === "object"
       ? (body.counts as Record<string, unknown>)
       : undefined;
+  const live = parseLive(body.live, services.now());
   await recordProgress(services, open.id, {
     phase: typeof body.phase === "string" ? body.phase : "",
     ...(counts ? { counts } : {}),
+    ...(live ? { live } : {}),
   });
   if (body.phase === "failed" || body.phase === "publishing")
     await refreshImport(services, c.env, open.id, c.var.log);

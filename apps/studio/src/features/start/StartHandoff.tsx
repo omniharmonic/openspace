@@ -19,7 +19,14 @@ import { type Brief, claudeNewChatUrl, DESIGN_SKILL, designPrompt } from "./prom
 import "./Start.css";
 
 interface HandoffState {
-  startedFrom?: { kind: "template" | "html"; template?: string; look?: string; why?: string };
+  startedFrom?: {
+    kind: "template" | "html";
+    template?: string;
+    look?: string;
+    why?: string;
+    /** What's still the template's sample content (template route). */
+    note?: string;
+  };
   brief?: Brief;
 }
 
@@ -56,8 +63,8 @@ export function StartHandoff() {
   const s = site.data;
   if (needsGitHub(s)) return <ConnectGitHub site={s} isOwner={(s.role ?? "owner") === "owner"} />;
   const live = s.status === "live";
-  const prompt = designPrompt({ id: s.id, name: s.name }, state.brief ?? {});
   const from = state.startedFrom;
+  const prompt = designPrompt({ id: s.id, name: s.name }, state.brief ?? {}, from?.kind);
 
   return (
     <div className="st-start">
@@ -79,6 +86,7 @@ export function StartHandoff() {
                 ? `We started from the ${from.template} design in your colours and fonts — ${from.why ?? "a good fit"}. It’s a starting point: Claude makes it yours next.`
                 : "A good starting design is going online now. Claude makes it yours next."}
           </p>
+          {from?.kind === "template" && from.note && <p className="st-start__note">{from.note}</p>}
           {live && s.url && (
             <p className="st-start__note">
               <a href={s.url} target="_blank" rel="noreferrer">

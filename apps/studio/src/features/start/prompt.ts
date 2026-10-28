@@ -11,9 +11,16 @@ export interface Brief {
 
 export const DESIGN_SKILL = "openspace-design-from-scratch";
 
-export function designPrompt(site: { id: string; name: string }, brief: Brief = {}): string {
+export function designPrompt(
+  site: { id: string; name: string },
+  brief: Brief = {},
+  /** "html": the site is a page they brought (their own design), not a template. */
+  from?: "template" | "html",
+): string {
   const lines = [
-    `Please design my new website "${site.name}" with me on OpenSpace (site ${site.id}). It's already live with a simple starting design — I'd like it to feel truly mine.`,
+    from === "html"
+      ? `Please help me with my new website "${site.name}" on OpenSpace (site ${site.id}). It's already live, made from my own page — I'd like to polish it and add to it.`
+      : `Please design my new website "${site.name}" with me on OpenSpace (site ${site.id}). It's already live with a simple starting design — I'd like it to feel truly mine.`,
   ];
   if (brief.about?.trim()) lines.push(`What it's for: ${brief.about.trim()}`);
   if (brief.audience?.trim()) lines.push(`Who it's for: ${brief.audience.trim()}`);

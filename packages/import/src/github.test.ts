@@ -322,6 +322,10 @@ describe("structured content (headless CMS sections)", () => {
     expect(r.checklist.items.map((i) => i.kind)).toEqual(
       expect.arrayContaining(["newsletter", "forms-email"]),
     );
+    // GitHub Pages keeps no subscribers: never "export them there" (wave 4).
+    const news = r.checklist.items.find((i) => i.kind === "newsletter");
+    expect(news?.detail).not.toMatch(/stay with|Export them there/);
+    expect(news?.detail).toMatch(/didn't keep a subscriber list/);
   });
 });
 

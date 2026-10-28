@@ -133,7 +133,7 @@ jobs:
 
 /** The workflow's helper (Node 24, no dependencies): requests, the CLI, git, progress reports. */
 export const IMPORT_HELPER_MJS = String.raw`// ${IMPORT_HELPER_PATH} — the OpenSpace import's steps (see ../workflows/${IMPORT_WORKFLOW}).
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -169,6 +169,64 @@ async function progress(phase, extra = {}) {
   } catch (e) {
     console.log("(progress report skipped: " + e.message + ")");
   }
+}
+
+/**
+ * Run the importer, showing its output as usual, and tell the Hub how far it is from the lines
+ * it prints (pages read, pages made, pages compared with the old site), at most every 10 s — so
+ * the person sees "page 5 of 8" instead of one step that sits still for minutes.
+ */
+function runWithProgress(cmd, args) {
+  return new Promise((resolve) => {
+    const child = spawn(cmd, args, { stdio: ["inherit", "inherit", "pipe"] });
+    const read = new Set();
+    const made = [];
+    const compared = new Set();
+    let round = 1;
+    let stage = "reading";
+    let last = 0;
+    let buf = "";
+    const live = () => {
+      const pages = Math.max(made.length, read.size);
+      if (stage === "reading") return { stage, done: read.size };
+      if (stage === "mapping") return { stage, done: made.length, total: Math.max(made.length, read.size) };
+      const paths = new Set([...compared].map((k) => k.split("@")[0]));
+      return { stage, done: paths.size, total: Math.max(paths.size, made.length || pages), round };
+    };
+    const report = (force) => {
+      const now = Date.now();
+      if (!force && now - last < 10000) return;
+      last = now;
+      void progress("importing", { live: live() });
+    };
+    const line = (l) => {
+      let m;
+      if ((m = /^\s+Comparing (\S+) at (\d+)px/.exec(l))) {
+        stage = "comparing";
+        const k = m[1] + "@" + m[2];
+        if (compared.has(k)) {
+          round++;
+          compared.clear();
+        }
+        compared.add(k);
+      } else if ((m = /^\s+Page (\/\S*)/.exec(l))) {
+        stage = "mapping";
+        if (!made.includes(m[1])) made.push(m[1]);
+      } else if (stage === "reading" && (m = /^\s+(\/\S*)(?: \((\w+)\))?\s*$/.exec(l))) {
+        read.add(m[1]);
+      } else return;
+      report(false);
+    };
+    child.stderr.on("data", (d) => {
+      process.stderr.write(d);
+      buf += d.toString("utf8");
+      const lines = buf.split("\n");
+      buf = lines.pop() || "";
+      for (const l of lines) line(l);
+    });
+    child.on("close", (code) => resolve(code ?? 1));
+    child.on("error", () => resolve(1));
+  });
 }
 
 const step = process.argv[2];
@@ -243,10 +301,10 @@ if (step === "run") {
   const fromGitHub = req.mode === "convert" || req.platform === "github";
   if (req.owner && !fromGitHub) args.push("--owner");
   if (req.render && !fromGitHub) args.push("--render");
-  const r = spawnSync("npx", ["-y", ...pkgs, "openspace", ...args], { stdio: "inherit" });
+  const status = await runWithProgress("npx", ["-y", ...pkgs, "openspace", ...args]);
   const summary = existsSync(SUMMARY) ? JSON.parse(readFileSync(SUMMARY, "utf8")) : undefined;
   await progress("imported", summary ? { counts: summary } : {});
-  if (r.status !== 0) process.exit(r.status || 1);
+  if (status !== 0) process.exit(status || 1);
 }
 
 if (step === "check") {

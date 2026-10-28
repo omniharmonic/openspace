@@ -316,6 +316,8 @@ export interface SiteSetup {
   template: string;
   look: string;
   tagline: string | null;
+  /** Start with Claude: the hero's supporting line (what they said the site is for). */
+  intro?: string | null;
   brandColor: string | null;
   deployUrl: string;
   createdAt: number;
@@ -392,6 +394,7 @@ async function buildSiteFiles(
       siteId: site.id as SiteId,
       name: site.name,
       tagline: setup.tagline ?? undefined,
+      ...(setup.intro !== undefined ? { intro: setup.intro ?? "" } : {}),
       look,
       brandColor: setup.brandColor ?? undefined,
       hubUrl: services.config.hubUrl,

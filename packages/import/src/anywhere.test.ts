@@ -195,6 +195,36 @@ describe("HTML helpers", () => {
   });
 });
 
+describe("sign-up forms", () => {
+  it("keep their first-name field when they move (wave 4: PowerWith lost FIRST NAME)", () => {
+    const form = (fields: string) =>
+      `<html><head><title>Sign up</title></head><body><main><h1>Read the first pages</h1><form method="post" action="https://x.example/api/subscribe">${fields}<input type="hidden" name="source" value="home"><div class="hp" aria-hidden="true"><label>Website</label><input name="website" type="text" tabindex="-1"></div><button type="submit">SEND ME THE INTRODUCTION</button></form></main></body></html>`;
+    const blocks = (html: string) => {
+      const out: Array<{ kind: string; askName?: boolean }> = [];
+      const walk = (v: unknown): void => {
+        if (Array.isArray(v)) v.forEach(walk);
+        else if (v && typeof v === "object") {
+          if ((v as { kind?: unknown }).kind === "newsletter") out.push(v as never);
+          Object.values(v).forEach(walk);
+        }
+      };
+      walk(parseHtmlPage(html, "https://x.example/").sections);
+      return out;
+    };
+    const named = blocks(
+      form(
+        `<label for="n">FIRST NAME</label><input id="n" name="first_name" type="text" autocomplete="given-name"><label for="e">EMAIL ADDRESS</label><input id="e" name="email" type="email" required>`,
+      ),
+    ).find((b) => b.kind === "newsletter");
+    expect(named?.askName).toBe(true);
+    const plain = blocks(form(`<input name="email" type="email" required>`)).find(
+      (b) => b.kind === "newsletter",
+    );
+    expect(plain).toBeTruthy();
+    expect(plain?.askName).toBeUndefined();
+  });
+});
+
 describe("WordPress content", () => {
   const ctx = () => ({ attachments: new Map(), notices: [] as never[], where: "/x" });
 

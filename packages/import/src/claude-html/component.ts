@@ -347,9 +347,47 @@ function nameFor(el: Element | undefined, fallback = "text"): string {
   return semanticName(el) ?? TAG_NAME[tagOf(el)] ?? fallback;
 }
 
-function humanize(key: string): string {
-  const words = key.replace(/([a-z])([A-Z0-9])/g, "$1 $2").toLowerCase();
-  return (words.charAt(0).toUpperCase() + words.slice(1)).slice(0, 60);
+/** Shorthand in class names and keys → the words a non-technical owner uses. */
+const PLAIN_WORDS: Record<string, string> = {
+  cta: "button",
+  btn: "button",
+  img: "picture",
+  image: "picture",
+  pic: "picture",
+  photo: "picture",
+  desc: "description",
+  txt: "text",
+  href: "link",
+  url: "link",
+  kicker: "small label",
+  eyebrow: "small label",
+  overline: "small label",
+  lede: "intro",
+  lead: "intro",
+  subhead: "subheading",
+  bg: "background",
+  nav: "menu",
+};
+
+/**
+ * A field key → a label people understand: words split at case changes and numbers, shorthand
+ * spelled out ("cta2Label" → "Button 2 text", a link field "cta" → "Button goes to").
+ */
+export function humanize(key: string, kind?: string): string {
+  const words = key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/([A-Za-z])(\d)/g, "$1 $2")
+    .replace(/(\d)([A-Za-z])/g, "$1 $2")
+    .toLowerCase()
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map((w) => PLAIN_WORDS[w] ?? w);
+  const linky = words.some((w) => w === "button" || w === "link");
+  if (linky && words.length > 1 && words[words.length - 1] === "label")
+    words[words.length - 1] = "text";
+  if (kind === "link" && words[words.length - 1] !== "link") words.push("goes to");
+  const out = words.join(" ") || "text";
+  return (out.charAt(0).toUpperCase() + out.slice(1)).slice(0, 60);
 }
 
 interface Shape {
@@ -402,7 +440,7 @@ class FieldScope {
   }
   add(base: string, spec: ComponentFieldSpec, value: unknown): string {
     const key = this.key(base);
-    const label = humanize(key);
+    const label = humanize(key, spec.kind);
     this.fields[key] = { ...spec, label } as ComponentFieldSpec;
     this.values[key] = value;
     return key;

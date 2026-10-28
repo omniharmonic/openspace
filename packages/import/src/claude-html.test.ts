@@ -10,6 +10,7 @@ import {
 import { compileStyles } from "@omniharmonic/openspace-theme";
 import { describe, expect, it } from "vitest";
 import { bundleFromFiles, bundleFromHtml, bundleFromZip, importHtmlBundle } from "./claude-html";
+import { humanize } from "./claude-html/component";
 import { pngBytes } from "./testing";
 
 const FIX = join(__dirname, "__fixtures__", "claude-html");
@@ -53,6 +54,18 @@ describe("HTML import (a page Claude made)", () => {
     }
     // Header: navigation and the button.
     expect(doc.site.title).toBe("Crumb & Kettle");
+    // The page's own wordmark wins over the new site's (slug-like) name (wave 4).
+    const named = await importHtmlBundle(bundleFromHtml(html, "bakery.html"), {
+      config,
+      fetch: net,
+      now,
+      title: "os-e2e-w4-crumb",
+    });
+    expect(named.doc.site.title).toBe("Crumb & Kettle");
+    // The design-system notes describe the page, not "a design-token file" with 0 fonts.
+    const notes = (doc.designSystem?.mapping?.notes ?? []).join(" ");
+    expect(notes).toMatch(/Read your page’s styles: \d+ colours, its fonts \(/);
+    expect(notes).not.toMatch(/design-token file|0 font roles/);
     expect(doc.site.nav.map((n) => ("label" in n ? n.label : ""))).toEqual([
       "Our bakes",
       "Story",
@@ -151,5 +164,16 @@ describe("HTML import (a page Claude made)", () => {
     const zip = zipSync({ "site/index.html": strToU8("<h1>Hi</h1><p>There</p>") });
     expect(bundleFromZip(zip).entry).toBe("index.html");
     expect(() => bundleFromFiles({ "a.css": "body{}" })).toThrow(/no HTML page/);
+  });
+});
+
+describe("component field labels", () => {
+  it("spell out shorthand and split numbers (wave 4: “Cta 2label”)", () => {
+    expect(humanize("cta2Label")).toBe("Button 2 text");
+    expect(humanize("cta", "link")).toBe("Button goes to");
+    expect(humanize("ctaLabel")).toBe("Button text");
+    expect(humanize("title")).toBe("Title");
+    expect(humanize("kicker")).toBe("Small label");
+    expect(humanize("heroImg")).toBe("Hero picture");
   });
 });

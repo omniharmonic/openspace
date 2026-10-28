@@ -839,9 +839,26 @@ class Ctx {
     return /^(?:#|oklch|oklab|rgb|hsl|lab|lch)/.test(value) ? value : undefined;
   }
 
+  /**
+   * A custom component (an imported or uploaded design) whose template draws a button from a
+   * filled link field: that's a call to action too (wave 4: "no clear call to action" on a hero
+   * with two buttons).
+   */
+  componentHasButton(b: Section["blocks"][number]): boolean {
+    if (!b.type.startsWith("component/")) return false;
+    const def = this.doc.components?.[b.type.slice("component/".length)];
+    if (!def || !/\{\{\s*(?:button|#link)\s/.test(def.template)) return false;
+    const fields = b.fields as Record<string, unknown>;
+    return Object.entries(def.fields).some(
+      ([k, f]) => f.kind === "link" && fields[k] !== undefined && fields[k] !== null,
+    );
+  }
+
   cta(page: Page, sections: readonly Section[]) {
     if (sections.length === 0) return;
-    const has = sections.some((s) => s.blocks.some((b) => ACTION_BLOCKS.has(b.type)));
+    const has = sections.some((s) =>
+      s.blocks.some((b) => ACTION_BLOCKS.has(b.type) || this.componentHasButton(b)),
+    );
     const navButton = this.doc.site.nav.some((n) => n.type === "button" && !n.hidden);
     if (has || navButton) return;
     this.add({

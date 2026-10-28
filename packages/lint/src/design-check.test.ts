@@ -387,6 +387,30 @@ describe("calls to action", () => {
     expect(rules(designCheck(doc))).not.toContain("no-call-to-action");
   });
 
+  it("a custom component's button counts as the page's action (imported designs)", () => {
+    const { doc } = onePage(
+      stackSection([
+        h("Grow something slow and lovely", 1),
+        {
+          id: "blk_comp1",
+          type: "component/hero",
+          v: 1,
+          fields: { cta: { type: "url", url: "/visit" }, ctaLabel: "Plan a visit" },
+        } as never,
+      ]),
+    );
+    doc.components = {
+      hero: {
+        name: "hero",
+        label: "Hero",
+        version: 1,
+        fields: { cta: { kind: "link", label: "Button" }, ctaLabel: { kind: "text", label: "x" } },
+        template: '<div>{{button cta label=ctaLabel variant="primary"}}</div>',
+      } as never,
+    };
+    expect(rules(designCheck(doc))).not.toContain("no-call-to-action");
+  });
+
   it("flags more than one primary button per section and demotes the extra ones", () => {
     const { doc } = onePage(
       stackSection([h("Welcome to the studio", 1), btn("Book a class"), btn("Buy a gift card")]),

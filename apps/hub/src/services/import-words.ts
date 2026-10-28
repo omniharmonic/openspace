@@ -8,6 +8,19 @@
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
+/**
+ * Hosts that only serve files (wave 4): they never kept a subscriber list, so "export them there"
+ * sends people looking for something that doesn't exist.
+ */
+const NO_LIST_HOSTS =
+  /^(?:GitHub Pages|GitHub|Jekyll(?: \(GitHub Pages\))?|Hugo|Eleventy|the original site|your old site)$/i;
+
+function subscribersAdvice(from: string): string {
+  return NO_LIST_HOSTS.test(from.trim())
+    ? "Your sign-up forms came across, and new sign-ups are now kept for you in OpenSpace. Your old site didn’t keep a subscriber list itself — if its form sent sign-ups to an email service (like Mailchimp or Buttondown), download the list there, then add it in Inbox → Subscribers → Import."
+    : `Your sign-up forms came across. Your subscriber list doesn’t move by itself: download it from ${from}, then add it in Inbox → Subscribers → Import.`;
+}
+
 /** Whole sentences the importer writes, in the owner's words. */
 const SENTENCES: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
   [
@@ -17,8 +30,11 @@ const SENTENCES: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
   ],
   [
     /^Newsletter signup recreated\. .*?subscribers are not moved: export your list from (.+?)(?: \(or your email service\))? and import it in the Hub\.?$/i,
-    (m) =>
-      `Your newsletter signup form came across. Your subscriber list doesn’t move by itself: download it from ${m[1]}, then add it in Inbox → Subscribers → Import.`,
+    (m) => subscribersAdvice(m[1] as string),
+  ],
+  [
+    /^Sign-up forms came across, but subscribers stay with (.+?)\. Export them there and import them here\.?$/i,
+    (m) => subscribersAdvice(m[1] as string),
   ],
   [
     /^The page had no Heading 1; its first heading was made the Heading 1.*$/i,

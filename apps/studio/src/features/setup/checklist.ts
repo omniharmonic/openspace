@@ -175,7 +175,7 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
     kind: Exclude<SetupKind, "other" | "comments" | "custom-code">,
     found: boolean,
     done: boolean,
-    extra: { needsLive?: boolean; count?: number; where?: string[] } = {},
+    extra: { needsLive?: boolean; count?: number; where?: string[]; why?: string } = {},
   ) => {
     const imp = imported.find((i) => i.kind === kind);
     if (!found && !imp) return;
@@ -186,7 +186,7 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
       id: kind,
       kind,
       title: c.title,
-      why: c.why,
+      why: extra.why ?? c.why,
       minutes: c.minutes,
       wizard: c.wizard,
       status: isDone ? "done" : extra.needsLive && !live ? "later" : "todo",
@@ -203,7 +203,7 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
   if (!setup?.imported)
     items.push(
       always("personalize", "Make it yours", {
-        why: "Change the headline, the main photo and the logo, so the site is clearly yours.",
+        why: "Swap the headline, photos, logo and contact details — anything still showing the template’s sample business — so the site is clearly yours.",
         minutes: 5,
         done: acknowledged.includes("personalize"),
       }),
@@ -213,6 +213,12 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
     needsLive: true,
     count: needs.store || undefined,
     where: needs.storeWhere,
+    // A template's shop starts with its sample products: they aren't "your products" (wave 4).
+    ...(setup?.imported
+      ? {}
+      : {
+          why: "Your shop starts with the template’s sample products: swap in your own, then let visitors pay you directly, with no platform fee.",
+        }),
   });
   known("donations", needs.donations > 0, cloudflare && paymentsReady, { needsLive: true });
   known("members", needs.members > 0, cloudflare, { needsLive: true });

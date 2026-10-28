@@ -8,7 +8,9 @@ import { takePendingCaret } from "./session";
 /**
  * Inline editing for plain text fields (headings in cards, button labels, names…). The element
  * showing the field becomes `contenteditable` for the session; the change is committed as one
- * `block.update` op when you press Enter, click away or blur, and Esc cancels.
+ * `block.update` op when you press Enter or Esc, click away or blur — like rich text, Esc leaves the
+ * field and keeps what you typed (wave 4: Esc used to keep the new words on screen while throwing
+ * them away). A cancelled session (`end(false)`) puts the original words back on screen.
  *
  * The element is React-managed, so the session keeps React's own text nodes and puts them back
  * before committing: React then updates them like any other render.
@@ -51,6 +53,8 @@ export function startPlainTextEdit(
   const block = locate(s0.doc, s0.pageId, { kind: "block", id: blockId })?.block;
   const ref = block ? textFieldsOf(block).find((r) => r.path === path) : undefined;
   const original = [...el.childNodes];
+  // Typing can change React's own text nodes in place: remember their words to put them back.
+  const originalData = original.map((n) => (n.nodeType === 3 ? n.nodeValue : null));
   const originalValue = String(block ? (getAt(block.fields, path) ?? "") : "");
   const multiline = Boolean(ref?.multiline);
   let done = false;
@@ -87,6 +91,11 @@ export function startPlainTextEdit(
     el.removeAttribute("spellcheck");
     // Hand React back exactly the nodes it rendered; the commit below updates them.
     el.replaceChildren(...original);
+    if (!commit || text === originalValue.trim())
+      original.forEach((n, i) => {
+        const data = originalData[i];
+        if (data != null && n.nodeValue !== data) n.nodeValue = data;
+      });
     el.ownerDocument.getSelection()?.removeAllRanges();
     const s = store.getState();
     if (s.editing === blockId && s.editingField?.path === path) s.setEditing(null);
@@ -118,7 +127,7 @@ export function startPlainTextEdit(
     if (e.key === "Escape") {
       e.preventDefault();
       e.stopPropagation();
-      end(false);
+      end(true);
     } else if (e.key === "Enter" && (!multiline || !e.shiftKey)) {
       e.preventDefault();
       e.stopPropagation();

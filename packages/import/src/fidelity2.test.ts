@@ -18,7 +18,7 @@ import {
   type SectionComparison,
   withVisual,
 } from "./fidelity/compare";
-import { canGenerate, componentFromBlueprint } from "./fidelity/component-gen";
+import { canGenerate, componentFromBlueprint, partLabels } from "./fidelity/component-gen";
 import {
   categoryOf,
   metricDistance,
@@ -30,7 +30,7 @@ import { OPEN_FONT_METRICS } from "./fidelity/font-metrics";
 import { fitGoogleWeights } from "./fidelity/fonts";
 import { lookFromProbe } from "./fidelity/look";
 import type { FontMetrics, LookProbe, ProbeSection, ProbeText } from "./fidelity/probe";
-import { nearestAspect, tuneRound } from "./fidelity/tune";
+import { nearestAspect, sectionLabel, tuneRound } from "./fidelity/tune";
 import { bestIcon } from "./html/icons";
 import { imageFromImg } from "./html/image";
 import { mapTheme } from "./map/theme";
@@ -597,8 +597,39 @@ describe("importers → custom components", () => {
     expect(def.css).not.toMatch(/#[0-9a-f]{6}/i);
     expect(def.css).toContain("@media (max-width: 767px)");
     expect(def.template).toContain('{{button link4 label=label4 variant="primary"}}');
+    // Field names a non-technical owner understands (wave 4: "Text 2", "Button 4 text").
+    expect(Object.fromEntries(Object.entries(def.fields).map(([k, f]) => [k, f.label]))).toEqual({
+      image1: "Picture",
+      text2: "Small label",
+      text3: "Paragraph",
+      label4: "Button",
+      link4: "Button goes to",
+    });
     expect(canGenerate(card())).toBe(true);
     expect(canGenerate(sec("x", { blueprint: undefined }))).toBe(false);
+  });
+
+  it("tells several parts of one kind apart by their words, and names sections by their heading", () => {
+    expect(
+      partLabels([
+        { role: "button", text: "LEARN MORE" },
+        { role: "button", text: "Donate today" },
+        { role: "paragraph", text: "First paragraph about our studio" },
+        { role: "paragraph", text: "Second one" },
+        { role: "picture", text: "a" },
+        { role: "picture", text: "b" },
+      ]),
+    ).toEqual([
+      "Main button",
+      "Button “Donate today”",
+      "Paragraph “First paragraph about…”",
+      "Paragraph “Second one”",
+      "Picture 1",
+      "Picture 2",
+    ]);
+    expect(sectionLabel(undefined, [{ kind: "text", text: "ABOUT" }], "Home", 3)).toBe("About");
+    expect(sectionLabel("Our work", undefined, "Home", 3)).toBe("Our work");
+    expect(sectionLabel(undefined, [], "Home", 3)).toBe("Home section 3");
   });
 
   it("the tuner swaps a low-scoring section for its component, and lint gates pass", () => {

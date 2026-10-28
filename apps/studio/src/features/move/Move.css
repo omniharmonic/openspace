@@ -368,8 +368,16 @@
 }
 .st-fidelity__page {
   display: grid;
+  align-content: start;
   gap: 0.35rem;
   font-size: 0.875rem;
+}
+/* A computer pair is wide and short: give it two cells so it's readable (wave 4: desktop pairs
+   were ~240 px wide beside tall phone pairs, with most of each row blank). */
+@media (min-width: 40rem) {
+  .st-fidelity__page.is-desktop {
+    grid-column: span 2;
+  }
 }
 .st-fidelity__page img {
   display: block;

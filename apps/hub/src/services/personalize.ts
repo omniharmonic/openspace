@@ -17,6 +17,12 @@ export interface PersonalizeInput {
   siteId: SiteId;
   name: string;
   tagline?: string | undefined;
+  /**
+   * A longer line about the site (Start with Claude: what they said it's for, trimmed to fit).
+   * When given, it replaces the hero's sample subheading and the sample eyebrow is removed (it
+   * names the template's demo place, like "Stoneware · Mystic, Connecticut").
+   */
+  intro?: string | undefined;
   look: TemplateLook;
   brandColor?: string | undefined;
   hubUrl: string;
@@ -150,6 +156,7 @@ export function personalizeDocument(base: SiteDocument, input: PersonalizeInput)
   bodies.push({ op: "site.update", set: siteSet });
 
   const slots = input.template.slots ?? {};
+  const intro = input.intro?.trim();
   for (const [slot, text] of [
     ["title", name],
     ["tagline", tagline],
@@ -165,25 +172,62 @@ export function personalizeDocument(base: SiteDocument, input: PersonalizeInput)
       value = target.replace ? current.split(target.replace).join(text) : text;
     else if (target.replace) value = replaceInRichText(current, target.replace, text);
     else value = replaceRichText(current, text);
+    const set: Record<string, unknown> = { [field]: value };
+    const unset: string[] = [];
+    if (slot === "tagline" && input.intro !== undefined && field === "text") {
+      if (intro) set.subheading = intro;
+      else if ("subheading" in fields) unset.push("subheading");
+      if ("eyebrow" in fields) unset.push("eyebrow");
+    }
     bodies.push({
       op: "block.update",
       page: target.page,
       block: target.block,
-      set: { [field]: value },
+      set,
+      ...(unset.length ? { unset } : {}),
     });
   }
-  // The header shows the site title; the footer's wordmark and copyright line still carry the
-  // template's sample brand ("Relay", "Mara Quill"). Rename it there too.
+  // The header shows the site title; the footer's wordmark and copyright line, the pages'
+  // words and the sample events still carry the template's sample brand ("Relay", "Saltmarsh
+  // Pottery"). Rename it everywhere (the slots above already set their own blocks).
   const sampleBrand = base.site.title.trim();
-  if (sampleBrand && sampleBrand !== name)
+  if (sampleBrand && sampleBrand !== name) {
     for (const b of doc.site.footer.blocks) {
       const set = rebrandFields(b.fields as Record<string, unknown>, sampleBrand, name);
       if (set) bodies.push({ op: "block.update", page: FOOTER, block: b.id, set });
     }
-  if (tagline) {
+    const slotBlocks = new Set(Object.values(slots).map((t) => t?.block));
+    for (const page of Object.values(doc.pages)) {
+      const seo = page.seo?.description;
+      if (seo?.includes(sampleBrand) && page.slug !== "")
+        bodies.push({
+          op: "page.update",
+          page: page.id,
+          set: { "seo.description": seo.split(sampleBrand).join(name) },
+        });
+      for (const section of page.sections)
+        for (const b of section.blocks) {
+          if (slotBlocks.has(b.id)) continue;
+          const set = rebrandFields(b.fields as Record<string, unknown>, sampleBrand, name);
+          if (set) bodies.push({ op: "block.update", page: page.id, block: b.id, set });
+        }
+    }
+    for (const [collection, items] of Object.entries(doc.collections ?? {}))
+      for (const item of Object.values(items ?? {})) {
+        const set = rebrandFields(item as unknown as Record<string, unknown>, sampleBrand, name);
+        if (set)
+          bodies.push({
+            op: "collection.upsert",
+            collection,
+            item: { ...item, ...set },
+          } as OpBody);
+      }
+  }
+  const description = intro || tagline;
+  if (description) {
     const home = Object.values(doc.pages).find((p) => p.slug === "");
     if (home)
-      bodies.push({ op: "page.update", page: home.id, set: { "seo.description": tagline } });
+      bodies.push({ op: "page.update", page: home.id, set: { "seo.description": description } });
   }
 
   if (input.logo) {
