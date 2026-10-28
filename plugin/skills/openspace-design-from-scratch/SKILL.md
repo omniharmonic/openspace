@@ -61,7 +61,8 @@ For each section, in order:
 
 1. **A section preset** when one fits (`list_section_presets`, `create_page` / `insert_section`, then `update_block` with their real words and `upload_image` for their photos). Presets restyle with the design system automatically.
 2. **A bespoke component** for the one or two signature moments that make the site *theirs* — the hero, a menu board, a story strip, a gallery wall. Follow the `openspace-web-design` skill's "Custom components" rules: every word, picture and link is a field; styles only on theme tokens (`var(--os-color-…)`, `var(--os-font-…)`, `var(--os-space-…)`); 767/768/1200 breakpoints; reduced motion respected. `create_component` → `insert_component` → `preview_component`, fix every error.
-3. After adding a component, record it: `update_design_system` with `changes.components` (`{ "<name>": { "purpose": "…" } }`) so future work keeps it consistent.
+3. **Name the sections the menu jumps to.** On a one-page site the menu (and buttons like "Join the waitlist") scroll to sections: give each such section a link name as you add it (`anchor: "how-it-works"` on `insert_section` / `insert_component`, or `update_section` with `set {"anchor": …}`), then point the menu at it — `update_navigation` entries `{type:"page", page, label, anchor}`, buttons `{type:"page", page, anchor}`. The same entries make the phone menu. `design_check` warns about any link to a section name nothing has (`apply_fix` connects it).
+4. After adding a component, record it: `update_design_system` with `changes.components` (`{ "<name>": { "purpose": "…" } }`) so future work keeps it consistent.
 
 Section colour themes (`light`, `light-accent`, `dark`, `dark-accent`, `brand`) give rhythm: never more than three of the same in a row.
 

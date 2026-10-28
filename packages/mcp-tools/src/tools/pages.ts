@@ -4,12 +4,15 @@ import {
   type CollectionItem,
   type CollectionKind,
   FRONTMATTER_SCHEMAS,
+  findBrokenLinks,
   type NavItem,
   newId,
   type Page,
   resolveInternalLinks,
   type Section,
   type SiteDocument,
+  SlugSchema,
+  suggestAnchorSection,
   withPages,
 } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
@@ -186,17 +189,70 @@ export const deletePage = defineTool({
   },
 });
 
+/**
+ * Menu entries (and the header button) that jump to a part of a page no section answers to:
+ * the section each one most likely means is given that link name in the same change, unless
+ * it already has one or another entry claimed it. The rest come back as warnings.
+ */
+function connectSections(doc: SiteDocument, tree: unknown[]) {
+  const view = { ...doc, site: { ...doc.site, nav: tree as NavItem[] } } as SiteDocument;
+  const bodies: OpBody[] = [];
+  const connected: Array<{ anchor: string; section: string; sectionLabel: string }> = [];
+  const warnings: string[] = [];
+  const claimed = new Map<string, string>();
+  for (const l of findBrokenLinks(view)) {
+    if (l.kind !== "anchor" || l.scope.kind !== "site" || l.path[0] !== "nav") continue;
+    if (!l.anchor) {
+      warnings.push(`${l.message}.`);
+      continue;
+    }
+    const { page, fragment } = l.anchor;
+    const key = `${page}#${fragment}`;
+    if (claimed.has(key)) continue;
+    const section = suggestAnchorSection(view, page, fragment);
+    const free =
+      section &&
+      !section.anchor &&
+      ![...claimed.values()].includes(section.id) &&
+      SlugSchema.safeParse(fragment).success;
+    if (section && free) {
+      claimed.set(key, section.id);
+      bodies.push({ op: "section.update", page, section: section.id, set: { anchor: fragment } });
+      connected.push({
+        anchor: fragment,
+        section: section.id,
+        sectionLabel: section.label ?? section.preset ?? section.blocks[0]?.type ?? "section",
+      });
+    } else
+      warnings.push(
+        `The menu links to “${fragment}”, but no section on that page is called that. Name the section it should jump to with update_section (page, section, set {"anchor": "${fragment}"}), or change the entry.`,
+      );
+  }
+  return { bodies, connected, warnings };
+}
+
 export const updateNavigation = defineTool({
   name: "update_navigation",
   title: "Update navigation",
   description:
-    'Replace the navigation tree. Items: {type:"page", page:"pg_…", label?}, {type:"collection", collection, label}, {type:"link", label, href, newTab?}, {type:"button", label, link, style:"primary"|"secondary"|"tertiary"}, {type:"folder", label, page?, items:[…one level…]}. Keep one button at most (the header call to action).',
+    'Replace the navigation tree. Items: {type:"page", page:"pg_…", label?, anchor?}, {type:"collection", collection, label}, {type:"link", label, href, newTab?}, {type:"button", label, link, style:"primary"|"secondary"|"tertiary"}, {type:"folder", label, page?, items:[…one level…]}. Keep one button at most (the header call to action). A menu entry that scrolls to a section of a page (a one-page site\'s "How it works", "Prices") is {type:"page", page, label, anchor:"how-it-works"} and a button to one has link {type:"page", page, anchor}; the anchor is that section\'s link name — set it when you add the section (insert_section / insert_component anchor) or with update_section set {"anchor": …}. Entries whose anchor no section has yet are connected to the section they most likely mean (listed in connected — check them); the rest come back in warnings.',
   input: z.object({ site: siteArg, tree: z.array(z.looseObject({})) }),
   annotations: { idempotentHint: true },
   async handler(ctx, input) {
     const siteId = await ctx.siteId(input.site);
-    const { doc } = await ctx.apply(siteId, [{ op: "nav.update", tree: input.tree } as OpBody]);
-    return { data: { nav: doc.site.nav } };
+    const before = await ctx.doc(siteId);
+    const { bodies, connected, warnings } = connectSections(before, input.tree);
+    const { doc } = await ctx.apply(siteId, [
+      { op: "nav.update", tree: input.tree } as OpBody,
+      ...bodies,
+    ]);
+    return {
+      data: {
+        nav: doc.site.nav,
+        ...(connected.length ? { connected } : {}),
+        ...(warnings.length ? { warnings } : {}),
+      },
+    };
   },
 });
 
