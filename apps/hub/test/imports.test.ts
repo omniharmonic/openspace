@@ -262,6 +262,22 @@ describe("the import workflow", () => {
     expect(all[1]).toContain("Inbox → Subscribers → Import");
     expect(all[2]).toContain("main title");
     expect(plainWords("1 form(s) came across.")).toBe("1 form came across.");
+    // GitHub Pages never kept subscribers: no "export them there" (wave 4).
+    const pages = plainWords(
+      "Sign-up forms came across, but subscribers stay with GitHub Pages. Export them there and import them here.",
+    );
+    expect(pages).not.toMatch(/GitHub Pages|Export them there/);
+    expect(pages).toMatch(/didn’t keep a subscriber list/);
+    expect(
+      plainWords(
+        "Newsletter signup recreated. Subscribers are not moved: export your list from Jekyll (GitHub Pages) (or your email service) and import it in the Hub.",
+      ),
+    ).toMatch(/didn’t keep a subscriber list/);
+    expect(
+      plainWords(
+        "Sign-up forms came across, but subscribers stay with Squarespace. Export them there and import them here.",
+      ),
+    ).toContain("download it from Squarespace");
     expect(
       plainWords("Selling needs the Cloudflare target and Stripe connected in the Hub."),
     ).not.toMatch(/Cloudflare|Hub/);

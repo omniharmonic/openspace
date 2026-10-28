@@ -171,6 +171,25 @@ export function platformInfo(p: Platform | undefined): PlatformInfo {
 /** "Squarespace", "WordPress", "the original site". */
 export const platformLabel = (p: Platform | undefined) => platformInfo(p).label;
 
+/** Hosts that only serve files: they never kept a newsletter subscriber list themselves. */
+const NO_SUBSCRIBER_LIST: ReadonlySet<Platform> = new Set<Platform>([
+  "github",
+  "jekyll",
+  "hugo",
+  "eleventy",
+  "generic",
+]);
+
+/**
+ * What to tell the owner about their newsletter subscribers after a move, in plain words
+ * (wave 4: "subscribers stay with GitHub Pages. Export them there" — GitHub Pages has none).
+ */
+export function subscribersAdvice(p: Platform | undefined): string {
+  return p && NO_SUBSCRIBER_LIST.has(p)
+    ? "Sign-up forms came across, and new sign-ups are kept for you in OpenSpace. Your old site didn't keep a subscriber list itself: if its form sent sign-ups to an email service (like Mailchimp or Buttondown), download the list there and add it in Inbox → Subscribers → Import."
+    : `Sign-up forms came across, but subscribers stay with ${platformLabel(p)}. Export them there and import them here.`;
+}
+
 export interface Detection {
   platform: Platform;
   /** The generator meta tag, when there is one. */

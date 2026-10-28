@@ -420,9 +420,12 @@ export async function mapBlock(
         kind: "form",
         where: ctx.where,
         message:
-          ctx.platform && ctx.platform !== "Squarespace"
-            ? `Newsletter signup recreated. Subscribers are not moved: export your list from ${ctx.platform} (or your email service) and import it in the Hub.`
-            : "Newsletter signup recreated. Squarespace Email Campaigns / Mailchimp subscribers are not moved: export your list from Squarespace and import it in the Hub.",
+          ctx.platform &&
+          /^(?:GitHub Pages|Jekyll|Hugo|Eleventy|the original site)/.test(ctx.platform)
+            ? "Newsletter signup recreated. The old site didn't keep a subscriber list itself: if its form sent sign-ups to an email service, export the list there and import it in the Hub."
+            : ctx.platform && ctx.platform !== "Squarespace"
+              ? `Newsletter signup recreated. Subscribers are not moved: export your list from ${ctx.platform} (or your email service) and import it in the Hub.`
+              : "Newsletter signup recreated. Squarespace Email Campaigns / Mailchimp subscribers are not moved: export your list from Squarespace and import it in the Hub.",
       });
       return one(
         makeBlock(
