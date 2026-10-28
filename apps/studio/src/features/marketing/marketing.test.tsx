@@ -71,13 +71,10 @@ describe("email campaigns", () => {
     const menu = await screen.findByRole("menu");
     expect(within(menu).queryByRole("menuitem", { name: "Gallery" })).toBeNull();
     await user.click(within(menu).getByRole("menuitem", { name: "Button" }));
-    await waitFor(
-      () => {
-        const c = growth(hub).campaigns.find((x) => x.subject === "Spring timetable");
-        expect(c?.body.blocks.map((b) => b.type)).toEqual(["heading", "text", "button"]);
-      },
-      { timeout: 3000 },
-    );
+    await waitFor(() => {
+      const c = growth(hub).campaigns.find((x) => x.subject === "Spring timetable");
+      expect(c?.body.blocks.map((b) => b.type)).toEqual(["heading", "text", "button"]);
+    });
   });
 
   it("saves an everyone campaign with an empty segment, clears preview text to null, and flags an empty subject", async () => {
@@ -87,16 +84,13 @@ describe("email campaigns", () => {
     // Remove the only tag: the email goes to everyone.
     await user.click(screen.getByRole("button", { name: "Remove retreats" }));
     await user.type(screen.getByRole("textbox", { name: "Preview text" }), "x");
-    await waitFor(() => expect(update).toHaveBeenCalled(), { timeout: 3000 });
+    await waitFor(() => expect(update).toHaveBeenCalled());
     await user.clear(screen.getByRole("textbox", { name: "Preview text" }));
-    await waitFor(
-      () => {
-        const last = update.mock.calls.at(-1)?.[2];
-        expect(last?.segment).toEqual({ tags: [], match: "any" });
-        expect(last?.preheader).toBeNull();
-      },
-      { timeout: 3000 },
-    );
+    await waitFor(() => {
+      const last = update.mock.calls.at(-1)?.[2];
+      expect(last?.segment).toEqual({ tags: [], match: "any" });
+      expect(last?.preheader).toBeNull();
+    });
     const c = growth(hub).campaigns.find((x) => x.id === "cmp_retreat") as unknown as {
       segment: unknown;
       preheader: unknown;
@@ -106,9 +100,7 @@ describe("email campaigns", () => {
     expect(screen.getByText(/All subscribers: \d+ people/)).toBeInTheDocument();
     // The Hub refuses an empty subject; the composer says so instead of failing silently.
     await user.clear(screen.getByRole("textbox", { name: "Subject" }));
-    expect(
-      await screen.findByText(/Not saved: Give the email a subject\./, {}, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Not saved: Give the email a subject\./)).toBeInTheDocument();
   });
 
   it("targets a tag, sends a test and sends to the segment", async () => {

@@ -52,7 +52,7 @@ describe("Start with Claude", () => {
       tokensName: "crumb-tokens.json",
     });
     expect(
-      await screen.findByRole("heading", { name: "Crumb & Kettle is live" }, { timeout: 3000 }),
+      await screen.findByRole("heading", { name: "Crumb & Kettle is live" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: /Now let Claude design it with you/ }),

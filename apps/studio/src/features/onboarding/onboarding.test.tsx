@@ -4,6 +4,21 @@ import { HubError } from "../../api/types";
 import { FAST, renderStudio, SAM } from "../../test/render";
 import { loadDraft, saveDraft } from "./draft";
 
+/**
+ * A clock the test moves by hand. "Setting up your site…" lasts only while the mock site is
+ * building; with a wall clock and a near-zero build that screen can come and go before a query
+ * on a loaded machine sees it. Holding time still keeps it up until the test lets the build finish.
+ */
+function heldClock() {
+  let t = Date.now();
+  return {
+    now: () => t,
+    finishBuild: () => {
+      t += 60_000;
+    },
+  };
+}
+
 describe("onboarding: template → details → sign in → building → editor", () => {
   it("lets a signed-out visitor browse templates and switch looks", async () => {
     const { user } = renderStudio("/templates");
@@ -36,7 +51,8 @@ describe("onboarding: template → details → sign in → building → editor",
   });
 
   it("goes from gallery to a live site in the editor with dev sign-in", async () => {
-    const { user, hub, router } = renderStudio("/templates");
+    const clock = heldClock();
+    const { user, hub, router } = renderStudio("/templates", { now: clock.now, buildMs: 1 });
     const meadow = await screen.findByRole("article", { name: "Meadow" });
     await user.click(within(meadow).getByRole("radio", { name: "Dusk look" }));
     await user.click(within(meadow).getByRole("button", { name: "Use Meadow" }));
@@ -72,17 +88,12 @@ describe("onboarding: template → details → sign in → building → editor",
     expect(screen.getByRole("list", { name: "Progress" })).toHaveTextContent(
       "Copying the Meadow template",
     );
+    clock.finishBuild();
 
     // Lands in the editor with the celebratory toast and the checklist.
-    await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/sites\/st_/), {
-      timeout: 3000,
-    });
+    await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/sites\/st_/));
     // The first-run tour opens on the live site and ends on "it's live — and it's yours".
-    const tour = await screen.findByRole(
-      "dialog",
-      { name: "This is your site" },
-      { timeout: 3000 },
-    );
+    const tour = await screen.findByRole("dialog", { name: "This is your site" });
     for (let i = 0; i < 3; i++)
       await user.click(within(tour).getByRole("button", { name: "Next" }));
     expect(
@@ -111,9 +122,7 @@ describe("onboarding: template → details → sign in → building → editor",
     await user.type(await screen.findByLabelText("Site name"), "Pan & Crumb");
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await user.click(await screen.findByRole("button", { name: "Continue with GitHub" }));
-    expect(
-      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "This is your site" })).toBeInTheDocument();
     expect(hub.calls.find((c) => c.method === "startGitHubSignIn")?.args[0]).toEqual({
       template: "hearth",
       name: "Pan & Crumb",
@@ -122,7 +131,12 @@ describe("onboarding: template → details → sign in → building → editor",
   });
 
   it("skips sign-in when already signed in", async () => {
-    const { user } = renderStudio("/new/signal?look=volt", { user: SAM });
+    const clock = heldClock();
+    const { user } = renderStudio("/new/signal?look=volt", {
+      user: SAM,
+      now: clock.now,
+      buildMs: 1,
+    });
     await user.type(await screen.findByLabelText("Site name"), "Tidewater");
     // Already signed in: the steps don't show a "Sign in" step.
     const steps = screen.getByRole("list", { name: "Steps" });
@@ -137,9 +151,7 @@ describe("onboarding: template → details → sign in → building → editor",
   it("resumes after returning from GitHub sign-in", async () => {
     saveDraft({ template: "ledger", look: "ink", name: "Okafor Advisory", tagline: "Clear plans" });
     const { hub } = renderStudio("/new/ledger?look=ink&resume=1", { user: SAM });
-    expect(
-      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "This is your site" })).toBeInTheDocument();
     expect(hub.calls.filter((c) => c.method === "createSite")).toHaveLength(1);
     expect(hub.calls.find((c) => c.method === "createSite")?.args[0]).toMatchObject({
       name: "Okafor Advisory",
@@ -156,9 +168,7 @@ describe("onboarding: template → details → sign in → building → editor",
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Try again" }));
     // Retries publishing the same site instead of creating a duplicate.
-    expect(
-      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "This is your site" })).toBeInTheDocument();
     expect(hub.calls.filter((c) => c.method === "createSite")).toHaveLength(1);
     const created = hub.state.sites[0];
     expect(hub.calls.find((c) => c.method === "retryPublish")?.args).toEqual([created?.id]);
@@ -168,9 +178,12 @@ describe("onboarding: template → details → sign in → building → editor",
   it("keeps polling through a flaky connection instead of showing a failure", async () => {
     const { user, hub } = renderStudio("/new/meadow", { user: SAM, buildMs: 30 });
     const realGetSite = hub.getSite.bind(hub);
+    // The connection stays down until the test has seen the "still trying" note (a fixed number
+    // of failures could recover before a query on a loaded machine sees the note).
+    let online = false;
     let failures = 0;
     hub.getSite = async (id) => {
-      if (failures < 2) {
+      if (!online) {
         failures++;
         throw new HubError(0, "network", "Can't reach OpenSpace.");
       }
@@ -179,11 +192,10 @@ describe("onboarding: template → details → sign in → building → editor",
     await user.type(await screen.findByLabelText("Site name"), "Juniper");
     await user.click(screen.getByRole("button", { name: "Create my site" }));
     expect(await screen.findByText(/Having trouble reaching OpenSpace/)).toBeInTheDocument();
+    await waitFor(() => expect(failures).toBeGreaterThanOrEqual(2));
     expect(screen.queryByRole("heading", { name: /isn’t online yet/ })).not.toBeInTheDocument();
-    expect(
-      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
-    expect(failures).toBe(2);
+    online = true;
+    expect(await screen.findByRole("dialog", { name: "This is your site" })).toBeInTheDocument();
   });
 
   it("returns to the details form when creating fails after GitHub sign-in", async () => {
@@ -208,9 +220,7 @@ describe("onboarding: template → details → sign in → building → editor",
     };
     await user.type(await screen.findByLabelText("Site name"), "Juniper");
     await user.click(screen.getByRole("button", { name: "Create my site" }));
-    expect(
-      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "This is your site" })).toBeInTheDocument();
     const calls = hub.calls.filter((c) => c.method === "createSite");
     expect(calls).toHaveLength(2);
     const keys = calls.map((c) => (c.args[1] as { idempotencyKey?: string }).idempotencyKey);
@@ -228,9 +238,7 @@ describe("onboarding: template → details → sign in → building → editor",
     });
     await user.type(await screen.findByLabelText("Site name"), "Juniper");
     await user.click(screen.getByRole("button", { name: "Create my site" }));
-    expect(
-      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "This is your site" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /isn’t online yet/ })).not.toBeInTheDocument();
   });
 
@@ -246,7 +254,7 @@ describe("onboarding: template → details → sign in → building → editor",
         return realList();
       };
     });
-    expect(await screen.findByLabelText("Site name", {}, { timeout: 3000 })).toBeInTheDocument();
+    expect(await screen.findByLabelText("Site name")).toBeInTheDocument();
     expect(failures).toBe(3);
     expect(screen.queryByText(/may have been renamed/)).not.toBeInTheDocument();
   });
@@ -258,7 +266,7 @@ describe("onboarding: template → details → sign in → building → editor",
       };
     });
     expect(
-      await screen.findByRole("heading", { name: "Reconnecting to OpenSpace…" }, { timeout: 3000 }),
+      await screen.findByRole("heading", { name: "Reconnecting to OpenSpace…" }),
     ).toBeInTheDocument();
     expect(screen.queryByText(/renamed/)).not.toBeInTheDocument();
   });

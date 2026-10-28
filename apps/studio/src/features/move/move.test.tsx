@@ -39,9 +39,7 @@ describe("Move my site (hosted import)", () => {
     expect(call?.args[0]).toMatchObject({ url: "www.maya-yoga.com", confirmOwnership: true });
 
     // The celebration, with the address and the review panels.
-    expect(
-      await screen.findByRole("heading", { name: "Your site is live!" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Your site is live!" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /github\.io\/maya-yoga/ })).toBeInTheDocument();
     expect(screen.getByRole("list", { name: "Progress" })).toHaveTextContent(
       "6 pages, 4 items, 23 images",
@@ -67,9 +65,7 @@ describe("Move my site (hosted import)", () => {
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/sites\/st_/));
     // The editor opens on the live site with the first-run tour (the site was "being set up"
     // while it moved; a stale copy of that status used to leave the editor loading forever).
-    expect(
-      await screen.findByRole("dialog", { name: "This is your site" }, { timeout: 5000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("dialog", { name: "This is your site" })).toBeInTheDocument();
     expect(router.state.location.pathname).toMatch(/^\/sites\/st_/);
   });
 
@@ -82,7 +78,7 @@ describe("Move my site (hosted import)", () => {
     await user.click(screen.getByLabelText("This is my site, or I’m moving it for its owner."));
     await user.click(screen.getByRole("button", { name: "Move my site" }));
     expect(
-      await screen.findByRole("heading", { name: "The move didn’t finish" }, { timeout: 3000 }),
+      await screen.findByRole("heading", { name: "The move didn’t finish" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Couldn't read https:\/\/fail\.example\.com/)).toBeInTheDocument();
     expect(screen.getByText("Your current site is untouched.")).toBeInTheDocument();
@@ -102,17 +98,13 @@ describe("Move my site (hosted import)", () => {
     await user.click(screen.getByRole("radio", { name: /Make this site editable where it is/ }));
     await user.click(screen.getByLabelText("This is my site, or I’m moving it for its owner."));
     await user.click(screen.getByRole("button", { name: "Move my site" }));
-    expect(
-      await screen.findByRole("heading", { name: "Almost there" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Almost there" })).toBeInTheDocument();
     const approve = screen.getByRole("link", { name: /Approve on GitHub/ });
     expect(approve).toHaveAttribute("href", expect.stringContaining("/pull/1"));
     const id = Object.keys(hub.imports.imports)[0] as string;
     hub.mergeImport(id);
     await user.click(screen.getByRole("button", { name: "I’ve approved it" }));
-    expect(
-      await screen.findByRole("heading", { name: "Your site is live!" }, { timeout: 3000 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Your site is live!" })).toBeInTheDocument();
     expect(hub.calls.find((c) => c.method === "convertRepo")?.args[0]).toMatchObject({
       repo: "https://life-culture.github.io/powerwith/",
     });
