@@ -20,6 +20,17 @@ import {
 } from "../dom";
 import type { SqBlock, SqForm, SqFormField, SqFormFieldType, SqImage, SqImageCard } from "./types";
 
+/** A sign-up form that also asks for a (first) name: keep that field when it moves. */
+export function signupAsksName(form: Element): boolean {
+  return !!find(form, (e) => {
+    if (e.tagName !== "input") return false;
+    const t = (attr(e, "type") ?? "text").toLowerCase();
+    if (t !== "text" || attr(e, "tabindex") === "-1") return false;
+    const key = `${attr(e, "name") ?? ""} ${attr(e, "id") ?? ""} ${attr(e, "autocomplete") ?? ""}`;
+    return /first.?name|given-name|\bfname\b|full.?name|(?:^|[\s_-])name(?:$|[\s_-])/i.test(key);
+  });
+}
+
 /** Strip Squarespace's `?format=…` resize suffix and protocol-relative prefixes. */
 export function cleanImageUrl(raw: string): string {
   let url = raw.trim();
@@ -473,6 +484,7 @@ export function parseBlock(el: Element): SqBlock | undefined {
       const success = text(find(el, (e) => classes(e).some((c) => /form-submission-text/.test(c))));
       return {
         kind: "newsletter",
+        ...(signupAsksName(el) ? { askName: true } : {}),
         ...(heading ? { heading } : {}),
         ...(description ? { description } : {}),
         ...(button ? { buttonLabel: button } : {}),

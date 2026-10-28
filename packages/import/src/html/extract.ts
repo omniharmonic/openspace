@@ -27,7 +27,7 @@ import {
   scriptText,
   text,
 } from "../dom";
-import { stripTags, videoUrl } from "../squarespace/blocks";
+import { signupAsksName, stripTags, videoUrl } from "../squarespace/blocks";
 import { cssColorToHex } from "../squarespace/theme";
 import type {
   SectionRole,
@@ -814,6 +814,7 @@ function leafBlocks(el: Element, ctx: WalkCtx, out: SqBlock[]) {
       );
       out.push({
         kind: "newsletter",
+        ...(signupAsksName(el) ? { askName: true } : {}),
         ...(btn && (text(btn) || attr(btn, "value"))
           ? { buttonLabel: text(btn) || attr(btn, "value") }
           : {}),

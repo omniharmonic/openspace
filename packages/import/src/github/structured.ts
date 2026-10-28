@@ -281,6 +281,7 @@ function formFrom(v: unknown, ctx: StructuredContext): SqBlock | undefined {
   if (signupOnly)
     return {
       kind: "newsletter",
+      ...(fields.some((f) => f.type !== "email") ? { askName: true } : {}),
       ...(button ? { buttonLabel: plain(button) } : {}),
       ...(str(v.email_placeholder) ? { placeholder: str(v.email_placeholder) as string } : {}),
       ...(filled(v.success_message) ? { success: filled(v.success_message) as string } : {}),

@@ -431,6 +431,7 @@ export async function mapBlock(
           {
             ...(sq.heading ? { heading: clip(sq.heading, 80) } : {}),
             ...(sq.description ? { description: clip(sq.description, 240) } : {}),
+            ...(sq.askName ? { askName: true } : {}),
             ...(sq.buttonLabel ? { buttonLabel: clip(sq.buttonLabel, 30) } : {}),
             ...(sq.placeholder ? { placeholder: clip(sq.placeholder, 60) } : {}),
             ...(sq.success ? { successMessage: clip(sq.success, 200) } : {}),

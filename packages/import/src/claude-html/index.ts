@@ -42,6 +42,7 @@ import { themeFromCss } from "../html/theme";
 import { type BuildResult, buildSite } from "../map/site";
 import { MediaImporter } from "../media";
 import { renderReport } from "../report";
+import { signupAsksName } from "../squarespace/blocks";
 import type { SqBlock, SqNavItem, SqNotice, SqPage, SqSection, SqSite } from "../types";
 import {
   BUNDLE_ORIGIN,
@@ -783,6 +784,7 @@ export async function importHtmlBundle(
           const placeholder = email ? attr(email, "placeholder") : undefined;
           blocks.push({
             kind: "newsletter",
+            ...(signupAsksName(f) ? { askName: true } : {}),
             ...(label ? { buttonLabel: label.slice(0, 40) } : {}),
             ...(placeholder ? { placeholder } : {}),
           });

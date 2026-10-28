@@ -85,6 +85,8 @@ export type SqBlock =
       kind: "newsletter";
       heading?: string;
       description?: string;
+      /** The sign-up also asks for a first name. */
+      askName?: boolean;
       buttonLabel?: string;
       placeholder?: string;
       success?: string;
