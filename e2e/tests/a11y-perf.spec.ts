@@ -1,8 +1,10 @@
+import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
 import { HUB_URL } from "../support/env";
 import { anonHub, Hub, unique } from "../support/hub";
+import { BASE_JPEG } from "../support/images";
 import { canvasReady, closeChecklist, signIn } from "../support/studio";
 
 // NFRs: accessibility (Global Constraint 10, WCAG 2.2 AA — zero serious/critical axe violations on
@@ -46,6 +48,18 @@ test("axe: every template demo home in every look has no serious/critical violat
   page,
 }) => {
   test.setTimeout(240_000);
+  // Nothing from the internet: the demos' stock photos (images.unsplash.com) and webfonts
+  // (Google Fonts) made the page's load / "networkidle" wait on outside hosts, and on a busy run
+  // one of them stalled past 30 s. Axe judges markup, colours and sizes, not pixels or font
+  // files: one local photo stands in for every picture, and the system fonts for webfonts.
+  const photo = readFileSync(BASE_JPEG);
+  await page.route(
+    (url) => url.hostname !== "localhost",
+    (route) =>
+      route.request().resourceType() === "image"
+        ? route.fulfill({ contentType: "image/jpeg", body: photo })
+        : route.abort("blockedbyclient"),
+  );
   const failures: string[] = [];
   for (const t of templates) {
     for (const look of t.looks) {
