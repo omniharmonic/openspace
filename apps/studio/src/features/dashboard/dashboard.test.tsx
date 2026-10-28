@@ -258,7 +258,9 @@ describe("site thumbnails", () => {
     const willow = sites[0] as Site;
     const { hub, queryClient } = renderStudio("/sites", { user: SAM, sites: [willow] });
     const live = await hub.getDocument(willow.id, { ref: "published" });
-    const before = live.document.site.description || willow.tagline || "";
+    // The home page's lead line (the site's tagline when it was made).
+    const home = Object.values(live.document.pages).find((p) => p.slug === "");
+    const before = home?.seo?.description ?? "";
     expect(before).not.toBe("");
     await waitFor(async () => expect(await thumbnailText(willow.name)).toContain(before));
 
