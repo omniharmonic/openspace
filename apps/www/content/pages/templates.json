@@ -8,16 +8,26 @@
   },
   "sections": [
     {
-      "id": "sec_pp00gw8yq5",
-      "preset": "hero/centered@1",
-      "label": "Centered statement",
+      "id": "sec_1db1ggqsmt",
+      "preset": "hero/big-type@1",
+      "label": "Big type with details",
       "layout": {
         "mode": "stack",
         "columns": {
           "d": [
+            8,
+            4
+          ],
+          "t": [
+            12
+          ],
+          "m": [
             12
           ]
-        }
+        },
+        "align": "end",
+        "gap": "xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "brand",
@@ -28,25 +38,45 @@
       },
       "blocks": [
         {
-          "id": "blk_4d6hmmgxam",
+          "id": "blk_j4j67cy6sg",
           "type": "heading",
           "v": 1,
           "fields": {
             "text": "Twenty templates, three looks each",
             "level": "h1",
-            "size": "display",
-            "eyebrow": "Template gallery",
-            "subheading": "Every template arrives finished: real-feeling pages, photography and a type pairing chosen for its purpose. Switch looks any time without touching your content."
+            "size": "display"
           },
-          "variant": "plain",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
+          "column": 0,
+          "variant": "plain"
         },
         {
-          "id": "blk_mmyh0xqymc",
+          "id": "blk_4jc5sx4ksc",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Every template arrives finished: real-feeling pages, photography and a type pairing chosen for its purpose. Switch looks any time without touching your content."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_zw5xvgbdyg",
           "type": "button",
           "v": 1,
           "fields": {
@@ -62,12 +92,8 @@
               "url": "https://docs.openspace.host/templates/"
             }
           },
-          "variant": "default",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
+          "column": 1,
+          "variant": "default"
         }
       ]
     },
@@ -82,7 +108,8 @@
             12
           ]
         },
-        "gap": "xl"
+        "gap": "xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "light"
@@ -266,7 +293,8 @@
             12
           ]
         },
-        "gap": "xl"
+        "gap": "xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "light-accent"
@@ -450,7 +478,8 @@
             12
           ]
         },
-        "gap": "xl"
+        "gap": "xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "light"
@@ -634,7 +663,8 @@
             12
           ]
         },
-        "gap": "xl"
+        "gap": "xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "light-accent"
@@ -823,7 +853,8 @@
           ]
         },
         "align": "center",
-        "gap": "xl"
+        "gap": "xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "dark",
@@ -840,8 +871,7 @@
           "fields": {
             "text": "Make a template for everyone",
             "level": "h2",
-            "size": "auto",
-            "eyebrow": "Designers welcome"
+            "size": "auto"
           },
           "column": 0,
           "variant": "plain"

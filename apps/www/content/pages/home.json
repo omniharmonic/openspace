@@ -16,8 +16,8 @@
         "mode": "grid",
         "rows": {
           "d": 3,
-          "t": 4,
-          "m": 4
+          "t": 5,
+          "m": 5
         },
         "items": {
           "blk_ty9rhy8n7m": {
@@ -69,13 +69,13 @@
             },
             "t": {
               "x": 1,
-              "y": 3,
+              "y": 4,
               "w": 24,
               "h": 1
             },
             "m": {
               "x": 1,
-              "y": 3,
+              "y": 4,
               "w": 8,
               "h": 1
             }
@@ -89,13 +89,13 @@
             },
             "t": {
               "x": 1,
-              "y": 4,
+              "y": 5,
               "w": 24,
               "h": 1
             },
             "m": {
               "x": 1,
-              "y": 4,
+              "y": 5,
               "w": 8,
               "h": 1
             }
@@ -107,7 +107,7 @@
         "colorTheme": "brand",
         "padding": {
           "d": "xl",
-          "m": "lg"
+          "m": "xl"
         }
       },
       "blocks": [
@@ -135,7 +135,7 @@
                   "content": [
                     {
                       "type": "text",
-                      "text": "A website that's yours to keep, hosted free, with no monthly bill. Start from a designer template, move the site you already have, or start with Claude: describe your idea, bring your brand, and Claude designs it with you."
+                      "text": "A website that's yours to keep, hosted free with no monthly bill. Start from a designer template, move the site you already have, or have Claude design one with you."
                     }
                   ]
                 }
@@ -593,24 +593,14 @@
             "link": {
               "type": "url",
               "url": "https://studio.openspace.host/start"
-            }
-          },
-          "variant": "large",
-          "column": 0
-        },
-        {
-          "id": "blk_cjbq9t1n3r",
-          "type": "button",
-          "v": 1,
-          "fields": {
-            "role": "secondary",
-            "label": "How it works",
-            "link": {
+            },
+            "secondaryLabel": "How it works",
+            "secondaryLink": {
               "type": "url",
               "url": "https://docs.openspace.host/guides/start-with-claude/"
             }
           },
-          "variant": "default",
+          "variant": "large",
           "column": 0
         },
         {
@@ -2465,7 +2455,7 @@
         "colorTheme": "brand",
         "padding": {
           "d": "2xl",
-          "m": "xl"
+          "m": "2xl"
         }
       },
       "blocks": [

@@ -8,16 +8,26 @@
   },
   "sections": [
     {
-      "id": "sec_570c67ypgg",
-      "preset": "hero/centered@1",
-      "label": "Centered statement",
+      "id": "sec_0vqsthpr72",
+      "preset": "hero/big-type@1",
+      "label": "Big type with details",
       "layout": {
         "mode": "stack",
         "columns": {
           "d": [
+            8,
+            4
+          ],
+          "t": [
+            12
+          ],
+          "m": [
             12
           ]
-        }
+        },
+        "align": "end",
+        "gap": "xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "brand",
@@ -28,25 +38,45 @@
       },
       "blocks": [
         {
-          "id": "blk_dymr0a23rk",
+          "id": "blk_kfp5bcjtqw",
           "type": "heading",
           "v": 1,
           "fields": {
             "text": "Free, forever — by architecture",
             "level": "h1",
-            "size": "display",
-            "eyebrow": "Pricing",
-            "subheading": "There's no plan to upgrade to. Hosting, builds and storage run on free accounts you own, so one more site costs the project almost nothing."
+            "size": "display"
           },
-          "variant": "plain",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
+          "column": 0,
+          "variant": "plain"
         },
         {
-          "id": "blk_59c1t6gh7v",
+          "id": "blk_h1z7few5p7",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "There's no plan to upgrade to. Hosting, builds and storage run on free accounts you own, so one more site costs the project almost nothing."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_es0xc9w4k3",
           "type": "button",
           "v": 1,
           "fields": {
@@ -63,12 +93,8 @@
               "anchor": "cost"
             }
           },
-          "variant": "default",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
+          "column": 1,
+          "variant": "default"
         }
       ]
     },
@@ -88,7 +114,8 @@
           ]
         },
         "align": "center",
-        "gap": "2xl"
+        "gap": "2xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "light"
@@ -102,7 +129,6 @@
             "text": "Everything, for everyone",
             "level": "h2",
             "size": "auto",
-            "eyebrow": "One plan",
             "subheading": "The same features for a yoga teacher, a food co-op or a pottery shop. No tiers, no trials, no surprises at renewal."
           },
           "column": 0,
@@ -198,7 +224,6 @@
             "text": "Why free can stay free",
             "level": "h2",
             "size": "auto",
-            "eyebrow": "Where the costs go",
             "subheading": "Each part runs where it is already free, so no one has to pay for your site to stay online."
           },
           "variant": "plain",
@@ -266,8 +291,7 @@
           "fields": {
             "text": "Honest answers about money",
             "level": "h2",
-            "size": "auto",
-            "eyebrow": "Fine print"
+            "size": "auto"
           },
           "variant": "plain",
           "style": {
@@ -370,7 +394,7 @@
             12
           ]
         },
-        "width": "narrow",
+        "width": "wide",
         "gap": "lg"
       },
       "style": {

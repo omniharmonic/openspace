@@ -34,12 +34,19 @@ code {
   letter-spacing: -0.04em;
 }
 
-/* hero: the cobalt field with Studio's 24-column grid drawn on it, and the editor docked at the bottom */
+/* hero: the cobalt field with Studio's 24-column grid drawn on it, and the editor docked at the
+   bottom. Every page's opening field and the closing call to action get the same drawn grid,
+   on the same columns as the content. */
 #hero {
   padding-bottom: 0;
   overflow: hidden;
 }
-#hero::before {
+.os-section--first.os-theme-brand,
+#start {
+  overflow: hidden;
+}
+.os-section--first.os-theme-brand::before,
+#start::before {
   content: "";
   position: absolute;
   inset: 0 max(var(--os-section-gutter), calc((100% - var(--os-width-wide)) / 2));
@@ -50,14 +57,25 @@ code {
     linear-gradient(90deg, transparent calc(100% - 1px), rgb(255 255 255 / 0.09) 0);
 }
 @media (min-width: 768px) {
-  #hero::before {
+  .os-section--first.os-theme-brand::before,
+  #start::before {
     background-size:
       calc(100% / 24) 100%,
       100% 100%;
   }
 }
+/* the other pages' opening fields, once stacked: the same rhythm as the home hero, a short step
+   from headline to intro and a clear one from intro to actions */
+@media (max-width: 1199.98px) {
+  .os-section--first.os-theme-brand > .os-stack {
+    row-gap: 1.25rem;
+  }
+  .os-section--first.os-theme-brand > .os-stack > .os-col {
+    gap: 1.5rem;
+  }
+}
 #hero h1 {
-  font-size: clamp(2.45rem, 1.1rem + 5.7vw, 6.5rem);
+  font-size: clamp(2.1rem, 1.1rem + 5.7vw, 6.5rem);
   line-height: 0.98;
   letter-spacing: -0.055em;
   padding-block-end: 0.18em;
@@ -69,9 +87,18 @@ code {
   font-size: clamp(1.08rem, 1rem + 0.35vw, 1.3rem);
   line-height: 1.5;
   max-width: 40ch;
+  text-wrap: pretty;
 }
 #hero .os-buttons__note {
   opacity: 0.85;
+}
+/* desktop: the actions sit beside the lede and share its bottom edge */
+@media (min-width: 1200px) {
+  #hero .os-block--button {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
 }
 #hero .os-block--embed {
   margin-top: clamp(1rem, 3vw, 2.5rem);
@@ -92,6 +119,10 @@ code {
 @media (min-width: 1200px) {
   #hero .os-embed {
     aspect-ratio: 16 / 8.4;
+  }
+  /* the editor fills its docked frame instead of leaving an empty band of cobalt under it */
+  #hero .os-embed > iframe {
+    height: 100%;
   }
 }
 
@@ -235,20 +266,6 @@ code {
     0 12px 32px rgb(14 18 51 / 0.12);
 }
 
-/* the final call to action gets the hero's grid too */
-#start {
-  overflow: hidden;
-}
-#start::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px) 50% 0 / calc(100% / 12)
-    100%;
-}
 #start .os-type-display,
 #start h2 {
   font-size: clamp(2.2rem, 1rem + 5vw, 5.4rem);
@@ -326,5 +343,41 @@ code {
   #support .os-embed > iframe,
   #calculator .os-embed > iframe {
     height: 460px;
+  }
+}
+
+/* a pair of actions on a phone: stacked, full width and the same size, never two ragged pills */
+@media (max-width: 639.98px) {
+  .os-buttons__row:has(> .os-button + .os-button:not(.os-button--tertiary)) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .os-buttons__row:has(> .os-button + .os-button:not(.os-button--tertiary)) > .os-button {
+    width: 100%;
+  }
+}
+
+/* on a phone, columns stack; the wide desktop gutter between them would read as a section break,
+   so the stacked gap stays well under the section padding */
+@media (max-width: 767.98px) {
+  .os-stack.is-multi {
+    row-gap: min(var(--gap, 2rem), 2.5rem);
+  }
+}
+
+/* features on a phone: the icon sits beside its title, so the index reads as a list */
+@media (max-width: 767.98px) {
+  #features .os-iconlist--tiles {
+    row-gap: 1.25rem;
+  }
+  #features .os-iconlist--tiles .os-iconlist__item {
+    flex-direction: row;
+    gap: 0.875rem;
+    padding-top: 1.25rem;
+  }
+  #features .os-iconlist__icon {
+    flex: none;
+    width: 1.5rem;
+    padding-top: 0.1rem;
   }
 }

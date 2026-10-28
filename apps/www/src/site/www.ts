@@ -11,6 +11,7 @@ import type {
   Block,
   GridRect,
   ImageValue,
+  Link,
   MediaMeta,
   SectionLayout,
   SiteDocument,
@@ -218,6 +219,39 @@ function gridSection(
   return section({ layout, blocks: placed.map(([b]) => b) }, layout, o);
 }
 
+type Section = ReturnType<typeof fromPreset>;
+
+/**
+ * Presets that compose around the centre line keep their own width; every other section spans
+ * the wide grid, so headings start on the same edge as the logo and the home page.
+ */
+const CENTRED = new Set(["faq/centered@1", "features/icon-row@1", "about/values@1"]);
+const wide = (s: Section) => ({ ...s, layout: { ...s.layout, width: "wide" } }) as Section;
+const onWideGrid = (sections: Section[]) =>
+  sections.map((s) => (s.preset && CENTRED.has(s.preset) ? s : wide(s)));
+
+/**
+ * Every page opens the way the home page does: a left-aligned display headline on the cobalt
+ * field (with the drawn grid, see custom.css), and the intro and actions beside it.
+ */
+function pageHero(
+  title: string,
+  intro: string,
+  actions: { label: string; link: Link; secondaryLabel: string; secondaryLink: Link },
+) {
+  const s = fromPreset("hero/big-type@1", {
+    theme: "brand",
+    edit: {
+      heading: { eyebrow: undefined, text: title },
+      text: { content: rt.doc(rt.p(intro, "lead")) },
+      button: actions,
+    },
+  });
+  // A wider headline column keeps short page titles to two or three lines; tablets stack.
+  if (s.layout.mode === "stack") s.layout.columns = { d: [8, 4], t: [12], m: [12] };
+  return s;
+}
+
 function hero() {
   const h1 = heading("Stop renting your own website", {
     level: 1,
@@ -225,7 +259,7 @@ function hero() {
   });
   const lead = text([
     rt.p(
-      "A website that's yours to keep, hosted free, with no monthly bill. Start from a designer template, move the site you already have, or start with Claude: describe your idea, bring your brand, and Claude designs it with you.",
+      "A website that's yours to keep, hosted free with no monthly bill. Start from a designer template, move the site you already have, or have Claude design one with you.",
     ),
   ]);
   const cta = button("Start free", START, {
@@ -234,14 +268,16 @@ function hero() {
     note: "Free forever and open source. In pre-release; you need a free GitHub account.",
   });
   const looks = demo("looks", "Demo: the Studio editor switching a site between three looks", 560);
+  // On desktop the actions sit beside the lede, bottom-aligned with its last line (custom.css);
+  // on tablet and phone an empty row keeps a clear gap between the lede and the actions.
   return gridSection(
     [
       [h1, { d: r(1, 1, 19, 1), t: r(1, 1, 24, 1), m: r(1, 1, 8, 1) }],
       [lead, { d: r(1, 2, 11, 1), t: r(1, 2, 18, 1), m: r(1, 2, 8, 1) }],
-      [cta, { d: r(14, 2, 11, 1), t: r(1, 3, 24, 1), m: r(1, 3, 8, 1) }],
-      [looks, { d: r(1, 3, 24, 1), t: r(1, 4, 24, 1), m: r(1, 4, 8, 1) }],
+      [cta, { d: r(14, 2, 11, 1), t: r(1, 4, 24, 1), m: r(1, 4, 8, 1) }],
+      [looks, { d: r(1, 3, 24, 1), t: r(1, 5, 24, 1), m: r(1, 5, 8, 1) }],
     ],
-    { theme: "brand", anchor: "hero", label: "Hero", padding: { d: "xl", m: "lg" } },
+    { theme: "brand", anchor: "hero", label: "Hero", padding: { d: "xl", m: "xl" } },
   );
 }
 
@@ -367,8 +403,11 @@ function startWithClaude() {
         sub: "Tell Claude about your idea. It asks a few good questions, designs your site with you and puts it online with OpenSpace, then hands you the link to edit it. Bring your brand if you have one: a logo, photos, colours, or a page Claude already made you.",
         col: 0,
       }),
-      button("Start with Claude", START_CLAUDE, { col: 0, size: "large" }),
-      button("How it works", url(START_GUIDE), { col: 0, role: "secondary" }),
+      button("Start with Claude", START_CLAUDE, {
+        col: 0,
+        size: "large",
+        second: ["How it works", url(START_GUIDE)],
+      }),
       block(
         "columns",
         {
@@ -1087,7 +1126,7 @@ function finalCta() {
       }),
     ],
     { width: "wide" },
-    { theme: "brand", anchor: "start", label: "Start", padding: { d: "2xl", m: "xl" } },
+    { theme: "brand", anchor: "start", label: "Start", padding: { d: "2xl", m: "2xl" } },
   );
 }
 
@@ -1147,24 +1186,17 @@ function templates() {
     "Templates",
     "templates",
     "Twenty OpenSpace templates for practices, nonprofits, artists, restaurants, shops, products and more, each with three looks. Free to use and change.",
-    [
-      fromPreset("hero/centered@1", {
-        theme: "brand",
-        edit: {
-          heading: {
-            eyebrow: "Template gallery",
-            text: "Twenty templates, three looks each",
-            subheading:
-              "Every template arrives finished: real-feeling pages, photography and a type pairing chosen for its purpose. Switch looks any time without touching your content.",
-          },
-          button: {
-            label: "Start free",
-            link: START,
-            secondaryLabel: "How looks work",
-            secondaryLink: url(doc("templates.md")),
-          },
+    onWideGrid([
+      pageHero(
+        "Twenty templates, three looks each",
+        "Every template arrives finished: real-feeling pages, photography and a type pairing chosen for its purpose. Switch looks any time without touching your content.",
+        {
+          label: "Start free",
+          link: START,
+          secondaryLabel: "How looks work",
+          secondaryLink: url(doc("templates.md")),
         },
-      }),
+      ),
       gallery(FIRST, "light", "Practices, studios and local businesses", "Start here", "first"),
       gallery(SECOND, "light-accent", "Products, causes and professionals", "Grow", "grow"),
       gallery(THIRD, "light", "Writers, venues, makers and communities", "Create", "create"),
@@ -1172,7 +1204,7 @@ function templates() {
       fromPreset("cta/split@1", {
         theme: "dark",
         edit: {
-          heading: { eyebrow: "Designers welcome", text: "Make a template for everyone" },
+          heading: { eyebrow: undefined, text: "Make a template for everyone" },
           button: {
             label: "Contributing templates",
             link: url(`${GITHUB}/tree/main/apps/docs/src/content/docs/contributing`),
@@ -1180,7 +1212,7 @@ function templates() {
           },
         },
       }),
-    ],
+    ]),
   );
 }
 
@@ -1190,29 +1222,22 @@ function pricing() {
     "Pricing",
     "pricing",
     "OpenSpace is free by architecture: your site runs on free accounts you own, and you bring your own AI. No plans and no transaction fees.",
-    [
-      fromPreset("hero/centered@1", {
-        theme: "brand",
-        edit: {
-          heading: {
-            eyebrow: "Pricing",
-            text: "Free, forever — by architecture",
-            subheading:
-              "There's no plan to upgrade to. Hosting, builds and storage run on free accounts you own, so one more site costs the project almost nothing.",
-          },
-          button: {
-            label: "Start free",
-            link: START,
-            secondaryLabel: "Compare the cost",
-            secondaryLink: page(P.home, "cost"),
-          },
+    onWideGrid([
+      pageHero(
+        "Free, forever — by architecture",
+        "There's no plan to upgrade to. Hosting, builds and storage run on free accounts you own, so one more site costs the project almost nothing.",
+        {
+          label: "Start free",
+          link: START,
+          secondaryLabel: "Compare the cost",
+          secondaryLink: page(P.home, "cost"),
         },
-      }),
+      ),
       fromPreset("pricing/single-offer@1", {
         theme: "light",
         edit: {
           heading: {
-            eyebrow: "One plan",
+            eyebrow: undefined,
             text: "Everything, for everyone",
             subheading:
               "The same features for a yoga teacher, a food co-op or a pottery shop. No tiers, no trials, no surprises at renewal.",
@@ -1250,7 +1275,7 @@ function pricing() {
         theme: "light-accent",
         edit: {
           heading: {
-            eyebrow: "Where the costs go",
+            eyebrow: undefined,
             text: "Why free can stay free",
             subheading:
               "Each part runs where it is already free, so no one has to pay for your site to stay online.",
@@ -1284,7 +1309,7 @@ function pricing() {
       fromPreset("faq/centered@1", {
         theme: "light",
         edit: {
-          heading: { eyebrow: "Fine print", text: "Honest answers about money" },
+          heading: { eyebrow: undefined, text: "Honest answers about money" },
           accordion: {
             items: [
               {
@@ -1330,7 +1355,7 @@ function pricing() {
           },
         },
       }),
-    ],
+    ]),
   );
 }
 
@@ -1340,32 +1365,22 @@ function about() {
     "About",
     "about",
     "OpenSpace is open source: MIT-licensed templates and blocks, an AGPL editor and Hub, and CC BY documentation. Anyone can run their own.",
-    [
-      fromPreset("hero/big-type@1", {
-        theme: "brand",
-        edit: {
-          heading: { eyebrow: "About OpenSpace", text: "Websites as a commons" },
-          text: {
-            content: rt.doc(
-              rt.p(
-                "OpenSpace is an open-source website builder with the polish of Squarespace and none of the lock-in. It's built in the open, and anyone can run their own copy.",
-                "lead",
-              ),
-            ),
-          },
-          button: {
-            label: "View on GitHub",
-            link: REPO,
-            secondaryLabel: "Read the docs",
-            secondaryLink: url(DOCS),
-          },
+    onWideGrid([
+      pageHero(
+        "Websites as a commons",
+        "OpenSpace is an open-source website builder with the polish of Squarespace and none of the lock-in. It's built in the open, and anyone can run their own copy.",
+        {
+          label: "View on GitHub",
+          link: REPO,
+          secondaryLabel: "Read the docs",
+          secondaryLink: url(DOCS),
         },
-      }),
+      ),
       fromPreset("about/two-column-text@1", {
         theme: "light",
         edit: {
           heading: {
-            eyebrow: "Why we built it",
+            eyebrow: undefined,
             text: "Builders charge rent on commodities",
             subheading:
               "Hosting, a CDN, an editor and AI help used to justify a monthly bill. Today they're free or open source. What was missing was the integration and the design quality.",
@@ -1389,7 +1404,7 @@ function about() {
         theme: "light-accent",
         edit: {
           heading: {
-            eyebrow: "Principles",
+            eyebrow: undefined,
             text: "What we hold to",
             subheading: "Seven principles shape every decision; these three come up most.",
           },
@@ -1417,7 +1432,7 @@ function about() {
       fromPreset("faq/split@1", {
         theme: "light",
         edit: {
-          heading: { eyebrow: "Open source", text: "Licenses, in plain words" },
+          heading: { eyebrow: undefined, text: "Licenses, in plain words" },
           text: {
             content: rt.doc(
               rt.p("Contributions of code, templates and documentation are welcome."),
@@ -1467,7 +1482,7 @@ function about() {
           },
         },
       }),
-    ],
+    ]),
   );
 }
 
@@ -1478,24 +1493,17 @@ function supportPage() {
     "Support the commons",
     "support",
     "OpenSpace is free forever. Work out what you save by leaving a website builder, and give a little back to keep the shared Hub and development going.",
-    [
-      fromPreset("hero/centered@1", {
-        theme: "brand",
-        edit: {
-          heading: {
-            eyebrow: "Support the commons",
-            text: "Keep a piece of the web free",
-            subheading:
-              "OpenSpace costs nothing and always will, whether or not you give. Gifts keep the shared Hub running for every site and pay for the work that makes OpenSpace better.",
-          },
-          button: {
-            label: "Give once",
-            link: url(DONATE.oneTime.custom),
-            secondaryLabel: "Work out what you save",
-            secondaryLink: page(P.support, "calculator"),
-          },
+    onWideGrid([
+      pageHero(
+        "Keep a piece of the web free",
+        "OpenSpace costs nothing and always will, whether or not you give. Gifts keep the shared Hub running for every site and pay for the work that makes OpenSpace better.",
+        {
+          label: "Give once",
+          link: url(DONATE.oneTime.custom),
+          secondaryLabel: "Work out what you save",
+          secondaryLink: page(P.support, "calculator"),
         },
-      }),
+      ),
       section(
         [
           heading("What leaving saves you", {
@@ -1527,7 +1535,7 @@ function supportPage() {
         theme: "light-accent",
         edit: {
           heading: {
-            eyebrow: "Where gifts go",
+            eyebrow: undefined,
             text: "Into the commons, not a funnel",
             subheading:
               "There's no paid tier to grow into, so every gift goes to keeping OpenSpace free and good for everyone.",
@@ -1561,7 +1569,7 @@ function supportPage() {
       fromPreset("faq/centered@1", {
         theme: "light",
         edit: {
-          heading: { eyebrow: "Before you give", text: "Plain answers about gifts" },
+          heading: { eyebrow: undefined, text: "Plain answers about gifts" },
           accordion: {
             items: [
               {
@@ -1621,7 +1629,7 @@ function supportPage() {
           },
         },
       }),
-    ],
+    ]),
   );
 }
 
@@ -1717,55 +1725,57 @@ export const wwwSpec: TemplateSpec = {
           { type: "button", label: "Start free", link: START, style: "primary" },
         ],
         header: headerFrom("header/classic@1", { sticky: true }),
-        footer: fromPreset("footer/columns@1", {
-          theme: "dark",
-          edit: {
-            "text:1": {
-              content: rt.doc(
-                rt.p("OpenSpace", "lead"),
-                rt.p(
-                  "A website you own, free to host forever. Built in the open for the commons, and in pre-release.",
+        footer: wide(
+          fromPreset("footer/columns@1", {
+            theme: "dark",
+            edit: {
+              "text:1": {
+                content: rt.doc(
+                  rt.p("OpenSpace", "lead"),
+                  rt.p(
+                    "A website you own, free to host forever. Built in the open for the commons, and in pre-release.",
+                  ),
                 ),
-              ),
+              },
+              "social-links": { profiles: [] },
+              "text:2": {
+                content: rt.doc(
+                  ...linkColumn("Product", [
+                    ["Templates", href("templates")],
+                    ["Pricing", href("pricing")],
+                    ["Sign in to Studio", SIGN_IN],
+                    ["Move your site", href("home", "move")],
+                    ["Support the commons", href("support")],
+                    ["Claude Code plugin", `${GITHUB}/tree/main/plugin`],
+                  ]),
+                ),
+              },
+              "text:3": {
+                content: rt.doc(
+                  ...linkColumn("Learn", [
+                    ["Documentation", DOCS],
+                    ["Getting started", `${DOCS}/getting-started/`],
+                    ["Connect your AI", `${DOCS}/connect-your-ai/`],
+                    ["Move your site", `${DOCS}/guides/migrate-to-openspace/`],
+                    ["Templates", `${DOCS}/templates/`],
+                    ["Self-hosting", `${DOCS}/self-hosting/`],
+                    ["What works today", `${GITHUB}/blob/main/docs/PARITY.md`],
+                  ]),
+                ),
+              },
+              "text:4": {
+                content: rt.doc(
+                  rt.p("Open source", "eyebrow"),
+                  rt.p([
+                    "Code under MIT and AGPL-3.0; docs and designs under CC BY 4.0. ",
+                    rt.link("About the project", href("about")),
+                  ]),
+                  rt.p("© 2026 OpenSpace contributors", "small"),
+                ),
+              },
             },
-            "social-links": { profiles: [] },
-            "text:2": {
-              content: rt.doc(
-                ...linkColumn("Product", [
-                  ["Templates", href("templates")],
-                  ["Pricing", href("pricing")],
-                  ["Sign in to Studio", SIGN_IN],
-                  ["Move your site", href("home", "move")],
-                  ["Support the commons", href("support")],
-                  ["Claude Code plugin", `${GITHUB}/tree/main/plugin`],
-                ]),
-              ),
-            },
-            "text:3": {
-              content: rt.doc(
-                ...linkColumn("Learn", [
-                  ["Documentation", DOCS],
-                  ["Getting started", `${DOCS}/getting-started/`],
-                  ["Connect your AI", `${DOCS}/connect-your-ai/`],
-                  ["Move your site", `${DOCS}/guides/migrate-to-openspace/`],
-                  ["Templates", `${DOCS}/templates/`],
-                  ["Self-hosting", `${DOCS}/self-hosting/`],
-                  ["What works today", `${GITHUB}/blob/main/docs/PARITY.md`],
-                ]),
-              ),
-            },
-            "text:4": {
-              content: rt.doc(
-                rt.p("Open source", "eyebrow"),
-                rt.p([
-                  "Code under MIT and AGPL-3.0; docs and designs under CC BY 4.0. ",
-                  rt.link("About the project", href("about")),
-                ]),
-                rt.p("© 2026 OpenSpace contributors", "small"),
-              ),
-            },
-          },
-        }),
+          }),
+        ),
         social: [{ network: "github", url: GITHUB }],
         seo: {
           titleTemplate: "%s · OpenSpace",

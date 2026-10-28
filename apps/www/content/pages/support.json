@@ -8,16 +8,26 @@
   },
   "sections": [
     {
-      "id": "sec_dfrbwv8waz",
-      "preset": "hero/centered@1",
-      "label": "Centered statement",
+      "id": "sec_eb32sqr6h7",
+      "preset": "hero/big-type@1",
+      "label": "Big type with details",
       "layout": {
         "mode": "stack",
         "columns": {
           "d": [
+            8,
+            4
+          ],
+          "t": [
+            12
+          ],
+          "m": [
             12
           ]
-        }
+        },
+        "align": "end",
+        "gap": "xl",
+        "width": "wide"
       },
       "style": {
         "colorTheme": "brand",
@@ -28,25 +38,45 @@
       },
       "blocks": [
         {
-          "id": "blk_n0fjyww24h",
+          "id": "blk_8qn8yay3m9",
           "type": "heading",
           "v": 1,
           "fields": {
             "text": "Keep a piece of the web free",
             "level": "h1",
-            "size": "display",
-            "eyebrow": "Support the commons",
-            "subheading": "OpenSpace costs nothing and always will, whether or not you give. Gifts keep the shared Hub running for every site and pay for the work that makes OpenSpace better."
+            "size": "display"
           },
-          "variant": "plain",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
+          "column": 0,
+          "variant": "plain"
         },
         {
-          "id": "blk_pqhkbq1tb3",
+          "id": "blk_33hxapvzxh",
+          "type": "text",
+          "v": 1,
+          "fields": {
+            "content": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "preset": "lead"
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "OpenSpace costs nothing and always will, whether or not you give. Gifts keep the shared Hub running for every site and pay for the work that makes OpenSpace better."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "column": 1,
+          "variant": "default"
+        },
+        {
+          "id": "blk_ge3618pwdz",
           "type": "button",
           "v": 1,
           "fields": {
@@ -63,12 +93,8 @@
               "anchor": "calculator"
             }
           },
-          "variant": "default",
-          "style": {
-            "align": {
-              "d": "center"
-            }
-          }
+          "column": 1,
+          "variant": "default"
         }
       ]
     },
@@ -406,7 +432,6 @@
             "text": "Into the commons, not a funnel",
             "level": "h2",
             "size": "auto",
-            "eyebrow": "Where gifts go",
             "subheading": "There's no paid tier to grow into, so every gift goes to keeping OpenSpace free and good for everyone."
           },
           "variant": "plain",
@@ -474,8 +499,7 @@
           "fields": {
             "text": "Plain answers about gifts",
             "level": "h2",
-            "size": "auto",
-            "eyebrow": "Before you give"
+            "size": "auto"
           },
           "variant": "plain",
           "style": {
@@ -628,7 +652,7 @@
             12
           ]
         },
-        "width": "narrow",
+        "width": "wide",
         "gap": "lg"
       },
       "style": {
