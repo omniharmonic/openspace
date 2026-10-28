@@ -5,6 +5,7 @@ import {
   CURRENT_SCHEMA_VERSION,
   checkComponent,
   componentInstances,
+  findBrokenLinks,
   type SiteConfig,
 } from "@omniharmonic/openspace-schema";
 import { compileStyles } from "@omniharmonic/openspace-theme";
@@ -164,6 +165,41 @@ describe("HTML import (a page Claude made)", () => {
     const zip = zipSync({ "site/index.html": strToU8("<h1>Hi</h1><p>There</p>") });
     expect(bundleFromZip(zip).entry).toBe("index.html");
     expect(() => bundleFromFiles({ "a.css": "body{}" })).toThrow(/no HTML page/);
+  });
+});
+
+describe("in-page links (Boulder Foodshed: the header wasn't connected to the sections)", () => {
+  it("keeps every menu entry, button and footer link pointing at its section", async () => {
+    const html = readFileSync(join(FIX, "foodshed.html"), "utf8");
+    const r = await importHtmlBundle(bundleFromHtml(html, "foodshed.html"), {
+      config,
+      fetch: net,
+      now,
+    });
+    const doc = r.doc;
+    if (process.env.DUMP) {
+      const { writeFileSync } = await import("node:fs");
+      writeFileSync(`${process.env.DUMP}/foodshed.json`, JSON.stringify(doc, null, 2));
+    }
+    const home = Object.values(doc.pages).find((p) => p.slug === "");
+    if (!home) throw new Error("no home");
+    // Ids on the section, on a wrapper inside it, on a wrapper around it, on its heading.
+    const anchors = home.sections.map((s) => s.anchor).filter(Boolean);
+    expect(anchors).toEqual(
+      expect.arrayContaining(["how-it-works", "baskets", "questions", "waitlist"]),
+    );
+    // The menu: entries that scroll to those sections (desktop and phone use the same items).
+    const entries = doc.site.nav.map((n) =>
+      n.type === "page" ? [n.label, n.anchor] : n.type === "button" ? [n.label, n.link] : [n.type],
+    );
+    expect(entries).toEqual([
+      ["How it works", "how-it-works"],
+      ["Baskets", "baskets"],
+      ["Questions", "questions"],
+      ["Join the waitlist", { type: "page", page: home.id, anchor: "waitlist" }],
+    ]);
+    // Nothing anywhere links to a part of a page that isn't there.
+    expect(findBrokenLinks(doc).map((l) => `${l.kind}: ${l.message}`)).toEqual([]);
   });
 });
 

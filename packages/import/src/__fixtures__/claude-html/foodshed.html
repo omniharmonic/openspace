@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hillside Foodshed — a weekly basket</title>
+<style>
+:root { --moss: #3f5a2a; --cream: #f6f0e1; --ink: #1f1d17; --ochre: #c98a2b; --font-display: "Fraunces", serif; --font-body: "Work Sans", sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--cream); color: var(--ink); font-family: var(--font-body); font-size: 18px; line-height: 1.6; }
+.site-header { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: var(--cream); }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--ink); text-decoration: none; }
+.nav { display: flex; gap: 24px; }
+.nav a { color: var(--ink); text-decoration: none; }
+.nav .btn { background: var(--moss); color: var(--cream); padding: 10px 18px; border-radius: 999px; }
+.mobile-menu { display: none; }
+@media (max-width: 767px) { .nav { display: none; } .mobile-menu { display: block; } }
+.hero { padding: 96px 24px; }
+.hero h1 { font-family: var(--font-display); font-size: 56px; line-height: 1.05; margin: 0 0 16px; }
+.hero .more { color: var(--moss); }
+.band { padding: 72px 24px; background: #fff; }
+.band .wrap { max-width: 1100px; margin: 0 auto; }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.step { background: var(--cream); border-radius: 16px; padding: 24px; }
+.sizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.size { border: 2px solid var(--moss); border-radius: 16px; padding: 24px; }
+.faq details { border-bottom: 1px solid #ddd; padding: 12px 0; }
+.signup { padding: 72px 24px; background: var(--moss); color: var(--cream); text-align: center; }
+.signup input { padding: 12px; font-size: 18px; border-radius: 8px; border: 0; }
+.signup button { padding: 12px 20px; font-size: 18px; border-radius: 999px; border: 0; background: var(--ochre); color: var(--ink); }
+.site-footer { padding: 48px 24px; background: var(--ink); color: var(--cream); }
+.site-footer a { color: var(--cream); }
+@media (max-width: 767px) { .steps, .sizes { grid-template-columns: 1fr; } .hero h1 { font-size: 40px; } }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="#top">Hillside Foodshed</a>
+  <nav class="nav" aria-label="Main">
+    <a href="#how-it-works">How it works</a>
+    <a href="#baskets">Baskets</a>
+    <a href="#questions">Questions</a>
+    <a class="btn" href="#waitlist">Join the waitlist</a>
+  </nav>
+  <div class="mobile-menu">
+    <a href="#how-it-works">How it works</a>
+    <a href="#baskets">Baskets</a>
+    <a href="#questions">Questions</a>
+  </div>
+</header>
+<main>
+  <section class="hero" id="top">
+    <h1>Market food, at your door every Saturday.</h1>
+    <p>A weekly basket from the farmers market, planned by a local chef and owned by the people who grow it.</p>
+    <a class="more" href="#how-it-works">See how the week works ↓</a>
+  </section>
+  <section class="band">
+    <div class="wrap" id="how-it-works">
+      <h2>How the week works</h2>
+      <div class="steps">
+        <div class="step"><h3>A chef plans the week</h3><p>Midweek, from what the farms have.</p></div>
+        <div class="step"><h3>The crew shops the market</h3><p>Saturday morning, stall by stall.</p></div>
+        <div class="step"><h3>One route to your door</h3><p>Saturday afternoon, by bike.</p></div>
+      </div>
+    </div>
+  </section>
+  <div id="baskets" class="band">
+    <section class="wrap">
+      <h2>Baskets</h2>
+      <div class="sizes">
+        <div class="size"><h3>Small</h3><p>Two people, three dinners.</p></div>
+        <div class="size"><h3>Medium</h3><p>A household of four.</p></div>
+        <div class="size"><h3>Large</h3><p>Six-plus, or leftovers on purpose.</p></div>
+      </div>
+    </section>
+  </div>
+  <section class="band faq">
+    <div class="wrap">
+      <h2 id="questions">Questions</h2>
+      <details><summary>Is this a CSA?</summary><p>Not quite: you choose the size each month.</p></details>
+      <details><summary>When does it arrive?</summary><p>Saturday afternoon.</p></details>
+    </div>
+  </section>
+  <section class="signup" id="waitlist">
+    <h2>Get a basket when we open.</h2>
+    <p>Leave your email and we'll tell you when the first baskets are ready.</p>
+    <form action="#" method="post">
+      <input type="email" name="email" placeholder="you@example.com" aria-label="Email" required>
+      <button type="submit">Join the waitlist</button>
+    </form>
+  </section>
+</main>
+<footer class="site-footer">
+  <p>Hillside Foodshed · <a href="#how-it-works">How it works</a> · <a href="#waitlist">Join</a></p>
+</footer>
+</body>
+</html>
