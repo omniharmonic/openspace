@@ -1,5 +1,5 @@
 import { screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { useEditorUi } from "../editor/editor-store";
 import { useManageUi } from "../site-mgmt/manage-ui";
 import { FORBIDDEN, openWorkspace, visibleCopy, WILLOW } from "../workspace/testing";
