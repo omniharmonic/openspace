@@ -25,10 +25,12 @@ import {
   useEmailUnavailable,
   useMcpGrants,
   useSetupInfo,
+  useSiteImport,
 } from "../../api";
 import type { Site } from "../../api/types";
 import { Button, cx, Dialog, Field, Input, Spinner, toast } from "../../ui";
 import { useDocStore } from "../editor/model/context";
+import { FinishWithClaude, wantsClaude } from "../move/FinishWithClaude";
 import { useSiteUpdate } from "../site-chrome/controls";
 import { CloudflareConnect } from "./CloudflareConnect";
 import {
@@ -56,6 +58,7 @@ const ICONS: Record<WizardId, ReactNode> = {
   analytics: <TrendingUp />,
   personalize: <PenLine />,
   ai: <Bot />,
+  claude: <Sparkles />,
   info: <Wrench />,
 };
 
@@ -78,6 +81,9 @@ export function useSetupChecklist(site: Site) {
   const caps = useCapabilities();
   const commerce = useCommerceSettings(site.id, caps.payments.configured);
   const grants = useMcpGrants();
+  // A moved site: how close the automatic move came (offers Claude to finish it when not close).
+  const move = useSiteImport(site.import ? site.id : undefined);
+  const moveNeedsClaude = move.data?.state === "ready" && wantsClaude(move.data);
   const [acknowledged, setAck] = useState(() => readAcknowledged(site.id));
   // Steps ticked elsewhere (the editor's first edit, another copy of the list) show at once.
   useEffect(() => {
@@ -98,8 +104,9 @@ export function useSetupChecklist(site: Site) {
         paymentsReady: commerce.data?.payments.ready === true,
         acknowledged,
         aiConnected,
+        moveNeedsClaude,
       }),
-    [doc, site, setup.data, commerce.data, acknowledged, aiConnected],
+    [doc, site, setup.data, commerce.data, acknowledged, aiConnected, moveNeedsClaude],
   );
   const acknowledge = (id: string) => {
     const next = [...acknowledged, id];
@@ -327,6 +334,7 @@ const WIZARD_TITLE: Record<WizardId, string> = {
   analytics: "Your visitor stats",
   personalize: "Make it yours",
   ai: "Connect your AI",
+  claude: "Want it closer? Claude can finish the job",
   info: "From your old site",
 };
 
@@ -349,8 +357,24 @@ const WIZARD_LEDE: Record<WizardId, string> = {
   personalize:
     "Your site starts with sample words and pictures. Swap in your own — it ticks itself off as soon as you change something.",
   ai: "Claude can write, edit and check your site for you. Connecting it takes a few minutes, with nothing to install.",
+  claude: "",
   info: "",
 };
+
+/** The "Improve it with Claude" steps for this site's move, inside the wizard. */
+function ClaudeFinish({ site }: { site: Site }) {
+  const move = useSiteImport(site.import ? site.id : undefined);
+  if (move.isPending && site.import) return <Spinner size={16} label="Loading your move" />;
+  return (
+    <FinishWithClaude
+      site={site}
+      source={move.data?.source}
+      fidelity={move.data?.fidelity}
+      startOpen
+      heading={false}
+    />
+  );
+}
 
 export function SetupWizard({
   site,
@@ -475,6 +499,17 @@ export function SetupWizard({
           <Button variant="primary" icon={<Bot />} onClick={() => go("/connect")}>
             Connect your AI
           </Button>
+        </>
+      );
+      break;
+    case "claude":
+      body = <ClaudeFinish site={site} />;
+      footer = (
+        <>
+          <Button variant="ghost" onClick={onClose}>
+            Later
+          </Button>
+          {gotIt}
         </>
       );
       break;

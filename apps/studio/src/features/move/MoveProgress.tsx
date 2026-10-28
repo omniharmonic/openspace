@@ -9,12 +9,13 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { type ImportView, useImport, useRetryImport } from "../../api";
+import { type ImportView, useImport, useRetryImport, useSite } from "../../api";
 import { LoadError } from "../../app/Connection";
 import { useConfig } from "../../app/config";
 import { Wordmark } from "../../app/Wordmark";
 import { Button, cx, Spinner } from "../../ui";
 import { displayUrl } from "../onboarding/BuildingProgress";
+import { FinishWithClaude, wantsClaude } from "./FinishWithClaude";
 import "./Move.css";
 
 /** IMPORT-REPORT.md's "Needs attention", as a friendly checklist of things to look at. */
@@ -266,6 +267,8 @@ export function MoveProgress() {
   const retry = useRetryImport();
   const navigate = useNavigate();
   const view = imp.data;
+  const site = useSite(view?.state === "ready" ? view.siteId : undefined);
+  const siteName = site.data?.name;
 
   if (imp.isPending)
     return (
@@ -396,6 +399,13 @@ export function MoveProgress() {
           <section className="st-move__review" aria-label="Review">
             <AttentionPanel groups={view.attention} />
             <FidelityPanel fidelity={view.fidelity} />
+            {wantsClaude(view) && (
+              <FinishWithClaude
+                site={{ id: view.siteId, name: siteName ?? "your site" }}
+                source={view.source}
+                fidelity={view.fidelity}
+              />
+            )}
             <FinishSetup items={view.checklist} />
           </section>
         )}

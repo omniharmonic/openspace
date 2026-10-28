@@ -1,0 +1,125 @@
+/* "Want it closer? Claude can finish the job" — after an automatic move (review screen and the
+   editor's Finish setting up). Theme tokens only, so it follows light and dark. */
+.st-moveclaude {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px;
+  border-radius: var(--st-r-lg);
+  background: var(--st-panel);
+  box-shadow:
+    inset 0 0 0 1px var(--st-line),
+    inset 4px 0 0 var(--st-accent);
+}
+
+.st-moveclaude__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--st-fs-lg);
+  font-weight: 600;
+}
+
+.st-moveclaude__title svg,
+.st-moveclaude__h svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--st-accent-text);
+}
+
+.st-moveclaude__lede {
+  margin: 0;
+  color: var(--st-text-2);
+  line-height: 1.5;
+}
+
+.st-moveclaude__start {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--st-accent-soft);
+  color: var(--st-text);
+  font-size: var(--st-fs-sm);
+  line-height: 1.45;
+}
+
+.st-moveclaude__start p {
+  margin: 0 0 4px;
+  font-weight: 550;
+}
+
+.st-moveclaude__start ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.st-moveclaude__steps {
+  display: grid;
+  gap: 16px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-moveclaude__step {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--st-line);
+}
+
+.st-moveclaude__step.is-done .st-moveclaude__h svg {
+  color: var(--st-live);
+}
+
+.st-moveclaude__h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--st-fs-md);
+  font-weight: 600;
+}
+
+.st-moveclaude__prompt {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--st-line);
+  border-radius: 10px;
+  background: var(--st-field);
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-fs-sm);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.st-moveclaude__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.st-moveclaude__note {
+  margin: 0;
+  color: var(--st-text-2);
+  font-size: var(--st-fs-sm);
+  line-height: 1.45;
+}
+
+@media (max-width: 480px) {
+  .st-moveclaude {
+    padding: 16px;
+  }
+
+  .st-moveclaude__actions > * {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}

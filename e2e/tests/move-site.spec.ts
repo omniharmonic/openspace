@@ -36,6 +36,29 @@ test("Move my site: address → progress → live site with what needs attention
   expect((await page.request.get(src)).headers()["content-type"]).toBe("image/jpeg");
   await expect(page.getByRole("heading", { name: /Finish setting up/ })).toBeVisible();
 
+  // Not a near-perfect match (the phone still differs): an honest invitation to finish with
+  // Claude — connect once, then open Claude with a message naming the old address and the site.
+  const invite = page.getByRole("region", { name: "Want it closer? Claude can finish the job" });
+  await expect(invite).toBeVisible();
+  await invite.getByRole("button", { name: "Improve it with Claude" }).click();
+  await expect(
+    invite.getByRole("heading", { name: /Connect OpenSpace to Claude \(once\)/ }),
+  ).toBeVisible();
+  const href =
+    (await invite
+      .getByRole("link", { name: /Open Claude with this message/ })
+      .getAttribute("href")) ?? "";
+  const message = decodeURIComponent(href.split("?q=")[1] ?? "");
+  expect(message).toContain(`https://www.${host}`);
+  expect(message).toMatch(/id st_[0-9a-z]+/);
+  // Fits a phone: no sideways scrolling at 390px.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(invite.getByRole("button", { name: "Copy the message" })).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
+  ).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 800 });
+
   await page.getByRole("button", { name: "Open it in Studio" }).click();
   await page.waitForURL(/\/sites\/st_[0-9a-z]+/);
   await editorReady(page);

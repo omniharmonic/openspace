@@ -23,6 +23,7 @@ export type WizardId =
   | "analytics"
   | "personalize"
   | "ai"
+  | "claude"
   | "info";
 
 export type SetupStatus =
@@ -62,6 +63,11 @@ export interface ChecklistInput {
   acknowledged: readonly string[];
   /** An AI app (Claude) is connected to this site. */
   aiConnected?: boolean;
+  /**
+   * The site was moved in automatically and didn't come out a near-perfect match (below ~90, or
+   * with listed differences): offer Claude to finish the job.
+   */
+  moveNeedsClaude?: boolean;
 }
 
 const COPY: Record<
@@ -209,6 +215,16 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
       }),
     );
 
+  // A move that didn't come across exactly: Claude can finish it (most valuable first).
+  if (input.moveNeedsClaude)
+    items.push(
+      always("closer", "Make it look even closer", {
+        why: "The automatic move couldn’t bring everything across exactly. Claude can compare it with your old site page by page and rebuild what’s missing — it all stays editable here.",
+        minutes: 5,
+        done: acknowledged.includes("closer"),
+      }),
+    );
+
   known("store", needs.store > 0, cloudflare && paymentsReady, {
     needsLive: true,
     count: needs.store || undefined,
@@ -257,7 +273,7 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
 }
 
 function always(
-  id: "personalize" | "ai",
+  id: "personalize" | "ai" | "closer",
   title: string,
   o: { why: string; minutes: number; done: boolean },
 ): SetupItem {
@@ -268,7 +284,7 @@ function always(
     why: o.why,
     minutes: o.minutes,
     status: o.done ? "done" : "todo",
-    wizard: id,
+    wizard: id === "closer" ? "claude" : id,
     detail: null,
     where: [],
     count: null,

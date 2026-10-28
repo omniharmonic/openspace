@@ -43,3 +43,31 @@ export function startInClaudePrompt(idea?: string): string {
   const about = idea?.trim() ? ` It's for ${idea.trim()}.` : "";
   return `I'd like to make a new website with OpenSpace.${about} Please use the OpenSpace connector and guide me: ask me a few questions about it first, then design it, put it online and give me the link to edit it in OpenSpace.`;
 }
+
+/** The old site's address as a person would write it ("owner/repo" stays as it is). */
+export function oldAddress(source: string): string {
+  const s = source.trim();
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(s) || /^[\w.-]+\/[\w.-]+$/.test(s)) return s;
+  return `https://${s}`;
+}
+
+/**
+ * The first message for "Improve it with Claude" after an automatic move: names the old address
+ * and the new site (its id, so Claude finds it), and says what to do — compare page by page,
+ * rebuild what didn't come across, keep it editable, ask before publishing.
+ */
+export function finishMovePrompt(
+  site: { id: string; name: string },
+  source: string | null | undefined,
+  score?: number | null,
+): string {
+  const close =
+    typeof score === "number"
+      ? ` The automatic move got it to ${score}/100 for how close it looks.`
+      : "";
+  return [
+    `Please finish moving my site${source?.trim() ? ` ${oldAddress(source)}` : ""} to OpenSpace (site "${site.name}", id ${site.id}).${close}`,
+    "Compare it with the original page by page, on a computer and on a phone, starting with what OpenSpace's move report says still differs. Rebuild what didn't come across — custom sections, animations, missing pieces — so it looks like my old site, and keep every word and picture editable for me in OpenSpace.",
+    "Show me before and after as you go, run the design and phone checks, and ask me before you publish anything. Use the openspace-migrate skill if you have it.",
+  ].join("\n");
+}
