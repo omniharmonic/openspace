@@ -112,7 +112,8 @@ Both servers add tools that fetch other websites. The local stdio server (`opens
 | --- | --- |
 | `list_templates` | Templates and their looks, for `create_site`. |
 | `create_site` | A new site from a template and look (needs "Create new sites" on the consent screen). The first time, it returns a Studio link to approve OpenSpace on GitHub. |
-| `start_site` | Start with Claude: a new site from the owner's brief (`name`, `about`, `audience?`, `feeling?`) and brand material (`tokens?`, `colors?`, `fonts?`) or a page Claude made (`html?` / `files?`). Live at once: the page made editable, or the closest template in their brand, with the design-system record. Needs "Create new sites". |
+| `start_site` | Start with Claude, the last step of the conversation: the owner's brief (`name`, `about`, `audience?`, `feeling?`, `notes?`) plus the page(s) you designed (`html?` / `files?`) — or, only if they prefer a template, brand material (`tokens?`, `colors?`, `fonts?`) for the closest template. Answers at once with the edit link (works straight away), the live address and a `status`; the site is granted to this connection as it is created. Needs "Create new sites". |
+| `site_status` | Hub: `site` (id or name), `wait?` (seconds) → `phase`: setting up, publishing (about a minute; editing already works), `live`, or a step for the person (needs GitHub, failed — with `actionUrl`). For a site this connection can't edit, it returns the person's one-click **Allow** link. |
 | `import_status` | How a move started with `import_site` is going: the steps, pages and images so far, what needs attention, the Finish setting up list, the live address. |
 
 ## Prompts

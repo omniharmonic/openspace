@@ -14,10 +14,21 @@ You need:
 
 1. In Claude, open **Settings → Connectors** and choose **Add custom connector**.
 2. Name it **OpenSpace** and enter the address `https://hub.openspace.host/mcp`.
-3. Claude opens OpenSpace in a new window. Sign in with GitHub, tick the sites Claude may work on, and decide whether Claude may publish (off by default — you can always publish yourself in Studio). Press **Allow**.
+3. Claude opens OpenSpace in a new window. Sign in with GitHub and choose what Claude may do:
+   - **Create new sites and edit the sites it creates** — on by default. A site Claude makes is always Claude's to edit.
+   - **All my sites, including ones I make later** — optional. Claude can then edit every site you work on, including ones you start in Studio afterwards.
+   - **Or pick the sites it can edit now** — if you'd rather choose site by site.
+   - **Allow publishing** — off by default; you can always publish yourself in Studio, and Claude asks before every publish.
+   Press **Allow**.
 4. In a new chat, open the tools menu and make sure **OpenSpace** is on.
 
-Don't have a site yet? You can still connect: Claude can move an existing site in for you (step 3 below). If the consent screen says you have no sites, create one in Studio first, or ask Claude to import your old site and then connect again.
+Don't have a site yet? That's the easiest start: say "make me a website" and Claude asks you about it, designs it and puts it online — see [Start with Claude](/guides/start-with-claude/). Claude can also move an existing site in for you (step 3 below).
+
+### Changing what Claude can reach
+
+- **Studio → Connect your AI → Apps with access** shows each connected app with **All my sites**, **Can create sites** and **Can publish** switches, and **Disconnect**.
+- If Claude asks for a site it isn't allowed to edit, it gives you an **Allow** link. It opens Studio, where you choose **Allow** — one click, and only you (signed in) can do it; Claude can't give itself access.
+- Right after you create a site in Studio, the welcome screen offers **Let Claude edit this site**.
 
 More detail, personal links and troubleshooting: [Claude & Claude Desktop](/connect-your-ai/claude/).
 
@@ -76,6 +87,7 @@ Claude asks whether to create a new OpenSpace site next to the old one (the safe
 - **Claude says it can't see OpenSpace tools** — turn the OpenSpace connector on in the chat's tools menu, or add it again (step 1).
 - **"Screenshots aren't available"** — your Hub hasn't turned them on (self-hosted Hubs: see [Self-hosting](/self-hosting/)). Claude carries on by reading the rendered page.
 - **"That's a lot of screenshots"** — screenshots are limited to about forty every ten minutes; wait a few minutes or let Claude look at one section at a time.
-- **The import finished but Claude can't see the new site** — open Studio → Settings → Connect your AI and allow Claude on the new site, or reconnect the connector and tick it.
+- **Claude can't edit a site** — give it the **Allow** link Claude shows you, or turn on **All my sites** in Studio → Connect your AI → Apps with access.
+- **"Still being set up" / "being published"** — a new site takes under a minute to set up and about a minute to go live. Editing works as soon as it's set up; Claude checks and tells you when it's live.
 
 Prefer the terminal and a copy of the site on your own computer? The [Claude Code plugin](/connect-your-ai/claude-code/) is the power-user path.

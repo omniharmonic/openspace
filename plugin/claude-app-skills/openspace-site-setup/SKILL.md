@@ -43,7 +43,7 @@ More templates are in Studio's gallery (Darkroom, Orbit, Beacon, Fixwell, Keysto
 ## 2. Connect Claude
 
 1. In Claude: **Settings → Connectors → Add custom connector**. Name **OpenSpace**, address `https://hub.openspace.host/mcp`.
-2. Claude opens OpenSpace: sign in, tick the sites Claude may edit, and decide whether Claude may **publish** (off by default — the owner can always publish from Studio). Press **Allow**.
+2. Claude opens OpenSpace: sign in, keep **Create new sites and edit the sites it creates** on, tick **All my sites, including ones I make later** (or the sites Claude may edit), and decide whether Claude may **publish** (off by default — the owner can always publish from Studio). Press **Allow**. If you later ask for a site you can't edit, the tool gives an **Allow** link for the person — pass it on.
 3. In a chat, turn the OpenSpace connector on in the tools menu. Check with `list_sites` and `get_site`.
 
 Alternative for one site without signing in: Studio → Settings → Connect your AI → **personal link**; paste it as the connector address. Treat it like a password.
