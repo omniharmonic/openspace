@@ -82,7 +82,7 @@ function home() {
             type: "image",
             src: photo("auditorium", 1920).src,
             focal: [0.5, 0.5],
-            overlay: { color: "background", opacity: 0.8 },
+            overlay: { color: "background", opacity: 0.86 },
           },
         },
         edit: {

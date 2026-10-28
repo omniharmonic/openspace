@@ -230,6 +230,8 @@ export interface StackOpts {
   m?: number[];
   /** Mobile/tablet stacking order of desktop columns. */
   order?: number[];
+  /** Phone-only stacking order (overrides `order` on phones). */
+  mOrder?: number[];
   align?: "start" | "center" | "end" | "stretch";
   width?: "narrow" | "content" | "wide" | "full";
   gap?: SpaceToken;
@@ -243,7 +245,14 @@ export function stack(o: StackOpts = {}): SectionLayout {
   return {
     mode: "stack",
     columns,
-    ...(o.order ? { order: { m: o.order, t: o.order } } : {}),
+    ...(o.order || o.mOrder
+      ? {
+          order: {
+            m: o.mOrder ?? (o.order as number[]),
+            ...(o.order ? { t: o.order } : {}),
+          },
+        }
+      : {}),
     ...(o.align ? { align: o.align } : {}),
     ...(o.width ? { width: o.width } : {}),
     ...(o.gap ? { gap: o.gap } : {}),

@@ -306,7 +306,11 @@ export const summaryBlock = defineBlock({
     }
     return (
       <div
-        className={cx("os-summary", `os-summary--${variant}`)}
+        className={cx(
+          "os-summary",
+          `os-summary--${variant}`,
+          items.every((i) => i.kind === "products") && "os-summary--products",
+        )}
         style={{ "--s-cols": balancedColumns(items.length, columns) }}
       >
         {heading}
@@ -616,6 +620,8 @@ export const collectionsCss = `
 @container block (min-width:36rem){.os-summary--grid .os-summary__items{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @container block (min-width:60rem){.os-summary--grid .os-summary__items{grid-template-columns:repeat(var(--s-cols,3),minmax(0,1fr))}}
 .os-summary__item{min-width:0;display:flex}
+/* Products on phones: two small cards per row (name, price), like a shop app. */
+@media (max-width:767.98px){@container block (max-width:35.99rem){.os-summary--grid.os-summary--products .os-summary__items{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--os-space-sm) var(--os-space-xs)}.os-summary--products .os-summary__excerpt{display:none}.os-summary--products .os-summary__title{font-size:var(--os-type-body-font-size);line-height:1.3}}}
 .os-summary__card{position:relative;display:grid;align-content:start;gap:var(--os-space-xs);width:100%}
 .os-summary__body{display:grid;gap:var(--os-space-3xs)}
 .os-summary__meta{display:flex;flex-wrap:wrap;gap:0.2em 0.9em;margin:0;font-size:var(--os-type-small-font-size);color:var(--os-color-text-muted)}

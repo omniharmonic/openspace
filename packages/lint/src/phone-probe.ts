@@ -25,7 +25,7 @@ export type PhoneFindingKind =
   | "tiny-text"
   /** Text squeezed into a very narrow column. */
   | "narrow-text"
-  /** A link or button smaller than 44×44px with another one close by. */
+  /** A link or button less than 44px tall, or narrow and crowded by another one. */
   | "tap-target"
   /** Two pieces of text drawn on top of each other. */
   | "overlap"
@@ -44,7 +44,9 @@ export type PhoneFindingKind =
   /** The header is crowded: its parts overlap or it is very tall. */
   | "header-crowded"
   /** The footer is several screens tall. */
-  | "long-footer";
+  | "long-footer"
+  /** The first section's main button is below the first phone screen. */
+  | "cta-below-fold";
 
 export interface PhoneFinding {
   kind: PhoneFindingKind;
@@ -282,7 +284,7 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
     if (reading && ((t.length >= 120 && size < L.bodyText - 0.5) || (t.length >= 40 && size < 13.5))) add("small-text", el, { value: size, limit: L.bodyText });
     else if (size < L.anyText - 0.5 && t.length > 1) add("tiny-text", el, { value: size, limit: L.anyText });
     const r = el.getBoundingClientRect();
-    if ((t.match(/[A-Za-z\\u00C0-\\uFFFF]{2,}/g) || []).length >= 6 && r.width < L.narrowColumn && !inScroller(el)) add("narrow-text", el, { value: r.width, limit: L.narrowColumn });
+    if (!el.closest("h1,h2,h3,h4,h5,h6") && (t.match(/[A-Za-z\\u00C0-\\uFFFF]{2,}/g) || []).length >= 6 && r.width < L.narrowColumn && !inScroller(el)) add("narrow-text", el, { value: r.width, limit: L.narrowColumn });
     if (!inScroller(el) && r.right <= vw + 2 && r.left >= -2) {
       // The text itself (not its box) against the screen edges.
       const tr = ownRect(el);
@@ -291,7 +293,8 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
   }
 
   // --- tap targets ---------------------------------------------------------------------------
-  const targets = all.filter((el) => el.matches("a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=tab]") && visible(el) && !el.closest(".os-hp"));
+  // (A map's legal attribution link is exempt: it's required, tiny by convention and rarely tapped.)
+  const targets = all.filter((el) => el.matches("a[href],button,input:not([type=hidden]),select,textarea,summary,[role=button],[role=tab]") && visible(el) && !el.closest(".os-hp,.os-map__attribution"));
   const proseLink = (el) => el.tagName === "A" && !el.classList.contains("os-button") && !!el.parentElement && el.parentElement.closest("p,li,dd,blockquote,td,figcaption") && txt(el.parentElement.closest("p,li,dd,blockquote,td,figcaption")).length > txt(el).length + 10;
   /** A "stretched" link (an absolutely positioned ::after) is as big as the card it covers. */
   const hitRect = (el) => {
@@ -308,9 +311,11 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
     if (el.type === "checkbox" || el.type === "radio") { const lab = el.closest("label"); if (lab) return; }
     const r = rects[i];
     if (r.width >= L.tapTarget - 0.5 && r.height >= L.tapTarget - 0.5) return;
-    const tiny = r.width < L.tapTargetMin - 0.5 || r.height < L.tapTargetMin - 0.5;
-    const cx = r.left + r.width / 2, cy = r.top + r.height / 2, half = L.tapTarget / 2;
-    const zone = { left: cx - half, right: cx + half, top: cy - half, bottom: cy + half };
+    // Too short to tap reliably (44px), or so narrow and close to another target that it's easy to miss.
+    const tiny = r.height < L.tapTarget - 0.5 || r.width < L.tapTargetMin - 0.5;
+    // Tall enough: is it so narrow that a neighbour on the same line sits inside its 44px-wide zone?
+    const cx = r.left + r.width / 2, half = L.tapTarget / 2;
+    const zone = { left: cx - half, right: cx + half, top: r.top + r.height * 0.25, bottom: r.bottom - r.height * 0.25 };
     let crowded = false;
     targets.forEach((o, j) => {
       if (j === i || crowded || o.contains(el) || el.contains(o)) return;
@@ -476,6 +481,17 @@ export const PHONE_PROBE_SCRIPT = `(async () => {
       }
     if (bar.scrollWidth > bar.clientWidth + 2) crowded = true;
     if (crowded) add("header-crowded", bar, { value: bar.getBoundingClientRect().height });
+  }
+  // The first section's main action: visible without scrolling?
+  const first = Array.from(document.querySelectorAll("main [data-os-section]")).find(visible);
+  // Only a first section with photos or video (a hero) can push its words and button down.
+  if (first && first.querySelector("img,video,.os-section__bg")) {
+    // A form's own submit button sits at its end, wherever that is; look at call-to-action buttons.
+    const cta = Array.from(first.querySelectorAll(".os-button--primary")).find((b) => visible(b) && !b.closest("form,.os-form,.os-newsletter"));
+    if (cta) {
+      const top = cta.getBoundingClientRect().top + window.scrollY;
+      if (top + 20 > vh) add("cta-below-fold", cta, { value: top, limit: vh });
+    }
   }
   const footer = document.querySelector(".os-footer");
   if (footer && visible(footer) && footer.getBoundingClientRect().height > vh * 2.5) add("long-footer", footer, { value: footer.getBoundingClientRect().height, limit: Math.round(vh * 2.5) });

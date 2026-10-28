@@ -150,6 +150,25 @@ describe("phoneCheck (static)", () => {
     expect(only(phoneCheck(siteWith([page("Home", "", [s])])), "phone-padding")).toEqual([]);
   });
 
+  it("shortens photo sections that fill a phone screen, on phones only", () => {
+    const s = stackSection([h("Bedford", 1)]);
+    s.style.background = {
+      type: "image",
+      src: "media/x.jpg",
+      overlay: { color: "background", opacity: 0.6 },
+    };
+    s.style.minHeight = { d: "88vh", m: "80svh" };
+    const doc = siteWith([page("Home", "", [s])]);
+    const issue = only(phoneCheck(doc), "phone-tall-photo")[0];
+    expect(issue).toBeDefined();
+    const fixed = fix(doc, issue);
+    expect(Object.values(fixed.pages)[0]?.sections[0]?.style.minHeight).toEqual({
+      d: "88vh",
+      m: "70svh",
+    });
+    expect(only(phoneCheck(fixed), "phone-tall-photo")).toEqual([]);
+  });
+
   it("flags heading words too long for a phone line and sets a phone-only size", () => {
     const hd = heading("Incomprehensibilities everywhere", "h1", "display");
     const s = stackSection([hd, p(LONG)]);
@@ -263,6 +282,37 @@ describe("phoneIssuesFromProbe (rendered)", () => {
     const fixed = fix(doc, issues[0]);
     const bg = Object.values(fixed.pages)[0]?.sections[1]?.style.background;
     expect(bg?.type === "image" && bg.overlay?.opacity).toBe(0.35);
+  });
+
+  it("puts the words first on phones when the main button is below the first screen", () => {
+    const photo = img();
+    const title = h("Handmade pottery", 1);
+    const s = gridSection([
+      [photo, { x: 1, y: 1, w: 12, h: 20 }, { x: 1, y: 1, w: 8, h: 20 }],
+      [title, { x: 13, y: 4, w: 12, h: 4 }, { x: 1, y: 21, w: 8, h: 4 }],
+    ]);
+    const pg = page("Home", "", [s]);
+    const doc = siteWith([pg]);
+    const [i] = phoneIssuesFromProbe(doc, pg.id, [
+      result([
+        {
+          kind: "cta-below-fold",
+          section: s.id,
+          area: "main",
+          tag: "a",
+          text: "Visit",
+          value: 900,
+          limit: 780,
+        },
+      ]),
+    ]);
+    expect(i?.severity).toBe("warning");
+    expect(i?.autofix?.label).toBe("Put the words first on phones");
+    const fixed = fix(doc, i);
+    const layout = Object.values(fixed.pages)[0]?.sections[0]?.layout;
+    if (layout?.mode !== "grid") throw new Error("grid");
+    expect(layout.items[title.id]?.m?.y).toBe(1);
+    expect((layout.items[photo.id]?.m?.y ?? 0) > 1).toBe(true);
   });
 
   it("explains findings without a fix in plain language", () => {

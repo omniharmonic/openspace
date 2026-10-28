@@ -99,6 +99,7 @@ class PhoneCtx {
     if (section.layout.mode === "stack") this.columns(page, section);
     else this.grid(page, section, section.layout);
     this.padding(page, section);
+    this.tallPhoto(page, section);
     for (const b of section.blocks) if (!b.hidden) this.headingWords(page, section, b);
   }
 
@@ -245,6 +246,37 @@ class PhoneCtx {
             page: page as never,
             section: section.id,
             set: { "style.padding.m": "lg" },
+          } as Op,
+        ],
+      },
+    });
+  }
+
+  /** A photo section taller than most of a phone screen (the words and button get pushed down). */
+  tallPhoto(page: string, section: Section) {
+    const bg = section.style.background;
+    const mh = section.style.minHeight;
+    if (!mh || !bg || (bg.type !== "image" && bg.type !== "video")) return;
+    const m = mh.m ?? mh.t ?? mh.d;
+    const vh = /^(\d+)(?:vh|svh|dvh|lvh)$/.exec(m);
+    const px = /^(\d+)px$/.exec(m);
+    if (!(vh && Number(vh[1]) > 75) && !(px && Number(px[1]) > 640)) return;
+    this.add({
+      rule: "phone-tall-photo",
+      severity: "warning",
+      page,
+      section: section.id,
+      message: `On phones this photo section is at least ${m} tall, so the photo fills most of the screen and pushes everything else down.`,
+      fix: "Make it a little shorter on phones (70% of the screen); desktop keeps its height.",
+      autofix: {
+        label: "Shorten it on phones",
+        ops: [
+          {
+            op: "section.update",
+            ...this.meta(),
+            page: page as never,
+            section: section.id,
+            set: { "style.minHeight.m": "70svh" },
           } as Op,
         ],
       },
@@ -424,6 +456,7 @@ const SEVERITY: Record<PhoneFindingKind, Issue["severity"]> = {
   "tall-image": "info",
   "heavy-crop": "info",
   "long-footer": "info",
+  "cta-below-fold": "warning",
 };
 
 const MESSAGE: Record<PhoneFindingKind, (f: PhoneFinding, where: string) => [string, string]> = {
@@ -490,6 +523,10 @@ const MESSAGE: Record<PhoneFindingKind, (f: PhoneFinding, where: string) => [str
   "heavy-crop": (_f, w) => [
     `On phones most of a photo${w} is cropped away.`,
     "Set the photo's focus point so the important part stays in view on phones.",
+  ],
+  "cta-below-fold": (f) => [
+    `On phones the main button (“${f.text ?? ""}”) is about ${Math.round(f.value ?? 0)}px down the page, below the first screen — visitors have to scroll before they see what to do.`,
+    "Put the words and button first on phones (photos after them), or use a shorter headline.",
   ],
   "long-footer": () => [
     "On phones the footer is several screens long.",
@@ -642,6 +679,47 @@ function fixFor(
         ],
       };
     }
+    case "cta-below-fold": {
+      if (section.layout.mode === "grid") {
+        const items = autoMobileLayout(section, { reset: true, textFirst: true });
+        if (!items) return undefined;
+        return {
+          label: "Put the words first on phones",
+          ops: Object.entries(items).flatMap(([b, item]) =>
+            item.m
+              ? [
+                  {
+                    op: "grid.place",
+                    ...meta(),
+                    page: page as never,
+                    section: section.id,
+                    block: b as never,
+                    bp: "m",
+                    rect: item.m,
+                  } as Op,
+                ]
+              : [],
+          ),
+        };
+      }
+      // Stack: the column holding the button goes first on phones.
+      const col = section.blocks.find((b) => b.type === "button")?.column ?? 0;
+      const count = section.layout.columns.d.length;
+      if (count < 2 || col === 0) return undefined;
+      const order = [col, ...Array.from({ length: count }, (_, i) => i).filter((i) => i !== col)];
+      return {
+        label: "Put the words first on phones",
+        ops: [
+          {
+            op: "section.update",
+            ...meta(),
+            page: page as never,
+            section: section.id,
+            set: { "layout.order.m": order },
+          } as Op,
+        ],
+      };
+    }
     case "loose-padding":
       return {
         label: "Tighten the spacing on phones",
@@ -677,6 +755,14 @@ export function phoneIssuesFromProbe(
   for (const r of sorted)
     for (const f of r.findings) {
       const at = locate(doc, pageId, f);
+      // "Main button below the first screen" is about heroes: a section that opens with words
+      // and a button (other first sections end with their button by design).
+      if (
+        f.kind === "cta-below-fold" &&
+        at.section?.preset &&
+        !at.section.preset.startsWith("hero/")
+      )
+        continue;
       const sectionName =
         at.section && at.page !== FOOTER
           ? " in this section"

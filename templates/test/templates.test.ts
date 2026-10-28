@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { blocksRegistry, PHOTOS, sectionPresets } from "@omniharmonic/openspace-blocks";
 import { run, runCheck } from "@omniharmonic/openspace-cli";
-import { designCheck, seoCheck } from "@omniharmonic/openspace-lint";
+import { designCheck, phoneCheck, seoCheck } from "@omniharmonic/openspace-lint";
 import { SiteDocumentSchema } from "@omniharmonic/openspace-schema";
 import { planSite } from "@omniharmonic/openspace-site-kit";
 import { loadSiteDocument } from "@omniharmonic/openspace-site-kit/content";
@@ -171,6 +171,18 @@ describe.each(TEMPLATE_IDS)("template %s", (id) => {
         (i) => i.severity === "error",
       );
       expect(errors, look.id).toEqual([]);
+    }
+  });
+
+  it("passes the Phone check in every look (no phone warnings)", () => {
+    for (const look of meta.looks) {
+      const issues = phoneCheck({ ...doc, styles: look.styles }, undefined, { now: NOW }).filter(
+        (i) => i.severity !== "info",
+      );
+      expect(
+        issues.map((i) => `${i.rule}: ${i.message}`),
+        look.id,
+      ).toEqual([]);
     }
   });
 

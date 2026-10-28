@@ -511,21 +511,33 @@ html{scroll-behavior:auto}
 @layer os.base {
 /* Long links and addresses wrap instead of widening the page. */
 :where(.os-rich) :where(a){overflow-wrap:anywhere}
-/* Labels and eyebrows never shrink below 12px. */
-.os-type-eyebrow{font-size:max(0.75rem,${v(T.type.eyebrow["font-size"])})}
-.os-type-small{font-size:max(0.75rem,${v(T.type.small["font-size"])})}
+/* Reading sizes for a phone: body text at most 20px and lead text at most 22px (a big desktop
+   intro paragraph stays an intro, not a wall of 34px text); labels, eyebrows and small text never
+   shrink below 13–14px. */
+body{font-size:min(${v(T.type.body["font-size"])},1.25rem)}
+.os-type-lead{font-size:min(${v(T.type.lead["font-size"])},1.375rem)}
+.os-type-eyebrow{font-size:max(0.8125rem,${v(T.type.eyebrow["font-size"])})}
+.os-type-small{font-size:max(0.875rem,${v(T.type.small["font-size"])})}
 /* Wide tables and code scroll inside their block instead of the page. */
 .os-rich :where(table){display:block;max-inline-size:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .os-rich :where(pre){max-inline-size:100%;overflow-x:auto}
 .os-rich :where(iframe,video,embed,object){max-inline-size:100%}
 }
 @layer os.components {
-/* Comfortable tap targets: the brand link and form controls are at least 44px tall. */
+/* Comfortable tap targets: the brand link, social icons and footer links are at least 44px. */
 .os-header__brand{min-height:2.75rem}
+.os-announcement__close{width:2.75rem;height:2.75rem}
+/* Text links get a 44px-tall tap area; inline padding doesn't move the text around them. */
+.os-rich a:not(.os-button),.os-announcement__link{padding-block:max(0.875rem,calc((2.75rem - 1em) / 2))}
+.os-social__link{width:2.75rem;height:2.75rem}
+.os-footer :where(li,p)>a:only-child,.os-footer .os-nav__link{display:inline-flex;align-items:center;min-height:2.75rem}
+.os-footer .os-rich li+li{margin-block-start:0}
+/* Button labels stay readable (14px or more). */
+.os-button{font-size:max(0.875rem,${v(T.type.button["font-size"])})}
 /* 16px or larger, so phones don't zoom into a field when it's tapped. */
 .os-input,.os-textarea,.os-select{font-size:max(1rem,${v(T.type.body["font-size"])})}
 /* Very tall images are cropped to fit the screen (around their focal point). */
-.os-block--image .os-img:not(.is-fill,.is-contain){max-block-size:85svh}
+.os-block--image .os-img:not(.is-fill,.is-contain){max-block-size:75svh}
 }
 }
 

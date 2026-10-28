@@ -375,9 +375,10 @@ export const teamPresets = [
       const cta = button("Read our story", c.primary, { role: "tertiary" });
       return {
         ...grid([
-          [pic, r(13, 1, 10, 24), r(2, 1, 7, 16)],
-          [panel, r(3, 5, 12, 14, { z: 2 }), r(1, 13, 8, 14, { z: 2 })],
-          [cta, r(4, 20, 9, 3), r(1, 28, 8, 3)],
+          // Phones: the words and button first, the portrait after them.
+          [pic, r(13, 1, 10, 24), r(2, 19, 7, 16)],
+          [panel, r(3, 5, 12, 14, { z: 2 }), r(1, 1, 8, 14, { z: 2 })],
+          [cta, r(4, 20, 9, 3), r(1, 15, 8, 3)],
         ]),
       };
     },
