@@ -31,6 +31,7 @@ import { Canvas } from "../editor/canvas/Canvas";
 import { type LeftPanel, useEditorUi } from "../editor/editor-store";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import { sectionLabel } from "../editor/model/selection";
+import { SettingUp } from "../editor/SettingUp";
 import { useCanvasDocument } from "../inspector/canvasDoc";
 import { useLookTrial } from "../looks/trial";
 import { MediaLibrary } from "../media/MediaLibrary";
@@ -403,8 +404,7 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
       <main className="st-mob__main">
         {building ? (
           <div className="st-mob__screen st-mob__state">
-            <Spinner size={16} />
-            <p>Your site is still being set up. It opens here in a moment.</p>
+            <SettingUp site={site} />
           </div>
         ) : screen === "pages" ? (
           <PageList

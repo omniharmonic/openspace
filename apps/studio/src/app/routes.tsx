@@ -27,28 +27,24 @@ import { StartInClaude } from "../features/start/StartInClaude";
 import { StartWithClaude } from "../features/start/StartWithClaude";
 import { TemplateGallery } from "../features/templates/TemplateGallery";
 import { Button, EmptyState, Spinner, useRegisterCommands } from "../ui";
+import { SlowLoading } from "./Connection";
 import { type StudioConfig, useConfig } from "./config";
-import { claimStaleReload, isStaleBuildError } from "./stale-build";
+import { claimStaleReload, importWithTimeout, isStaleBuildError } from "./stale-build";
 import { useThemeStore } from "./theme";
 
 // Heavier screens load on demand.
+// A request for that code that never answers fails into the stale-build recovery below.
 const EditorFrame = lazy(() =>
-  import("../features/editor/EditorFrame").then((m) => ({ default: m.EditorFrame })),
+  importWithTimeout(() => import("../features/editor/EditorFrame")).then((m) => ({
+    default: m.EditorFrame,
+  })),
 );
-const KitPage = lazy(() => import("../features/kit/KitPage").then((m) => ({ default: m.KitPage })));
+const KitPage = lazy(() =>
+  importWithTimeout(() => import("../features/kit/KitPage")).then((m) => ({ default: m.KitPage })),
+);
 
 function Loading({ children }: { children: ReactNode }) {
-  return (
-    <Suspense
-      fallback={
-        <div className="st-center">
-          <Spinner size={18} label="Loading" />
-        </div>
-      }
-    >
-      {children}
-    </Suspense>
-  );
+  return <Suspense fallback={<SlowLoading label="Loading" />}>{children}</Suspense>;
 }
 
 /** App-wide commands available from ⌘K on every screen. */
@@ -222,9 +218,14 @@ function RouteError() {
             : "Your work is saved. Reload to try again — if it keeps happening, tell us what you were doing."
         }
         action={
-          <Button variant="primary" onClick={() => window.location.reload()}>
-            Reload
-          </Button>
+          <>
+            <Button variant="primary" onClick={() => window.location.reload()}>
+              Reload
+            </Button>
+            <Button variant="ghost" onClick={() => window.location.assign("/sites")}>
+              Back to your sites
+            </Button>
+          </>
         }
       />
     </main>

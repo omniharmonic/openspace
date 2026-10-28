@@ -62,6 +62,11 @@ const browserStore = (): KeyValue => ({
 
 const PREFIX = "openspace.offline.";
 
+/** Still being set up or moved in: a saved copy of this goes out of date by itself. */
+export const unsettled = (site: Site): boolean =>
+  site.status === "building" ||
+  Boolean(site.import && site.import.state !== "ready" && site.import.state !== "failed");
+
 export function withOfflineCache(
   hub: HubApi,
   options: { store?: KeyValue; now?: () => number } = {},
@@ -118,7 +123,10 @@ export function withOfflineCache(
       } catch (err) {
         const saved = isNetworkError(err) ? load<Site[]>(`sites.${userId()}`) : null;
         const site = saved?.value.find((s) => s.id === id);
-        if (!saved || !site) throw err;
+        // A copy taken while the site was being set up (or moved in) can't say whether that has
+        // finished since: showing it would pin "being set up" for as long as the Hub is out of
+        // reach. Only a settled copy opens offline; otherwise the editor says it can't connect.
+        if (!saved || !site || unsettled(site)) throw err;
         offline(saved.savedAt);
         return site;
       }

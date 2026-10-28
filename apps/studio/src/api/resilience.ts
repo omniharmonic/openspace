@@ -101,6 +101,116 @@ export function withRetry(doFetch: typeof fetch, opts: RetryOptions = {}): typeo
   }) as typeof fetch;
 }
 
+/** How long a read may wait for the Hub's first byte before it counts as unanswered. */
+export const REQUEST_TIMEOUT_MS = 20_000;
+
+export interface TimeoutOptions {
+  /** Default {@link REQUEST_TIMEOUT_MS}. */
+  ms?: number;
+  setTimer?: (fn: () => void, ms: number) => unknown;
+  clearTimer?: (id: unknown) => void;
+}
+
+/** The error a read that got no answer in time fails with (a network failure, so it's retried). */
+export class RequestTimeoutError extends TypeError {
+  constructor() {
+    super("Load failed (no answer in time)");
+    this.name = "RequestTimeoutError";
+  }
+}
+
+/** Reads in flight, so a page coming back from the background can drop the ones that stalled. */
+const inFlight = new Set<{ started: number; abort: () => void }>();
+
+/**
+ * Abort every read still waiting that started before `before` (default: now). Phones suspend a
+ * page in the background; a request in flight then can stall for minutes (iOS keeps waiting on
+ * a dead connection). Studio drops those when the page is shown again, so they are retried at
+ * once on a fresh connection instead of after the browser's own (very long) timeout.
+ */
+export function abortStalledRequests(before = Date.now()): number {
+  let n = 0;
+  for (const r of [...inFlight])
+    if (r.started <= before) {
+      r.abort();
+      n++;
+    }
+  return n;
+}
+
+/**
+ * Wrap `fetch` so a read (GET/HEAD) that gets no response within `ms` fails as a network error
+ * instead of waiting forever. Only the wait for the response is bounded; reading the body isn't.
+ * Writes aren't cut off (they may still be running on the Hub).
+ */
+export function withTimeout(doFetch: typeof fetch, opts: TimeoutOptions = {}): typeof fetch {
+  const ms = opts.ms ?? REQUEST_TIMEOUT_MS;
+  const setTimer = opts.setTimer ?? ((fn: () => void, t: number) => setTimeout(fn, t));
+  const clearTimer = opts.clearTimer ?? ((id: unknown) => clearTimeout(id as number));
+  return (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const method = (init?.method ?? "GET").toUpperCase();
+    if (method !== "GET" && method !== "HEAD") return doFetch(input, init);
+    const controller = new AbortController();
+    const outer = init?.signal;
+    const onOuter = () => controller.abort(outer?.reason);
+    if (outer?.aborted) controller.abort(outer.reason);
+    else outer?.addEventListener("abort", onOuter, { once: true });
+    let timedOut = false;
+    let rejectStall: (err: Error) => void = () => {};
+    const stalled = new Promise<never>((_, reject) => {
+      rejectStall = reject;
+    });
+    const entry = {
+      started: Date.now(),
+      abort: () => {
+        timedOut = true;
+        controller.abort();
+        rejectStall(new RequestTimeoutError());
+      },
+    };
+    inFlight.add(entry);
+    const timer = setTimer(entry.abort, ms);
+    try {
+      // Racing as well as aborting: a stalled request may not notice the abort right away.
+      return await Promise.race([doFetch(input, { ...init, signal: controller.signal }), stalled]);
+    } catch (err) {
+      if (timedOut && !outer?.aborted) throw new RequestTimeoutError();
+      throw err;
+    } finally {
+      clearTimer(timer);
+      inFlight.delete(entry);
+      outer?.removeEventListener("abort", onOuter);
+    }
+  }) as typeof fetch;
+}
+
+let resumeInstalled = false;
+
+/**
+ * Once per page: when the page is shown again after being hidden (phone locked, app switched)
+ * or the device comes back online, drop reads that started before then (see
+ * {@link abortStalledRequests}); the retry and polling logic asks again right away.
+ */
+export function abortStalledOnResume(
+  win: Pick<Window, "addEventListener"> | undefined = globalThis.window,
+  doc: Pick<Document, "addEventListener" | "visibilityState"> | undefined = globalThis.document,
+): void {
+  if (!win || !doc || resumeInstalled) return;
+  resumeInstalled = true;
+  let hiddenAt: number | null = null;
+  doc.addEventListener("visibilitychange", () => {
+    if (doc.visibilityState === "hidden") hiddenAt = Date.now();
+    else if (hiddenAt !== null) {
+      abortStalledRequests(hiddenAt);
+      hiddenAt = null;
+    }
+  });
+  win.addEventListener("pageshow", (e) => {
+    if ((e as PageTransitionEvent).persisted) abortStalledRequests();
+  });
+  win.addEventListener("online", () => abortStalledRequests());
+}
+
 /** A fresh key for one logical create (reused on every retry of it). */
 export function newIdempotencyKey(): string {
   const c = globalThis.crypto;

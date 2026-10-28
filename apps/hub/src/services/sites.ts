@@ -279,18 +279,34 @@ export async function listSites(services: Services, user: User): Promise<SiteVie
 }
 
 /** Refresh a building site's status from its publish workflow. */
+/** How long a status refresh waits for GitHub before answering with the stored status. */
+export const STATUS_REFRESH_TIMEOUT_MS = 5000;
+
+function withinMs<T>(work: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    work,
+    new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`GitHub took longer than ${ms} ms`)), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
+
 export async function refreshStatus(
   services: Services,
   site: SiteWithRole,
   log?: Logger,
+  timeoutMs = STATUS_REFRESH_TIMEOUT_MS,
 ): Promise<SiteWithRole> {
   if (site.status !== "building") return site;
   try {
     const gh = services.github({ site });
-    const run = await gh.workflowStatus(parseRepo(site.repo), {
-      workflow: PUBLISH_WORKFLOW,
-      ref: MAIN_BRANCH,
-    });
+    // Studio polls this while a site is set up: a slow GitHub must not hold the answer up
+    // (the stored status is returned and the next poll looks again).
+    const run = await withinMs(
+      gh.workflowStatus(parseRepo(site.repo), { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH }),
+      timeoutMs,
+    );
     const status: SiteStatus | null =
       run.state === "success" ? "live" : run.state === "failure" ? "failed" : null;
     if (!status) return site;

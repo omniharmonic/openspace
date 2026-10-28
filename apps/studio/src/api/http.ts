@@ -6,9 +6,11 @@ import { createManageHttp } from "./manage-http";
 import {
   BUSY_MESSAGE,
   type RetryOptions,
+  type TimeoutOptions,
   TRANSIENT_STATUSES,
   unreachableMessage,
   withRetry,
+  withTimeout,
 } from "./resilience";
 import {
   type AgentUndoResult,
@@ -52,6 +54,8 @@ export interface HttpHubOptions {
   WebSocket?: typeof WebSocket;
   /** Backoff for idempotent requests on network errors / 502-504 (`false` turns it off). */
   retry?: RetryOptions | false;
+  /** How long a read waits for an answer before it's retried (`false` turns it off). */
+  timeout?: TimeoutOptions | false;
 }
 
 const SIGNED_OUT: Session = { user: null, auth: { github: true, dev: false } };
@@ -79,7 +83,9 @@ export async function readError(res: Response): Promise<HubError> {
 /** Hub client over fetch. Cookies carry the session (`credentials: "include"`). */
 export function createHttpHub(options: HttpHubOptions = {}): HubApi {
   const baseUrl = (options.baseUrl ?? DEFAULT_HUB_URL).replace(/\/+$/, "");
-  const baseFetch = options.fetch ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
+  const rawFetch = options.fetch ?? ((...args: Parameters<typeof fetch>) => fetch(...args));
+  // Every attempt gets its own deadline, so a stalled request is retried instead of hanging.
+  const baseFetch = options.timeout === false ? rawFetch : withTimeout(rawFetch, options.timeout);
   const doFetch = options.retry === false ? baseFetch : withRetry(baseFetch, options.retry);
   const navigate = options.navigate ?? ((url: string) => window.location.assign(url));
 

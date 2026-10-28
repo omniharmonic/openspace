@@ -2,9 +2,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createMockHub } from "../api/mock";
-import { type HubApi, HubError } from "../api/types";
+import { type HubApi, HubError, type Site } from "../api/types";
 import { STUDIO_MANIFEST } from "./manifest";
-import { isNetworkError, type KeyValue, useOfflineState, withOfflineCache } from "./offline";
+import {
+  isNetworkError,
+  type KeyValue,
+  unsettled,
+  useOfflineState,
+  withOfflineCache,
+} from "./offline";
 import {
   listenForInstall,
   promptInstall,
@@ -233,6 +239,41 @@ describe("opening offline", () => {
     expect(store.data.size).toBe(0);
     online = false;
     await expect(wrapped.listSites()).rejects.toBeInstanceOf(HubError);
+  });
+
+  it("never pins a site that was being set up: offline, its old copy isn't served", async () => {
+    // The phone saved the sites list while a move was running ("building"); the move finished,
+    // and later the Hub can't be reached. The old copy would say "still being set up" forever.
+    const store = memory();
+    const building = {
+      id: "st_moved00001",
+      name: "omniharmonic",
+      status: "building",
+      import: { id: "imp_1", state: "publishing", kind: "url" },
+    } as unknown as Site;
+    const live = { id: "st_live000001", name: "Other", status: "live", import: null } as Site;
+    let online = true;
+    const base = {
+      getSession: async () => ({ user: { id: "u1" } }),
+      listSites: async () => (online ? [building, live] : down()),
+      getSite: async (id: string) =>
+        online ? ([building, live].find((s) => s.id === id) as Site) : down(),
+    } as unknown as HubApi;
+    const wrapped = withOfflineCache(base, { store, now: () => 1000 });
+    await wrapped.getSession();
+    await wrapped.listSites();
+    online = false;
+    await expect(wrapped.getSite(building.id)).rejects.toBeInstanceOf(HubError);
+    // A settled site still opens from this device.
+    expect((await wrapped.getSite(live.id)).status).toBe("live");
+    expect(unsettled(building)).toBe(true);
+    expect(
+      unsettled({
+        ...building,
+        status: "live",
+        import: { id: "i", state: "ready", kind: "url" },
+      } as Site),
+    ).toBe(false);
   });
 
   it("forgets this device's copies on sign-out even when the sign-out request fails", async () => {

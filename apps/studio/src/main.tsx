@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import { hubFromEnv } from "./api";
+import { abortStalledOnResume } from "./api/resilience";
 import { withOfflineCache } from "./pwa/offline";
 import { listenForInstall, registerServiceWorker } from "./pwa/register";
 
@@ -10,6 +11,8 @@ if (!root) throw new Error("Missing #root element");
 // Installable and offline-capable (production builds only; never in dev or tests).
 registerServiceWorker();
 listenForInstall();
+// Back from the background (phone locked, app switched): stalled Hub requests are asked again.
+abortStalledOnResume();
 const hub = withOfflineCache(await hubFromEnv());
 createRoot(root).render(
   <StrictMode>
