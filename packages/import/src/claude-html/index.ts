@@ -460,7 +460,13 @@ function tokensFromPage(
   const btn = step(/class:(?:btn|button)\b/i);
   if (btn) type.button = btn;
   if (Object.keys(type).length) tokens.type = type;
-  return { tokens, notes: read?.notes ?? [], families };
+  // What was read, from the page itself (wave 4: it said "0 font roles … (a design-token file)"
+  // for a page whose two fonts were read and used).
+  const nColors = Object.keys(tokens.colors ?? {}).length;
+  const nType = Object.keys(tokens.type ?? {}).length;
+  const pl = (k: number, w: string) => `${k} ${w}${k === 1 ? "" : "s"}`;
+  const note = `Read your page’s styles: ${pl(nColors, "colour")}${families.length ? `, its fonts (${families.slice(0, 4).join(", ")})` : ""}${nType ? ` and ${pl(nType, "text style")}` : ""}.`;
+  return { tokens, notes: [note], families };
 }
 
 /** Google Fonts `<link>` hrefs → family names. */
@@ -706,10 +712,12 @@ export async function importHtmlBundle(
   }
   const docTitle = text(find(home.root, (e) => e.tagName === "title"));
   const wordmark = brand ? text(brand).replace(/\s+/g, " ").trim() : "";
+  // The page's own wordmark first (wave 4: the header showed the new site's slug-like name
+  // instead of "Fern Hollow"); then the name they gave the site.
   const siteTitle = (
+    (wordmark && wordmark.length <= 60 ? titleCase(wordmark) : undefined) ??
     opts.title ??
     homePage.siteName ??
-    (wordmark && wordmark.length <= 60 ? titleCase(wordmark) : undefined) ??
     (docTitle.split(/\s+[|·—–-]\s+/)[0] || "My site")
   ).slice(0, 120);
   const logoImg = brand ? find(brand, (e) => e.tagName === "img") : undefined;

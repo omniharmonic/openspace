@@ -54,6 +54,18 @@ describe("HTML import (a page Claude made)", () => {
     }
     // Header: navigation and the button.
     expect(doc.site.title).toBe("Crumb & Kettle");
+    // The page's own wordmark wins over the new site's (slug-like) name (wave 4).
+    const named = await importHtmlBundle(bundleFromHtml(html, "bakery.html"), {
+      config,
+      fetch: net,
+      now,
+      title: "os-e2e-w4-crumb",
+    });
+    expect(named.doc.site.title).toBe("Crumb & Kettle");
+    // The design-system notes describe the page, not "a design-token file" with 0 fonts.
+    const notes = (doc.designSystem?.mapping?.notes ?? []).join(" ");
+    expect(notes).toMatch(/Read your page’s styles: \d+ colours, its fonts \(/);
+    expect(notes).not.toMatch(/design-token file|0 font roles/);
     expect(doc.site.nav.map((n) => ("label" in n ? n.label : ""))).toEqual([
       "Our bakes",
       "Story",
