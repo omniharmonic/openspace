@@ -55,41 +55,96 @@ interface DraftDB extends DBSchema {
 const DB_NAME = "openspace-studio";
 const DB_VERSION = 2;
 
+/** How long one device-storage call may take before it counts as failed. */
+export const DRAFT_CACHE_TIMEOUT_MS = 4000;
+
+/**
+ * Bound a device-storage call. Safari's IndexedDB can stop answering (e.g. after the page was
+ * in the background: "Connection to Indexed Database server lost"); a call that never settles
+ * would leave the editor on its loading spinner. Failing instead lets the editor carry on from
+ * OpenSpace, and the next call opens a fresh connection.
+ */
+export function withDeadline<T>(work: Promise<T>, ms: number, onTimeout?: () => void): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => {
+      onTimeout?.();
+      reject(new Error("This device’s storage didn’t answer"));
+    }, ms);
+    work.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (err) => {
+        clearTimeout(t);
+        reject(err);
+      },
+    );
+  });
+}
+
 /** IndexedDB-backed cache (the default in browsers). */
-export function createIdbDraftCache(name = DB_NAME): DraftCache {
+export function createIdbDraftCache(
+  name = DB_NAME,
+  options: { timeoutMs?: number; openDb?: typeof openDB } = {},
+): DraftCache {
+  const timeoutMs = options.timeoutMs ?? DRAFT_CACHE_TIMEOUT_MS;
+  const open_ = options.openDb ?? openDB;
   let db: Promise<IDBPDatabase<DraftDB>> | null = null;
+  const reset = () => {
+    const old = db;
+    db = null;
+    void old?.then((d) => d.close()).catch(() => undefined);
+  };
   const open = () => {
-    db ??= openDB<DraftDB>(name, DB_VERSION, {
+    db ??= open_<DraftDB>(name, DB_VERSION, {
       upgrade(d, oldVersion) {
         // v1 records were keyed by site only (one writer per device); start over.
         if (oldVersion < 2 && d.objectStoreNames.contains("drafts")) d.deleteObjectStore("drafts");
         d.createObjectStore("drafts", { keyPath: "key" });
       },
+      // Another tab (a newer Studio) wants to upgrade: let it, and reopen next time.
+      blocking: () => reset(),
+      // The browser dropped the connection: reopen next time.
+      terminated: () => {
+        db = null;
+      },
     });
     return db;
   };
+  /** One call with a deadline; a failure or timeout drops the connection so the next reopens. */
+  const run = async <T>(fn: (d: IDBPDatabase<DraftDB>) => Promise<T>): Promise<T> => {
+    try {
+      return await withDeadline(open().then(fn), timeoutMs);
+    } catch (err) {
+      reset();
+      throw err;
+    }
+  };
   return {
-    async list(userId, siteId) {
+    list(userId, siteId) {
       const prefix = `${userId}:${siteId}:`;
       const range = IDBKeyRange.bound(prefix, `${prefix}￿`);
-      return (await open()).getAll("drafts", range);
+      return run((d) => d.getAll("drafts", range));
     },
     async put(record) {
-      await (await open()).put("drafts", record);
+      await run((d) => d.put("drafts", record));
     },
     async delete(key) {
-      await (await open()).delete("drafts", key);
+      await run((d) => d.delete("drafts", key));
     },
-    async deleteIfUnchanged(key, savedAt) {
-      const tx = (await open()).transaction("drafts", "readwrite");
-      const current = await tx.store.get(key);
-      let deleted = false;
-      if (current && current.savedAt === savedAt) {
-        await tx.store.delete(key);
-        deleted = true;
-      }
-      await tx.done;
-      return deleted;
+    deleteIfUnchanged(key, savedAt) {
+      return run(async (d) => {
+        const tx = d.transaction("drafts", "readwrite");
+        const current = await tx.store.get(key);
+        let deleted = false;
+        if (current && current.savedAt === savedAt) {
+          await tx.store.delete(key);
+          deleted = true;
+        }
+        await tx.done;
+        return deleted;
+      });
     },
   };
 }

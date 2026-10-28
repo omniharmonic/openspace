@@ -36,8 +36,9 @@ import { useSession, useSite } from "../../api";
 import { importInProgress } from "../../api/import-types";
 import { isTransientError } from "../../api/resilience";
 import { needsGitHub, type Site } from "../../api/types";
-import { LoadError } from "../../app/Connection";
+import { LoadError, SlowLoading } from "../../app/Connection";
 import { useConfig } from "../../app/config";
+import { importWithTimeout } from "../../app/stale-build";
 import { Mark } from "../../app/Wordmark";
 import {
   Badge,
@@ -49,7 +50,6 @@ import {
   Menu,
   Segmented,
   Skeleton,
-  Spinner,
   Tooltip,
   toast,
   useCommandStore,
@@ -98,7 +98,9 @@ const MediaLibrary = lazy(() =>
   import("../media/MediaLibrary").then((m) => ({ default: m.MediaLibrary })),
 );
 const MobileStudio = lazy(() =>
-  import("../mobile/MobileStudio").then((m) => ({ default: m.MobileStudio })),
+  importWithTimeout(() => import("../mobile/MobileStudio")).then((m) => ({
+    default: m.MobileStudio,
+  })),
 );
 const PagesManager = lazy(() =>
   import("../pages/PagesManager").then((m) => ({ default: m.PagesManager })),
@@ -132,6 +134,7 @@ import { createEditorStore, type EditorStore } from "./model/store";
 import { Inspector } from "./panels/Inspector";
 import { LayersPanel } from "./panels/LayersPanel";
 import { ShortcutsSheet } from "./panels/ShortcutsSheet";
+import { SettingUp } from "./SettingUp";
 import { handleEditorKey, isTypingTarget, onSurface, type ShortcutEnv } from "./shortcuts";
 
 const PANELS: Array<{ id: LeftPanel; label: string; icon: ReactNode; shortcut: string }> = [
@@ -834,8 +837,7 @@ function EditorChrome({ site }: { site: Site }) {
         {site.status === "building" ? (
           <section className="st-ed-canvas" aria-label="Canvas">
             <div className="st-ed-canvas__state">
-              <Spinner size={16} />
-              <p>Your site is still being set up. It opens here in a moment.</p>
+              <SettingUp site={site} />
             </div>
           </section>
         ) : (
@@ -969,9 +971,15 @@ export function EditorFrame() {
     ((siteData ? siteData.status !== "building" : site.isError) && content.isPending);
   if (loading) {
     return (
-      <div className="st-center">
-        <Spinner size={18} label="Opening the editor" />
-      </div>
+      <SlowLoading
+        label="Opening the editor"
+        onRetry={() => {
+          // Ask again (dropping a request that's stuck), but only for what's actually loading.
+          void session.refetch();
+          if (site.fetchStatus === "fetching") void site.refetch();
+          if (content.fetchStatus === "fetching") void content.refetch();
+        }}
+      />
     );
   }
   if (!user) return <Navigate to={`/signin?next=${encodeURIComponent(`/sites/${id}`)}`} replace />;

@@ -34,3 +34,34 @@ export function claimStaleReload(
     return false;
   }
 }
+
+/** The message a lazily loaded screen fails with when its code never arrives. */
+export const CHUNK_TIMEOUT_MESSAGE = "Importing a module script failed (no answer in time)";
+
+/** How long a screen's code may take to arrive (it normally comes from this device's copy). */
+export const CHUNK_TIMEOUT_MS = 45_000;
+
+/**
+ * A dynamic import that gives up after `ms`: a request for code that never answers (a stalled
+ * connection, a service worker that doesn't respond) would otherwise leave a spinner up forever.
+ * The failure reads as a stale build, so the screen's error handling reloads once.
+ */
+export function importWithTimeout<T>(
+  load: () => Promise<T>,
+  ms = CHUNK_TIMEOUT_MS,
+  setTimer: (fn: () => void, ms: number) => unknown = (fn, t) => setTimeout(fn, t),
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimer(() => reject(new Error(CHUNK_TIMEOUT_MESSAGE)), ms);
+    load().then(
+      (v) => {
+        clearTimeout(timer as number);
+        resolve(v);
+      },
+      (err) => {
+        clearTimeout(timer as number);
+        reject(err);
+      },
+    );
+  });
+}

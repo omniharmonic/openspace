@@ -1,10 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
+import { createHttpHub } from "./http";
 import {
+  abortStalledOnResume,
+  abortStalledRequests,
   backoffMs,
   isRetryableRequest,
   isTransientError,
+  RequestTimeoutError,
   useConnection,
   withRetry,
+  withTimeout,
 } from "./resilience";
 import { HubError } from "./types";
 
@@ -91,5 +96,67 @@ describe("helpers", () => {
     expect(isTransientError(new HubError(503, "unavailable", "x"))).toBe(true);
     expect(isTransientError(new HubError(500, "internal", "x"))).toBe(false);
     expect(isTransientError(new HubError(404, "not_found", "x"))).toBe(false);
+  });
+});
+
+/** A request that never gets an answer (a dead connection after the phone was locked). */
+const hang = () => new Promise<Response>(() => {});
+
+describe("withTimeout", () => {
+  it("fails a read that gets no answer in time, as a retryable network error", async () => {
+    const f = withTimeout(vi.fn<typeof fetch>(hang), { ms: 20 });
+    const err = await f("https://hub/api/sites/st_1").catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(RequestTimeoutError);
+    expect(isTransientError(err)).toBe(true);
+  });
+
+  it("lets the retry ask again, so one stalled request doesn't stall the screen", async () => {
+    const raw = vi.fn<typeof fetch>().mockImplementationOnce(hang).mockResolvedValueOnce(ok());
+    const f = withRetry(withTimeout(raw, { ms: 20 }), noSleep);
+    expect((await f("https://hub/api/sites/st_1")).status).toBe(200);
+    expect(raw).toHaveBeenCalledTimes(2);
+  });
+
+  it("never cuts off a write (it may still be running on the Hub)", async () => {
+    let answer: (r: Response) => void = () => {};
+    const raw = vi.fn<typeof fetch>(() => new Promise<Response>((r) => (answer = r)));
+    const p = withTimeout(raw, { ms: 10 })("https://hub/api/sites", { method: "POST" });
+    await new Promise((r) => setTimeout(r, 30));
+    answer(ok());
+    expect((await p).status).toBe(200);
+  });
+
+  it("drops reads that were waiting while the page was in the background", async () => {
+    const raw = vi.fn<typeof fetch>().mockImplementationOnce(hang).mockResolvedValueOnce(ok());
+    const f = withRetry(withTimeout(raw, { ms: 60_000 }), noSleep);
+    const p = f("https://hub/api/me");
+    await Promise.resolve();
+    expect(abortStalledRequests()).toBe(1);
+    expect((await p).status).toBe(200);
+  });
+
+  it("does so when the page is shown again (phone unlocked, back from another app)", async () => {
+    abortStalledOnResume(window, document);
+    const raw = vi.fn<typeof fetch>().mockImplementationOnce(hang).mockResolvedValueOnce(ok());
+    const f = withRetry(withTimeout(raw, { ms: 60_000 }), noSleep);
+    const p = f("https://hub/api/sites/st_1");
+    await Promise.resolve();
+    const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(raw).toHaveBeenCalledTimes(1);
+    visibility.mockReturnValue("visible");
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect((await p).status).toBe(200);
+    expect(raw).toHaveBeenCalledTimes(2);
+  });
+
+  it("is on in the Hub client: getSite that never answers fails instead of hanging", async () => {
+    const hub = createHttpHub({
+      baseUrl: "https://hub",
+      fetch: vi.fn<typeof fetch>(hang),
+      timeout: { ms: 20 },
+      retry: { retries: 1, sleep: async () => {} },
+    });
+    await expect(hub.getSite("st_1")).rejects.toMatchObject({ status: 0 });
   });
 });

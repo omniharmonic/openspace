@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { isTransientError, useConnection } from "../api/resilience";
 import { Button, EmptyState, Spinner } from "../ui";
 import "./Connection.css";
@@ -64,5 +64,54 @@ export function LoadError({ title, error, onRetry, secondary, everyMs = 8000 }: 
         </>
       }
     />
+  );
+}
+
+/** When a loading screen starts offering a way out. */
+export const SLOW_LOADING_MS = 8000;
+
+export interface SlowLoadingProps {
+  label: string;
+  /** Default {@link SLOW_LOADING_MS}. */
+  afterMs?: number;
+  /** "Try again" (default: reload the page). */
+  onRetry?: () => void;
+}
+
+/**
+ * A full-screen spinner that never leaves someone stuck: after a few seconds it says it's taking
+ * longer than usual and offers to try again or go back to their sites.
+ */
+export function SlowLoading({ label, afterMs = SLOW_LOADING_MS, onRetry }: SlowLoadingProps) {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setSlow(true), afterMs);
+    return () => clearTimeout(t);
+  }, [afterMs]);
+  if (!slow)
+    return (
+      <div className="st-center">
+        <Spinner size={18} label={label} />
+      </div>
+    );
+  return (
+    <main className="st-center">
+      <EmptyState
+        level={1}
+        icon={<Spinner size={18} />}
+        title="This is taking longer than usual"
+        description="OpenSpace may be slow to answer, or your connection dropped for a moment. We’ll keep trying — nothing you’ve done is lost."
+        action={
+          <>
+            <Button variant="primary" onClick={onRetry ?? (() => window.location.reload())}>
+              Try again
+            </Button>
+            <Button variant="ghost" onClick={() => window.location.assign("/sites")}>
+              Back to your sites
+            </Button>
+          </>
+        }
+      />
+    </main>
   );
 }
