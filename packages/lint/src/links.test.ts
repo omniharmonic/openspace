@@ -20,7 +20,7 @@ import {
   withPages,
 } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
-import { healthyDoc, page, siteWith, stackSection } from "./__fixtures__/doc";
+import { btn, h, healthyDoc, p, page, siteWith, stackSection } from "./__fixtures__/doc";
 import { designCheck, publishCheck } from "./index";
 
 const hero = () => getPreset("hero/full-bleed-photo@1") as SectionPreset;
@@ -177,5 +177,105 @@ describe("pointing preset links at pages the site has", () => {
       for (const l of findBrokenLinks(probe)) bad.push(`${pr.id}: ${l.target}`);
     }
     expect(bad).toEqual([]);
+  });
+});
+
+describe("menu entries and buttons to sections (Boulder Foodshed: the header wasn't connected)", () => {
+  /** A one-page site whose menu points at #how-it-works… but no section carries those names. */
+  function onePager() {
+    const cta = btn("Join the waitlist");
+    (cta.fields as { link: Link }).link = { type: "url", url: "/#waitlist" };
+    const hero = stackSection([h("A weekly basket", 1), cta]);
+    const week = {
+      ...stackSection([h("How the week works"), p("Three steps.")]),
+      label: "Week path",
+    };
+    const baskets = {
+      ...stackSection([h("Pick a size"), p("Small, medium, large.")]),
+      label: "Basket sizes",
+    };
+    const faq = {
+      ...stackSection([h("Questions"), p("Is this a CSA?")]),
+      label: "Questions",
+      anchor: "faq",
+    };
+    const signup = {
+      ...stackSection([h("The waitlist"), p("Join the waitlist.")], "dark"),
+      label: "Sign up",
+    };
+    const home = page("Home", "", [hero, week, baskets, faq, signup] as Section[]);
+    const doc = siteWith([home]);
+    doc.site.nav = [
+      { type: "page", page: home.id, label: "How it works", anchor: "how-it-works" },
+      { type: "page", page: home.id, label: "Baskets", anchor: "baskets" },
+      { type: "page", page: home.id, label: "Questions", anchor: "questions" },
+      { type: "page", page: home.id, label: "Zebras", anchor: "zebras" },
+    ];
+    return { doc, home };
+  }
+
+  it("Design check warns about each one, in plain words, without blocking a publish", () => {
+    const { doc } = onePager();
+    const issues = designCheck(doc).filter((i) => i.rule === "broken-link");
+    expect(issues.map((i) => [i.severity, i.message])).toEqual([
+      [
+        "warning",
+        "Your menu links to “how-it-works” on Home, but no section there is called that.",
+      ],
+      ["warning", "Your menu links to “baskets” on Home, but no section there is called that."],
+      ["warning", "Your menu links to “questions” on Home, but no section there is called that."],
+      ["warning", "Your menu links to “zebras” on Home, but no section there is called that."],
+      [
+        "warning",
+        "A button on Home links to “waitlist” on Home, but no section there is called that.",
+      ],
+    ]);
+    expect(issues.map((i) => i.autofix?.label)).toEqual([
+      "Connect it to the “Week path” section",
+      "Connect it to the “Basket sizes” section",
+      "Connect it to the “Questions” section",
+      "Link to the top of Home instead",
+      "Connect it to the “Sign up” section",
+    ]);
+    expect(publishCheck(doc).ok).toBe(true);
+  });
+
+  it("the fixes name the sections (or point at the section's own name) and the warnings go", () => {
+    const { doc, home } = onePager();
+    let cur: SiteDocument = doc;
+    // Apply the fixes one by one like Studio's "Fix all" does: re-check after each.
+    for (let n = 0; n < 10; n++) {
+      const next = designCheck(cur).find((i) => i.rule === "broken-link" && i.autofix);
+      if (!next) break;
+      for (const op of next.autofix?.ops ?? []) {
+        const r = validate(cur, op as Op, { registry: blocksRegistry(), trusted: true });
+        expect(r.ok, JSON.stringify(op)).toBe(true);
+        if (r.ok) cur = r.doc;
+      }
+    }
+    expect(findBrokenLinks(cur)).toEqual([]);
+    const sections = cur.pages[home.id]?.sections ?? [];
+    expect(sections.map((s) => s.anchor)).toEqual([
+      undefined,
+      "how-it-works",
+      "baskets",
+      "faq",
+      "waitlist",
+    ]);
+    // "Questions" already had its own name: the menu entry follows it.
+    expect(cur.site.nav.map((n) => (n.type === "page" ? n.anchor : null))).toEqual([
+      "how-it-works",
+      "baskets",
+      "faq",
+      undefined,
+    ]);
+    // An editor may apply them too.
+    const ops = designCheck(doc)
+      .filter((i) => i.rule === "broken-link")
+      .flatMap((i) => i.autofix?.ops ?? []);
+    for (const op of ops)
+      expect(transformForRole(op as Op, "editor", [], { doc }).allowed, JSON.stringify(op)).toBe(
+        true,
+      );
   });
 });
