@@ -177,6 +177,8 @@ export function transformForRole(
     context.registry && doc ? withComponents(context.registry, doc.components) : context.registry;
   if (op.op === "component.upsert" || op.op === "component.delete")
     return deny("Only owners and designers can change a component's design");
+  if (op.op === "designSystem.set")
+    return deny("Only owners and designers can change the site's design system");
 
   if (role === "contributor") {
     if (op.op !== "collection.upsert")

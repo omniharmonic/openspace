@@ -19,6 +19,7 @@ const REPO = resolve(ROOT, "..", "..");
 export const APP_SKILLS_DIR = join(REPO, "plugin", "claude-app-skills");
 export const PLUGIN_SKILLS_DIR = join(REPO, "plugin", "skills");
 export const SKILL_NAMES = [
+  "openspace-design-from-scratch",
   "openspace-migrate",
   "openspace-web-design",
   "openspace-content",

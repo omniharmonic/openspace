@@ -13,6 +13,7 @@ import type { ConnectionRow, GrantSite } from "./db";
 import { screenshotUrlTool } from "./screenshots";
 import { accountTools } from "./tools/account";
 import { importTools } from "./tools/imports";
+import { startTools } from "./tools/start";
 
 export interface HubToolContext {
   env: HubBindings;
@@ -31,6 +32,8 @@ export const HUB_TOOL_FACTORIES: HubToolFactory[] = [
   accountTools,
   // "Move my site": hosted imports and in-place conversions.
   importTools,
+  // "Start with Claude": a new site from a brief, brand material or a page Claude made.
+  startTools,
   // screenshot_url fetches the public web through Browser Rendering.
   (ctx) => [screenshotUrlTool(ctx.services.screenshots, ctx.services, ctx.sites, ctx.user.id)],
 ];

@@ -799,6 +799,70 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       return clone(site);
     },
 
+    async startSite(input) {
+      calls.push({ method: "startSite", args: [input] });
+      await wait();
+      const user = requireUser();
+      if (!input.name.trim()) throw new HubError(400, "invalid_name", "Give your site a name.");
+      if (input.tokens) {
+        try {
+          JSON.parse(input.tokens);
+        } catch {
+          throw new HubError(
+            400,
+            "invalid_tokens",
+            "That file isn't valid JSON. Export your design tokens as a .json file.",
+          );
+        }
+      }
+      const fromPage = Boolean(input.html);
+      const template = fromPage
+        ? undefined
+        : (templates[0] as (typeof templates)[number] | undefined);
+      const slug = slugify(input.name);
+      const finalSlug = state.sites.some((x) => x.repo === `${user.login}/${slug}`)
+        ? `${slug}-${state.sites.length + 1}`
+        : slug;
+      const site: Site = {
+        id: newId("st"),
+        name: input.name.trim(),
+        tagline: input.about?.trim().split(/(?<=[.!?])\s/)[0] ?? null,
+        repo: `${user.login}/${finalSlug}`,
+        status: "building",
+        url: `https://${user.login}.github.io/${finalSlug}`,
+        template: template?.id ?? "html",
+        look: template?.looks[0]?.id ?? "",
+        createdAt: new Date(now()).toISOString(),
+        inboxCount: 0,
+        updateAvailable: false,
+        owner: user.login,
+        role: "owner",
+      };
+      state.sites.push(site);
+      state.readyAt[site.id] = now() + buildMs;
+      state.attempts[site.id] = 1;
+      save();
+      return {
+        site: clone(site),
+        startedFrom: fromPage
+          ? { kind: "html" as const }
+          : {
+              kind: "template" as const,
+              template: template?.name ?? "",
+              look: template?.looks[0]?.name ?? "",
+              why: "closest to what you described",
+            },
+      };
+    },
+
+    async uploadPage(input) {
+      calls.push({ method: "uploadPage", args: [input] });
+      if (input.confirmOwnership !== true)
+        throw new HubError(400, "invalid_input", "Confirm that this page is yours.");
+      const name = input.name ?? (input.html.name.replace(/\.(?:html?|zip)$/i, "") || "My site");
+      return hub.startSite({ name, html: input.html });
+    },
+
     async retryPublish(id) {
       calls.push({ method: "retryPublish", args: [id] });
       await wait();

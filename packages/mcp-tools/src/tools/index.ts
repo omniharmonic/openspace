@@ -1,6 +1,7 @@
 import type { ToolDefinition } from "../tool";
 import { componentTools } from "./components";
 import { designTools } from "./design";
+import { designSystemTools } from "./design-system";
 import { editTools } from "./edit";
 import { pageTools } from "./pages";
 import { publishTools } from "./publish";
@@ -23,6 +24,7 @@ export const ALL_TOOLS: readonly ToolDefinition[] = [
   listSectionPresets,
   ...editTools,
   ...pageTools,
+  ...designSystemTools,
   ...designTools,
   ...componentTools,
   ...publishTools,
@@ -30,6 +32,7 @@ export const ALL_TOOLS: readonly ToolDefinition[] = [
 
 export * from "./components";
 export * from "./design";
+export * from "./design-system";
 export * from "./edit";
 export * from "./pages";
 export * from "./publish";

@@ -14,6 +14,10 @@
     "./testing": {
       "types": "./src/testing.ts",
       "default": "./src/testing.ts"
+    },
+    "./html-bundle": {
+      "types": "./src/claude-html/index.ts",
+      "default": "./src/claude-html/index.ts"
     }
   },
   "scripts": {
@@ -27,6 +31,9 @@
     "@omniharmonic/openspace-schema": "workspace:*",
     "@omniharmonic/openspace-site-kit": "workspace:*",
     "@omniharmonic/openspace-theme": "workspace:*",
+    "css-select": "6.0.0",
+    "css-what": "7.0.0",
+    "fflate": "^0.8.3",
     "liquidjs": "10.29.0",
     "micromark": "4.0.3",
     "micromark-extension-gfm": "3.0.0",

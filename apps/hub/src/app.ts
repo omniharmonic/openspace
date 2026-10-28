@@ -30,6 +30,7 @@ import { roomRoutes } from "./routes/room";
 import { setupRoutes } from "./routes/setup";
 import { domainInfoRoutes, siteServiceRoutes } from "./routes/site-services";
 import { siteRoutes } from "./routes/sites";
+import { startRoutes } from "./routes/start";
 import { templateRoutes } from "./routes/templates";
 import { webhookRoutes } from "./routes/webhooks";
 import { createServices, type ServiceOverrides } from "./services";
@@ -94,6 +95,7 @@ export function createApp(options: CreateAppOptions = {}) {
   app.route("/api/sites", siteRoutes);
   // Hosted imports ("Move my site") and in-place conversions of GitHub Pages repositories.
   app.route("/api/imports", importRoutes);
+  app.route("/api/start", startRoutes);
   app.route("/api/sites", siteImportRoutes);
   // Task 16: Studio APIs for forms, newsletter, analytics, domains, quotas, audit, export.
   app.route("/api/sites", siteServiceRoutes);

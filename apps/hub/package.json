@@ -22,6 +22,7 @@
     "@cloudflare/workers-oauth-provider": "^1.2.4",
     "@omniharmonic/openspace-blocks": "workspace:*",
     "@omniharmonic/openspace-email-render": "workspace:*",
+    "@omniharmonic/openspace-import": "workspace:*",
     "@omniharmonic/openspace-lint": "workspace:*",
     "@omniharmonic/openspace-mcp-tools": "workspace:*",
     "@omniharmonic/openspace-ops": "workspace:*",

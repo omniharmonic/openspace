@@ -7,6 +7,7 @@ import {
   LogOut,
   Monitor,
   Moon,
+  Sparkles,
   Sun,
   SwatchBook,
 } from "lucide-react";
@@ -20,6 +21,8 @@ import { Dashboard } from "../features/dashboard/Dashboard";
 import { MoveProgress } from "../features/move/MoveProgress";
 import { MoveSite } from "../features/move/MoveSite";
 import { NewSite } from "../features/onboarding/NewSite";
+import { StartHandoff } from "../features/start/StartHandoff";
+import { StartWithClaude } from "../features/start/StartWithClaude";
 import { TemplateGallery } from "../features/templates/TemplateGallery";
 import { Button, EmptyState, Spinner, useRegisterCommands } from "../ui";
 import { type StudioConfig, useConfig } from "./config";
@@ -71,6 +74,14 @@ function GlobalCommands() {
       group: "Go to",
       icon: <Bot />,
       run: () => navigate("/connect"),
+    },
+    {
+      id: "go-start",
+      label: "Start a new site with Claude",
+      group: "Go to",
+      icon: <Sparkles />,
+      keywords: ["claude", "brand"],
+      run: () => navigate("/start"),
     },
     {
       id: "go-move",
@@ -191,6 +202,8 @@ export function createRoutes(config: Pick<StudioConfig, "showKit">): RouteObject
         { index: true, element: <Home /> },
         { path: "templates", element: <TemplateGallery /> },
         { path: "new/:template", element: <NewSite /> },
+        { path: "start", element: <StartWithClaude /> },
+        { path: "start/:siteId", element: <StartHandoff /> },
         { path: "move", element: <MoveSite /> },
         { path: "move/:importId", element: <MoveProgress /> },
         { path: "signin", element: <SignInPage /> },

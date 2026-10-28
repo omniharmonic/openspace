@@ -11,6 +11,7 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 |---|---|
 | `list_sites` | Sites this connection can edit. With none yet, Claude offers to create one or move your existing site. |
 | `create_site` | Hub only: create a new site from a template and look (needs **Create new sites** on the consent screen). The first time, it gives you a Studio link to approve OpenSpace on GitHub. |
+| `start_site` | Hub only: Start with Claude — a new site from the person's idea (what it's for, who it's for, how it should feel) and brand material (a design-token file, colours, fonts) or a page Claude made (`html`). It goes live at once. See [Start with Claude](/guides/start-with-claude/). |
 | `get_site` | Settings, navigation, header and footer, Site Styles summary, pages and collections. |
 | `get_page` | A page's sections and blocks with their ids — `outline` or `full` detail. |
 | `list_blocks` / `get_block_schema` | The block catalog, with each block's fields and AI guidance. |
@@ -39,6 +40,13 @@ The same tools are served by the Hub (`/mcp`, for sites in Studio) and by `opens
 | `render_page` | The page as HTML from the real renderer. |
 | `screenshot` | An image of a draft page or one section at desktop, tablet or phone width. On the Hub it is taken in the cloud (nothing to install); tall pages come back as several images. |
 | `preview` | A preview link to share with you. |
+
+## Design system
+
+| Tool | What it does |
+|---|---|
+| `get_design_system` | The site's design system: what the site is for, the brand material the owner brought, its colours, fonts, sizes and design rules. Claude reads it before designing. |
+| `update_design_system` | Save changes to it, or read a design-token file (W3C, Style Dictionary, Tokens Studio, a brand kit); with `applyToStyles` it restyles the site, readability-checked. |
 
 ## Custom components
 
@@ -70,7 +78,7 @@ These fetch other websites. The Hub runs them in the cloud; the local server (`o
 | Tool | What it does |
 |---|---|
 | `screenshot_url` | An image of any public page — for example the site you're moving from — at desktop, tablet or phone width, to compare with `screenshot`. On the Hub, give it `site` (and `page`) instead of an address to capture your live, published page. Private and internal addresses are refused. |
-| `import_site` | Imports a site from any platform — Squarespace, WordPress, Wix, Webflow, GitHub Pages or any HTML site, detected automatically — after asking for confirmation. On the Hub it runs in the cloud and creates a new site on free hosting (`confirmOwnership: true` once the person says it's theirs; `inPlace: true` makes their own GitHub Pages repository editable where it is, through a pull request they approve); locally it writes a new folder next to the site being served. See [Move your site to OpenSpace](/guides/migrate-to-openspace/). |
+| `import_site` | Imports a site from any platform — Squarespace, WordPress, Wix, Webflow, GitHub Pages or any HTML site, detected automatically — after asking for confirmation. On the Hub it runs in the cloud and creates a new site on free hosting (`confirmOwnership: true` once the person says it's theirs; `inPlace: true` makes their own GitHub Pages repository editable where it is, through a pull request they approve); locally it writes a new folder next to the site being served. A page Claude made goes in as `html` instead of an address: each section keeps its design and becomes editable. See [Move your site to OpenSpace](/guides/migrate-to-openspace/). |
 | `import_squarespace` | Local server: the older name of `import_site`, for Squarespace sites. |
 | `import_status` | Hub only: how a move is going — the steps, how many pages and images came across, what needs attention, the Finish setting up list, and the live address when it's done. |
 

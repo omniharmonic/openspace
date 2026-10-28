@@ -193,6 +193,8 @@ function baseFootprint(op: Op): OpFootprint {
       };
     case "component.delete":
       return { touches: [{ path: ["component", op.name], kind: "delete" }], requires: [] };
+    case "designSystem.set":
+      return { touches: [edit("designSystem")], requires: [] };
   }
 }
 

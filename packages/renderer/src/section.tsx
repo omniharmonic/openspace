@@ -108,6 +108,11 @@ function StackBody({ section }: { section: Section & { layout: { mode: "stack" }
         `os-w-${layout.width ?? "content"}`,
         layout.align && `is-align-${layout.align}`,
         cols.length > 1 && "is-multi",
+        // A full-width designer section draws its own edges (no side gutter).
+        layout.width === "full" &&
+          section.blocks.length === 1 &&
+          section.blocks[0]?.type.startsWith("component/") &&
+          "is-bleed",
       )}
       style={stackVars(layout)}
     >

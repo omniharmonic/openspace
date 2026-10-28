@@ -34,6 +34,7 @@ export default defineConfig({
             { label: "Media", slug: "guides/media" },
             { label: "Publishing, history & rollback", slug: "guides/publishing" },
             { label: "Domains", slug: "guides/domains" },
+            { label: "Start with Claude", slug: "guides/start-with-claude" },
             { label: "Move your site to OpenSpace", slug: "guides/migrate-to-openspace" },
             { label: "Move from Squarespace", slug: "guides/migrate-from-squarespace" },
           ],
