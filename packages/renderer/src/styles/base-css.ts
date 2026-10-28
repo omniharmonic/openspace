@@ -119,7 +119,7 @@ ${typeClasses}
 .os-stack.is-align-center>.os-col{justify-content:center}
 
 /* Grid mode (arch §3.3): 8 columns on mobile, 24 from tablet up; rows grow to fit content */
-.os-grid{--row-unit:1.25rem;--grid-gap:${v(T.space["2xs"])};display:grid;grid-template-columns:[full-start] ${v(T.section.gutter)} [content-start] repeat(8,minmax(0,1fr)) [content-end] ${v(T.section.gutter)} [full-end];grid-template-rows:repeat(var(--mrows,1),minmax(var(--row-unit),auto));grid-auto-rows:minmax(var(--row-unit),auto);column-gap:var(--grid-gap)}
+.os-grid{--row-unit:1.25rem;--grid-gap:${v(T.space["2xs"])};display:grid;grid-template-columns:[full-start] max(0px,calc(${v(T.section.gutter)} - var(--grid-gap))) [content-start] repeat(8,minmax(0,1fr)) [content-end] max(0px,calc(${v(T.section.gutter)} - var(--grid-gap))) [full-end];grid-template-rows:repeat(var(--mrows,1),minmax(var(--row-unit),auto));grid-auto-rows:minmax(var(--row-unit),auto);column-gap:var(--grid-gap)}
 .os-grid__item{grid-column:var(--mcs,calc(var(--mx) + 1))/var(--mce,calc(var(--mx) + 1 + var(--mw)));grid-row:var(--mrs,var(--my))/var(--mre,span var(--mh));z-index:var(--mz,1);min-width:0;display:flex;flex-direction:column}
 .os-grid__item>.os-block{flex:1}
 .os-grid__item.os-grid__item--unplaced{grid-column:content-start/content-end;grid-row:auto}
@@ -129,7 +129,7 @@ ${typeClasses}
 .os-section{padding-block:var(--tpad,${v(T.section.padY)});min-height:var(--tminh,auto)}
 .os-stack{grid-template-columns:var(--tcols,minmax(0,1fr))}
 .os-col{order:var(--to,0)}
-.os-grid{--row-unit:1.5rem;grid-template-columns:[full-start] minmax(${v(T.section.gutter)},1fr) [content-start] repeat(24,minmax(0,calc((var(--content-max) - 23 * var(--grid-gap)) / 24))) [content-end] minmax(${v(T.section.gutter)},1fr) [full-end];grid-template-rows:repeat(var(--trows,1),minmax(var(--row-unit),auto))}
+.os-grid{--row-unit:1.5rem;grid-template-columns:[full-start] minmax(max(0px,calc(${v(T.section.gutter)} - var(--grid-gap))),1fr) [content-start] repeat(24,minmax(0,calc((var(--content-max) - 23 * var(--grid-gap)) / 24))) [content-end] minmax(max(0px,calc(${v(T.section.gutter)} - var(--grid-gap))),1fr) [full-end];grid-template-rows:repeat(var(--trows,1),minmax(var(--row-unit),auto))}
 .os-grid__item{grid-column:var(--tcs,calc(var(--tx) + 1))/var(--tce,calc(var(--tx) + 1 + var(--tw)));grid-row:var(--trs,var(--ty))/var(--tre,span var(--th));z-index:var(--tz,1)}
 }
 @media (min-width:1200px){
@@ -531,8 +531,10 @@ body{font-size:clamp(1rem,${v(T.type.body["font-size"])},1.25rem)}
 .os-rich a:not(.os-button),.os-announcement__link{padding-block:max(0.875rem,calc((2.75rem - 1em) / 2))}
 .os-social__link{width:2.75rem;height:2.75rem}
 :where(summary){min-height:2.75rem;align-content:center}
-.os-footer :where(li,p)>a:only-child,.os-footer .os-nav__link{display:inline-flex;align-items:center;min-height:2.75rem}
-.os-footer .os-rich li+li{margin-block-start:0}
+/* A footer link that is its own line gets its 44px from min-height alone (not also the text-link
+   padding), and a run of them sits as tightly as a list: 44px apart, not 66px. */
+.os-footer :where(li,p)>a:only-child,.os-footer .os-nav__link{display:inline-flex;align-items:center;min-height:2.75rem;padding-block:0}
+.os-footer .os-rich li+li,.os-footer .os-rich p:has(>a:only-child)+p:has(>a:only-child){margin-block-start:0}
 /* Button labels stay readable (14px or more). */
 .os-button{font-size:max(0.875rem,${v(T.type.button["font-size"])})}
 /* 16px or larger, so phones don't zoom into a field when it's tapped. */

@@ -49,6 +49,24 @@ describe("os.css", () => {
     expect(BASE_CSS).toContain("@media (prefers-reduced-motion:no-preference)");
   });
 
+  it("starts grid content on the same edge as stack sections and the header", () => {
+    // The column gap also sits between the gutter track and the first column, so the gutter
+    // track gives it back: content-start lands exactly one section gutter in from the edge.
+    const gutter = "max(0px,calc(var(--os-section-gutter) - var(--grid-gap)))";
+    expect(BASE_CSS).toContain(`[full-start] ${gutter} [content-start] repeat(8,`);
+    expect(BASE_CSS).toContain(`[full-start] minmax(${gutter},1fr) [content-start] repeat(24,`);
+  });
+
+  it("gives phone footer links one 44px tap area each, not min-height plus link padding", () => {
+    const phone = BASE_CSS.slice(BASE_CSS.indexOf("@media (max-width:767.98px)"));
+    expect(phone).toContain(
+      ".os-footer :where(li,p)>a:only-child,.os-footer .os-nav__link{display:inline-flex;align-items:center;min-height:2.75rem;padding-block:0}",
+    );
+    expect(phone).toContain(
+      ".os-footer .os-rich p:has(>a:only-child)+p:has(>a:only-child){margin-block-start:0}",
+    );
+  });
+
   it("draws input outlines with text-muted, never the decorative border role", () => {
     const input = /\.os-input,\.os-textarea,\.os-select\{[^}]*\}/.exec(BASE_CSS)?.[0] ?? "";
     expect(input).toContain("border:1px solid var(--os-color-text-muted)");
