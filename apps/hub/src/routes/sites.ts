@@ -17,6 +17,7 @@ import {
   getSiteView,
   listSites,
   PatchSiteSchema,
+  PublishSiteSchema,
   patchSite,
   publishSite,
   readSiteDocument,
@@ -82,10 +83,17 @@ siteRoutes.patch("/:id", async (c) => {
 /**
  * POST /api/sites/:id/publish — flush the draft room and squash-publish the draft (editor+);
  * a site whose setup didn't finish resumes setup instead. Returns the site plus `publish`.
+ * `{ overwriteLive: true }` publishes even though the live site changed since the draft was
+ * started (409 `live_changed` otherwise).
  */
 siteRoutes.post("/:id/publish", async (c) => {
   const user = requireUser(c);
-  return c.json(await publishSite(c.var.services, c.env, c.req.param("id"), user, c.var.log));
+  const { overwriteLive } = await readJson(c, PublishSiteSchema);
+  return c.json(
+    await publishSite(c.var.services, c.env, c.req.param("id"), user, c.var.log, {
+      overwriteLive: overwriteLive === true,
+    }),
+  );
 });
 
 /** DELETE /api/sites/:id { confirmName: "<site name>" } — archive with 30-day retention. */

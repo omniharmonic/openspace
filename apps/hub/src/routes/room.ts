@@ -14,6 +14,7 @@ import type { AppEnv } from "../types";
  * - `GET  /api/sites/:id/room?since=<seq>`  WebSocket upgrade (Studio).
  * - `GET  /api/sites/:id/room/document`     current draft document + seq (MCP read).
  * - `POST /api/sites/:id/room/ops`          submit ops over HTTP (MCP / Studio fallback).
+ * - `GET  /api/sites/:id/room/live`         the draft against the live site.
  * - `POST /api/sites/:id/room/flush`        commit pending ops to the draft now.
  * - `POST /api/sites/:id/room/agent-sessions`              start an agent session (snapshot).
  * - `POST /api/sites/:id/room/agent-sessions/:sid/end`
@@ -82,6 +83,16 @@ roomRoutes.post("/:id/room/ops", async (c) => {
     }),
   );
   return c.json(result);
+});
+
+/**
+ * The draft against the live site: `{ liveChanged, draftHasChanges, followed, liveSha }`. A draft
+ * with no changes of its own is brought up to date with what's live here (see `LiveStatus`).
+ */
+roomRoutes.get("/:id/room/live", async (c) => {
+  const user = requireUser(c);
+  const site = await siteForUser(c.var.services, c.req.param("id"), user);
+  return c.json(await unwrapRoom(roomStub(c.env, site.id).liveStatus(site.id)));
 });
 
 roomRoutes.post("/:id/room/flush", async (c) => {
