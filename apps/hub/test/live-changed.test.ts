@@ -233,3 +233,59 @@ describe("contentKeyOf", () => {
     expect(contentKeyOf(tree, config({ features: { forms: false } }))).not.toBe(k);
   });
 });
+
+/**
+ * Owner report: "it asks me to update to the live version but when i click to make it live, it
+ * just infinitely loops back". Claude Code wrote the same content as the editor, formatted
+ * differently, so every file's fingerprint differed and the draft never stopped counting as
+ * changed — while the editor, comparing what the files say, had nothing to undo.
+ */
+describe("the same content written differently", () => {
+  /** Claude Code commits the home page to main with the same content, formatted its own way. */
+  async function claudeReformatsMain() {
+    const home = (await gh().readFile(repo, HOME, "main")) as string;
+    const reformatted = JSON.stringify(JSON.parse(home), null, 4);
+    expect(reformatted).not.toBe(home);
+    await gh().commitFiles(repo, {
+      branch: "main",
+      message: "Format the home page",
+      files: [{ path: HOME, content: reformatted }],
+    });
+  }
+
+  it("is not an unpublished change, nor a live change", async () => {
+    const { app, owner, site } = await setup();
+    await edit(app, site.id, owner, T.heroTitle, "Owner title");
+    expect((await publish(app, site.id, owner)).status).toBe(200);
+    // The same change reaches both: the editor's draft (through the connector) and main
+    // (Claude Code), each file written its own way.
+    await edit(app, site.id, owner, T.heroTitle, "Claude's title");
+    await flush(app, site.id, owner);
+    const draftHome = (await gh().readFile(repo, HOME, "os/draft")) as string;
+    await gh().commitFiles(repo, {
+      branch: "main",
+      message: "Claude's title",
+      files: [{ path: HOME, content: JSON.stringify(JSON.parse(draftHome), null, 4) }],
+    });
+    expect(await live(app, site.id, owner)).toMatchObject({
+      liveChanged: false,
+      draftHasChanges: false,
+    });
+  });
+
+  it("going back to the live version makes the draft exactly live", async () => {
+    const { app, owner, site } = await setup();
+    await edit(app, site.id, owner, T.heroTitle, "Owner title");
+    expect((await publish(app, site.id, owner)).status).toBe(200);
+    await claudeReformatsMain();
+    const main = (await gh().getRef(repo, "main")) as string;
+    expect(await gh().getRef(repo, "os/draft")).not.toBe(main);
+
+    const res = await call(app, `/api/sites/${site.id}/discard`, { method: "POST", cookie: owner });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ applied: 0, hadChanges: true });
+    expect(await gh().getRef(repo, "os/draft")).toBe(main);
+    expect(await live(app, site.id, owner)).toMatchObject({ draftHasChanges: false });
+    expect(await roomText(app, site.id, owner)).toContain("Owner title");
+  });
+});

@@ -111,7 +111,13 @@ export function useGoBackToLive(): { run: () => Promise<boolean>; busy: boolean 
           });
           return false;
         }
+      } else {
+        // The editor already shows what's live, but the Hub can still count the draft as
+        // different (its files written differently, or files the editor doesn't show): have the
+        // Hub make the draft exactly live, so "Unpublished changes" goes away for good.
+        await hub.discardDraft(site.id);
       }
+      await queryClient.invalidateQueries({ queryKey: liveStatusKey(site.id) });
       const liveSha = queryClient.getQueryData<{ liveSha: string | null }>(
         liveStatusKey(site.id),
       )?.liveSha;
@@ -120,7 +126,7 @@ export function useGoBackToLive(): { run: () => Promise<boolean>; busy: boolean 
         title: "Showing your live site",
         description: ops.length
           ? "The draft matches what’s live now. Your unpublished changes are gone."
-          : "The draft already matched what’s live.",
+          : "The editor matches what’s live.",
         ...(ops.length
           ? { action: { label: "Undo", onClick: () => store.getState().undo() } }
           : {}),

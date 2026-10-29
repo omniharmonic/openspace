@@ -134,6 +134,11 @@ export interface MockHub extends HubApi {
    * pushing (tests). The draft room is left as it was.
    */
   publishElsewhere(siteId: string, doc: SiteDocument, summary?: string): string;
+  /**
+   * The draft's files say the same as live but are written differently (Claude Code and the Hub
+   * format JSON differently), as the Hub sees them before comparing what they say (tests).
+   */
+  writeDraftDifferently(siteId: string): void;
   /** Run scheduled publishes that are due. */
   runSchedules(): Promise<void>;
 }
@@ -284,6 +289,8 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   const hangNext = new Set<string>();
   /** The live version each site's draft was last brought up to date with (see `liveStatus`). */
   const draftBase = new Map<string, string>();
+  /** Sites whose draft files are written differently from live (see `writeDraftDifferently`). */
+  const rewritten = new Set<string>();
   let shaCounter = 0;
   const newSha = () =>
     `${now().toString(16)}${(++shaCounter).toString(16).padStart(6, "0")}a1b2c3d4e5f60718293a4b5c`
@@ -437,7 +444,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     const quiet = { liveChanged: false, followed: false, liveSha: current.sha };
     if (deepEqual(current.doc, room.doc)) {
       draftBase.set(site.id, current.sha);
-      return { ...quiet, draftHasChanges: false };
+      return { ...quiet, draftHasChanges: rewritten.has(site.id) };
     }
     const base = versionsOf(site).find((x) => x.sha === draftBase.get(site.id));
     if (!base || base.sha === current.sha) return { ...quiet, draftHasChanges: true };
@@ -463,6 +470,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
         "live_changed",
         "Your live site has newer changes that aren’t in this draft (they were published from somewhere else, like Claude). Publishing this draft would replace them, so it wasn’t published. To keep the live version, open the site in the OpenSpace editor and choose “Use the live version”. To replace it with this draft, choose “Publish anyway” there.",
       );
+    rewritten.delete(site.id);
     const ops = diff(current.doc, room.doc);
     const summary = summarize(ops, current.doc) || "Published changes";
     const version = addVersion(site, {
@@ -532,6 +540,10 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
 
     hangNextPublish(siteId) {
       hangNext.add(siteId);
+    },
+
+    writeDraftDifferently(siteId) {
+      rewritten.add(siteId);
     },
 
     publishElsewhere(siteId, doc, summary = "Improved the site") {
@@ -668,6 +680,22 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       requireRole(site, ["owner", "designer", "editor"], "You can’t publish this site.");
       const publish = doPublish(site, user.name, options?.overwriteLive === true);
       return { site: clone(site), publish };
+    },
+
+    async discardDraft(id) {
+      calls.push({ method: "discardDraft", args: [id] });
+      await wait();
+      requireUser();
+      const site = findSite(id);
+      requireRole(site, ["owner", "designer"], "You can’t discard this site’s changes.");
+      const room = roomFor(site);
+      const current = live(site);
+      const leveled = rewritten.delete(site.id);
+      const had = !deepEqual(current.doc, room.doc) || leveled;
+      if (!deepEqual(current.doc, room.doc))
+        room.reloadAll(clone(current.doc), "The editor shows exactly what’s live now.");
+      draftBase.set(site.id, current.sha);
+      return { hadChanges: had };
     },
 
     async getLiveStatus(id) {

@@ -910,7 +910,24 @@ export class DraftRoom extends DurableObject<HubBindings> {
         ts: Date.now(),
         idPrefix: `discard-${Date.now().toString(36)}-`,
       });
-      if (!ops.length) return { applied: 0, failed: 0, seq: this.state.seq, hadChanges: false };
+      if (!ops.length) {
+        // Nothing to undo in the document, yet the draft's files can still differ from live
+        // (written differently, or files the editor doesn't show): make the draft exactly live,
+        // so it never stays "unpublished" with nothing to discard.
+        const leveled = await this.exclusive(async () => {
+          await this.flushLocked(siteId);
+          if (this.state.unflushedCount() > 0) return false;
+          const live = await gh.getRef(repo, MAIN_BRANCH);
+          const head = this.state.head;
+          if (!live || live === head) return false;
+          if (!(await this.resetDraftIfAt(gh, repo, head, live))) return false;
+          this.state.setMeta(BASE_META, live);
+          this.state.markPublished(this.state.flushedSeq);
+          await this.reloadFromHead(gh, repo, "The editor shows exactly what’s live now.");
+          return true;
+        });
+        return { applied: 0, failed: 0, seq: this.state.seq, hadChanges: leveled };
+      }
       const { results, seq } = await this.applyTrustedOps(
         siteId,
         input.userId,
@@ -1424,6 +1441,65 @@ export class DraftRoom extends DurableObject<HubBindings> {
 
   /** Content keys by commit (a commit's tree never changes). */
   private readonly contentKeys = new Map<string, string>();
+  /** Whether two JSON blobs say the same thing, by `blobA:blobB` (blobs never change). */
+  private readonly sameBlobs = new Map<string, boolean>();
+
+  /**
+   * Do two commits show visitors the same site? Equal content keys say so cheaply; otherwise the
+   * content files that differ are compared by what they say, not how they're written — Claude
+   * Code, the CLI and the Hub format the same JSON differently, and that alone is no change.
+   */
+  private async sameContent(gh: GitHubAccess, repo: RepoRef, a: string, b: string) {
+    if (a === b) return true;
+    const [ka, kb] = await Promise.all([
+      this.contentKey(gh, repo, a),
+      this.contentKey(gh, repo, b),
+    ]);
+    if (ka === kb) return true;
+    const [settingsA, ...filesA] = ka.split("\n");
+    const [settingsB, ...filesB] = kb.split("\n");
+    if (settingsA !== settingsB || filesA.length !== filesB.length) return false;
+    const blobsB = new Map(filesB.map((l) => [l.slice(0, l.lastIndexOf(":")), l]));
+    const differing: Array<{ path: string; blobA: string; blobB: string }> = [];
+    for (const line of filesA) {
+      const path = line.slice(0, line.lastIndexOf(":"));
+      const other = blobsB.get(path);
+      if (other === undefined) return false;
+      if (other === line) continue;
+      if (!path.endsWith(".json")) return false;
+      differing.push({
+        path,
+        blobA: line.slice(line.lastIndexOf(":") + 1),
+        blobB: other.slice(other.lastIndexOf(":") + 1),
+      });
+    }
+    // Many reads for one check: past this, call it changed rather than spend them.
+    if (differing.length > 200) return false;
+    const same = await Promise.all(
+      differing.map(async ({ path, blobA, blobB }) => {
+        const pair = `${blobA}:${blobB}`;
+        const known = this.sameBlobs.get(pair);
+        if (known !== undefined) return known;
+        const [ta, tb] = await Promise.all([
+          gh.readFile(repo, path, a),
+          gh.readFile(repo, path, b),
+        ]);
+        let equal = false;
+        try {
+          equal =
+            ta !== null &&
+            tb !== null &&
+            canonicalJson(JSON.parse(ta)) === canonicalJson(JSON.parse(tb));
+        } catch {
+          // Not valid JSON on one side: a real difference.
+        }
+        if (this.sameBlobs.size > 2048) this.sameBlobs.clear();
+        this.sameBlobs.set(pair, equal);
+        return equal;
+      }),
+    );
+    return same.every(Boolean);
+  }
 
   private async contentKey(gh: GitHubAccess, repo: RepoRef, sha: string): Promise<string> {
     const known = this.contentKeys.get(sha);
@@ -1455,11 +1531,8 @@ export class DraftRoom extends DurableObject<HubBindings> {
     const quiet = { liveChanged: false, followed: false, liveSha: mainHead };
     if (!mainHead) return { ...quiet, draftHasChanges: true };
     const head = this.state.head;
-    const [liveKey, draftKey] = await Promise.all([
-      this.contentKey(gh, repo, mainHead),
-      this.contentKey(gh, repo, head),
-    ]);
-    if (!unflushed && liveKey === draftKey) {
+    const draftIsLive = await this.sameContent(gh, repo, mainHead, head);
+    if (!unflushed && draftIsLive) {
       // Same content (published, discarded, or brought up to date): the draft is current.
       this.state.setMeta(BASE_META, mainHead);
       return { ...quiet, draftHasChanges: false };
@@ -1468,21 +1541,25 @@ export class DraftRoom extends DurableObject<HubBindings> {
     const base =
       this.state.getMeta(BASE_META) ?? (await latestPublish(services.db, siteId))?.sha ?? null;
     if (!base || base === mainHead) return { ...quiet, draftHasChanges: true };
-    let baseKey: string;
+    let baseIsLive: boolean;
+    let draftIsBase: boolean;
     try {
-      baseKey = await this.contentKey(gh, repo, base);
+      [baseIsLive, draftIsBase] = await Promise.all([
+        this.sameContent(gh, repo, base, mainHead),
+        this.sameContent(gh, repo, head, base),
+      ]);
     } catch (err) {
       // The base commit is gone (main was rewritten): nothing to compare with.
       this.log.warn("draft base unreadable", { siteId, base, err });
       return { ...quiet, draftHasChanges: true };
     }
-    if (baseKey === liveKey) {
+    if (baseIsLive) {
       // Main moved without changing what visitors see (hosting, domain, an update).
       this.state.setMeta(BASE_META, mainHead);
       return { ...quiet, draftHasChanges: true };
     }
     // The live site has content the draft wasn't started from.
-    if (unflushed || draftKey !== baseKey)
+    if (unflushed || !draftIsBase)
       return { liveChanged: true, draftHasChanges: true, followed: false, liveSha: mainHead };
     // Nothing of the draft's own to keep: follow the live site.
     if (!(await this.resetDraftIfAt(gh, repo, head, mainHead)))

@@ -230,6 +230,11 @@ export interface HubApi extends ManageApi, GrowthApi, CatalogApi, ImportApi {
    * of its own is brought up to date with the live site by this call.
    */
   getLiveStatus(id: string): Promise<LiveStatus>;
+  /**
+   * Make the draft exactly what's live on the Hub (`POST /api/sites/:id/discard`), including
+   * files that say the same as live but are written differently. Designer or owner.
+   */
+  discardDraft(id: string): Promise<{ hadChanges: boolean }>;
   /** "Fix it for me" for the last failed publish (`POST /api/sites/:id/fix`). */
   fixLastPublish(id: string): Promise<FixResult>;
   listVersions(id: string): Promise<SiteVersion[]>;

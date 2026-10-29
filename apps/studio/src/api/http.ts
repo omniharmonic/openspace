@@ -247,6 +247,11 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
       return request<LiveStatus>("GET", `${site(id)}/room/live`);
     },
 
+    async discardDraft(id) {
+      const r = await request<{ hadChanges: boolean }>("POST", `${site(id)}/discard`, {});
+      return { hadChanges: r.hadChanges };
+    },
+
     async fixLastPublish(id) {
       return request<FixResult>("POST", `${site(id)}/fix`, {});
     },

@@ -214,6 +214,32 @@ describe("Unpublished changes menu", () => {
       expect(screen.queryByRole("button", { name: "Unpublished changes" })).not.toBeInTheDocument(),
     );
   });
+
+  // Owner report: "it asks me to update to the live version but when i click to make it live,
+  // it just infinitely loops back". Claude Code and the editor had written the same content
+  // differently, so the Hub kept counting the draft as changed while the editor had nothing to
+  // undo.
+  it("going back ends 'Unpublished changes' even when only the files' writing differs", async () => {
+    const utils = await openEditor();
+    const { user, hub } = utils;
+    hub.writeDraftDifferently(willow.id);
+    await act(async () => {
+      await utils.queryClient.invalidateQueries({ queryKey: liveStatusKey(willow.id) });
+    });
+    await user.click(await screen.findByRole("button", { name: "Unpublished changes" }));
+    await user.click(await screen.findByRole("menuitem", { name: "Go back to the live version…" }));
+    const confirm = await screen.findByRole("dialog", { name: "Go back to the live version?" });
+    await user.click(within(confirm).getByRole("button", { name: "Use the live version" }));
+    await waitFor(() => expect(hub.calls.some((c) => c.method === "discardDraft")).toBe(true));
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Unpublished changes" })).not.toBeInTheDocument(),
+    );
+    // And it stays gone when the live site is checked again.
+    await act(async () => {
+      await utils.queryClient.invalidateQueries({ queryKey: liveStatusKey(willow.id) });
+    });
+    expect(screen.queryByRole("button", { name: "Unpublished changes" })).not.toBeInTheDocument();
+  });
 });
 
 describe("on a phone (390px)", () => {
