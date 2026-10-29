@@ -915,7 +915,8 @@ export class DraftRoom extends DurableObject<HubBindings> {
         // (written differently, or files the editor doesn't show): make the draft exactly live,
         // so it never stays "unpublished" with nothing to discard.
         const leveled = await this.exclusive(async () => {
-          await this.flushLocked(siteId);
+          // Commits can land on the draft outside the room (a site update, offline Studio).
+          await this.syncDraft(siteId, gh, repo);
           if (this.state.unflushedCount() > 0) return false;
           const live = await gh.getRef(repo, MAIN_BRANCH);
           const head = this.state.head;

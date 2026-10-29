@@ -278,6 +278,13 @@ describe("the same content written differently", () => {
     await edit(app, site.id, owner, T.heroTitle, "Owner title");
     expect((await publish(app, site.id, owner)).status).toBe(200);
     await claudeReformatsMain();
+    // A site update also lands on the draft outside the room (its package.json bump).
+    const pkg = (await gh().readFile(repo, "package.json", "os/draft")) ?? "{}";
+    await gh().commitFiles(repo, {
+      branch: "os/draft",
+      message: "OpenSpace update",
+      files: [{ path: "package.json", content: `${pkg.trimEnd()}\n\n` }],
+    });
     const main = (await gh().getRef(repo, "main")) as string;
     expect(await gh().getRef(repo, "os/draft")).not.toBe(main);
 
