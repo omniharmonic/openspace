@@ -127,7 +127,7 @@ export interface LiveStatus {
 
 /** Why `publish` refused a draft the live site changed underneath (see `LiveStatus`). */
 export const LIVE_CHANGED_MESSAGE =
-  "Your live site has newer changes that aren’t in this draft (they were published from somewhere else, like Claude). Publishing this draft would replace them. Use the live version, or publish anyway to replace it.";
+  "Your live site has newer changes that aren’t in this draft (they were published from somewhere else, like Claude). Publishing this draft would replace them, so it wasn’t published. To keep the live version, open the site in the OpenSpace editor and choose “Use the live version”. To replace it with this draft, choose “Publish anyway” there.";
 
 /** Room meta: the live (`main`) commit the draft was last brought up to date with. */
 const BASE_META = "base";

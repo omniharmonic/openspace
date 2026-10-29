@@ -461,7 +461,7 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       throw new HubError(
         409,
         "live_changed",
-        "Your live site has newer changes that aren’t in this draft (they were published from somewhere else, like Claude). Publishing this draft would replace them. Use the live version, or publish anyway to replace it.",
+        "Your live site has newer changes that aren’t in this draft (they were published from somewhere else, like Claude). Publishing this draft would replace them, so it wasn’t published. To keep the live version, open the site in the OpenSpace editor and choose “Use the live version”. To replace it with this draft, choose “Publish anyway” there.",
       );
     const ops = diff(current.doc, room.doc);
     const summary = summarize(ops, current.doc) || "Published changes";
