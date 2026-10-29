@@ -460,6 +460,20 @@ export class DevGitHubAccess implements GitHubAccess {
     await this.requireRepo(repo);
     const target = await this.resolve(repo, sha);
     await this.setRef(repo, this.refName(branch), target);
+    // Like GitHub: a pull request whose head is moved onto its base's commit has nothing left
+    // to merge and is closed (for good: it can't be reopened or merged).
+    const prs = await this.db
+      .prepare(
+        "SELECT number, base FROM dev_pull_requests WHERE repo = ? AND head = ? AND state = 'open'",
+      )
+      .bind(key(repo), branch)
+      .all<{ number: number; base: string }>();
+    for (const pr of prs.results)
+      if ((await this.getRef(repo, pr.base)) === target)
+        await this.db
+          .prepare("UPDATE dev_pull_requests SET state = 'closed' WHERE repo = ? AND number = ?")
+          .bind(key(repo), pr.number)
+          .run();
   }
 
   async tag(repo: RepoRef, name: string, sha: string): Promise<void> {
