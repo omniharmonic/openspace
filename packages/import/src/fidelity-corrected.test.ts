@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  calibratedScore,
   compareLooks,
   fidelityMarkdown,
   fidelityReport,
@@ -124,8 +125,21 @@ describe("corrected scorer, reported beside strict v3", () => {
     });
     const imported = probe(1440, { sections: [section("Welcome"), section("Lookbook")] });
     const page = withVisual(compareLooks(original, imported, "/"), 0.8);
-    expect(page.score).toBe(Math.round(0.75 * 100 + 25 * 0.8));
-    expect(page.strict?.score).toBe(Math.round(0.75 * (page.strict?.checks ?? 0) + 25 * 0.8));
+    // Both scores are calibrated the same way from the same picture comparison.
+    expect(page.score).toBe(
+      Math.round(calibratedScore({ checks: 100, visual: 0.8, present: 1, viewport: 1440 })),
+    );
+    expect(page.strict?.score).toBe(
+      Math.round(
+        calibratedScore({
+          checks: page.strict?.checks ?? 0,
+          visual: 0.8,
+          present: page.strict?.present,
+          viewport: 1440,
+        }),
+      ),
+    );
+    expect(page.raw).toBe(0.75 * 100 + 25 * 0.8);
     const report = fidelityReport([page]);
     expect(report.scorer).toBe(SCORER);
     expect(report.strict?.score).toBe(page.strict?.score);

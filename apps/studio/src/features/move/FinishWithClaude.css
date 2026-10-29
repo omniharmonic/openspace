@@ -113,9 +113,31 @@
   line-height: 1.45;
 }
 
+/* The move's result screen: the main next step, not an afterthought. */
+.st-moveclaude--prominent {
+  gap: 14px;
+  background: var(--st-accent-soft);
+  box-shadow:
+    inset 0 0 0 1px var(--st-accent),
+    inset 4px 0 0 var(--st-accent);
+}
+
+.st-moveclaude--prominent .st-moveclaude__title {
+  font-size: var(--st-fs-xl);
+  line-height: 1.3;
+}
+
+.st-moveclaude--prominent .st-moveclaude__lede {
+  color: var(--st-text);
+}
+
 @media (max-width: 480px) {
   .st-moveclaude {
     padding: 16px;
+  }
+
+  .st-moveclaude--prominent .st-moveclaude__title {
+    font-size: var(--st-fs-lg);
   }
 
   .st-moveclaude__actions > * {

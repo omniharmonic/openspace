@@ -15,7 +15,7 @@ import { useConfig } from "../../app/config";
 import { Wordmark } from "../../app/Wordmark";
 import { Button, cx, Spinner } from "../../ui";
 import { displayUrl } from "../onboarding/BuildingProgress";
-import { FinishWithClaude, wantsClaude } from "./FinishWithClaude";
+import { CLOSE_ENOUGH, FinishWithClaude, ROUGH_BELOW, wantsClaude } from "./FinishWithClaude";
 import "./Move.css";
 
 /** IMPORT-REPORT.md's "Needs attention", as a friendly checklist of things to look at. */
@@ -54,15 +54,17 @@ export function AttentionPanel({ groups }: { groups: ImportView["attention"] }) 
   );
 }
 
-/** Plain words for a 0–100 match. */
-function matchWords(score: number): string {
+/** Plain words for a 0–100 match (calibrated: 0 is "nothing like it", 90+ near-identical). */
+export function matchWords(score: number): string {
   return score >= 95
     ? "Practically identical"
     : score >= 90
       ? "Very close"
-      : score >= 75
-        ? "Close"
-        : "Recognisably the same, with differences";
+      : score >= 70
+        ? "Close, with differences you’ll notice"
+        : score >= ROUGH_BELOW
+          ? "The basics came across; the design only partly did"
+          : "Rough: your words and pictures came across, but most of the design didn’t";
 }
 
 /**
@@ -75,7 +77,12 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
   return (
     <section className="st-attention st-fidelity" aria-labelledby="fidelity-title">
       <h2 id="fidelity-title" className="st-attention__title">
-        <Check aria-hidden="true" /> How close it looks: {fidelity.score}/100
+        {fidelity.score >= CLOSE_ENOUGH ? (
+          <Check aria-hidden="true" />
+        ) : (
+          <AlertTriangle aria-hidden="true" />
+        )}{" "}
+        How close it looks: {fidelity.score}/100
       </h2>
       <p className="st-attention__lede">
         {matchWords(fidelity.score)}.{" "}
@@ -87,6 +94,12 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
           ? " A few sections were rebuilt as custom designs so they look as they did — you can still change every word and picture."
           : ""}
       </p>
+      {fidelity.rescaledFrom !== undefined ? (
+        <p className="st-attention__lede">
+          This move was measured with an older, more generous method (it said{" "}
+          {fidelity.rescaledFrom}/100). It’s shown here on today’s honest scale.
+        </p>
+      ) : null}
       {fidelity.strict !== undefined && fidelity.strict !== fidelity.score ? (
         <details className="st-fidelity__strict">
           <summary>
@@ -141,8 +154,8 @@ export function FidelityPanel({ fidelity }: { fidelity: ImportView["fidelity"] }
       {fidelity.pages.some((p) => p.score < 75) ? (
         <p className="st-attention__lede">
           A lower score means that page looks different on that screen — nothing is lost: every word
-          and picture came across. Open the page in the editor to adjust it, or ask Claude to
-          compare it with your old site and fix what differs.
+          and picture came across. Claude can compare it with your old site and fix what differs, or
+          you can adjust it yourself in the editor.
         </p>
       ) : null}
     </section>
@@ -290,6 +303,8 @@ export function MoveProgress() {
   const ready = view.state === "ready";
   const failed = view.state === "failed";
   const editor = `/sites/${view.siteId}?welcome=1`;
+  // Not near-identical: finishing with Claude is the main next step, the editor the second.
+  const claudeFirst = ready && wantsClaude(view);
 
   return (
     <div className="st-move">
@@ -315,11 +330,27 @@ export function MoveProgress() {
                   {displayUrl(view.siteUrl)} <ExternalLink aria-hidden="true" />
                 </a>
               )}
-              <div className="st-building__actions">
-                <Button variant="primary" size="lg" onClick={() => navigate(editor)}>
-                  Open it in Studio
-                </Button>
-              </div>
+              {claudeFirst ? (
+                <>
+                  <FinishWithClaude
+                    site={{ id: view.siteId, name: siteName ?? "your site" }}
+                    source={view.source}
+                    fidelity={view.fidelity}
+                    prominent
+                  />
+                  <div className="st-building__actions">
+                    <Button variant="secondary" onClick={() => navigate(editor)}>
+                      Open the editor
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="st-building__actions">
+                  <Button variant="primary" size="lg" onClick={() => navigate(editor)}>
+                    Open it in Studio
+                  </Button>
+                </div>
+              )}
             </div>
           ) : failed ? (
             <>
@@ -399,13 +430,6 @@ export function MoveProgress() {
           <section className="st-move__review" aria-label="Review">
             <AttentionPanel groups={view.attention} />
             <FidelityPanel fidelity={view.fidelity} />
-            {wantsClaude(view) && (
-              <FinishWithClaude
-                site={{ id: view.siteId, name: siteName ?? "your site" }}
-                source={view.source}
-                fidelity={view.fidelity}
-              />
-            )}
             <FinishSetup items={view.checklist} />
           </section>
         )}

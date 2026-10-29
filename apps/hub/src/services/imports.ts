@@ -216,6 +216,11 @@ export interface ImportFidelity {
   strict?: number;
   strictBefore?: number;
   scorer?: string;
+  /**
+   * Set when the summary came from a scorer before calibration (v3.x): the numbers here are
+   * re-scaled to the calibrated scale, and this is the site score it was saved with.
+   */
+  rescaledFrom?: number;
   pages: Array<{
     path: string;
     device: "desktop" | "phone";
@@ -316,6 +321,76 @@ export function parseFidelitySummary(text: string | null): ImportFidelity | unde
     ...(changes.length ? { changes } : {}),
     ...(without !== undefined ? { withoutComponents: without } : {}),
     ...(withC !== undefined ? { withComponents: withC } : {}),
+  };
+}
+
+/**
+ * Does this summary's score come from the calibrated scorer (`scorer: "v4-…"`, CLIs after 0.1.19)? The
+ * scorers before it ran high: two unrelated pages scored 14–56, a move that was honestly ~10/100
+ * showed 50. Those numbers aren't shown as they are.
+ */
+export function isCalibrated(scorer: string | undefined): boolean {
+  const major = /^v(\d+)/.exec(scorer ?? "")?.[1];
+  return major !== undefined && Number(major) >= 4;
+}
+
+/**
+ * An uncalibrated (v3.x) score on the calibrated scale, conservatively: measured on the fixture
+ * pages, unrelated pages scored up to ~55 the old way and identical ones 100, so 55 → 0 and
+ * 100 → 100, linear in between (the old way's 50 for a move that was honestly ~10 reads 0).
+ */
+export function rescaleLegacyScore(score: number): number {
+  return Math.max(0, Math.min(100, Math.round(((score - 55) / 45) * 100)));
+}
+
+/** Per page the weaker device counts double; the site sits halfway between average and weakest. */
+function softSiteScore(pages: { path: string; score: number }[]): number {
+  const byPath = new Map<string, number[]>();
+  for (const p of pages) byPath.set(p.path, [...(byPath.get(p.path) ?? []), p.score]);
+  const soft = (xs: number[]) =>
+    0.5 * (xs.reduce((n, x) => n + x, 0) / xs.length) + 0.5 * Math.min(...xs);
+  return Math.round(soft([...byPath.values()].map(soft)));
+}
+
+/**
+ * The fidelity summary as shown (Studio, `import_status`): a calibrated one as it is; an older,
+ * uncalibrated one re-scaled (`rescaledFrom` keeps the number it was saved with), so an old
+ * move isn't over-trusted.
+ */
+export function honestFidelity(f: ImportFidelity): ImportFidelity {
+  if (isCalibrated(f.scorer)) return f;
+  const r = (n: number | undefined) => (n === undefined ? undefined : rescaleLegacyScore(n));
+  const pages = f.pages.map((p) => {
+    const { before, strict, strictBefore, ...rest } = p;
+    return {
+      ...rest,
+      score: rescaleLegacyScore(p.score),
+      ...(before !== undefined ? { before: r(before) as number } : {}),
+      ...(strict !== undefined ? { strict: r(strict) as number } : {}),
+      ...(strictBefore !== undefined ? { strictBefore: r(strictBefore) as number } : {}),
+    };
+  });
+  const site = (score: number, pick: (p: (typeof pages)[number]) => number | undefined) => {
+    const each = pages.map((p) => ({ path: p.path, score: pick(p) }));
+    return each.length && each.every((p) => p.score !== undefined)
+      ? softSiteScore(each as { path: string; score: number }[])
+      : rescaleLegacyScore(score);
+  };
+  const { before, strict, strictBefore, withoutComponents, withComponents, ...rest } = f;
+  return {
+    ...rest,
+    score: site(f.score, (p) => p.score),
+    rescaledFrom: f.score,
+    ...(before !== undefined ? { before: site(before, (p) => p.before) } : {}),
+    ...(strict !== undefined ? { strict: site(strict, (p) => p.strict) } : {}),
+    ...(strictBefore !== undefined
+      ? { strictBefore: site(strictBefore, (p) => p.strictBefore) }
+      : {}),
+    ...(withoutComponents !== undefined
+      ? { withoutComponents: rescaleLegacyScore(withoutComponents) }
+      : {}),
+    ...(withComponents !== undefined ? { withComponents: rescaleLegacyScore(withComponents) } : {}),
+    pages,
   };
 }
 
@@ -570,6 +645,7 @@ export function toImportView(
       title: plainWords(i.title),
       detail: plainWords(i.detail),
     })) ?? [];
+  const fidelity = counts?.fidelity ? honestFidelity(counts.fidelity) : null;
   return {
     id: row.id,
     siteId: row.site_id,
@@ -582,10 +658,10 @@ export function toImportView(
     counts,
     attention: attentionFromReport(row.report),
     checklist,
-    fidelity: counts?.fidelity
+    fidelity: fidelity
       ? {
-          ...counts.fidelity,
-          pages: counts.fidelity.pages.map((p) => ({
+          ...fidelity,
+          pages: fidelity.pages.map((p) => ({
             ...p,
             image: p.image
               ? `${services.config.hubUrl}/api/imports/${row.id}/fidelity/${p.image}`

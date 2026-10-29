@@ -62,30 +62,31 @@ const DEMO_THUMB = `data:image/svg+xml,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 728 400"><rect width="360" height="400" fill="#1c1917"/><rect x="368" width="360" height="400" fill="#1c1917"/><rect x="40" y="60" width="200" height="28" fill="#ede6d8"/><rect x="408" y="60" width="200" height="28" fill="#ede6d8"/><rect x="40" y="110" width="120" height="14" fill="#b8714a"/><rect x="408" y="110" width="120" height="14" fill="#b8714a"/></svg>',
 )}`;
 
+/** A typical automatic move on the calibrated scale: the basics came across, not a close match. */
 const DEMO_FIDELITY = {
-  score: 93,
-  before: 84,
-  strict: 91,
-  strictBefore: 82,
-  scorer: "v3.1-corrected",
+  score: 64,
+  before: 52,
+  strict: 61,
+  strictBefore: 49,
+  scorer: "v4-calibrated",
   changes: ["h2: 60px", "buttons on dark sections #b8714a, as on the original"],
   pages: [
     {
       path: "/",
       device: "desktop" as const,
-      score: 94,
-      before: 85,
-      strict: 92,
+      score: 74,
+      before: 60,
+      strict: 70,
       image: DEMO_THUMB,
       corrections: [
         "Section 2: columns counted on screen only (3 → 1 counted as 1 → 1; off-screen slides aren’t columns).",
       ],
     },
-    { path: "/", device: "phone" as const, score: 91, before: 82, image: DEMO_THUMB },
+    { path: "/", device: "phone" as const, score: 68, before: 55, image: DEMO_THUMB },
     {
       path: "/about",
       device: "desktop" as const,
-      score: 92,
+      score: 58,
       image: null,
       differs: ["Image placement"],
     },

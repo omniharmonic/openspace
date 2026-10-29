@@ -4,7 +4,7 @@ import { renderStudio, SAM } from "../../test/render";
 import { placeholderDocument } from "../editor/model/placeholder";
 import { buildChecklist } from "../setup/checklist";
 import { finishMovePrompt, oldAddress } from "../start/prompt";
-import { stillDiffers, wantsClaude } from "./FinishWithClaude";
+import { claudeFraming, stillDiffers, wantsClaude } from "./FinishWithClaude";
 
 const FAST_IMPORT = { user: SAM, importStepMs: 15 };
 
@@ -68,15 +68,54 @@ describe("when a move invites Claude", () => {
   });
 });
 
-describe("Improve it with Claude, after a move", () => {
+describe("honest words for where a move landed", () => {
+  it("is plain that a low score is rough, names the basics mid-range, and offers Claude either way", () => {
+    expect(claudeFraming(12).title).toBe(
+      "The automatic move is rough. Claude can make it match closely.",
+    );
+    expect(claudeFraming(12).lede).toMatch(/^It came out at 12\/100/);
+    expect(claudeFraming(12).lede).toContain("most of the design didn’t come across");
+    expect(claudeFraming(64).title).toBe(
+      "The automatic move got the basics. Claude can make it match closely.",
+    );
+    expect(claudeFraming(93).title).toBe("Want it even closer? Claude can finish the job");
+    expect(claudeFraming(undefined).title).toBe("Claude can make it match your old site");
+  });
+});
+
+describe("Finish it with Claude, after a move", () => {
+  it("is the main next step on the result, with the editor second", async () => {
+    await moveMaya();
+    const invite = screen
+      .getByRole("heading", {
+        name: "The automatic move got the basics. Claude can make it match closely.",
+      })
+      .closest("section") as HTMLElement;
+    expect(invite).toHaveClass("st-moveclaude--prominent");
+    expect(within(invite).getByText(/It came out at 64\/100/)).toBeInTheDocument();
+    // It sits with the celebration, before the page-by-page review.
+    const celebrate = screen
+      .getByRole("heading", { name: "Your site is live!" })
+      .closest("div") as HTMLElement;
+    expect(celebrate).toContainElement(invite);
+    const finish = within(invite).getByRole("button", { name: "Finish it with Claude" });
+    const editor = screen.getByRole("button", { name: "Open the editor" });
+    expect(finish).toHaveClass("st-button--primary");
+    expect(editor).not.toHaveClass("st-button--primary");
+    expect(screen.queryByRole("button", { name: "Open it in Studio" })).toBeNull();
+    expect(screen.getAllByRole("button", { name: "Finish it with Claude" })).toHaveLength(1);
+  });
+
   it("connected but not on this site: one click allows it (never a self-grant), then opens Claude", async () => {
     const { user, hub } = await moveMaya();
     const invite = screen
-      .getByRole("heading", { name: "Want it closer? Claude can finish the job" })
+      .getByRole("heading", {
+        name: "The automatic move got the basics. Claude can make it match closely.",
+      })
       .closest("section") as HTMLElement;
     expect(within(invite).getByText(/stays editable here/)).toBeInTheDocument();
     expect(within(invite).getByText(/\/about on a computer: image placement/)).toBeInTheDocument();
-    await user.click(within(invite).getByRole("button", { name: "Improve it with Claude" }));
+    await user.click(within(invite).getByRole("button", { name: "Finish it with Claude" }));
 
     expect(
       await within(invite).findByRole("heading", { name: "Let Claude work on Maya Yoga" }),
@@ -105,7 +144,7 @@ describe("Improve it with Claude, after a move", () => {
     await r.user.click(screen.getByLabelText("This is my site, or I’m moving it for its owner."));
     await r.user.click(screen.getByRole("button", { name: "Move my site" }));
     await screen.findByRole("heading", { name: "Your site is live!" });
-    await r.user.click(screen.getByRole("button", { name: "Improve it with Claude" }));
+    await r.user.click(screen.getByRole("button", { name: "Finish it with Claude" }));
     expect(
       await screen.findByRole("heading", { name: /Connect OpenSpace to Claude \(once\)/ }),
     ).toBeInTheDocument();
@@ -114,15 +153,15 @@ describe("Improve it with Claude, after a move", () => {
 
   it("the editor's Finish setting up offers it first for a moved site", async () => {
     const { user, router } = await moveMaya();
-    await user.click(screen.getByRole("button", { name: "Open it in Studio" }));
+    await user.click(screen.getByRole("button", { name: "Open the editor" }));
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/sites\/st_/));
     const id = router.state.location.pathname.split("/")[2] as string;
     await router.navigate(`/sites/${id}/settings/setup`);
     const item = await screen.findByTestId("setup-closer");
-    expect(within(item).getByText("Make it look even closer")).toBeInTheDocument();
+    expect(within(item).getByText("Make it match your old site")).toBeInTheDocument();
     await user.click(within(item).getByRole("button", { name: "Start" }));
     const dialog = await screen.findByRole("dialog", {
-      name: "Want it closer? Claude can finish the job",
+      name: "Finish your move with Claude",
     });
     const open = await within(dialog).findByRole("link", { name: /Open Claude with this message/ });
     expect(decodeURIComponent(open.getAttribute("href") ?? "")).toContain(
@@ -140,7 +179,7 @@ describe("Finish setting up for moved sites", () => {
   };
   const imported = { everLive: true, imported: { from: "Squarespace", items: [] } };
 
-  it("puts 'Make it look even closer' first when the move wasn't a near-perfect match", () => {
+  it("puts 'Make it match your old site' first when the move wasn't a near-perfect match", () => {
     const items = buildChecklist({ ...base, setup: imported, moveNeedsClaude: true });
     expect(items[0]).toMatchObject({ id: "closer", wizard: "claude", status: "todo" });
     expect(

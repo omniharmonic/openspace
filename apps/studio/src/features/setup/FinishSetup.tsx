@@ -334,7 +334,7 @@ const WIZARD_TITLE: Record<WizardId, string> = {
   analytics: "Your visitor stats",
   personalize: "Make it yours",
   ai: "Connect your AI",
-  claude: "Want it closer? Claude can finish the job",
+  claude: "Finish your move with Claude",
   info: "From your old site",
 };
 
@@ -361,7 +361,7 @@ const WIZARD_LEDE: Record<WizardId, string> = {
   info: "",
 };
 
-/** The "Improve it with Claude" steps for this site's move, inside the wizard. */
+/** The "Finish it with Claude" steps for this site's move, inside the wizard. */
 function ClaudeFinish({ site }: { site: Site }) {
   const move = useSiteImport(site.import ? site.id : undefined);
   if (move.isPending && site.import) return <Spinner size={16} label="Loading your move" />;

@@ -36,11 +36,13 @@ test("Move my site: address → progress → live site with what needs attention
   expect((await page.request.get(src)).headers()["content-type"]).toBe("image/jpeg");
   await expect(page.getByRole("heading", { name: /Finish setting up/ })).toBeVisible();
 
-  // Not a near-perfect match (the phone still differs): an honest invitation to finish with
-  // Claude — connect once, then open Claude with a message naming the old address and the site.
-  const invite = page.getByRole("region", { name: "Want it closer? Claude can finish the job" });
+  // Not a near-perfect match (the phone still differs): finishing with Claude is the main next
+  // step — connect once, then open Claude with a message naming the old address and the site.
+  const invite = page.getByRole("region", {
+    name: "Want it even closer? Claude can finish the job",
+  });
   await expect(invite).toBeVisible();
-  await invite.getByRole("button", { name: "Improve it with Claude" }).click();
+  await invite.getByRole("button", { name: "Finish it with Claude" }).click();
   await expect(
     invite.getByRole("heading", { name: /Connect OpenSpace to Claude \(once\)/ }),
   ).toBeVisible();
@@ -59,7 +61,7 @@ test("Move my site: address → progress → live site with what needs attention
   ).toBe(true);
   await page.setViewportSize({ width: 1280, height: 800 });
 
-  await page.getByRole("button", { name: "Open it in Studio" }).click();
+  await page.getByRole("button", { name: "Open the editor" }).click();
   await page.waitForURL(/\/sites\/st_[0-9a-z]+/);
   await editorReady(page);
   const siteId = siteIdFrom(page);

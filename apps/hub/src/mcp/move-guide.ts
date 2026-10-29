@@ -9,6 +9,8 @@ import type { PromptDefinition } from "@omniharmonic/openspace-mcp-tools";
 
 /** Below this match (0–100), or with listed differences, a move is worth finishing by hand. */
 export const CLOSE_ENOUGH = 90;
+/** Below this match the automatic move is rough, and the words say so. */
+export const ROUGH_BELOW = 50;
 
 export const FINISH_MOVE_FLOW = `Finishing a move (the person's site was moved in automatically — "Move your site" in Studio, or import_site — and they ask you to bring it closer to the original):
 1. Find the site (the message names its id; list_sites). If you can't reach it, the answer has an "Allow" link for the person — give it to them and wait; you can never grant yourself access. Then import_status with the site id: it gives the old address, how close the move came (0–100, page by page), what still differs on each page and what needs attention. Start with the lowest-scoring pages and the listed differences.
@@ -29,7 +31,7 @@ export const FINISH_MOVE_PROMPT: PromptDefinition = {
   render: (a) => {
     const from = a.from?.trim() ? ` ${a.from.trim()}` : "";
     const site = a.site?.trim() ? ` (site ${a.site.trim()})` : "";
-    return `Please finish moving my site${from} to OpenSpace${site}. The automatic move brought most of it across; I'd like it to look like my old site.
+    return `Please finish moving my site${from} to OpenSpace${site}. The automatic move brought the words and pictures across; I'd like it to look like my old site.
 
 Compare it with the original page by page, starting with what OpenSpace's move report says still differs. Rebuild what didn't come across — custom sections, animations, missing pieces — keep every word and picture editable for me, run the design and phone checks, show me before and after, and ask me before you publish.
 

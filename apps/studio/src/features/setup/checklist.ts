@@ -218,8 +218,8 @@ export function buildChecklist(input: ChecklistInput): SetupItem[] {
   // A move that didn't come across exactly: Claude can finish it (most valuable first).
   if (input.moveNeedsClaude)
     items.push(
-      always("closer", "Make it look even closer", {
-        why: "The automatic move couldn’t bring everything across exactly. Claude can compare it with your old site page by page and rebuild what’s missing — it all stays editable here.",
+      always("closer", "Make it match your old site", {
+        why: "The automatic move got the basics. Claude can compare it with your old site page by page and make it match closely — it all stays editable here.",
         minutes: 5,
         done: acknowledged.includes("closer"),
       }),

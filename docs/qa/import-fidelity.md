@@ -38,9 +38,66 @@ pictures) — by containment, then by position between matched neighbours.
 
 ## How it's scored
 
-**Page score = 75% checks + 25% looks alike.**
+**The score is calibrated (scorer `v4-calibrated`): 0 means "nothing like it" — an unrelated or
+broken page — and 90+ means near-identical.** Three measurements go in: the checks, how alike the
+screenshots look, and the share of the original's sections found on the new page.
 
-**Checks (75%).** Every check has a weight; the page's check score is the weighted share that
+**Page score** = `100 × min(¼·c + ¼·v + ½·min(c, v), present)`, where
+
+- `c` = the check score counted from what unrelated pages pass anyway: `(checks − 30%) / 70%`;
+- `v` = the screenshot similarity counted from what unrelated pages' screenshots compare at:
+  `(visual − 0.55) / 0.45` on a computer, `(visual − 0.65) / 0.35` on a phone (both clamped to
+  0–1; without screenshots the page score is `c`);
+- the weaker of `c` and `v` counts double, so the right fonts on a page whose layout fell apart
+  don't read as a good match, nor the reverse;
+- `present` = the share of the original's sections the new page has: a page can't score above it.
+
+**Site score** = per page, half the devices' average and half the weaker device; then half the
+pages' average and half the weakest page. A good phone score can't hide a broken computer page,
+and one broken page shows.
+
+**Why calibrated (October 29, 2026).** A tester moved a complex Framer site; Studio said 50/100,
+honestly it was ~10. The v3.1 score was `75% checks + 25% screenshots`, and both have a high floor:
+measured in Chromium on the fixture pages (`packages/import/src/__fixtures__/fidelity/measured.json`,
+60 unrelated pairs), two **unrelated** pages pass 0–46% of the weighted checks (shared defaults —
+the same system font, 16 px text, similar widths — pass whole groups of checks) and their
+screenshots compare at **0.38–0.89** (median 0.57 on a computer, 0.68 on a phone: mostly a column
+of text on white). So an unrelated page scored **14–56** and a page whose CSS was removed 25–44. The
+same measurements, calibrated:
+
+| Pair (fixture pages, computer / phone) | v3.1 | v4 calibrated |
+|---|---|---|
+| A page against itself | 100 / 100 | **100 / 100** |
+| Unrelated pages (60 pairs) | 14–56 | **0–1** |
+| Bakery with its CSS removed | 25 / 34 | **0 / 5** |
+| Foodshed with its CSS removed | 39 / 44 | **4 / 3** |
+| Bakery, other fonts, narrower, grids gone ("rough") | 58 / 72 | **37 / 58** |
+| Bakery, 1 px bigger text and 40 px narrower ("close") | 99 / 100 | **94 / 97** |
+| Studio, generic importer (hero picture and product grid lost) — site | 60 | **11** |
+| Tidewater, generic importer — site | 69 | **36** |
+| Bakery, generic importer — site | 78 | **40** |
+| Foodshed, generic importer (cards and heading fonts lost) — site | 85 | **59** |
+| Foodshed, single-file HTML importer (cards and fonts kept) — site | 82 | **66** |
+
+v3.1 ranked the two Foodshed moves the wrong way round; v4 ranks them as a person would. (Two runs
+agreed within 1 point.)
+`fidelity-calibrated.test.ts` keeps all of this true.
+
+**Auto-tuning** still compares the uncalibrated v3.1 score (`raw` in `fidelity.json`): it moves
+with every improvement, where the calibrated score sits at 0 on a page that is still far off.
+
+**Older summaries.** `fidelity-summary.json` files written before v4 (`scorer` absent or
+`v3.x`) are still in people's repositories. The Hub doesn't show their numbers as they are: it
+re-scales them conservatively, `(score − 55) / 45`, page by page, recomputes the site score the
+v4 way, and says so (`rescaledFrom`; Studio: "measured with an older, more generous method").
+
+**The next step.** Below 90 the score isn't near-identical, and every surface says so and puts
+finishing with Claude first: Studio's result screen leads with "Finish it with Claude" (the
+editor is the second choice), `import_status` gives Claude the next step straight after the
+score, and the CLI and FIDELITY-REPORT.md name it. Below 50 they say plainly that the automatic
+result is rough.
+
+**Checks.** Every check has a weight; the page's check score is the weighted share that
 passed:
 
 | Check | Weight | Passes when |
@@ -69,15 +126,14 @@ small caps or not), they get credit by how close their measured shapes are — d
 x-height relative to cap height, width and cap height; `metricDistance` in `font-match.ts`.)
 An unrelated font gets nothing. The report marks these "close (85%)", never "same".
 
-**Looks alike (25%).** The two full-page screenshots are scaled to 64 px wide; the original is
+**Looks alike.** The two full-page screenshots are scaled to 64 px wide; the original is
 cut into 8-row bands and each band is compared with the best-aligned band of the new page within
 8% of the page height (so one taller section doesn't misalign everything below it): structural
 similarity (SSIM) of the luminance in 8×8 windows (45%), color difference (35%), and how close
-the page heights are (20%). Identical pages score 1.0. As calibrated on the sites below,
-unrelated pages typically land at 0.2–0.5 and a faithful move at 0.75–0.9: the measure is
-deliberately strict, so it can't be gamed by matching only the numbers above.
+the page heights are (20%). Identical pages score 1.0; unrelated pages 0.38–0.89 (above), which
+is why the page score counts it from those zero points.
 
-**Overall** = the mean of every page × device score.
+(Before v4: page score = 75% checks + 25% looks alike, overall = the mean of every page × device.)
 
 ## Two scores: corrected, and strict v3 beside it
 
@@ -194,6 +250,9 @@ paragraph) — for the display preset.
 - Section matching is heuristic on hand-built HTML; an unmatched section counts as missing.
 
 ## Results
+
+The numbers in this section were measured with the uncalibrated v3/v3.1 scorers (before
+October 29, 2026); on the calibrated scale they read lower (see "Why calibrated" above).
 
 Measured October 27, 2026, read-only against the live sites (nothing third-party committed),
 same pages as before (Power With 4, Alameda 5, the others 6), computer 1440 px and phone 390 px.

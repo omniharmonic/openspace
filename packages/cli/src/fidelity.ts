@@ -14,6 +14,7 @@ import {
   fidelityReport,
   type LookProbe,
   MediaImporter,
+  nextStep,
   type PageComparison,
   PROBE_SCRIPT,
   parseProbe,
@@ -217,7 +218,9 @@ function defaultPages(doc: SiteDocument): string[] {
  * compared with the best-aligned band of the new page nearby (within 8% of the page height, so a
  * section a little taller doesn't throw off everything below it): structural similarity (SSIM) of
  * the luminance in 8×8 windows (45%) and the color difference (35%); plus how close the page
- * heights are (20%). Identical pages score 1; unrelated pages typically 0.2–0.5.
+ * heights are (20%). Identical pages score 1; unrelated pages, measured on the fixture pages,
+ * 0.38–0.89 (median 0.57 on a computer, 0.68 on a phone) — which is why the page score counts it
+ * from those zero points (`CALIBRATION` in @omniharmonic/openspace-import), not from 0.
  */
 export async function visualSimilarity(browser: Browser, a: Buffer, b: Buffer): Promise<number> {
   const page = await browser.newPage({ viewport: { width: 400, height: 400 } });
@@ -407,7 +410,10 @@ export async function runCompare(
     if (rounds && best.measured.length) {
       const changes: string[] = [];
       let bestDoc = doc;
-      let bestScore = first.exact ?? first.score;
+      // Tuning compares the uncalibrated score: it moves with every improvement, where the
+      // calibrated one (what's reported) sits at 0 on a page that is still far off.
+      let bestScore = first.raw ?? first.exact ?? first.score;
+      let bestShown = first.exact ?? first.score;
       let ran = 0;
       /** The score before recreating sections as components, and with them (when kept). */
       let withoutComponents: number | undefined;
@@ -451,7 +457,7 @@ export async function runCompare(
             `Tuning ${group}: ${t.changes.slice(0, 4).join("; ")}${t.changes.length > 4 ? "…" : ""}`,
           );
           if (group === "components") {
-            withoutComponents ??= bestScore;
+            withoutComponents ??= bestShown;
             // The recreated sections' pictures come into media/ like every other picture.
             await localizeComponentImages(root, t.doc).catch(() => undefined);
           }
@@ -463,7 +469,8 @@ export async function runCompare(
             continue;
           }
           const next = await measure();
-          const score = fidelityReport(next.comparisons).exact ?? 0;
+          const nextReport = fidelityReport(next.comparisons);
+          const score = nextReport.raw ?? nextReport.exact ?? 0;
           // Kept only when it helps (by more than measuring noise).
           const better = score > bestScore + 0.1;
           log(
@@ -477,10 +484,11 @@ export async function runCompare(
               await writeSiteDocument(root, bestDoc);
               continue;
             }
-            withComponents = score;
+            withComponents = nextReport.exact ?? nextReport.score;
           }
           if (better) {
             bestScore = score;
+            bestShown = nextReport.exact ?? nextReport.score;
             bestDoc = t.doc;
             best = next;
             changes.push(...t.changes);
@@ -703,6 +711,9 @@ export function compareSummary(r: CompareResult): string[] {
       ? `Visual match with the original: ${r.tuning.before.score}/100 → ${r.report.score}/100 after ${r.tuning.rounds} tuning round(s)${r.tuning.withoutComponents !== undefined ? ` (${r.tuning.withoutComponents}/100 before recreating sections as custom components${r.tuning.withComponents !== undefined ? "" : "; none kept"})` : ""}.${strict}`
       : `Visual match with the original: ${r.report.score}/100.${strict}`,
   ];
+  // The honest next step comes straight after the score, before the page-by-page detail.
+  const step = nextStep(r.report.score);
+  if (step) lines.push(`Next step: ${step}`);
   for (const p of r.report.pages) {
     const off = [
       ...p.checks.filter((c) => !c.ok && !c.credit).map((c) => c.what),
