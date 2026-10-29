@@ -2,6 +2,7 @@ import { Check, CloudOff, LogIn, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { AvatarStack, Button, Spinner, Tooltip, toast } from "../../ui";
 import { useDocStore } from "../editor/model/context";
+import { LiveChangedBanner } from "./LiveDraft";
 import { plainError, useRoomState, useSync, useSyncSession } from "./SyncContext";
 import { type AgentRun, pageList } from "./session";
 import "./sync.css";
@@ -144,7 +145,7 @@ export function SyncBanners() {
   const authRequired = useRoomState((s) => s.authRequired);
   const agents = useSyncSession((s) => s.agents);
   const runs = agents.filter((a) => !a.active && !a.resolved && a.changes > 0);
-  if (!hubDown && !authRequired && runs.length === 0) return null;
+  if (!hubDown && !authRequired && runs.length === 0) return <LiveChangedBanner standalone />;
   const next = typeof window !== "undefined" ? window.location.pathname : "/sites";
   return (
     <div className="st-banners">
@@ -183,6 +184,7 @@ export function SyncBanners() {
           </div>
         </section>
       )}
+      <LiveChangedBanner />
       {runs.map((r) => (
         <AgentBanner key={r.sessionId} run={r} />
       ))}

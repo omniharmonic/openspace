@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { usePhoneCheckQuery } from "../../api/manage-queries";
-import type { PublishSchedule } from "../../api/types";
+import { HubError, type PublishSchedule } from "../../api/types";
 import { useConfig } from "../../app/config";
 import {
   Button,
@@ -29,6 +29,7 @@ import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import { docVersion, recordHubPhoneCheck } from "../phone/model";
 import { applyPhoneFixes } from "../phone/PhoneCheckBar";
 import { describeChanges } from "./changes";
+import { liveStatusKey, useGoBackToLive, useLiveStatus } from "./LiveDraft";
 import { asBody, plainError, useRoomState, useSync, useSyncSession } from "./SyncContext";
 import { IDLE_PUBLISH } from "./session";
 import "./sync.css";
@@ -88,6 +89,11 @@ function PublishDialog({
   const [busy, setBusy] = useState(false);
   const [timeError, setTimeError] = useState<string | null>(null);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
+  // The live site has work this draft doesn't include: publishing replaces it, so say so first.
+  const liveStatus = useLiveStatus();
+  const [refusedLive, setRefusedLive] = useState(false);
+  const liveChanged = open && (liveStatus.data?.liveChanged === true || refusedLive);
+  const goBack = useGoBackToLive();
 
   const published = useQuery({
     queryKey: keys.published(site.id),
@@ -113,6 +119,7 @@ function PublishDialog({
   const close = () => {
     setMode("now");
     setTimeError(null);
+    setRefusedLive(false);
     onOpenChange(false);
   };
 
@@ -127,8 +134,9 @@ function PublishDialog({
         });
         return;
       }
-      const r = await hub.publish(site.id);
+      const r = await hub.publish(site.id, liveChanged ? { overwriteLive: true } : undefined);
       void queryClient.invalidateQueries({ queryKey: ["versions", site.id] });
+      void queryClient.invalidateQueries({ queryKey: liveStatusKey(site.id) });
       if (!r.publish) {
         session.setState({
           publish: {
@@ -157,6 +165,12 @@ function PublishDialog({
       }
       close();
     } catch (err) {
+      if (err instanceof HubError && err.code === "live_changed") {
+        // Found out at publish time: explain it here and let the person choose.
+        setRefusedLive(true);
+        void queryClient.invalidateQueries({ queryKey: liveStatusKey(site.id) });
+        return;
+      }
       toast({
         tone: "danger",
         title: "Couldn’t publish",
@@ -165,6 +179,10 @@ function PublishDialog({
     } finally {
       setBusy(false);
     }
+  };
+
+  const switchToLive = async () => {
+    if (await goBack.run()) close();
   };
 
   const schedule = async () => {
@@ -265,11 +283,11 @@ function PublishDialog({
             </Button>
             {empty ? null : mode === "now" ? (
               <Button
-                variant="primary"
+                variant={liveChanged ? "danger" : "primary"}
                 onClick={publishNow}
                 disabled={busy || offline || empty || !changes}
               >
-                {busy ? "Publishing…" : "Publish now"}
+                {busy ? "Publishing…" : liveChanged ? "Publish anyway" : "Publish now"}
               </Button>
             ) : (
               <Button
@@ -306,6 +324,20 @@ function PublishDialog({
               </>
             )}
           </section>
+          {liveChanged && !empty && (
+            <div className="st-publish__warn st-publish__live" role="alert">
+              <p>
+                <strong>Your live site has newer changes.</strong> They were published from
+                somewhere else (maybe Claude) after this draft was started. Publishing replaces them
+                with what’s in the editor.
+              </p>
+              {DESIGNERS.has(role) && (
+                <Button size="sm" variant="secondary" onClick={switchToLive} disabled={goBack.busy}>
+                  {goBack.busy ? "Going back…" : "Use the live version instead"}
+                </Button>
+              )}
+            </div>
+          )}
           {!empty && (
             <PublishGate
               doc={draft}

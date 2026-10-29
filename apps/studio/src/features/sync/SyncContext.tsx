@@ -224,7 +224,14 @@ function SyncEffects() {
           return;
         }
         case "reload":
-          if (e.reason !== "stale" && e.reason !== "resync")
+          if (e.reason.startsWith("Your live site changed"))
+            // The draft had nothing of its own and followed what was published elsewhere.
+            toast({
+              title: "Now showing your live site’s latest version",
+              description:
+                "It was published from somewhere else (like Claude), and your draft had no changes of its own.",
+            });
+          else if (e.reason !== "stale" && e.reason !== "resync")
             toast({
               title: "Updated to the latest version",
               description: "Someone changed the whole draft, so the editor reloaded it.",

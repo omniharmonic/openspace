@@ -37,6 +37,7 @@ import { useLookTrial } from "../looks/trial";
 import { MediaLibrary } from "../media/MediaLibrary";
 import { PagesManager } from "../pages/PagesManager";
 import { SiteChromePanel } from "../site-chrome/SiteChromePanel";
+import { DraftMenu } from "../sync/LiveDraft";
 import { PublishButton, PublishPill } from "../sync/PublishFlow";
 import { SyncBanners, SyncStatus } from "../sync/SyncChrome";
 import { UpdateBanner } from "../updates/UpdateBanner";
@@ -381,6 +382,7 @@ export function MobileStudio({ site, onHistory, onFrameDocument }: MobileStudioP
           <span className="st-mob__page">{screen === "pages" ? "Pages" : pageTitle}</span>
         </div>
         {!building && <SyncStatus />}
+        {!building && <DraftMenu compact />}
         <IconButton
           label="Undo"
           icon={<Undo2 />}
