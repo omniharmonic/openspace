@@ -2,9 +2,9 @@
  * Update bot (arch §11.2). Daily, each site's `@omniharmonic/openspace-site-kit` version (from `package.json`
  * on main) is compared with the latest compatible release. A newer one becomes an update branch
  * `os/update-<version>` with the version bump, a pull request with the plain-language changelog,
- * and a `site_updates` record Studio shows as "Update available". Applying squash-merges the PR
- * (re-generated on the current main first, so it never reverts newer content), carries the bump
- * to the draft, and republishes. Security releases are merged automatically unless the owner
+ * and a `site_updates` record Studio shows as "Update available". Applying commits the bump
+ * straight onto the current main (so it never reverts newer content; the PR is then closed as
+ * done), carries it to the draft, and republishes. Security releases are merged automatically unless the owner
  * opted out.
  */
 
@@ -281,18 +281,14 @@ export async function applyUpdate(
   const gh = services.github({ site, user });
   const repo = parseRepo(site.repo);
   try {
-    const main = await gh.getRef(repo, MAIN_BRANCH);
-    const pkg = main ? await gh.readFile(repo, "package.json", main) : null;
-    if (!main || !pkg) throw new Error("The site has no package.json");
-    const now = kitVersion(pkg);
-    // Already merged (e.g. a retry after the post-merge step failed): skip straight to the draft.
-    const merged = !!now && compareSemver(now, u.to_version) >= 0;
-    if (!merged) await mergeUpdate(gh, repo, u, main, pkg, db);
+    // False when main already has it (e.g. a retry after the draft step failed).
+    const committed = await commitToMain(gh, repo, u);
     await carryToDraft(gh, repo, u.to_version);
     // Dev emulation only builds on dispatch; real GitHub builds on the push to main.
-    if (gh.kind === "dev" && !merged)
+    if (gh.kind === "dev" && committed)
       await gh.dispatchWorkflow(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
     await markApplied(services, u.id);
+    if (committed) await settleBranch(gh, repo, u.to_version, log);
     await audit(
       db,
       {
@@ -319,35 +315,48 @@ export async function applyUpdate(
   );
 }
 
-/** Re-generate the update branch on the current main and squash-merge its PR. */
-async function mergeUpdate(
-  gh: GitHubAccess,
-  repo: RepoRef,
-  u: UpdateRow,
-  main: string,
-  pkg: string,
-  db: D1Database,
-) {
-  // Re-generate on the current main so merging never reverts newer content.
-  const head = await writeBranch(gh, repo, u.to_version, main, pkg);
-  let number = u.pr_number;
-  if (!number) {
-    const pr = await gh.openPullRequest(repo, {
-      head: branchFor(u.to_version),
-      base: MAIN_BRANCH,
-      title: title(u),
-      body: prBody(
-        { version: u.to_version, changelog: JSON.parse(u.changelog_json), security: !!u.security },
-        u.from_version,
-      ),
-    });
-    number = pr.number;
-    await db
-      .prepare("UPDATE site_updates SET pr_number = ?, pr_url = ? WHERE id = ?")
-      .bind(pr.number, pr.url, u.id)
-      .run();
+/**
+ * Put the bump straight onto main, on top of whatever main is now (so it never reverts newer
+ * content), retried if main moves meanwhile. Returns false when main already has it.
+ *
+ * This is what squash-merging the update PR produced, without going through the PR. The old way
+ * first force-moved the PR's branch onto main's commit to re-generate it there; GitHub then
+ * closes the PR as having nothing to merge, so the merge that followed always failed, and so did
+ * every "Try again" (a PR closed that way can't be reopened). The PR stays as a record.
+ */
+async function commitToMain(gh: GitHubAccess, repo: RepoRef, u: UpdateRow): Promise<boolean> {
+  for (let attempt = 0; ; attempt++) {
+    const main = await gh.getRef(repo, MAIN_BRANCH);
+    const pkg = main ? await gh.readFile(repo, "package.json", main) : null;
+    if (!main || !pkg) throw new Error("The site has no package.json");
+    const at = kitVersion(pkg);
+    if (at && compareSemver(at, u.to_version) >= 0) return false;
+    try {
+      await gh.commitFiles(repo, {
+        branch: MAIN_BRANCH,
+        expectedHead: main,
+        message: title(u),
+        files: [{ path: "package.json", content: bumpPackageJson(pkg, u.to_version) }],
+        author: { name: "OpenSpace" },
+      });
+      return true;
+    } catch (err) {
+      if (!(err instanceof GitHubConflictError) || attempt >= 2) throw err;
+    }
   }
-  await gh.mergePullRequest(repo, number, { title: title(u), sha: head });
+}
+
+/**
+ * Applied: move the update branch onto main (which now has the change), so its PR has nothing
+ * left to merge and GitHub closes it. Best effort: the update is applied either way.
+ */
+async function settleBranch(gh: GitHubAccess, repo: RepoRef, version: string, log?: Logger) {
+  try {
+    const main = await gh.getRef(repo, MAIN_BRANCH);
+    if (main) await gh.resetBranch(repo, branchFor(version), main);
+  } catch (err) {
+    log?.warn("update branch could not be tidied", { err });
+  }
 }
 
 /** Carry the bump to the draft too, or the next publish (draft tree → main) would undo it. */

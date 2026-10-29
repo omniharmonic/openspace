@@ -65,7 +65,8 @@ describe("update bot", () => {
     const pr = await env.HUB_DB.prepare(
       "SELECT state FROM dev_pull_requests WHERE number = 1",
     ).first<{ state: string }>();
-    expect(pr?.state).toBe("merged");
+    // Nothing left to merge on its PR: the host closes it.
+    expect(pr?.state).toBe("closed");
     expect(
       (
         await call(app, `/api/sites/${f.siteId}/updates/${update.id}/apply`, {
@@ -87,6 +88,41 @@ describe("update bot", () => {
       update: null;
     };
     expect(none.update).toBeNull();
+  });
+
+  it("applies even when its PR was closed, on newer content, and a failed one applies on Try again", async () => {
+    const app = makePublicApp();
+    const f = await siteWithForm(app, { form: null, name: "Juniper Closed PR" });
+    const { update } = (await (
+      await call(app, `/api/sites/${f.siteId}/updates/check`, { method: "POST", cookie: f.cookie })
+    ).json()) as { update: { id: string } };
+    const gh = new DevGitHubAccess(env.HUB_DB);
+    const repo = parseRepo(f.repo);
+    // Newer content lands on main after the check (the site was published again)…
+    const main = (await gh.getRef(repo, MAIN_BRANCH)) as string;
+    await gh.commitFiles(repo, {
+      branch: MAIN_BRANCH,
+      expectedHead: main,
+      message: "Edited Home",
+      files: [{ path: "src/content/pages/later.md", content: "# Later\n" }],
+    });
+    // …and an earlier attempt left the PR closed (what production saw: re-generating the branch
+    // on main made GitHub close the PR, the merge failed, the update was marked failed).
+    await gh.resetBranch(repo, "os/update-0.2.0", (await gh.getRef(repo, MAIN_BRANCH)) as string);
+    await env.HUB_DB.prepare("UPDATE site_updates SET status = 'failed' WHERE id = ?")
+      .bind(update.id)
+      .run();
+    const res = await call(app, `/api/sites/${f.siteId}/updates/${update.id}/apply`, {
+      method: "POST",
+      cookie: f.cookie,
+    });
+    expect(res.status).toBe(200);
+    expect(((await res.json()) as { update: { status: string } }).update.status).toBe("applied");
+    const head = (await gh.getRef(repo, MAIN_BRANCH)) as string;
+    expect(await pkgAt(f.repo, MAIN_BRANCH)).toBe("0.2.0");
+    expect(await pkgAt(f.repo, DRAFT_BRANCH)).toBe("0.2.0");
+    // The newer content is kept.
+    expect(await gh.readFile(repo, "src/content/pages/later.md", head)).toBe("# Later\n");
   });
 
   it("applies on top of newer content (never reverts it) and auto-merges security releases", async () => {

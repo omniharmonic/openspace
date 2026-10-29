@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { applyUpdate } from "./apply-update";
 
 /**
  * The installable, offline Studio (PRD §5.1): service worker registration, "new version"
@@ -6,9 +7,11 @@ import { create } from "zustand";
  *
  * Updates apply on reload: when a new version has been downloaded, Studio says so (with a
  * Reload button), and if the person simply reloads or leaves, the waiting version takes over
- * for the next load. A running editor is never reloaded underneath someone, and the new
- * version never takes over while another Studio tab is still open (that tab would lose the
- * code it loads lazily): it waits until the last tab goes.
+ * for the next load. A running editor is never reloaded underneath someone. While another Studio
+ * tab seems to be open, Reload first says so (that tab reloads too when the new version takes
+ * over); "Update anyway" goes ahead, because a tab can only *seem* open (one the phone froze, a
+ * stale one) and the update must never be blocked for good. Reload itself always ends on the new
+ * version (./apply-update.ts).
  */
 
 /** Minimal BroadcastChannel surface (injectable for tests). */
@@ -83,8 +86,13 @@ interface PwaState {
   installEvent: BeforeInstallPromptEvent | null;
   /** Running as an installed app. */
   installed: boolean;
-  /** Activate the waiting version (and reload). */
-  update: (() => Promise<void>) | null;
+  /**
+   * Activate the waiting version and reload. Asks first while another Studio tab seems open,
+   * unless `anyway`.
+   */
+  update: ((options?: { anyway?: boolean }) => Promise<void>) | null;
+  /** Reloading to the new version (Reload was tapped). */
+  updating: boolean;
   /** Times an update has waited for other Studio tabs to close (each attempt tells again). */
   otherTabs: number;
 }
@@ -95,6 +103,7 @@ export const usePwa = create<PwaState>(() => ({
   installEvent: null,
   installed: false,
   update: null,
+  updating: false,
   otherTabs: 0,
 }));
 
@@ -168,9 +177,16 @@ export function registerServiceWorker(env: RegisterEnv = import.meta.env): boole
       onOfflineReady: () => usePwa.setState({ offlineReady: true }),
     });
     usePwa.setState({
-      update: async () => {
-        if (presence.alone()) return update(true);
-        usePwa.setState((s) => ({ otherTabs: s.otherTabs + 1 }));
+      update: async ({ anyway = false } = {}) => {
+        if (usePwa.getState().updating) return;
+        if (!anyway && !presence.alone()) {
+          usePwa.setState((s) => ({ otherTabs: s.otherTabs + 1 }));
+          return;
+        }
+        usePwa.setState({ updating: true });
+        await applyUpdate();
+        // Still here after a while (e.g. "Stay on this page" was chosen): tapping works again.
+        setTimeout(() => usePwa.setState({ updating: false }), 10_000);
       },
     });
     // Update on reload: a waiting version takes over as the last Studio tab goes away.

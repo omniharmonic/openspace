@@ -26,6 +26,7 @@ import { StartHandoff } from "../features/start/StartHandoff";
 import { StartInClaude } from "../features/start/StartInClaude";
 import { StartWithClaude } from "../features/start/StartWithClaude";
 import { TemplateGallery } from "../features/templates/TemplateGallery";
+import { applyUpdate } from "../pwa/apply-update";
 import { Button, EmptyState, Spinner, useRegisterCommands } from "../ui";
 import { SlowLoading } from "./Connection";
 import { type StudioConfig, useConfig } from "./config";
@@ -199,7 +200,8 @@ function RouteError() {
   const stale = isStaleBuildError(error);
   const reloading = stale && claimStaleReload(sessionStorageOrNull());
   useEffect(() => {
-    if (reloading) window.location.reload();
+    // Lets a new version that's waiting take over first, so the reload gets it.
+    if (reloading) void applyUpdate();
   }, [reloading]);
   if (reloading)
     return (
@@ -219,7 +221,13 @@ function RouteError() {
         }
         action={
           <>
-            <Button variant="primary" onClick={() => window.location.reload()}>
+            <Button
+              variant="primary"
+              // Stale: a plain reload already didn't help, so this one skips the cached copy.
+              onClick={() =>
+                stale ? void applyUpdate(undefined, { force: true }) : window.location.reload()
+              }
+            >
               Reload
             </Button>
             <Button variant="ghost" onClick={() => window.location.assign("/sites")}>
