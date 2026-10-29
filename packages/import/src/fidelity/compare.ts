@@ -56,31 +56,56 @@ export interface PageComparison {
   original: string;
   imported: string;
   viewport: number;
-  /** 0–100: the checks (75%) and how alike the two pages look as pictures (25%), when measured. */
+  /**
+   * 0–100, calibrated (see `calibratedScore`): 0 for an unrelated or broken page, 90+ only when
+   * near-identical.
+   */
   score: number;
-  /** 0–100 from the checks alone. */
+  /** 0–100 from the checks alone (uncalibrated: the weighted share of checks that passed). */
   structure?: number;
+  /** The same before rounding. */
+  checkScore?: number;
   /** 0–1 perceptual similarity of the two full-page screenshots (see `visualSimilarity`). */
   visual?: number;
-  /** The score before rounding (auto-tuning compares these). */
+  /** 0–1: the share of the original's sections found on the new page. */
+  present?: number;
+  /** The calibrated score before rounding. */
   exact?: number;
+  /**
+   * The uncalibrated v3.1 score (checks 75%, pictures 25%), before rounding. Auto-tuning compares
+   * these: they move with every improvement, where the calibrated score sits at 0 on a page that
+   * is still far off.
+   */
+  raw?: number;
   checks: FidelityCheck[];
   sections: SectionComparison[];
   /**
    * The same page scored by the strict v3 scorer, without the corrections (see `corrections`),
    * reported side by side for transparency. `checks` is its check score before rounding.
    */
-  strict?: { score: number; exact: number; structure: number; checks: number };
+  strict?: {
+    score: number;
+    exact: number;
+    structure: number;
+    checks: number;
+    present?: number;
+    raw?: number;
+  };
   /** What the corrected scorer read differently from strict v3 on this page (plain words). */
   corrections?: string[];
 }
 
 export interface FidelityReport {
-  /** 0–100, weighted over every page and viewport (the corrected scorer). */
+  /**
+   * 0–100 for the whole site (calibrated, corrected measurements): per page the weaker device
+   * counts double, and the site sits halfway between its average page and its weakest page.
+   */
   score: number;
   /** The same before rounding. */
   exact?: number;
-  /** The strict v3 score of the same pages (no corrections), for comparison. */
+  /** The uncalibrated v3.1 site score (mean of every page × device): what auto-tuning compares. */
+  raw?: number;
+  /** The same pages measured the strict v3 way (no corrections), calibrated the same way. */
   strict?: { score: number; exact: number };
   /** Which scorer `score` comes from. Absent on reports made before the corrections. */
   scorer?: typeof SCORER;
@@ -88,12 +113,14 @@ export interface FidelityReport {
 }
 
 /**
- * The scorer `score` comes from: v3 with three documented miscalibrations corrected (navigation
- * in a header whose colour theme is named "brand", off-screen slides counted as columns, a
- * picture-only band on a phone that can't match the section holding it with its words). The
- * strict v3 score is reported beside it. See docs/qa/import-fidelity.md.
+ * The scorer `score` comes from: v4, calibrated. The measurements are v3.1's (v3 with three
+ * documented miscalibrations corrected: navigation in a header whose colour theme is named
+ * "brand", off-screen slides counted as columns, a picture-only band on a phone), but the score
+ * is re-based on what unrelated pages score, so 0 means "nothing like it" and 90+ "near-identical"
+ * (v3.1 gave two unrelated pages 14–56). The strict measurements are reported beside it,
+ * calibrated the same way. See docs/qa/import-fidelity.md.
  */
-export const SCORER = "v3.1-corrected" as const;
+export const SCORER = "v4-calibrated" as const;
 
 export type ScoreMode = "corrected" | "strict";
 
@@ -554,17 +581,68 @@ const exactScore = (checks: FidelityCheck[]) => {
 };
 const scoreOf = (checks: FidelityCheck[]) => Math.round(exactScore(checks));
 
-/** Share of a page's score that comes from how alike the screenshots look. */
+/** Share of the uncalibrated (v3.1) page score that comes from how alike the screenshots look. */
 export const VISUAL_WEIGHT = 0.25;
+
+/**
+ * The zero points of the calibrated score: what two unrelated pages score, measured in a real
+ * browser on the fixture pages (packages/import/src/__fixtures__, 30 unrelated pairs per device).
+ * Unrelated pages pass up to ~45% of the weighted checks on shared defaults alone (the same
+ * system font, 16px text), and their screenshots compare at 0.38–0.89: median 0.57 on a computer
+ * and 0.68 on a phone, where both pages are mostly a narrow column on white.
+ */
+export const CALIBRATION = {
+  /** Share of the weighted checks two unrelated pages pass anyway. */
+  checks: 0.3,
+  /** Picture similarity of two unrelated pages, on a computer and on a phone. */
+  visual: { desktop: 0.55, phone: 0.65 },
+} as const;
+
+const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+
+/**
+ * One page's calibrated score, 0–100, from its check score (0–100, uncalibrated), how alike the
+ * screenshots look (0–1, when measured) and the share of the original's sections it has (0–1):
+ *
+ * - each signal is re-based on what unrelated pages score (`CALIBRATION`), so an unrelated or
+ *   unstyled page is at 0 on both, not 20–50;
+ * - the weaker signal counts double (¼ checks + ¼ pictures + ½ the weaker one), so the right
+ *   fonts on a page whose layout fell apart don't read as a good match, nor the reverse;
+ * - a page can't score above the share of its sections that made it across.
+ */
+export function calibratedScore(input: {
+  checks: number;
+  visual?: number;
+  present?: number;
+  viewport: number;
+}): number {
+  const c = clamp01((input.checks / 100 - CALIBRATION.checks) / (1 - CALIBRATION.checks));
+  let s = c;
+  if (input.visual !== undefined && Number.isFinite(input.visual)) {
+    const floor = input.viewport < 700 ? CALIBRATION.visual.phone : CALIBRATION.visual.desktop;
+    const v = clamp01((input.visual - floor) / (1 - floor));
+    s = 0.25 * c + 0.25 * v + 0.5 * Math.min(c, v);
+  }
+  return 100 * Math.min(s, clamp01(input.present ?? 1));
+}
+
+/** The uncalibrated v3.1 page score: checks 75%, pictures 25%. */
+const rawScore = (checks: number, visual?: number) =>
+  visual === undefined ? checks : (1 - VISUAL_WEIGHT) * checks + VISUAL_WEIGHT * 100 * visual;
 
 /** Fold a perceptual similarity (0–1) into a page comparison's score. */
 export function withVisual(p: PageComparison, visual: number): PageComparison {
   const structure = p.structure ?? p.score;
-  const base = p.exact ?? structure;
-  const v = Math.max(0, Math.min(1, visual));
-  const exact = (1 - VISUAL_WEIGHT) * base + VISUAL_WEIGHT * 100 * v;
-  const strictExact = p.strict
-    ? (1 - VISUAL_WEIGHT) * p.strict.checks + VISUAL_WEIGHT * 100 * v
+  const checks = p.checkScore ?? structure;
+  const v = clamp01(visual);
+  const exact = calibratedScore({ checks, visual: v, present: p.present, viewport: p.viewport });
+  const strict = p.strict
+    ? calibratedScore({
+        checks: p.strict.checks,
+        visual: v,
+        present: p.strict.present,
+        viewport: p.viewport,
+      })
     : undefined;
   return {
     ...p,
@@ -572,8 +650,16 @@ export function withVisual(p: PageComparison, visual: number): PageComparison {
     visual: Math.round(v * 1000) / 1000,
     exact,
     score: Math.round(exact),
-    ...(p.strict && strictExact !== undefined
-      ? { strict: { ...p.strict, exact: strictExact, score: Math.round(strictExact) } }
+    raw: rawScore(checks, v),
+    ...(p.strict && strict !== undefined
+      ? {
+          strict: {
+            ...p.strict,
+            exact: strict,
+            score: Math.round(strict),
+            raw: rawScore(p.strict.checks, v),
+          },
+        }
       : {}),
   };
 }
@@ -623,7 +709,7 @@ function comparePage(
   tol: number,
   mode: ScoreMode,
   notes?: string[],
-): { checks: FidelityCheck[]; sections: SectionComparison[]; exact: number } {
+): { checks: FidelityCheck[]; sections: SectionComparison[]; exact: number; present: number } {
   const checks = [
     ...typeChecks(original, imported, tol, mode),
     ...layoutChecks(original, imported),
@@ -713,7 +799,13 @@ function comparePage(
     };
   });
   const all = [...checks, ...sections.flatMap((s) => s.checks)];
-  return { checks, sections, exact: exactScore(all) };
+  const found = sections.filter((s) => s.importedIndex !== undefined).length;
+  return {
+    checks,
+    sections,
+    exact: exactScore(all),
+    present: sections.length ? found / sections.length : 1,
+  };
 }
 
 /**
@@ -730,34 +822,60 @@ export function compareLooks(
   const notes: string[] = [];
   const page = comparePage(original, imported, tol, "corrected", notes);
   const strict = comparePage(original, imported, tol, "strict");
+  const viewport = original.viewport;
+  const exact = calibratedScore({ checks: page.exact, present: page.present, viewport });
+  const strictExact = calibratedScore({ checks: strict.exact, present: strict.present, viewport });
   return {
     path,
     original: original.url,
     imported: imported.url,
-    viewport: original.viewport,
-    score: Math.round(page.exact),
+    viewport,
+    score: Math.round(exact),
     structure: Math.round(page.exact),
-    exact: page.exact,
+    checkScore: page.exact,
+    present: page.present,
+    exact,
+    raw: page.exact,
     checks: page.checks,
     sections: page.sections,
     strict: {
-      score: Math.round(strict.exact),
-      exact: strict.exact,
+      score: Math.round(strictExact),
+      exact: strictExact,
       structure: Math.round(strict.exact),
       checks: strict.exact,
+      present: strict.present,
+      raw: strict.exact,
     },
     ...(notes.length ? { corrections: notes } : {}),
   };
 }
 
+/**
+ * A site's score from its pages' scores, so one broken page or device can't hide behind good
+ * ones: per page the weaker device counts double (half the devices' average, half the weaker
+ * device), and the site sits halfway between its average page and its weakest page.
+ */
+export function siteScore(pages: { path: string; score: number }[]): number {
+  if (!pages.length) return 100;
+  const byPath = new Map<string, number[]>();
+  for (const p of pages) byPath.set(p.path, [...(byPath.get(p.path) ?? []), p.score]);
+  const soft = (xs: number[]) =>
+    0.5 * (xs.reduce((n, x) => n + x, 0) / xs.length) + 0.5 * Math.min(...xs);
+  return soft([...byPath.values()].map(soft));
+}
+
 export function fidelityReport(pages: PageComparison[]): FidelityReport {
-  const mean = (f: (p: PageComparison) => number) =>
-    pages.length ? pages.reduce((n, p) => n + f(p), 0) / pages.length : 100;
-  const exact = mean((p) => p.exact ?? p.score);
-  const strict = mean((p) => p.strict?.exact ?? p.exact ?? p.score);
+  const exact = siteScore(pages.map((p) => ({ path: p.path, score: p.exact ?? p.score })));
+  const strict = siteScore(
+    pages.map((p) => ({ path: p.path, score: p.strict?.exact ?? p.exact ?? p.score })),
+  );
+  const raw = pages.length
+    ? pages.reduce((n, p) => n + (p.raw ?? p.exact ?? p.score), 0) / pages.length
+    : 100;
   return {
     score: Math.round(exact),
     exact: Math.round(exact * 100) / 100,
+    raw: Math.round(raw * 100) / 100,
     strict: { score: Math.round(strict), exact: Math.round(strict * 100) / 100 },
     scorer: SCORER,
     pages,
@@ -765,6 +883,24 @@ export function fidelityReport(pages: PageComparison[]): FidelityReport {
 }
 
 const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\n/g, " ");
+
+/** At or above this a move is near-identical; below it, the next step is finishing with Claude. */
+export const NEAR_IDENTICAL = 90;
+/** Below this the automatic result is rough, and the words say so. */
+export const ROUGH_BELOW = 50;
+
+/**
+ * The honest next step after an automatic move, in plain words (CLI, FIDELITY-REPORT.md): none
+ * when it's near-identical; otherwise finishing it with Claude.
+ */
+export function nextStep(score: number): string | undefined {
+  if (score >= NEAR_IDENTICAL) return undefined;
+  const claude =
+    "Claude can make it match closely: in Claude with the OpenSpace connector, use the finish-a-move prompt (or Studio's \"Finish it with Claude\"). It compares the old and new pages side by side and rebuilds what didn't come across, keeping every word and picture editable.";
+  return score < ROUGH_BELOW
+    ? `The automatic move is rough (${score}/100): the words and pictures came across, but most of the design didn't. That's normal for custom-built sites. ${claude}`
+    : `The automatic move got the basics (${score}/100). ${claude}`;
+}
 
 /** The report as Markdown (FIDELITY-REPORT.md). */
 export function fidelityMarkdown(
@@ -782,8 +918,9 @@ export function fidelityMarkdown(
   const lines = [
     "# Visual fidelity",
     "",
-    `Overall match: **${report.score}/100** — fonts, type sizes, spacing and each section measured in a browser on both sites (75%), and how alike the pages look as pictures (25%). How it's scored: docs/qa/import-fidelity.md.`,
+    `Overall match: **${report.score}/100** — fonts, type sizes, spacing and each section measured in a browser on both sites, and how alike the pages look as pictures, each counted from what two unrelated pages score (0) to identical (100); the weaker of the two counts double, and so do the weakest page and device. How it's scored: docs/qa/import-fidelity.md.`,
     "",
+    ...(nextStep(report.score) ? [`**Next step:** ${nextStep(report.score)}`, ""] : []),
     ...(report.strict
       ? [
           `Scored two ways, side by side: **${report.score}/100 corrected**, ${report.strict.score}/100 by the strict v3 scorer. The corrected score reads three things the strict one gets wrong (navigation in a header themed "brand", off-screen slides counted as columns, a picture-only band on a phone); the pages below list where it did.`,
@@ -793,7 +930,7 @@ export function fidelityMarkdown(
   ];
   if (opts.tuning) {
     lines.push(
-      `Auto-tuning raised it from ${opts.tuning.before}/100${opts.tuning.changes.length ? ":" : " (nothing it tried helped, so nothing was changed)."}`,
+      `Before auto-tuning: ${opts.tuning.before}/100${opts.tuning.changes.length ? ". What it changed:" : " (nothing it tried helped, so nothing was changed)."}`,
       "",
       ...opts.tuning.changes.slice(0, 30).map((c) => `- ${c}`),
       "",
@@ -816,7 +953,7 @@ export function fidelityMarkdown(
       lines.push("Corrected scoring on this page:", "", ...p.corrections.map((c) => `- ${c}`), "");
     if (p.visual !== undefined)
       lines.push(
-        `Checks ${p.structure ?? p.score}/100 · looks alike ${Math.round(p.visual * 100)}/100 (screenshots compared).`,
+        `Checks passed: ${p.structure ?? p.score}% · screenshots ${Math.round(p.visual * 100)}% alike (two unrelated pages compare at about ${Math.round(100 * (p.viewport < 700 ? CALIBRATION.visual.phone : CALIBRATION.visual.desktop))}%)${p.present !== undefined && p.present < 1 ? ` · ${Math.round(p.present * 100)}% of its sections found` : ""}.`,
         "",
       );
     lines.push(`Original: ${p.original}  `, `Imported: ${p.imported}`, "");

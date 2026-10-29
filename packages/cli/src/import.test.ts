@@ -543,13 +543,13 @@ describe("fidelity scored two ways", () => {
     const before = {
       score: 80,
       strict: { score: 77, exact: 77 },
-      scorer: "v3.1-corrected" as const,
+      scorer: "v4-calibrated" as const,
       pages: [page(1440, 79, 76), page(390, 81, 78)],
     };
     const after = {
       score: 91,
       strict: { score: 88, exact: 88 },
-      scorer: "v3.1-corrected" as const,
+      scorer: "v4-calibrated" as const,
       pages: [page(1440, 93, 90, ["Section 3: columns counted on screen only"]), page(390, 89, 86)],
     };
     const tuning = { before, changes: [], rounds: 1 };
@@ -558,7 +558,7 @@ describe("fidelity scored two ways", () => {
       version: 1,
       score: 91,
       strict: 88,
-      scorer: "v3.1-corrected",
+      scorer: "v4-calibrated",
       before: 80,
       strictBefore: 77,
       pages: [
@@ -591,6 +591,33 @@ describe("fidelity scored two ways", () => {
       strict: 88,
       before: 80,
     });
+  });
+
+  it("names finishing with Claude as the next step, straight after a score below 90", () => {
+    const page = (viewport: number, score: number) => ({
+      path: "/",
+      original: "",
+      imported: "",
+      viewport,
+      score,
+      checks: [],
+      sections: [],
+    });
+    const summary = (score: number) =>
+      compareSummary({
+        report: { score, scorer: "v4-calibrated", pages: [page(1440, score), page(390, score)] },
+        markdown: "",
+        out: "/tmp/x",
+        images: [],
+      });
+    const rough = summary(12);
+    expect(rough[0]).toContain("12/100");
+    expect(rough[1]).toMatch(/^Next step: The automatic move is rough \(12\/100\)/);
+    expect(rough[1]).toContain("finish-a-move");
+    expect(summary(72)[1]).toMatch(
+      /^Next step: The automatic move got the basics \(72\/100\)\. Claude can/,
+    );
+    expect(summary(93).some((l) => l.startsWith("Next step"))).toBe(false);
   });
 });
 

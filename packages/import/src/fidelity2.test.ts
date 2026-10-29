@@ -275,11 +275,18 @@ describe("the honest score", () => {
     expect(compareLooks(base, base, "/").score).toBe(100);
   });
 
-  it("blends the screenshot similarity in at a quarter of the page score", () => {
+  it("measures the screenshot similarity from what unrelated pages score, and the weaker signal counts double", () => {
     const cmp = compareLooks(base, base, "/");
+    // 0.6 is what two unrelated pages' screenshots typically compare at (zero point 0.55 on a
+    // computer): every check passing can't make up for pictures that look nothing alike.
+    // Uncalibrated (v3.1) this page read 90/100.
     const v = withVisual(cmp, 0.6);
-    expect(v).toMatchObject({ structure: 100, visual: 0.6, score: 90 });
-    expect(fidelityReport([v]).score).toBe(90);
+    const pics = (0.6 - 0.55) / 0.45;
+    expect(v).toMatchObject({ structure: 100, visual: 0.6, raw: 90 });
+    expect(v.score).toBe(Math.round(100 * (0.25 + 0.25 * pics + 0.5 * pics)));
+    expect(v.score).toBeLessThan(40);
+    expect(fidelityReport([v]).score).toBe(v.score);
+    expect(fidelityReport([v]).raw).toBe(90);
   });
 
   it("matches the parts of an article the original split around its pictures", () => {

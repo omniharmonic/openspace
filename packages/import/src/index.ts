@@ -43,7 +43,9 @@ export {
 } from "./checklist";
 export { parseRobots, RobotsDisallowed, robotsAllows, SiteFetcher, USER_AGENT } from "./fetch";
 export {
+  CALIBRATION,
   type CompareOptions,
+  calibratedScore,
   colorDistance,
   compareLooks,
   type FidelityCheck,
@@ -52,10 +54,14 @@ export {
   fidelityReport,
   fontCredit,
   matchSections,
+  NEAR_IDENTICAL,
+  nextStep,
   type PageComparison,
+  ROUGH_BELOW,
   SCORER,
   type ScoreMode,
   type SectionComparison,
+  siteScore,
   VISUAL_WEIGHT,
   withVisual,
 } from "./fidelity/compare";
