@@ -99,17 +99,23 @@ export function PwaNotices() {
       title: "A new version of OpenSpace is ready",
       description: "It starts the next time you open OpenSpace, or reload now.",
       duration: Number.POSITIVE_INFINITY,
-      action: { label: "Reload", onClick: () => void usePwa.getState().update?.() },
+      // Kept open: tapping can replace it ("also open in another tab"), and closing it would
+      // remove that replacement too (same id).
+      action: { label: "Reload", keepOpen: true, onClick: () => void usePwa.getState().update?.() },
     });
   }, [needRefresh]);
   useEffect(() => {
     if (!otherTabs) return;
     toast({
       id: "pwa-update",
-      title: "Close your other OpenSpace tabs to update",
-      description: "The new version starts once this is the only OpenSpace tab open.",
+      title: "OpenSpace is also open in another tab",
+      description: "Close it first, or update anyway: that tab reloads too. Your work is saved.",
       duration: Number.POSITIVE_INFINITY,
-      action: { label: "Try again", onClick: () => void usePwa.getState().update?.() },
+      action: {
+        label: "Update anyway",
+        keepOpen: true,
+        onClick: () => void usePwa.getState().update?.({ anyway: true }),
+      },
     });
   }, [otherTabs]);
   return null;
