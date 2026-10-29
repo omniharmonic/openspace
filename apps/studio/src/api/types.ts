@@ -220,8 +220,16 @@ export interface HubApi extends ManageApi, GrowthApi, CatalogApi, ImportApi {
   undoAgentSession(id: string, sessionId: string): Promise<AgentUndoResult>;
 
   // --- Publishing and history ----------------------------------------------------------------
-  /** Publish the draft (`POST /api/sites/:id/publish`). */
-  publish(id: string): Promise<PublishResponse>;
+  /**
+   * Publish the draft (`POST /api/sites/:id/publish`). Refused with `live_changed` (409) when the
+   * live site changed since the draft was started, unless `overwriteLive`.
+   */
+  publish(id: string, options?: { overwriteLive?: boolean }): Promise<PublishResponse>;
+  /**
+   * The draft against the live site (`GET /api/sites/:id/room/live`). A draft without changes
+   * of its own is brought up to date with the live site by this call.
+   */
+  getLiveStatus(id: string): Promise<LiveStatus>;
   /** "Fix it for me" for the last failed publish (`POST /api/sites/:id/fix`). */
   fixLastPublish(id: string): Promise<FixResult>;
   listVersions(id: string): Promise<SiteVersion[]>;
@@ -268,6 +276,21 @@ export interface PublishOutcome {
   summary?: string;
   build?: BuildState;
   publishId?: string;
+}
+
+/**
+ * The draft against the live site. Claude Code, the CLI or an edit on GitHub can publish without
+ * going through the draft; a draft started before that doesn't include it.
+ */
+export interface LiveStatus {
+  /** The live site has newer content than this draft was started from, and the draft has its own changes. */
+  liveChanged: boolean;
+  /** The draft differs from the live site. */
+  draftHasChanges: boolean;
+  /** The draft had nothing of its own, so it was just brought up to date with the live site. */
+  followed: boolean;
+  /** The live version compared against. */
+  liveSha: string | null;
 }
 
 /** `POST /api/sites/:id/publish`; `publish` is null when the site's setup was resumed instead. */

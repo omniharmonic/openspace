@@ -15,6 +15,7 @@ import {
   type HubApi,
   type HubCapabilities,
   HubError,
+  type LiveStatus,
   type PublishSchedule,
   type Session,
   type Site,
@@ -128,6 +129,11 @@ export interface MockHub extends HubApi {
   failNextPublish(siteId: string, code?: keyof typeof MOCK_PUBLISH_ERRORS): void;
   /** The next publish of a site never reports progress (a host that stays silent). */
   hangNextPublish(siteId: string): void;
+  /**
+   * Make `doc` live without going through the draft, like Claude Code committing to main and
+   * pushing (tests). The draft room is left as it was.
+   */
+  publishElsewhere(siteId: string, doc: SiteDocument, summary?: string): string;
   /** Run scheduled publishes that are due. */
   runSchedules(): Promise<void>;
 }
@@ -276,6 +282,8 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
   const rooms = new Map<string, MockRoom>();
   const failNext = new Map<string, string>();
   const hangNext = new Set<string>();
+  /** The live version each site's draft was last brought up to date with (see `liveStatus`). */
+  const draftBase = new Map<string, string>();
   let shaCounter = 0;
   const newSha = () =>
     `${now().toString(16)}${(++shaCounter).toString(16).padStart(6, "0")}a1b2c3d4e5f60718293a4b5c`
@@ -405,21 +413,56 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
     }, step * 2);
   };
 
-  const addVersion = (site: Site, v: Omit<MockVersion, "current" | "status" | "error">) => {
+  /** `elsewhere`: published without the Hub (Claude Code pushing to main): the draft doesn't know. */
+  const addVersion = (
+    site: Site,
+    v: Omit<MockVersion, "current" | "status" | "error">,
+    elsewhere = false,
+  ) => {
     const list = versionsOf(site);
     for (const x of list) x.current = false;
     const version: MockVersion = { ...v, current: true, status: "queued", error: null };
     list.unshift(version);
     site.publishedVersion = version.sha;
+    if (!elsewhere) draftBase.set(site.id, version.sha);
     runBuild(site, version);
     save();
     return version;
   };
 
-  const doPublish = (site: Site, author: string) => {
+  /** Like the Hub's `checkLive`: compare the draft with what's live, following it when safe. */
+  const liveStatus = (site: Site): LiveStatus => {
+    const room = roomFor(site);
+    const current = live(site);
+    const quiet = { liveChanged: false, followed: false, liveSha: current.sha };
+    if (deepEqual(current.doc, room.doc)) {
+      draftBase.set(site.id, current.sha);
+      return { ...quiet, draftHasChanges: false };
+    }
+    const base = versionsOf(site).find((x) => x.sha === draftBase.get(site.id));
+    if (!base || base.sha === current.sha) return { ...quiet, draftHasChanges: true };
+    if (!deepEqual(base.doc, room.doc))
+      return { liveChanged: true, draftHasChanges: true, followed: false, liveSha: current.sha };
+    draftBase.set(site.id, current.sha);
+    room.reloadAll(
+      clone(current.doc),
+      "Your live site changed (published from somewhere else), so the editor now shows the latest version.",
+    );
+    return { liveChanged: false, draftHasChanges: false, followed: true, liveSha: current.sha };
+  };
+
+  const doPublish = (site: Site, author: string, overwriteLive = false) => {
     const room = roomFor(site);
     const current = live(site);
     if (deepEqual(current.doc, room.doc)) return { status: "no_changes" as const };
+    const status = liveStatus(site);
+    if (status.followed) return { status: "no_changes" as const };
+    if (status.liveChanged && !overwriteLive)
+      throw new HubError(
+        409,
+        "live_changed",
+        "Your live site has newer changes that aren’t in this draft (they were published from somewhere else, like Claude). Publishing this draft would replace them. Use the live version, or publish anyway to replace it.",
+      );
     const ops = diff(current.doc, room.doc);
     const summary = summarize(ops, current.doc) || "Published changes";
     const version = addVersion(site, {
@@ -489,6 +532,24 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
 
     hangNextPublish(siteId) {
       hangNext.add(siteId);
+    },
+
+    publishElsewhere(siteId, doc, summary = "Improved the site") {
+      const site = findSite(siteId);
+      // The draft was based on what was live until now.
+      if (!draftBase.has(siteId)) draftBase.set(siteId, live(site).sha);
+      return addVersion(
+        site,
+        {
+          sha: newSha(),
+          summary,
+          author: "Claude",
+          date: new Date(now()).toISOString(),
+          kind: "publish",
+          doc: clone(doc),
+        },
+        true,
+      ).sha;
     },
 
     async runSchedules() {
@@ -599,14 +660,21 @@ export function createMockHub(options: MockHubOptions = {}): MockHub {
       return { sessionId, ...r, seq: room.seq };
     },
 
-    async publish(id) {
-      calls.push({ method: "publish", args: [id] });
+    async publish(id, options) {
+      calls.push({ method: "publish", args: options ? [id, options] : [id] });
       await wait();
       const user = requireUser();
       const site = findSite(id);
       requireRole(site, ["owner", "designer", "editor"], "You can’t publish this site.");
-      const publish = doPublish(site, user.name);
+      const publish = doPublish(site, user.name, options?.overwriteLive === true);
       return { site: clone(site), publish };
+    },
+
+    async getLiveStatus(id) {
+      calls.push({ method: "getLiveStatus", args: [id] });
+      await wait();
+      requireUser();
+      return liveStatus(findSite(id));
     },
 
     async fixLastPublish(id) {

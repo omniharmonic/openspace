@@ -20,7 +20,7 @@ import { getSiteForUser, type SiteRow } from "../db/sites";
 import { devInstall, devUninstall } from "../github/installations";
 import { parseRepo } from "../github/types";
 import { randomToken } from "../lib/crypto";
-import { notFound, unauthenticated } from "../lib/errors";
+import { errorBody, notFound, unauthenticated } from "../lib/errors";
 import { page, pageHeaders } from "../mcp/pages";
 import { escapeHtml as esc } from "../services/renderer";
 import { markGitHubRequested, resumeAfterInstall } from "../services/sites";
@@ -260,6 +260,56 @@ githubInstallRoutes.get("/github/dev-install/confirm", async (c) => {
     `${config.hubUrl}/auth/github/installed?${new URLSearchParams({ installation_id: String(id), setup_action: action, ...(state ? { state } : {}) })}`,
     302,
   );
+});
+
+/**
+ * Dev only (e2e): commit text files straight to a branch of a site's emulated repository, the
+ * way Claude Code or the CLI pushes to `main` without going through the draft. Owner only.
+ * `{ siteId, branch?: "main", message?, edits: [{ path, find, replace }] }`: each file is read
+ * from the branch and every `find` replaced.
+ */
+devGitHubRoutes.post("/dev/github/commit", async (c) => {
+  if (!devOnly(c)) throw notFound();
+  const user = c.var.user;
+  if (!user) throw unauthenticated();
+  const { services } = c.var;
+  const body = (await c.req.json().catch(() => ({}))) as {
+    siteId?: unknown;
+    branch?: unknown;
+    message?: unknown;
+    edits?: unknown;
+  };
+  const site =
+    typeof body.siteId === "string"
+      ? await getSiteForUser(services.db, body.siteId, user.id)
+      : null;
+  if (site?.role !== "owner") throw notFound();
+  const edits = Array.isArray(body.edits)
+    ? body.edits.filter(
+        (e): e is { path: string; find: string; replace: string } =>
+          typeof e?.path === "string" &&
+          typeof e?.find === "string" &&
+          e.find.length > 0 &&
+          typeof e?.replace === "string",
+      )
+    : [];
+  if (!edits.length) return c.json(errorBody("invalid_request", "Nothing to commit."), 400);
+  const gh = services.github({ site, user });
+  const repo = parseRepo(site.repo);
+  const branch = typeof body.branch === "string" ? body.branch : "main";
+  const files: Array<{ path: string; content: string }> = [];
+  for (const e of edits) {
+    const text = await gh.readFile(repo, e.path, branch);
+    if (text === null || !text.includes(e.find))
+      return c.json(errorBody("invalid_request", `"${e.find}" isn't in ${e.path}.`), 400);
+    files.push({ path: e.path, content: text.split(e.find).join(e.replace) });
+  }
+  const commit = await gh.commitFiles(repo, {
+    branch,
+    message: typeof body.message === "string" ? body.message : "Edit from outside OpenSpace",
+    files,
+  });
+  return c.json({ sha: commit.sha });
 });
 
 devGitHubRoutes.post("/dev/github/uninstall", async (c) => {

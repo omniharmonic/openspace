@@ -19,6 +19,7 @@ import {
   type GitHubSignInParams,
   type HubApi,
   HubError,
+  type LiveStatus,
   type PublishResponse,
   type PublishSchedule,
   type RollbackResult,
@@ -232,14 +233,18 @@ export function createHttpHub(options: HttpHubOptions = {}): HubApi {
       );
     },
 
-    async publish(id) {
+    async publish(id, options) {
       const res = await request<Site & { publish: PublishResponse["publish"] }>(
         "POST",
         `${site(id)}/publish`,
-        {},
+        options?.overwriteLive ? { overwriteLive: true } : {},
       );
       const { publish, ...rest } = res;
       return { site: rest as Site, publish: publish ?? null };
+    },
+
+    async getLiveStatus(id) {
+      return request<LiveStatus>("GET", `${site(id)}/room/live`);
     },
 
     async fixLastPublish(id) {

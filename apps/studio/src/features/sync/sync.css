@@ -361,3 +361,34 @@
   color: var(--st-danger);
   font-size: var(--st-fs-sm);
 }
+
+/* ---------- Draft vs live site ---------- */
+/* "Unpublished changes ▾": the way to see the live site, or go back to it. */
+.st-draft-menu,
+.st-draft-menu svg {
+  color: var(--st-pending);
+}
+.st-banner--live .st-banner__icon {
+  color: var(--st-pending);
+}
+.st-publish__live {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.st-publish__live p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+@media (max-width: 767px) {
+  /* Phones: the choice gets its own row under the explanation, each button easy to tap. */
+  .st-banner--live .st-banner__actions {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .st-banner--live .st-banner__actions .st-button {
+    min-height: 40px;
+  }
+}

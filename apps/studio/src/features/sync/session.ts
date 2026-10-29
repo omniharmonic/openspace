@@ -36,6 +36,11 @@ export interface PublishPillState {
 export interface SyncSessionState {
   agents: AgentRun[];
   publish: PublishPillState;
+  /**
+   * The live version whose "Your live site changed" notice was answered here (kept the draft,
+   * or went back to the live version), so it doesn't come back until something new goes live.
+   */
+  liveAnswered: string | null;
 }
 
 export type SyncSessionStore = StoreApi<SyncSessionState>;
@@ -50,7 +55,11 @@ export const IDLE_PUBLISH: PublishPillState = {
 };
 
 export function createSyncSession(): SyncSessionStore {
-  return createStore<SyncSessionState>(() => ({ agents: [], publish: IDLE_PUBLISH }));
+  return createStore<SyncSessionState>(() => ({
+    agents: [],
+    publish: IDLE_PUBLISH,
+    liveAnswered: null,
+  }));
 }
 
 /** `agent:<sessionId>` → sessionId. */

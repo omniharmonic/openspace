@@ -106,6 +106,59 @@ export interface PublishResult {
   publishId?: string;
 }
 
+/**
+ * The draft against the live site (`main`). Work can reach `main` without going through this
+ * draft: Claude Code or the CLI committing and pushing, an edit on GitHub. Such a draft no longer
+ * includes what's live, and publishing it as it is would quietly put the old content back.
+ */
+export interface LiveStatus {
+  /**
+   * The live site has content this draft wasn't started from, and the draft has changes of its
+   * own: someone has to choose (use the live version, or keep the draft and replace it).
+   */
+  liveChanged: boolean;
+  /** The draft differs from the live site (unpublished changes). */
+  draftHasChanges: boolean;
+  /** The draft had no changes of its own, so it was just moved to the live version. */
+  followed: boolean;
+  /** The live commit compared against. */
+  liveSha: string | null;
+}
+
+/** Why `publish` refused a draft the live site changed underneath (see `LiveStatus`). */
+export const LIVE_CHANGED_MESSAGE =
+  "Your live site has newer changes that aren’t in this draft (they were published from somewhere else, like Claude). Publishing this draft would replace them. Use the live version, or publish anyway to replace it.";
+
+/** Room meta: the live (`main`) commit the draft was last brought up to date with. */
+const BASE_META = "base";
+
+/**
+ * What visitors see at a commit, as a comparable key: content and media files, and
+ * `openspace.json` without what the Hub manages there (hosting, Hub address, service keys), so
+ * a hosting switch or a custom domain committed on `main` doesn't count as new live content.
+ */
+export function contentKeyOf(
+  tree: ReadonlyArray<{ path: string; sha: string }>,
+  config: string | null,
+): string {
+  let settings = config ?? "";
+  try {
+    const parsed = JSON.parse(config ?? "null") as Record<string, unknown> | null;
+    if (parsed && typeof parsed === "object") {
+      const { deploy: _d, hub: _h, integrations: _i, ...rest } = parsed;
+      settings = canonicalJson(rest);
+    }
+  } catch {
+    // Not JSON: compare the text.
+  }
+  const files = tree
+    .filter((e) => isContentPath(e.path))
+    .map((e) => `${e.path}:${e.sha}`)
+    .sort()
+    .join("\n");
+  return `${settings}\n${files}`;
+}
+
 const ROLE_RANK: Record<Role, number> = { contributor: 1, editor: 2, designer: 3, owner: 4 };
 
 /** Page an op works on (for "Claude is editing Home…"). */
@@ -235,6 +288,8 @@ export class DraftRoom extends DurableObject<HubBindings> {
         if (!(err instanceof GitHubConflictError)) throw err;
       });
       head = (await gh.getRef(repo, DRAFT_BRANCH)) ?? main;
+      // A new draft starts from what's live.
+      if (head === main) this.state.setMeta(BASE_META, main);
     }
     // Gated pages are stubs in the repository; the room works on their full content.
     // One tree read + a GraphQL query per ~100 files, or nothing at all when this commit's
@@ -1075,6 +1130,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const gh = await this.github(services, site);
         const repo = parseRepo(site.repo);
         await gh.resetBranch(repo, DRAFT_BRANCH, sha);
+        this.state.setMeta(BASE_META, sha);
         if (this.state.doc) await this.reloadFromHead(gh, repo, "Your imported site is ready.");
         return { head: sha };
       });
@@ -1313,6 +1369,9 @@ export class DraftRoom extends DurableObject<HubBindings> {
     },
   ): Promise<{ publish: PublishRow; run: WorkflowRun }> {
     const repo = parseRepo(site.repo);
+    // Every commit the Hub puts on main (publish, rollback, fix, hosting) is one the draft knows
+    // about: the draft was published, follows it, or deliberately keeps its changes.
+    this.state.setMeta(BASE_META, entry.sha);
     if (gh.kind === "dev")
       await gh.dispatchWorkflow(repo, { workflow: PUBLISH_WORKFLOW, ref: MAIN_BRANCH });
     let run: WorkflowRun = { state: "queued" };
@@ -1363,13 +1422,108 @@ export class DraftRoom extends DurableObject<HubBindings> {
     return { publish, run };
   }
 
+  /** Content keys by commit (a commit's tree never changes). */
+  private readonly contentKeys = new Map<string, string>();
+
+  private async contentKey(gh: GitHubAccess, repo: RepoRef, sha: string): Promise<string> {
+    const known = this.contentKeys.get(sha);
+    if (known !== undefined) return known;
+    const [tree, config] = await Promise.all([
+      gh.readTree(repo, sha),
+      gh.readFile(repo, CONFIG_PATH, sha),
+    ]);
+    const key = contentKeyOf(tree, config);
+    if (this.contentKeys.size > 64) this.contentKeys.clear();
+    this.contentKeys.set(sha, key);
+    return key;
+  }
+
+  /**
+   * Compare the draft with the live site (see `LiveStatus`). Call inside `exclusive`. When the
+   * live site moved on and the draft has no changes of its own, the draft follows it (everyone
+   * in the room reloads); when the draft does have changes, `liveChanged` is reported and
+   * nothing changes.
+   */
+  private async checkLive(
+    services: Services,
+    siteId: string,
+    gh: GitHubAccess,
+    repo: RepoRef,
+  ): Promise<LiveStatus> {
+    const mainHead = await gh.getRef(repo, MAIN_BRANCH);
+    const unflushed = this.state.unflushedCount() > 0;
+    const quiet = { liveChanged: false, followed: false, liveSha: mainHead };
+    if (!mainHead) return { ...quiet, draftHasChanges: true };
+    const head = this.state.head;
+    const [liveKey, draftKey] = await Promise.all([
+      this.contentKey(gh, repo, mainHead),
+      this.contentKey(gh, repo, head),
+    ]);
+    if (!unflushed && liveKey === draftKey) {
+      // Same content (published, discarded, or brought up to date): the draft is current.
+      this.state.setMeta(BASE_META, mainHead);
+      return { ...quiet, draftHasChanges: false };
+    }
+    // Rooms from before the base was recorded: the last commit the Hub put on main.
+    const base =
+      this.state.getMeta(BASE_META) ?? (await latestPublish(services.db, siteId))?.sha ?? null;
+    if (!base || base === mainHead) return { ...quiet, draftHasChanges: true };
+    let baseKey: string;
+    try {
+      baseKey = await this.contentKey(gh, repo, base);
+    } catch (err) {
+      // The base commit is gone (main was rewritten): nothing to compare with.
+      this.log.warn("draft base unreadable", { siteId, base, err });
+      return { ...quiet, draftHasChanges: true };
+    }
+    if (baseKey === liveKey) {
+      // Main moved without changing what visitors see (hosting, domain, an update).
+      this.state.setMeta(BASE_META, mainHead);
+      return { ...quiet, draftHasChanges: true };
+    }
+    // The live site has content the draft wasn't started from.
+    if (unflushed || draftKey !== baseKey)
+      return { liveChanged: true, draftHasChanges: true, followed: false, liveSha: mainHead };
+    // Nothing of the draft's own to keep: follow the live site.
+    if (!(await this.resetDraftIfAt(gh, repo, head, mainHead)))
+      return { liveChanged: true, draftHasChanges: true, followed: false, liveSha: mainHead };
+    this.state.setMeta(BASE_META, mainHead);
+    this.state.markPublished(this.state.flushedSeq);
+    await this.reloadFromHead(
+      gh,
+      repo,
+      "Your live site changed (published from somewhere else), so the editor now shows the latest version.",
+    );
+    this.log.info("draft followed the live site", { siteId, from: base, to: mainHead });
+    return { liveChanged: false, draftHasChanges: false, followed: true, liveSha: mainHead };
+  }
+
+  /** The draft against the live site, for Studio's "Your live site changed" notice. */
+  async liveStatus(siteId: string): Promise<RoomResult<LiveStatus>> {
+    return this.rpc(async () => {
+      await this.ensureLoaded(siteId);
+      return this.exclusive(async () => {
+        const services = this.services();
+        const site = await this.site(services, siteId);
+        const gh = await this.github(services, site);
+        return this.checkLive(services, siteId, gh, parseRepo(site.repo));
+      });
+    });
+  }
+
   /**
    * Publish (arch §5.4): flush → one squash commit on `main` whose tree is the draft's tree, with
    * a summary of the ops since the last publish → reset `os/draft` to it → workflow → status.
    */
   async publish(
     siteId: string,
-    input: { userId: string | null; actor?: string; agentSession?: string },
+    input: {
+      userId: string | null;
+      actor?: string;
+      agentSession?: string;
+      /** The person saw that the live site changed and chose to replace it with this draft. */
+      overwriteLive?: boolean;
+    },
   ): Promise<RoomResult<PublishResult>> {
     return this.rpc(async () => {
       await this.ensureLoaded(siteId);
@@ -1378,7 +1532,14 @@ export class DraftRoom extends DurableObject<HubBindings> {
         const site = await this.site(services, siteId);
         const gh = await this.github(services, site);
         const repo = parseRepo(site.repo);
-        const draftHead = await this.syncDraft(siteId, gh, repo);
+        await this.syncDraft(siteId, gh, repo);
+        // Never put older content over newer live work by accident: a draft without changes of
+        // its own follows the live site instead; one with changes needs the person's say-so.
+        const live = await this.checkLive(services, siteId, gh, repo);
+        if (live.followed) return { status: "no_changes" };
+        if (live.liveChanged && !input.overwriteLive)
+          throw new HttpError(409, "live_changed", LIVE_CHANGED_MESSAGE);
+        const draftHead = this.state.head;
         const mainHead = await gh.getRef(repo, MAIN_BRANCH);
         if (!mainHead) throw new HttpError(409, "not_ready", "This site isn't set up yet.");
         if (await this.sameTree(gh, repo, mainHead, draftHead, isPublishedPath)) {

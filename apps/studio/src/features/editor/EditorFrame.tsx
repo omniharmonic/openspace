@@ -59,6 +59,7 @@ import { displayUrl } from "../onboarding/BuildingProgress";
 import { ConnectGitHub } from "../onboarding/ConnectGitHub";
 import { type DraftBootstrap, useDraftBootstrap } from "../sync/bootstrap";
 import { HistorySheet } from "../sync/HistoryPanel";
+import { DraftMenu } from "../sync/LiveDraft";
 import { PreviewButton, PublishButton, PublishPill } from "../sync/PublishFlow";
 import { AgentActivity, PresenceAvatars, SyncBanners, SyncStatus } from "../sync/SyncChrome";
 import { SyncProvider, useRoomClient } from "../sync/SyncContext";
@@ -747,6 +748,7 @@ function EditorChrome({ site }: { site: Site }) {
             </Badge>
           )}
           {site.status !== "building" && <SyncStatus />}
+          {site.status !== "building" && <DraftMenu labelClassName="st-ed-hide-narrow" />}
           {site.status !== "building" && (
             <DesignCheckBadge onOpen={() => useEditorUi.getState().showLeftPanel("check")} />
           )}

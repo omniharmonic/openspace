@@ -130,6 +130,12 @@ export const PatchSiteSchema = z.strictObject({
   name: z.string().trim().min(1).max(80).optional(),
 });
 
+/** `POST /api/sites/:id/publish` body (optional). */
+export const PublishSiteSchema = z.strictObject({
+  /** Replace a live site that changed since the draft was started (see `LiveStatus`). */
+  overwriteLive: z.boolean().optional(),
+});
+
 export const DeleteSiteSchema = z
   .strictObject({
     /** Typed confirmation: must equal the site's name (FR-4). `confirm` is accepted as an alias. */
@@ -812,6 +818,7 @@ export async function publishSite(
   id: string,
   user: User,
   log?: Logger,
+  options: { overwriteLive?: boolean } = {},
 ): Promise<SiteView & { publish: PublishResult | null }> {
   let site: SiteRow = await siteForUser(services, id, user);
   requireRole(site as SiteWithRole, "editor");
@@ -850,7 +857,12 @@ export async function publishSite(
     await finishSetup(services, site, owner, user, log);
     return { ...(await getSiteView(services, id, user, log)), publish: null };
   }
-  const result = await unwrapRoom(roomStub(env, id).publish(id, { userId: user.id }));
+  const result = await unwrapRoom(
+    roomStub(env, id).publish(id, {
+      userId: user.id,
+      ...(options.overwriteLive ? { overwriteLive: true } : {}),
+    }),
+  );
   return { ...(await getSiteView(services, id, user, log)), publish: result };
 }
 
