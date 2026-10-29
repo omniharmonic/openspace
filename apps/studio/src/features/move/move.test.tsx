@@ -50,24 +50,29 @@ describe("Move my site (hosted import)", () => {
     expect(within(attention).getByText("Forms and newsletter")).toBeInTheDocument();
     // How close it looks, before → after tuning, with old | new thumbnails per page.
     const fidelity = screen
-      .getByRole("heading", { name: "How close it looks: 93/100" })
+      .getByRole("heading", { name: "How close it looks: 64/100" })
       .closest("section") as HTMLElement;
-    expect(within(fidelity).getByText(/it started at 84\/100/)).toBeInTheDocument();
+    expect(
+      within(fidelity).getByText(/The basics came across; the design only partly did/),
+    ).toBeInTheDocument();
+    expect(within(fidelity).getByText(/it started at 52\/100/)).toBeInTheDocument();
     expect(
       within(fidelity).getByRole("img", { name: "/ on a desktop: old site left, new site right" }),
     ).toBeInTheDocument();
-    expect(within(fidelity).getByText(/85 → 94/)).toBeInTheDocument();
+    expect(within(fidelity).getByText(/60 → 74/)).toBeInTheDocument();
     expect(within(fidelity).getByText("Still differs: Image placement")).toBeInTheDocument();
     // Scored two ways, side by side: the corrected score and the strict v3 one.
-    expect(within(fidelity).getByText(/93\/100 with corrected measuring/)).toHaveTextContent(
-      "91/100 by the stricter earlier method",
+    expect(within(fidelity).getByText(/64\/100 with corrected measuring/)).toHaveTextContent(
+      "61/100 by the stricter earlier method",
     );
-    expect(within(fidelity).getByText(/85 → 94/)).toHaveTextContent("strict 92");
+    expect(within(fidelity).getByText(/60 → 74/)).toHaveTextContent("strict 70");
     expect(within(fidelity).getByText(/off-screen slides aren’t columns/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Finish setting up/ })).toBeInTheDocument();
     expect(screen.getByText("Use your own web address")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Open it in Studio" }));
+    // Not near-identical: finishing with Claude leads, the editor is the second choice.
+    expect(screen.getByRole("button", { name: "Finish it with Claude" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Open the editor" }));
     await waitFor(() => expect(router.state.location.pathname).toMatch(/^\/sites\/st_/));
     // The editor opens on the live site with the first-run tour (the site was "being set up"
     // while it moved; a stale copy of that status used to leave the editor loading forever).

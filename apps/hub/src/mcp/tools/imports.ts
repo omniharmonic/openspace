@@ -21,7 +21,7 @@ import {
 } from "../../services/imports";
 import { createStartSite } from "../../services/start-with-claude";
 import type { HubToolContext } from "../hub-tools";
-import { CLOSE_ENOUGH } from "../move-guide";
+import { CLOSE_ENOUGH, ROUGH_BELOW } from "../move-guide";
 import { MCP_CREATE_RATE } from "./account";
 import { grantOnCreate } from "./site-status";
 import { PageFilesArg, pageUpload } from "./start";
@@ -32,6 +32,20 @@ export function needsFinishing(view: ImportView): boolean {
   if (f && f.score < CLOSE_ENOUGH) return true;
   if (f?.pages.some((p) => p.differs?.length)) return true;
   return view.attention.some((g) => g.items.length > 0);
+}
+
+/**
+ * The next step after a move that isn't near-identical, for Claude to act on: say plainly how
+ * close it came (rough below 50), then offer to finish it — that's how a move gets close.
+ */
+export function finishLine(view: ImportView): string {
+  const score = view.fidelity?.score;
+  const how = `follow "Finishing a move" in your instructions (also the finish-a-move prompt): screenshot_url the original (${view.source}) and screenshot the new site page by page, lowest score first; rebuild what didn't come across with the site's designs or a custom component (create_component, fields for every word and picture); design_check and phone_check; publish only with the person's OK.`;
+  if (score !== undefined && score < ROUGH_BELOW)
+    return `Next step — finish it with Claude: the automatic move is rough (${score}/100). The words and pictures came across, but most of the design didn't; that's normal for custom-built sites (Framer, Webflow, hand-made). Tell the person that plainly — don't call it a close match — and offer to finish it now: that's how a move gets close to the original. To do it, ${how}`;
+  if (score !== undefined && score < CLOSE_ENOUGH)
+    return `Next step — finish it with Claude: the automatic move got the basics (${score}/100), but it isn't a close match yet. Tell the person, and offer to make it match closely now. To do it, ${how}`;
+  return `Next step — finish it with Claude: it's close, but a few things still differ or didn't come across. Offer to finish them. To do it, ${how}`;
 }
 
 function describe(view: ImportView, siteName: string): string {
@@ -52,9 +66,14 @@ function describe(view: ImportView, siteName: string): string {
     lines.push(`${siteName} is live at ${view.siteUrl}. Open it in Studio: ${view.studioUrl}`);
     lines.push(`Moved from: ${view.source}`);
     if (view.fidelity) {
+      const f = view.fidelity;
       lines.push(
-        `How close it looks to the original: ${view.fidelity.score}/100${view.fidelity.strict !== undefined ? ` (strict v3 scorer: ${view.fidelity.strict}/100 — the corrected score reads three things v3 measures wrong)` : ""}.`,
+        `How close it looks to the original: ${f.score}/100${f.rescaledFrom !== undefined ? ` (saved as ${f.rescaledFrom}/100 by an older, more generous measure; shown on today's honest scale)` : ""}${f.strict !== undefined && f.strict !== f.score ? ` (measured the strict way: ${f.strict}/100)` : ""}.`,
       );
+    }
+    // The honest next step comes straight after the score, not at the end.
+    if (needsFinishing(view)) lines.push(finishLine(view));
+    if (view.fidelity) {
       const pages = [...view.fidelity.pages].sort((a, b) => a.score - b.score);
       if (pages.length)
         lines.push(
@@ -77,10 +96,6 @@ function describe(view: ImportView, siteName: string): string {
       lines.push(
         "Finish setting up (after launch, in Studio):",
         ...view.checklist.map((i) => `- ${i.title}: ${i.detail}`),
-      );
-    if (needsFinishing(view))
-      lines.push(
-        `Not a near-perfect match yet. To bring it closer, follow "Finishing a move" in your instructions (also the finish-a-move prompt): screenshot_url the original (${view.source}) and screenshot the new site page by page, lowest score first; rebuild what didn't come across with the site's designs or a custom component (create_component, fields for every word and picture); design_check and phone_check; publish only with the person's OK.`,
       );
   } else if (view.state === "failed") lines.push(`It didn't finish: ${view.error}`);
   else

@@ -6,7 +6,7 @@ import { getImport } from "../src/db/imports";
 import { readConfig } from "../src/env";
 import { DevGitHubAccess } from "../src/github/dev";
 import { DRAFT_BRANCH } from "../src/github/types";
-import { needsFinishing } from "../src/mcp/tools/imports";
+import { finishLine, needsFinishing } from "../src/mcp/tools/imports";
 import { createServices } from "../src/services";
 import { guessSiteName, parseImportSource, placeholderDocument } from "../src/services/import-site";
 import { plainWords } from "../src/services/import-words";
@@ -14,11 +14,14 @@ import {
   attentionFromReport,
   differsWords,
   failureMessage,
+  honestFidelity,
   type ImportView,
+  isCalibrated,
   liveWords,
   parseFidelitySummary,
   parseLive,
   recordProgress,
+  rescaleLegacyScore,
   toImportView,
 } from "../src/services/imports";
 import { loadSiteDocument, siteDocumentToFiles } from "../src/services/site-files";
@@ -720,7 +723,14 @@ describe("remote MCP: import_site", () => {
     const status = await mcp.tool("import_status", { site: data.site.id });
     expect(toolText(status)).toContain("is live at");
     expect(toolText(status)).toContain(
-      "How close it looks to the original: 93/100 (strict v3 scorer: 91/100",
+      "How close it looks to the original: 93/100 (measured the strict way: 91/100)",
+    );
+    // The next step straight after the score, not at the end.
+    const text = toolText(status);
+    expect(text.indexOf("Next step — finish it with Claude")).toBe(
+      text.indexOf("How close it looks to the original") +
+        text.slice(text.indexOf("How close it looks to the original")).indexOf("\n") +
+        1,
     );
     expect(toolText(status)).toContain("Finish setting up");
     // Enough for Claude to take the move further: the old address, each page and what differs.
@@ -755,5 +765,52 @@ describe("when import_status suggests finishing a move by hand", () => {
     ).toBe(true);
     expect(needsFinishing(view(null, [{ title: "Embeds", items: ["A widget"] }]))).toBe(true);
     expect(needsFinishing(view(null))).toBe(false);
+  });
+
+  it("says plainly how close it came, then offers finishing with Claude as the next step", () => {
+    const rough = finishLine(view({ score: 12, pages: [] }));
+    expect(rough).toMatch(
+      /^Next step — finish it with Claude: the automatic move is rough \(12\/100\)/,
+    );
+    expect(rough).toContain("don't call it a close match");
+    expect(rough).toContain("finish-a-move");
+    expect(finishLine(view({ score: 72, pages: [] }))).toContain(
+      "the automatic move got the basics (72/100), but it isn't a close match yet",
+    );
+    expect(finishLine(view({ score: 93, pages: [] }))).toContain("it's close");
+  });
+});
+
+describe("fidelity summaries saved before the score was calibrated", () => {
+  it("are re-scaled, so an old move isn't over-trusted", () => {
+    expect(isCalibrated("v4-calibrated")).toBe(true);
+    expect(isCalibrated("v5")).toBe(true);
+    expect(isCalibrated("v3.1-corrected")).toBe(false);
+    expect(isCalibrated(undefined)).toBe(false);
+    // The tester's Framer move: shown 50/100, honestly ~10.
+    expect(rescaleLegacyScore(50)).toBe(0);
+    expect(rescaleLegacyScore(100)).toBe(100);
+    expect(rescaleLegacyScore(82)).toBe(60);
+    const old = {
+      score: 70,
+      before: 60,
+      strict: 68,
+      scorer: "v3.1-corrected",
+      pages: [
+        { path: "/", device: "desktop" as const, score: 50, before: 45 },
+        { path: "/", device: "phone" as const, score: 90, before: 75 },
+      ],
+    };
+    const shown = honestFidelity(old);
+    expect(shown.rescaledFrom).toBe(70);
+    expect(shown.pages.map((p) => p.score)).toEqual([0, 78]);
+    // A good phone doesn't hide a broken computer page: halfway between average and weakest.
+    expect(shown.score).toBe(Math.round(0.5 * 39 + 0.5 * 0));
+    expect(shown.before).toBe(Math.round(0.5 * 22 + 0.5 * 0));
+    // Without the strict number per page, the site's own strict score is re-scaled.
+    expect(shown.strict).toBe(rescaleLegacyScore(68));
+    // A calibrated summary is shown as it is.
+    const now = { ...old, scorer: "v4-calibrated" };
+    expect(honestFidelity(now)).toBe(now);
   });
 });

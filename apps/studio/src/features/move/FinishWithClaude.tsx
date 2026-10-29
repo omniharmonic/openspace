@@ -19,6 +19,33 @@ import "./FinishWithClaude.css";
 
 /** At or above this match (and nothing listed as different), the move speaks for itself. */
 export const CLOSE_ENOUGH = 90;
+/** Below this match the automatic move is rough, and the words say so. */
+export const ROUGH_BELOW = 50;
+
+/**
+ * Honest words for where an automatic move landed, and what Claude does next. The score is
+ * calibrated: 0 is "nothing like it", 90+ "near-identical".
+ */
+export function claudeFraming(score?: number | null): { title: string; lede: string } {
+  const how =
+    "Claude looks at your old site and the new one side by side, page by page, and rebuilds what didn’t come across: custom sections, animations, missing pieces.";
+  if (typeof score !== "number")
+    return { title: "Claude can make it match your old site", lede: how };
+  if (score < ROUGH_BELOW)
+    return {
+      title: "The automatic move is rough. Claude can make it match closely.",
+      lede: `It came out at ${score}/100 for how close it looks: your words and pictures are all here, but most of the design didn’t come across. That’s normal for custom-built sites. ${how}`,
+    };
+  if (score < CLOSE_ENOUGH)
+    return {
+      title: "The automatic move got the basics. Claude can make it match closely.",
+      lede: `It came out at ${score}/100 for how close it looks. ${how}`,
+    };
+  return {
+    title: "Want it even closer? Claude can finish the job",
+    lede: `It came out at ${score}/100 — very close. Claude can tidy up what still differs.`,
+  };
+}
 
 /** Pages that still differ, in plain words: "Home on a phone: image placement". */
 export function stillDiffers(fidelity: ImportFidelity | null | undefined): string[] {
@@ -45,7 +72,8 @@ export function wantsClaude(view: {
 }
 
 /**
- * "Want it closer? Claude can finish the job" — the honest next step after an automatic move:
+ * "Finish it with Claude" — the honest next step after an automatic move that isn't
+ * near-identical ("Want it even closer?" when it is):
  * connect Claude once (if needed), let it work on this site (the person's own "allow", never a
  * self-grant), then open Claude with a ready message naming the old address and the new site.
  */
@@ -55,6 +83,7 @@ export function FinishWithClaude({
   fidelity,
   startOpen = false,
   heading = true,
+  prominent = false,
 }: {
   site: { id: string; name: string };
   /** The old site's address (or GitHub repository), when known. */
@@ -64,30 +93,28 @@ export function FinishWithClaude({
   startOpen?: boolean;
   /** Show the section's own heading (off inside a dialog that already has one). */
   heading?: boolean;
+  /** The main next step on the screen (the move's result): a larger call to action. */
+  prominent?: boolean;
 }) {
   const [open, setOpen] = useState(startOpen);
   const titleId = useId();
   const score = fidelity?.score;
   const differs = stillDiffers(fidelity);
   const prompt = finishMovePrompt(site, source, score);
+  const words = claudeFraming(score);
 
   return (
     <section
-      className="st-moveclaude"
+      className={cx("st-moveclaude", prominent && "st-moveclaude--prominent")}
       aria-labelledby={heading ? titleId : undefined}
-      aria-label={heading ? undefined : "Improve it with Claude"}
+      aria-label={heading ? undefined : "Finish it with Claude"}
     >
       {heading && (
         <h2 id={titleId} className="st-moveclaude__title">
-          <Sparkles aria-hidden="true" /> Want it closer? Claude can finish the job
+          <Sparkles aria-hidden="true" /> {words.title}
         </h2>
       )}
-      <p className="st-moveclaude__lede">
-        The automatic move brings across everything it recognises
-        {typeof score === "number" ? ` — this one came out at ${score}/100` : ""}. Claude can look
-        at your old site and the new one side by side, page by page, and rebuild what didn’t come
-        across: custom sections, animations, missing pieces.
-      </p>
+      <p className="st-moveclaude__lede">{words.lede}</p>
       <p className="st-moveclaude__lede">
         Your site stays editable here — every word and picture — and Claude asks you before anything
         goes live.
@@ -130,8 +157,13 @@ export function FinishWithClaude({
         </ol>
       ) : (
         <div className="st-moveclaude__actions">
-          <Button variant="primary" icon={<Wand2 />} onClick={() => setOpen(true)}>
-            Improve it with Claude
+          <Button
+            variant="primary"
+            size={prominent ? "lg" : "md"}
+            icon={<Wand2 />}
+            onClick={() => setOpen(true)}
+          >
+            Finish it with Claude
           </Button>
         </div>
       )}

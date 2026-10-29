@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { FidelityPanel, timeNote } from "./MoveProgress";
+import { FidelityPanel, matchWords, timeNote } from "./MoveProgress";
 
 describe("How close it looks", () => {
   it("gives low page scores a plain next step", () => {
@@ -22,7 +22,26 @@ describe("How close it looks", () => {
       />,
     );
     expect(screen.getByText("Still differs: Section heights")).toBeInTheDocument();
-    expect(screen.getByText(/nothing is lost/)).toBeInTheDocument();
+    expect(screen.getByText(/nothing is lost/)).toHaveTextContent(/Claude can compare it/);
+  });
+
+  it("says plainly when a move is rough, and when it was measured the older, generous way", () => {
+    render(
+      <FidelityPanel
+        fidelity={{
+          score: 0,
+          rescaledFrom: 50,
+          scorer: "v3.1-corrected",
+          pages: [{ path: "/", device: "desktop", score: 0, image: null }],
+        }}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "How close it looks: 0/100" })).toBeInTheDocument();
+    expect(screen.getByText(/^Rough: your words and pictures came across/)).toBeInTheDocument();
+    expect(screen.getByText(/older, more generous method \(it said 50\/100\)/)).toBeInTheDocument();
+    expect(matchWords(95)).toBe("Practically identical");
+    expect(matchWords(91)).toBe("Very close");
+    expect(matchWords(64)).toMatch(/^The basics came across/);
   });
 });
 

@@ -49,7 +49,7 @@ const DEV_FIDELITY = {
   version: 1,
   score: 93,
   strict: 91,
-  scorer: "v3.1-corrected",
+  scorer: "v4-calibrated",
   before: 81,
   strictBefore: 80,
   changes: ["h2: 40px", "content width 1200px"],

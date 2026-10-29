@@ -29,7 +29,10 @@ export interface AttentionGroup {
 
 /** How closely the moved site matches the old one (measured in a browser, then auto-tuned). */
 export interface ImportFidelity {
-  /** 0–100 after auto-tuning, and before it. */
+  /**
+   * 0–100 after auto-tuning, and before it. Calibrated: 0 is "nothing like it" (an unrelated or
+   * broken page), 90+ near-identical.
+   */
   score: number;
   before?: number;
   /**
@@ -39,6 +42,11 @@ export interface ImportFidelity {
   strict?: number;
   strictBefore?: number;
   scorer?: string;
+  /**
+   * Set for a move measured before the score was calibrated: the numbers are re-scaled to
+   * today's honest scale, and this is the score it was saved with.
+   */
+  rescaledFrom?: number;
   pages: Array<{
     path: string;
     device: "desktop" | "phone";
