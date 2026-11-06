@@ -332,6 +332,16 @@
   color: var(--a);
 }
 
+.st-ss-btnopt__sample.is-gradient,
+.st-ss-btnopt__sample.is-pill-gradient {
+  background: linear-gradient(135deg, var(--a), var(--a2, var(--a)));
+  color: #fff;
+}
+
+.st-ss-btnopt__sample.is-pill-gradient {
+  border-radius: 99px;
+}
+
 .st-ss-btnopt__sample.is-text-arrow {
   padding: 0 2px;
   color: var(--a);

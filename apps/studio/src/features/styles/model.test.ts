@@ -89,6 +89,17 @@ describe("contrast warnings", () => {
     ).toEqual([]);
   });
 
+  it("does not warn about a readable background the solver keeps (cream with a light brand)", () => {
+    const s = store();
+    s.getState().commit([
+      stylesOp({
+        "choices.palette.brand": "#a7c25a",
+        "overrides.color.light.background": { $value: "#e9e6d2", $type: "color" },
+      }),
+    ]);
+    expect(contrastIssues(s.getState().doc.styles)).toEqual([]);
+  });
+
   it("applies color.all overrides to every theme", () => {
     const s = store();
     s.getState().commit([

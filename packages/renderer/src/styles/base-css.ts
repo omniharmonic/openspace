@@ -268,9 +268,11 @@ ${button("tertiary")}
 .os-header__actions .os-button{min-height:2.5rem;padding-block:0.5rem}
 /* A short label stays on one line beside narrow columns (it wraps on phones if it must). */
 @media (min-width:768px){.os-button{white-space:nowrap;flex-shrink:0}}
-.os-header__toggle,.os-header__cart,.os-menu__close{position:relative;display:inline-grid;place-items:center;width:2.75rem;height:2.75rem;padding:0;border:0;border-radius:${v(T.radius.full)};background:transparent;color:inherit}
-.os-header__toggle:hover,.os-header__cart:hover,.os-menu__close:hover{background:${v(c.surface)}}
-html:not(.os-js) .os-header__toggle{display:none}
+.os-header__toggle,.os-header__cart,.os-header__scheme,.os-menu__close{position:relative;display:inline-grid;place-items:center;width:2.75rem;height:2.75rem;padding:0;border:0;border-radius:${v(T.radius.full)};background:transparent;color:inherit}
+.os-header__toggle:hover,.os-header__cart:hover,.os-header__scheme:hover,.os-menu__close:hover{background:${v(c.surface)}}
+html:not(.os-js) .os-header__toggle,html:not(.os-js) .os-header__scheme{display:none}
+.os-header__scheme{cursor:pointer}
+.os-header__scheme[aria-pressed=true] .os-header__scheme-moon,.os-header__scheme:not([aria-pressed=true]) .os-header__scheme-sun{display:none}
 .os-header__cart-count{position:absolute;top:0.2rem;inset-inline-end:0.1rem;min-width:1.15rem;height:1.15rem;padding-inline:0.25rem;border-radius:${v(T.radius.full)};background:${v(c.accent)};color:${v(c["accent-text"])};font-size:0.7rem;line-height:1.15rem;text-align:center}
 .os-header__cart-count:empty{display:none}
 .os-social{display:flex;flex-wrap:wrap;gap:0.25rem;align-items:center}

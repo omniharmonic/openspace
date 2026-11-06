@@ -303,6 +303,55 @@ function CartButton() {
   );
 }
 
+/**
+ * Light/dark switch for `auto` appearance sites (the `scheme` behavior). A toggle button:
+ * pressed = dark. Hidden without JavaScript, where the page simply follows the device.
+ */
+function SchemeToggle() {
+  return (
+    <button
+      type="button"
+      className="os-header__scheme"
+      aria-pressed="false"
+      data-os-behavior="scheme"
+    >
+      <svg
+        className="os-header__scheme-moon"
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <svg
+        className="os-header__scheme-sun"
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+        <path
+          d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+      <span className="os-visually-hidden">Dark mode</span>
+    </button>
+  );
+}
+
 export interface HeaderProps {
   site: Site;
   page?: Page | undefined;
@@ -397,6 +446,7 @@ export function Header({ site, page, heroTheme, cart }: HeaderProps) {
         {desktopNav}
         {actions}
         {cart && <CartButton />}
+        {ctx.doc?.styles.choices.appearance === "auto" && <SchemeToggle />}
         <button
           type="button"
           className="os-header__toggle"

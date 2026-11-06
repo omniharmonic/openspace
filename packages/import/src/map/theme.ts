@@ -257,14 +257,24 @@ export function mapTheme(site: SqSite): ThemeDecision {
   const shape =
     t.buttons.shape === "pill" ? "round" : t.buttons.shape === "square" ? "sharp" : "soft";
   const outline = t.buttons.style === "outline";
-  const buttons =
-    t.buttons.shape === "pill"
+  const gradient = t.buttons.style === "gradient";
+  const pill = t.buttons.shape === "pill";
+  const buttons = gradient
+    ? pill
+      ? "pill-gradient"
+      : "gradient"
+    : pill
       ? outline
         ? "pill-outline"
         : "pill-solid"
       : outline
         ? "outline"
         : "solid";
+  if (gradient) notes.push(`Buttons ${on} have a gradient fill → the "${buttons}" button style.`);
+  if (t.darkMode)
+    notes.push(
+      `A dark mode ${on} → appearance "auto": it follows each visitor's device, with a light/dark switch in the header.`,
+    );
   const heights = site.pages.flatMap((p) => p.sections.map((s) => s.height)).filter(Boolean);
   const small = heights.filter((h) => h === "small").length;
   const large = heights.filter((h) => h === "large").length;
@@ -302,6 +312,7 @@ export function mapTheme(site: SqSite): ThemeDecision {
       buttons,
       motion: "subtle",
       imageTreatment: "none",
+      ...(t.darkMode ? { appearance: "auto" as const } : {}),
       ...(typography ? { typography } : {}),
       ...(layout ? { layout } : {}),
     },

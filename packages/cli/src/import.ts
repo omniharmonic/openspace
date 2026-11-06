@@ -140,6 +140,7 @@ export async function loadRenderer(): Promise<PageRenderer> {
               headingWeight: h ? Number(h.fontWeight) : undefined,
               h1Size: h && px(h.fontSize),
               buttonBg: btn && btn.backgroundColor,
+              buttonBgImage: btn && btn.backgroundImage,
               buttonRadius: btn && btn.borderRadius,
               buttonBorder: btn && btn.borderStyle,
               link: a && a.color,

@@ -360,6 +360,8 @@ export function compileStyles(styles: Styles, options: CompileOptions = {}): Com
   } else {
     ({ themes, adjustments } = solveThemes(roles, mode));
   }
+  // Dark appearance: the light section themes take the dark ones' colors (already solved).
+  if (choices.appearance === "dark") themes = darkThemes(themes);
   const failures = auditContrast(themes, { contrast: mode });
   for (const a of adjustments) {
     const path = overriddenRoles.get(`${a.theme}:${a.role}`);
@@ -472,6 +474,29 @@ function block(selectors: string[], decls: Record<string, string>, indent = ""):
   return `${indent}${selectors.join(`,\n${indent}`)} {\n${lines.join("\n")}\n${indent}}`;
 }
 
+/**
+ * The section theme each theme shows as in dark appearance: the light themes turn dark, the
+ * dark and brand themes (photo heroes, footers, accent bands) stay as they are.
+ */
+export const DARK_APPEARANCE: Record<ColorTheme, ColorTheme> = {
+  light: "dark",
+  "light-accent": "dark-accent",
+  dark: "dark",
+  "dark-accent": "dark-accent",
+  brand: "brand",
+};
+
+/** A theme set as it looks in dark appearance. */
+export function darkThemes(themes: ThemeColorSet): ThemeColorSet {
+  const out = {} as ThemeColorSet;
+  for (const theme of COLOR_THEMES) out[theme] = { ...themes[DARK_APPEARANCE[theme]] };
+  return out;
+}
+
+/** localStorage key and `<html>` attribute for a visitor's light/dark choice (`auto` sites). */
+export const SCHEME_STORAGE_KEY = "os-scheme";
+export const SCHEME_ATTRIBUTE = "data-os-scheme";
+
 /** Deterministic token stylesheet. */
 export function emitCss(tokens: ThemeTokens): string {
   const parts: string[] = [
@@ -484,6 +509,7 @@ export function emitCss(tokens: ThemeTokens): string {
       theme === "light" ? [":root", `.${themeClass(theme)}`] : [`.${themeClass(theme)}`];
     parts.push(block(selectors, { "color-scheme": scheme, ...tokens.vars.themes[theme] }));
   }
+  if (tokens.choices.appearance === "auto") parts.push(...autoDarkCss(tokens));
   parts.push(block([":root", ...THEME_CLASSES.map((c) => `.${c}`)], tokens.vars.themed));
   for (const [treatment, decls] of Object.entries(tokens.vars.imageTreatments)) {
     parts.push(block([`.${imageTreatmentClass(treatment)}`], decls));
@@ -492,4 +518,29 @@ export function emitCss(tokens: ThemeTokens): string {
     `@media (prefers-reduced-motion: reduce) {\n${block([":root"], tokens.vars.reducedMotion, "  ")}\n}`,
   );
   return `${parts.join("\n\n")}\n`;
+}
+
+/**
+ * `auto` appearance: the light themes take the dark colors when the visitor's device prefers
+ * dark (unless they chose light with the header toggle), or when they chose dark.
+ */
+function autoDarkCss(tokens: ThemeTokens): string[] {
+  const rules = (scope: string, indent = "") =>
+    (["light", "light-accent"] as const).map((theme) => {
+      const dark = DARK_APPEARANCE[theme];
+      const selectors =
+        theme === "light"
+          ? [scope, `${scope} .${themeClass(theme)}`]
+          : [`${scope} .${themeClass(theme)}`];
+      const vars: Record<string, string> = { "color-scheme": "dark", ...tokens.vars.themes[dark] };
+      // A card layout's page color (an inline style) follows the dark page too.
+      if (theme === "light")
+        return `${block(selectors, vars, indent)}\n${block([`${scope} .os-page`], { "--page-bg": `${tokens.themes.dark.surface} !important` }, indent)}`;
+      return block(selectors, vars, indent);
+    });
+  const attr = SCHEME_ATTRIBUTE;
+  return [
+    `@media (prefers-color-scheme: dark) {\n${rules(`:root:not([${attr}="light"])`, "  ").join("\n")}\n}`,
+    ...rules(`:root[${attr}="dark"]`),
+  ];
 }

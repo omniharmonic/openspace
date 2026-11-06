@@ -19,6 +19,7 @@ import {
 import {
   compileStyles,
   contrastRatio,
+  DARK_APPEARANCE,
   flattenDtcg,
   getPairing,
   nearestAccessible,
@@ -145,40 +146,32 @@ class Ctx {
         for (const th of COLOR_THEMES) overridden.set(`${th}:${b}`, t.path.join("."));
       else if (!b) overridden.set(`light:${a}`, t.path.join("."));
     }
+    // An override is only at fault when publishing would change it. A failing pair whose other
+    // side is a color derived from the brand (the accent, the status colors…) is solved by moving
+    // that derived color, so the owner's color ships exactly as chosen: a cream background with
+    // a light brand green is fine, the accent just deepens. The solver's own adjustments are
+    // the record of which overrides it had to move, and its value is what gets published.
     const raw = compileStyles(styles, { solve: false });
-    // One issue per overridden color: fix it against every surface it fails on.
-    const groups = new Map<
-      string,
-      { theme: ColorTheme; target: string; fixFg: boolean; failures: typeof raw.contrast.failures }
-    >();
-    for (const f of raw.contrast.failures) {
-      const fixFg = overridden.has(`${f.theme}:${f.fg}`);
-      if (!fixFg && !overridden.has(`${f.theme}:${f.bg}`)) continue;
-      const target = fixFg ? f.fg : f.bg;
-      const key = `${f.theme}:${target}`;
-      const g = groups.get(key) ?? { theme: f.theme, target, fixFg, failures: [] };
-      g.failures.push(f);
-      groups.set(key, g);
-    }
-    for (const [key, g] of groups) {
-      const first = g.failures[0];
-      if (!first) continue;
-      let value = g.fixFg ? first.fgColor : first.bgColor;
-      for (let pass = 0; pass < 3; pass++)
-        for (const f of g.failures) {
-          const other = g.fixFg ? f.bgColor : f.fgColor;
-          if (contrastRatio(value, other) < f.required)
-            value = nearestAccessible(value, other, f.required + 0.05);
-        }
-      const pairs = g.failures
-        .map((f) => `${f.fg} on ${f.bg} (${f.ratio}:1, needs ${f.required}:1)`)
-        .join("; ");
+    const moved = new Set(solved.contrast.adjustments.map((a) => `${a.theme}:${a.role}`));
+    for (const a of solved.contrast.adjustments) {
+      const key = `${a.theme}:${a.role}`;
+      if (!overridden.has(key)) continue;
+      const value = a.to;
+      // The pairs this color was moved for: those whose other side the solver left alone.
+      const failing = raw.contrast.failures.filter((f) => {
+        if (f.theme !== a.theme) return false;
+        const other = f.fg === a.role ? f.bg : f.bg === a.role ? f.fg : null;
+        return other !== null && !moved.has(`${a.theme}:${other}`);
+      });
+      const pairs = failing.length
+        ? failing.map((f) => `${f.fg} on ${f.bg} (${f.ratio}:1, needs ${f.required}:1)`).join("; ")
+        : `it needs ${a.required}:1 against ${a.against}`;
       const ops: Op[] = [
         {
           op: "styles.patch",
           ...this.meta(),
           patch: {
-            set: { [`overrides.color.${g.theme}.${g.target}`]: { $value: value, $type: "color" } },
+            set: { [`overrides.color.${a.theme}.${a.role}`]: { $value: value, $type: "color" } },
           },
         },
       ];
@@ -186,7 +179,7 @@ class Ctx {
         rule: "contrast-override",
         severity: "warning",
         key,
-        message: `Your custom ${g.target} color is hard to read in the ${g.theme} theme: ${pairs}. It's adjusted automatically when published.`,
+        message: `Your custom ${a.role} color is hard to read in the ${a.theme} theme: ${pairs}. It's adjusted automatically when published.`,
         fix: `Use ${value}, the nearest accessible shade, so what you see is what's published.`,
         autofix: { label: "Use the nearest accessible color", ops },
       });
@@ -732,23 +725,34 @@ class Ctx {
       return;
     }
     const theme = themeOf(section);
-    const colors = this.tokens.themes[theme];
+    // An `auto` site shows this section's dark variant to visitors in dark mode too: its text
+    // turns light, so an exact light background color must also carry that.
+    const variants: { theme: ColorTheme; when: string }[] = [{ theme, when: "" }];
+    const dark = DARK_APPEARANCE[theme];
+    if (this.doc.styles.choices.appearance === "auto" && dark !== theme)
+      variants.push({ theme: dark, when: " in dark mode" });
     const stops =
       bg.type === "color" ? [bg.color] : [bg.from, bg.via, bg.to].filter((c): c is string => !!c);
     for (const stop of stops) {
-      const color = this.resolveColor(stop, theme);
-      if (!color) continue;
-      const ratio = contrastRatio(colors.text, color);
-      if (ratio >= 4.5) continue;
-      this.add({
-        rule: "background-contrast",
-        severity: "error",
-        page,
-        section: section.id,
-        key: stop,
-        message: `The section background (${stop}) leaves body text at ${ratio.toFixed(2)}:1 contrast; it needs 4.5:1.`,
-        fix: `Use a color theme instead of a custom background, or a background close to ${nearestAccessible(color, colors.text)}.`,
-      });
+      for (const v of variants) {
+        const colors = this.tokens.themes[v.theme];
+        const color = this.resolveColor(stop, v.theme);
+        if (!color) continue;
+        const ratio = contrastRatio(colors.text, color);
+        if (ratio >= 4.5) continue;
+        this.add({
+          rule: "background-contrast",
+          severity: "error",
+          page,
+          section: section.id,
+          key: stop,
+          message: `The section background (${stop}) leaves body text at ${ratio.toFixed(2)}:1 contrast${v.when}; it needs 4.5:1.`,
+          fix: v.when
+            ? "Use a color theme instead of a custom background: themes follow dark mode, exact colors don't."
+            : `Use a color theme instead of a custom background, or a background close to ${nearestAccessible(color, colors.text)}.`,
+        });
+        break;
+      }
     }
   }
 

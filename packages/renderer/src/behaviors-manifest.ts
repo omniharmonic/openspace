@@ -22,6 +22,7 @@ export const BEHAVIORS = [
   "beacon",
   "before-after",
   "countdown",
+  "scheme",
 ] as const;
 export type BehaviorName = (typeof BEHAVIORS)[number];
 

@@ -110,7 +110,7 @@ export const BUTTON_PROPS = [
 ] as const;
 export type ButtonProp = (typeof BUTTON_PROPS)[number];
 
-type Kind = "solid" | "outline" | "underline" | "text-arrow";
+type Kind = "solid" | "gradient" | "outline" | "underline" | "text-arrow";
 interface Variant {
   kind: Kind;
   pill: boolean;
@@ -142,6 +142,16 @@ const BUTTON_SYSTEMS: Record<ButtonStyle, Record<ButtonRole, Variant>> = {
   },
   "pill-outline": {
     primary: { kind: "outline", pill: true, tone: "accent" },
+    secondary: { kind: "outline", pill: true, tone: "text" },
+    tertiary: { kind: "underline", pill: false, tone: "text" },
+  },
+  gradient: {
+    primary: { kind: "gradient", pill: false, tone: "accent" },
+    secondary: { kind: "outline", pill: false, tone: "text" },
+    tertiary: { kind: "underline", pill: false, tone: "text" },
+  },
+  "pill-gradient": {
+    primary: { kind: "gradient", pill: true, tone: "accent" },
     secondary: { kind: "outline", pill: true, tone: "text" },
     tertiary: { kind: "underline", pill: false, tone: "text" },
   },
@@ -186,6 +196,29 @@ function variantTokens(v: Variant): Record<ButtonProp, string> {
         "bg-active": active,
         "color-active": label,
         "border-color-active": active,
+      };
+    }
+    case "gradient": {
+      // Accent → pressed (a deeper step of the same hue): the label is guaranteed 4.5:1 on both
+      // stops, so it is on every color between. `border-box` paints under the transparent border.
+      const grad = (from: string, to: string) =>
+        `linear-gradient(135deg, ${c(from)}, ${c(to)}) border-box`;
+      const label = c("accent-text");
+      return {
+        bg: grad("accent", "accent-pressed"),
+        color: label,
+        "border-color": "transparent",
+        "border-width": "1px",
+        radius,
+        ...padded,
+        "text-decoration": "none",
+        icon: "none",
+        "bg-hover": grad("accent-hover", "accent-pressed"),
+        "color-hover": label,
+        "border-color-hover": "transparent",
+        "bg-active": grad("accent-pressed", "accent-pressed"),
+        "color-active": label,
+        "border-color-active": "transparent",
       };
     }
     case "outline": {
