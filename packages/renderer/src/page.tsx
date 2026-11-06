@@ -56,7 +56,11 @@ export function PageView(props: PageViewProps) {
     : undefined;
 
   // The page color around a raised content card (a validated CSS color from Site Styles).
-  const pageBg = doc.styles.choices.layout?.pageBackground;
+  // A dark site has no light page color around its card (an `auto` site's CSS swaps it).
+  const pageBg =
+    doc.styles.choices.appearance === "dark"
+      ? undefined
+      : doc.styles.choices.layout?.pageBackground;
   const pageVars =
     pageBg && doc.styles.choices.layout?.surface === "card"
       ? ({ ...(logoVars ?? {}), "--page-bg": pageBg } as typeof logoVars)

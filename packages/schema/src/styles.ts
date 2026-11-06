@@ -90,7 +90,16 @@ export const BUTTON_STYLES = [
   "pill-solid",
   "pill-outline",
   "text-arrow",
+  "gradient",
+  "pill-gradient",
 ] as const;
+/**
+ * Site appearance: `light` (the default), `dark` (light sections turn dark: `light` → `dark`,
+ * `light-accent` → `dark-accent`; sections already dark or brand stay as they are), or `auto`
+ * (follows each visitor's device setting, with a light/dark toggle in the header).
+ */
+export const APPEARANCES = ["light", "dark", "auto"] as const;
+export type Appearance = (typeof APPEARANCES)[number];
 export const MOTION_LEVELS = ["none", "subtle", "expressive"] as const;
 
 /**
@@ -197,6 +206,8 @@ export const StyleChoicesSchema = named(
     buttons: z.enum(BUTTON_STYLES),
     motion: z.enum(MOTION_LEVELS),
     imageTreatment: ImageTreatmentSchema,
+    /** Light, dark, or following the visitor's device (default `light`). */
+    appearance: z.enum(APPEARANCES).optional(),
     /** An uploaded font family (`Styles.fonts`) used for headings instead of the pairing's. */
     headingFont: z.string().max(60).optional(),
     /** An uploaded font family used for body text instead of the pairing's. */

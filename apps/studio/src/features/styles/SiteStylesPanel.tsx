@@ -330,6 +330,8 @@ const BUTTON_LABEL: Record<(typeof BUTTON_STYLES)[number], string> = {
   "pill-solid": "Pill",
   "pill-outline": "Pill outline",
   "text-arrow": "Text →",
+  gradient: "Gradient",
+  "pill-gradient": "Pill gradient",
 };
 
 function Buttons({
@@ -341,7 +343,8 @@ function Buttons({
   commit: Commit;
   disabled: boolean;
 }) {
-  const accent = compiledStylesFor(styles).tokens.themes.light.accent;
+  const light = compiledStylesFor(styles).tokens.themes.light;
+  const accent = light.accent;
   return (
     <fieldset className="st-ss-buttons st-ip-fieldset">
       <legend className="st-visually-hidden">Button style</legend>
@@ -356,7 +359,7 @@ function Buttons({
         >
           <span
             className={cx("st-ss-btnopt__sample", `is-${b}`)}
-            style={{ ["--a" as string]: accent }}
+            style={{ ["--a" as string]: accent, ["--a2" as string]: light["accent-pressed"] }}
           >
             {b === "text-arrow" ? "Book →" : "Book"}
           </span>
@@ -684,6 +687,32 @@ export function SiteStylesPanel() {
             options={[
               { value: "standard", label: "Standard" },
               { value: "high", label: "High" },
+            ]}
+          />
+        </PropRow>
+        <PropRow
+          label="Appearance"
+          hint={
+            (c.appearance ?? "light") === "auto"
+              ? "Follows each visitor's device, with a light/dark switch in the header."
+              : (c.appearance ?? "light") === "dark"
+                ? "Light sections turn dark; photo, dark and brand sections stay as they are."
+                : undefined
+          }
+        >
+          <Segmented
+            disabled={disabled}
+            aria-label="Appearance"
+            size="sm"
+            block
+            value={c.appearance ?? "light"}
+            onValueChange={(v) =>
+              !disabled && commit({ "choices.appearance": v }, "Change appearance")
+            }
+            options={[
+              { value: "light", label: "Light" },
+              { value: "dark", label: "Dark" },
+              { value: "auto", label: "Auto" },
             ]}
           />
         </PropRow>

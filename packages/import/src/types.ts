@@ -338,7 +338,12 @@ export interface SqTheme {
   };
   /** Heading sizes in rem (`h1`…`h4`) and paragraph sizes. */
   sizes: Partial<Record<"h1" | "h2" | "h3" | "h4" | "large" | "normal" | "small", number>>;
-  buttons: { shape?: "square" | "rounded" | "pill"; style?: "solid" | "outline" | "raised" };
+  buttons: {
+    shape?: "square" | "rounded" | "pill";
+    style?: "solid" | "outline" | "raised" | "gradient";
+  };
+  /** The site has its own dark mode (a `prefers-color-scheme: dark` stylesheet or a dark theme switch). */
+  darkMode?: boolean;
   /** Header layout (`navRight`, `navCenter`, `navLeft`, `brandingCenter`, or `sidebar`). */
   headerLayout?: string;
   /** The header's (or sidebar's) own background color, when measured. */

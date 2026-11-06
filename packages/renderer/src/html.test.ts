@@ -137,6 +137,27 @@ describe("renderPageHtml", () => {
     expect(html).toContain('--os-font-heading: "Studio Grotesk"');
   });
 
+  it("auto appearance adds the header light/dark toggle and applies a saved choice before paint", () => {
+    const auto = siteFixture();
+    auto.styles.choices.appearance = "auto";
+    const html = renderPageHtml({ doc: auto, pageId: IDS.home, basePath: "/maya-yoga" });
+    expect(html).toContain('<meta name="color-scheme" content="light dark">');
+    expect(html).toContain('localStorage.getItem("os-scheme")');
+    expect(html).toContain(
+      'class="os-header__scheme" aria-pressed="false" data-os-behavior="scheme"',
+    );
+    expect(behaviorsInHtml(html)).toContain("scheme");
+    expect(html).toContain("@media (prefers-color-scheme: dark)");
+    // Light (default) and dark sites have no toggle; a dark site tells the browser it's dark.
+    expect(out).not.toContain(`class="os-header__scheme"`);
+    expect(out).not.toContain('color-scheme" content');
+    const dark = siteFixture();
+    dark.styles.choices.appearance = "dark";
+    const darkHtml = renderPageHtml({ doc: dark, pageId: IDS.home, basePath: "/maya-yoga" });
+    expect(darkHtml).toContain('<meta name="color-scheme" content="dark">');
+    expect(darkHtml).not.toContain(`class="os-header__scheme"`);
+  });
+
   it("detects behaviors from a document or from HTML", () => {
     const d = siteFixture();
     const home = must(d.pages[IDS.home]);

@@ -19,6 +19,8 @@ export interface ComputedLook {
   h1Size?: number;
   bodySize?: number;
   buttonBg?: string;
+  /** The button's `background-image` (a gradient fill). */
+  buttonBgImage?: string;
   buttonBorder?: string;
   buttonRadius?: string;
   link?: string;
@@ -146,6 +148,19 @@ export function googleFontFamilies(css: string): string[] {
   return out;
 }
 
+/**
+ * Whether the site ships its own dark mode: a `prefers-color-scheme: dark` stylesheet, or rules
+ * for a dark theme switch (`[data-theme="dark"]`, `html.dark`, `.dark-mode`…).
+ */
+export function hasDarkMode(css: string): boolean {
+  return (
+    /@media[^{]*prefers-color-scheme\s*:\s*dark/i.test(css) ||
+    /\[data-(?:theme|color-scheme|mode|bs-theme)=["']?dark["']?\]|(?:^|[\s,}])(?:html|body|:root)\.dark(?:-mode|-theme)?\b|\.dark-mode\b/im.test(
+      css,
+    )
+  );
+}
+
 export function themeFromCss(css: string, computed: ComputedLook = {}): SqTheme {
   const rules = parseRules(css);
   const vars = new Map<string, string>();
@@ -229,7 +244,11 @@ export function themeFromCss(css: string, computed: ComputedLook = {}): SqTheme 
         : radius <= 1
           ? "square"
           : "rounded";
+  const gradient = /(?:linear|radial|conic)-gradient\(/i.test(
+    computed.buttonBgImage ?? pick(isButtonSel, ["background-image", "background"]) ?? "",
+  );
   const outline =
+    !gradient &&
     !buttonBg &&
     /transparent|none/i.test(buttonBgRaw ?? "") &&
     /solid/.test(computed.buttonBorder ?? pick(isButtonSel, ["border"]) ?? "");
@@ -254,7 +273,11 @@ export function themeFromCss(css: string, computed: ComputedLook = {}): SqTheme 
       ...(h1 && h1 > 1 && h1 < 10 ? { h1 } : {}),
       ...(normal && normal > 0.6 && normal < 2 ? { normal } : {}),
     },
-    buttons: { ...(shape ? { shape } : {}), ...(outline ? { style: "outline" as const } : {}) },
+    buttons: {
+      ...(shape ? { shape } : {}),
+      ...(gradient ? { style: "gradient" as const } : outline ? { style: "outline" as const } : {}),
+    },
+    ...(hasDarkMode(css) ? { darkMode: true } : {}),
   };
   if (h1 && !normal) theme.sizes.normal = 1;
   return theme;

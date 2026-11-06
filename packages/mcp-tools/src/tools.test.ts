@@ -58,6 +58,29 @@ describe("styles are contrast-checked", () => {
     expect(doc.styles.choices.typography?.heading).toBeUndefined();
   });
 
+  it("keeps a readable cream background with a light brand, in reject mode too", async () => {
+    const { rpc, store, siteId } = await setup();
+    const r = (
+      await rpc.call("set_styles", {
+        choices: { palette: { brand: "#a7c25a" } },
+        overrides: { set: { "color.light.background": "#e9e6d2" } },
+        onContrast: "reject",
+      })
+    ).data;
+    expect(r.contrastAdjustments).toEqual([]);
+    const doc = await store.getDocument(siteId);
+    expect(compileStyles(doc.styles).tokens.themes.light.background).toBe("#e9e6d2");
+  });
+
+  it("sets dark appearance and gradient buttons", async () => {
+    const { rpc, store, siteId } = await setup();
+    await rpc.call("set_styles", { choices: { appearance: "auto", buttons: "pill-gradient" } });
+    const doc = await store.getDocument(siteId);
+    expect(doc.styles.choices.appearance).toBe("auto");
+    expect(doc.styles.choices.buttons).toBe("pill-gradient");
+    expect(compileStyles(doc.styles).css).toContain("prefers-color-scheme: dark");
+  });
+
   it("refuses the same override in reject mode, leaving styles unchanged", async () => {
     const { rpc, store, siteId } = await setup();
     const before = structuredClone((await store.getDocument(siteId)).styles);

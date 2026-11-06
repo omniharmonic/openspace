@@ -155,6 +155,21 @@ describe("HTML helpers", () => {
     expect(googleFontFamilies(css)).toEqual(["Playfair Display", "Source Sans 3"]);
   });
 
+  it("reads gradient buttons and a site's own dark mode", () => {
+    const css = `body{background:#fff;color:#111}
+      .btn{background:linear-gradient(135deg,#6a5cff,#b04cff);border-radius:999px;color:#fff}
+      @media (prefers-color-scheme: dark){body{background:#111;color:#eee}}`;
+    const t = themeFromCss(css);
+    expect(t.buttons).toEqual({ shape: "pill", style: "gradient" });
+    expect(t.darkMode).toBe(true);
+    expect(themeFromCss('[data-theme="dark"] body{background:#000}').darkMode).toBe(true);
+    expect(themeFromCss("body{background:#fff} .darkness{color:red}").darkMode).toBeUndefined();
+    expect(
+      themeFromCss("body{background:#fff}", { buttonBgImage: "linear-gradient(red, blue)" }).buttons
+        .style,
+    ).toBe("gradient");
+  });
+
   it("knows which classes the CSS hides on desktop", () => {
     const hidden = hiddenClassesFromCss(
       ".mobile-only{display:none} @media (max-width:767px){.mobile-only{display:block}} @media (min-width:992px){.hide-desktop{display:none}} .nav-open{display:none}",

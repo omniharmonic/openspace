@@ -94,10 +94,33 @@ describe("contrast", () => {
     expect(only(designCheck(fixed), "contrast-override")).toEqual([]);
   });
 
+  it("keeps a readable custom background even when the raw brand accent fails on it", () => {
+    // A light brand green on a cream page: dark text is 12.7:1, and the solver deepens the
+    // derived accent, so the owner's cream must not be blamed or moved.
+    const { doc } = healthyDoc();
+    doc.styles.choices.palette.brand = "#a7c25a";
+    doc.styles.overrides = {
+      color: { light: { background: { $value: "#e9e6d2", $type: "color" } } },
+    };
+    const issues = designCheck(doc);
+    expect(rules(issues)).not.toContain("contrast-override");
+    expect(rules(issues)).not.toContain("contrast");
+  });
+
   it("does not flag the default palettes", () => {
     const { doc } = healthyDoc();
     expect(rules(designCheck(doc))).not.toContain("contrast");
     expect(rules(designCheck(doc))).not.toContain("contrast-override");
+  });
+
+  it("on an auto (light/dark) site, flags an exact light section color that dark mode can't read", () => {
+    const s = stackSection([h("Hello there friends", 1), btn()]);
+    s.style.background = { type: "color", color: "#e9e6d2" };
+    const { doc } = onePage(s);
+    expect(rules(designCheck(doc))).not.toContain("background-contrast");
+    doc.styles.choices.appearance = "auto";
+    const issue = only(designCheck(doc), "background-contrast")[0];
+    expect(issue?.message).toContain("in dark mode");
   });
 
   it("flags custom section background colors that leave text unreadable", () => {

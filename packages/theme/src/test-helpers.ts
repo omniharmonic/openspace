@@ -5,9 +5,22 @@ import type { ThemeRole } from "./types";
 
 const SURFACES = ["background", "surface", "surface-raised"] as const;
 
-/** Resolve `var(--os-color-<role>)` against a theme; `transparent` → null (sits on a surface). */
-function resolve(value: string, colors: Record<ThemeRole, string>): string | null {
+/**
+ * The colors a fill paints: one `var(--os-color-<role>)`, or every stop of a gradient of them
+ * (same-hue steps, so the label passing on each stop passes in between); `transparent` → null.
+ */
+function fills(value: string, colors: Record<ThemeRole, string>): string[] | null {
   if (value === "transparent") return null;
+  if (value.startsWith("linear-gradient(")) {
+    const stops = [...value.matchAll(/var\(--os-color-[a-z-]+\)/g)].map((m) => m[0]);
+    if (!stops.length) throw new Error(`Unresolvable button gradient: ${value}`);
+    return stops.map((v) => resolve(v, colors));
+  }
+  return [resolve(value, colors)];
+}
+
+/** Resolve `var(--os-color-<role>)` against a theme. */
+function resolve(value: string, colors: Record<ThemeRole, string>): string {
   const m = /^var\(--os-color-([a-z-]+)\)$/.exec(value);
   if (!m?.[1]) throw new Error(`Unresolvable button color: ${value}`);
   const color = colors[m[1] as ThemeRole];
@@ -32,9 +45,8 @@ export function buttonContrastFailures(themes: ThemeColorSet, min = 4.5): string
       ] as const) {
         for (const theme of COLOR_THEMES) {
           const colors = themes[theme];
-          const label = resolve(fg, colors) as string;
-          const fill = resolve(bg, colors);
-          const grounds = fill ? [fill] : SURFACES.map((s) => colors[s]);
+          const label = resolve(fg, colors);
+          const grounds = fills(bg, colors) ?? SURFACES.map((s) => colors[s]);
           for (const ground of grounds) {
             const ratio = contrastRatio(label, ground);
             if (ratio < min) {

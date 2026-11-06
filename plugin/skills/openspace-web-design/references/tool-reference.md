@@ -139,7 +139,8 @@ Headings `#`–`####`, `**bold**`, `*italic*`, `[links](/contact)`, bullet and n
 
 - `density`: `compact`, `comfortable`, `airy`
 - `shape`: `sharp`, `soft`, `round`
-- `buttons`: `solid`, `outline`, `underline`, `pill-solid`, `pill-outline`, `text-arrow`
+- `buttons`: `solid`, `outline`, `underline`, `pill-solid`, `pill-outline`, `text-arrow`, `gradient`, `pill-gradient` (accent → deeper accent fill)
+- `appearance`: `light` (default), `dark` (light sections turn dark; dark, photo and brand sections stay), `auto` (follows the visitor's device, with a light/dark switch in the header). Prefer section color themes over exact section background colors on `auto` sites: themes follow dark mode, exact colors don't.
 - `motion`: `none`, `subtle`, `expressive`
 - `imageTreatment`: `none`, `rounded`, `arch`, `circle`, `blob`, `duotone`, `grain`, `frame`
 - `palette`: `{ brand: "oklch(…)" or "#hex", neutral: "warm" | "cool" | "pure", contrast: "standard" | "high" }`, or a curated palette id via `set_styles` `palette`

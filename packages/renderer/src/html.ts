@@ -4,6 +4,8 @@ import {
   customFontFaces,
   customFontPreloads,
   googleFontsUrl,
+  SCHEME_ATTRIBUTE,
+  SCHEME_STORAGE_KEY,
 } from "@omniharmonic/openspace-theme";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -102,6 +104,19 @@ function phoneShare(sizes: string | undefined): number {
  * modern formats, the preload names the first `<source>` (with its `type`, so browsers without
  * that format skip it). Attribute values are taken from the already-escaped markup.
  */
+/**
+ * `<head>` for the site's appearance: the browser's color scheme (form controls, scrollbars), and
+ * for `auto` sites the visitor's saved light/dark choice applied before first paint.
+ */
+export function appearanceHead(appearance: "light" | "dark" | "auto" | undefined): string[] {
+  if (appearance === "dark") return ['<meta name="color-scheme" content="dark">'];
+  if (appearance !== "auto") return [];
+  return [
+    '<meta name="color-scheme" content="light dark">',
+    `<script>try{var s=JSON.parse(localStorage.getItem("${SCHEME_STORAGE_KEY}"));if(s==="dark"||s==="light")document.documentElement.setAttribute("${SCHEME_ATTRIBUTE}",s)}catch(e){}</script>`,
+  ];
+}
+
 export function lcpImagePreload(body: string): string {
   const imgs = [...body.matchAll(/<img\b[^>]*\bfetchpriority="high"[^>]*>/gi)].slice(0, 4);
   let best: { m: RegExpMatchArray; score: number } | null = null;
@@ -219,6 +234,7 @@ export function renderPageHtml(opts: RenderPageHtmlOptions): string {
     `<link rel="icon" href="${escapeHtml(site.favicon ? mediaUrl(site.favicon, basePath) : monogramIcon(site.title, styles.tokens.themes.brand))}">`,
     '<meta name="generator" content="OpenSpace">',
     "<script>document.documentElement.classList.add('os-js')</script>",
+    ...appearanceHead(doc.styles.choices.appearance),
     usesGoogle
       ? '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
       : "",

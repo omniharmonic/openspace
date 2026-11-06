@@ -1,6 +1,7 @@
 import { designCheck, type Issue, seoCheck } from "@omniharmonic/openspace-lint";
 import { type Op, type OpBody, validate, validateAll } from "@omniharmonic/openspace-ops";
 import {
+  APPEARANCES,
   BREAKPOINT_INFO,
   BUTTON_STYLES,
   DENSITIES,
@@ -77,6 +78,7 @@ export const getStyles = defineTool({
         buttons: BUTTON_STYLES,
         motion: MOTION_LEVELS,
         imageTreatment: IMAGE_TREATMENTS,
+        appearance: APPEARANCES,
         neutral: ["warm", "cool", "pure"],
         contrast: ["standard", "high"],
         overridePaths:
@@ -102,6 +104,12 @@ const ChoicesPatch = z
     buttons: z.enum(BUTTON_STYLES).optional(),
     motion: z.enum(MOTION_LEVELS).optional(),
     imageTreatment: z.enum(IMAGE_TREATMENTS).optional(),
+    appearance: z
+      .enum(APPEARANCES)
+      .optional()
+      .describe(
+        'Site-wide light or dark: "light" (default), "dark" (light sections turn dark; dark, photo and brand sections stay), or "auto" (follows each visitor\'s device, with a light/dark switch in the header).',
+      ),
     typography: z
       .object({
         heading: WebFontSchema.nullable().optional(),
@@ -214,7 +222,7 @@ export const setStyles = defineTool({
   name: "set_styles",
   title: "Set Site Styles",
   description:
-    'Restyle the whole site: patch Site Styles choices (palette brand/neutral/contrast, pairing, density, shape, buttons, motion, imageTreatment; typography: the site\'s own Google Fonts per role and a tuned type scale; layout: content width and section padding), pick a curated palette by id, and set/unset exact DTCG token overrides (e.g. {"color.accent": "#2f6b4f"}). Every change is contrast-checked: unreadable overrides are moved to the nearest accessible shade (onContrast "adjust", default) or refused ("reject"), with an explanation.',
+    'Restyle the whole site: patch Site Styles choices (palette brand/neutral/contrast, pairing, density, shape, buttons (incl. gradient and pill-gradient), motion, imageTreatment, appearance light/dark/auto; typography: the site\'s own Google Fonts per role and a tuned type scale; layout: content width and section padding), pick a curated palette by id, and set/unset exact DTCG token overrides (e.g. {"color.accent": "#2f6b4f"}). Every change is contrast-checked: unreadable overrides are moved to the nearest accessible shade (onContrast "adjust", default) or refused ("reject"), with an explanation.',
   input: z.object({
     site: siteArg,
     choices: ChoicesPatch.optional(),
@@ -249,7 +257,15 @@ export const setStyles = defineTool({
     const c = input.choices ?? {};
     for (const [k, v] of Object.entries(c.palette ?? {}))
       if (v !== undefined) set[`choices.palette.${k}`] = v;
-    for (const k of ["pairing", "density", "shape", "buttons", "motion", "imageTreatment"] as const)
+    for (const k of [
+      "pairing",
+      "density",
+      "shape",
+      "buttons",
+      "motion",
+      "imageTreatment",
+      "appearance",
+    ] as const)
       if (c[k] !== undefined) set[`choices.${k}`] = c[k];
     const ty = c.typography;
     for (const role of ["heading", "body", "label", "eyebrowColor"] as const) {

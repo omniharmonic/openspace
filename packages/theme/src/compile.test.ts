@@ -1,6 +1,6 @@
 import { type Styles, StylesSchema } from "@omniharmonic/openspace-schema";
 import { describe, expect, it } from "vitest";
-import { compileStyles } from "./compile";
+import { compileStyles, DARK_APPEARANCE } from "./compile";
 import { contrastRatio } from "./contrast";
 import { buttonContrastFailures } from "./test-helpers";
 import { allTokenVars, THEME_CLASSES, TOKEN_VARS } from "./vars";
@@ -232,10 +232,53 @@ describe("compileStyles", () => {
           "pill-solid",
           "pill-outline",
           "text-arrow",
+          "gradient",
+          "pill-gradient",
         ] as const) {
           const out = compileStyles(base({ density, shape, buttons, motion: "expressive" }));
           expect(out.contrast.failures).toEqual([]);
         }
+  });
+
+  it("gradient buttons fill from the accent to its pressed step behind a solver-safe label", () => {
+    const vars = compileStyles(base({ buttons: "pill-gradient" })).tokens.vars.themed;
+    expect(vars["--os-button-primary-bg"]).toBe(
+      "linear-gradient(135deg, var(--os-color-accent), var(--os-color-accent-pressed)) border-box",
+    );
+    expect(vars["--os-button-primary-color"]).toBe("var(--os-color-accent-text)");
+    expect(vars["--os-button-primary-radius"]).toBe("var(--os-radius-full)");
+    expect(vars["--os-button-secondary-bg"]).toBe("transparent");
+    for (const theme of ["light", "dark", "brand"] as const) {
+      const t = compileStyles(base({ buttons: "gradient" })).tokens.themes[theme];
+      for (const stop of [t.accent, t["accent-hover"], t["accent-pressed"]])
+        expect(contrastRatio(t["accent-text"], stop)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("dark appearance turns the light themes dark and keeps the dark and brand ones", () => {
+    const light = compileStyles(base()).tokens.themes;
+    const dark = compileStyles(base({ appearance: "dark" }));
+    expect(dark.tokens.themes.light).toEqual(light.dark);
+    expect(dark.tokens.themes["light-accent"]).toEqual(light["dark-accent"]);
+    expect(dark.tokens.themes.dark).toEqual(light.dark);
+    expect(dark.tokens.themes.brand).toEqual(light.brand);
+    expect(dark.contrast.failures).toEqual([]);
+    expect(dark.css).toMatch(/:root,\n\.os-theme-light \{\n {2}color-scheme: dark;/);
+    expect(dark.css).not.toContain("prefers-color-scheme");
+  });
+
+  it("auto appearance follows the device, and the visitor's toggle wins either way", () => {
+    const out = compileStyles(base({ appearance: "auto" }));
+    const light = out.tokens.themes.light;
+    expect(light.background).toBe(compileStyles(base()).tokens.themes.light.background);
+    const css = out.css;
+    const media = css.slice(css.indexOf("@media (prefers-color-scheme: dark)"));
+    expect(media).toContain(':root:not([data-os-scheme="light"]) .os-theme-light');
+    expect(media).toContain(`--os-color-background: ${out.tokens.themes.dark.background};`);
+    expect(css).toContain(':root[data-os-scheme="dark"] .os-theme-light-accent');
+    expect(css).toContain(`--page-bg: ${out.tokens.themes.dark.surface} !important;`);
+    expect(DARK_APPEARANCE.brand).toBe("brand");
+    expect(compileStyles(base()).css).not.toContain("data-os-scheme");
   });
 
   it("density, shape, motion and high contrast change the right tokens", () => {

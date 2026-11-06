@@ -88,13 +88,26 @@ export function contrastIssues(styles: Styles): ContrastIssue[] {
   const touched = overriddenRoles(styles);
   if (!touched.size) return [];
   const raw = compileStyles(styles, { solve: false });
+  // What publishing changes: a pair failing against a chosen color is usually solved by moving
+  // the other, derived side (a cream background with a light brand: the accent deepens), so the
+  // chosen color is only at fault when it's the side the solver moves, or the solver moved it.
+  const moved = new Set(
+    compileStyles(styles).contrast.adjustments.map((a) => `${a.theme}:${a.role}`),
+  );
   const derived = new Set(["accent-hover", "accent-pressed"]);
   const fixes = new Map<string, RoleFix | null>();
+  const sideOf = (f: ContrastFailure) => {
+    const pair = CONTRAST_PAIRS.find((p) => p.fg === f.fg && p.bg === f.bg);
+    return pair?.adjust === "bg" ? [f.bg, f.fg] : [f.fg, f.bg];
+  };
   return raw.contrast.failures
-    .filter((f) => touched.has(`${f.theme}:${f.fg}`) || touched.has(`${f.theme}:${f.bg}`))
+    .filter((f) => {
+      const [move, fixed] = sideOf(f);
+      const fixedKey = `${f.theme}:${fixed}`;
+      return touched.has(`${f.theme}:${move}`) || (touched.has(fixedKey) && moved.has(fixedKey));
+    })
     .map((failure) => {
-      const pair = CONTRAST_PAIRS.find((p) => p.fg === failure.fg && p.bg === failure.bg);
-      const role = pair?.adjust === "bg" ? failure.bg : failure.fg;
+      const [role] = sideOf(failure) as [string, string];
       const key = `${failure.theme}:${role}`;
       if (!fixes.has(key))
         fixes.set(
