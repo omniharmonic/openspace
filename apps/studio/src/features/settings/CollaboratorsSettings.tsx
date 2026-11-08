@@ -196,6 +196,8 @@ export function CollaboratorsSettings({ site }: { site: Site }) {
           </form>
           <p className="st-muted-note">
             {ROLE_INFO[role].does} People without a GitHub account are guided through making one.
+            Once they accept, they can edit here and with their own Claude right away; the separate
+            GitHub invitation they may get is only for working on the code directly.
           </p>
           {inviteLink && (
             <div className="st-callout st-callout--live" role="status">

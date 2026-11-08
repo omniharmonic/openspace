@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 import { GitHubConflictError, GitHubInputError, GitHubNotFoundError } from "../github/types";
 import { SiteFilesError } from "../services/site-files";
 import type { AppEnv } from "../types";
-import { errorBody, HttpError } from "./errors";
+import { errorBody, GITHUB_UNREACHABLE, HttpError } from "./errors";
 import { redactSecrets } from "./log";
 
 /** Map any thrown error to the `{ error: { code, message } }` envelope; log unexpected ones. */
@@ -22,7 +22,7 @@ export function handleError(err: Error, c: Context<AppEnv>): Response {
     );
   if (err instanceof GitHubNotFoundError) {
     c.var.log?.warn("github not found", { err });
-    return c.json(errorBody("not_found", "We couldn't find that."), 404);
+    return c.json(errorBody("github_unreachable", GITHUB_UNREACHABLE), 404);
   }
   if (err instanceof SiteFilesError) {
     c.var.log?.warn("site content invalid", { err, issues: err.issues });

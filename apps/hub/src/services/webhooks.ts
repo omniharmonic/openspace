@@ -2,7 +2,7 @@ import type { SiteDocument } from "@omniharmonic/openspace-schema";
 import { blockRegistry } from "../blocks";
 import { audit } from "../db/audit";
 import { latestPublish, publishBySha, updatePublish } from "../db/publishes";
-import { type SiteRow, type SiteStatus, updateSite } from "../db/sites";
+import { renameSiteRepo, type SiteRow, type SiteStatus, updateSite } from "../db/sites";
 import { getUserByLogin } from "../db/users";
 import type { HubBindings } from "../env";
 import { MAIN_BRANCH, PUBLISH_WORKFLOW, parseRepo } from "../github/types";
@@ -218,9 +218,23 @@ async function onRepository(
   p: {
     action: string;
     repository: { name: string; full_name: string; owner: { login: string } };
-    changes?: { owner?: { from?: { user?: { login: string }; organization?: { login: string } } } };
+    changes?: {
+      owner?: { from?: { user?: { login: string }; organization?: { login: string } } };
+      repository?: { name?: { from?: string } };
+    };
   },
 ): Promise<string> {
+  if (p.action === "renamed") {
+    const old = p.changes?.repository?.name?.from;
+    if (!old) return "ignored";
+    const ids = await renameSiteRepo(
+      services.db,
+      `${p.repository.owner.login}/${old}`,
+      p.repository.full_name,
+      services.now(),
+    );
+    return ids.length ? "renamed" : "unknown_site";
+  }
   if (p.action !== "transferred") return "ignored";
   const from = p.changes?.owner?.from?.user?.login ?? p.changes?.owner?.from?.organization?.login;
   if (!from) return "ignored";

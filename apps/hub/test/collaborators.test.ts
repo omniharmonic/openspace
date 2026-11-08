@@ -372,6 +372,49 @@ describe("ownership transfer (pending)", () => {
       .first();
     expect(row).toEqual({ repo: "dev-client/room-site", transfer_to: null });
   });
+
+  it("follows the repository.renamed webhook (repo and github.io address)", async () => {
+    const { app, site } = await setup();
+    const before = (await env.HUB_DB.prepare("SELECT repo FROM sites WHERE id = ?")
+      .bind(site.id)
+      .first()) as { repo: string };
+    const [owner, oldName] = before.repo.split("/") as [string, string];
+    await env.HUB_DB.prepare("UPDATE sites SET url = ? WHERE id = ?")
+      .bind(`https://${owner}.github.io/${oldName}/`, site.id)
+      .run();
+    const secret = ["whsec", "rename"].join("_");
+    const body = JSON.stringify({
+      action: "renamed",
+      repository: { name: "new-name", full_name: `${owner}/new-name`, owner: { login: owner } },
+      changes: { repository: { name: { from: oldName } } },
+    });
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    );
+    const sig = `sha256=${toHex(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body)))}`;
+    const res = await call(
+      app,
+      "/webhooks/github",
+      {
+        method: "POST",
+        body,
+        headers: { "x-github-event": "repository", "x-hub-signature-256": sig },
+      },
+      { ...(env as unknown as Record<string, unknown>), GITHUB_WEBHOOK_SECRET: secret },
+    );
+    expect(await res.json()).toMatchObject({ result: "renamed" });
+    const row = await env.HUB_DB.prepare("SELECT repo, url FROM sites WHERE id = ?")
+      .bind(site.id)
+      .first();
+    expect(row).toEqual({
+      repo: `${owner}/new-name`,
+      url: `https://${owner.toLowerCase()}.github.io/new-name/`,
+    });
+  });
 });
 
 describe("setup assets", () => {
