@@ -19,7 +19,7 @@ import {
   type WorkflowRun,
 } from "../github/types";
 import { bytesToBase64, canonicalJson, randomId, sha1Hex, sha256Hex } from "../lib/crypto";
-import { HttpError } from "../lib/errors";
+import { GITHUB_UNREACHABLE, HttpError } from "../lib/errors";
 import { createLogger, type Logger } from "../lib/log";
 import { buildErrorByCode } from "../services/build-errors";
 import { readDocumentFiles } from "../services/document-files";
@@ -213,7 +213,7 @@ export class DraftRoom extends DurableObject<HubBindings> {
                 "Someone else changed this site at the same moment. Try again.",
               )
             : err instanceof GitHubNotFoundError
-              ? new HttpError(404, "not_found", "We couldn't find that.")
+              ? new HttpError(404, "github_unreachable", GITHUB_UNREACHABLE)
               : null;
       if (!http) throw err;
       return {

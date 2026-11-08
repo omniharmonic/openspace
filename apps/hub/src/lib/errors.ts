@@ -30,3 +30,7 @@ export const conflict = (code: string, message: string, details?: unknown) =>
 export function errorBody(code: string, message: string, details?: unknown) {
   return { error: details === undefined ? { code, message } : { code, message, details } };
 }
+
+/** A GitHub call answered 404 for the site's repository (renamed, moved, deleted, app removed). */
+export const GITHUB_UNREACHABLE =
+  "OpenSpace couldn't reach this site's GitHub repository. It may have been moved or deleted, or the OpenSpace app may no longer have access to it: the site owner can check on GitHub (Settings, then GitHub Apps). Your changes are kept in the draft.";

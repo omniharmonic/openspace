@@ -75,6 +75,11 @@ export function InvitePage() {
         <p>
           {inv.invitedBy} invited you as <strong>{role.name}</strong>. {role.does}
         </p>
+        <p className="st-muted-note">
+          Once you accept, you can edit in OpenSpace straight away, and so can your own Claude after
+          you connect it. GitHub may also email you an invitation to the site's code: that one is
+          optional, and only needed to change the code directly on GitHub.
+        </p>
         {inv.status !== "pending" ? (
           <p role="alert">{CLOSED[inv.status] ?? "This invitation can't be used."}</p>
         ) : signedIn ? (

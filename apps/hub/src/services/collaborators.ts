@@ -222,6 +222,9 @@ export async function sendInvitationEmail(
       blk("button", { label: "Accept invitation", link: { type: "url", url: i.acceptUrl } }),
       para(`Or open this link: ${i.acceptUrl}`),
       para("This link works for 14 days."),
+      para(
+        "Once you accept, you can edit in OpenSpace straight away, and so can your own Claude after you connect it. GitHub may also email you an invitation to the site's code: that one is optional, and only needed to change the code directly on GitHub.",
+      ),
     ],
   });
   return sendTransactional(services, {

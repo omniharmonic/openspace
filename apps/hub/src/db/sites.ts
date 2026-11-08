@@ -1,4 +1,5 @@
 import type { Role } from "@omniharmonic/openspace-ops";
+import { audit } from "./audit";
 
 export type SiteStatus = "building" | "live" | "failed";
 
@@ -144,6 +145,45 @@ export async function repoTaken(db: D1Database, repo: string): Promise<boolean> 
     .bind(repo)
     .first();
   return row !== null;
+}
+
+/**
+ * The repository was renamed on GitHub (`owner/old` → `owner/new`): point every site that used
+ * the old name at the new one, and move a `<owner>.github.io/<old>/` address with it (GitHub
+ * Pages serves a renamed project site under its new name). GitHub's REST API follows renames
+ * but GraphQL does not, so a stale name silently breaks every draft commit. Returns the ids of
+ * the sites that changed.
+ */
+export async function renameSiteRepo(
+  db: D1Database,
+  from: string,
+  to: string,
+  now: number,
+): Promise<string[]> {
+  if (from.toLowerCase() === to.toLowerCase()) return [];
+  const rows = await db
+    .prepare("SELECT id, url FROM sites WHERE repo = ? COLLATE NOCASE")
+    .bind(from)
+    .all<{ id: string; url: string | null }>();
+  const [owner, oldName] = from.split("/");
+  const newName = to.split("/")[1];
+  const oldPages = `https://${owner?.toLowerCase()}.github.io/${oldName}/`.toLowerCase();
+  for (const r of rows.results) {
+    const url =
+      r.url && r.url.toLowerCase() === oldPages
+        ? `https://${owner?.toLowerCase()}.github.io/${newName}/`
+        : r.url;
+    await db
+      .prepare("UPDATE sites SET repo = ?, url = ?, updated_at = ? WHERE id = ?")
+      .bind(to, url, now, r.id)
+      .run();
+    await audit(
+      db,
+      { siteId: r.id, actor: "github", action: "site.repo.renamed", meta: { from, to } },
+      now,
+    );
+  }
+  return rows.results.map((r) => r.id);
 }
 
 type Patch = Partial<

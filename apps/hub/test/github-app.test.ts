@@ -141,6 +141,78 @@ describe("GitHubAppAccess", () => {
     ).rejects.toBeInstanceOf(GitHubConflictError);
   });
 
+  it("follows a renamed repository when committing (GraphQL doesn't, REST does)", async () => {
+    const renamed: Array<[string, string]> = [];
+    const m = mockFetch([
+      installationRoute(),
+      [
+        "POST",
+        /^\/graphql$/,
+        (call) => {
+          const input = (
+            call.body as { variables: { input: { branch: { repositoryNameWithOwner: string } } } }
+          ).variables.input;
+          if (input.branch.repositoryNameWithOwner === "maya/maya-yoga")
+            return {
+              errors: [
+                {
+                  type: "NOT_FOUND",
+                  message: "Could not resolve to a Repository with the name 'maya/maya-yoga'.",
+                },
+              ],
+            };
+          return {
+            data: { createCommitOnBranch: { commit: { oid: NEXT, committedDate: "x" } } },
+          };
+        },
+      ],
+      ["GET", /^\/repos\/maya\/maya-yoga$/, () => restRepo("maya", "yoga-site")],
+    ]);
+    const gh = new GitHubAppAccess({
+      app,
+      installationId: 77,
+      fetch: m.fetch,
+      onRenamed: async (from, to) => {
+        renamed.push([from, to]);
+      },
+    });
+    const commit = await gh.commitFiles(repo, {
+      branch: "os/draft",
+      expectedHead: HEAD,
+      message: "Edit",
+      files: [{ path: "content/pages/home.json", content: "{}\n" }],
+    });
+    expect(commit.sha).toBe(NEXT);
+    expect(renamed).toEqual([["maya/maya-yoga", "maya/yoga-site"]]);
+    const last = (m.calls.at(-1) as RecordedCall).body as {
+      variables: { input: { branch: { repositoryNameWithOwner: string } } };
+    };
+    expect(last.variables.input.branch.repositoryNameWithOwner).toBe("maya/yoga-site");
+  });
+
+  it("still fails when the repository is really gone", async () => {
+    const m = mockFetch([
+      installationRoute(),
+      [
+        "POST",
+        /^\/graphql$/,
+        () => ({
+          errors: [
+            {
+              type: "NOT_FOUND",
+              message: "Could not resolve to a Repository with the name 'maya/maya-yoga'.",
+            },
+          ],
+        }),
+      ],
+      ["GET", /^\/repos\/maya\/maya-yoga$/, () => status(404, { message: "Not Found" })],
+    ]);
+    const gh = new GitHubAppAccess({ app, installationId: 77, fetch: m.fetch });
+    await expect(
+      gh.commitFiles(repo, { branch: "os/draft", expectedHead: HEAD, message: "x", files: [] }),
+    ).rejects.toThrow(/resolve to a Repository/);
+  });
+
   it("commits a whole tree (publish) and maps non-fast-forward to a conflict", async () => {
     let refUpdate = 0;
     const m = mockFetch([

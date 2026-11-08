@@ -50,6 +50,8 @@ export interface GitHubAppAccessOptions {
    * so each new `GitHubAppAccess` doesn't mint a token again (one subrequest each).
    */
   tokenCache?: Map<number, InstallationTokenEntry>;
+  /** The repo turned out to be renamed on GitHub (`owner/old` → `owner/new`): record it. */
+  onRenamed?: (from: string, to: string) => Promise<void>;
 }
 
 export interface InstallationTokenEntry {
@@ -322,6 +324,12 @@ export class GitHubAppAccess implements GitHubAccess {
     return sha;
   }
 
+  /** The repository's current `owner/name` (REST follows renames), or null when it's gone. */
+  private async currentName(repo: RepoRef): Promise<string | null> {
+    const r = await this.rest<{ full_name?: string }>(this.repoPath(repo), { allow404: true });
+    return r?.full_name ?? null;
+  }
+
   async commitFiles(repo: RepoRef, input: CommitFilesInput): Promise<CommitInfo> {
     const head = input.expectedHead ?? (await this.getRef(repo, input.branch));
     if (!head) throw new GitHubNotFoundError(`Branch ${input.branch} not found`);
@@ -335,24 +343,36 @@ export class GitHubAppAccess implements GitHubAccess {
           f.encoding === "base64" ? (f.content as string) : utf8ToBase64(f.content as string),
       }));
     const deletions = input.files.filter((f) => f.content === null).map((f) => ({ path: f.path }));
-    const data = await this.graphql<{
-      createCommitOnBranch: { commit: { oid: string; committedDate: string } };
-    }>(
-      `mutation($input: CreateCommitOnBranchInput!) {
-        createCommitOnBranch(input: $input) { commit { oid committedDate } }
-      }`,
-      {
-        input: {
-          branch: {
-            repositoryNameWithOwner: `${repo.owner}/${repo.name}`,
-            branchName: input.branch,
+    const commitAs = (fullName: string) =>
+      this.graphql<{
+        createCommitOnBranch: { commit: { oid: string; committedDate: string } };
+      }>(
+        `mutation($input: CreateCommitOnBranchInput!) {
+          createCommitOnBranch(input: $input) { commit { oid committedDate } }
+        }`,
+        {
+          input: {
+            branch: { repositoryNameWithOwner: fullName, branchName: input.branch },
+            message: { headline: headline ?? "", body: rest.join("\n").trim() },
+            expectedHeadOid: head,
+            fileChanges: { additions, deletions },
           },
-          message: { headline: headline ?? "", body: rest.join("\n").trim() },
-          expectedHeadOid: head,
-          fileChanges: { additions, deletions },
         },
-      },
-    );
+      );
+    const asked = `${repo.owner}/${repo.name}`;
+    let data: Awaited<ReturnType<typeof commitAs>>;
+    try {
+      data = await commitAs(asked);
+    } catch (err) {
+      // GitHub's REST API follows a renamed repository; this mutation does not ("Could not
+      // resolve to a Repository"). Ask REST for the current name, record it and commit there.
+      if (!(err instanceof GitHubNotFoundError) || !/resolve to a Repository/i.test(err.message))
+        throw err;
+      const current = await this.currentName(repo);
+      if (!current || current.toLowerCase() === asked.toLowerCase()) throw err;
+      await this.options.onRenamed?.(asked, current);
+      data = await commitAs(current);
+    }
     const commit = data.createCommitOnBranch.commit;
     return {
       sha: commit.oid,

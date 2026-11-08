@@ -1,4 +1,4 @@
-import type { SiteRow } from "../db/sites";
+import { renameSiteRepo, type SiteRow } from "../db/sites";
 import type { User } from "../db/users";
 import type { HubConfig } from "../env";
 import { devImportRunner } from "../services/import-dev";
@@ -70,5 +70,8 @@ export function selectGitHubAccess(deps: GitHubDeps, ctx: GitHubContext = {}): G
     fetch: deps.fetch,
     now: deps.now,
     ...(deps.installationTokens ? { tokenCache: deps.installationTokens } : {}),
+    onRenamed: async (from, to) => {
+      await renameSiteRepo(deps.db, from, to, deps.now());
+    },
   });
 }
