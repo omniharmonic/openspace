@@ -227,6 +227,7 @@ export function componentDefinitionIssues(
   let animates = false;
   let transitions = false;
   let hardColors = 0;
+  let ownSizes = 0;
   const badBreakpoints = new Set<string>();
   let mobileTrouble: string | null = null;
   const pairs: Array<{ fg: string; bg: string; line: number }> = [];
@@ -257,6 +258,13 @@ export function componentDefinitionIssues(
         if (d.prop === "transition" && !/^none\b/.test(d.value)) transitions = true;
         if (COLOR_PROPS.test(d.prop) && COLOR_LITERAL_RE.test(stripVarsAndUrls(d.value)))
           hardColors++;
+        // Text sized in its own px/rem/vw instead of a text style (var(--os-type-…)).
+        if (
+          d.prop === "font-size" &&
+          !/var\(--os-type-/.test(d.value) &&
+          /\d(?:px|rem|vw|vh|vmin|vmax|cqi)\b|clamp\(/.test(d.value)
+        )
+          ownSizes++;
         if (!inMedia && !mobileTrouble) {
           const w = /^(?:width|min-width)$/.test(d.prop) && /^(\d+)px$/.exec(d.value.trim());
           if (w && Number(w[1]) > 390) mobileTrouble = `a fixed ${d.prop} of ${w[1]}px`;
@@ -307,6 +315,14 @@ export function componentDefinitionIssues(
       key: def.name,
       message: `The ${name} section uses ${hardColors} fixed colour${hardColors === 1 ? "" : "s"}, so Site Styles can't restyle ${hardColors === 1 ? "it" : "them"}.`,
       fix: "Use theme colours such as var(--os-color-text), var(--os-color-accent) or var(--os-color-neutral-200).",
+    });
+  if (ownSizes)
+    out.push({
+      rule: "component-type",
+      severity: "warning",
+      key: `${def.name}:type`,
+      message: `The ${name} section sets ${ownSizes} text size${ownSizes === 1 ? "" : "s"} of its own, so Site Styles and the text toolbar can't change ${ownSizes === 1 ? "it" : "them"}.`,
+      fix: "Put the site's text styles on the text (class=\"os-type-h2\", os-type-lead, os-type-eyebrow…) or use font-size: var(--os-type-h2-font-size), and keep only italic, weight or letter spacing in the section's CSS.",
     });
   if (badBreakpoints.size)
     out.push({

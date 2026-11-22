@@ -1,5 +1,6 @@
 import { FOOTER, type Position } from "@omniharmonic/openspace-ops";
 import { compiledStylesFor } from "@omniharmonic/openspace-renderer";
+import type { FontRole } from "@omniharmonic/openspace-schema";
 import { COLOR_THEMES, type ColorTheme, type Section } from "@omniharmonic/openspace-schema";
 import {
   ArrowDown,
@@ -74,9 +75,33 @@ const visible = (r: Rect | null, h: number): r is Rect => Boolean(r && r.y + r.h
 /** The text style (type scale preset) the renderer gave a piece of text: `os-type-h2` → "h2". */
 function textStyleOf(el: Element | null | undefined): string | null {
   const typed = el?.closest('[class*="os-type-"]');
+  if (typed && !el?.closest("[data-os-block]")?.contains(typed)) return null;
   const m = typed?.className.toString().match(/\bos-type-([a-z0-9]+)\b/);
   if (m?.[1]) return m[1];
   return el?.closest(".os-btn, [class*='os-button']") ? "button" : null;
+}
+
+const firstFamily = (v: string) =>
+  v
+    .split(",")[0]
+    ?.trim()
+    .replace(/^["']|["']$/g, "")
+    .toLowerCase() ?? "";
+
+/**
+ * Which site font a piece of text is set in, for text without a text style (a custom component
+ * that sizes its own text): compares its font with the site's heading, text and label fonts.
+ */
+function fontRoleOf(el: Element | null | undefined): FontRole | null {
+  const win = el?.ownerDocument.defaultView;
+  if (!el || !win) return null;
+  const own = firstFamily(win.getComputedStyle(el).fontFamily);
+  const root = win.getComputedStyle(el.ownerDocument.documentElement);
+  for (const role of ["heading", "body", "label"] as const) {
+    const fam = firstFamily(root.getPropertyValue(`--os-font-${role}`));
+    if (fam && fam === own) return role;
+  }
+  return null;
 }
 
 export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
@@ -247,6 +272,7 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
                       blockId={editing}
                       path={editingPath}
                       style={textStyleOf(field)}
+                      fontRole={fontRoleOf(field)}
                     />
                   </Suspense>
                 </Floating>

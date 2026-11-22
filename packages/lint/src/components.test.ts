@@ -68,6 +68,26 @@ describe("component quality gates", () => {
     expect(check.errors[0]?.rule).toBe("component");
   });
 
+  it("asks for text styles instead of the section's own text sizes (warning, never blocks)", () => {
+    const own = docWith({
+      ...good,
+      css: `.qh h2 { font-size: 50px; line-height: 1.1 }
+.qh p { font-size: clamp(1rem, 2vw, 1.4rem) }
+@media (max-width: 767px) { .qh h2 { font-size: 36px } }`,
+    });
+    const issue = componentIssues(own.doc).find((i) => i.rule === "component-type");
+    expect(issue?.severity).toBe("warning");
+    expect(issue?.message).toMatch(/sets 3 text sizes of its own/);
+    expect(publishCheck(own.doc).ok).toBe(true);
+    // Text styles, relative sizes and inherit are fine.
+    const styled = docWith({
+      ...good,
+      css: `.qh h2 { font-size: var(--os-type-h2-font-size) }
+.qh small { font-size: 0.8em } .qh b { font-size: inherit }`,
+    });
+    expect(rules(styled.doc)).not.toContain("warning:component-type");
+  });
+
   it("flags mobile trouble and unused fields", () => {
     const { doc } = docWith({
       ...good,
