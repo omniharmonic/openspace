@@ -276,7 +276,7 @@ export const updateSection = defineTool({
   name: "update_section",
   title: "Update section",
   description:
-    'Change a section\'s settings with dot-path patches, e.g. set {"style.colorTheme": "dark", "style.padding": {"d": "xl", "m": "lg"}, "label": "Intro", "anchor": "classes", "hidden": true, "layout": {...}}. Shortcuts: colorTheme. Blocks are edited with the block tools.',
+    'Change a section\'s settings with dot-path patches, e.g. set {"style.colorTheme": "dark", "style.padding": {"d": "xl", "m": "lg"}, "style.paddingTop": {"d": 140}, "label": "Intro", "anchor": "classes", "hidden": true, "layout": {...}}. Spacing values are steps (none, 3xs … 3xl, following the site density) or exact whole pixels; prefer steps unless the owner asks for an exact size. "layout.blockGap" spaces blocks in a stack column. Shortcuts: colorTheme. Blocks are edited with the block tools.',
   input: z.object({
     site: siteArg,
     page: containerArg,
@@ -401,7 +401,7 @@ export const updateBlock = defineTool({
   name: "update_block",
   title: "Update block",
   description:
-    "Edit a block: set replaces whole top-level fields (rich text as Markdown; lists are replaced whole), unset removes optional fields; variant/style/column/label/hidden adjust presentation (null removes). Ids are preserved.",
+    "Edit a block: set replaces whole top-level fields (rich text as Markdown; lists are replaced whole), unset removes optional fields; variant/style/column/label/hidden adjust presentation (null removes). spaceBelow sets the space under a block in a stack column, per breakpoint, as a step or exact whole pixels, e.g. { d: 12, m: '2xs' }. Ids are preserved.",
   input: z.object({
     site: siteArg,
     page: containerArg,
@@ -413,6 +413,10 @@ export const updateBlock = defineTool({
     column: z.int().min(0).max(3).nullable().optional(),
     label: z.string().max(80).nullable().optional(),
     hidden: z.boolean().nullable().optional(),
+    spaceBelow: z
+      .record(z.enum(["d", "t", "m"]), z.union([z.string(), z.int().min(0).max(480)]))
+      .nullable()
+      .optional(),
   }),
   annotations: { idempotentHint: true },
   async handler(ctx, input) {
@@ -423,11 +427,11 @@ export const updateBlock = defineTool({
     const body: Record<string, unknown> = { op: "block.update", page, block: input.block };
     if (input.set) body.set = fieldsFromAgent(ctx.registryFor(doc), block.type, input.set);
     if (input.unset?.length) body.unset = input.unset;
-    for (const k of ["variant", "style", "column", "label", "hidden"] as const)
+    for (const k of ["variant", "style", "column", "label", "hidden", "spaceBelow"] as const)
       if (input[k] !== undefined) body[k] = input[k];
     if (Object.keys(body).length === 3)
       throw new ToolError(
-        "Nothing to change: give set, unset, variant, style, column, label or hidden.",
+        "Nothing to change: give set, unset, variant, style, column, label, hidden or spaceBelow.",
         "invalid_arguments",
       );
     const { doc: next } = await ctx.apply(siteId, [body as OpBody]);

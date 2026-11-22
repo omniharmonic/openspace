@@ -1,4 +1,10 @@
-import type { Block, JsonValue, Section, SiteDocument } from "@omniharmonic/openspace-schema";
+import type {
+  Block,
+  GridLayout,
+  JsonValue,
+  Section,
+  SiteDocument,
+} from "@omniharmonic/openspace-schema";
 import { LayoutPanelTop, Monitor, MousePointer2, Plus, Smartphone, Tablet } from "lucide-react";
 import { useMemo } from "react";
 import { Button, EmptyState, Segmented, Tabs, Toggle } from "../../ui";
@@ -244,6 +250,14 @@ function PageInfo({ doc, pageId }: { doc: SiteDocument; pageId: string }) {
   );
 }
 
+/** Whether a stack block is the last in its column ("space below" does nothing there). */
+function isLastInColumn(section: Section, blockId: string): boolean {
+  const block = section.blocks.find((b) => b.id === blockId);
+  const col = block?.column ?? 0;
+  const inCol = section.blocks.filter((b) => !b.hidden && (b.column ?? 0) === col);
+  return inCol[inCol.length - 1]?.id === blockId;
+}
+
 /** The right panel: content and design for whatever is selected. */
 export function Inspector() {
   const doc = useDocStore((s) => s.doc);
@@ -295,7 +309,24 @@ export function Inspector() {
               content: (
                 <>
                   <BreakpointBar />
-                  <BlockDesign block={block} container={loc.container} caps={caps} />
+                  <BlockDesign
+                    block={block}
+                    container={loc.container}
+                    caps={caps}
+                    stack={
+                      loc.section.layout.mode === "stack"
+                        ? {
+                            blockGap: loc.section.layout.blockGap,
+                            lastInColumn: isLastInColumn(loc.section, block.id),
+                          }
+                        : undefined
+                    }
+                    grid={
+                      loc.section.layout.mode === "grid"
+                        ? (loc.section as Section & { layout: GridLayout })
+                        : undefined
+                    }
+                  />
                 </>
               ),
             },

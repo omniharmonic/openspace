@@ -15,10 +15,12 @@ export const PHONE_PADDING: Readonly<Record<string, string>> = {
 };
 
 /** Section padding on phones: the stored `m`, else the tablet/desktop step brought down. */
-export function phonePadding<T extends string>(padding: Responsive<T>): T {
+export function phonePadding<T extends string | number>(padding: Responsive<T>): T {
   if (padding.m !== undefined) return padding.m;
   const up = resolve(padding, "t");
-  return (PHONE_PADDING[up] ?? up) as T;
+  // Exact pixels come down the way the steps do: generous spacing shrinks, small stays.
+  if (typeof up === "number") return (up > 64 ? Math.round(Math.max(64, up * 0.6)) : up) as T;
+  return (PHONE_PADDING[up as string] ?? up) as T;
 }
 
 /** Stack columns on phones: the stored `m`, else one column. */

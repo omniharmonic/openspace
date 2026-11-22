@@ -9,7 +9,7 @@ import {
   ImageTreatmentSchema,
   RadiusTokenSchema,
   ShadowTokenSchema,
-  SpaceTokenSchema,
+  SpaceValueSchema,
   TypePresetSchema,
 } from "./tokens";
 
@@ -36,7 +36,7 @@ export const BlockStyleSchema = named(
   "Token-based style overrides for a block; allowed keys are the block definition's styleSlots.",
   z.strictObject({
     colorTheme: ColorThemeSchema.optional(),
-    padding: responsive(SpaceTokenSchema).optional(),
+    padding: responsive(SpaceValueSchema).optional(),
     radius: RadiusTokenSchema.optional(),
     border: z.enum(["none", "subtle", "strong"]).optional(),
     shadow: ShadowTokenSchema.optional(),
@@ -97,6 +97,11 @@ export const BlockSchema = named(
     label: z.string().max(80).optional(),
     /** Hidden blocks are skipped on the published site and shown ghosted in Studio. */
     hidden: z.boolean().optional(),
+    /**
+     * Stack mode: space between this block and the next one in its column, instead of the
+     * section's block gap. Ignored in grid mode and after the last block.
+     */
+    spaceBelow: responsive(SpaceValueSchema).optional(),
     fields: z.record(z.string(), z.unknown()),
     variant: VariantNameSchema.optional(),
     style: BlockStyleSchema.optional(),

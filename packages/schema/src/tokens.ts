@@ -31,6 +31,25 @@ export const SPACE_TOKENS = [
 export const SpaceTokenSchema = z.enum(SPACE_TOKENS);
 export type SpaceToken = z.infer<typeof SpaceTokenSchema>;
 
+/** Largest exact spacing, in px. */
+export const MAX_SPACE_PX = 480;
+
+/**
+ * A spacing value: a step on the site's spacing scale (follows the density, stays in rhythm) or
+ * exact pixels (a whole number) for pixel-perfect layouts. Studio snaps to steps and stores
+ * pixels only when someone asks for an exact value.
+ */
+export const SpaceValueSchema = named(
+  "SpaceValue",
+  "A spacing step (none, 3xs … 3xl) or exact pixels as a whole number (0–480).",
+  z.union([SpaceTokenSchema, z.int().min(0).max(MAX_SPACE_PX)]),
+);
+export type SpaceValue = z.infer<typeof SpaceValueSchema>;
+
+export function isSpaceToken(value: unknown): value is SpaceToken {
+  return typeof value === "string" && (SPACE_TOKENS as readonly string[]).includes(value);
+}
+
 export const RADIUS_TOKENS = ["none", "sm", "md", "lg", "xl", "full"] as const;
 export const RadiusTokenSchema = z.enum(RADIUS_TOKENS);
 export type RadiusToken = z.infer<typeof RadiusTokenSchema>;

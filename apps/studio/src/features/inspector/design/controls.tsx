@@ -1,16 +1,31 @@
-import type { Responsive } from "@omniharmonic/openspace-schema";
-import { AlignCenter, AlignLeft, AlignRight, Link2, Unlink } from "lucide-react";
+import {
+  isSpaceToken,
+  MAX_SPACE_PX,
+  type Responsive,
+  type SpaceValue,
+} from "@omniharmonic/openspace-schema";
+import type { Density } from "@omniharmonic/openspace-theme";
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  ChevronDown,
+  Link2,
+  MoveVertical,
+  Unlink,
+} from "lucide-react";
 import type { ReactNode } from "react";
-import { Segmented, Tooltip } from "../../../ui";
+import { Menu, type MenuEntry, NumberScrubInput, Segmented, Tooltip } from "../../../ui";
 import { THEME_LABEL } from "../../editor/model/themes";
 import { BP_LABEL, type Bp, clearAt, overriddenBps, readAt, setAt } from "../model/responsive";
+import { spacePx, stepOptions, valueForPx } from "../model/spacing";
 import { PropRow, type TokenOption, TokenPicker } from "../ui";
 
 /**
  * A responsive token control (FR-15): edits the value at the breakpoint being previewed.
  * Tablet/phone edits become overrides (dots), with a link toggle to inherit again.
  */
-export function ResponsiveField<T extends string>({
+export function ResponsiveField<T extends string | number>({
   label,
   value,
   bp,
@@ -190,5 +205,96 @@ export function ThemeSwatches({
         );
       })}
     </fieldset>
+  );
+}
+
+/**
+ * A spacing control (Squarespace-easy, Figma-precise): the value in px, scrubbed or typed, with
+ * the site's spacing steps one click away. Typing a step's exact size stores the step (it keeps
+ * following the density); any other number is stored as exact pixels. Empty = "Auto".
+ */
+export function SpaceField({
+  label,
+  value,
+  density,
+  autoPx,
+  disabled,
+  onChange,
+  icon,
+  allowAuto = true,
+}: {
+  label: string;
+  value: SpaceValue | undefined;
+  density: Density;
+  /** What "Auto" (nothing set) comes to in px on this device. */
+  autoPx: number;
+  disabled?: boolean;
+  /** `merge`: part of a continuous scrub (one undo step). */
+  onChange: (value: SpaceValue | undefined, merge: boolean) => void;
+  icon?: ReactNode;
+  allowAuto?: boolean;
+}) {
+  const px = value === undefined ? null : spacePx(value, density);
+  const step = value !== undefined && isSpaceToken(value) ? value : undefined;
+  return (
+    <div className="st-space">
+      <NumberScrubInput
+        label={label}
+        handle={icon ?? <MoveVertical />}
+        value={px}
+        mixedLabel={String(autoPx)}
+        min={0}
+        max={MAX_SPACE_PX}
+        unit="px"
+        disabled={disabled}
+        onChange={(v) => onChange(valueForPx(v, density), true)}
+        onChangeEnd={(v) => onChange(valueForPx(v, density), false)}
+      />
+      <Menu
+        label={`${label} steps`}
+        align="end"
+        trigger={
+          <button
+            type="button"
+            className="st-space__steps"
+            aria-label={`${label}: choose a spacing step`}
+            disabled={disabled}
+            data-step={step ?? undefined}
+            data-auto={value === undefined ? "" : undefined}
+          >
+            {value === undefined ? (
+              "AUTO"
+            ) : step ? (
+              step === "none" ? (
+                "0"
+              ) : (
+                step.toUpperCase()
+              )
+            ) : (
+              <ChevronDown aria-hidden="true" />
+            )}
+          </button>
+        }
+        items={[
+          ...(allowAuto
+            ? [
+                {
+                  label: `Auto · ${autoPx}px`,
+                  onSelect: () => onChange(undefined, false),
+                } as MenuEntry,
+                { type: "separator" } as MenuEntry,
+              ]
+            : []),
+          { type: "label", label: "Site spacing steps" } as MenuEntry,
+          ...stepOptions(density).map(
+            (o) =>
+              ({
+                label: `${o.label} · ${o.px}px`,
+                onSelect: () => onChange(o.value, false),
+              }) as MenuEntry,
+          ),
+        ]}
+      />
+    </div>
   );
 }

@@ -13,7 +13,14 @@ import {
   Underline,
 } from "lucide-react";
 import { type FormEvent, type ReactNode, useState } from "react";
-import { Button, IconButton, Input, Popover, Select, Toggle } from "../../../ui";
+import { Button, IconButton, Input, Popover, Select, Toggle, Tooltip } from "../../../ui";
+import { useInspectorRole } from "../../inspector/env";
+import { isDesigner } from "../../inspector/model/permissions";
+import { FontField } from "../../styles/FontPicker";
+import { roleForTextStyle } from "../../styles/roleFonts";
+import { TypeSettings, useStylesCommit } from "../../styles/TextStyles";
+import { resolveStep, textStyleRow } from "../../styles/typeStyles";
+import { useDocStore } from "../model/context";
 import { applyTextStyle, currentTextStyle, TEXT_STYLES, type TextStyleId } from "./schema";
 import { useTextEditing } from "./session";
 
@@ -151,6 +158,38 @@ function LinkEditor({ editor }: { editor: Editor }) {
   );
 }
 
+/** The size of the text style at the caret; opens its type settings (site-wide, like Figma). */
+function StyleSize({ style }: { style: TextStyleId }) {
+  const styles = useDocStore((s) => s.doc.styles);
+  const commit = useStylesCommit();
+  const row = textStyleRow(style);
+  if (!row) return null;
+  const size = resolveStep(styles, style).size;
+  return (
+    <Popover
+      title={
+        <span className="st-ov__tstitle">
+          {row.label}
+          <span className="st-ov__tsscope">Every {row.label.toLowerCase()} on your site</span>
+        </span>
+      }
+      width={280}
+      className="st-ov__tspop"
+      trigger={
+        <button
+          type="button"
+          className="st-ov__tsize"
+          aria-label={`${row.label} size: ${size} pixels`}
+        >
+          {size}
+        </button>
+      }
+    >
+      <TypeSettings preset={style} styles={styles} commit={commit} />
+    </Popover>
+  );
+}
+
 const MARKS = [
   { mark: "bold", label: "Bold", icon: <Bold />, shortcut: "mod+b" },
   { mark: "italic", label: "Italic", icon: <Italic />, shortcut: "mod+i" },
@@ -161,11 +200,13 @@ const MARKS = [
 
 /** Floating toolbar for the text block being edited (lives in the Studio document). */
 export function TextToolbar() {
+  const role = useInspectorRole();
   const editor = useTextEditing((s) => s.editor);
   const allow = useTextEditing((s) => s.allow);
   useTextEditing((s) => s.tick);
   if (!editor || editor.isDestroyed) return null;
   const style = currentTextStyle(editor);
+  const designer = isDesigner(role);
   const mark = (m: string) => (allow.marks as readonly string[]).includes(m);
   const node = (b: string) => (allow.blocks as readonly string[]).includes(b);
   const styles = TEXT_STYLES.filter((t) => node("heading") || !/^(display|h[1-4])$/.test(t.id));
@@ -181,6 +222,22 @@ export function TextToolbar() {
         onValueChange={(v) => applyTextStyle(editor, v)}
         options={styles.map((t) => ({ value: t.id, label: t.label }))}
       />
+      {designer && (
+        <>
+          <Tooltip content="Font (changes it across your site)">
+            <span className="st-ov__font">
+              <FontField
+                fontRole={roleForTextStyle(style)}
+                compact
+                side="bottom"
+                canUpload
+                label="Font"
+              />
+            </span>
+          </Tooltip>
+          {style && <StyleSize style={style} />}
+        </>
+      )}
       <span className="st-ov__sep" aria-hidden="true" />
       {MARKS.filter((m) => mark(m.mark)).map((m) => (
         <MarkButton key={m.mark} editor={editor} {...m} />

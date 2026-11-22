@@ -223,12 +223,21 @@ class PhoneCtx {
     );
   }
 
+  /** A spacing value in px: exact pixels as they are, steps from the density's scale. */
+  px(value: string | number): number {
+    return typeof value === "number" ? value : (this.space[value] ?? 0);
+  }
+
   /** A phone padding so large the screen is mostly empty space. */
   padding(page: string, section: Section) {
-    const pad = section.style.padding;
+    const pad = section.style.padding ?? section.style.paddingTop ?? section.style.paddingBottom;
     if (!pad) return;
-    const token = phonePadding(pad);
-    const px = this.space[token] ?? 0;
+    // Phone top/bottom: the larger of the two (padding, or its own top/bottom values).
+    const px = Math.max(
+      ...[pad, section.style.paddingTop, section.style.paddingBottom]
+        .filter((p) => p !== undefined)
+        .map((p) => this.px(phonePadding(p))),
+    );
     if (px <= 100) return;
     this.add({
       rule: "phone-padding",
@@ -245,7 +254,11 @@ class PhoneCtx {
             ...this.meta(),
             page: page as never,
             section: section.id,
-            set: { "style.padding.m": "lg" },
+            set: Object.fromEntries(
+              (["padding", "paddingTop", "paddingBottom"] as const)
+                .filter((k) => section.style[k] !== undefined)
+                .map((k) => [`style.${k}.m`, "lg"]),
+            ),
           } as Op,
         ],
       },
@@ -346,7 +359,7 @@ class PhoneCtx {
   blockPad(b: Block): number {
     const pad = b.style?.padding;
     const token = pad ? (pad.m ?? pad.t ?? pad.d) : b.style?.colorTheme ? "md" : undefined;
-    return token ? 2 * (this.space[token] ?? 0) : 0;
+    return token !== undefined ? 2 * this.px(token) : 0;
   }
 
   fittingSize(word: string, width: number, caps: boolean): string | undefined {

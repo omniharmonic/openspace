@@ -5,14 +5,25 @@ import {
   CONTENT_WIDTHS,
   phoneColumns,
   phonePadding,
-  type Responsive,
   type Section,
   type SectionBackground,
   type SectionStyle,
-  type SPACE_TOKENS,
+  type SpaceValue,
   type StackLayout,
 } from "@omniharmonic/openspace-schema";
-import { ArrowLeft, ArrowRight, LayoutGrid, Rows3, Smartphone } from "lucide-react";
+import {
+  ArrowDownToLine,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpToLine,
+  LayoutGrid,
+  Link2,
+  MoveHorizontal,
+  MoveVertical,
+  Rows3,
+  Smartphone,
+  Unlink,
+} from "lucide-react";
 import { useMemo } from "react";
 import {
   Button,
@@ -22,6 +33,7 @@ import {
   Segmented,
   Slider,
   Toggle,
+  Tooltip,
 } from "../../../ui";
 import { setLayoutMode } from "../../editor/model/actions";
 import { useDocStore, useDocStoreApi } from "../../editor/model/context";
@@ -32,9 +44,10 @@ import { fromPickerValue, paletteTokens, previewColor, toPickerValue } from "../
 import { RATIO_PRESETS, sectionOp, stackColumnsOps, withStackOrder } from "../model/edits";
 import type { Capabilities } from "../model/permissions";
 import { BP_LABEL, type Bp, overriddenBps } from "../model/responsive";
+import { autoSpacing } from "../model/spacing";
 import { PanelSection, PropRow, RoleNote } from "../ui";
-import { AnimationRows, spaceOptions } from "./BlockDesign";
-import { ResponsiveField, ThemeSwatches, TokenSelect } from "./controls";
+import { AnimationRows } from "./BlockDesign";
+import { ResponsiveField, SpaceField, ThemeSwatches, TokenSelect } from "./controls";
 
 /** Desktop section padding used when the first padding value is a tablet/phone override. */
 export const SECTION_PAD_BASE = "3xl";
@@ -107,9 +120,15 @@ function StackLayoutControls({
   const api = useDocStoreApi();
   const layout = section.layout;
   const count = layout.columns.d.length;
-  const commit = (bodies: OpBody[], label: string) => api.getState().commit(bodies, { label });
-  const setLayout = (next: StackLayout, label: string) =>
-    commit([sectionOp(container, section, { layout: next })], label);
+  const density = useDocStore((s) => s.doc.styles.choices.density);
+  const commit = (bodies: OpBody[], label: string, mergeKey?: string) =>
+    api.getState().commit(bodies, { label, ...(mergeKey ? { mergeKey } : {}) });
+  const setLayout = (next: StackLayout, label: string, merge = false) =>
+    commit(
+      [sectionOp(container, section, { layout: next })],
+      label,
+      merge ? `layout:${section.id}:${label}` : undefined,
+    );
   // Phones stack into one column unless the section sets its own phone columns (the renderer's
   // phone default), so that is what the phone view shows.
   const bpCols =
@@ -274,23 +293,47 @@ function StackLayoutControls({
           }}
         />
       </PropRow>
-      <PropRow label="Gap">
-        <TokenSelect
-          label="Gap between columns"
-          value={layout.gap}
-          defaultLabel="Site density"
-          disabled={disabled}
-          options={spaceOptions(api.getState().doc.styles.choices.density).filter(
-            (o) => o.value !== "none",
-          )}
-          onChange={(g) => {
-            const next = { ...layout };
-            if (g) next.gap = g;
-            else delete next.gap;
-            setLayout(next, "Change gap");
-          }}
-        />
-      </PropRow>
+      <ResponsiveField<SpaceValue>
+        label="Block gap"
+        value={layout.blockGap}
+        bp={bp}
+        base={autoSpacing(density, "d").blockGap}
+        disabled={disabled}
+        onCommit={(v) => {
+          const next = { ...layout };
+          if (v) next.blockGap = v;
+          else delete next.blockGap;
+          setLayout(next, "Change space between blocks", true);
+        }}
+        render={(cur, set) => (
+          <SpaceField
+            label="Space between blocks"
+            value={cur}
+            density={density}
+            autoPx={autoSpacing(density, bp).blockGap}
+            disabled={disabled}
+            onChange={(v) => set(v)}
+          />
+        )}
+      />
+      {count > 1 && (
+        <PropRow label="Column gap">
+          <SpaceField
+            label="Space between columns"
+            value={layout.gap}
+            density={density}
+            autoPx={autoSpacing(density, bp).columnGap}
+            disabled={disabled}
+            icon={<MoveHorizontal />}
+            onChange={(g, merge) => {
+              const next = { ...layout };
+              if (g !== undefined) next.gap = g;
+              else delete next.gap;
+              setLayout(next, "Change gap", merge);
+            }}
+          />
+        </PropRow>
+      )}
     </>
   );
 }
@@ -599,6 +642,35 @@ export function SectionDesign({
     s.run(setLayoutMode(s.doc, s.pageId, section.id, mode, measure));
   };
   const minH = style.minHeight;
+  const density = styles.choices.density;
+  const sidesLinked = style.paddingTop === undefined && style.paddingBottom === undefined;
+  const toggleSides = () => {
+    if (sidesLinked) {
+      // Split: both sides start from the shared value (or Auto) so nothing moves.
+      const base = style.padding;
+      api.getState().commit(
+        [
+          sectionOp(container, section, {
+            "style.paddingTop": base ?? { d: autoSpacing(density, "d").sectionPad },
+            "style.paddingBottom": base ?? { d: autoSpacing(density, "d").sectionPad },
+          }),
+        ],
+        { label: "Separate top and bottom spacing" },
+      );
+    } else {
+      // Join: keep the top value for both.
+      api.getState().commit(
+        [
+          sectionOp(container, section, {
+            "style.padding": style.paddingTop ?? style.padding,
+            "style.paddingTop": undefined,
+            "style.paddingBottom": undefined,
+          }),
+        ],
+        { label: "Same spacing top and bottom" },
+      );
+    }
+  };
   return (
     <>
       {disabled && caps.note && <RoleNote>{caps.note}</RoleNote>}
@@ -682,33 +754,61 @@ export function SectionDesign({
           }
         />
       </PanelSection>
-      <PanelSection title="Spacing">
-        <ResponsiveField<(typeof SPACE_TOKENS)[number]>
-          label="Padding"
-          value={style.padding}
-          bp={bp}
-          base={SECTION_PAD_BASE}
-          baseHint="Setting this also fixes desktop at 3XL, close to the site’s spacing."
-          phoneDefault={(v) => phonePadding(v)}
-          disabled={disabled}
-          onCommit={(v) =>
-            setStyle(
-              "padding",
-              v as Responsive<(typeof SPACE_TOKENS)[number]> | undefined,
-              "Change padding",
-            )
-          }
-          render={(cur, set) => (
-            <TokenSelect
-              label="Section padding"
-              value={cur}
-              defaultLabel={bp === "d" ? "Site density" : "Same as desktop"}
+      <PanelSection
+        title="Spacing"
+        actions={
+          <Tooltip
+            content={
+              sidesLinked ? "Set top and bottom separately" : "Use one value for top and bottom"
+            }
+          >
+            <button
+              type="button"
+              className="st-ip-icon-btn"
+              aria-pressed={!sidesLinked}
+              aria-label="Separate top and bottom spacing"
               disabled={disabled}
-              options={spaceOptions(styles.choices.density)}
-              onChange={set}
+              onClick={toggleSides}
+            >
+              {sidesLinked ? <Unlink aria-hidden="true" /> : <Link2 aria-hidden="true" />}
+            </button>
+          </Tooltip>
+        }
+      >
+        {(sidesLinked
+          ? ([["padding", "Padding", MoveVertical]] as const)
+          : ([
+              ["paddingTop", "Top", ArrowUpToLine],
+              ["paddingBottom", "Bottom", ArrowDownToLine],
+            ] as const)
+        ).map(([key, label, Icon]) => {
+          const own = style[key];
+          // Top/bottom without their own value show (and start from) the shared padding.
+          const shown = own ?? (key === "padding" ? undefined : style.padding);
+          return (
+            <ResponsiveField<SpaceValue>
+              key={key}
+              label={label}
+              value={shown}
+              bp={bp}
+              base={SECTION_PAD_BASE}
+              phoneDefault={(v) => phonePadding(v)}
+              disabled={disabled}
+              onCommit={(v) => setStyle(key, v, `Change ${label.toLowerCase()} spacing`, true)}
+              render={(cur, set) => (
+                <SpaceField
+                  label={key === "padding" ? "Space above and below" : `${label} spacing`}
+                  value={cur}
+                  density={density}
+                  autoPx={autoSpacing(density, bp).sectionPad}
+                  disabled={disabled}
+                  icon={<Icon />}
+                  onChange={(v) => set(v)}
+                />
+              )}
             />
-          )}
-        />
+          );
+        })}
         <ResponsiveField<string>
           label="Height"
           value={minH}

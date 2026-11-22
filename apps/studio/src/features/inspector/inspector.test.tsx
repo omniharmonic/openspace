@@ -382,10 +382,13 @@ describe("role gating", () => {
     const editor = setup(<SiteStylesPanel />, { role: "editor" });
     expect(screen.getByText(/set by the site’s owner and designers/)).toBeInTheDocument();
     expect(screen.queryByText("Design tokens")).toBeNull();
-    expect(screen.getByRole("button", { name: "Fraunces & Hanken Grotesk" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Try a font pairing" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^Headings font:/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^Heading 1:/ })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "Upload a font" })).toBeNull();
     editor.unmount();
     setup(<SiteStylesPanel />, { role: "owner" });
-    expect(screen.getByText("Design tokens")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Advanced" })).toBeInTheDocument();
   });
 });
 
@@ -395,9 +398,12 @@ describe("Site Styles panel", () => {
     const before = t.s().doc.styles;
     await t.user.click(screen.getByRole("radio", { name: "Airy" }));
     expect(t.s().doc.styles.choices.density).toBe("airy");
-    await t.user.click(screen.getByRole("button", { name: "Newsreader & Public Sans" }));
+    await t.user.click(screen.getByRole("button", { name: "Try a font pairing" }));
+    await t.user.click(await screen.findByRole("button", { name: "Newsreader & Public Sans" }));
     expect(t.s().doc.styles.choices.pairing).toBe("newsreader-public-sans");
     await t.user.click(screen.getByRole("button", { name: /Harbor Blue/ }));
+    await t.user.click(screen.getByRole("button", { name: "Make all text larger" }));
+    expect(t.s().doc.styles.choices.typography?.scale?.body?.size).toBeGreaterThan(18);
     expect(t.s().doc.styles.choices.palette.source).toBe("curated");
     const brand = screen.getByRole("textbox", { name: "Brand color" });
     await t.user.clear(brand);
@@ -451,7 +457,7 @@ describe("Site Styles panel", () => {
 
   it("adds and removes a DTCG override (Designer)", async () => {
     const t = setup(<SiteStylesPanel />);
-    await t.user.click(screen.getByRole("button", { name: "Design tokens" }));
+    await t.user.click(screen.getByRole("button", { name: "Advanced" }));
     await t.user.type(
       screen.getByRole("textbox", { name: "Token path" }),
       "type.display.letterSpacing",

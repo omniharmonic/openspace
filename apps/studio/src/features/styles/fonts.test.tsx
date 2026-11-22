@@ -48,7 +48,7 @@ describe("Site Styles → Upload a font", () => {
   const sites = demoSites(SAM.login, Date.UTC(2026, 9, 1));
   const willow = sites[0] as Site;
 
-  it("uploads a licensed font, adds it to styles and uses it for headings", async () => {
+  it("uploads a licensed font from the headings font picker and uses it for headings", async () => {
     const { user, hub } = renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
     await screen.findByTitle("Page canvas");
     await user.click(
@@ -56,11 +56,17 @@ describe("Site Styles → Upload a font", () => {
         name: "Site styles",
       }),
     );
-    await user.click(await screen.findByRole("button", { name: "Upload a font" }));
-    const form = screen.getByRole("form", { name: "Upload a font" });
+    await user.click(await screen.findByRole("button", { name: /^Headings font:/ }));
+    await user.click(await screen.findByRole("button", { name: "Upload a font…" }));
+    const form = await screen.findByRole("form", { name: "Upload a font" });
     await user.upload(within(form).getByLabelText("Files"), woff2());
     expect(within(form).getByLabelText("Name")).toHaveValue("Studio Grotesk");
-    const submit = within(form).getByRole("button", { name: "Upload font" });
+    // Opened from the headings field: the font goes straight to headings.
+    expect(within(form).getByRole("radio", { name: "Headings" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    const submit = screen.getByRole("button", { name: "Upload font" });
     expect(submit).toBeDisabled();
     await user.click(within(form).getByRole("checkbox"));
     await user.click(submit);
@@ -73,8 +79,8 @@ describe("Site Styles → Upload a font", () => {
       (window as unknown as { __osEditorStore: EditorStore }).__osEditorStore.getState();
     await waitFor(() => expect(store().doc.styles.fonts?.[0]?.family).toBe("Studio Grotesk"));
     expect(store().doc.styles.fonts?.[0]?.license.webUse).toBe(true);
-    const list = await screen.findByRole("list", { name: "Your fonts" });
-    await user.click(within(list).getByRole("button", { name: "Headings" }));
-    expect(store().doc.styles.choices.headingFont).toBe("Studio Grotesk");
+    await waitFor(() => expect(store().doc.styles.choices.headingFont).toBe("Studio Grotesk"));
+    const list = await screen.findByRole("list", { name: "Uploaded fonts" });
+    expect(within(list).getByText("Used for headings")).toBeInTheDocument();
   });
 });

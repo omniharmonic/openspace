@@ -20,6 +20,7 @@ import {
   SectionIdSchema,
   SectionSchema,
   SlugSchema,
+  SpaceValueSchema,
   VariantNameSchema,
 } from "@omniharmonic/openspace-schema";
 import { z } from "zod";
@@ -108,6 +109,8 @@ export const BlockUpdateOpSchema = op("block.update", {
   label: z.string().max(80).nullable().optional(),
   /** Hide the block on the published site; `null` (or `false`) shows it again. */
   hidden: z.boolean().nullable().optional(),
+  /** Stack mode: space below the block (steps or px, per breakpoint); `null` removes it. */
+  spaceBelow: responsive(SpaceValueSchema).nullable().optional(),
 });
 
 export const BlockInsertOpSchema = op("block.insert", {

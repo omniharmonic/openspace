@@ -4,24 +4,35 @@ import {
   type Animation,
   type Block,
   type BlockStyle,
+  type GridLayout,
   humanize,
   IMAGE_TREATMENTS,
   RADIUS_TOKENS,
   type Responsive,
+  resolve,
+  type Section,
   SHADOW_TOKENS,
   SPACE_TOKENS,
+  type SpaceValue,
   TYPE_PRESETS,
 } from "@omniharmonic/openspace-schema";
 import { SPACE_SCALES } from "@omniharmonic/openspace-theme";
+import { ArrowDownToLine, Square } from "lucide-react";
 import { useMemo } from "react";
 import { Toggle } from "../../../ui";
+import { gridCaps } from "../../editor/grid/caps";
 import { useDocStore, useDocStoreApi } from "../../editor/model/context";
 import { studioRegistry } from "../../editor/model/registry";
-import { useEditBp } from "../env";
+import { FontField } from "../../styles/FontPicker";
+import { TextStyles } from "../../styles/TextStyles";
+import { textStylesIn } from "../../styles/typeStyles";
+import { useEditBp, useInspectorRole } from "../env";
 import { blockStyleOp, withStyle } from "../model/edits";
-import type { Capabilities } from "../model/permissions";
+import { type Capabilities, isDesigner } from "../model/permissions";
+import { autoSpacing, spacePx } from "../model/spacing";
 import { PanelSection, PropRow, RoleNote } from "../ui";
-import { AlignControl, ResponsiveField, ThemeSwatches, TokenSelect } from "./controls";
+import { AlignControl, ResponsiveField, SpaceField, ThemeSwatches, TokenSelect } from "./controls";
+import { GridPosition } from "./GridPosition";
 
 const TYPE_LABEL: Record<string, string> = {
   display: "Display",
@@ -107,16 +118,36 @@ export function BlockDesign({
   block,
   container,
   caps,
+  stack,
+  grid,
 }: {
   block: Block;
   container: string;
   caps: Capabilities;
+  /** The block's section when it is in stack mode ("space below" applies). */
+  stack?: { blockGap?: Responsive<SpaceValue>; lastInColumn: boolean };
+  /** The block's section when it is in grid mode (exact position). */
+  grid?: Section & { layout: GridLayout };
 }) {
   const api = useDocStoreApi();
   const styles = useDocStore((s) => s.doc.styles);
   const bp = useEditBp();
   const def = studioRegistry().get(block.type);
   const themes = useMemo(() => compiledStylesFor(styles).tokens.themes, [styles]);
+  const role = useInspectorRole();
+  const designer = isDesigner(role);
+  const inStack =
+    stack && !stack.lastInColumn
+      ? {
+          autoGap: stack.blockGap
+            ? spacePx(resolve(stack.blockGap, bp), styles.choices.density)
+            : autoSpacing(styles.choices.density, bp).blockGap,
+        }
+      : null;
+  const textStyles = useMemo(
+    () => (def ? textStylesIn(def.meta.fields, block.fields as Record<string, unknown>) : []),
+    [def, block.fields],
+  );
   if (!def) return null;
   const slots = new Set<string>(def.styleSlots);
   const style = block.style ?? {};
@@ -134,9 +165,41 @@ export function BlockDesign({
   );
   const idp = `st-ip-${block.id}`;
 
+  const usesHeadings = textStyles.some((t) => /^(display|h\d)$/.test(t));
+  const usesText = textStyles.some((t) => !/^(display|h\d|eyebrow)$/.test(t));
   return (
     <>
       {disabled && caps.note && <RoleNote>{caps.note}</RoleNote>}
+      {textStyles.length > 0 && (
+        <PanelSection title="Text">
+          <div className="st-ff-stack">
+            {usesHeadings && (
+              <FontField
+                fontRole="heading"
+                side="left"
+                disabled={!designer}
+                canUpload={designer}
+                showRole
+              />
+            )}
+            {usesText && (
+              <FontField
+                fontRole="body"
+                side="left"
+                disabled={!designer}
+                canUpload={designer}
+                showRole
+              />
+            )}
+          </div>
+          <TextStyles presets={textStyles} disabled={!designer} side="left" />
+          <p className="st-ip-row__hint">
+            {designer
+              ? "Fonts and text styles apply across your site, so every page stays consistent. To change one piece of text, pick another style for it while typing."
+              : "Fonts and sizes are set by the site’s owner and designers."}
+          </p>
+        </PanelSection>
+      )}
       {hasLook && (
         <PanelSection title="Look">
           {def.variants.length > 1 && (
@@ -204,30 +267,64 @@ export function BlockDesign({
           ))}
         </PanelSection>
       )}
+      {grid && <GridPosition block={block} section={grid} disabled={!gridCaps(role, grid).edit} />}
+      {inStack && (
+        <PanelSection title="Spacing">
+          <ResponsiveField<SpaceValue>
+            label="Space below"
+            value={block.spaceBelow}
+            bp={bp}
+            base={autoSpacing(styles.choices.density, "d").blockGap}
+            disabled={disabled}
+            onCommit={(v) =>
+              api.getState().commit(
+                [
+                  {
+                    op: "block.update",
+                    page: container,
+                    block: block.id,
+                    spaceBelow: v ?? null,
+                  } as never,
+                ],
+                { label: "Change space below", mergeKey: `space-below:${block.id}` },
+              )
+            }
+            render={(cur, setV) => (
+              <SpaceField
+                label="Space below this block"
+                value={cur}
+                density={styles.choices.density}
+                autoPx={inStack.autoGap}
+                disabled={disabled}
+                icon={<ArrowDownToLine />}
+                onChange={(v) => setV(v)}
+              />
+            )}
+          />
+          <p className="st-ip-row__hint">
+            Tip: drag the gap between blocks on the canvas. Hold Alt for exact pixels.
+          </p>
+        </PanelSection>
+      )}
       {hasBox && (
         <PanelSection title="Layout & shape">
           {slots.has("padding") && (
-            <ResponsiveField<(typeof SPACE_TOKENS)[number]>
+            <ResponsiveField<SpaceValue>
               label="Padding"
               value={style.padding}
               bp={bp}
               base="none"
               disabled={disabled}
-              onCommit={(v) =>
-                set(
-                  "padding",
-                  v as Responsive<(typeof SPACE_TOKENS)[number]> | undefined,
-                  "Change padding",
-                )
-              }
+              onCommit={(v) => set("padding", v, "Change padding")}
               render={(cur, setV) => (
-                <TokenSelect
-                  label="Padding"
+                <SpaceField
+                  label="Padding inside the block"
                   value={cur}
-                  defaultLabel={bp === "d" ? "None" : "Same as desktop"}
+                  density={styles.choices.density}
+                  autoPx={0}
                   disabled={disabled}
-                  options={spaceOptions(styles.choices.density)}
-                  onChange={setV}
+                  icon={<Square />}
+                  onChange={(v) => setV(v)}
                 />
               )}
             />
