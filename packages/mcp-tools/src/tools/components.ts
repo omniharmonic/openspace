@@ -41,7 +41,7 @@ const nameArg = z
   .describe('Component name, lowercase-hyphenated (e.g. "editorial-hero").');
 
 const GUIDE =
-  "Prefer section presets. Use a component for a bespoke moment presets can't express. Always expose every word, image and link as a field (owners edit fields, never code), always style with theme tokens (var(--os-color-…), var(--os-font-…), var(--os-space-…)), use the 767/768/1199/1200 breakpoints and honour reduced motion.";
+  "Prefer section presets. Use a component for a bespoke moment presets can't express. Always expose every word, image and link as a field (owners edit fields, never code), always style with theme tokens (var(--os-color-…), var(--os-font-…), var(--os-space-…)), always size text with the site's text styles (class=\"os-type-h2\", os-type-display / h1–h4 / lead / body / small / eyebrow) instead of px font sizes so Site Styles and the owner's text toolbar control them, use the 767/768/1199/1200 breakpoints and honour reduced motion.";
 
 /** Findings (Design check) that concern component `name`: its definition and its instances. */
 function findingsFor(doc: SiteDocument, name: string): Issue[] {

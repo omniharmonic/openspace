@@ -1,5 +1,5 @@
 import type { Op, OpBody } from "@omniharmonic/openspace-ops";
-import { RICH_LINK_HREF_RE } from "@omniharmonic/openspace-schema";
+import { type FontRole, RICH_LINK_HREF_RE } from "@omniharmonic/openspace-schema";
 import type { Editor } from "@tiptap/core";
 import {
   Bold,
@@ -296,10 +296,13 @@ export function PlainTextToolbar({
   blockId,
   path,
   style,
+  fontRole,
 }: {
   blockId: string;
   path: string;
   style: string | null;
+  /** For text without a text style (custom components): the site font it's set in. */
+  fontRole?: FontRole | null;
 }) {
   const role = useInspectorRole();
   const api = useDocStoreApi();
@@ -312,7 +315,8 @@ export function PlainTextToolbar({
   const heading =
     block?.type === "heading" && path === "text" && container ? { block, container } : undefined;
   const row = style ? textStyleRow(style) : undefined;
-  if (!heading && !(designer && row)) return null;
+  const role_ = row ? roleForTextStyle(row.preset) : (fontRole ?? null);
+  if (!heading && !(designer && role_)) return null;
   const setSize = (v: string) => {
     if (!heading) return;
     const level = String(heading.block.fields.level ?? "h2");
@@ -341,20 +345,14 @@ export function PlainTextToolbar({
           options={HEADING_STYLES.map((t) => ({ value: t.id, label: t.label }))}
         />
       )}
-      {designer && row && (
+      {designer && role_ && (
         <>
           <Tooltip content="Font (changes it across your site)">
             <span className="st-ov__font">
-              <FontField
-                fontRole={roleForTextStyle(row.preset)}
-                compact
-                side="bottom"
-                canUpload
-                label="Font"
-              />
+              <FontField fontRole={role_} compact side="bottom" canUpload label="Font" />
             </span>
           </Tooltip>
-          <StyleSize style={row.preset} />
+          {row && <StyleSize style={row.preset} />}
         </>
       )}
     </div>
