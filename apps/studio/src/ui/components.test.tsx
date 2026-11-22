@@ -491,3 +491,46 @@ describe("review fixes", () => {
     expect(isTyping(document.createElement("button"))).toBe(false);
   });
 });
+
+/** A font button that opens a menu, like the one in the text toolbar. */
+function FontButton() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Tooltip content="Font (changes it across your site)">
+        <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          Fraunces
+        </button>
+      </Tooltip>
+      {open && (
+        <div role="listbox" aria-label="Fonts">
+          <button type="button" onClick={() => setOpen(false)}>
+            Inter
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
+describe("Tooltip on a control that opens a menu", () => {
+  it("explains on hover, then gets out of the way once clicked", async () => {
+    const user = userEvent.setup();
+    wrap(<FontButton />);
+    const trigger = screen.getByRole("button", { name: "Fraunces" });
+    await user.hover(trigger);
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Font");
+    await user.click(trigger);
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    expect(screen.queryByRole("tooltip")).toBeNull();
+    // Picking a font closes the menu and focus comes back: still no tooltip.
+    await user.click(screen.getByRole("button", { name: "Inter" }));
+    await act(async () => trigger.focus());
+    await new Promise((r) => setTimeout(r, 600));
+    expect(screen.queryByRole("tooltip")).toBeNull();
+    // Pointing at it again explains it again.
+    await user.unhover(trigger);
+    await user.hover(trigger);
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Font");
+  });
+});
