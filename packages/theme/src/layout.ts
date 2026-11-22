@@ -43,6 +43,20 @@ const SECTION_RHYTHM: Record<
   airy: { padY: [88, 168], gap: [32, 48], gutter: [24, 48] },
 };
 
+/**
+ * The section rhythm in px at a viewport width (the fluid values interpolate between 360px and
+ * 1440px). Studio shows these as what "Auto" spacing is on the device being previewed.
+ */
+export function sectionRhythmPx(
+  density: Density,
+  viewport: number,
+): { padY: number; gap: number; gutter: number } {
+  const r = SECTION_RHYTHM[density];
+  const t = Math.min(1, Math.max(0, (viewport - 360) / (1440 - 360)));
+  const at = ([a, b]: [number, number]) => Math.round(a + (b - a) * t);
+  return { padY: at(r.padY), gap: at(r.gap), gutter: at(r.gutter) };
+}
+
 export function spaceTokens(density: Density): Record<string, string> {
   const out: Record<string, string> = { none: "0" };
   for (const [step, px] of Object.entries(SPACE_SCALES[density])) out[step] = rem(px);

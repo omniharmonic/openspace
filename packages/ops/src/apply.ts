@@ -126,6 +126,10 @@ export function mutate(doc: SiteDocument, op: Op): void {
         if (op.label === null) delete b.label;
         else b.label = op.label;
       }
+      if (op.spaceBelow !== undefined) {
+        if (op.spaceBelow === null) delete b.spaceBelow;
+        else b.spaceBelow = clone(op.spaceBelow);
+      }
       if (op.hidden !== undefined) {
         if (!op.hidden) delete b.hidden;
         else b.hidden = true;

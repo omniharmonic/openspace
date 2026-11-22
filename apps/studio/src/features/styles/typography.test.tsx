@@ -19,7 +19,7 @@ describe("Site Styles → Type & spacing", () => {
     expect(guessCategory("JetBrains Mono")).toBe("monospace");
   });
 
-  it("sets the site's own fonts, label capitals and eyebrow color, then resets them", async () => {
+  it("picks fonts from the list, then sets label capitals and eyebrow color", async () => {
     const { user } = renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
     await screen.findByTitle("Page canvas");
     await user.click(
@@ -27,11 +27,10 @@ describe("Site Styles → Type & spacing", () => {
         name: "Site styles",
       }),
     );
-    const section = await screen.findByRole("button", { name: /Type & spacing/ });
-    if (section.getAttribute("aria-expanded") === "false") await user.click(section);
-    const headings = await screen.findByLabelText("Headings");
-    await user.clear(headings);
-    await user.type(headings, "Cormorant Garamond{Enter}");
+    await user.click(await screen.findByRole("button", { name: /^Headings font:/ }));
+    const search = await screen.findByPlaceholderText("Search fonts");
+    await user.type(search, "cormorant");
+    await user.keyboard("{Enter}");
     await waitFor(() =>
       expect(store().doc.styles.choices.typography?.heading).toEqual({
         family: "Cormorant Garamond",
@@ -39,11 +38,12 @@ describe("Site Styles → Type & spacing", () => {
         italic: true,
       }),
     );
-    const labels = screen.getByLabelText("Labels");
-    await user.type(labels, "bad;name{Enter}");
-    expect(await screen.findByText(/as Google Fonts spells it/)).toBeInTheDocument();
-    expect(store().doc.styles.choices.typography?.label).toBeUndefined();
+    // Back to the pairing's font from the same list.
+    await user.click(await screen.findByRole("button", { name: /^Headings font:/ }));
+    await user.click(await screen.findByRole("option", { name: /Pairing/ }));
+    await waitFor(() => expect(store().doc.styles.choices.typography?.heading).toBeUndefined());
 
+    await user.click(screen.getByRole("button", { name: /Advanced/ }));
     await user.click(screen.getByRole("switch", { name: "Labels in capitals" }));
     const scale = store().doc.styles.choices.typography?.scale;
     expect(scale?.eyebrow?.case).toBe("uppercase");
@@ -52,8 +52,23 @@ describe("Site Styles → Type & spacing", () => {
 
     await user.click(screen.getByRole("radio", { name: "Muted" }));
     expect(store().doc.styles.choices.typography?.eyebrowColor).toBe("muted");
+  });
 
-    await user.click(screen.getByRole("button", { name: /Reset to the pairing/ }));
-    expect(store().doc.styles.choices.typography).toBeUndefined();
+  it("resizes a text style from its row, and every text at once", async () => {
+    const { user } = renderStudio(`/sites/${willow.id}`, { user: SAM, sites });
+    await screen.findByTitle("Page canvas");
+    await user.click(
+      within(screen.getByRole("navigation", { name: "Panels" })).getByRole("button", {
+        name: "Site styles",
+      }),
+    );
+    await user.click(await screen.findByRole("button", { name: /^Heading 2:/ }));
+    const size = await screen.findByLabelText("Heading 2 size in pixels");
+    await user.clear(size);
+    await user.type(size, "50{Enter}");
+    await waitFor(() => expect(store().doc.styles.choices.typography?.scale?.h2?.size).toBe(50));
+    await user.keyboard("{Escape}");
+    await user.click(screen.getByRole("button", { name: "Make all text larger" }));
+    await waitFor(() => expect(store().doc.styles.choices.typography?.scale?.h2?.size).toBe(54));
   });
 });

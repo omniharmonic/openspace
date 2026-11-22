@@ -18,14 +18,11 @@ import {
   useRenderContext,
 } from "./context";
 import { type CssVars, cx } from "./cx";
-import { responsiveVars } from "./layout-vars";
+import { responsiveVars, spaceBelowVars, spaceVar } from "./layout-vars";
 import { globalRegistry, type RendererBlockDefinition } from "./registry";
 
 /** `acme/map` → `acme-map`. */
 export const blockTypeClass = (type: string) => `os-block--${type.replace(/\//g, "-")}`;
-
-const spaceVar = (t: string) =>
-  `var(${TOKEN_VARS.space[t as keyof typeof TOKEN_VARS.space] ?? TOKEN_VARS.space.md})`;
 
 /** `os-align-center os-talign-center os-malign-start` (inheritance applied). */
 export function alignClasses(align: Responsive<Align>): string {
@@ -213,6 +210,8 @@ export function BlockView({ block, section }: BlockViewProps) {
     ? (prepared.block.variant ?? prepared.def.defaults.variant)
     : undefined;
   const s = blockStyleProps(block.style, ctx.mode);
+  const sb = block.spaceBelow ? spaceBelowVars(block) : undefined;
+  const vars = sb ? { ...s.vars, ...sb } : s.vars;
   const el = (
     <div
       className={cx(
@@ -220,11 +219,12 @@ export function BlockView({ block, section }: BlockViewProps) {
         blockTypeClass(block.type),
         variant && `is-${variant}`,
         s.className,
+        sb && "has-sb",
       )}
       data-os-id={block.id}
       data-os-block={block.type}
       data-os-hidden={block.hidden ? "" : undefined}
-      style={Object.keys(s.vars).length ? s.vars : undefined}
+      style={Object.keys(vars).length ? vars : undefined}
       {...s.attrs}
     >
       {content}

@@ -18,9 +18,18 @@ import {
   TYPE_PAIRINGS,
   type TypePairing,
 } from "@omniharmonic/openspace-theme";
-import { AlertTriangle, Check, ImagePlus, Plus, Trash2, Wand2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  ImagePlus,
+  Plus,
+  Shuffle,
+  Trash2,
+  Upload,
+  Wand2,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button, cx, Input, Segmented, Select, toast } from "../../ui";
+import { Button, cx, Input, Popover, Segmented, Select, Tooltip, toast } from "../../ui";
 import { useDocStore, useDocStoreApi } from "../editor/model/context";
 import { THEME_LABEL } from "../editor/model/themes";
 import { useInspectorRole } from "../inspector/env";
@@ -28,7 +37,8 @@ import { previewSrc } from "../inspector/media";
 import { stylesOp } from "../inspector/model/edits";
 import { isDesigner } from "../inspector/model/permissions";
 import { PanelSection, PropRow, RoleNote } from "../inspector/ui";
-import { CustomFonts } from "./CustomFonts";
+import { FontUploadDialog, UploadedFonts } from "./CustomFonts";
+import { FontField } from "./FontPicker";
 import {
   brandPatch,
   type ContrastIssue,
@@ -44,7 +54,9 @@ import {
   type StylesSet,
   THEME_NAME,
 } from "./model";
-import { SiteTypography } from "./SiteTypography";
+import { ROLE_LABEL as ROLE_NAME, roleFontPatch } from "./roleFonts";
+import { LabelDetails, PageRhythm } from "./SiteTypography";
+import { TextStyles } from "./TextStyles";
 import "./styles.css";
 
 type Commit = (set: StylesSet, label: string, mergeKey?: string) => boolean;
@@ -233,6 +245,8 @@ function ThemeStrip({ styles }: { styles: Styles }) {
   );
 }
 
+const PALETTES_SHOWN = 8;
+
 function Palettes({
   styles,
   commit,
@@ -243,36 +257,45 @@ function Palettes({
   disabled: boolean;
 }) {
   const current = styles.choices.palette;
+  const [all, setAll] = useState(false);
+  const shown = all ? curatedPalettes : curatedPalettes.slice(0, PALETTES_SHOWN);
   return (
-    <fieldset className="st-ss-palettes st-ip-fieldset">
-      <legend className="st-visually-hidden">Curated palettes</legend>
-      {curatedPalettes.map((p) => {
-        const on =
-          current.source === "curated" &&
-          current.brand === p.brand &&
-          current.neutral === p.neutral;
-        return (
-          <button
-            key={p.id}
-            type="button"
-            aria-pressed={on}
-            className="st-ss-palette"
-            title={p.description}
-            disabled={disabled}
-            onClick={() => commit(curatedPatch(p), `Use the ${p.name} palette`)}
-          >
-            <span className="st-ss-palette__chips">
-              <span style={{ background: p.brand }} />
-              <span className="st-ss-palette__n" data-neutral={p.neutral} />
-            </span>
-            <span className="st-ss-palette__name">{p.name}</span>
-          </button>
-        );
-      })}
-    </fieldset>
+    <>
+      <fieldset className="st-ss-palettes st-ip-fieldset" data-compact={all ? undefined : ""}>
+        <legend className="st-visually-hidden">Curated palettes</legend>
+        {shown.map((p) => {
+          const on =
+            current.source === "curated" &&
+            current.brand === p.brand &&
+            current.neutral === p.neutral;
+          return (
+            <Tooltip key={p.id} content={p.name}>
+              <button
+                type="button"
+                aria-pressed={on}
+                aria-label={`${p.name} palette`}
+                className="st-ss-palette"
+                disabled={disabled}
+                onClick={() => commit(curatedPatch(p), `Use the ${p.name} palette`)}
+              >
+                <span className="st-ss-palette__chips">
+                  <span style={{ background: p.brand }} />
+                  <span className="st-ss-palette__n" data-neutral={p.neutral} />
+                </span>
+                {all && <span className="st-ss-palette__name">{p.name}</span>}
+              </button>
+            </Tooltip>
+          );
+        })}
+      </fieldset>
+      <button type="button" className="st-ts__more" onClick={() => setAll((a) => !a)}>
+        {all ? "Show fewer palettes" : `Show all ${curatedPalettes.length} palettes`}
+      </button>
+    </>
   );
 }
 
+/** Curated pairings, compact, in a popover: one click sets headings and text together. */
 function Pairings({
   styles,
   commit,
@@ -282,6 +305,44 @@ function Pairings({
   commit: Commit;
   disabled: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+      side="right"
+      width={300}
+      title="Font pairings"
+      className="st-ss-pairpop"
+      trigger={
+        <Button size="sm" variant="secondary" icon={<Shuffle />} disabled={disabled}>
+          Try a font pairing
+        </Button>
+      }
+    >
+      <PairingList
+        styles={styles}
+        onPick={(id) => {
+          // A pairing replaces the fonts chosen one by one, so it shows as picked.
+          commit(
+            {
+              "choices.pairing": id,
+              "choices.headingFont": undefined,
+              "choices.bodyFont": undefined,
+              "choices.typography.heading": undefined,
+              "choices.typography.body": undefined,
+              "choices.typography.label": undefined,
+            },
+            "Change fonts",
+          );
+          setOpen(false);
+        }}
+      />
+    </Popover>
+  );
+}
+
+function PairingList({ styles, onPick }: { styles: Styles; onPick: (id: string) => void }) {
   usePairingFonts(TYPE_PAIRINGS);
   return (
     <fieldset className="st-ss-pairings st-ip-fieldset">
@@ -291,9 +352,9 @@ function Pairings({
           key={p.id}
           type="button"
           aria-pressed={styles.choices.pairing === p.id}
+          aria-label={p.name}
           className="st-ss-pairing"
-          disabled={disabled}
-          onClick={() => commit({ "choices.pairing": p.id }, "Change fonts")}
+          onClick={() => onPick(p.id)}
         >
           <span
             aria-hidden="true"
@@ -304,19 +365,18 @@ function Pairings({
               letterSpacing: p.headingTracking,
             }}
           >
-            The quick fox
+            {p.heading.family}
           </span>
           <span
             aria-hidden="true"
             className="st-ss-pairing__body"
             style={{ fontFamily: fontStack(p.body), fontWeight: p.bodyWeight }}
           >
-            Jumps over the lazy dog.
+            with {p.body.family}
           </span>
-          <span className="st-ss-pairing__name">
-            {p.name}
-            {styles.choices.pairing === p.id && <Check aria-hidden="true" />}
-          </span>
+          {styles.choices.pairing === p.id && (
+            <Check aria-hidden="true" className="st-ss-pairing__on" />
+          )}
         </button>
       ))}
     </fieldset>
@@ -642,6 +702,7 @@ export function SiteStylesPanel() {
   const disabled = !can;
   const issues = useMemo(() => contrastIssues(styles), [styles]);
   const c = styles.choices;
+  const [uploading, setUploading] = useState(false);
   return (
     <div className="st-ss">
       {!can && (
@@ -650,12 +711,64 @@ export function SiteStylesPanel() {
         </RoleNote>
       )}
       {issues.length > 0 && <ContrastAlert issues={issues} commit={commit} disabled={disabled} />}
+      <PanelSection title="Fonts">
+        <div className="st-ff-stack">
+          {(["heading", "body", "label"] as const).map((r) => (
+            <FontField
+              key={r}
+              fontRole={r}
+              side="right"
+              disabled={disabled}
+              canUpload={can}
+              showRole
+            />
+          ))}
+        </div>
+        <div className="st-ip-btnrow">
+          <Pairings styles={styles} commit={commit} disabled={disabled} />
+          {can && (
+            <Button size="sm" variant="ghost" icon={<Upload />} onClick={() => setUploading(true)}>
+              Upload a font
+            </Button>
+          )}
+        </div>
+        {can && <UploadedFonts styles={styles} disabled={disabled} />}
+      </PanelSection>
+      <PanelSection title="Text styles">
+        <TextStyles disabled={disabled} side="right" scaleAll />
+      </PanelSection>
       <PanelSection title="Colors">
         <ThemeStrip styles={styles} />
         <BrandColor styles={styles} commit={commit} disabled={disabled} />
         <FromImage commit={commit} disabled={disabled} logo={logo} />
         <PropRow label="Palettes" stacked>
           <Palettes styles={styles} commit={commit} disabled={disabled} />
+        </PropRow>
+        <PropRow
+          label="Appearance"
+          hint={
+            (c.appearance ?? "light") === "auto"
+              ? "Follows each visitor's device, with a light/dark switch in the header."
+              : (c.appearance ?? "light") === "dark"
+                ? "Light sections turn dark; photo, dark and brand sections stay as they are."
+                : undefined
+          }
+        >
+          <Segmented
+            disabled={disabled}
+            aria-label="Appearance"
+            size="sm"
+            block
+            value={c.appearance ?? "light"}
+            onValueChange={(v) =>
+              !disabled && commit({ "choices.appearance": v }, "Change appearance")
+            }
+            options={[
+              { value: "light", label: "Light" },
+              { value: "dark", label: "Dark" },
+              { value: "auto", label: "Auto" },
+            ]}
+          />
         </PropRow>
         <PropRow label="Neutrals">
           <Segmented
@@ -690,50 +803,12 @@ export function SiteStylesPanel() {
             ]}
           />
         </PropRow>
-        <PropRow
-          label="Appearance"
-          hint={
-            (c.appearance ?? "light") === "auto"
-              ? "Follows each visitor's device, with a light/dark switch in the header."
-              : (c.appearance ?? "light") === "dark"
-                ? "Light sections turn dark; photo, dark and brand sections stay as they are."
-                : undefined
-          }
-        >
-          <Segmented
-            disabled={disabled}
-            aria-label="Appearance"
-            size="sm"
-            block
-            value={c.appearance ?? "light"}
-            onValueChange={(v) =>
-              !disabled && commit({ "choices.appearance": v }, "Change appearance")
-            }
-            options={[
-              { value: "light", label: "Light" },
-              { value: "dark", label: "Dark" },
-              { value: "auto", label: "Auto" },
-            ]}
-          />
-        </PropRow>
       </PanelSection>
-      <PanelSection title="Fonts">
-        <Pairings styles={styles} commit={commit} disabled={disabled} />
-        {can && (
-          <PropRow
-            label="Your fonts"
-            stacked
-            hint="Licensed fonts you upload publish with your site."
-          >
-            <CustomFonts styles={styles} disabled={disabled} />
-          </PropRow>
-        )}
+      <PanelSection title="Buttons">
+        <Buttons styles={styles} commit={commit} disabled={disabled} />
       </PanelSection>
-      <PanelSection title="Type & spacing" defaultOpen={Boolean(c.typography || c.layout)}>
-        <SiteTypography styles={styles} commit={commit} disabled={disabled} />
-      </PanelSection>
-      <PanelSection title="Spacing & shape">
-        <PropRow label="Spacing" stacked>
+      <PanelSection title="Spacing & layout">
+        <PropRow label="Spacing">
           <Segmented
             disabled={disabled}
             aria-label="Spacing density"
@@ -747,7 +822,7 @@ export function SiteStylesPanel() {
             }))}
           />
         </PropRow>
-        <PropRow label="Corners" stacked>
+        <PropRow label="Corners">
           <Segmented
             disabled={disabled}
             aria-label="Corner shape"
@@ -766,29 +841,27 @@ export function SiteStylesPanel() {
             }))}
           />
         </PropRow>
-      </PanelSection>
-      <PanelSection title="Buttons">
-        <Buttons styles={styles} commit={commit} disabled={disabled} />
-      </PanelSection>
-      <PanelSection title="Images">
-        <ImageTreatments styles={styles} commit={commit} disabled={disabled} />
-      </PanelSection>
-      <PanelSection title="Motion">
-        <Segmented
-          disabled={disabled}
-          aria-label="Motion"
-          size="sm"
-          block
-          value={c.motion}
-          onValueChange={(v) => !disabled && commit({ "choices.motion": v }, "Change motion")}
-          options={MOTION_LEVELS.map((m) => ({
-            value: m,
-            label: m === "none" ? "None" : m === "subtle" ? "Subtle" : "Expressive",
-          }))}
-        />
-        <p className="st-ip-row__hint">
-          Always off for visitors who ask their device for reduced motion.
-        </p>
+        <PageRhythm styles={styles} commit={commit} disabled={disabled} />
+        <PropRow label="Images" stacked>
+          <ImageTreatments styles={styles} commit={commit} disabled={disabled} />
+        </PropRow>
+        <PropRow
+          label="Motion"
+          hint="Always off for visitors who ask their device for reduced motion."
+        >
+          <Segmented
+            disabled={disabled}
+            aria-label="Motion"
+            size="sm"
+            block
+            value={c.motion}
+            onValueChange={(v) => !disabled && commit({ "choices.motion": v }, "Change motion")}
+            options={MOTION_LEVELS.map((m) => ({
+              value: m,
+              label: m === "none" ? "None" : m === "subtle" ? "Subtle" : "Lively",
+            }))}
+          />
+        </PropRow>
       </PanelSection>
       <div id={READABILITY_ID}>
         <PanelSection
@@ -800,9 +873,24 @@ export function SiteStylesPanel() {
         </PanelSection>
       </div>
       {can && (
-        <PanelSection title="Design tokens" defaultOpen={false}>
-          <OverridesEditor styles={styles} commit={commit} />
+        <PanelSection title="Advanced" defaultOpen={false}>
+          <LabelDetails styles={styles} commit={commit} disabled={disabled} />
+          <PropRow label="Design tokens" stacked>
+            <OverridesEditor styles={styles} commit={commit} />
+          </PropRow>
         </PanelSection>
+      )}
+      {uploading && (
+        <FontUploadDialog
+          styles={styles}
+          onClose={() => setUploading(false)}
+          onUploaded={(family, r) =>
+            commit(
+              roleFontPatch(r, { kind: "uploaded", family }),
+              `Use ${family} for ${ROLE_NAME[r].toLowerCase()}`,
+            )
+          }
+        />
       )}
     </div>
   );

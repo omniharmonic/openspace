@@ -266,7 +266,8 @@ export function transformForRole(
         op.style !== undefined ||
         op.column !== undefined ||
         op.label !== undefined ||
-        op.hidden !== undefined
+        op.hidden !== undefined ||
+        op.spaceBelow !== undefined
       )
         return deny("This section is locked: only its text and images can change");
       if (op.unset?.length) return deny("This section is locked: fields can't be removed");

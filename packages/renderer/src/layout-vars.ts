@@ -9,6 +9,7 @@ import {
   type Responsive,
   resolve,
   type SectionStyle,
+  type SpaceValue,
   type StackLayout,
   withPhoneDefault,
 } from "@omniharmonic/openspace-schema";
@@ -37,16 +38,28 @@ export function responsiveVars<T>(
   return out;
 }
 
-const spaceVar = (token: string) =>
-  `var(${TOKEN_VARS.space[token as keyof typeof TOKEN_VARS.space] ?? TOKEN_VARS.space.md})`;
+/** A spacing value as CSS: exact pixels, or the step's token (which follows the density). */
+export const spaceVar = (value: SpaceValue | string) =>
+  typeof value === "number"
+    ? `${value}px`
+    : `var(${TOKEN_VARS.space[value as keyof typeof TOKEN_VARS.space] ?? TOKEN_VARS.space.md})`;
 
-/** Section-level vars: padding, min height. */
+const withPhone = (v: Responsive<SpaceValue> | undefined) =>
+  v && withPhoneDefault(v, phonePadding(v));
+
+/** Section-level vars: padding (both, or top/bottom on their own), min height. */
 export function sectionStyleVars(style: SectionStyle): CssVars {
-  const pad = style.padding;
   return {
-    ...responsiveVars("pad", pad && withPhoneDefault(pad, phonePadding(pad)), spaceVar),
+    ...responsiveVars("pad", withPhone(style.padding), spaceVar),
+    ...responsiveVars("padt", withPhone(style.paddingTop), spaceVar),
+    ...responsiveVars("padb", withPhone(style.paddingBottom), spaceVar),
     ...responsiveVars("minh", style.minHeight, (v) => v),
   };
+}
+
+/** Stack-mode "space below" for one block (`--sb` / `--tsb` / `--msb`). */
+export function spaceBelowVars(block: Block): CssVars {
+  return responsiveVars("sb", block.spaceBelow, spaceVar);
 }
 
 const fr = (cols: readonly number[]) => cols.map((c) => `minmax(0, ${c}fr)`).join(" ");
@@ -58,7 +71,8 @@ const fr = (cols: readonly number[]) => cols.map((c) => `minmax(0, ${c}fr)`).joi
 export function stackVars(layout: StackLayout): CssVars {
   return {
     ...responsiveVars("cols", withPhoneDefault(layout.columns, phoneColumns(layout.columns)), fr),
-    ...(layout.gap ? { "--gap": spaceVar(layout.gap) } : {}),
+    ...(layout.gap !== undefined ? { "--gap": spaceVar(layout.gap) } : {}),
+    ...responsiveVars("bgap", layout.blockGap, spaceVar),
   };
 }
 

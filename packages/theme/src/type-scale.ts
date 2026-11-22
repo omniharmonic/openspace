@@ -91,6 +91,23 @@ export function fluidClamp(
   return `clamp(${r4(lo / 16)}rem, ${r4(intercept / 16)}rem + ${r4(slope * 100)}vw, ${r4(hi / 16)}rem)`;
 }
 
+/**
+ * A preset's untuned values: desktop and phone size (px, rounded) and line height. Studio shows
+ * these as the starting point before someone tunes a preset.
+ */
+export function presetDefaults(name: TypePresetName): {
+  size: number;
+  sizeMobile: number;
+  lineHeight: number;
+} {
+  const sizes = stepSizes(PRESET_STEP[name]);
+  return {
+    size: Math.round(Math.max(MIN_FONT_SIZE_PX, sizes.max)),
+    sizeMobile: Math.round(Math.max(MIN_FONT_SIZE_PX, sizes.min)),
+    lineHeight: LINE_HEIGHT[name],
+  };
+}
+
 /** Font size (px) for a scale step at the min and max viewport. */
 export function stepSizes(step: number): { min: number; max: number } {
   return {

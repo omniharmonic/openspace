@@ -340,8 +340,10 @@ describe("breakpoint resets", () => {
     const home = doc.pages[I.home as never] as { sections: Section[] };
     (home.sections[1] as Section).style.padding = { d: "lg", m: "sm" };
     const t = setup(<Inspector />, { doc, select: { kind: "section", id: I.intro } });
-    await t.user.click(within(panel()).getByRole("combobox", { name: "Section padding" }));
-    await t.user.click(await screen.findByRole("option", { name: "Site density" }));
+    await t.user.click(
+      within(panel()).getByRole("button", { name: "Space above and below: choose a spacing step" }),
+    );
+    await t.user.click(await screen.findByRole("menuitem", { name: /^Auto/ }));
     const pad = (t.s().doc.pages[I.home as never] as { sections: Section[] }).sections[1]?.style
       .padding;
     expect(pad?.m).toBe("sm");

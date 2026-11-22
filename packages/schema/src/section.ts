@@ -4,7 +4,7 @@ import { BlockIdSchema, SectionIdSchema } from "./ids";
 import { FocalPointSchema, MediaSrcSchema, SlugSchema } from "./primitives";
 import { named } from "./registry";
 import { resolve, responsive } from "./responsive";
-import { AnimationSchema, ColorThemeSchema, ColorValueSchema, SpaceTokenSchema } from "./tokens";
+import { AnimationSchema, ColorThemeSchema, ColorValueSchema, SpaceValueSchema } from "./tokens";
 
 /** Grid columns per breakpoint (arch §3.3). Tablet inherits the desktop grid. */
 export const GRID_COLUMNS = { d: 24, t: 24, m: 8 } as const;
@@ -49,7 +49,10 @@ export const StackLayoutSchema = named(
       .strictObject({ t: StackOrderSchema.optional(), m: StackOrderSchema.optional() })
       .optional(),
     align: z.enum(["start", "center", "end", "stretch"]).optional(),
-    gap: SpaceTokenSchema.optional(),
+    /** Space between columns (and between stacked columns on phones). */
+    gap: SpaceValueSchema.optional(),
+    /** Space between blocks inside a column (default: the density's rhythm). */
+    blockGap: responsive(SpaceValueSchema).optional(),
     width: ContentWidthSchema.optional(),
   }),
 );
@@ -177,10 +180,15 @@ export const MinHeightSchema = z
 
 export const SectionStyleSchema = named(
   "SectionStyle",
-  "Token-based section style: color theme, padding, min height, background, entrance animation.",
+  "Section style: color theme, padding (steps or px; top and bottom can differ), min height, background, entrance animation.",
   z.strictObject({
     colorTheme: ColorThemeSchema.optional(),
-    padding: responsive(SpaceTokenSchema).optional(),
+    /** Space above and below the content. */
+    padding: responsive(SpaceValueSchema).optional(),
+    /** Space above only (overrides `padding` at the top). */
+    paddingTop: responsive(SpaceValueSchema).optional(),
+    /** Space below only (overrides `padding` at the bottom). */
+    paddingBottom: responsive(SpaceValueSchema).optional(),
     minHeight: responsive(MinHeightSchema).optional(),
     background: SectionBackgroundSchema.optional(),
     animation: AnimationSchema.optional(),

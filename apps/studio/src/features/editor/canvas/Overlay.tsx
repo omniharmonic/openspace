@@ -30,6 +30,7 @@ import { useInspectorRole, useInspectorTab } from "../../inspector/env";
 import { capabilities } from "../../inspector/model/permissions";
 import { BlockIcon } from "../blockIcons";
 import { useEditorUi } from "../editor-store";
+import { useGridDrag } from "../grid/controller";
 import { GridLayer } from "../grid/GridLayer";
 import {
   deleteItems,
@@ -52,6 +53,8 @@ import { THEME_LABEL } from "../model/themes";
 import { hasEditableText } from "../text/fields";
 import { LazyTextToolbar } from "../text/lazy";
 import { cssSize, elementFor, overlayPointer, type Rect, rectFor, useFrameTick } from "./geometry";
+import { Measure } from "./Measure";
+import { SpacingHandles } from "./SpacingHandles";
 
 interface OverlayProps {
   frameDoc: Document | null;
@@ -77,6 +80,8 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
   const editing = useDocStore((s) => s.editing);
   const editingKind = useDocStore((s) => (s.editing ? (s.editingField?.kind ?? null) : null));
   const doc = useDocStore((s) => s.doc);
+  const role = useInspectorRole();
+  const gridDragging = useGridDrag((s) => s.active !== null);
   useFrameTick(frameDoc, [version, scale, pageId]);
 
   const hoverRect =
@@ -160,6 +165,25 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
       </div>
 
       <GridLayer frameDoc={frameDoc} scale={scale} width={width} height={height} />
+
+      {single && singleLoc && !editing && (
+        <Measure frameDoc={frameDoc} scale={scale} selected={single} dragging={gridDragging} />
+      )}
+
+      {single && singleLoc && !editing && !gridDragging && (
+        <SpacingHandles
+          frameDoc={frameDoc}
+          scale={scale}
+          item={single}
+          section={singleLoc.section}
+          container={singleLoc.container}
+          disabled={
+            single.kind === "section"
+              ? !capabilities(role, singleLoc.section).sectionDesign
+              : !capabilities(role, singleLoc.section).blockDesign
+          }
+        />
+      )}
 
       {focusLoc && focusRect && visible(focusRect, height) && !editing && (
         <AddSectionAffordances

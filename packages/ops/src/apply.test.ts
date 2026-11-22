@@ -673,3 +673,41 @@ describe("apply / invert / validate", () => {
     expect(validateDocument(broken).ok).toBe(false);
   });
 });
+
+describe("exact spacing", () => {
+  it("sets, round-trips and removes a block's space below (steps or px)", () => {
+    const doc = siteFixture();
+    const a = ok(doc, {
+      op: "block.update",
+      page: home,
+      block: IDS.heading,
+      spaceBelow: { d: 12, m: "2xs" },
+    } as OpBody);
+    const block = a.doc.pages[home]?.sections[0]?.blocks.find((b) => b.id === IDS.heading);
+    expect(block?.spaceBelow).toEqual({ d: 12, m: "2xs" });
+    const b = ok(a.doc, {
+      op: "block.update",
+      page: home,
+      block: IDS.heading,
+      spaceBelow: null,
+    } as OpBody);
+    expect(
+      b.doc.pages[home]?.sections[0]?.blocks.find((x) => x.id === IDS.heading)?.spaceBelow,
+    ).toBeUndefined();
+    expect(
+      errors(doc, { op: "block.update", page: home, block: IDS.heading, spaceBelow: { d: 12.5 } })
+        .length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("sets section top/bottom padding in px and block gap through section.update", () => {
+    const doc = siteFixture();
+    const r = ok(doc, {
+      op: "section.update",
+      page: home,
+      section: hero,
+      set: { "style.paddingTop": { d: 140 }, "style.paddingBottom": { d: "sm" } },
+    } as OpBody);
+    expect(r.doc.pages[home]?.sections[0]?.style.paddingTop).toEqual({ d: 140 });
+  });
+});

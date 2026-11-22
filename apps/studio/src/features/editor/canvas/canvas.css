@@ -292,7 +292,10 @@
   margin: 0 2px;
 }
 
-.st-ov__preset {
+/* The style menu sizes to its label: `.st-select` is width:100%, which inside the toolbar meant
+   the whole bar, pushing bold, italic, link and lists out of sight. */
+.st-ov__bar .st-ov__preset {
+  width: auto;
   min-width: 112px;
 }
 
@@ -763,4 +766,175 @@
 
 .st-layer.is-dimmed .st-layer__name {
   opacity: 0.55;
+}
+
+/* Text toolbar: font and size of the text style at the caret (site-wide). */
+.st-ov__font {
+  display: inline-flex;
+}
+.st-ov__tsize {
+  min-width: 34px;
+  height: var(--st-control-sm);
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--st-r-sm);
+  background: transparent;
+  color: var(--st-text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.st-ov__tsize:hover,
+.st-ov__tsize[data-state="open"] {
+  background: var(--st-hover);
+}
+.st-ov__tsize:focus-visible {
+  outline: none;
+  box-shadow: var(--st-focus);
+}
+.st-ov__tstitle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+.st-ov__tsscope {
+  color: var(--st-text-3);
+  font-size: var(--st-fs-xs);
+  font-weight: 400;
+}
+.st-ov__tspop .st-popover__body {
+  padding: 0;
+}
+
+/* ---------- Spacing handles (drag padding and gaps on the canvas) ---------- */
+.st-sp__band {
+  position: absolute;
+  background:
+    repeating-linear-gradient(-45deg, rgb(231 76 140 / 0.16) 0 1px, transparent 1px 6px),
+    rgb(231 76 140 / 0.07);
+  pointer-events: none;
+}
+.st-sp__band.is-active {
+  background:
+    repeating-linear-gradient(-45deg, rgb(231 76 140 / 0.28) 0 1px, transparent 1px 6px),
+    rgb(231 76 140 / 0.14);
+  box-shadow: inset 0 0 0 1px rgb(231 76 140 / 0.55);
+}
+.st-sp__handle {
+  position: absolute;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 20px;
+  margin: -10px 0 0 -22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: ns-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+.st-sp__grip {
+  width: 28px;
+  height: 6px;
+  border-radius: 999px;
+  background: #e74c8c;
+  box-shadow:
+    0 0 0 2px var(--st-panel),
+    0 1px 3px rgb(0 0 0 / 0.25);
+  transition: width var(--st-fast) var(--st-ease);
+}
+.st-sp__handle:hover .st-sp__grip,
+.st-sp__handle.is-active .st-sp__grip {
+  width: 36px;
+}
+.st-sp__handle:focus-visible {
+  outline: none;
+}
+.st-sp__handle:focus-visible .st-sp__grip {
+  box-shadow:
+    0 0 0 2px var(--st-panel),
+    0 0 0 4px rgb(51 71 230 / 0.6);
+}
+.st-sp__handle:disabled {
+  display: none;
+}
+.st-sp__label {
+  position: absolute;
+  z-index: 6;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.st-sp__readout {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #e74c8c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.st-sp__readout small {
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+.st-sp__readout em {
+  margin-left: 3px;
+  padding-left: 5px;
+  border-left: 1px solid rgb(255 255 255 / 0.5);
+  font-style: normal;
+  font-size: 10px;
+}
+
+/* ---------- Measure: Alt redlines and alignment guides ---------- */
+.st-ms {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.st-ms__line {
+  position: absolute;
+  background: #f24822;
+}
+.st-ms__line[data-axis="y"] {
+  width: 1px;
+}
+.st-ms__line[data-axis="x"] {
+  height: 1px;
+}
+.st-ms__value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #f24822;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 15px;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+.st-ms__line[data-axis="y"] .st-ms__value {
+  left: 6px;
+  transform: translateY(-50%);
+}
+.st-ms__guide {
+  position: absolute;
+  border: 0 dashed #e74c8c;
+}
+.st-ms__guide[data-axis="y"] {
+  border-left-width: 1px;
+}
+.st-ms__guide[data-axis="x"] {
+  border-top-width: 1px;
 }

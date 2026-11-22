@@ -22,6 +22,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useCanvasImageMap } from "../../media/sources";
+import { useFontPreview } from "../../styles/fontPreview";
 import { useCustomFontCss } from "../../styles/fonts";
 import { useDocStore } from "../model/context";
 import { LazyInlineText, preloadTextEditing } from "../text/lazy";
@@ -178,11 +179,14 @@ export function CanvasFrame({ width, height, scale, onDocument }: CanvasFramePro
   }, []);
 
   // Site styles: compiled tokens, fonts and custom CSS update live.
-  const compiled = useMemo(() => compiledStylesFor(doc.styles), [doc.styles]);
+  // While the font picker is open, hovering a font draws the site with it (nothing committed).
+  const preview = useFontPreview((s) => s.styles);
+  const shownStyles = preview ?? doc.styles;
+  const compiled = useMemo(() => compiledStylesFor(shownStyles), [shownStyles]);
   const fontsHref = useMemo(() => googleFontsUrl(compiled.tokens.pairing), [compiled]);
   const customCss = doc.site.customCss ?? "";
   // Uploaded fonts (PRD §5.1), loaded from this session's copies or the site's draft files.
-  const fontFaces = useCustomFontCss(doc.styles);
+  const fontFaces = useCustomFontCss(shownStyles);
   const locale = doc.site.locale;
   useLayoutEffect(() => {
     const d = root?.ownerDocument;
