@@ -51,7 +51,7 @@ import {
 } from "../model/selection";
 import { THEME_LABEL } from "../model/themes";
 import { hasEditableText } from "../text/fields";
-import { LazyTextToolbar } from "../text/lazy";
+import { LazyPlainTextToolbar, LazyTextToolbar } from "../text/lazy";
 import { cssSize, elementFor, overlayPointer, type Rect, rectFor, useFrameTick } from "./geometry";
 import { Measure } from "./Measure";
 import { SpacingHandles } from "./SpacingHandles";
@@ -71,6 +71,14 @@ const visible = (r: Rect | null, h: number): r is Rect => Boolean(r && r.y + r.h
  * selection boxes with handles and a size readout, the floating block/section/text toolbars
  * and the "+" affordances between sections.
  */
+/** The text style (type scale preset) the renderer gave a piece of text: `os-type-h2` → "h2". */
+function textStyleOf(el: Element | null | undefined): string | null {
+  const typed = el?.closest('[class*="os-type-"]');
+  const m = typed?.className.toString().match(/\bos-type-([a-z0-9]+)\b/);
+  if (m?.[1]) return m[1];
+  return el?.closest(".os-btn, [class*='os-button']") ? "button" : null;
+}
+
 export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
   const api = useDocStoreApi();
   const version = useDocStore((s) => s.version);
@@ -79,6 +87,7 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
   const selection = useDocStore((s) => s.selection);
   const editing = useDocStore((s) => s.editing);
   const editingKind = useDocStore((s) => (s.editing ? (s.editingField?.kind ?? null) : null));
+  const editingPath = useDocStore((s) => (s.editing ? (s.editingField?.path ?? null) : null));
   const doc = useDocStore((s) => s.doc);
   const role = useInspectorRole();
   const gridDragging = useGridDrag((s) => s.active !== null);
@@ -228,6 +237,17 @@ export function Overlay({ frameDoc, scale, width, height }: OverlayProps) {
                 <Floating rect={r} width={width} height={height} placement="above">
                   <Suspense fallback={null}>
                     <LazyTextToolbar />
+                  </Suspense>
+                </Floating>
+              )}
+              {editingKind === "plain" && editingPath && (
+                <Floating rect={r} width={width} height={height} placement="above">
+                  <Suspense fallback={null}>
+                    <LazyPlainTextToolbar
+                      blockId={editing}
+                      path={editingPath}
+                      style={textStyleOf(field)}
+                    />
                   </Suspense>
                 </Floating>
               )}

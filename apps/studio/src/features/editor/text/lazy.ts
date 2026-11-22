@@ -12,6 +12,9 @@ export const LazyInlineText = lazy(() => loadInlineText().then((m) => ({ default
 export const LazyTextToolbar = lazy(() =>
   loadTextToolbar().then((m) => ({ default: m.TextToolbar })),
 );
+export const LazyPlainTextToolbar = lazy(() =>
+  loadTextToolbar().then((m) => ({ default: m.PlainTextToolbar })),
+);
 
 let preloaded = false;
 /** Warm the text-editing chunks when the browser is idle (first edit then feels instant). */

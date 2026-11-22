@@ -1,3 +1,4 @@
+import type { Op, OpBody } from "@omniharmonic/openspace-ops";
 import { RICH_LINK_HREF_RE } from "@omniharmonic/openspace-schema";
 import type { Editor } from "@tiptap/core";
 import {
@@ -20,7 +21,9 @@ import { FontField } from "../../styles/FontPicker";
 import { roleForTextStyle } from "../../styles/roleFonts";
 import { TypeSettings, useStylesCommit } from "../../styles/TextStyles";
 import { resolveStep, textStyleRow } from "../../styles/typeStyles";
-import { useDocStore } from "../model/context";
+import { useDocStore, useDocStoreApi } from "../model/context";
+import { locate } from "../model/selection";
+import { fieldSet } from "./fields";
 import { applyTextStyle, currentTextStyle, TEXT_STYLES, type TextStyleId } from "./schema";
 import { useTextEditing } from "./session";
 
@@ -159,12 +162,12 @@ function LinkEditor({ editor }: { editor: Editor }) {
 }
 
 /** The size of the text style at the caret; opens its type settings (site-wide, like Figma). */
-function StyleSize({ style }: { style: TextStyleId }) {
+function StyleSize({ style }: { style: string }) {
   const styles = useDocStore((s) => s.doc.styles);
   const commit = useStylesCommit();
   const row = textStyleRow(style);
   if (!row) return null;
-  const size = resolveStep(styles, style).size;
+  const size = resolveStep(styles, row.preset).size;
   return (
     <Popover
       title={
@@ -185,7 +188,7 @@ function StyleSize({ style }: { style: TextStyleId }) {
         </button>
       }
     >
-      <TypeSettings preset={style} styles={styles} commit={commit} />
+      <TypeSettings preset={row.preset} styles={styles} commit={commit} />
     </Popover>
   );
 }
@@ -276,6 +279,83 @@ export function TextToolbar() {
           {...keepFocus}
           onClick={() => editor.chain().focus().toggleWrap("blockquote").run()}
         />
+      )}
+    </div>
+  );
+}
+
+/** A heading block's sizes, named like the text styles in Site Styles. */
+const HEADING_STYLES = TEXT_STYLES.filter((t) => /^(display|h[1-4])$/.test(t.id));
+
+/**
+ * The floating toolbar for plain text (a heading block's words, button labels, card titles…):
+ * which text style it uses (heading blocks), and that style's font and size for designers.
+ * Using it, or a menu it opens, keeps the text being edited (see plainText.ts).
+ */
+export function PlainTextToolbar({
+  blockId,
+  path,
+  style,
+}: {
+  blockId: string;
+  path: string;
+  style: string | null;
+}) {
+  const role = useInspectorRole();
+  const api = useDocStoreApi();
+  // Select stable values (the block itself, its page id), never a fresh object per read.
+  const block = useDocStore((s) => locate(s.doc, s.pageId, { kind: "block", id: blockId })?.block);
+  const container = useDocStore(
+    (s) => locate(s.doc, s.pageId, { kind: "block", id: blockId })?.container,
+  );
+  const designer = isDesigner(role);
+  const heading =
+    block?.type === "heading" && path === "text" && container ? { block, container } : undefined;
+  const row = style ? textStyleRow(style) : undefined;
+  if (!heading && !(designer && row)) return null;
+  const setSize = (v: string) => {
+    if (!heading) return;
+    const level = String(heading.block.fields.level ?? "h2");
+    api.getState().commit(
+      [
+        {
+          op: "block.update",
+          page: heading.container,
+          block: blockId,
+          set: fieldSet(heading.block, "size", v === level ? "auto" : v),
+        } as OpBody<Op>,
+      ],
+      { label: "Change heading style" },
+    );
+  };
+  return (
+    <div className="st-ov__bar" role="toolbar" aria-label="Text style and font">
+      {heading && (
+        <Select<string>
+          size="sm"
+          className="st-ov__preset"
+          aria-label="Text style"
+          value={row && HEADING_STYLES.some((t) => t.id === row.preset) ? row.preset : undefined}
+          placeholder="Style"
+          onValueChange={setSize}
+          options={HEADING_STYLES.map((t) => ({ value: t.id, label: t.label }))}
+        />
+      )}
+      {designer && row && (
+        <>
+          <Tooltip content="Font (changes it across your site)">
+            <span className="st-ov__font">
+              <FontField
+                fontRole={roleForTextStyle(row.preset)}
+                compact
+                side="bottom"
+                canUpload
+                label="Font"
+              />
+            </span>
+          </Tooltip>
+          <StyleSize style={row.preset} />
+        </>
       )}
     </div>
   );

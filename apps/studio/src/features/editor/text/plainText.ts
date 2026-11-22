@@ -15,6 +15,9 @@ import { takePendingCaret } from "./session";
  * The element is React-managed, so the session keeps React's own text nodes and puts them back
  * before committing: React then updates them like any other render.
  */
+/** The floating text toolbar and the menus it opens (portalled popovers, selects, tooltips). */
+export const TOOLBAR_SELECTOR = ".st-ov__bar, [data-radix-popper-content-wrapper]";
+
 export interface PlainTextSession {
   blockId: string;
   path: string;
@@ -80,6 +83,7 @@ export function startPlainTextEdit(
   const end = (commit: boolean) => {
     if (done) return;
     done = true;
+    release();
     unregister();
     const text = read();
     el.removeEventListener("keydown", onKey);
@@ -134,7 +138,43 @@ export function startPlainTextEdit(
       end(true);
     }
   };
-  const onBlur = () => end(true);
+  // Using the floating text toolbar, or a menu it opened (font picker, sizes), isn't leaving the
+  // text: the session waits, and ends when focus or a click lands anywhere else.
+  const studio = document;
+  const usingToolbar = (n: EventTarget | null) =>
+    n instanceof Element && !!n.closest(TOOLBAR_SELECTOR);
+  let held = false;
+  const release = () => {
+    if (!held) return;
+    held = false;
+    studio.removeEventListener("focusin", onStudioFocus, true);
+    studio.removeEventListener("pointerdown", onStudioPointer, true);
+    el.ownerDocument.removeEventListener("pointerdown", onFramePointer, true);
+  };
+  const onStudioFocus = (e: FocusEvent) => {
+    if (!usingToolbar(e.target)) {
+      release();
+      end(true);
+    }
+  };
+  const onStudioPointer = (e: PointerEvent) => onStudioFocus(e as unknown as FocusEvent);
+  const onFramePointer = (e: PointerEvent) => {
+    release();
+    if (e.target instanceof Node && el.contains(e.target)) el.focus({ preventScroll: true });
+    else end(true);
+  };
+  const onBlur = () => {
+    // Focus lands in the Studio document after the frame's blur: look once it has.
+    setTimeout(() => {
+      if (done || held || el.ownerDocument.activeElement === el) return;
+      if (usingToolbar(studio.activeElement)) {
+        held = true;
+        studio.addEventListener("focusin", onStudioFocus, true);
+        studio.addEventListener("pointerdown", onStudioPointer, true);
+        el.ownerDocument.addEventListener("pointerdown", onFramePointer, true);
+      } else end(true);
+    }, 0);
+  };
   // Paste as plain text only.
   const onPaste = (e: ClipboardEvent) => {
     e.preventDefault();
