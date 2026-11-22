@@ -268,6 +268,41 @@ describe("canvas", () => {
     expect(store().editing).toBeNull();
   });
 
+  it("keeps a plain text edit open while its toolbar or font picker is used", async () => {
+    const { q, store } = await openCanvas();
+    act(() => store().setEditing(I.offeringsColumns, { path: "items.0.heading", kind: "plain" }));
+    const el = await waitFor(() => {
+      const found = q(I.offeringsColumns).querySelector<HTMLElement>("[data-os-plain-editing]");
+      expect(found).toBeTruthy();
+      return found as HTMLElement;
+    });
+    el.textContent = "Reserve";
+    // Focus moves to a menu the toolbar opened (portalled popovers live in this wrapper).
+    const menu = document.createElement("div");
+    menu.setAttribute("data-radix-popper-content-wrapper", "");
+    const search = document.createElement("input");
+    menu.append(search);
+    document.body.append(menu);
+    act(() => {
+      search.focus();
+      el.dispatchEvent(new FocusEvent("blur"));
+    });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(el.hasAttribute("data-os-plain-editing")).toBe(true);
+    expect(store().editing).toBe(I.offeringsColumns);
+    // Going anywhere else ends the edit and keeps the words.
+    const elsewhere = document.createElement("button");
+    document.body.append(elsewhere);
+    act(() => elsewhere.focus());
+    await waitFor(() => expect(el.hasAttribute("contenteditable")).toBe(false));
+    const items = store().doc.pages[I.home as never]?.sections[2]?.blocks[1]?.fields
+      .items as Array<{ heading: string }>;
+    expect(items[0]?.heading).toBe("Reserve");
+    expect(store().editing).toBeNull();
+    menu.remove();
+    elsewhere.remove();
+  });
+
   it("adds a section from the preset gallery and switches pages", async () => {
     const { doc, user } = await openCanvas();
     const before = doc.querySelectorAll("main [data-os-section]").length;
