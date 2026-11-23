@@ -303,6 +303,40 @@ describe("canvas", () => {
     elsewhere.remove();
   });
 
+  it("keeps a plain text edit open when Safari leaves focus on the page after a toolbar press", async () => {
+    const { q, store } = await openCanvas();
+    act(() => store().setEditing(I.offeringsColumns, { path: "items.0.heading", kind: "plain" }));
+    const el = await waitFor(() => {
+      const found = q(I.offeringsColumns).querySelector<HTMLElement>("[data-os-plain-editing]");
+      expect(found).toBeTruthy();
+      return found as HTMLElement;
+    });
+    // Safari: pressing a toolbar button doesn't focus it, so focus falls to <body>.
+    const bar = document.createElement("div");
+    bar.className = "st-ov__bar";
+    const fontButton = document.createElement("button");
+    bar.append(fontButton);
+    document.body.append(bar);
+    act(() => {
+      fontButton.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+      el.blur();
+    });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(el.ownerDocument.activeElement).not.toBe(el);
+    expect(document.activeElement).not.toBe(fontButton);
+    expect(el.hasAttribute("data-os-plain-editing")).toBe(true);
+    expect(store().editing).toBe(I.offeringsColumns);
+    // A press anywhere else still ends it.
+    const elsewhere = document.createElement("button");
+    document.body.append(elsewhere);
+    act(() => {
+      elsewhere.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    });
+    await waitFor(() => expect(store().editing).toBeNull());
+    bar.remove();
+    elsewhere.remove();
+  });
+
   it("adds a section from the preset gallery and switches pages", async () => {
     const { doc, user } = await openCanvas();
     const before = doc.querySelectorAll("main [data-os-section]").length;
