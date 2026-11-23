@@ -84,6 +84,7 @@ export function startPlainTextEdit(
     if (done) return;
     done = true;
     release();
+    studio.removeEventListener("pointerdown", onPress, true);
     unregister();
     const text = read();
     el.removeEventListener("keydown", onKey);
@@ -144,6 +145,13 @@ export function startPlainTextEdit(
   const usingToolbar = (n: EventTarget | null) =>
     n instanceof Element && !!n.closest(TOOLBAR_SELECTOR);
   let held = false;
+  // Safari doesn't focus a button when it's clicked: focus falls to <body>, so what was pressed
+  // (not what has focus) says whether the blur came from the toolbar.
+  let pressed: EventTarget | null = null;
+  const onPress = (e: PointerEvent) => {
+    pressed = e.target;
+  };
+  studio.addEventListener("pointerdown", onPress, true);
   const release = () => {
     if (!held) return;
     held = false;
@@ -167,7 +175,9 @@ export function startPlainTextEdit(
     // Focus lands in the Studio document after the frame's blur: look once it has.
     setTimeout(() => {
       if (done || held || el.ownerDocument.activeElement === el) return;
-      if (usingToolbar(studio.activeElement)) {
+      const from = pressed;
+      pressed = null;
+      if (usingToolbar(studio.activeElement) || usingToolbar(from)) {
         held = true;
         studio.addEventListener("focusin", onStudioFocus, true);
         studio.addEventListener("pointerdown", onStudioPointer, true);
